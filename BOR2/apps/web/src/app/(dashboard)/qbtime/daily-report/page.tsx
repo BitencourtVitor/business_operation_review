@@ -1,11 +1,18 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import {
+  useCreateQBTimeTeam,
+  useDeleteQBTimeTeam,
+  useQBTimeTeams,
+  useUpdateQBTimeTeam,
+} from "@/hooks/use-qbtime-teams"
+import {
+  ChevronRight,
   FileSpreadsheet,
   FileText,
   ImageDown,
-  Pencil,
+  Loader2,
   Plus,
   RotateCcw,
   Trash2,
@@ -19,25 +26,17 @@ import { cn } from "@/lib/utils"
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const COMPANIES = [
+  { id: "Framing", logo: "/images/sublogo_framing.png" },
   { id: "HVAC",    logo: "/images/sublogo_hvac.png"    },
   { id: "PCG",     logo: "/images/sublogo_pcg.png"     },
-  { id: "Framing", logo: "/images/sublogo_framing.png" },
 ] as const
 type CompanyId = (typeof COMPANIES)[number]["id"]
-const LS_TEAMS_KEY = "qbtime_teams_v1"
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ParsedRow   { employeeRaw: string; employeeDisplay: string; jobCode: string; totalHours: number }
-interface EmpSummary  { key: string; displayName: string; totalHours: number; rows: ParsedRow[] }
-interface Team        { name: string; members: string[] }
-interface Section     { team: Team | null; members: EmpSummary[] }
-type TeamsConfig = Record<string, Team[]>
-
-// ─── LocalStorage ─────────────────────────────────────────────────────────────
-
-function loadTeams(): TeamsConfig { try { const r = localStorage.getItem(LS_TEAMS_KEY); return r ? JSON.parse(r) : {} } catch { return {} } }
-function saveTeams(c: TeamsConfig) { try { localStorage.setItem(LS_TEAMS_KEY, JSON.stringify(c)) } catch { /**/ } }
+interface ParsedRow  { employeeRaw: string; employeeDisplay: string; jobCode: string; totalHours: number }
+interface EmpSummary { key: string; displayName: string; totalHours: number; rows: ParsedRow[] }
+interface Team       { id: string; name: string; members: string[] }
+interface Section    { team: Team | null; members: EmpSummary[] }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -63,13 +62,12 @@ function fmtName(raw: string): string {
   const last = raw.slice(0, i).trim(), first = raw.slice(i+1).trim()
   return first ? `${first} ${last}` : last
 }
-function fmtH(h: number) { return `${h.toFixed(2)}h` }
+function fmtH(h: number) { return `${h.toFixed(1)}h` }
 function fmtDate(iso: string) {
   if (!iso) return ""
   const [y,m,d] = iso.split("-")
   return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]} ${+d}, ${y}`
 }
-function isDarkMode() { return typeof document !== "undefined" && document.documentElement.classList.contains("dark") }
 
 // ─── Canvas / PNG export ──────────────────────────────────────────────────────
 
@@ -89,83 +87,104 @@ function sectionSlug(section: Section, hasTeams: boolean): string {
 }
 
 function buildSectionCanvas(section: Section, company: string, date: string, hasTeams: boolean): HTMLCanvasElement {
-  const dark   = isDarkMode()
+  // Always render in light mode regardless of user's system theme
   const dpr    = Math.min(window.devicePixelRatio||1, 2)
-  const W      = 680, PX = 28, PY = 20
-  const EMP_H  = 26, JOB_H = 20, GAP_H = 8
-  const HDR_H  = 36, TEAM_H = hasTeams ? 30 : 0
+  const W      = 680, PX = 28, PY = 14
+  const HDR_H  = 36   // header block — text vertically centered inside
+  const NAME_H = 34   // employee name row
+  const JOB_H  = 26   // each address row
+  const TEAM_H = hasTeams ? 30 : 0
 
   let H = PY + HDR_H + TEAM_H
-  for (const e of section.members) H += EMP_H + e.rows.length * JOB_H + GAP_H
-  H += PY + 24
+  for (const e of section.members) H += NAME_H + e.rows.length * JOB_H
+  H += PY
 
   const canvas = document.createElement("canvas")
   canvas.width = W*dpr; canvas.height = H*dpr
   const ctx = canvas.getContext("2d")!
   ctx.scale(dpr, dpr)
 
-  const BG   = dark ? "#0b0b17" : "#f1f4f9"
-  const CARD = dark ? "#16162a" : "#ffffff"
-  const T1   = dark ? "#e2e8f0" : "#1a202c"
-  const T2   = dark ? "#94a3b8" : "#64748b"
-  const BD   = dark ? "#2d3748" : "#e2e8f0"
-  const PRI  = "#2e6be6"
-  const SF   = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-  const MN   = "SFMono,'Fira Code',Consolas,monospace"
+  // Light palette — always
+  const BG      = "#f1f4f9"
+  const CARD    = "#ffffff"
+  const T1      = "#1a202c"
+  const T2      = "#64748b"
+  const SEP_HD  = "#c8d3e0"  // header bottom & card border — most prominent
+  const SEP_EMP = "#d4dce8"  // between employees
+  const SEP_NM  = "#dde4ef"  // name → first address
+  const SEP_JB  = "#eaeef5"  // between address rows — subtlest
+  const PRI     = "#2e6be6"
+  const SF      = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+  const MN      = "SFMono,'Fira Code',Consolas,monospace"
 
-  ctx.fillStyle = BG; ctx.fillRect(0,0,W,H)
+  function hline(ly: number, lw: number, color: string) {
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw
+    ctx.beginPath(); ctx.moveTo(6, ly); ctx.lineTo(W-6, ly); ctx.stroke(); ctx.restore()
+  }
+
+  // Background + card
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H)
   ctx.fillStyle = CARD
-  roundRect(ctx, PX-8, PY-8, W-2*(PX-8), H-2*(PY-8)+16, 12); ctx.fill()
-  ctx.strokeStyle = BD; ctx.lineWidth = 1; ctx.stroke()
+  roundRect(ctx, 6, 6, W-12, H-12, 10); ctx.fill()
+  ctx.strokeStyle = SEP_HD; ctx.lineWidth = 1; ctx.stroke()
 
   let y = PY
-  ctx.fillStyle = T2; ctx.font = `11px ${SF}`; ctx.textAlign = "left"
-  ctx.fillText(`Premium Group · ${company} · ${fmtDate(date)}`, PX, y+16)
-  ctx.fillStyle = PRI; ctx.font = `600 11px ${SF}`; ctx.textAlign = "right"
-  ctx.fillText("QBTime Daily Report", W-PX, y+16)
+
+  // ── Header — text vertically centered ──
+  ctx.fillStyle = T2; ctx.font = `500 11px ${SF}`; ctx.textAlign = "left"
+  ctx.fillText(`Premium Group  ·  ${company}  ·  ${fmtDate(date)}`, PX, y + HDR_H/2 + 4)
   y += HDR_H
+  hline(y, 1.5, SEP_HD)
 
-  ctx.strokeStyle = BD; ctx.lineWidth = 0.5
-  ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W-PX, y); ctx.stroke()
-
+  // ── Team row (optional) ──
   if (hasTeams && section.team) {
-    const tot = section.members.reduce((s,e)=>s+e.totalHours,0)
+    const tot = section.members.reduce((s,e) => s+e.totalHours, 0)
     ctx.fillStyle = T2; ctx.font = `700 10px ${SF}`; ctx.textAlign = "left"
-    ctx.fillText(section.team.name.toUpperCase(), PX, y+TEAM_H/2+4)
-    ctx.fillStyle = T1; ctx.font = `700 12px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(tot), W-PX, y+TEAM_H/2+4)
+    ctx.fillText(section.team.name.toUpperCase(), PX, y + TEAM_H/2 + 4)
+    ctx.fillStyle = T1; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
+    ctx.fillText(fmtH(tot), W-PX, y + TEAM_H/2 + 4)
     ctx.textAlign = "left"; y += TEAM_H
-    ctx.strokeStyle = BD; ctx.lineWidth = 0.5
-    ctx.beginPath(); ctx.moveTo(PX,y); ctx.lineTo(W-PX,y); ctx.stroke()
+    hline(y, 1.5, SEP_HD)
   }
 
+  // ── Employees ──
   for (let ei = 0; ei < section.members.length; ei++) {
-    const emp = section.members[ei]
+    const emp       = section.members[ei]
+    const isLastEmp = ei === section.members.length - 1
+
+    // Name row — vertically centered
     ctx.fillStyle = T1; ctx.font = `600 13px ${SF}`; ctx.textAlign = "left"
-    ctx.fillText(emp.displayName, PX, y+EMP_H/2+4)
+    ctx.fillText(emp.displayName, PX, y + NAME_H/2 + 4)
     ctx.fillStyle = PRI; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(emp.totalHours), W-PX, y+EMP_H/2+4)
-    ctx.textAlign = "left"; y += EMP_H
-    for (const row of emp.rows) {
+    ctx.fillText(fmtH(emp.totalHours), W-PX, y + NAME_H/2 + 4)
+    ctx.textAlign = "left"; y += NAME_H
+
+    // Separator: name → addresses
+    hline(y, 1, SEP_NM)
+
+    // Address rows
+    for (let ji = 0; ji < emp.rows.length; ji++) {
+      const row       = emp.rows[ji]
+      const isLastJob = ji === emp.rows.length - 1
+
       let jc = row.jobCode.split(" >> ").join(" › ")
       ctx.font = `11px ${SF}`
-      const maxW = W - PX*2 - 24 - 60
+      const maxW = W - PX - 10 - 14 - 62
       while (ctx.measureText(jc).width > maxW && jc.length > 10) jc = jc.slice(0,-4)+"…"
       ctx.fillStyle = T2; ctx.textAlign = "left"
-      ctx.fillText(jc, PX+14, y+JOB_H/2+3)
+      ctx.fillText(jc, PX+10, y + JOB_H/2 + 4)
       ctx.font = `11px ${MN}`; ctx.textAlign = "right"
-      ctx.fillText(fmtH(row.totalHours), W-PX, y+JOB_H/2+3)
+      ctx.fillText(fmtH(row.totalHours), W-PX, y + JOB_H/2 + 4)
       ctx.textAlign = "left"; y += JOB_H
+
+      // Line between addresses — but NOT after the last one
+      if (!isLastJob) hline(y, 0.5, SEP_JB)
     }
-    y += GAP_H
-    if (ei < section.members.length-1) {
-      ctx.strokeStyle = dark ? "#1e2035" : "#f0f4f8"; ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(PX, y-GAP_H/2); ctx.lineTo(W-PX, y-GAP_H/2); ctx.stroke()
-    }
+
+    // Line between employees — but NOT after the last employee
+    if (!isLastEmp) hline(y, 1, SEP_EMP)
   }
 
-  ctx.fillStyle = T2; ctx.font = `10px ${SF}`; ctx.textAlign = "center"
-  ctx.fillText("Premium Group · Business Operations Review", W/2, H-PY/2+6)
   return canvas
 }
 
@@ -178,17 +197,22 @@ function downloadSectionPNG(section: Section, company: string, date: string, has
 
 async function exportAllPNG(grouped: Section[], company: string, date: string, hasTeams: boolean) {
   const { default: JSZip } = await import("jszip")
-  const zip    = new JSZip()
-  const folder = zip.folder(`daily_${company.toLowerCase()}_${date}`)!
+  const folderName = `daily_${company.toLowerCase()}_${date}`
+  const zip        = new JSZip()
+  const folder     = zip.folder(folderName)!
+
   for (const section of grouped) {
-    const canvas  = buildSectionCanvas(section, company, date, hasTeams)
-    const base64  = canvas.toDataURL("image/png").replace("data:image/png;base64,", "")
-    folder.file(`${sectionSlug(section, hasTeams)}.png`, base64, { base64: true })
+    const canvas = buildSectionCanvas(section, company, date, hasTeams)
+    const slug   = sectionSlug(section, hasTeams)
+    const base64 = canvas.toDataURL("image/png").replace("data:image/png;base64,", "")
+    folder.file(`${slug}.png`, base64, { base64: true })
   }
+
   const blob = await zip.generateAsync({ type: "blob" })
   const link = document.createElement("a")
-  link.download = `daily_${company.toLowerCase()}_${date}.zip`
-  link.href = URL.createObjectURL(blob); link.click()
+  link.download = `${folderName}.zip`
+  link.href = URL.createObjectURL(blob)
+  link.click()
   URL.revokeObjectURL(link.href)
 }
 
@@ -265,18 +289,22 @@ function exportPDF(grouped: Section[], company: string, date: string, hasTeams: 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function QBTimeDailyReportPage() {
-  const [company,    setCompany]    = useState<CompanyId | "">("")
-  const [step,       setStep]       = useState<"upload" | "results">("upload")
-  const [parsedRows, setParsedRows] = useState<ParsedRow[]>([])
-  const [fileName,   setFileName]   = useState("")
-  const [date,       setDate]       = useState("")
-  const [error,      setError]      = useState("")
-  const [isDragging, setIsDragging] = useState(false)
-  const [teamsOpen,  setTeamsOpen]  = useState(false)
-  const [teams,      setTeams]      = useState<TeamsConfig>({})
+  const [company,         setCompany]         = useState<CompanyId | "">("")
+  const [step,            setStep]            = useState<"upload" | "results">("upload")
+  const [parsedRows,      setParsedRows]      = useState<ParsedRow[]>([])
+  const [fileName,        setFileName]        = useState("")
+  const [date,            setDate]            = useState("")
+  const [error,           setError]           = useState("")
+  const [isDragging,      setIsDragging]      = useState(false)
+  const [expandedTeamIdx, setExpandedTeamIdx] = useState<number | null>(null)
+  const [addingTeam,      setAddingTeam]      = useState(false)
+  const [newTeamName,     setNewTeamName]     = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { setTeams(loadTeams()) }, [])
+  const { data: teamsData } = useQBTimeTeams(company || undefined)
+  const createTeam  = useCreateQBTimeTeam(company)
+  const updateTeam  = useUpdateQBTimeTeam(company)
+  const deleteTeam  = useDeleteQBTimeTeam(company)
 
   // Group employees
   const employees = useMemo<EmpSummary[]>(() => {
@@ -290,7 +318,7 @@ export default function QBTimeDailyReportPage() {
     return [...map.values()].sort((a,b) => b.totalHours - a.totalHours)
   }, [parsedRows])
 
-  const companyTeams: Team[] = useMemo(() => company ? (teams[company]??[]) : [], [teams, company])
+  const companyTeams: Team[] = useMemo(() => (teamsData ?? []).map(t => ({ id: t.id, name: t.name, members: t.members })), [teamsData])
   const hasTeams = companyTeams.length > 0
 
   const grouped = useMemo<Section[]>(() => {
@@ -303,7 +331,7 @@ export default function QBTimeDailyReportPage() {
     }).filter(s => s.members.length > 0)
     const unassigned = employees.filter(e => !assigned.has(e.key))
     if (unassigned.length > 0)
-      sections.push({ team: { name: "Unassigned", members: [] }, members: unassigned })
+      sections.push({ team: { id: "", name: "Unassigned", members: [] }, members: unassigned })
     return sections
   }, [employees, companyTeams, hasTeams])
 
@@ -353,7 +381,28 @@ export default function QBTimeDailyReportPage() {
   }
   function handleReset() { setStep("upload"); setParsedRows([]); setFileName(""); setDate(""); setError("") }
 
-  function updateTeams(next: TeamsConfig) { setTeams(next); saveTeams(next) }
+  function addTeamInline() {
+    const name = newTeamName.trim()
+    if (!name || companyTeams.some(t => t.name === name)) return
+    createTeam.mutate({ name, members: [] })
+    setNewTeamName(""); setAddingTeam(false)
+  }
+  function removeTeamInline(ti: number) {
+    const team = companyTeams[ti]
+    if (!team) return
+    deleteTeam.mutate(team.id)
+    if (expandedTeamIdx === ti) setExpandedTeamIdx(null)
+  }
+  function addMemberInline(ti: number, memberName: string) {
+    const team = companyTeams[ti]
+    if (!team) return
+    updateTeam.mutate({ id: team.id, name: team.name, members: [...team.members, memberName] })
+  }
+  function removeMemberInline(ti: number, memberName: string) {
+    const team = companyTeams[ti]
+    if (!team) return
+    updateTeam.mutate({ id: team.id, name: team.name, members: team.members.filter(m => m !== memberName) })
+  }
 
   const totalH = employees.reduce((s,e) => s+e.totalHours, 0)
 
@@ -405,24 +454,129 @@ export default function QBTimeDailyReportPage() {
           {company && (
             <>
               <div className="-mx-4 h-px bg-sidebar-border" />
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
+
+                {/* Header */}
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">Teams</p>
-                  <button onClick={() => setTeamsOpen(true)} className="rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground">
-                    <Pencil className="h-3 w-3" />
+                  <button
+                    onClick={() => setAddingTeam(v => !v)}
+                    className="rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Plus className="h-3 w-3" />
                   </button>
                 </div>
-                {companyTeams.length === 0
-                  ? <p className="text-[11px] text-muted-foreground">No teams configured.</p>
-                  : <div className="flex flex-col gap-0.5">
-                      {companyTeams.map(t => (
-                        <div key={t.name} className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="truncate">{t.name}</span>
-                          <span className="shrink-0 text-[10px] tabular-nums">{t.members.length}</span>
+
+                {companyTeams.length === 0 && !addingTeam && (
+                  <p className="text-[11px] text-muted-foreground">Nenhuma equipe.</p>
+                )}
+
+                {/* Team list */}
+                {companyTeams.map((team, ti) => {
+                  const isOpen     = expandedTeamIdx === ti
+                  const isDeleting = deleteTeam.isPending && deleteTeam.variables === team.id
+                  const isUpdating = updateTeam.isPending && updateTeam.variables?.id === team.id
+                  const isBusy     = isDeleting || isUpdating
+                  const taken      = new Set(companyTeams.flatMap((t, i) => i !== ti ? t.members : []))
+                  const avail      = employees.map(e => e.displayName).filter(n => !taken.has(n) && !team.members.includes(n))
+                  return (
+                    <div key={ti} className={cn("overflow-hidden rounded-lg border border-sidebar-border transition-opacity", isDeleting && "opacity-50")}>
+                      <div className="flex items-center gap-1 px-2 py-1.5">
+                        <button
+                          onClick={() => !isBusy && setExpandedTeamIdx(isOpen ? null : ti)}
+                          className="flex min-w-0 flex-1 items-center gap-1 text-left"
+                        >
+                          <ChevronRight className={cn("h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-150", isOpen && "rotate-90")} />
+                          <span className="flex-1 truncate text-xs font-medium">{team.name}</span>
+                          {isUpdating
+                            ? <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" />
+                            : <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">{team.members.length}</span>
+                          }
+                        </button>
+                        <button
+                          onClick={() => removeTeamInline(ti)}
+                          disabled={isBusy}
+                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {isDeleting
+                            ? <Loader2 className="h-3 w-3 animate-spin" />
+                            : <Trash2 className="h-3 w-3" />
+                          }
+                        </button>
+                      </div>
+
+                      {isOpen && (
+                        <div className="flex flex-col gap-1 border-t border-sidebar-border px-2 pb-2 pt-1.5">
+                          {/* Current members */}
+                          {team.members.map(m => (
+                            <div key={m} className="flex items-center justify-between gap-1">
+                              <span className="truncate text-[11px]">{m}</span>
+                              <button
+                                onClick={() => removeMemberInline(ti, m)}
+                                disabled={isUpdating}
+                                className="shrink-0 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                <X className="h-2.5 w-2.5" />
+                              </button>
+                            </div>
+                          ))}
+
+                          {/* Available to add */}
+                          {avail.length > 0 && (
+                            <div className="mt-0.5 flex flex-col gap-0.5">
+                              {team.members.length > 0 && <div className="h-px bg-sidebar-border" />}
+                              {avail.map(name => (
+                                <button
+                                  key={name}
+                                  onClick={() => addMemberInline(ti, name)}
+                                  disabled={isUpdating}
+                                  className="flex items-center gap-1 text-left text-[11px] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <Plus className="h-2.5 w-2.5 shrink-0" />
+                                  <span className="truncate">{name}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {team.members.length === 0 && avail.length === 0 && (
+                            <p className="text-[10px] text-muted-foreground">
+                              {employees.length === 0 ? "Faça upload de um CSV primeiro." : "Todos já estão em equipes."}
+                            </p>
+                          )}
                         </div>
-                      ))}
+                      )}
                     </div>
-                }
+                  )
+                })}
+
+                {/* New team input */}
+                {addingTeam && (
+                  <div className="flex gap-1">
+                    <input
+                      autoFocus
+                      disabled={createTeam.isPending}
+                      value={newTeamName}
+                      onChange={e => setNewTeamName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter")  addTeamInline()
+                        if (e.key === "Escape") { setAddingTeam(false); setNewTeamName("") }
+                      }}
+                      placeholder="Nome da equipe…"
+                      className="min-w-0 flex-1 rounded border border-border bg-transparent px-2 py-1 text-xs outline-none placeholder:text-muted-foreground focus:border-primary/50 disabled:opacity-50"
+                    />
+                    <button
+                      onClick={addTeamInline}
+                      disabled={createTeam.isPending}
+                      className="flex shrink-0 items-center justify-center rounded border border-border px-2 text-xs hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {createTeam.isPending
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : "Ok"
+                      }
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -529,16 +683,6 @@ export default function QBTimeDailyReportPage() {
         </div>
       </div>
 
-      {/* Teams modal */}
-      {teamsOpen && company && (
-        <TeamsModal
-          company={company}
-          teams={teams}
-          knownEmployees={employees.map(e => e.displayName)}
-          onSave={next => { updateTeams(next); setTeamsOpen(false) }}
-          onClose={() => setTeamsOpen(false)}
-        />
-      )}
     </div>
   )
 }
@@ -620,112 +764,3 @@ function SectionCard({ section, company, date, hasTeams }: {
   )
 }
 
-// ─── TeamsModal ───────────────────────────────────────────────────────────────
-
-function TeamsModal({ company, teams, knownEmployees, onSave, onClose }: {
-  company: string; teams: TeamsConfig; knownEmployees: string[]
-  onSave: (next: TeamsConfig) => void; onClose: () => void
-}) {
-  const [localTeams,   setLocalTeams]   = useState<Team[]>(() => (teams[company]??[]).map(t => ({ ...t, members: [...t.members] })))
-  const [newTeamName,  setNewTeamName]  = useState("")
-
-  function addTeam() {
-    const name = newTeamName.trim()
-    if (!name || localTeams.some(t => t.name===name)) return
-    setLocalTeams(p => [...p, { name, members: [] }]); setNewTeamName("")
-  }
-  function removeTeam(i: number) { setLocalTeams(p => p.filter((_,j) => j!==i)) }
-  function rename(i: number, name: string) { setLocalTeams(p => p.map((t,j) => j===i ? { ...t, name } : t)) }
-  function toggle(ti: number, name: string) {
-    setLocalTeams(p => p.map((t,i) => {
-      if (i!==ti) return t
-      return { ...t, members: t.members.includes(name) ? t.members.filter(m=>m!==name) : [...t.members, name] }
-    }))
-  }
-  function removeMember(ti: number, name: string) { setLocalTeams(p => p.map((t,i) => i!==ti ? t : { ...t, members: t.members.filter(m=>m!==name) })) }
-  function availableFor(ti: number) {
-    const taken = new Set(localTeams.flatMap((t,i) => i!==ti ? t.members : []))
-    return knownEmployees.filter(e => !taken.has(e))
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-background/80 p-8 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <div>
-            <h2 className="text-base font-semibold">Manage Teams — {company}</h2>
-            <p className="text-sm text-muted-foreground">Assign employees to teams. Saved in your browser.</p>
-          </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-4 p-6">
-          {localTeams.length === 0 && <p className="text-sm text-muted-foreground">No teams yet. Add one below.</p>}
-
-          {localTeams.map((team, ti) => {
-            const avail = availableFor(ti).filter(n => !team.members.includes(n))
-            return (
-              <div key={ti} className="overflow-hidden rounded-xl border border-border bg-muted/20">
-                <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-                  <input value={team.name} onChange={e => rename(ti, e.target.value)}
-                    className="flex-1 bg-transparent text-sm font-semibold outline-none placeholder:text-muted-foreground"
-                    placeholder="Team name…" />
-                  <button onClick={() => removeTeam(ti)} className="rounded p-1 text-muted-foreground hover:text-destructive">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                <div className="p-4">
-                  {team.members.length > 0 && (
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      {team.members.map(m => (
-                        <span key={m} className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/8 px-2.5 py-0.5 text-xs font-medium text-primary">
-                          {m}
-                          <button onClick={() => removeMember(ti, m)} className="ml-0.5 hover:opacity-60"><X className="h-2.5 w-2.5" /></button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {avail.length > 0 && (
-                    <div className="flex flex-col gap-1.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Add members</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {avail.map(name => (
-                          <button key={name} onClick={() => toggle(ti, name)}
-                            className="rounded-full border border-dashed border-border px-2.5 py-0.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
-                            + {name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {avail.length===0 && team.members.length===0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {knownEmployees.length===0 ? "Upload a CSV first to see employees." : "All employees are assigned to other teams."}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-
-          <div className="flex gap-2">
-            <input value={newTeamName} onChange={e => setNewTeamName(e.target.value)}
-              onKeyDown={e => { if (e.key==="Enter") addTeam() }}
-              placeholder="New team name…"
-              className="flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50" />
-            <Button variant="outline" size="sm" onClick={addTeam} className="gap-1.5">
-              <Plus className="h-3.5 w-3.5" /> Add
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 border-t border-border px-6 py-4">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => onSave({ ...teams, [company]: localTeams })}>Save Teams</Button>
-        </div>
-      </div>
-    </div>
-  )
-}

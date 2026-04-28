@@ -7,9 +7,9 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, CalendarCheck,
-  ClipboardCheck, ClipboardList, FileCheck, Fuel,
-  Gauge, Gem, GripVertical, Loader2, Package, Settings,
+  BarChart2, Banknote, CalendarCheck, CalendarClock, CalendarDays,
+  ClipboardCheck, ClipboardList, CreditCard, FileCheck, Fuel,
+  Gauge, Gem, GripVertical, ImageIcon, Loader2, Package, ScrollText, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -26,36 +26,46 @@ function canManage(myRole: string, targetRole: string) {
 
 // ─── Permission pages — mirrors app-sidebar structure ─────────────────────────
 
-type PermDef   = { key: string; label: string; icon?: React.ElementType; image?: string; imageDark?: string; writeLabel?: string }
+type PermDef   = { key?: string; label: string; icon?: React.ElementType; image?: string; imageDark?: string; writeLabel?: string; children?: PermDef[] }
 type PermGroup = { label: string; permissions: PermDef[] }
 
 const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "",
     permissions: [
-      { key: "forecast",         label: "Framing Forecast",  image: "/images/sublogo_framing.png" },
-      { key: "inventory",        label: "Inventory Control", icon: Package   },
-      { key: "permits",          label: "Permit Control",    icon: FileCheck },
-      { key: "service_requests", label: "Service Requests",  icon: Wrench    },
-      { key: "accounting",       label: "Accounting",        icon: Banknote,  writeLabel: "Ask Aria" },
+      { key: "forecast",         label: "Framing Forecast",       image: "/images/sublogo_framing.png"  },
+      { key: "inventory",        label: "Inventory Control",      icon: Package    },
+      { key: "workforce",        label: "Workforce Productivity", icon: Users      },
+      { key: "ofi",              label: "Operational Index",      icon: BarChart2  },
+      { key: "permits",          label: "Permit Control",         icon: FileCheck  },
+      { key: "service_requests", label: "Service Requests",       icon: Wrench     },
+      { key: "accounting",       label: "Accounting",             icon: Banknote,  writeLabel: "Ask Aria" },
     ],
   },
   {
     label: "Coming Soon",
     permissions: [
       { key: "monthly_execution",  label: "Monthly Execution",         icon: CalendarCheck  },
-      { key: "workforce",          label: "Workforce Productivity",     icon: Users          },
-      { key: "subcontractors",     label: "Subcontractor Performance",  icon: ClipboardCheck },
-      { key: "project_monitoring", label: "HVAC Project Monitoring",    image: "/images/sublogo_hvac.png" },
-      { key: "ofi",                label: "Operational Index",          icon: BarChart2      },
-      { key: "fuel",               label: "Fuel Control",               icon: Fuel           },
+      { key: "subcontractors",     label: "Subcontractor Performance", icon: ClipboardCheck },
+      { key: "project_monitoring", label: "HVAC Project Monitoring",   image: "/images/sublogo_hvac.png" },
+      { key: "fuel",               label: "Fuel Control",              icon: Fuel           },
     ],
   },
   {
     label: "Data Management",
     permissions: [
-      { key: "data_control", label: "Forecast Data Control", icon: ClipboardList },
-      { key: "autolog",      label: "QBTime Auto Log",       image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
+      { key: "data_control",       label: "Forecast Data Control", icon: ClipboardList },
+      { key: "wex_categorization", label: "WEX Categorization",    icon: CreditCard    },
+      {
+        label: "QBTime Reports",
+        image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
+        children: [
+          { key: "autolog",           label: "Auto Log",            icon: ImageIcon     },
+          { key: "daily_report",      label: "Daily Report",        icon: CalendarDays  },
+          { key: "pay_period_report", label: "Pay Period Report",   icon: ScrollText    },
+          { key: "weekly_hours",      label: "Weekly Hours Control",icon: CalendarClock },
+        ],
+      },
     ],
   },
   {
@@ -66,7 +76,9 @@ const PERMISSION_GROUPS: PermGroup[] = [
   },
 ]
 
-const ALL_PERMS = PERMISSION_GROUPS.flatMap(g => g.permissions)
+const ALL_PERMS = PERMISSION_GROUPS.flatMap(g =>
+  g.permissions.flatMap(p => p.children ? p.children : [p])
+).filter((p): p is PermDef & { key: string } => !!p.key)
 
 // ─── Role meta ────────────────────────────────────────────────────────────────
 
@@ -132,7 +144,7 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
   const { data: users = [], isLoading } = useUsers()
   const updatePerms                     = useUpdateUserPermissions()
 
-  const [selectedKey, setSelectedKey] = useState(PERMISSION_GROUPS[0].permissions[0].key)
+  const [selectedKey, setSelectedKey] = useState<string>(ALL_PERMS[0].key)
   const [overrides, setOverrides]     = useState<Record<string, Record<string, PermissionLevel | null>>>({})
 
   const dragUserId = useRef<string | null>(null)
@@ -222,27 +234,65 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
                     {group.label}
                   </p>
                 )}
-                {group.permissions.map(perm => (
-                  <button
-                    key={perm.key}
-                    onClick={() => setSelectedKey(perm.key)}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-                      selectedKey === perm.key
-                        ? "bg-background text-foreground font-medium shadow-sm"
-                        : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
-                    )}
-                  >
-                    {perm.image
-                      ? <>
-                          <img src={perm.image} className={cn("h-3.5 w-3.5 shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
-                          {perm.imageDark && <img src={perm.imageDark} className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" alt="" />}
-                        </>
-                      : perm.icon && <perm.icon className="h-3.5 w-3.5 shrink-0" />
-                    }
-                    <span className="truncate">{perm.label}</span>
-                  </button>
-                ))}
+                {group.permissions.map(perm =>
+                  perm.children ? (
+                    /* ── Parent grouper (e.g. QBTime Reports) ── */
+                    <div key={perm.label} className="mb-0.5">
+                      <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/40">
+                        {perm.image
+                          ? <>
+                              <img src={perm.image} className={cn("h-3 w-3 shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
+                              {perm.imageDark && <img src={perm.imageDark} className="hidden h-3 w-3 shrink-0 object-contain dark:block" alt="" />}
+                            </>
+                          : perm.icon && <perm.icon className="h-3 w-3 shrink-0" />
+                        }
+                        {perm.label}
+                      </div>
+                      {perm.children.map(child => (
+                        <button
+                          key={child.key}
+                          onClick={() => setSelectedKey(child.key!)}
+                          className={cn(
+                            "flex w-full items-center gap-2 rounded-md py-1.5 pl-6 pr-2 text-left text-sm transition-colors",
+                            selectedKey === child.key
+                              ? "bg-background text-foreground font-medium shadow-sm"
+                              : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+                          )}
+                        >
+                          {child.image
+                            ? <>
+                                <img src={child.image} className={cn("h-3.5 w-3.5 shrink-0 object-contain", child.imageDark && "dark:hidden")} alt="" />
+                                {child.imageDark && <img src={child.imageDark} className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" alt="" />}
+                              </>
+                            : child.icon && <child.icon className="h-3.5 w-3.5 shrink-0" />
+                          }
+                          <span className="truncate">{child.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    /* ── Regular permission item ── */
+                    <button
+                      key={perm.key}
+                      onClick={() => setSelectedKey(perm.key!)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                        selectedKey === perm.key
+                          ? "bg-background text-foreground font-medium shadow-sm"
+                          : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+                      )}
+                    >
+                      {perm.image
+                        ? <>
+                            <img src={perm.image} className={cn("h-3.5 w-3.5 shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
+                            {perm.imageDark && <img src={perm.imageDark} className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" alt="" />}
+                          </>
+                        : perm.icon && <perm.icon className="h-3.5 w-3.5 shrink-0" />
+                      }
+                      <span className="truncate">{perm.label}</span>
+                    </button>
+                  )
+                )}
               </div>
             ))}
           </aside>

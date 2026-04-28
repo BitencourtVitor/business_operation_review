@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import type { QBTimeDailyReport } from "@bor2/shared"
+import type { QBTimeDailyReport, QBTimeTeam } from "@bor2/shared"
 import { useAuthStore } from "@/store/auth.store"
 
 function getToken() {
@@ -21,4 +21,18 @@ export const qbtimeDailyService = {
 
   delete: (id: string) =>
     api.delete<void>(`/api/v1/qbtime/daily/${id}`, getToken()),
+}
+
+export const qbtimeTeamService = {
+  list: (company: string) =>
+    api.get<QBTimeTeam[]>(`/api/v1/qbtime/teams?company=${encodeURIComponent(company)}`, getToken()),
+
+  create: (data: { company: string; name: string; members: string[] }) =>
+    api.post<QBTimeTeam>("/api/v1/qbtime/teams", data, getToken()),
+
+  update: (id: string, data: { name: string; members: string[] }) =>
+    api.patch<QBTimeTeam>(`/api/v1/qbtime/teams/${id}`, data, getToken()),
+
+  delete: (id: string) =>
+    api.delete<void>(`/api/v1/qbtime/teams/${id}`, getToken()),
 }
