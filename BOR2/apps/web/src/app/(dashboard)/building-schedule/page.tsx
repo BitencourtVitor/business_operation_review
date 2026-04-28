@@ -385,8 +385,7 @@ export default function BuildingSchedulePage() {
       {/* ── Building list ──────────────────────────────────────────────────── */}
       <div className="w-56 shrink-0 flex flex-col border-r border-border bg-muted/10 overflow-hidden">
         <div className="flex items-center gap-2 px-3 py-3 border-b border-border shrink-0">
-          <Building2 className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Projects</span>
+          <span className="font-semibold text-sm">List</span>
         </div>
 
         <div className="flex-1 overflow-y-auto">
