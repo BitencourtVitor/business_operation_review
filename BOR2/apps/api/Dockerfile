@@ -9,14 +9,14 @@ WORKDIR /app
 # The cache mount keeps downloaded modules across builds so `go mod download`
 # is a no-op on subsequent runs when deps haven't changed.
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=cache,id=go-mod,target=/go/pkg/mod \
     go mod download
 
 # Copy source and build. The Go build cache mount makes incremental compilation
 # instant — only changed packages are recompiled.
 COPY . .
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
+RUN --mount=type=cache,id=go-mod,target=/go/pkg/mod \
+    --mount=type=cache,id=go-build,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o api ./cmd/api/main.go
 
 # ── Final image ───────────────────────────────────────────────────────────────
