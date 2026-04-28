@@ -7,7 +7,7 @@
 FROM oven/bun:1.3.11-alpine AS deps
 WORKDIR /app
 COPY package.json ./
-RUN --mount=type=cache,target=/root/.bun/install/cache \
+RUN --mount=type=cache,id=bun-cache,target=/root/.bun/install/cache \
     bun install
 
 # ── Build stage ───────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:8080
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-RUN --mount=type=cache,target=/app/.next/cache \
+RUN --mount=type=cache,id=next-cache,target=/app/.next/cache \
     bun run build
 
 # ── Runner stage ──────────────────────────────────────────────────────────────
