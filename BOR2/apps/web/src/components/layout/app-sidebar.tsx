@@ -143,7 +143,7 @@ const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
     { title: "Forecast Data Control",  href: "/data-control",                icon: ClipboardList, permKey: "data_control"         },
-    { title: "Schedule Management",    href: "/building-schedule/manage",    icon: Building2,     permKey: "building_schedule"    },
+    { title: "Schedule Management",    href: "/building-schedule/manage",                         permKey: "building_schedule"    },
     { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
     {
       title: "QBTime Reports", href: "/autolog",
