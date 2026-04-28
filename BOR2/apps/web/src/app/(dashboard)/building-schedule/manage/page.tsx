@@ -347,41 +347,37 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
             </div>
 
             {/* Schedule status */}
-            <div className="rounded-lg border border-border bg-muted/20 px-3 py-2.5">
+            <div className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col gap-2">
               {building.has_schedule ? (
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="text-xs font-medium flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="truncate max-w-[200px]">{building.pdf_filename}</span>
-                    </div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5 space-x-2">
-                      {building.task_count != null && <span>{building.task_count} tasks</span>}
-                      {building.project_start && building.project_finish && (
-                        <span>{building.project_start.slice(0,7)} → {building.project_finish.slice(0,7)}</span>
-                      )}
-                      {building.uploaded_at && (
-                        <span>Updated {new Date(building.uploaded_at).toLocaleDateString()}</span>
-                      )}
-                    </div>
+                <>
+                  <div className="flex items-center gap-1.5 text-xs font-medium">
+                    <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="truncate">{building.pdf_filename}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+                    {building.task_count != null && <span>{building.task_count} tasks</span>}
+                    {building.project_start && building.project_finish && (
+                      <span>{building.project_start.slice(0,7)} → {building.project_finish.slice(0,7)}</span>
+                    )}
+                    {building.uploaded_at && (
+                      <span>Updated {new Date(building.uploaded_at).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 pt-0.5">
                     <button
                       onClick={() => setShowUpload(true)}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1 hover:bg-muted transition-colors"
-                      title="Replace PDF"
                     >
                       <RefreshCw className="h-3 w-3" /> Replace
                     </button>
                     <button
                       onClick={() => delSched.mutate(building.id)}
                       className="text-xs text-muted-foreground hover:text-destructive border border-border rounded px-2 py-1 hover:bg-destructive/10 transition-colors"
-                      title="Remove schedule"
                     >
                       Remove
                     </button>
                   </div>
-                </div>
+                </>
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">No schedule uploaded</span>
@@ -470,27 +466,28 @@ export default function BuildingScheduleManagePage() {
       )}
 
       {/* Building grid */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
-        {isLoading && (
-          <div className="flex flex-1 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        )}
-
-        {!isLoading && buildings.length === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-            <Building2 className="h-12 w-12 opacity-20" />
-            <p className="text-sm">No buildings yet. Click &ldquo;Add Building&rdquo; to get started.</p>
-          </div>
-        )}
-
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-          {buildings.map(b => (
-            <BuildingCard key={b.id} building={b} />
-          ))}
+      {isLoading && (
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
-      </div>
+      )}
+
+      {!isLoading && buildings.length === 0 && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
+          <Building2 className="h-12 w-12 opacity-20" />
+          <p className="text-sm">No buildings yet. Click &ldquo;Add Building&rdquo; to get started.</p>
+        </div>
+      )}
+
+      {!isLoading && buildings.length > 0 && (
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+            {buildings.map(b => (
+              <BuildingCard key={b.id} building={b} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
