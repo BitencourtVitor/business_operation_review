@@ -1,0 +1,28 @@
+# Compiled binaries (dev artifacts, never needed in image)
+*.exe
+*.exe~
+api
+main.exe
+tmp_api.exe
+aitest.exe
+qbsync.exe
+
+# Environment / secrets
+.env
+.env.*
+
+# Development-only commands (not part of the main API binary)
+cmd/dbcheck/
+cmd/qbcheck/
+cmd/qbsync/
+
+# Test files (not needed to build the binary)
+tests/
+
+# Docs and notes
+*.md
+*.txt
+
+# Git
+.git
+.gitignore
