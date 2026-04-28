@@ -63,6 +63,7 @@ type SubItem = {
   icon?: React.ElementType
   image?: string
   disabled?: boolean
+  permKey?: string       // permission key required to VIEW this sub-item
 }
 
 type NavItem = {
@@ -73,6 +74,7 @@ type NavItem = {
   imageDark?: string
   disabled?: boolean
   children?: SubItem[]
+  permKey?: string       // permission key required to VIEW this item
   editPermKey?: string   // permission key that grants the gear edit button (opens modal)
   metricsHref?: string   // if set, shows a "See Metrics" action button linking here
 }
@@ -88,23 +90,25 @@ const activeGroup: NavGroup = {
     {
       title: "Framing Forecast", href: "/forecast",
       image: "/images/sublogo_framing.png",
+      permKey: "forecast",
       metricsHref: "/forecast/metrics",
     },
-    { title: "Inventory Control", href: "/inventory", icon: Package },
+    { title: "Inventory Control", href: "/inventory", icon: Package, permKey: "inventory" },
     {
       title: "Workforce", href: "/workforce-productivity", icon: Users,
-      editPermKey: "workforce",
+      permKey: "workforce", editPermKey: "workforce",
       children: [
         { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
         { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
         { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
       ],
     },
-    { title: "Operational Index", href: "/ofi", icon: BarChart2 },
-    { title: "Permit Control", href: "/permits", icon: FileCheck, editPermKey: 'permits' },
-    { title: "Service Requests", href: "/service-requests",  icon: Wrench,    editPermKey: 'service-requests' },
+    { title: "Operational Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
+    { title: "Permit Control", href: "/permits", icon: FileCheck, permKey: "permits", editPermKey: "permits" },
+    { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
       title: "Accounting", href: "/accounting", icon: Banknote,
+      permKey: "accounting",
       children: [
         { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
         { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
@@ -136,19 +140,20 @@ const comingSoonGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control", href: "/data-control",        icon: ClipboardList },
-    { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard    },
+    { title: "Forecast Data Control", href: "/data-control",       icon: ClipboardList, permKey: "data_control"      },
+    { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
     {
       title: "QBTime Reports", href: "/autolog",
       image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
+      // No direct permKey — visibility driven by children
       children: [
-        { title: "Auto Log",             href: "/autolog",              icon: ImageIcon    },
-        { title: "Daily Report",         href: "/qbtime/daily-report",  icon: CalendarDays },
-        { title: "Pay Period Report",    href: "/qbtime/job-costing",   icon: ScrollText   },
-        { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock },
+        { title: "Auto Log",             href: "/autolog",              icon: ImageIcon,     permKey: "autolog"           },
+        { title: "Daily Report",         href: "/qbtime/daily-report",  icon: CalendarDays,  permKey: "daily_report"      },
+        { title: "Pay Period Report",    href: "/qbtime/job-costing",   icon: ScrollText,    permKey: "pay_period_report" },
+        { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock, permKey: "weekly_hours"      },
       ],
     },
-    { title: "Settings", href: "/settings", icon: Settings },
+    { title: "Settings", href: "/settings", icon: Settings, permKey: "settings" },
   ],
 }
 
@@ -425,14 +430,41 @@ export function AppSidebar() {
   const [editItem, setEditItem] = useState<NavItem | null>(null)
 
   const { user } = useAuth()
-  const { data: myPerms } = useMyPermissions()
+  const { data: myPerms, isLoading: permsLoading } = useMyPermissions()
 
-  const ADMIN_ROLES = ["dev", "owner", "admin"]
+  const ADMIN_ROLES    = ["dev", "owner", "admin"]
+  const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
 
   function canEdit(permKey: string): boolean {
     if (!user) return false
     if (ADMIN_ROLES.includes(user.role)) return true
     return myPerms?.permissions[permKey] === "write"
+  }
+
+  // canView: controls whether the nav item is rendered at all
+  function canView(permKey: string): boolean {
+    if (!user) return false
+    if (FULL_ACCESS_ROLES.includes(user.role)) return true
+    if (permsLoading) return true           // avoid flash while permissions load
+    return !!myPerms?.permissions[permKey]  // "read" or "write" both grant visibility
+  }
+
+  // Filter nav items based on permissions; also filters children with permKeys
+  function filterNavItems(items: NavItem[]): NavItem[] {
+    return items.flatMap(item => {
+      const childrenHavePermKeys = item.children?.some(c => !!c.permKey) ?? false
+
+      if (childrenHavePermKeys) {
+        // Parent visibility is determined by its children (e.g. QBTime Reports)
+        const visibleChildren = item.children!.filter(c => !c.permKey || canView(c.permKey))
+        if (visibleChildren.length === 0) return []
+        return [{ ...item, children: visibleChildren }]
+      }
+
+      // Regular item gated by its own permKey
+      if (item.permKey && !canView(item.permKey)) return []
+      return [item]
+    })
   }
 
   function isActive(href: string) {
@@ -530,7 +562,7 @@ export function AppSidebar() {
         {/* Active items — no label */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <NavGroupItems items={activeGroup.items} {...groupProps} />
+            <NavGroupItems items={filterNavItems(activeGroup.items)} {...groupProps} />
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -553,7 +585,7 @@ export function AppSidebar() {
         <SidebarGroup>
           {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
           <SidebarGroupContent>
-            <NavGroupItems items={bottomGroup.items} {...groupProps} />
+            <NavGroupItems items={filterNavItems(bottomGroup.items)} {...groupProps} />
           </SidebarGroupContent>
         </SidebarGroup>
         <div className="h-px bg-sidebar-border" />

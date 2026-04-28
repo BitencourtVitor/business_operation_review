@@ -17,6 +17,7 @@ import { Calendar, GalleryHorizontal, Search, X, TrendingUp, TrendingDown, BarCh
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { ProjectCard } from "@/services/qb-accounting.service"
+import { useFinancialStore } from "@/store/financial.store"
 
 
 const MONTHS = [
@@ -70,6 +71,7 @@ function ChartTooltip({ active, payload, label }: {
   payload?: { name: string; value: number; color: string }[]
   label?: string
 }) {
+  const { showFinancialData } = useFinancialStore()
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-xl px-3.5 py-2.5 text-sm">
@@ -81,7 +83,9 @@ function ChartTooltip({ active, payload, label }: {
               <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: entry.color }} />
               <span className="text-muted-foreground">{entry.name}</span>
             </div>
-            <span className="font-semibold tabular-nums text-foreground">{fmt(entry.value)}</span>
+            <span className={`font-semibold tabular-nums text-foreground${!showFinancialData ? " blur-sm select-none" : ""}`}>
+              {fmt(entry.value)}
+            </span>
           </div>
         ))}
       </div>
@@ -92,6 +96,8 @@ function ChartTooltip({ active, payload, label }: {
 // ── project card ─────────────────────────────────────────────────────────────
 
 function ProjectCardItem({ project, onClick }: { project: ProjectCard; onClick: () => void }) {
+  const { showFinancialData } = useFinancialStore()
+  const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
   const positive = project.profit >= 0
   const color    = positive ? "#22c55e" : "#ef4444"
 
@@ -105,11 +111,11 @@ function ProjectCardItem({ project, onClick }: { project: ProjectCard; onClick: 
           {positive ? "Profit" : "Loss"}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="text-xs font-semibold tabular-nums" style={{ color }}>
+          <span className={`text-xs font-semibold tabular-nums ${blur}`} style={{ color }}>
             {fmtShort(project.profit)}
           </span>
           <span className="h-3.5 w-px shrink-0 bg-border/50" />
-          <span className="text-xs font-semibold tabular-nums" style={{ color }}>
+          <span className={`text-xs font-semibold tabular-nums ${blur}`} style={{ color }}>
             {project.profit_pct.toFixed(1)}%
           </span>
           <TooltipProvider delay={300}>
@@ -181,7 +187,7 @@ function ProjectCardItem({ project, onClick }: { project: ProjectCard; onClick: 
           ].map(({ label, value, color }) => (
             <div key={label} className="flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground">{label}</span>
-              <span className="text-[11px] font-semibold tabular-nums" style={color ? { color } : undefined}>
+              <span className={`text-[11px] font-semibold tabular-nums ${blur}`} style={color ? { color } : undefined}>
                 {fmtShort(value)}
               </span>
             </div>
@@ -206,6 +212,8 @@ export default function AccountingPage() {
 function AccountingContent() {
   const searchParams = useSearchParams()
   const company = searchParams.get("company") || "hvac"
+  const { showFinancialData } = useFinancialStore()
+  const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
 
   const { data: availableYears } = useQBYears({ company })
   const [year, setYear]         = useState<number | "all">(new Date().getFullYear())
@@ -362,7 +370,7 @@ function AccountingContent() {
             </div>
             {loading
               ? <div className="h-6 w-24 rounded bg-muted animate-pulse mt-0.5" />
-              : <span className="text-lg font-bold" style={color ? { color } : undefined}>
+              : <span className={`text-lg font-bold ${blur}`} style={color ? { color } : undefined}>
                   {hasChartData ? fmt(value) : "—"}
                 </span>}
           </div>
@@ -458,7 +466,7 @@ function AccountingContent() {
                     return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m - 1] ?? v
                   }}
                 />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={fmtShort} width={64} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={showFinancialData ? fmtShort : () => ""} width={showFinancialData ? 64 : 24} />
                 <RechartsTooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="received" name="Received"
                   stroke="#22c55e" strokeWidth={2} fill="url(#gradReceived)"
