@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   useCreateQBTimeTeam,
   useDeleteQBTimeTeam,
@@ -62,7 +62,18 @@ function fmtName(raw: string): string {
   const last = raw.slice(0, i).trim(), first = raw.slice(i+1).trim()
   return first ? `${first} ${last}` : last
 }
-function fmtH(h: number) { return `${h.toFixed(1)}h` }
+type HourFormat = "number" | "time"
+const LS_FMT_DAILY = "qbtime_daily_hour_format"
+function loadFmt(key: string): HourFormat {
+  try { return (localStorage.getItem(key) as HourFormat) || "number" } catch { return "number" }
+}
+function fmtH(h: number, fmt: HourFormat = "number"): string {
+  if (fmt === "time") {
+    const m = Math.round(Math.abs(h) * 60)
+    return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`
+  }
+  return `${h.toFixed(1)}h`
+}
 function fmtDate(iso: string) {
   if (!iso) return ""
   const [y,m,d] = iso.split("-")
@@ -289,6 +300,7 @@ function exportPDF(grouped: Section[], company: string, date: string, hasTeams: 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function QBTimeDailyReportPage() {
+  const [hourFormat,      setHourFormat]      = useState<HourFormat>(() => loadFmt(LS_FMT_DAILY))
   const [company,         setCompany]         = useState<CompanyId | "">("")
   const [step,            setStep]            = useState<"upload" | "results">("upload")
   const [parsedRows,      setParsedRows]      = useState<ParsedRow[]>([])
@@ -403,6 +415,10 @@ export default function QBTimeDailyReportPage() {
     if (!team) return
     updateTeam.mutate({ id: team.id, name: team.name, members: team.members.filter(m => m !== memberName) })
   }
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_FMT_DAILY, hourFormat) } catch { /* */ }
+  }, [hourFormat])
 
   const totalH = employees.reduce((s,e) => s+e.totalHours, 0)
 
@@ -637,31 +653,56 @@ export default function QBTimeDailyReportPage() {
           {step === "results" && (
             <div className="flex flex-col gap-4">
 
-              {/* Header + export buttons */}
+              {/* Header + metric mode + export buttons */}
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <h1 className="text-xl font-semibold tracking-tight">{company} — {fmtDate(date)}</h1>
                   <p className="text-sm text-muted-foreground">
-                    {employees.length} member{employees.length!==1?"s":""} · {fmtH(totalH)} total
+                    {employees.length} member{employees.length!==1?"s":""} · {fmtH(totalH, hourFormat)} total
                   </p>
                 </div>
-                <div className="flex shrink-0 flex-col items-start gap-1">
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Export
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
-                      <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportPDF(grouped, company, date, hasTeams)}>
-                      <FileText className="h-3.5 w-3.5" /> PDF
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportAllPNG(grouped, company, date, hasTeams)}>
-                      <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
-                    </Button>
+                <div className="flex items-end gap-4">
+                  {/* Metric Mode toggle */}
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Metric Mode
+                    </span>
+                    <div className="flex h-8 w-36 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                      {(["number", "time"] as HourFormat[]).map(fmt => (
+                        <button
+                          key={fmt}
+                          onClick={() => setHourFormat(fmt)}
+                          className={cn(
+                            "flex h-7 flex-1 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                            hourFormat === fmt
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground",
+                          )}
+                        >
+                          {fmt === "number" ? "Number" : "Hour"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Export */}
+                  <div className="flex shrink-0 flex-col items-start gap-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Export
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
+                        <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportPDF(grouped, company, date, hasTeams)}>
+                        <FileText className="h-3.5 w-3.5" /> PDF
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportAllPNG(grouped, company, date, hasTeams)}>
+                        <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -675,6 +716,7 @@ export default function QBTimeDailyReportPage() {
                     company={company}
                     date={date}
                     hasTeams={hasTeams}
+                    hourFormat={hourFormat}
                   />
                 ))}
               </div>
@@ -689,8 +731,8 @@ export default function QBTimeDailyReportPage() {
 
 // ─── SectionCard ──────────────────────────────────────────────────────────────
 
-function SectionCard({ section, company, date, hasTeams }: {
-  section: Section; company: string; date: string; hasTeams: boolean
+function SectionCard({ section, company, date, hasTeams, hourFormat }: {
+  section: Section; company: string; date: string; hasTeams: boolean; hourFormat: HourFormat
 }) {
   const sectionTotal = section.members.reduce((s,e)=>s+e.totalHours,0)
   function handlePNG() { downloadSectionPNG(section, company, date, hasTeams) }
@@ -706,7 +748,7 @@ function SectionCard({ section, company, date, hasTeams }: {
           </span>
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-muted-foreground">{section.members.length}</span>
-            <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal)}</span>
+            <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal, hourFormat)}</span>
             <TooltipProvider delay={200}>
               <Tooltip>
                 <TooltipTrigger
@@ -731,7 +773,7 @@ function SectionCard({ section, company, date, hasTeams }: {
           {/* Employee name row */}
           <div className="flex items-center gap-2 px-4 pb-1 pt-2.5">
             <span className="flex-1 text-sm font-semibold">{emp.displayName}</span>
-            <span className="text-sm font-bold tabular-nums text-primary">{fmtH(emp.totalHours)}</span>
+            <span className="text-sm font-bold tabular-nums text-primary">{fmtH(emp.totalHours, hourFormat)}</span>
             {/* Per-person download only when not using teams */}
             {!hasTeams && (
               <TooltipProvider delay={200}>
@@ -754,7 +796,7 @@ function SectionCard({ section, company, date, hasTeams }: {
                 <span className="min-w-0 flex-1 text-xs text-muted-foreground">
                   {row.jobCode.split(" >> ").join(" › ")}
                 </span>
-                <span className="shrink-0 text-xs tabular-nums text-foreground/60">{fmtH(row.totalHours)}</span>
+                <span className="shrink-0 text-xs tabular-nums text-foreground/60">{fmtH(row.totalHours, hourFormat)}</span>
               </div>
             ))}
           </div>

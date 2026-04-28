@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   useCreateQBTimeTeam,
   useDeleteQBTimeTeam,
@@ -93,7 +93,18 @@ function fmtPeriod(start: string, end: string) {
   return `${fmtDate(start)} – ${fmtDate(end)}`
 }
 
-function fmtH(h: number) { return `${h.toFixed(1)}h` }
+type HourFormat = "number" | "time"
+const LS_FMT_JOBCOST = "qbtime_jobcost_hour_format"
+function loadFmt(key: string): HourFormat {
+  try { return (localStorage.getItem(key) as HourFormat) || "number" } catch { return "number" }
+}
+function fmtH(h: number, fmt: HourFormat = "number"): string {
+  if (fmt === "time") {
+    const m = Math.round(Math.abs(h) * 60)
+    return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`
+  }
+  return `${h.toFixed(1)}h`
+}
 
 /** Split job path from consecutive jobcode columns, skipping blanks */
 function buildJobPath(cols: string[], baseIdx: number): string {
@@ -361,6 +372,7 @@ function exportPDF(periods: PayPeriod[], company: string, hasTeams: boolean) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function QBTimeJobCostingPage() {
+  const [hourFormat,      setHourFormat]      = useState<HourFormat>(() => loadFmt(LS_FMT_JOBCOST))
   const [company,         setCompany]         = useState<CompanyId | "">("")
   const [step,            setStep]            = useState<"upload" | "results">("upload")
   const [allRows,         setAllRows]         = useState<ParsedRow[]>([])
@@ -503,6 +515,10 @@ export default function QBTimeJobCostingPage() {
     const team = companyTeams[ti]; if (!team) return
     updateTeam.mutate({ id: team.id, name: team.name, members: team.members.filter(m => m !== memberName) })
   }
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_FMT_JOBCOST, hourFormat) } catch { /* */ }
+  }, [hourFormat])
 
   const totalH    = allEmployees.reduce((s, e) => s + e.totalHours, 0)
   const allPeriodSections = periods.flatMap(p => p.sections)
@@ -736,21 +752,46 @@ export default function QBTimeJobCostingPage() {
                   <h1 className="text-xl font-semibold tracking-tight">Pay Period Report</h1>
                   <p className="text-sm text-muted-foreground">{company}</p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Export</span>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportXLSX(periods, company, hasTeams)}>
-                      <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportPDF(periods, company, hasTeams)}>
-                      <FileText className="h-3.5 w-3.5" /> PDF
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                      onClick={() => exportAllPNG(periods, company, hasTeams)}>
-                      <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
-                    </Button>
+                <div className="flex items-end gap-4">
+                  {/* Metric Mode toggle */}
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Metric Mode
+                    </span>
+                    <div className="flex h-8 w-36 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                      {(["number", "time"] as HourFormat[]).map(fmt => (
+                        <button
+                          key={fmt}
+                          onClick={() => setHourFormat(fmt)}
+                          className={cn(
+                            "flex h-7 flex-1 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                            hourFormat === fmt
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground",
+                          )}
+                        >
+                          {fmt === "number" ? "Number" : "Hour"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Export */}
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Export</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportXLSX(periods, company, hasTeams)}>
+                        <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportPDF(periods, company, hasTeams)}>
+                        <FileText className="h-3.5 w-3.5" /> PDF
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                        onClick={() => exportAllPNG(periods, company, hasTeams)}>
+                        <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -768,7 +809,7 @@ export default function QBTimeJobCostingPage() {
                   </div>
                   <div className="flex flex-col gap-0.5 px-5 py-4">
                     <p className="text-[10px] text-muted-foreground">Total Hours</p>
-                    <p className="text-base font-bold tabular-nums text-primary">{fmtH(totalH)}</p>
+                    <p className="text-base font-bold tabular-nums text-primary">{fmtH(totalH, hourFormat)}</p>
                   </div>
                 </div>
               )}
@@ -782,6 +823,7 @@ export default function QBTimeJobCostingPage() {
                     company={company}
                     period={periods[0]}
                     hasTeams={hasTeams}
+                    hourFormat={hourFormat}
                   />
                 ))}
               </div>
@@ -795,8 +837,8 @@ export default function QBTimeJobCostingPage() {
 
 // ─── SectionCard ──────────────────────────────────────────────────────────────
 
-function SectionCard({ section, company, period, hasTeams }: {
-  section: Section; company: string; period: PayPeriod; hasTeams: boolean
+function SectionCard({ section, company, period, hasTeams, hourFormat }: {
+  section: Section; company: string; period: PayPeriod; hasTeams: boolean; hourFormat: HourFormat
 }) {
   const sectionTotal = section.members.reduce((s, e) => s + e.totalHours, 0)
   function handlePNG() { downloadSectionPNG(section, company, period, hasTeams) }
@@ -811,7 +853,7 @@ function SectionCard({ section, company, period, hasTeams }: {
           </span>
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-muted-foreground">{section.members.length}</span>
-            <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal)}</span>
+            <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal, hourFormat)}</span>
             <TooltipProvider delay={200}>
               <Tooltip>
                 <TooltipTrigger
@@ -834,7 +876,7 @@ function SectionCard({ section, company, period, hasTeams }: {
         >
           <div className="flex items-center gap-2 px-4 pb-1 pt-2.5">
             <span className="flex-1 text-sm font-semibold">{emp.displayName}</span>
-            <span className="text-sm font-bold tabular-nums text-primary">{fmtH(emp.totalHours)}</span>
+            <span className="text-sm font-bold tabular-nums text-primary">{fmtH(emp.totalHours, hourFormat)}</span>
             {!hasTeams && (
               <TooltipProvider delay={200}>
                 <Tooltip>
@@ -853,7 +895,7 @@ function SectionCard({ section, company, period, hasTeams }: {
             {emp.jobs.map((job, ji) => (
               <div key={ji} className="flex items-baseline gap-4 px-4 py-[3px] pl-7">
                 <span className="min-w-0 flex-1 text-xs text-muted-foreground">{job.path}</span>
-                <span className="shrink-0 text-xs tabular-nums text-foreground/60">{fmtH(job.hours)}</span>
+                <span className="shrink-0 text-xs tabular-nums text-foreground/60">{fmtH(job.hours, hourFormat)}</span>
               </div>
             ))}
           </div>
