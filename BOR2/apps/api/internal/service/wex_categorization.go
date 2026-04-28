@@ -50,3 +50,17 @@ func (s *WexCategorizationService) CreateReport(ctx context.Context, in *domain.
 func (s *WexCategorizationService) DeleteReport(ctx context.Context, id string) error {
 	return s.repo.DeleteReport(ctx, id)
 }
+
+// ─── Ignored addresses ────────────────────────────────────────────────────────
+
+func (s *WexCategorizationService) ListIgnoredAddresses(ctx context.Context, company string) ([]*domain.WexIgnoredAddress, error) {
+	return s.repo.ListIgnoredAddresses(ctx, company)
+}
+
+func (s *WexCategorizationService) UpsertIgnoredAddress(ctx context.Context, in *domain.WexIgnoredAddressInput) (*domain.WexIgnoredAddress, error) {
+	return s.repo.UpsertIgnoredAddress(ctx, in)
+}
+
+func (s *WexCategorizationService) DeleteIgnoredAddress(ctx context.Context, id int64) error {
+	return s.repo.DeleteIgnoredAddress(ctx, id)
+}

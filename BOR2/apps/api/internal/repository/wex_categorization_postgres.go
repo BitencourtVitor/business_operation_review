@@ -9,7 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// WexCategorizationRepository defines operations for wex_normalization and wex_reports.
+// WexCategorizationRepository defines operations for wex_normalization, wex_reports,
+// and wex_ignored_addresses.
 type WexCategorizationRepository interface {
 	// Normalization
 	ListNorm(ctx context.Context, company string) ([]*domain.WexNormEntry, error)
@@ -22,6 +23,11 @@ type WexCategorizationRepository interface {
 	GetReport(ctx context.Context, id string) (*domain.WexReport, error)
 	CreateReport(ctx context.Context, in *domain.WexReportInput) (*domain.WexReport, error)
 	DeleteReport(ctx context.Context, id string) error
+
+	// Ignored addresses
+	ListIgnoredAddresses(ctx context.Context, company string) ([]*domain.WexIgnoredAddress, error)
+	UpsertIgnoredAddress(ctx context.Context, in *domain.WexIgnoredAddressInput) (*domain.WexIgnoredAddress, error)
+	DeleteIgnoredAddress(ctx context.Context, id int64) error
 }
 
 type PostgresWexCategorizationRepository struct {
@@ -182,5 +188,58 @@ func (r *PostgresWexCategorizationRepository) CreateReport(ctx context.Context, 
 
 func (r *PostgresWexCategorizationRepository) DeleteReport(ctx context.Context, id string) error {
 	_, err := r.db.Exec(ctx, "DELETE FROM wex_reports WHERE id=$1", id)
+	return err
+}
+
+// ─── Ignored addresses ────────────────────────────────────────────────────────
+
+func (r *PostgresWexCategorizationRepository) ListIgnoredAddresses(ctx context.Context, company string) ([]*domain.WexIgnoredAddress, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, company, address, note, is_active, created_at, updated_at
+		FROM wex_ignored_addresses
+		WHERE company = $1
+		ORDER BY address ASC
+	`, company)
+	if err != nil {
+		return nil, fmt.Errorf("list wex_ignored_addresses: %w", err)
+	}
+	defer rows.Close()
+
+	var entries []*domain.WexIgnoredAddress
+	for rows.Next() {
+		e := &domain.WexIgnoredAddress{}
+		if err := rows.Scan(&e.ID, &e.Company, &e.Address, &e.Note, &e.IsActive, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("scan wex_ignored_addresses: %w", err)
+		}
+		entries = append(entries, e)
+	}
+	return entries, nil
+}
+
+func (r *PostgresWexCategorizationRepository) UpsertIgnoredAddress(ctx context.Context, in *domain.WexIgnoredAddressInput) (*domain.WexIgnoredAddress, error) {
+	isActive := true
+	if in.IsActive != nil {
+		isActive = *in.IsActive
+	}
+	e := &domain.WexIgnoredAddress{}
+	err := r.db.QueryRow(ctx, `
+		INSERT INTO wex_ignored_addresses (company, address, note, is_active)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (company, address) DO UPDATE
+		  SET note      = EXCLUDED.note,
+		      is_active = EXCLUDED.is_active,
+		      updated_at = NOW()
+		RETURNING id, company, address, note, is_active, created_at, updated_at
+	`, in.Company, in.Address, in.Note, isActive).Scan(
+		&e.ID, &e.Company, &e.Address, &e.Note, &e.IsActive, &e.CreatedAt, &e.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("upsert wex_ignored_address: %w", err)
+	}
+	return e, nil
+}
+
+func (r *PostgresWexCategorizationRepository) DeleteIgnoredAddress(ctx context.Context, id int64) error {
+	_, err := r.db.Exec(ctx, "DELETE FROM wex_ignored_addresses WHERE id=$1", id)
 	return err
 }

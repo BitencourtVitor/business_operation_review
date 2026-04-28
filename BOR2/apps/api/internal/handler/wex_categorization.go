@@ -129,3 +129,49 @@ func (h *WexCategorizationHandler) DeleteReport(c *fiber.Ctx) error {
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+// ─── Ignored address endpoints ────────────────────────────────────────────────
+
+// GET /wex/ignored-addresses?company=hvac
+func (h *WexCategorizationHandler) ListIgnoredAddresses(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "company is required", "code": "BAD_REQUEST"})
+	}
+	entries, err := h.svc.ListIgnoredAddresses(c.Context(), company)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	if entries == nil {
+		entries = []*domain.WexIgnoredAddress{}
+	}
+	return c.JSON(fiber.Map{"data": entries})
+}
+
+// POST /wex/ignored-addresses
+func (h *WexCategorizationHandler) UpsertIgnoredAddress(c *fiber.Ctx) error {
+	var in domain.WexIgnoredAddressInput
+	if err := c.BodyParser(&in); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if in.Company == "" || in.Address == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "company and address are required", "code": "BAD_REQUEST"})
+	}
+	entry, err := h.svc.UpsertIgnoredAddress(c.Context(), &in)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": entry})
+}
+
+// DELETE /wex/ignored-addresses/:id
+func (h *WexCategorizationHandler) DeleteIgnoredAddress(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.DeleteIgnoredAddress(c.Context(), id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.SendStatus(fiber.StatusNoContent)
+}

@@ -56,6 +56,23 @@ export interface WexReportInput {
   results: unknown[]
 }
 
+export interface WexIgnoredAddress {
+  id: number
+  company: string
+  address: string
+  note: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WexIgnoredAddressInput {
+  company: string
+  address: string
+  note?: string
+  isActive?: boolean
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export const wexCategorizationService = {
@@ -70,4 +87,9 @@ export const wexCategorizationService = {
   getReport:    (id: string)                             => api.get<WexReport>(`/api/v1/wex/reports/${id}`, getToken()),
   createReport: (data: WexReportInput)                   => api.post<WexReport>("/api/v1/wex/reports", data, getToken()),
   deleteReport: (id: string)                             => api.delete<void>(`/api/v1/wex/reports/${id}`, getToken()),
+
+  // Ignored addresses
+  listIgnoredAddresses:   (company: string)                       => api.get<WexIgnoredAddress[]>(`/api/v1/wex/ignored-addresses?company=${company}`, getToken()),
+  upsertIgnoredAddress:   (data: WexIgnoredAddressInput)          => api.post<WexIgnoredAddress>("/api/v1/wex/ignored-addresses", data, getToken()),
+  deleteIgnoredAddress:   (id: number)                            => api.delete<void>(`/api/v1/wex/ignored-addresses/${id}`, getToken()),
 }

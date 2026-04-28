@@ -249,6 +249,11 @@ func main() {
 	wexReports.Get("/:id", wexCatHandler.GetReport)
 	wexReports.Delete("/:id", wexCatHandler.DeleteReport)
 
+	wexIgnored := api.Group("/wex/ignored-addresses")
+	wexIgnored.Get("/", wexCatHandler.ListIgnoredAddresses)
+	wexIgnored.Post("/", wexCatHandler.UpsertIgnoredAddress)
+	wexIgnored.Delete("/:id", wexCatHandler.DeleteIgnoredAddress)
+
 	// Permits
 	permits := api.Group("/permits")
 	permits.Get("/", permitRowHandler.List)
