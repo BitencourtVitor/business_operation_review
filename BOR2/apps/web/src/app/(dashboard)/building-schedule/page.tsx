@@ -373,12 +373,20 @@ export default function BuildingSchedulePage() {
   const selected = buildings.find(b => b.id === selectedId)
 
   return (
-    <div className="flex h-full gap-0 overflow-hidden rounded-lg border border-border">
+    <div className="flex flex-col h-full overflow-hidden gap-4">
+      {/* ── Page header ────────────────────────────────────────────────────── */}
+      <div className="shrink-0">
+        <h1 className="text-xl font-semibold">Building Schedule</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Track construction progress across all projects</p>
+      </div>
+
+      {/* ── Main panel ─────────────────────────────────────────────────────── */}
+      <div className="flex flex-1 min-h-0 gap-0 overflow-hidden rounded-lg border border-border">
       {/* ── Building list ──────────────────────────────────────────────────── */}
       <div className="w-56 shrink-0 flex flex-col border-r border-border bg-muted/10 overflow-hidden">
         <div className="flex items-center gap-2 px-3 py-3 border-b border-border shrink-0">
           <Building2 className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Buildings</span>
+          <span className="font-semibold text-sm">Projects</span>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -486,6 +494,7 @@ export default function BuildingSchedulePage() {
         )}
 
         {schedule && <ScheduleViewer schedule={schedule} />}
+      </div>
       </div>
     </div>
   )
