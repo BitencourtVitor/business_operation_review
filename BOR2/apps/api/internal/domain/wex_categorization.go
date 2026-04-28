@@ -59,3 +59,24 @@ type WexReportInput struct {
 	Meta       WexReportMeta   `json:"meta"`
 	Results    json.RawMessage `json:"results"`
 }
+
+// WexIgnoredAddress maps to the wex_ignored_addresses table.
+// Each entry represents a QB Time job code that should be excluded from cost
+// allocation for the given company (e.g. "Office Work", company HQ addresses).
+type WexIgnoredAddress struct {
+	ID        int64     `json:"id"`
+	Company   string    `json:"company"`
+	Address   string    `json:"address"`
+	Note      string    `json:"note"`
+	IsActive  bool      `json:"isActive"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// WexIgnoredAddressInput is the payload for creating/updating an ignored address.
+type WexIgnoredAddressInput struct {
+	Company  string `json:"company"`
+	Address  string `json:"address"`
+	Note     string `json:"note"`
+	IsActive *bool  `json:"isActive"`
+}
