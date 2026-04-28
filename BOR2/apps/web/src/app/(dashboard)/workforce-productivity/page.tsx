@@ -112,7 +112,7 @@ export default function WorkforceProductivityPage() {
   const company           = searchParams.get("company") ?? undefined
   const { user }          = useAuth()
   const { data: myPerms } = useMyPermissions()
-  const canManage         = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce-productivity"] === "write"
+  const canManage         = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce"] === "write"
 
   const [manageOpen,     setManageOpen]     = useState(false)
   const [year,           setYear]           = useState(String(new Date().getFullYear()))

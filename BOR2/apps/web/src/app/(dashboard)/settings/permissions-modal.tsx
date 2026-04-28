@@ -35,7 +35,6 @@ const PERMISSION_GROUPS: PermGroup[] = [
     permissions: [
       { key: "forecast",         label: "Framing Forecast",       image: "/images/sublogo_framing.png"  },
       { key: "inventory",        label: "Inventory Control",      icon: Package    },
-      { key: "workforce",        label: "Workforce Productivity", icon: Users      },
       { key: "ofi",              label: "Operational Index",      icon: BarChart2  },
       { key: "permits",          label: "Permit Control",         icon: FileCheck  },
       { key: "service_requests", label: "Service Requests",       icon: Wrench     },

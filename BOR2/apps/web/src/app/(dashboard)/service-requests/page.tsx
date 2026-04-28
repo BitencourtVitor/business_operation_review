@@ -50,7 +50,7 @@ export default function ServiceRequestsPage() {
   const { user }         = useAuth()
   const { data: myPerms } = useMyPermissions()
 
-  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.['service-requests'] === 'write'
+  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.['service_requests'] === 'write'
 
   // Filter state
   const [year,       setYear]       = useState(String(new Date().getFullYear()))

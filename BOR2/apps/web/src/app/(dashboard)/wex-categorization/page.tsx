@@ -23,6 +23,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { useFinancialStore } from "@/store/financial.store"
 import {
   wexCategorizationService,
   type WexNormEntry,
@@ -437,6 +438,8 @@ function ReportCard({ report, onDelete, onExportExcel, onExportPdf }: {
   onExportExcel: () => void
   onExportPdf: () => void
 }) {
+  const { showFinancialData } = useFinancialStore()
+  const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
   const period  = formatPeriod(report)
   const genAt   = new Date(report.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
 
@@ -458,7 +461,7 @@ function ReportCard({ report, onDelete, onExportExcel, onExportPdf }: {
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">WEX Report</span>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             <span className="text-sm"><span className="font-semibold tabular-nums">{report.meta.wexTxCount}</span> <span className="text-xs text-muted-foreground">transactions</span></span>
-            <span className="text-sm"><span className="font-semibold tabular-nums">${report.meta.wexTotal.toFixed(2)}</span> <span className="text-xs text-muted-foreground">total</span></span>
+            <span className="text-sm"><span className={`font-semibold tabular-nums ${blur}`}>${report.meta.wexTotal.toFixed(2)}</span> <span className="text-xs text-muted-foreground">total</span></span>
             <span className="text-sm"><span className="font-semibold tabular-nums">{report.meta.wexDrivers}</span> <span className="text-xs text-muted-foreground">drivers</span></span>
           </div>
         </div>
@@ -489,7 +492,7 @@ function ReportCard({ report, onDelete, onExportExcel, onExportPdf }: {
           <span className="ml-1 text-xs text-muted-foreground">unique obras</span>
         </span>
         <span className="text-sm">
-          <span className="font-semibold tabular-nums">${report.meta.totalCost?.toFixed(2) ?? "—"}</span>
+          <span className={`font-semibold tabular-nums ${blur}`}>${report.meta.totalCost?.toFixed(2) ?? "—"}</span>
           <span className="ml-1 text-xs text-muted-foreground">total cost</span>
         </span>
       </div>
@@ -814,6 +817,9 @@ function NewReportSheet({ open, onClose, company, onSave }: {
   }
 
   // Derived
+  const { showFinancialData } = useFinancialStore()
+  const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
+
   const qbEmpOptions = [...new Map(qbRows.map(r => [r.fullNameNorm, r.displayName])).values()].sort()
   const unresolved = (() => {
     const seen = new Map<string, { driverId: string; wexName: string }>()
@@ -848,7 +854,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
                   <div className="flex gap-3 text-xs text-muted-foreground">
                     <span><span className="font-semibold text-foreground">{wexPreview.txCount}</span> transactions</span>
                     <span><span className="font-semibold text-foreground">{wexPreview.drivers}</span> drivers</span>
-                    <span><span className="font-semibold text-foreground">${wexPreview.total.toFixed(2)}</span></span>
+                    <span><span className={`font-semibold text-foreground ${blur}`}>${wexPreview.total.toFixed(2)}</span></span>
                   </div>
                 )}
               </div>
@@ -916,7 +922,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
                 <span className="text-sm font-medium">
                   {results.length} transactions
                   <span className="mx-1.5 text-border">·</span>
-                  <span className="font-semibold">${totalCost.toFixed(2)}</span>
+                  <span className={`font-semibold ${blur}`}>${totalCost.toFixed(2)}</span>
                   {officeCount > 0 && <span className="ml-1.5 text-amber-500">· {officeCount} → Office</span>}
                 </span>
                 <Button size="sm" className="h-8 gap-1.5" onClick={handleSave} disabled={isSaving}>
@@ -938,10 +944,10 @@ function NewReportSheet({ open, onClose, company, onSave }: {
                       <TableCell className="text-xs text-muted-foreground">{r.weekday.slice(0, 3)}</TableCell>
                       <TableCell className="whitespace-nowrap text-xs">{r.driverWexName}</TableCell>
                       <TableCell className={cn("text-xs", !r.driverQbName && "italic text-destructive")}>{r.driverQbName || "no mapping"}</TableCell>
-                      <TableCell className="whitespace-nowrap text-right text-xs font-semibold tabular-nums">${r.totalFuelCost.toFixed(2)}</TableCell>
+                      <TableCell className={`whitespace-nowrap text-right text-xs font-semibold tabular-nums ${blur}`}>${r.totalFuelCost.toFixed(2)}</TableCell>
                       <TableCell className={cn("max-w-72 truncate text-xs", r.isOffice && "italic text-amber-500")} title={r.obrasTrabalhadas}>{r.obrasTrabalhadas}</TableCell>
                       <TableCell className="text-center text-xs text-muted-foreground tabular-nums">{r.qtyObras || "—"}</TableCell>
-                      <TableCell className="whitespace-nowrap text-right text-xs font-bold tabular-nums text-primary">{r.qtyObras > 0 ? `$${r.costPerJobcode.toFixed(2)}` : "—"}</TableCell>
+                      <TableCell className={`whitespace-nowrap text-right text-xs font-bold tabular-nums text-primary ${blur}`}>{r.qtyObras > 0 ? `$${r.costPerJobcode.toFixed(2)}` : "—"}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{r.merchantCity}</TableCell>
                     </TableRow>
                   ))}
