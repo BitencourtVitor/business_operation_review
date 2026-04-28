@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
-import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users, Clock } from "lucide-react"
+import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
 
@@ -50,12 +50,6 @@ export default function SettingsPage() {
       title:       "Notifications",
       description: "Send or schedule system notifications. Edit and delete pending scheduled notifications.",
       href:        "/settings/notifications",
-    },
-    {
-      icon:        Clock,
-      title:       "Workforce Productivity",
-      description: "Manage QBTime CSV uploads. Upload, review and delete monthly timesheet data by company.",
-      href:        "/settings/workforce",
     },
     {
       icon:        KeyRound,
