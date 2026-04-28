@@ -3,8 +3,11 @@
 import { useCallback, useRef, useState } from "react"
 import {
   Building2,
+  CalendarRange,
   Check,
+  ClockIcon,
   FileText,
+  Layers,
   Loader2,
   Pencil,
   Plus,
@@ -354,13 +357,28 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                     <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="truncate">{building.pdf_filename}</span>
                   </div>
-                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-                    {building.task_count != null && <span>{building.task_count} tasks</span>}
+                  <div className="flex flex-col gap-1 text-[11px] text-muted-foreground">
+                    {building.task_count != null && (
+                      <div className="flex items-center gap-1.5">
+                        <Layers className="h-3 w-3 shrink-0" />
+                        <span>{building.task_count} tasks</span>
+                      </div>
+                    )}
                     {building.project_start && building.project_finish && (
-                      <span>{building.project_start.slice(0,7)} → {building.project_finish.slice(0,7)}</span>
+                      <div className="flex items-center gap-1.5">
+                        <CalendarRange className="h-3 w-3 shrink-0" />
+                        <span>
+                          {new Date(building.project_start).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {" → "}
+                          {new Date(building.project_finish).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </span>
+                      </div>
                     )}
                     {building.uploaded_at && (
-                      <span>Updated {new Date(building.uploaded_at).toLocaleDateString()}</span>
+                      <div className="flex items-center gap-1.5">
+                        <ClockIcon className="h-3 w-3 shrink-0" />
+                        <span>Updated {new Date(building.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-1.5 pt-0.5">
