@@ -191,6 +191,20 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
     timeout.current = setTimeout(() => setShow(false), 150)
   }
 
+  function getPopupStyle(): React.CSSProperties {
+    if (!ref.current) return { left: 0, top: 0 }
+    const rect = ref.current.getBoundingClientRect()
+    const itemCount = (item.children?.length ?? 0) + (item.editPermKey && canEdit(item.editPermKey) ? 1 : 0)
+    const estimatedH = 40 + itemCount * 36   // label row + per-item height
+    const flipUp = rect.top + estimatedH > window.innerHeight - 8
+    return {
+      left: rect.right,
+      ...(flipUp
+        ? { bottom: window.innerHeight - rect.bottom }
+        : { top: rect.top }),
+    }
+  }
+
   return (
     <div ref={ref} className="relative" onMouseEnter={enter} onMouseLeave={leave}>
       <SidebarMenuButton isActive={item.children?.some((c) => isActive(c.href)) ?? false}>
@@ -201,10 +215,7 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
       {show && item.children && (
         <div
           className="fixed z-[200] ml-1 flex min-w-[160px] flex-col gap-1 rounded-lg border bg-popover p-1.5 shadow-lg"
-          style={{
-            left: ref.current ? ref.current.getBoundingClientRect().right : 0,
-            top: ref.current ? ref.current.getBoundingClientRect().top : 0,
-          }}
+          style={getPopupStyle()}
           onMouseEnter={enter}
           onMouseLeave={leave}
         >
