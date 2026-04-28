@@ -369,7 +369,7 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                         <CalendarRange className="h-3 w-3 shrink-0" />
                         <span>
                           {new Date(building.project_start).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                          {" → "}
+                          {" – "}
                           {new Date(building.project_finish).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                       </div>
