@@ -80,7 +80,8 @@ function parseCsv(text: string): ParsedCsv {
 }
 
 function ci(headers: string[], name: string) {
-  return headers.findIndex(h => h.trim() === name)
+  const nl = name.toLowerCase()
+  return headers.findIndex(h => h.trim().toLowerCase() === nl)
 }
 
 // ─── Date utils ───────────────────────────────────────────────────────────────
@@ -240,20 +241,31 @@ function runAllocation(
   return results
 }
 
+const EXCLUDE_JOBS_LOWER = new Set([...EXCLUDE_JOBS].map(s => s.toLowerCase()))
+
 function parseQbTime(text: string): QbRow[] {
   const { headers, rows } = parseCsv(text)
+  // ci() is already case-insensitive — works regardless of how HVAC/Framing export column casing
   const fI = ci(headers, "fname"), lI = ci(headers, "lname")
   const dI = ci(headers, "local_date"), j1 = ci(headers, "jobcode_1")
-  const j2 = ci(headers, "jobcode_2"), j3 = ci(headers, "jobcode_3"), j4 = ci(headers, "jobcode_4")
   if (fI < 0 || lI < 0 || dI < 0 || j1 < 0) return []
+
+  // Discover ALL jobcode_N columns dynamically (some companies have > 4)
+  const jCols = headers
+    .map((h, i) => ({ lower: h.trim().toLowerCase(), i }))
+    .filter(({ lower }) => /^jobcode_\d+$/.test(lower))
+    .map(({ i }) => i)
+
   const result: QbRow[] = []
   for (const row of rows) {
     const jc1 = (row[j1] ?? "").trim()
-    if (EXCLUDE_JOBS.has(jc1)) continue
+    if (EXCLUDE_JOBS_LOWER.has(jc1.toLowerCase())) continue  // case-insensitive exclude
     const date = (row[dI] ?? "").trim().split("T")[0]
     if (!date) continue
     const fname = (row[fI] ?? "").trim(), lname = (row[lI] ?? "").trim()
-    const jcols = [j1, j2, j3, j4].map(i => (i >= 0 ? (row[i] ?? "").trim() : "")).filter(v => v && !IGNORE_PARTS.has(v))
+    const jcols = jCols
+      .map(i => (row[i] ?? "").trim())
+      .filter(v => v && !IGNORE_PARTS.has(v))
     if (!jcols.length) continue
     result.push({ date, fullNameNorm: normalizeName(`${fname} ${lname}`), displayName: `${fname} ${lname}`.trim(), address: jcols.join(", ") })
   }
