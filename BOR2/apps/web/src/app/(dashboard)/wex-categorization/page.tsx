@@ -933,7 +933,18 @@ function NewReportSheet({ open, onClose, company, onSave }: {
 
   async function handleQbFile(file: File) {
     try {
-      const text = await file.text()
+      // Support both CSV and Excel (.xlsx/.xls) exports from QB Time
+      let text: string
+      const isExcel = /\.(xlsx|xls)$/i.test(file.name)
+      if (isExcel) {
+        const buf = await file.arrayBuffer()
+        const wb  = XLSX.read(buf, { type: "array" })
+        const ws  = wb.Sheets[wb.SheetNames[0]]
+        text = XLSX.utils.sheet_to_csv(ws)
+      } else {
+        text = await file.text()
+      }
+
       const { headers } = parseCsv(text)
       const missing = ["fname", "lname", "local_date", "jobcode_1"].filter(c => ci(headers, c) < 0)
       if (missing.length) {
@@ -1079,7 +1090,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">QuickBooks Time</span>
-                <FileDropZone label="Drop QB Time CSV here" accept=".csv,text/csv" fileName={qbFileName} status={qbStatus} onFile={handleQbFile} />
+                <FileDropZone label="Drop QB Time CSV or Excel here" accept=".csv,text/csv,.xlsx,.xls" fileName={qbFileName} status={qbStatus} onFile={handleQbFile} />
                 {qbPreview && (
                   <div className="flex gap-3 text-xs text-muted-foreground">
                     <span><span className="font-semibold text-foreground">{qbPreview.entries}</span> entries</span>
