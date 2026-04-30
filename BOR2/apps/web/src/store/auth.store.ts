@@ -41,6 +41,7 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== "undefined") {
           localStorage.removeItem("bor2-auth")
           localStorage.removeItem(REMEMBER_KEY)
+          localStorage.removeItem("bor2-financial") // clear other user's financial pref
           sessionStorage.removeItem("bor2-auth")
         }
         set({ user: null, token: null, isAuthenticated: false })

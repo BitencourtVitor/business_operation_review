@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware"
 interface FinancialState {
   showFinancialData: boolean
   toggleFinancialData: () => void
+  resetFinancial: () => void
 }
 
 export const useFinancialStore = create<FinancialState>()(
@@ -12,6 +13,7 @@ export const useFinancialStore = create<FinancialState>()(
       showFinancialData: true,
       toggleFinancialData: () =>
         set((state) => ({ showFinancialData: !state.showFinancialData })),
+      resetFinancial: () => set({ showFinancialData: true }),
     }),
     {
       name: "bor2-financial",

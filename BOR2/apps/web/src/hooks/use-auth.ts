@@ -1,6 +1,7 @@
 import { authService } from "@/services/auth.service"
 import { useAuthStore } from "@/store/auth.store"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useFinancialStore } from "@/store/financial.store"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 
 interface LoginParams {
@@ -11,6 +12,8 @@ interface LoginParams {
 
 export function useAuth() {
   const { user, token, isAuthenticated, setAuth, clearAuth } = useAuthStore()
+  const { resetFinancial } = useFinancialStore()
+  const queryClient = useQueryClient()
   const router = useRouter()
 
   const loginMutation = useMutation({
@@ -27,6 +30,10 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: () => authService.logout(token!),
     onSuccess: () => {
+      // Clear ALL cached query data before navigating — prevents previous user's
+      // data (name, profile, business data) from flashing on the next login.
+      queryClient.clear()
+      resetFinancial()
       clearAuth()
       router.push("/login")
     },
