@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner"
 import {
   Settings, Plus, Pencil, Trash2, X,
-  Upload, CheckCircle2, Play, AlertTriangle,
+  Upload, CheckCircle2, AlertCircle, Play, AlertTriangle,
   FileSpreadsheet, FileText, FolderOpen,
   ArrowLeftRight, Ban,
 } from "lucide-react"
@@ -412,8 +412,12 @@ function formatPeriod(report: WexReport): string {
 
 // ─── File Drop Zone ───────────────────────────────────────────────────────────
 
-function FileDropZone({ label, accept, fileName, loaded, onFile }: {
-  label: string; accept: string; fileName: string; loaded: boolean; onFile: (f: File) => void
+function FileDropZone({ label, accept, fileName, status, onFile }: {
+  label:    string
+  accept:   string
+  fileName: string
+  status:   "idle" | "ok" | "warn"
+  onFile:   (f: File) => void
 }) {
   const ref = useRef<HTMLInputElement>(null)
   const [drag, setDrag] = useState(false)
@@ -425,17 +429,23 @@ function FileDropZone({ label, accept, fileName, loaded, onFile }: {
       onDragLeave={() => setDrag(false)}
       className={cn(
         "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed py-5 text-center transition-colors select-none",
-        drag   ? "border-primary/60 bg-primary/5"
-        : loaded ? "border-emerald-500/40 bg-emerald-500/5"
-        :          "border-border/60 hover:border-border hover:bg-muted/30",
+        drag             ? "border-primary/60 bg-primary/5"
+        : status === "ok"   ? "border-emerald-500/40 bg-emerald-500/5"
+        : status === "warn" ? "border-amber-400/50 bg-amber-400/5"
+        :                     "border-border/60 hover:border-border hover:bg-muted/30",
       )}
     >
       <input ref={ref} type="file" accept={accept} className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = "" }} />
-      {loaded
-        ? <><CheckCircle2 className="h-5 w-5 text-emerald-500" /><p className="text-xs font-medium">{fileName}</p><p className="text-[11px] text-muted-foreground">Click or drop to replace</p></>
-        : <><Upload className="h-5 w-5 text-muted-foreground/40" /><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="text-[11px] text-muted-foreground/60">Drag & drop or click to select</p></>
-      }
+      {status === "ok" && (
+        <><CheckCircle2 className="h-5 w-5 text-emerald-500" /><p className="text-xs font-medium">{fileName}</p><p className="text-[11px] text-muted-foreground">Click or drop to replace</p></>
+      )}
+      {status === "warn" && (
+        <><AlertCircle className="h-5 w-5 text-amber-500" /><p className="text-xs font-medium text-amber-600 dark:text-amber-400">{fileName}</p><p className="text-[11px] text-muted-foreground">No valid rows — click to try another file</p></>
+      )}
+      {status === "idle" && (
+        <><Upload className="h-5 w-5 text-muted-foreground/40" /><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="text-[11px] text-muted-foreground/60">Drag & drop or click to select</p></>
+      )}
     </div>
   )
 }
@@ -872,6 +882,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
   const [wexPreview,  setWexPreview]  = useState<{ txCount: number; drivers: number; total: number } | null>(null)
   const [qbRows,      setQbRows]      = useState<QbRow[]>([])
   const [qbFileName,  setQbFileName]  = useState("")
+  const [qbStatus,    setQbStatus]    = useState<"idle" | "ok" | "warn">("idle")
   const [qbPreview,   setQbPreview]   = useState<{ entries: number; employees: number } | null>(null)
   const [filterFrom,  setFilterFrom]  = useState("")
   const [filterTo,    setFilterTo]    = useState("")
@@ -884,7 +895,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
   useEffect(() => {
     if (!open) {
       setWexText(""); setWexFileName(""); setWexPreview(null)
-      setQbRows([]); setQbFileName(""); setQbPreview(null)
+      setQbRows([]); setQbFileName(""); setQbStatus("idle"); setQbPreview(null)
       setFilterFrom(""); setFilterTo("")
       setResults([]); setIsRunning(false); setOverrides({})
       setNormMap(new Map()); setIgnoredObras(new Set())
@@ -925,10 +936,20 @@ function NewReportSheet({ open, onClose, company, onSave }: {
       const text = await file.text()
       const { headers } = parseCsv(text)
       const missing = ["fname", "lname", "local_date", "jobcode_1"].filter(c => ci(headers, c) < 0)
-      if (missing.length) { toast.error(`Missing QB Time columns: ${missing.join(", ")}`); return }
+      if (missing.length) {
+        toast.error(`Missing QB Time columns: ${missing.join(", ")}. Make sure to export the Job Code Detail report.`)
+        return
+      }
       const parsed = parseQbTime(text)
-      setQbRows(parsed); setQbFileName(file.name)
+      setQbRows(parsed)
+      setQbFileName(file.name)
       setQbPreview({ entries: parsed.length, employees: new Set(parsed.map(r => r.fullNameNorm)).size })
+      if (parsed.length === 0) {
+        setQbStatus("warn")
+        toast.warning("QB Time file loaded but no valid rows found. All entries may be filtered (Admin/Office/no job codes). Check the export date range and job code setup.")
+      } else {
+        setQbStatus("ok")
+      }
     } catch { toast.error("Failed to parse QB Time file.") }
   }
 
@@ -1047,7 +1068,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
             <div className="grid grid-cols-[1fr_1fr_auto] gap-4 p-4">
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">WEX Report</span>
-                <FileDropZone label="Drop WEX CSV here" accept=".csv,text/csv" fileName={wexFileName} loaded={!!wexText} onFile={handleWexFile} />
+                <FileDropZone label="Drop WEX CSV here" accept=".csv,text/csv" fileName={wexFileName} status={wexText ? "ok" : "idle"} onFile={handleWexFile} />
                 {wexPreview && (
                   <div className="flex gap-3 text-xs text-muted-foreground">
                     <span><span className="font-semibold text-foreground">{wexPreview.txCount}</span> transactions</span>
@@ -1058,7 +1079,7 @@ function NewReportSheet({ open, onClose, company, onSave }: {
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">QuickBooks Time</span>
-                <FileDropZone label="Drop QB Time CSV here" accept=".csv,text/csv" fileName={qbFileName} loaded={qbRows.length > 0} onFile={handleQbFile} />
+                <FileDropZone label="Drop QB Time CSV here" accept=".csv,text/csv" fileName={qbFileName} status={qbStatus} onFile={handleQbFile} />
                 {qbPreview && (
                   <div className="flex gap-3 text-xs text-muted-foreground">
                     <span><span className="font-semibold text-foreground">{qbPreview.entries}</span> entries</span>
