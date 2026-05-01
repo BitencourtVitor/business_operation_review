@@ -483,7 +483,7 @@ export default function OFIPage() {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} vertical={false} />
                     <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 7]} tick={tick} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 7]} ticks={[0, 1, 2, 3, 4, 5, 6, 7]} tick={tick} axisLine={false} tickLine={false} />
                     <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                     <Area
                       type="monotone"
