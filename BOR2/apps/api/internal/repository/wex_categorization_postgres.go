@@ -22,6 +22,7 @@ type WexCategorizationRepository interface {
 	ListReports(ctx context.Context, company string) ([]*domain.WexReport, error)
 	GetReport(ctx context.Context, id string) (*domain.WexReport, error)
 	CreateReport(ctx context.Context, in *domain.WexReportInput) (*domain.WexReport, error)
+	PatchReport(ctx context.Context, id string, in *domain.WexReportPatchInput) (*domain.WexReport, error)
 	DeleteReport(ctx context.Context, id string) error
 
 	// Ignored addresses
@@ -182,6 +183,22 @@ func (r *PostgresWexCategorizationRepository) CreateReport(ctx context.Context, 
 	}
 	if err := json.Unmarshal(metaBytesOut, &rep.Meta); err != nil {
 		return nil, fmt.Errorf("unmarshal created wex_report meta: %w", err)
+	}
+	return rep, nil
+}
+
+func (r *PostgresWexCategorizationRepository) PatchReport(ctx context.Context, id string, in *domain.WexReportPatchInput) (*domain.WexReport, error) {
+	rep := &domain.WexReport{}
+	var metaBytes []byte
+	err := r.db.QueryRow(ctx, `
+		UPDATE wex_reports SET company=$1 WHERE id=$2
+		RETURNING id, company, filter_from, filter_to, meta, created_at
+	`, in.Company, id).Scan(&rep.ID, &rep.Company, &rep.FilterFrom, &rep.FilterTo, &metaBytes, &rep.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("patch wex_report: %w", err)
+	}
+	if err := json.Unmarshal(metaBytes, &rep.Meta); err != nil {
+		return nil, fmt.Errorf("unmarshal wex_report meta: %w", err)
 	}
 	return rep, nil
 }

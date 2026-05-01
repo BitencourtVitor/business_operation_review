@@ -60,7 +60,7 @@ function CellValue({ value }: { value: unknown }) {
 function exportCSV(tableName: string, rows: Row[]) {
   if (!rows.length) return
   const cols = Object.keys(rows[0])
-  const escape = (v: unknown) => {
+  const escapeCell = (v: unknown) => {
     if (v === null || v === undefined) return ""
     const s = typeof v === "object" ? JSON.stringify(v) : String(v)
     return s.includes(",") || s.includes('"') || s.includes("\n")
@@ -68,7 +68,7 @@ function exportCSV(tableName: string, rows: Row[]) {
   }
   const csv = [
     cols.join(","),
-    ...rows.map(r => cols.map(c => escape(r[c])).join(",")),
+    ...rows.map(r => cols.map(c => escapeCell(r[c])).join(",")),
   ].join("\n")
   const blob = new Blob([csv], { type: "text/csv" })
   const a    = document.createElement("a")

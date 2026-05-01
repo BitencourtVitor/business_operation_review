@@ -486,7 +486,7 @@ export default function AutoLogPage() {
           const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
           const rows = (byDate.get(dateIso) || []).map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
           const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
-          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
+          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); 
         }
       }
 

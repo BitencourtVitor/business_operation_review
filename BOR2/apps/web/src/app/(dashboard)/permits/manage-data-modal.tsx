@@ -73,7 +73,7 @@ function calcSituacao(sol: string | null, apl: string | null, emi: string | null
 function toDateInput(iso: string | null | undefined): string {
   if (!iso) return ''
   const d = new Date(iso)
-  if (isNaN(d.getTime())) return ''
+  if (Number.isNaN(d.getTime())) return ''
   return d.toISOString().substring(0, 10)
 }
 
@@ -84,7 +84,7 @@ function fromDateInput(val: string): string | null {
 function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '—'
   const d = new Date(iso)
-  if (isNaN(d.getTime())) return '—'
+  if (Number.isNaN(d.getTime())) return '—'
   return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}/${d.getUTCFullYear()}`
 }
 

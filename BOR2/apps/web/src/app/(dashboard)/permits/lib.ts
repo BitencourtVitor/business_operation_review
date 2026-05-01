@@ -8,7 +8,7 @@ import { MONTHS_SHORT, type SitTier } from './types'
 export function getDateStr(s: string | null, part: 'year' | 'month' | 'day'): string {
   if (!s) return ''
   const d = new Date(s)
-  if (isNaN(d.getTime())) return ''
+  if (Number.isNaN(d.getTime())) return ''
   if (part === 'year')  return String(d.getUTCFullYear())
   if (part === 'month') return String(d.getUTCMonth() + 1).padStart(2, '0')
   return d.toISOString().substring(0, 10)
@@ -17,14 +17,14 @@ export function getDateStr(s: string | null, part: 'year' | 'month' | 'day'): st
 export function fmtShort(s: string | null): string | null {
   if (!s) return null
   const d = new Date(s)
-  if (isNaN(d.getTime())) return null
+  if (Number.isNaN(d.getTime())) return null
   return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`
 }
 
 export function fmtDate(s: string | null): string | null {
   if (!s) return null
   const d = new Date(s)
-  if (isNaN(d.getTime())) return null
+  if (Number.isNaN(d.getTime())) return null
   return `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`
 }
 

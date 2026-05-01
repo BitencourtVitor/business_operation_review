@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { useInventory } from '@/hooks/use-inventory';
 import { useFinancialStore } from '@/store/financial.store';
 import { InventorySkeleton } from '@/components/common/page-skeleton';
@@ -44,7 +43,7 @@ const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 
 function fmtPct(v: number | null) {
   if (v == null) return '—'
-  return v.toFixed(1) + '%'
+  return `${v.toFixed(1)}%`
 }
 
 function fmtUSD(v: number) {
@@ -164,7 +163,7 @@ function KpiCard({ icon: Icon, label, value, sub, valueClass, info }: {
 
 export default function InventoryPage() {
   const { data, isLoading, error } = useInventory()
-  const { resolvedTheme } = useTheme()
+
   const { showFinancialData } = useFinancialStore()
   const blur = !showFinancialData ? 'blur-sm select-none pointer-events-none' : ''
 
@@ -182,7 +181,7 @@ export default function InventoryPage() {
   const [thresholdInput, setThresholdInput] = useState<string>(String(threshold))
 
   function applyThreshold(raw: string) {
-    const n = Math.min(100, Math.max(1, parseInt(raw) || 75))
+    const n = Math.min(100, Math.max(1, parseInt(raw, 10) || 75))
     setThreshold(n)
     setThresholdInput(String(n))
     localStorage.setItem(THRESHOLD_KEY, String(n))
@@ -194,7 +193,7 @@ export default function InventoryPage() {
   useEffect(() => {
     const raw = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
     if (raw) setPrimaryColor(raw)
-  }, [resolvedTheme])
+  }, [])
 
   function toggleLot(lot: string) {
     setExpandedLots(prev => {
@@ -208,8 +207,8 @@ export default function InventoryPage() {
   const years = useMemo(() => {
     if (!data) return [CURRENT_YEAR]
     const s = new Set<number>()
-    data.historico_saldo.forEach(h => s.add(parseInt(h.mes.substring(0, 4))))
-    data.detalhes_excesso.forEach(d => s.add(parseInt(d.movement_date.substring(0, 4))))
+    data.historico_saldo.forEach(h => s.add(parseInt(h.mes.substring(0, 4), 10)))
+    data.detalhes_excesso.forEach(d => s.add(parseInt(d.movement_date.substring(0, 4), 10)))
     if (s.size === 0) s.add(CURRENT_YEAR)
     return Array.from(s).sort((a, b) => b - a)
   }, [data])
@@ -223,10 +222,10 @@ export default function InventoryPage() {
     const s = new Set<number>()
     data.historico_saldo
       .filter(h => h.mes.startsWith(yearStr))
-      .forEach(h => s.add(parseInt(h.mes.substring(5, 7))))
+      .forEach(h => s.add(parseInt(h.mes.substring(5, 7), 10)))
     data.detalhes_excesso
       .filter(d => d.movement_date.startsWith(yearStr))
-      .forEach(d => s.add(parseInt(d.movement_date.substring(5, 7))))
+      .forEach(d => s.add(parseInt(d.movement_date.substring(5, 7), 10)))
     return Array.from(s).sort((a, b) => a - b)
   }, [data, yearStr])
 
@@ -248,7 +247,7 @@ export default function InventoryPage() {
     return Array.from(grouped.entries())
       .filter(([, d]) => d.total > 0)
       .map(([mo, d]) => ({
-        month: MONTHS_SHORT[parseInt(mo) - 1],
+        month: MONTHS_SHORT[parseInt(mo, 10) - 1],
         adherence: ((d.total - d.below) / d.total) * 100,
         total: d.total,
         below: d.below,
@@ -259,7 +258,7 @@ export default function InventoryPage() {
   const avgServiceLevel = useMemo(() => {
     const pts = adherenceData.filter(d => {
       if (monthStr === 'all') return d.adherence != null
-      return d.month === MONTHS_SHORT[parseInt(monthStr) - 1] && d.adherence != null
+      return d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1] && d.adherence != null
     })
     if (!pts.length) return null
     return pts.reduce((acc, d) => acc + d.adherence!, 0) / pts.length
@@ -291,7 +290,7 @@ export default function InventoryPage() {
     return Array.from(grouped.entries())
       .filter(([, d]) => d.normal > 0 || d.excess > 0)
       .map(([mo, d]) => ({
-        month: MONTHS_SHORT[parseInt(mo) - 1],
+        month: MONTHS_SHORT[parseInt(mo, 10) - 1],
         ...d,
       }))
   }, [data, yearStr])
@@ -444,7 +443,7 @@ export default function InventoryPage() {
     const blob = new Blob([[...header, ...rows, '', `${purchaseSuggestions.length} product(s) below minimum.`].join('\n')], { type: 'text/plain;charset=utf-8' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `purchase_suggestion_${yearStr}${monthStr !== 'all' ? '_' + monthStr : ''}.txt`
+    a.download = `purchase_suggestion_${yearStr}${monthStr !== 'all' ? `_${monthStr}` : ''}.txt`
     a.click()
   }
 
@@ -458,7 +457,7 @@ export default function InventoryPage() {
     ws['!cols'] = [{ wch: 40 }, { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 10 }]
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Purchase Suggestion')
-    XLSX.writeFile(wb, `purchase_suggestion_${yearStr}${monthStr !== 'all' ? '_' + monthStr : ''}.xlsx`)
+    XLSX.writeFile(wb, `purchase_suggestion_${yearStr}${monthStr !== 'all' ? `_${monthStr}` : ''}.xlsx`)
   }
 
   const adherenceStrokeColor = avgServiceLevel == null ? '#6b7280'

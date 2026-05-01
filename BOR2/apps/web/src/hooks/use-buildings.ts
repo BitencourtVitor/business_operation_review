@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   buildingsService,
-  type BuildingListItem,
   type ParsedScheduleStored,
 } from "@/services/buildings.service"
 

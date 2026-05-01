@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import {
   Building2,
   CalendarRange,
@@ -263,7 +263,6 @@ function BuildingForm({
           onChange={e => setName(e.target.value)}
           placeholder="e.g. 399 Neponset"
           className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
-          autoFocus
         />
       </div>
       <div>

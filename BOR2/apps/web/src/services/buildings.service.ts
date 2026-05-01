@@ -22,6 +22,21 @@ export interface BuildingListItem {
   task_count?: number
 }
 
+export interface RowComment {
+  id:         string
+  row_id:     number
+  user_name:  string
+  user_role:  string
+  body:       string
+  created_at: string
+}
+
+export interface RowMetaItem {
+  row_id:      number
+  status:      'pending' | 'done'
+  observation: string
+}
+
 export interface ScheduleResponse {
   pdf_filename: string
   project_start: string | null
@@ -91,4 +106,25 @@ export const buildingsService = {
 
   deleteSchedule: (buildingId: string) =>
     api.delete<void>(`/api/v1/buildings/${buildingId}/schedule`, tok()),
+
+  getScheduleRowMeta: (buildingId: string) =>
+    api.get<RowMetaItem[]>(`/api/v1/buildings/${buildingId}/schedule/row-meta`, tok()),
+
+  upsertScheduleRowMeta: (buildingId: string, rowId: number | string, patch: { status?: string; observation?: string }) =>
+    api.patch<void>(`/api/v1/buildings/${buildingId}/schedule/row-meta/${rowId}`, patch, tok()),
+
+  getAllRowComments: (buildingId: string) =>
+    api.get<RowComment[]>(`/api/v1/buildings/${buildingId}/schedule/row-comments`, tok()),
+
+  getRowComments: (buildingId: string, rowId: number | string) =>
+    api.get<RowComment[]>(`/api/v1/buildings/${buildingId}/schedule/row-comments/${rowId}`, tok()),
+
+  addRowComment: (buildingId: string, rowId: number | string, body: string, userName: string, userRole: string) =>
+    api.post<RowComment>(`/api/v1/buildings/${buildingId}/schedule/row-comments/${rowId}`, { body, user_name: userName, user_role: userRole }, tok()),
+
+  editRowComment: (buildingId: string, commentId: string, body: string) =>
+    api.patch<RowComment>(`/api/v1/buildings/${buildingId}/schedule/row-comments/${commentId}`, { body }, tok()),
+
+  deleteRowComment: (buildingId: string, commentId: string) =>
+    api.delete<void>(`/api/v1/buildings/${buildingId}/schedule/row-comments/${commentId}`, tok()),
 }

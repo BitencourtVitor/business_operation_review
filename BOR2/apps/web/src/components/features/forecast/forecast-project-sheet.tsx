@@ -261,7 +261,7 @@ export function ForecastProjectSheet({ project: p, open, onClose }: ForecastProj
               ))}
             </div>
 
-            {p.obs && p.obs.trim() && (
+            {p.obs?.trim() && (
               <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
                 {p.obs}
               </div>
@@ -278,8 +278,7 @@ export function ForecastProjectSheet({ project: p, open, onClose }: ForecastProj
                 Fieldwire Documents
               </SectionLabel>
               <div className="flex flex-col gap-2">
-                {p.fieldwire!
-                  .slice()
+                {p.fieldwire?.slice()
                   .sort((a, b) => {
                     const aLast = a.document === "Shared with subcontractor" ? 1 : 0
                     const bLast = b.document === "Shared with subcontractor" ? 1 : 0
@@ -390,10 +389,10 @@ export function ForecastProjectSheet({ project: p, open, onClose }: ForecastProj
                 </p>
               )}
               <div className="flex flex-col gap-2">
-                {p.machines!.map((m, i) => {
+                {p.machines?.map((m, i) => {
                   const isDispensed =
                     m.status?.toLowerCase() === "dispensed" ||
-                    (!!m.unit && m.unit.length > 12 && !/^[A-Z0-9\-]{1,10}$/i.test(m.unit))
+                    (!!m.unit && m.unit.length > 12 && !/^[A-Z0-9-]{1,10}$/i.test(m.unit))
 
                   return (
                     <div

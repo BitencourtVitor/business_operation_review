@@ -86,7 +86,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, optimisticMessage])
+  }, [])
 
   // Only clear optimistic once animation is done AND new messages have arrived
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     const id = setInterval(() => {
       const chunk = words.slice(idx, idx + wordsPerTick).join(' ')
       idx += wordsPerTick
-      setStreamingText((prev) => (prev ? prev + ' ' + chunk : chunk))
+      setStreamingText((prev) => (prev ? `${prev} ${chunk}` : chunk))
       if (idx >= words.length) {
         clearInterval(id)
         setTimeout(() => {
@@ -188,7 +188,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     setInput(e.target.value)
     const el = e.target
     el.style.height = 'auto'
-    el.style.height = Math.min(el.scrollHeight, 24 * 4 + 16) + 'px'
+    el.style.height = `${Math.min(el.scrollHeight, 24 * 4 + 16)}px`
   }
 
   // Enter new chat mode — from sheet button or empty state
@@ -667,7 +667,7 @@ export function useAria(config: AriaConfig) {
   // When sidebar expands, close Aria
   useEffect(() => {
     if (sidebarOpen && open) setOpen(false)
-  }, [sidebarOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sidebarOpen, open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = useCallback(() => {
     const next = !open

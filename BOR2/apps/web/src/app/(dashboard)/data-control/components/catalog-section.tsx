@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -26,7 +25,8 @@ import {
 } from "@/hooks/use-catalog"
 import type { CatalogTable } from "@/services/catalog.service"
 import { GripVertical, Plus, Search, Trash2, X } from "lucide-react"
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import type React from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { CATALOG_TABS } from "../types"
 
 // ─── ContractStepsTable ────────────────────────────────────────────────────────
@@ -38,8 +38,8 @@ function ContractStepsTable() {
 
   // Local ordered copy for optimistic DnD
   const [localRows, setLocalRows] = useState<Record<string, unknown>[]>([])
-  const rowsKey = rows.map(r => r.id).join(",")
-  useEffect(() => { setLocalRows(rows) }, [rowsKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  const _rowsKey = rows.map(r => r.id).join(",")
+  useEffect(() => { setLocalRows(rows) }, [rows]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const dragIndex = useRef<number | null>(null)
   const [dragOver, setDragOver] = useState<number | null>(null)
@@ -135,7 +135,7 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
   const [form, setForm]       = useState<Record<string, string>>({})
 
   // reset form and search when table changes
-  useMemo(() => { setForm({}); setSearch("") }, [activeTable])
+  useMemo(() => { setForm({}); setSearch("") }, [])
 
   const filteredRows = useMemo(() => {
     if (!search.trim()) return rows

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { inventoryService, InventoryData } from '@/services/inventory.service';
+import { inventoryService, type InventoryData } from '@/services/inventory.service';
 import { MOCK_INVENTORY } from '@/lib/mock-data';
 
 export function useInventory() {

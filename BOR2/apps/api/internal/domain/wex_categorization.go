@@ -51,6 +51,11 @@ type WexReport struct {
 	CreatedAt  time.Time       `json:"createdAt"`
 }
 
+// WexReportPatchInput is the payload for partially updating a report.
+type WexReportPatchInput struct {
+	Company string `json:"company"`
+}
+
 // WexReportInput is the payload for creating a report.
 type WexReportInput struct {
 	Company    string          `json:"company"`

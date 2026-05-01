@@ -50,7 +50,7 @@ export default function ServiceRequestsPage() {
   const { user }         = useAuth()
   const { data: myPerms } = useMyPermissions()
 
-  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.['service_requests'] === 'write'
+  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.service_requests === 'write'
 
   // Filter state
   const [year,       setYear]       = useState(String(new Date().getFullYear()))
@@ -110,7 +110,7 @@ export default function ServiceRequestsPage() {
   const [selected,   setSelected]   = useState<ServiceRequest | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
 
-  const insights = useInsights({ pageKey: "Service Requests", mes: month !== "All" ? parseInt(month) : new Date().getMonth() + 1, ano: year !== "All" ? parseInt(year) : new Date().getFullYear(), userId: user?.id ?? "", canWrite: canManage })
+  const insights = useInsights({ pageKey: "Service Requests", mes: month !== "All" ? parseInt(month, 10) : new Date().getMonth() + 1, ano: year !== "All" ? parseInt(year, 10) : new Date().getFullYear(), userId: user?.id ?? "", canWrite: canManage })
 
   // ── Derived filter options ──────────────────────────────────────────────────
   const years = useMemo(() => {

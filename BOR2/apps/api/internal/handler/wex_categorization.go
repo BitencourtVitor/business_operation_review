@@ -122,6 +122,22 @@ func (h *WexCategorizationHandler) CreateReport(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": rep})
 }
 
+// PATCH /wex/reports/:id
+func (h *WexCategorizationHandler) PatchReport(c *fiber.Ctx) error {
+	var in domain.WexReportPatchInput
+	if err := c.BodyParser(&in); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if in.Company == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "company is required", "code": "BAD_REQUEST"})
+	}
+	rep, err := h.svc.PatchReport(c.Context(), c.Params("id"), &in)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"data": rep})
+}
+
 // DELETE /wex/reports/:id
 func (h *WexCategorizationHandler) DeleteReport(c *fiber.Ctx) error {
 	if err := h.svc.DeleteReport(c.Context(), c.Params("id")); err != nil {

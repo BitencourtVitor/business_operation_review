@@ -120,7 +120,7 @@ export default function UploadTimesheetPage() {
                 <SelectContent>
                   {MONTHS.map((m) => (
                     <SelectItem key={m} value={m}>
-                      {new Date(2026, parseInt(m) - 1).toLocaleString("en", { month: "long" })}
+                      {new Date(2026, parseInt(m, 10) - 1).toLocaleString("en", { month: "long" })}
                     </SelectItem>
                   ))}
                 </SelectContent>

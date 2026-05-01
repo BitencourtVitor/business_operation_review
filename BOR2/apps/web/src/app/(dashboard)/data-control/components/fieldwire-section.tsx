@@ -283,7 +283,7 @@ export function FieldwireSection() {
       ) continue
       const key = `${row.client}–${row.type}`
       if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(row)
+      map.get(key)?.push(row)
     }
     return map
   }, [typedRows, search])

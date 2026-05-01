@@ -109,7 +109,7 @@ export function OportunidadesSection({
   for (const o of all) {
     const key = `${o.ano}-${o.mes}`
     if (!grouped.has(key)) grouped.set(key, { mes: o.mes, ano: o.ano, opps: [] })
-    grouped.get(key)!.opps.push(o)
+    grouped.get(key)?.opps.push(o)
   }
   if (!grouped.has(currentKey)) grouped.set(currentKey, { mes, ano, opps: [] })
   const periods = [...grouped.entries()]

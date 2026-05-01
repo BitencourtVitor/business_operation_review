@@ -22,7 +22,7 @@ import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useCreateContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
+import { useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -148,7 +148,6 @@ function ComboboxField({
       <div className="flex items-center gap-2 border-b border-border px-2.5">
         <svg className="h-3.5 w-3.5 shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input
-          autoFocus
           className="h-8 flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
           placeholder="Search…"
           value={query}
@@ -299,7 +298,7 @@ function DatePickerField({ label, value, onBlur, isSaving }: { label: string; va
 
 function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: string, v: unknown) => void; savingField: string | null }) {
   const [obs, setObs] = useState(p.obs || "")
-  useEffect(() => setObs(p.obs || ""), [p.id])
+  useEffect(() => setObs(p.obs || ""), [p.obs])
   return (
     <div className="flex h-full gap-4">
       <div className="flex flex-1 flex-col gap-1.5">
@@ -329,7 +328,8 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
   // Group by category
   const groups = fw.reduce<Record<string, typeof fw>>((acc, f) => {
     const cat = f.category?.trim() || "General"
-    ;(acc[cat] ??= []).push(f)
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(f)
     return acc
   }, {})
 
@@ -409,7 +409,7 @@ function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v:
     setDispensed(Object.fromEntries(
       mach.filter(m => m.id != null).map(m => [m.id!, isDispensedUnit(m.unit)])
     ))
-  }, [p.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mach.filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isOn = (m: typeof mach[0]) => !!(m.status && m.status !== "false" && m.status !== "0")
 
@@ -574,7 +574,7 @@ function ContractTab({ p }: { p: ForecastProject }) {
       if (prev && dbTeams.includes(prev)) return prev
       return dbTeams[0] ?? null
     })
-  }, [p.id])
+  }, [dbTeams.includes, dbTeams[0]])
 
   useEffect(() => {
     if (!addingTeam) return
@@ -1080,7 +1080,7 @@ export function ProjectCard({
     setCliente(project.cliente || ""); setJobSite(project.jobSite || "")
     setType(project.type || "");       setLoteBld(project.loteBld || "")
     setAddress(project.address || ""); setStatus(project.status)
-  }, [project.id])
+  }, [project.cliente, project.type, project.status, project.loteBld, project.jobSite, project.address])
 
   function save(data: Partial<ForecastProject>, field: string) {
     setSavingField(field)

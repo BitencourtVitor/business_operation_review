@@ -25,7 +25,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
   const res = await fetch(`${API_URL}${path}`, {
@@ -46,12 +46,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     }
     throw new ApiError(
       res.status,
-      (json?.["code"] as string) ?? "UNKNOWN",
-      (json?.["error"] as string) ?? "Unknown error",
+      (json?.code as string) ?? "UNKNOWN",
+      (json?.error as string) ?? "Unknown error",
     )
   }
 
-  return (json?.["data"] ?? null) as T
+  return (json?.data ?? null) as T
 }
 
 export const api = {

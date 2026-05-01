@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -11,11 +12,12 @@ import (
 // BuildingsHandler handles construction building schedule CRUD.
 // PDF parsing is done client-side; the frontend sends structured JSON here for storage.
 type BuildingsHandler struct {
-	db *pgxpool.Pool
+	db    *pgxpool.Pool
+	audit *service.AuditService
 }
 
-func NewBuildingsHandler(db *pgxpool.Pool) *BuildingsHandler {
-	return &BuildingsHandler{db: db}
+func NewBuildingsHandler(db *pgxpool.Pool, audit *service.AuditService) *BuildingsHandler {
+	return &BuildingsHandler{db: db, audit: audit}
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -253,5 +255,254 @@ func (h *BuildingsHandler) DeleteSchedule(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
+	return c.SendStatus(204)
+}
+
+// ─── Row meta ─────────────────────────────────────────────────────────────────
+
+type RowMetaItem struct {
+	RowID       int    `json:"row_id"`
+	Status      string `json:"status"`
+	Observation string `json:"observation"`
+}
+
+// GET /api/v1/buildings/:id/schedule/row-meta
+func (h *BuildingsHandler) GetScheduleRowMeta(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	rows, err := h.db.Query(c.Context(), `
+		SELECT m.row_id, m.status, m.observation
+		FROM construction_schedule_row_meta m
+		JOIN construction_schedules s ON s.id = m.schedule_id
+		WHERE s.building_id = $1 AND s.is_current = TRUE
+		ORDER BY m.row_id
+	`, buildingID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	defer rows.Close()
+
+	items := []RowMetaItem{}
+	for rows.Next() {
+		var item RowMetaItem
+		if err := rows.Scan(&item.RowID, &item.Status, &item.Observation); err != nil {
+			continue
+		}
+		items = append(items, item)
+	}
+	return c.JSON(fiber.Map{"data": items})
+}
+
+// ─── Row comments ─────────────────────────────────────────────────────────────
+
+type RowComment struct {
+	ID        string `json:"id"`
+	RowID     int    `json:"row_id"`
+	UserName  string `json:"user_name"`
+	UserRole  string `json:"user_role"`
+	Body      string `json:"body"`
+	CreatedAt string `json:"created_at"`
+}
+
+// GET /api/v1/buildings/:id/schedule/row-comments  — all comments for current schedule
+func (h *BuildingsHandler) GetAllRowComments(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+
+	rows, err := h.db.Query(c.Context(), `
+		SELECT cm.id, cm.row_id, cm.user_name, cm.user_role, cm.body, cm.created_at::text
+		FROM construction_schedule_row_comments cm
+		JOIN construction_schedules s ON s.id = cm.schedule_id
+		WHERE s.building_id = $1 AND s.is_current = TRUE
+		ORDER BY cm.row_id, cm.created_at ASC
+	`, buildingID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	defer rows.Close()
+
+	items := []RowComment{}
+	for rows.Next() {
+		var item RowComment
+		if err := rows.Scan(&item.ID, &item.RowID, &item.UserName, &item.UserRole, &item.Body, &item.CreatedAt); err != nil {
+			continue
+		}
+		items = append(items, item)
+	}
+	return c.JSON(fiber.Map{"data": items})
+}
+
+// GET /api/v1/buildings/:id/schedule/row-comments/:rowId
+func (h *BuildingsHandler) GetRowComments(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	rowID := c.Params("rowId")
+
+	rows, err := h.db.Query(c.Context(), `
+		SELECT cm.id, cm.row_id, cm.user_name, cm.user_role, cm.body, cm.created_at::text
+		FROM construction_schedule_row_comments cm
+		JOIN construction_schedules s ON s.id = cm.schedule_id
+		WHERE s.building_id = $1 AND s.is_current = TRUE AND cm.row_id = $2
+		ORDER BY cm.created_at ASC
+	`, buildingID, rowID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	defer rows.Close()
+
+	items := []RowComment{}
+	for rows.Next() {
+		var item RowComment
+		if err := rows.Scan(&item.ID, &item.RowID, &item.UserName, &item.UserRole, &item.Body, &item.CreatedAt); err != nil {
+			continue
+		}
+		items = append(items, item)
+	}
+	return c.JSON(fiber.Map{"data": items})
+}
+
+// POST /api/v1/buildings/:id/schedule/row-comments/:rowId
+func (h *BuildingsHandler) AddRowComment(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	rowID := c.Params("rowId")
+
+	var body struct {
+		Body     string `json:"body"`
+		UserName string `json:"user_name"`
+		UserRole string `json:"user_role"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+	if body.Body == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "body is required"})
+	}
+
+	var schedID string
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT id FROM construction_schedules WHERE building_id = $1 AND is_current = TRUE
+	`, buildingID).Scan(&schedID); err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "no current schedule"})
+	}
+
+	var comment RowComment
+	if err := h.db.QueryRow(c.Context(), `
+		INSERT INTO construction_schedule_row_comments (schedule_id, row_id, user_name, user_role, body)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, row_id, user_name, user_role, body, created_at::text
+	`, schedID, rowID, body.UserName, body.UserRole, body.Body).Scan(
+		&comment.ID, &comment.RowID, &comment.UserName, &comment.UserRole, &comment.Body, &comment.CreatedAt,
+	); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "comment_create", "schedule_row_comment", comment.ID)
+
+	return c.Status(201).JSON(fiber.Map{"data": comment})
+}
+
+// PATCH /api/v1/buildings/:id/schedule/row-comments/:commentId
+func (h *BuildingsHandler) EditRowComment(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	commentID  := c.Params("commentId")
+
+	var body struct {
+		Body string `json:"body"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+	if body.Body == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "body is required"})
+	}
+
+	var comment RowComment
+	err := h.db.QueryRow(c.Context(), `
+		UPDATE construction_schedule_row_comments cm
+		SET body = $1
+		FROM construction_schedules s
+		WHERE cm.id = $2
+		  AND cm.schedule_id = s.id
+		  AND s.building_id = $3
+		  AND s.is_current = TRUE
+		RETURNING cm.id, cm.row_id, cm.user_name, cm.user_role, cm.body, cm.created_at::text
+	`, body.Body, commentID, buildingID).Scan(
+		&comment.ID, &comment.RowID, &comment.UserName, &comment.UserRole, &comment.Body, &comment.CreatedAt,
+	)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "comment not found"})
+	}
+
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "comment_edit", "schedule_row_comment", commentID)
+
+	return c.JSON(fiber.Map{"data": comment})
+}
+
+// DELETE /api/v1/buildings/:id/schedule/row-comments/:commentId
+func (h *BuildingsHandler) DeleteRowComment(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	commentID  := c.Params("commentId")
+
+	result, err := h.db.Exec(c.Context(), `
+		DELETE FROM construction_schedule_row_comments cm
+		USING construction_schedules s
+		WHERE cm.id = $1
+		  AND cm.schedule_id = s.id
+		  AND s.building_id = $2
+		  AND s.is_current = TRUE
+	`, commentID, buildingID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	if result.RowsAffected() == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "comment not found"})
+	}
+
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "comment_delete", "schedule_row_comment", commentID)
+
+	return c.SendStatus(204)
+}
+
+// PATCH /api/v1/buildings/:id/schedule/row-meta/:rowId
+func (h *BuildingsHandler) UpsertScheduleRowMeta(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	rowID := c.Params("rowId")
+
+	var body struct {
+		Status      *string `json:"status"`
+		Observation *string `json:"observation"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+
+	var schedID string
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT id FROM construction_schedules WHERE building_id = $1 AND is_current = TRUE
+	`, buildingID).Scan(&schedID); err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "no current schedule"})
+	}
+
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO construction_schedule_row_meta (schedule_id, row_id, status, observation)
+		VALUES ($1, $2, COALESCE($3, 'pending'), COALESCE($4, ''))
+		ON CONFLICT (schedule_id, row_id) DO UPDATE SET
+			status      = COALESCE($3, construction_schedule_row_meta.status),
+			observation = COALESCE($4, construction_schedule_row_meta.observation),
+			updated_at  = NOW()
+	`, schedID, rowID, body.Status, body.Observation)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if body.Status != nil {
+		uid, uname := actor(c)
+		action := "row_unmark_done"
+		if *body.Status == "done" {
+			action = "row_mark_done"
+		}
+		h.audit.Log(c.Context(), uid, uname, action, "schedule_row", rowID)
+	}
+
 	return c.SendStatus(204)
 }

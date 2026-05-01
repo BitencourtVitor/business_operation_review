@@ -9,7 +9,7 @@ import type { Status, TopItem } from "./types"
 export function parseDate(s: string | null | undefined): Date | null {
   if (!s) return null
   const d = new Date(s)
-  return isNaN(d.getTime()) ? null : d
+  return Number.isNaN(d.getTime()) ? null : d
 }
 
 export function fmtShort(s: string | null | undefined): string {
@@ -78,7 +78,7 @@ export function parseLot(lot: string | null | undefined): { label: string; value
   if (!lot) return null
   const upper = lot.trim().toUpperCase()
   for (const [prefix, label] of Object.entries(LOT_PREFIX_MAP)) {
-    if (upper.startsWith(prefix + " ")) {
+    if (upper.startsWith(`${prefix} `)) {
       return { label, value: lot.trim().slice(prefix.length).trim() }
     }
   }
