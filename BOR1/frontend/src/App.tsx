@@ -10,7 +10,7 @@ import DataControl from './pages/DataControl'
 import AutoLog from './pages/AutoLog'
 import WexCategorization from './pages/WexCategorization'
 import WeeklyHoursControl from './pages/WeeklyHoursControl'
-import ProtectedRoute from './components/common/ProtectedRoute'
+import ProtectedRoute, { MAINTENANCE_MODE } from './components/common/ProtectedRoute'
 import { DataCacheProvider } from './contexts/DataCacheContext'
 import { GlobalFeedbackProvider } from './contexts/GlobalFeedbackContext'
 import './App.css'
@@ -25,7 +25,7 @@ export default function App() {
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/forecast" element={<MobileForecast />} />
+            <Route path="/forecast" element={MAINTENANCE_MODE ? <Navigate to="/maintenance" replace /> : <MobileForecast />} />
             <Route path="/workforce-forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
             <Route path="/data-control" element={<ProtectedRoute><DataControl /></ProtectedRoute>} />
             <Route path="/ofi" element={<ProtectedRoute><OperationalForecastIndex /></ProtectedRoute>} />

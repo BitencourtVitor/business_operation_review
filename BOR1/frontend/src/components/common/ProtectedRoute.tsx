@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import Maintenance from '../../pages/Maintenance';
 
-const MAINTENANCE_MODE = true;
+export const MAINTENANCE_MODE = true;
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
