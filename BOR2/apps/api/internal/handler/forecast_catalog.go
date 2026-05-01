@@ -19,7 +19,7 @@ type catalogDef struct {
 }
 
 var catalogDefs = map[string]catalogDef{
-	"workforce":      {pgTable: "catalog_forecast_workforce", cols: []string{"name"}},
+	"workforce":      {pgTable: "catalog_forecast_workforce", cols: []string{"name"}, sortCol: "name"},
 	"fieldwire":      {pgTable: "catalog_forecast_fieldwire", cols: []string{"client", "type", "document", "where_location", "notes"}},
 	"machines":       {pgTable: "catalog_forecast_machines", cols: []string{"category", "subcategory", "equipment_category", "title"}},
 	"contract-steps": {pgTable: "catalog_forecast_contract_steps", cols: []string{"seq", "step"}, sortCol: "seq"},
