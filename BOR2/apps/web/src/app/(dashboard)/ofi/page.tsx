@@ -360,10 +360,10 @@ export default function OFIPage() {
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
 
             {/* ── Row 1: 5 metric cards side by side ── */}
-            <div className="grid shrink-0 grid-cols-5 gap-3">
+            <div className="grid shrink-0 grid-cols-5 gap-3 overflow-visible">
 
               {/* OFI Total */}
-              <div className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3">
+              <div className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3 overflow-visible">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                     OFI Total
@@ -414,7 +414,7 @@ export default function OFIPage() {
               {aspects.map(a => (
                 <div
                   key={a.key}
-                  className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3"
+                  className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3 overflow-visible"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
