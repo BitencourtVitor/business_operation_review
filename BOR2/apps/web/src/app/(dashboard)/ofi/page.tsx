@@ -385,9 +385,9 @@ export default function OFIPage() {
                   <span className="text-xs text-muted-foreground">/ 7</span>
                 </div>
                 {/* Sparkline */}
-                <div style={{ height: 44 }} className="[&_text]:fill-muted-foreground">
+                <div style={{ height: 44 }} className="overflow-visible [&_text]:fill-muted-foreground">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData} margin={{ top: 2, right: 2, bottom: 0, left: -40 }}>
+                    <LineChart data={trendData} margin={{ top: 2, right: 8, bottom: 0, left: 8 }}>
                       <XAxis dataKey="month" hide />
                       <YAxis domain={[0, 7]} tick={false} axisLine={false} tickLine={false} width={0} />
                       <RechartsTooltip
@@ -435,9 +435,9 @@ export default function OFIPage() {
                     <span className="text-xs text-muted-foreground">/ {a.max}</span>
                   </div>
                   {/* Sparkline */}
-                  <div style={{ height: 44 }} className="[&_text]:fill-muted-foreground">
+                  <div style={{ height: 44 }} className="overflow-visible [&_text]:fill-muted-foreground">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData} margin={{ top: 2, right: 2, bottom: 0, left: -40 }}>
+                      <LineChart data={trendData} margin={{ top: 2, right: 8, bottom: 0, left: 8 }}>
                         <XAxis dataKey="month" hide />
                         <YAxis domain={[0, a.max]} tick={false} axisLine={false} tickLine={false} width={0} />
                         <RechartsTooltip
