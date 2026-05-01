@@ -111,7 +111,6 @@ export function HighlightEditForm({
               <>
                 <textarea
                   value={t}
-                  autoFocus
                   rows={1}
                   onChange={e => {
                     const n = [...items]; n[i] = e.target.value

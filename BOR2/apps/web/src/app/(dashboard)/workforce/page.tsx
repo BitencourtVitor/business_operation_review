@@ -36,7 +36,7 @@ const MONTHS = [
   { value: "12", label: "December" },
 ] as const
 
-const COMPANY_OPTIONS = [
+const _COMPANY_OPTIONS = [
   { value: "all", label: "All Companies" },
   { value: "Framing", label: "Framing" },
   { value: "PCG", label: "PCG" },
@@ -68,7 +68,7 @@ function formatHours(n: number | undefined | null): string {
   return (n ?? 0).toFixed(2)
 }
 
-function formatCurrency(n: number | undefined | null): string {
+function _formatCurrency(n: number | undefined | null): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -150,7 +150,7 @@ export default function WorkforcePage() {
     const set = new Set<number>()
     rawTimesheets.forEach((r) => {
       const norm = normaliseRefMonth(r.referenceMonth)
-      if (norm) set.add(parseInt(norm.split("-")[0]))
+      if (norm) set.add(parseInt(norm.split("-")[0], 10))
     })
     return Array.from(set).sort((a, b) => b - a)
   }, [rawTimesheets])

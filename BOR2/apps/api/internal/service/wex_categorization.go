@@ -47,6 +47,10 @@ func (s *WexCategorizationService) CreateReport(ctx context.Context, in *domain.
 	return s.repo.CreateReport(ctx, in)
 }
 
+func (s *WexCategorizationService) PatchReport(ctx context.Context, id string, in *domain.WexReportPatchInput) (*domain.WexReport, error) {
+	return s.repo.PatchReport(ctx, id, in)
+}
+
 func (s *WexCategorizationService) DeleteReport(ctx context.Context, id string) error {
 	return s.repo.DeleteReport(ctx, id)
 }

@@ -130,7 +130,7 @@ function calculateScores(
     if (filterYear === "all") return true
     if (!sub.lastEventAt) return true
     const eventDate = new Date(sub.lastEventAt)
-    if (eventDate.getFullYear() !== parseInt(filterYear)) return false
+    if (eventDate.getFullYear() !== parseInt(filterYear, 10)) return false
     if (filterMonth !== "all") {
       const monthIdx = MONTHS.indexOf(filterMonth as (typeof MONTHS)[number])
       if (monthIdx >= 0 && eventDate.getMonth() !== monthIdx) return false

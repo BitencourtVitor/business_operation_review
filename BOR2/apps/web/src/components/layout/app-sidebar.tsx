@@ -15,7 +15,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar"
 import {
@@ -470,7 +469,7 @@ export function AppSidebar() {
 
       if (childrenHavePermKeys) {
         // Parent visibility is determined by its children (e.g. QBTime Reports)
-        const visibleChildren = item.children!.filter(c => !c.permKey || canView(c.permKey))
+        const visibleChildren = item.children?.filter(c => !c.permKey || canView(c.permKey)) ?? []
         if (visibleChildren.length === 0) return []
         return [{ ...item, children: visibleChildren }]
       }

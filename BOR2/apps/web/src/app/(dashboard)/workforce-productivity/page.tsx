@@ -17,8 +17,7 @@ import type { WorkforceRow } from "@/services/workforce.service"
 import type { AttributionRule } from "@/services/workforce.service"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
-  ResponsiveContainer, CartesianGrid, Cell,
-  LineChart, Line, AreaChart, Area, PieChart, Pie, Legend,
+  ResponsiveContainer, CartesianGrid, Cell,Line, AreaChart, Area, PieChart, Pie, Legend,
 } from "recharts"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -112,7 +111,7 @@ export default function WorkforceProductivityPage() {
   const company           = searchParams.get("company") ?? undefined
   const { user }          = useAuth()
   const { data: myPerms } = useMyPermissions()
-  const canManage         = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce"] === "write"
+  const canManage         = (user?.role as string) === "dev" || myPerms?.permissions?.workforce === "write"
 
   const [manageOpen,     setManageOpen]     = useState(false)
   const [year,           setYear]           = useState(String(new Date().getFullYear()))
@@ -152,7 +151,7 @@ export default function WorkforceProductivityPage() {
     setClientFilter([])
     setJobsiteFilter([])
     setWorktypeFilter([])
-  }, [company])
+  }, [])
 
   const { data: rawRows  = [], isLoading }  = useWorkforceData({ company })
   const { data: rules    = [] }             = useWorkforceRules()
@@ -327,8 +326,8 @@ export default function WorkforceProductivityPage() {
 
   const insights = useInsights({
     pageKey:  "Workforce Productivity",
-    mes:      month ? parseInt(month.split("-")[1]) : new Date().getMonth() + 1,
-    ano:      year  ? parseInt(year)                : new Date().getFullYear(),
+    mes:      month ? parseInt(month.split("-")[1], 10) : new Date().getMonth() + 1,
+    ano:      year  ? parseInt(year, 10)                : new Date().getFullYear(),
     userId:   user?.id ?? "",
     canWrite: canManage,
   })

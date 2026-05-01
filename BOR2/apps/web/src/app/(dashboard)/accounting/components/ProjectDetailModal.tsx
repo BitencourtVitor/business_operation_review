@@ -9,7 +9,7 @@ import type {
 import {
   X, ChevronRight,
   Eye, EyeOff,
-  FileText, Receipt, ShoppingCart, ArrowDownLeft, Banknote, Loader2,
+  FileText, Banknote, Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
@@ -68,7 +68,8 @@ function GroupedLines({ lines }: { lines: AnyLine[] }) {
 
   const groups = lines.reduce<Record<string, AnyLine[]>>((acc, l) => {
     const key = l.account_ref_name || "Other"
-    ;(acc[key] ??= []).push(l)
+    if (!acc[key]) acc[key] = []
+    acc[key].push(l)
     return acc
   }, {})
 
@@ -284,7 +285,7 @@ function ExpensesColumn({
   const totalBills   = bills.reduce((s, b) => s + b.total_amount, 0)
   const totalPurch   = purchases.reduce((s, p) => s + p.total_amount, 0)
   const totalCredits = vendorCredits.reduce((s, v) => s + v.total_amount, 0)
-  const grandTotal   = totalBills + totalPurch + totalCredits
+  const _grandTotal   = totalBills + totalPurch + totalCredits
 
   // Merge and sort all expense entities by date
   type ExpenseItem =

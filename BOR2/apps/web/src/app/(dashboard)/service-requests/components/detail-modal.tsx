@@ -8,7 +8,7 @@ import {
   CheckCircle2, Circle, Clock, X,
 } from "lucide-react"
 import { STATUS_CFG, NODE_COLORS } from "../types"
-import { getStatus, getResolutionInfo, fmtShort, parseDate, parseLot, fmtLot } from "../lib"
+import { getStatus, getResolutionInfo, fmtShort, parseLot, fmtLot } from "../lib"
 
 interface DetailModalProps {
   r: ServiceRequest
@@ -42,7 +42,7 @@ export function DetailModal({ r, onClose }: DetailModalProps) {
   function fmtAbbr(s: string | null | undefined): string {
     if (!s) return ""
     const d = new Date(s)
-    if (isNaN(d.getTime())) return ""
+    if (Number.isNaN(d.getTime())) return ""
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     return `${months[d.getUTCMonth()]} ${d.getUTCDate()}`
   }

@@ -110,7 +110,7 @@ function NotificationFormModal({
       scheduledAt: scheduleMode && scheduledAt ? new Date(scheduledAt).toISOString() : null,
     }
     if (isEdit) {
-      await updateNotif.mutateAsync({ id: existing!.id, data: payload })
+      await updateNotif.mutateAsync({ id: existing?.id, data: payload })
     } else {
       await createNotif.mutateAsync(payload)
     }

@@ -129,7 +129,7 @@ export default function ForecastMetricsPage() {
       const raw = p.previousStartDate
       if (!raw) return
       const d = new Date(raw)
-      if (isNaN(d.getTime())) return
+      if (Number.isNaN(d.getTime())) return
       const m = d.getUTCMonth() + 1
       const y = d.getUTCFullYear()
       const key = `${y}-${String(m).padStart(2, "0")}`
@@ -200,10 +200,11 @@ export default function ForecastMetricsPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/forecast"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
+              <ArrowLeft className="h-4 w-4" />
             </Link>
+            <div className="h-8 w-px bg-border" />
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Forecast Metrics</h1>
               <p className="text-sm text-muted-foreground">
@@ -380,10 +381,11 @@ function DetailView({ month, onBack }: { month: MonthData; onBack: () => void })
       <div className="flex shrink-0 items-center gap-3">
         <button
           onClick={onBack}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-4 w-4" />
         </button>
+        <div className="h-8 w-px bg-border" />
         <div>
           <h2 className="text-base font-semibold">{month.label}</h2>
           <p className="text-xs text-muted-foreground">{total} {total === 1 ? "project" : "projects"}</p>

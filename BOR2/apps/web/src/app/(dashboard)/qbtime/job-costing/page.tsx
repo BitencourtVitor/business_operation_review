@@ -252,7 +252,7 @@ function buildSectionCanvas(
       let label = job.path
       ctx.font = `11px ${SF}`
       const maxW = W - PX - 10 - 14 - 62
-      while (ctx.measureText(label).width > maxW && label.length > 10) label = label.slice(0, -4) + "…"
+      while (ctx.measureText(label).width > maxW && label.length > 10) label = `${label.slice(0, -4)}…`
       ctx.fillStyle = T2; ctx.textAlign = "left"
       ctx.fillText(label, PX + 10, y + JOB_H / 2 + 4)
       ctx.font = `11px ${MN}`; ctx.textAlign = "right"
@@ -365,7 +365,7 @@ function exportPDF(periods: PayPeriod[], company: string, hasTeams: boolean, hou
     }
   }
 
-  html += `<script>window.onload=function(){window.print();setTimeout(()=>window.close(),600)}<\/script></body></html>`
+  html += `<script>window.onload=function(){window.print();setTimeout(()=>window.close(),600)}</script></body></html>`
   win.document.write(html); win.document.close()
 }
 
@@ -406,7 +406,7 @@ export default function QBTimeJobCostingPage() {
       sections:  buildSections(allRows, companyTeams),
     }]
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allRows, fileStart, fileEnd, companyTeams, hasTeams])
+  }, [allRows, fileStart, fileEnd, companyTeams])
 
   // All employees across all periods (for the sidebar "available to add" list)
   const allEmployees = useMemo(() => buildEmployees(allRows), [allRows])
@@ -439,12 +439,12 @@ export default function QBTimeJobCostingPage() {
 
         const headers = parseLine(lines[0]).map(h => h.toLowerCase().trim())
 
-        const iUsername = headers.findIndex(h => h === "username")
-        const iFname    = headers.findIndex(h => h === "fname")
-        const iLname    = headers.findIndex(h => h === "lname")
-        const iDate     = headers.findIndex(h => h === "local_date")
-        const iHours    = headers.findIndex(h => h === "hours")
-        const iJC1      = headers.findIndex(h => h === "jobcode_1")
+        const iUsername = headers.indexOf("username")
+        const iFname    = headers.indexOf("fname")
+        const iLname    = headers.indexOf("lname")
+        const iDate     = headers.indexOf("local_date")
+        const iHours    = headers.indexOf("hours")
+        const iJC1      = headers.indexOf("jobcode_1")
 
         if (iUsername === -1 || iHours === -1 || iJC1 === -1) {
           setError("This doesn't look like a QBTime timesheet export."); return
@@ -521,7 +521,7 @@ export default function QBTimeJobCostingPage() {
   }, [hourFormat])
 
   const totalH    = allEmployees.reduce((s, e) => s + e.totalHours, 0)
-  const allPeriodSections = periods.flatMap(p => p.sections)
+  const _allPeriodSections = periods.flatMap(p => p.sections)
 
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
@@ -666,7 +666,6 @@ export default function QBTimeJobCostingPage() {
                 {addingTeam && (
                   <div className="flex gap-1">
                     <input
-                      autoFocus
                       disabled={createTeam.isPending}
                       value={newTeamName}
                       onChange={e => setNewTeamName(e.target.value)}

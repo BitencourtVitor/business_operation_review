@@ -86,6 +86,7 @@ export const wexCategorizationService = {
   listReports:  (company: string)                        => api.get<WexReport[]>(`/api/v1/wex/reports?company=${company}`, getToken()),
   getReport:    (id: string)                             => api.get<WexReport>(`/api/v1/wex/reports/${id}`, getToken()),
   createReport: (data: WexReportInput)                   => api.post<WexReport>("/api/v1/wex/reports", data, getToken()),
+  patchReport:  (id: string, data: { company: string })  => api.patch<WexReport>(`/api/v1/wex/reports/${id}`, data, getToken()),
   deleteReport: (id: string)                             => api.delete<void>(`/api/v1/wex/reports/${id}`, getToken()),
 
   // Ignored addresses

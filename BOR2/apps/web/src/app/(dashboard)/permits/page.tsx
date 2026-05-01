@@ -30,7 +30,7 @@ export default function PermitsPage() {
   const { user }          = useAuth()
   const { data: myPerms } = useMyPermissions()
 
-  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.['permits'] === 'write'
+  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.permits === 'write'
 
   const [primaryHex, setPrimaryHex] = useState('#6366f1')
   const [manageOpen, setManageOpen] = useState(false)
@@ -38,7 +38,7 @@ export default function PermitsPage() {
   useEffect(() => {
     const raw = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
     if (raw) setPrimaryHex(raw)
-  }, [resolvedTheme])
+  }, [])
 
   // ── Filters ──────────────────────────────────────────────────────────────────
   const [dateField,     setDateField]     = useState<DateField>('solicitacao')
@@ -50,8 +50,8 @@ export default function PermitsPage() {
 
   const insights = useInsights({
     pageKey:  'Permits',
-    mes:      monthFilter  !== ALL ? parseInt(monthFilter)  : new Date().getMonth() + 1,
-    ano:      yearFilter   !== ALL ? parseInt(yearFilter)   : new Date().getFullYear(),
+    mes:      monthFilter  !== ALL ? parseInt(monthFilter, 10)  : new Date().getMonth() + 1,
+    ano:      yearFilter   !== ALL ? parseInt(yearFilter, 10)   : new Date().getFullYear(),
     userId:   user?.id ?? '',
     canWrite: canManage,
   })

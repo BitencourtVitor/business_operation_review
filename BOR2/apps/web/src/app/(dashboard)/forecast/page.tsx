@@ -3,7 +3,7 @@
 import { ForecastCard } from "@/components/features/forecast/forecast-card"
 import { ForecastSkeleton } from "@/components/common/page-skeleton"
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, 
 } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useForecast } from "@/hooks/use-forecast"
@@ -418,7 +418,7 @@ export default function ForecastPage() {
       const pm = getProjectMonth(p, dateMode)
       const key = `${pm.year}-${String(pm.month + 1).padStart(2, "0")}`
       if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(p)
+      map.get(key)?.push(p)
     }
 
     const grouped = Array.from(map.entries())

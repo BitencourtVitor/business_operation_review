@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { aiService, type AIConversation, type AIMessage } from "@/services/ai.service"
+import { aiService, } from "@/services/ai.service"
 
 export function useAIConversations(company: string) {
   return useQuery({

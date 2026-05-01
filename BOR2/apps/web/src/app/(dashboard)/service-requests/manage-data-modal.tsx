@@ -48,7 +48,7 @@ const EMPTY_DRAFT: Draft = {
 function toIso(s: string | null | undefined): string {
   if (!s) return ''
   const d = new Date(s)
-  if (isNaN(d.getTime())) return ''
+  if (Number.isNaN(d.getTime())) return ''
   return d.toISOString().substring(0, 10)
 }
 
@@ -59,7 +59,7 @@ function fromIso(s: string): string | null {
 function fmtDate(s: string | null | undefined): string {
   if (!s) return '—'
   const d = new Date(s)
-  if (isNaN(d.getTime())) return '—'
+  if (Number.isNaN(d.getTime())) return '—'
   return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}/${d.getUTCFullYear()}`
 }
 

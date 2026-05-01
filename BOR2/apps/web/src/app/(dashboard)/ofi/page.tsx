@@ -122,7 +122,7 @@ export default function OFIPage() {
       setPanelOpen(false)
       sidebarCollapsedByPanel.current = false
     }
-  }, [sidebarOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sidebarOpen, panelOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function openPanel() {
     sidebarCollapsedByPanel.current = sidebarOpen // remember whether sidebar was open

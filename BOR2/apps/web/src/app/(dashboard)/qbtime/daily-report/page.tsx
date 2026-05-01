@@ -181,7 +181,7 @@ function buildSectionCanvas(section: Section, company: string, date: string, has
       let jc = row.jobCode.split(" >> ").join(" › ")
       ctx.font = `11px ${SF}`
       const maxW = W - PX - 10 - 14 - 62
-      while (ctx.measureText(jc).width > maxW && jc.length > 10) jc = jc.slice(0,-4)+"…"
+      while (ctx.measureText(jc).width > maxW && jc.length > 10) jc = `${jc.slice(0,-4)}…`
       ctx.fillStyle = T2; ctx.textAlign = "left"
       ctx.fillText(jc, PX+10, y + JOB_H/2 + 4)
       ctx.font = `11px ${MN}`; ctx.textAlign = "right"
@@ -293,7 +293,7 @@ function exportPDF(grouped: Section[], company: string, date: string, hasTeams: 
   }
 
   html += `<div class="footer">Premium Group · Business Operations Review</div>
-<script>window.onload=function(){window.print();setTimeout(()=>window.close(),600)}<\/script></body></html>`
+<script>window.onload=function(){window.print();setTimeout(()=>window.close(),600)}</script></body></html>`
   win.document.write(html); win.document.close()
 }
 
@@ -570,7 +570,6 @@ export default function QBTimeDailyReportPage() {
                 {addingTeam && (
                   <div className="flex gap-1">
                     <input
-                      autoFocus
                       disabled={createTeam.isPending}
                       value={newTeamName}
                       onChange={e => setNewTeamName(e.target.value)}

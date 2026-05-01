@@ -14,7 +14,6 @@ import {
   Search,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Popover,
   PopoverContent,
@@ -76,7 +75,7 @@ function parseHours(raw: string): number {
   const t = raw.trim()
   if (t.includes(":")) {
     const [h, m] = t.split(":").map(Number)
-    return (isNaN(h) ? 0 : h) + (isNaN(m) ? 0 : m) / 60
+    return (Number.isNaN(h) ? 0 : h) + (Number.isNaN(m) ? 0 : m) / 60
   }
   return parseFloat(t) || 0
 }
@@ -120,12 +119,12 @@ const KNOWN_EXCLUDED_PREFIXES = [
 ]
 
 function isKnownExcluded(key: string) {
-  return KNOWN_EXCLUDED_PREFIXES.some(p => key === p || key.startsWith(p + " ›"))
+  return KNOWN_EXCLUDED_PREFIXES.some(p => key === p || key.startsWith(`${p} ›`))
 }
 
 function buildJobcodeKey(row: string[], headers: string[]): string {
   return ["jobcode_1", "jobcode_2", "jobcode_3", "jobcode_4"]
-    .map(col => row[headers.findIndex(h => h === col)]?.trim() || "")
+    .map(col => row[headers.indexOf(col)]?.trim() || "")
     .filter(Boolean)
     .join(" › ")
 }
@@ -270,7 +269,7 @@ function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, file
 </style></head>
 <body><img src="${dataUrl}" /><script>
   window.onload = function() { window.print(); setTimeout(() => window.close(), 500); }
-<\/script></body></html>`)
+</script></body></html>`)
   win.document.close()
 }
 
@@ -313,8 +312,7 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
         {/* Search */}
         <div className="flex items-center gap-2 border-b px-3 py-2">
           <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          <input
-            autoFocus value={search} onChange={e => setSearch(e.target.value)}
+          <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search categories…"
             className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
           />
@@ -402,11 +400,11 @@ export default function WeeklyHoursControlPage() {
 
   useEffect(() => {
     if (!rows.length) return
-    const dayIdx      = headers.findIndex(h => h === "local_day")
-    const hoursIdx    = headers.findIndex(h => h === "hours")
-    const fnameIdx    = headers.findIndex(h => h === "fname")
-    const lnameIdx    = headers.findIndex(h => h === "lname")
-    const usernameIdx = headers.findIndex(h => h === "username")
+    const dayIdx      = headers.indexOf("local_day")
+    const hoursIdx    = headers.indexOf("hours")
+    const fnameIdx    = headers.indexOf("fname")
+    const lnameIdx    = headers.indexOf("lname")
+    const usernameIdx = headers.indexOf("username")
 
     const expectedMonWed = hoursPerDay * 3
     const fullWeek       = hoursPerDay * 5
@@ -447,9 +445,9 @@ export default function WeeklyHoursControlPage() {
         const text = e.target?.result as string
         const { headers: h, rows: r } = parseCsvText(text)
 
-        const dayIdx   = h.findIndex(x => x === "local_day")
-        const hoursIdx = h.findIndex(x => x === "hours")
-        const jc1Idx   = h.findIndex(x => x === "jobcode_1")
+        const dayIdx   = h.indexOf("local_day")
+        const hoursIdx = h.indexOf("hours")
+        const jc1Idx   = h.indexOf("jobcode_1")
 
         if (jc1Idx === -1 || dayIdx === -1 || hoursIdx === -1) {
           setError("Required columns not found. Make sure this is a QB Time CSV export.")

@@ -29,7 +29,7 @@ import {
   Gem, KeyRound, Loader2,
   Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
-  User, UserCog, UserPlus, Users, Watch, Wrench,
+  User, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react"
 import type { UserWithPermissions, PermissionLevel } from "@/services/settings.service"
 
@@ -149,7 +149,7 @@ function UserFormModal({
   async function handleSubmit() {
     if (!name.trim() || !email.trim()) return
     if (isEdit) {
-      await updateUser.mutateAsync({ id: existing!.id, data: { name, email, role } })
+      await updateUser.mutateAsync({ id: existing?.id, data: { name, email, role } })
       onClose()
     } else {
       const res = await createUser.mutateAsync({ name, email, role })

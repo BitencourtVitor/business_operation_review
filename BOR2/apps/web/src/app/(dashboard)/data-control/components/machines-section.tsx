@@ -260,7 +260,7 @@ export function MachinesSection() {
       ) continue
       const key = `${row.category}–${row.subcategory}`
       if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(row)
+      map.get(key)?.push(row)
     }
     return map
   }, [typedRows, search])

@@ -1,34 +1,57 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   ArrowUpDown,
+  Briefcase,
   Building2,
+  Calendar,
   CalendarDays,
+  Check,
   ChevronsDownUp,
   ChevronsUpDown,
   ChevronDown,
   ChevronRight,
+  Circle,
+  ClipboardList,
   DoorOpen,
+  Send,
+  X,
   Droplets,
   Flame,
   FolderOpen,
   GanttChartSquare,
   Hammer,
+  Home,
   Info,
+  LayoutGrid,
   Layers,
   Loader2,
+  Logs,
+  MessageSquare,
   Package2,
+  Award,
+  Compass,
+  Gem,
+  Pencil,
+  Trash2,
+  TrendingUp,
+  User,
   PanelLeft,
   Triangle,
   Users2,
+  Warehouse,
   Wind,
-  X,
   Zap,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useBuildings, useBuildingSchedule } from "@/hooks/use-buildings"
+import { buildingsService, type RowComment } from "@/services/buildings.service"
+import { useAuth } from "@/hooks/use-auth"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import {
   hydrateSchedule,
   getVisibleRows,
@@ -49,10 +72,17 @@ const PX_PER_DAY    = 3.5   // px per calendar day (~105 px/month)
 
 // ─── Phase bar colours ────────────────────────────────────────────────────────
 
-const PHASE_COLORS = [
-  "#f59e0b","#ef4444","#a855f7","#3b82f6",
-  "#06b6d4","#10b981","#f97316","#ec4899",
-  "#84cc16","#6366f1","#14b8a6","#eab308",
+// Light mode: darker shades → white text on top
+const PHASE_COLORS_LIGHT = [
+  "#d97706","#dc2626","#9333ea","#2563eb",
+  "#0891b2","#059669","#ea580c","#db2777",
+  "#65a30d","#4f46e5","#0d9488","#ca8a04",
+]
+// Dark mode: lighter/pastel shades → dark text on top
+const PHASE_COLORS_DARK = [
+  "#fbbf24","#f87171","#c084fc","#60a5fa",
+  "#22d3ee","#34d399","#fb923c","#f472b6",
+  "#a3e635","#818cf8","#2dd4bf","#facc15",
 ]
 
 // ─── Resource helpers ─────────────────────────────────────────────────────────
@@ -63,51 +93,151 @@ function toTitleCase(s: string): string {
   return s.replace(/\b\w/g, c => c.toUpperCase())
 }
 
-const RES_COLORS: Array<{ match: RegExp; cls: string }> = [
-  { match: /electrical|electric/i,           cls: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300" },
-  { match: /plumbing|plumb/i,                cls: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300" },
-  { match: /hvac|mechanical/i,               cls: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
-  { match: /framing|framer/i,                cls: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
-  { match: /drywall/i,                       cls: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
-  { match: /sprinkler/i,                     cls: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" },
-  { match: /fireproof|fire\s/i,              cls: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
-  { match: /flatwork|concrete|foundation/i,  cls: "bg-stone-100 text-stone-800 dark:bg-stone-900/40 dark:text-stone-300" },
-  { match: /tile|flooring/i,                 cls: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300" },
-  { match: /paint/i,                         cls: "bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300" },
-  { match: /elevator/i,                      cls: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300" },
-  { match: /structural/i,                    cls: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
-  { match: /alum|door|window|glass/i,        cls: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300" },
-  { match: /truss/i,                         cls: "bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-300" },
-  { match: /appliance/i,                     cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" },
-  { match: /subs|subcontractor/i,            cls: "bg-muted text-muted-foreground" },
+// Single source of truth — same order in all three tables.
+// Every trade has icon + color + bar-hex.
+const TRADE_ENTRIES: Array<{
+  match:    RegExp
+  icon:     LucideIcon
+  cls:      string          // badge bg + text (Tailwind)
+}> = [
+  { match: /electrical|electric/i,     icon: Zap,        cls: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300" },
+  { match: /plumbing|plumb/i,          icon: Droplets,   cls: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300" },
+  { match: /hvac|mechanical/i,         icon: Wind,       cls: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
+  { match: /framer.*(ext|exterior)/i,  icon: Hammer,     cls: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { match: /framer.*(int|interior)/i,  icon: PanelLeft,  cls: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
+  { match: /framer.*shell/i,           icon: Building2,  cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200" },
+  { match: /framing|framer/i,          icon: Hammer,     cls: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  { match: /drywall/i,                 icon: Layers,     cls: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
+  { match: /sprinkler/i,               icon: Droplets,   cls: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" },
+  { match: /fireproof|fire\s/i,        icon: Flame,      cls: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300" },
+  { match: /flatwork|concrete|foundation/i, icon: Layers, cls: "bg-stone-100 text-stone-800 dark:bg-stone-900/40 dark:text-stone-300" },
+  { match: /tile|flooring/i,           icon: Layers,     cls: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300" },
+  { match: /paint/i,                   icon: Circle,     cls: "bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300" },
+  { match: /elevator/i,                icon: ArrowUpDown, cls: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300" },
+  { match: /structural/i,              icon: Triangle,   cls: "bg-stone-100 text-stone-700 dark:bg-stone-800/60 dark:text-stone-300" },
+  { match: /alum|door|window|glass/i,  icon: DoorOpen,   cls: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300" },
+  { match: /truss/i,                   icon: Triangle,   cls: "bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-300" },
+  { match: /appliance/i,               icon: Package2,   cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  { match: /panel|insul/i,             icon: PanelLeft,  cls: "bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300" },
+  { match: /subs|subcontractor/i,      icon: Users2,     cls: "bg-muted text-muted-foreground" },
+  { match: /lumber/i,                  icon: Logs,       cls: "bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200" },
+  { match: /pulte/i,                   icon: Home,       cls: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300" },
+  { match: /roof.shingle|shingle/i,    icon: Warehouse,  cls: "bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300" },
+  { match: /\bscar\b/i,               icon: ClipboardList, cls: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300" },
+  { match: /\bsales\b/i,              icon: TrendingUp, cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  { match: /\bunits?\b/i,             icon: LayoutGrid, cls: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
+  { match: /client|owner/i,            icon: Briefcase,  cls: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300" },
 ]
 function resColor(r: string) {
-  return RES_COLORS.find(e => e.match.test(r))?.cls ?? "bg-muted text-muted-foreground"
+  return TRADE_ENTRIES.find(e => e.match.test(r))?.cls ?? "bg-muted text-muted-foreground"
+}
+function resIcon(r: string): LucideIcon | null {
+  return TRADE_ENTRIES.find(e => e.match.test(r))?.icon ?? null
 }
 
-const RES_ICONS: Array<{ match: RegExp; icon: LucideIcon }> = [
-  { match: /electrical|electric/i,           icon: Zap },
-  { match: /plumbing|plumb/i,                icon: Droplets },
-  { match: /hvac|mechanical/i,               icon: Wind },
-  { match: /framing|framer/i,                icon: Hammer },
-  { match: /drywall/i,                       icon: Layers },
-  { match: /sprinkler/i,                     icon: Droplets },
-  { match: /fireproof|fire\s/i,              icon: Flame },
-  { match: /flatwork|concrete|foundation/i,  icon: Layers },
-  { match: /elevator/i,                      icon: ArrowUpDown },
-  { match: /truss/i,                         icon: Triangle },
-  { match: /appliance/i,                     icon: Package2 },
-  { match: /alum|door|window/i,              icon: DoorOpen },
-  { match: /structural/i,                    icon: Hammer },
-  { match: /subs|subcontractor/i,            icon: Users2 },
-  { match: /panel|insul/i,                   icon: PanelLeft },
+// Bar fill colors — same order as TRADE_ENTRIES
+const RES_BAR_HEX: Array<{ match: RegExp; dark: string; light: string }> = [
+  { match: /electrical|electric/i,     dark: "#facc15", light: "#ca8a04" },
+  { match: /plumbing|plumb/i,          dark: "#22d3ee", light: "#0891b2" },
+  { match: /hvac|mechanical/i,         dark: "#60a5fa", light: "#2563eb" },
+  { match: /framer.*(ext|exterior)/i,  dark: "#fbbf24", light: "#d97706" },
+  { match: /framer.*(int|interior)/i,  dark: "#fb923c", light: "#ea580c" },
+  { match: /framer.*shell/i,           dark: "#fde047", light: "#ca8a04" },
+  { match: /framing|framer/i,          dark: "#fbbf24", light: "#d97706" },
+  { match: /drywall/i,                 dark: "#4ade80", light: "#16a34a" },
+  { match: /sprinkler/i,               dark: "#f87171", light: "#dc2626" },
+  { match: /fireproof|fire\s/i,        dark: "#fda4af", light: "#e11d48" },
+  { match: /flatwork|concrete|foundation/i, dark: "#a8a29e", light: "#78716c" },
+  { match: /tile|flooring/i,           dark: "#c084fc", light: "#7c3aed" },
+  { match: /paint/i,                   dark: "#f9a8d4", light: "#db2777" },
+  { match: /elevator/i,                dark: "#818cf8", light: "#4f46e5" },
+  { match: /structural/i,              dark: "#d6d3d1", light: "#57534e" },
+  { match: /alum|door|window|glass/i,  dark: "#38bdf8", light: "#0284c7" },
+  { match: /truss/i,                   dark: "#a3e635", light: "#65a30d" },
+  { match: /appliance/i,               dark: "#34d399", light: "#059669" },
+  { match: /panel|insul/i,             dark: "#94a3b8", light: "#475569" },
+  { match: /subs|subcontractor/i,      dark: "#9ca3af", light: "#6b7280" },
+  { match: /lumber/i,                  dark: "#d97706", light: "#b45309" },
+  { match: /pulte/i,                   dark: "#818cf8", light: "#4f46e5" },
+  { match: /roof.shingle|shingle/i,    dark: "#94a3b8", light: "#64748b" },
+  { match: /\bscar\b/i,               dark: "#c084fc", light: "#9333ea" },
+  { match: /\bsales\b/i,              dark: "#34d399", light: "#059669" },
+  { match: /\bunits?\b/i,             dark: "#60a5fa", light: "#2563eb" },
+  { match: /client|owner/i,            dark: "#2dd4bf", light: "#0d9488" },
 ]
-function resIcon(r: string): LucideIcon | null {
-  return RES_ICONS.find(e => e.match.test(r))?.icon ?? null
+function resBarColor(r: string, isDark: boolean): string | null {
+  const entry = RES_BAR_HEX.find(e => e.match.test(r))
+  return entry ? (isDark ? entry.dark : entry.light) : null
+}
+
+const TRADE_CATEGORIES: Array<{ label: string; match: RegExp }> = [
+  { label: "Structure", match: /framing|framer|structural|truss|flatwork|concrete|foundation/i },
+  { label: "MEP",       match: /electrical|electric|plumbing|plumb|hvac|mechanical|sprinkler|fireproof|fire\s|elevator/i },
+  { label: "Finishing", match: /drywall|tile|flooring|paint|appliance/i },
+  { label: "Envelope",  match: /alum|door|window|glass|panel|insul/i },
+  { label: "Other",     match: /subs|subcontractor/i },
+]
+const CATEGORY_ORDER = TRADE_CATEGORIES.map(c => c.label)
+
+function resCategory(r: string): string {
+  return TRADE_CATEGORIES.find(c => c.match.test(r))?.label ?? "Other"
 }
 
 function diffDays(a: Date, b: Date) {
   return Math.round((b.getTime() - a.getTime()) / 86_400_000)
+}
+
+function fmtDateNum(d: Date): string {
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+}
+
+function commentRoleIcon(role: string): LucideIcon {
+  if (role === "dev")                                               return Gem
+  if (role === "owner")                                             return Compass
+  if (role === "admin" || role === "manager" || role === "gestor")  return Award
+  return User
+}
+
+function commentRoleColor(role: string): string {
+  if (role === "dev")                                               return "text-yellow-400 dark:text-yellow-400"
+  if (role === "owner")                                             return "text-emerald-500 dark:text-emerald-400"
+  if (role === "admin" || role === "manager" || role === "gestor")  return "text-primary"
+  return "text-muted-foreground"
+}
+
+function commentRoleBorder(role: string): string {
+  if (role === "dev")                                               return "border-yellow-400/50"
+  if (role === "owner")                                             return "border-emerald-400/50"
+  if (role === "admin" || role === "manager" || role === "gestor")  return "border-primary/50"
+  return "border-border"
+}
+
+function fmtCommentTime(isoStr: string): string {
+  try {
+    const d = new Date(isoStr)
+    const now = new Date()
+    const diffMin = Math.floor((now.getTime() - d.getTime()) / 60000)
+    if (diffMin < 1) return 'just now'
+    if (diffMin < 60) return `${diffMin}m ago`
+    const diffH = Math.floor(diffMin / 60)
+    if (diffH < 24) return `${diffH}h ago`
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  } catch { return '' }
+}
+
+// ─── Theme detection ─────────────────────────────────────────────────────────
+
+function useIsDark() {
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  )
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains("dark"))
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+  return isDark
 }
 
 // ─── Building dropdown ────────────────────────────────────────────────────────
@@ -140,7 +270,7 @@ function BuildingDropdown({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-background hover:bg-muted/40 transition-colors text-sm max-w-[220px]"
+        className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm max-w-[220px]"
       >
         {isLoading
           ? <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground shrink-0" />
@@ -149,11 +279,11 @@ function BuildingDropdown({
         <span className={cn("truncate", !selected && "text-muted-foreground")}>
           {selected?.name ?? "Select building"}
         </span>
-        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0 ml-auto" />
+        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground shrink-0 ml-auto transition-transform duration-200", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 min-w-[200px] max-w-[280px] bg-popover border border-border rounded-md shadow-md z-50 py-1 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 min-w-[200px] max-w-[280px] bg-popover border border-border rounded-md shadow-md z-50 py-1.5 max-h-64 overflow-y-auto">
           {buildings.length === 0 && (
             <div className="px-3 py-2 text-xs text-muted-foreground">No buildings yet.</div>
           )}
@@ -162,7 +292,7 @@ function BuildingDropdown({
               key={b.id}
               onClick={() => { onSelect(b.id); setOpen(false) }}
               className={cn(
-                "w-full text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors",
+                "w-[calc(100%-8px)] text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors rounded-md mx-1",
                 selectedId === b.id && "bg-primary/10 text-primary",
               )}
             >
@@ -181,83 +311,78 @@ function BuildingDropdown({
 
 // ─── Trades legend (icon + hover popover) ────────────────────────────────────
 
-function TradesLegend({
-  displayResources, resourceFilter, toggleResource, clearFilter,
-}: {
-  displayResources: string[]
-  resourceFilter:   Set<string>
-  toggleResource:   (r: string) => void
-  clearFilter:      () => void
-}) {
+function TradesLegend({ displayResources }: { displayResources: string[] }) {
   const [open, setOpen] = useState(false)
-  const active = resourceFilter.size > 0
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <button
-        className={cn(
-          "relative flex items-center justify-center w-7 h-7 rounded-md border transition-colors",
-          active
-            ? "bg-primary/10 border-primary/40 text-primary"
-            : "border-border text-muted-foreground hover:text-foreground hover:bg-muted/40",
-        )}
-      >
+    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button className="flex items-center justify-center w-7 h-7 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors">
         <Info className="h-3.5 w-3.5" />
-        {active && (
-          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-            {resourceFilter.size}
-          </span>
-        )}
       </button>
 
-      {open && displayResources.length > 0 && (
-        <div className="absolute top-full right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-xl z-50 p-3 w-[260px]">
-          <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-            Trades {active && `· ${resourceFilter.size} filtered`}
+      {open && displayResources.length > 0 && (() => {
+        const groupMap = new Map<string, string[]>()
+        for (const r of displayResources) {
+          const cat = resCategory(r)
+          if (!groupMap.has(cat)) groupMap.set(cat, [])
+          groupMap.get(cat)?.push(r)
+        }
+        const groups = CATEGORY_ORDER.filter(l => groupMap.has(l)).map(l => ({ label: l, items: groupMap.get(l)! }))
+        return (
+          <div className="absolute top-full right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-xl z-50 p-4 w-[560px] max-h-[75vh] overflow-y-auto">
+            {/* Chart indicators */}
+            <div className="mb-4 pb-4 border-b border-border/50">
+              <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2.5">Chart</div>
+              <div className="grid grid-cols-4 gap-1">
+                {[
+                  { label: "Project start", line: "#10b981" },
+                  { label: "Project end",   line: "#f43f5e" },
+                  { label: "Today",         line: "rgba(255,255,255,0.35)" },
+                  { label: "Current month", bg: true },
+                ].map(({ label, line, bg }) => (
+                  <div key={label} className="flex items-center gap-2 px-2 py-2 text-[11px] text-muted-foreground">
+                    <span className="w-5 h-5 rounded flex items-center justify-center shrink-0 bg-muted/30">
+                      {bg
+                        ? <span className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
+                        : <span className="h-3" style={{ borderLeft: `1px dashed ${line}` }} />
+                      }
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Trades</div>
+            <div className="flex flex-col gap-4">
+              {groups.map(({ label, items }) => (
+                <div key={label}>
+                  <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1.5 px-1">{label}</div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {items.map(r => {
+                      const Icon = resIcon(r)
+                      return (
+                        <div key={r} className="flex items-center gap-2 px-2 py-2 text-[11px] text-muted-foreground min-w-0">
+                          <span className={cn("w-5 h-5 rounded flex items-center justify-center shrink-0", resColor(r))}>
+                            {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0, 2)}</span>}
+                          </span>
+                          <span className="truncate min-w-0 flex-1">{toTitleCase(r)}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-0.5">
-            {displayResources.map(r => {
-              const Icon   = resIcon(r)
-              const isOn   = resourceFilter.has(r)
-              return (
-                <button
-                  key={r}
-                  onClick={() => toggleResource(r)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] transition-colors text-left",
-                    isOn
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <span className={cn("w-5 h-5 rounded flex items-center justify-center shrink-0", resColor(r))}>
-                    {Icon
-                      ? <Icon className="h-3 w-3" />
-                      : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0,2)}</span>
-                    }
-                  </span>
-                  <span className="truncate">{toTitleCase(r)}</span>
-                </button>
-              )
-            })}
-          </div>
-          {active && (
-            <button
-              onClick={clearFilter}
-              className="mt-2 w-full flex items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-foreground border-t border-border pt-2"
-            >
-              <X className="h-3 w-3" /> Clear filter
-            </button>
-          )}
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
+
+// ─── Row meta ─────────────────────────────────────────────────────────────────
+
+type RowMeta = { status: 'pending' | 'done'; observation: string }
 
 // ─── Gantt viewer ─────────────────────────────────────────────────────────────
 
@@ -271,7 +396,15 @@ function GanttViewer({
   expandedIds,
   toggleRow,
   rowPhaseIdx,
-  resourceFilter,
+  phaseColors,
+  rowMetas,
+  onMetaChange,
+  buildingId,
+  currentUserName,
+  commentsMap,
+  setCommentsMap,
+  filterYear,
+  filterMonth,
 }: {
   schedule:       ParsedSchedule
   displayRows:    ScheduleRow[]
@@ -280,14 +413,126 @@ function GanttViewer({
   expandedIds:    Set<string>
   toggleRow:      (id: string) => void
   rowPhaseIdx:    Record<string, number>
-  resourceFilter: Set<string>
+  phaseColors:    string[]
+  rowMetas:        Map<string, RowMeta>
+  onMetaChange:    (rowId: string, patch: Partial<RowMeta>) => void
+  buildingId:      string
+  currentUserName: string
+  commentsMap:     Map<string, RowComment[]>
+  setCommentsMap:  React.Dispatch<React.SetStateAction<Map<string, RowComment[]>>>
+  filterYear:      number | null
+  filterMonth:     number | null
 }) {
-  const ps = schedule.projectStart!
-  const pf = schedule.projectFinish!
+  const { user: currentUser } = useAuth()
+
+  const ps     = schedule.projectStart!
+  const pf     = schedule.projectFinish!
+  const isDark = useIsDark()
+
+  // ── Row hover + lock ───────────────────────────────────────────────────────
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null)
+  const [lockedRowId,  setLockedRowId]  = useState<string | null>(null)
+
+  // ── Comments ────────────────────────────────────────────────────────────────
+  const [commentsRowId,    setCommentsRowId]    = useState<string | null>(null)
+  const [newComment,       setNewComment]       = useState("")
+  const [submitting,       setSubmitting]       = useState(false)
+  const [editingCommentId,   setEditingCommentId]   = useState<string | null>(null)
+  const [editBody,           setEditBody]           = useState("")
+  const [deletingCommentId,  setDeletingCommentId]  = useState<string | null>(null)
+  const commentsRef    = useRef<HTMLDivElement>(null)
+  const newCommentRef  = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (!commentsRowId) return
+    const handler = (e: MouseEvent) => {
+      if (commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+        setCommentsRowId(null)
+        setLockedRowId(null)
+        setNewComment("")
+        setDeletingCommentId(null)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [commentsRowId])
+
+  function openComments(rowId: string) {
+    setCommentsRowId(rowId)
+    setLockedRowId(rowId)
+    setNewComment("")
+  }
+
+  async function submitComment(rowId: string) {
+    const text = newComment.trim()
+    if (!text || submitting) return
+    setSubmitting(true)
+    try {
+      const comment = await buildingsService.addRowComment(buildingId, rowId, text, currentUserName, currentUser?.role ?? "")
+      setCommentsMap(prev => {
+        const next = new Map(prev)
+        const list = next.get(rowId) ?? []
+        next.set(rowId, [...list, comment!])
+        return next
+      })
+      setNewComment("")
+      if (newCommentRef.current) newCommentRef.current.style.height = "auto"
+    } catch {}
+    setSubmitting(false)
+  }
+
+  async function saveEditComment(rowId: string, commentId: string) {
+    const text = editBody.trim()
+    if (!text) return
+    try {
+      const updated = await buildingsService.editRowComment(buildingId, commentId, text)
+      setCommentsMap(prev => {
+        const next = new Map(prev)
+        next.set(rowId, (next.get(rowId) ?? []).map(c => c.id === commentId ? { ...c, body: updated?.body } : c))
+        return next
+      })
+    } catch {}
+    setEditingCommentId(null)
+    setEditBody("")
+  }
+
+  async function removeComment(rowId: string, commentId: string) {
+    // Optimistic removal
+    setCommentsMap(prev => {
+      const next = new Map(prev)
+      next.set(rowId, (next.get(rowId) ?? []).filter(c => c.id !== commentId))
+      return next
+    })
+    try {
+      await buildingsService.deleteRowComment(buildingId, commentId)
+    } catch {
+      // Rollback not implemented — re-fetch on next open
+    }
+  }
 
   // ── Drag-to-scroll ─────────────────────────────────────────────────────────
   const scrollRef  = useRef<HTMLDivElement>(null)
   const drag       = useRef({ on: false, startX: 0, scrollLeft: 0 })
+
+  // ── Container width (for dynamic px/day when filtered) ─────────────────────
+  const [containerW, setContainerW] = useState(0)
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setContainerW(el.clientWidth)
+    const ro = new ResizeObserver(() => setContainerW(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  // ── Row virtualizer ─────────────────────────────────────────────────────────
+  const rowVirtualizer = useVirtualizer({
+    count:           visibleRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize:    () => ROW_H,
+    overscan:        10,
+  })
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   function onMouseDown(e: React.MouseEvent) {
     if (!scrollRef.current) return
@@ -308,26 +553,42 @@ function GanttViewer({
   }
 
   // ── Timeline geometry ──────────────────────────────────────────────────────
-  const { months, yearGroups, timelineW } = useMemo(() => {
-    const totalDays = Math.max(1, diffDays(ps, pf) + 1)
+  const { months, yearGroups, timelineW, timelineStart, pxPerDay } = useMemo(() => {
     const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-    const mths: MonthInfo[] = []
 
-    const cur = new Date(ps.getFullYear(), ps.getMonth(), 1)
-    while (cur <= pf) {
-      const next     = new Date(cur.getFullYear(), cur.getMonth() + 1, 1)
-      const startDay = Math.max(0, diffDays(ps, cur))
-      const endDay   = Math.min(totalDays, diffDays(ps, next))
+    const tStart = filterYear != null
+      ? filterMonth != null
+        ? new Date(filterYear, filterMonth, 1)
+        : new Date(filterYear, 0, 1)
+      : new Date(ps.getFullYear(), ps.getMonth(), 1)
+
+    const tEnd = filterYear != null
+      ? filterMonth != null
+        ? new Date(filterYear, filterMonth + 1, 0)
+        : new Date(filterYear, 11, 31)
+      : new Date(pf.getFullYear(), pf.getMonth() + 1, 0)
+
+    const totalDays = Math.max(1, diffDays(tStart, tEnd) + 1)
+    const availableW = containerW - LEFT_W
+    const ppd = (filterYear != null && containerW > 0)
+      ? Math.max(PX_PER_DAY, availableW / totalDays)
+      : PX_PER_DAY
+
+    const mths: MonthInfo[] = []
+    const cur = new Date(tStart)
+    while (cur <= tEnd) {
+      const next      = new Date(cur.getFullYear(), cur.getMonth() + 1, 1)
+      const startDay  = diffDays(tStart, cur)
+      const daysInMth = diffDays(cur, next)
       mths.push({
         label:   MO[cur.getMonth()],
         year:    cur.getFullYear(),
-        startPx: startDay * PX_PER_DAY,
-        pxWidth: Math.max(4, (endDay - startDay) * PX_PER_DAY),
+        startPx: startDay * ppd,
+        pxWidth: Math.max(4, daysInMth * ppd),
       })
       cur.setMonth(cur.getMonth() + 1)
     }
 
-    // Group by year
     const ygs: Array<{ year: number; startPx: number; pxWidth: number }> = []
     for (const m of mths) {
       const last = ygs[ygs.length - 1]
@@ -335,10 +596,17 @@ function GanttViewer({
       else last.pxWidth += m.pxWidth
     }
 
-    return { months: mths, yearGroups: ygs, timelineW: totalDays * PX_PER_DAY }
-  }, [ps, pf])
+    return { months: mths, yearGroups: ygs, timelineW: totalDays * ppd, timelineStart: tStart, pxPerDay: ppd }
+  }, [ps, pf, filterYear, filterMonth, containerW])
 
-  const HEADER_H = YEAR_H + MONTH_H
+  const _HEADER_H    = YEAR_H + MONTH_H
+  const startLinePx = diffDays(timelineStart, ps) * pxPerDay
+  const endLinePx   = diffDays(timelineStart, pf) * pxPerDay
+  const today       = new Date(); today.setHours(0,0,0,0)
+  const todayPx     = diffDays(timelineStart, today) * pxPerDay
+  const todayInRange = today >= timelineStart && today <= pf
+  const _MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+  const currentMonthInfo = months.find(m => m.year === today.getFullYear() && m.label === _MO[today.getMonth()])
 
   return (
     <div
@@ -348,8 +616,9 @@ function GanttViewer({
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
+      onScroll={e => setScrollLeft(e.currentTarget.scrollLeft)}
     >
-      <div className="flex flex-col" style={{ minWidth: LEFT_W + timelineW }}>
+      <div className="relative flex flex-col" style={{ minWidth: LEFT_W + timelineW }}>
 
         {/* ── Two-row sticky header ────────────────────────────────────────── */}
         <div className="sticky top-0 z-20">
@@ -379,59 +648,81 @@ function GanttViewer({
             >
               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Task</span>
             </div>
-            {months.map((m, i) => (
-              <div
-                key={i}
-                className="shrink-0 flex items-center justify-center border-r border-border/30 bg-muted/10 text-[10px] text-muted-foreground"
-                style={{ width: m.pxWidth, height: MONTH_H }}
-              >
-                {m.pxWidth >= 26 ? m.label : m.label[0]}
-              </div>
-            ))}
+            {months.map((m, i) => {
+              const isCurrentMonth = m.year === today.getFullYear() && m.label === ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][today.getMonth()]
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    "shrink-0 flex items-center justify-center border-r border-border/30 text-[10px]",
+                    isCurrentMonth
+                      ? "bg-primary/10 text-primary font-semibold"
+                      : "bg-muted/10 text-muted-foreground",
+                  )}
+                  style={{ width: m.pxWidth, height: MONTH_H }}
+                >
+                  {m.pxWidth >= 26 ? m.label : m.label[0]}
+                </div>
+              )
+            })}
           </div>
         </div>
 
         {/* ── Task rows ────────────────────────────────────────────────────── */}
-        {visibleRows.map((row, i) => {
-          const phaseColor = PHASE_COLORS[rowPhaseIdx[row.id] % PHASE_COLORS.length]
+        <TooltipProvider>
+        <div className="relative" style={{ height: rowVirtualizer.getTotalSize() }}>
+
+        {rowVirtualizer.getVirtualItems().map(virtualRow => {
+          const row = visibleRows[virtualRow.index]
+          const phaseColor = phaseColors[rowPhaseIdx[row.id] % phaseColors.length]
+          const barColor   = row.resources.length > 0
+            ? (resBarColor(row.resources[0], isDark) ?? phaseColor)
+            : phaseColor
           const barAlpha   = row.isPhase ? 1 : row.level === 2 ? 0.85 : 0.65
-          const barHPct    = row.isPhase ? 64 : row.level === 2 ? 50 : 38  // % of ROW_H
+          const barHPct    = row.isPhase ? 64 : row.level === 2 ? 50 : 38
           const indent     = 8 + (row.level - 1) * 14
 
           const startPx = row.startDate
-            ? Math.max(0, diffDays(ps, row.startDate) * PX_PER_DAY)
+            ? Math.max(0, diffDays(timelineStart, row.startDate) * pxPerDay)
             : null
           const barW = row.startDate && row.finishDate
-            ? Math.max(4, diffDays(row.startDate, row.finishDate) * PX_PER_DAY)
+            ? Math.max(4, diffDays(row.startDate, row.finishDate) * pxPerDay)
             : 0
 
           const TradeIcon = row.resources.length > 0 ? resIcon(row.resources[0]) : null
 
-          // Dim rows whose trade is filtered-out
-          const dimmed = resourceFilter.size > 0
-            && !row.isPhase
-            && row.resources.length > 0
-            && !row.resources.some(r => resourceFilter.has(r))
+          const meta           = rowMetas.get(row.id)
+          const isDone         = meta?.status === 'done'
+          const isRowActive    = hoveredRowId === row.id || lockedRowId === row.id
+          const isCommentsOpen = commentsRowId === row.id
+          const rowComments    = commentsMap.get(row.id) ?? []
+          const hasComments    = commentsMap.has(row.id) && rowComments.length > 0
 
           return (
             <div
               key={row.id}
               className={cn(
-                "flex border-b border-border/20 transition-colors",
-                i % 2 !== 0 && "bg-muted/[0.02]",
-                "hover:bg-muted/[0.06]",
-                dimmed && "opacity-25",
+                "group flex border-b border-border/20 transition-colors",
+                isDone
+                  ? "bg-green-500/[0.05] hover:bg-green-500/[0.09]"
+                  : cn(virtualRow.index % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
               )}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: ROW_H, transform: `translateY(${virtualRow.start}px)` }}
+              onMouseEnter={() => setHoveredRowId(row.id)}
+              onMouseLeave={() => setHoveredRowId(null)}
             >
-              {/* Label — sticky left */}
+              {/* ── Label — sticky left ─────────────────────────────────── */}
               <div
-                className="sticky left-0 z-10 bg-background border-r border-border/50 shrink-0 flex items-center gap-1 pr-2"
+                className={cn(
+                  "sticky left-0 z-30 border-r border-border/50 shrink-0 flex items-center gap-1 pr-1 overflow-hidden group-hover:overflow-visible",
+                  isDone ? "bg-transparent" : "bg-background",
+                )}
                 style={{ width: LEFT_W, height: ROW_H, paddingLeft: indent }}
               >
                 {hasKidsMap[row.id] ? (
                   <button
                     onClick={() => toggleRow(row.id)}
-                    onMouseDown={e => e.stopPropagation()} // prevent drag hijack
+                    onMouseDown={e => e.stopPropagation()}
                     className="shrink-0 w-4 h-4 flex items-center justify-center text-muted-foreground hover:text-foreground"
                   >
                     {expandedIds.has(row.id)
@@ -444,10 +735,14 @@ function GanttViewer({
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">
                   {row.id}
                 </span>
+
                 <span
                   className={cn(
-                    "text-[11px] truncate ml-1",
-                    row.isPhase    && "font-semibold uppercase tracking-wide",
+                    "text-[11px] ml-1 whitespace-nowrap",
+                    isRowActive
+                      ? cn("relative z-10 pr-1 overflow-visible", !isDone && "bg-background")
+                      : "overflow-hidden text-ellipsis flex-1 min-w-0",
+                    row.isPhase     && "font-semibold uppercase tracking-wide",
                     !row.isPhase && row.level === 2 && "font-medium",
                     row.isMilestone && "text-amber-500 dark:text-amber-400",
                   )}
@@ -457,46 +752,92 @@ function GanttViewer({
                 </span>
               </div>
 
-              {/* Timeline area */}
+              {/* ── Timeline area ──────────────────────────────────────── */}
               <div className="relative shrink-0" style={{ width: timelineW, height: ROW_H }}>
 
-                {/* Month dividers */}
-                {months.map((m, mi) => mi > 0 && (
+                {currentMonthInfo && (
                   <div
-                    key={mi}
-                    className="absolute top-0 bottom-0 w-px bg-border/15"
-                    style={{ left: m.startPx }}
+                    className="absolute top-0 bottom-0 bg-primary/[0.08] pointer-events-none"
+                    style={{ left: currentMonthInfo.startPx, width: currentMonthInfo.pxWidth }}
                   />
+                )}
+
+                {months.map((m, mi) => mi > 0 && (
+                  <div key={mi} className="absolute top-0 bottom-0 w-px bg-border/15" style={{ left: m.startPx }} />
                 ))}
 
                 {/* Gantt bar */}
                 {!row.isMilestone && startPx != null && barW > 0 && (
                   <div
-                    className="absolute rounded-[3px] flex items-center overflow-hidden pointer-events-none"
+                    className="absolute rounded-[3px] overflow-hidden pointer-events-none"
                     style={{
                       left:            startPx,
                       top:             `${(100 - barHPct) / 2}%`,
                       width:           barW,
                       height:          `${barHPct}%`,
-                      backgroundColor: phaseColor,
+                      backgroundColor: barColor,
                       opacity:         barAlpha,
-                      paddingLeft:     barW > 18 ? 5 : 0,
-                      paddingRight:    barW > 18 ? 4 : 0,
-                      gap:             3,
                     }}
                   >
-                    {/* Name inside bar — phases + categories when wide enough */}
-                    {(row.isPhase || row.level === 2) && barW > 52 && (
-                      <span className="text-[10px] text-white font-semibold truncate flex-1 leading-none select-none">
-                        {row.name}
-                      </span>
-                    )}
-                    {/* Trade icon */}
-                    {TradeIcon && barW > 20 && (
-                      <TradeIcon className="h-2.5 w-2.5 text-white/80 shrink-0 ml-auto" />
+                    {(row.isPhase || row.level === 2) && barW > 52 && (() => {
+                      const PAD = 5
+                      const textLeft = Math.min(Math.max(PAD, scrollLeft - startPx + PAD), barW - 40)
+                      return (
+                        <span
+                          className="absolute top-1/2 -translate-y-1/2 text-[10px] text-white dark:text-gray-900 font-semibold leading-none select-none overflow-hidden text-ellipsis whitespace-nowrap"
+                          style={{ left: textLeft, right: TradeIcon && barW > 20 ? 18 : PAD }}
+                        >
+                          {row.name}
+                        </span>
+                      )
+                    })()}
+                    {TradeIcon && barW > 20 && !row.isPhase && (
+                      <TradeIcon className="absolute right-1 top-1/2 -translate-y-1/2 h-2.5 w-2.5 text-white/80 dark:text-gray-900/80 shrink-0" />
                     )}
                   </div>
                 )}
+
+                {/* Trade label — trade stays fixed, dates reveal left-to-right on hover */}
+                {!row.isPhase && !row.isMilestone && startPx != null && barW > 0 && TradeIcon && row.resources.length > 0 && (() => {
+                  const GAP        = 6
+                  const MIN        = 38
+                  const leftSpace  = startPx - GAP
+                  const rightSpace = timelineW - startPx - barW - GAP
+                  if (leftSpace < MIN && rightSpace < MIN) return null
+                  const showLeft   = leftSpace > rightSpace && leftSpace >= MIN
+                  const trade      = toTitleCase(row.resources[0])
+
+                  const s = row.startDate  ? fmtDateShort(row.startDate)  ?? "" : ""
+                  const f = row.finishDate ? fmtDateShort(row.finishDate) ?? "" : ""
+                  const datePart   = s && f ? (s === f ? ` · ${s}` : ` · ${s} – ${f}`) : ""
+
+                  return (
+                    <span
+                      className="absolute top-1/2 -translate-y-1/2 flex items-center pointer-events-none select-none leading-none"
+                      style={showLeft
+                        ? { right: timelineW - startPx + GAP }
+                        : { left: startPx + barW + GAP }
+                      }
+                    >
+                      <span className={cn(
+                        "whitespace-nowrap transition-colors duration-150",
+                        isRowActive ? "text-[9px] text-foreground/80" : "text-[9px] text-muted-foreground",
+                      )}>
+                        {trade}
+                      </span>
+                      <span
+                        className="overflow-hidden whitespace-nowrap text-[9px] text-muted-foreground/70"
+                        style={{
+                          maxWidth:   isRowActive ? `${datePart.length * 6.5}px` : '0px',
+                          opacity:    isRowActive ? 1 : 0,
+                          transition: 'max-width 280ms ease-out, opacity 200ms ease-out',
+                        }}
+                      >
+                        {datePart}
+                      </span>
+                    </span>
+                  )
+                })()}
 
                 {/* Milestone */}
                 {row.isMilestone && startPx != null && (
@@ -506,9 +847,258 @@ function GanttViewer({
                   />
                 )}
               </div>
+
+              {/* ── Floating action buttons (zero-width sticky anchor) ─── */}
+              <div
+                className="sticky right-0 z-30 shrink-0 overflow-visible"
+                style={{ width: 0, height: ROW_H }}
+              >
+                {/* Buttons float to the left of the right edge */}
+                <div
+                  ref={isCommentsOpen ? commentsRef : undefined}
+                  className={cn(
+                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity",
+                    (hasComments || isRowActive) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                  )}
+                >
+                  {/* Check button */}
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          onMouseDown={e => e.stopPropagation()}
+                          onClick={() => onMetaChange(row.id, { status: isDone ? 'pending' : 'done' })}
+                          className={cn(
+                            "flex items-center justify-center w-5 h-5 rounded transition-colors",
+                            isDone
+                              ? "text-green-500 hover:bg-green-500/10"
+                              : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                          )}
+                        />
+                      }
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      {isDone ? "Mark as pending" : "Mark as done"}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Comments button */}
+                  <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => {
+                              if (isCommentsOpen) {
+                                setCommentsRowId(null)
+                                setLockedRowId(null)
+                              } else {
+                                openComments(row.id)
+                              }
+                            }}
+                            className={cn(
+                              "relative flex items-center justify-center w-5 h-5 rounded transition-colors",
+                              isCommentsOpen
+                                ? "text-primary bg-primary/10"
+                                : hasComments
+                                  ? "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                                  : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                            )}
+                          />
+                        }
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        {hasComments && (
+                          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary text-[7px] text-primary-foreground flex items-center justify-center leading-none font-bold pointer-events-none">
+                            {rowComments.length > 9 ? "9+" : rowComments.length}
+                          </span>
+                        )}
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        {hasComments
+                          ? `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}`
+                          : "Add comment"
+                        }
+                      </TooltipContent>
+                    </Tooltip>
+
+                  {/* Comments popup — opens to the left of the buttons */}
+                  {isCommentsOpen && (
+                    <div
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-3 z-50 w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col"
+                      style={{ maxHeight: 320 }}
+                      onMouseDown={e => e.stopPropagation()}
+                    >
+                      {/* Header */}
+                      <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
+                        <p className="text-[11px] font-semibold text-foreground truncate">{row.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {rowComments.length === 0 ? "No comments yet" : `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}`}
+                        </p>
+                      </div>
+
+                      {/* Comments list */}
+                      <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
+                        {rowComments.length === 0 ? (
+                          <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
+                        ) : rowComments.map(c => {
+                          const isOwn    = c.user_name === currentUserName
+                          const isEditing = editingCommentId === c.id
+                          return (
+                            <div key={c.id} className="group/comment flex gap-2">
+                              {(() => { const Icon = commentRoleIcon(c.user_role); return (
+                                <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
+                                  <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
+                                </div>
+                              ) })()}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-0.5">
+                                  <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
+                                  <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
+                                  {isOwn && !isEditing && (
+                                    deletingCommentId === c.id ? (
+                                      <div className="ml-auto flex items-center gap-1 shrink-0">
+                                        <span className="text-[10px] text-muted-foreground">Sure?</span>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => { setDeletingCommentId(null); removeComment(row.id, c.id) }}
+                                          className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors"
+                                        >
+                                          <X className="w-2.5 h-2.5" />
+                                        </button>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => setDeletingCommentId(null)}
+                                          className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
+                                        >No</button>
+                                      </div>
+                                    ) : (
+                                      <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
+                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors"
+                                        >
+                                          <Pencil className="w-2.5 h-2.5" />
+                                        </button>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => setDeletingCommentId(c.id)}
+                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                        >
+                                          <Trash2 className="w-2.5 h-2.5" />
+                                        </button>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                                {isEditing ? (
+                                  <div className="flex flex-col gap-1">
+                                    <textarea
+                                      value={editBody}
+                                      onChange={e => setEditBody(e.target.value)}
+                                      onKeyDown={e => {
+                                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(row.id, c.id) }
+                                        if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
+                                      }}
+                                      rows={2}
+                                      className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                                    />
+                                    <div className="flex gap-1">
+                                      <button
+                                        onMouseDown={e => e.stopPropagation()}
+                                        onClick={() => saveEditComment(row.id, c.id)}
+                                        className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                                      >Save</button>
+                                      <button
+                                        onMouseDown={e => e.stopPropagation()}
+                                        onClick={() => { setEditingCommentId(null); setEditBody("") }}
+                                        className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
+                                      >Cancel</button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Input area */}
+                      <div className="border-t border-border/50 p-2 shrink-0">
+                        <div className="flex gap-1.5 items-end">
+                          <textarea
+                            ref={newCommentRef}
+                            value={newComment}
+                            onChange={e => {
+                              setNewComment(e.target.value)
+                              e.target.style.height = "auto"
+                              e.target.style.height = `${e.target.scrollHeight}px`
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                submitComment(row.id)
+                              }
+                            }}
+                            placeholder="Write a comment… (Enter to send)"
+                            rows={1}
+                            className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+                          />
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => submitComment(row.id)}
+                            disabled={!newComment.trim() || submitting}
+                            className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0"
+                          >
+                            {submitting
+                              ? <Loader2 className="w-3 h-3 animate-spin" />
+                              : <Send className="w-3 h-3" />
+                            }
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )
         })}
+
+          {/* Date labels overlay — above rows, no bleeding */}
+          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+            {todayInRange && (
+              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + todayPx, borderLeft: "1px dashed rgba(255,255,255,0.25)" }} />
+            )}
+            {!(filterYear != null && filterMonth != null) && (
+              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + startLinePx, borderLeft: "1px dashed #10b981" }}>
+                <span
+                  className="absolute text-[9px] font-mono font-semibold bg-background/90 rounded whitespace-nowrap leading-none"
+                  style={{ bottom: 8, left: 4, writingMode: "vertical-rl", transform: "rotate(180deg)", padding: "4px 2px", color: "#10b981" }}
+                >
+                  {fmtDateNum(ps)}
+                </span>
+              </div>
+            )}
+            {!(filterYear != null && filterMonth != null) && (
+              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + endLinePx, borderLeft: "1px dashed #f43f5e" }}>
+                <span
+                  className="absolute text-[9px] font-mono font-semibold bg-background/90 rounded whitespace-nowrap leading-none"
+                  style={{ top: 8, left: -4, transform: "translateX(-100%) rotate(180deg)", writingMode: "vertical-rl", padding: "4px 2px", color: "#f43f5e" }}
+                >
+                  {fmtDateNum(pf)}
+                </span>
+              </div>
+            )}
+          </div>
+
+        </div>{/* end rows wrapper */}
+        </TooltipProvider>
 
         {visibleRows.length === 0 && (
           <div className="py-12 text-center text-sm text-muted-foreground">
@@ -528,47 +1118,147 @@ function DatesViewer({
   expandedIds,
   toggleRow,
   rowPhaseIdx,
-  resourceFilter,
+  phaseColors,
+  rowMetas,
+  onMetaChange,
+  buildingId,
+  currentUserName,
+  commentsMap,
+  setCommentsMap,
 }: {
-  visibleRows:    ScheduleRow[]
-  hasKidsMap:     Record<string, boolean>
-  expandedIds:    Set<string>
-  toggleRow:      (id: string) => void
-  rowPhaseIdx:    Record<string, number>
-  resourceFilter: Set<string>
+  visibleRows:     ScheduleRow[]
+  hasKidsMap:      Record<string, boolean>
+  expandedIds:     Set<string>
+  toggleRow:       (id: string) => void
+  rowPhaseIdx:     Record<string, number>
+  phaseColors:     string[]
+  rowMetas:        Map<string, RowMeta>
+  onMetaChange:    (rowId: string, patch: Partial<RowMeta>) => void
+  buildingId:      string
+  currentUserName: string
+  commentsMap:     Map<string, RowComment[]>
+  setCommentsMap:  React.Dispatch<React.SetStateAction<Map<string, RowComment[]>>>
 }) {
+  const { user: currentUser } = useAuth()
+
+  const [hoveredRowId,      setHoveredRowId]      = useState<string | null>(null)
+  const [lockedRowId,       setLockedRowId]       = useState<string | null>(null)
+  const [commentsRowId,     setCommentsRowId]     = useState<string | null>(null)
+  const [newComment,        setNewComment]        = useState("")
+  const [submitting,        setSubmitting]        = useState(false)
+  const [editingCommentId,  setEditingCommentId]  = useState<string | null>(null)
+  const [editBody,          setEditBody]          = useState("")
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
+  const commentsRef   = useRef<HTMLDivElement>(null)
+  const newCommentRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (!commentsRowId) return
+    const handler = (e: MouseEvent) => {
+      if (commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+        setCommentsRowId(null)
+        setLockedRowId(null)
+        setNewComment("")
+        setDeletingCommentId(null)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [commentsRowId])
+
+  function openComments(rowId: string) {
+    setCommentsRowId(rowId)
+    setLockedRowId(rowId)
+    setNewComment("")
+  }
+
+  async function submitComment(rowId: string) {
+    const text = newComment.trim()
+    if (!text || submitting) return
+    setSubmitting(true)
+    try {
+      const comment = await buildingsService.addRowComment(buildingId, rowId, text, currentUserName, currentUser?.role ?? "")
+      setCommentsMap(prev => {
+        const next = new Map(prev)
+        next.set(rowId, [...(next.get(rowId) ?? []), comment!])
+        return next
+      })
+      setNewComment("")
+      if (newCommentRef.current) newCommentRef.current.style.height = "auto"
+    } catch {}
+    setSubmitting(false)
+  }
+
+  async function saveEditComment(rowId: string, commentId: string) {
+    const text = editBody.trim()
+    if (!text) return
+    try {
+      const updated = await buildingsService.editRowComment(buildingId, commentId, text)
+      setCommentsMap(prev => {
+        const next = new Map(prev)
+        next.set(rowId, (next.get(rowId) ?? []).map(c => c.id === commentId ? { ...c, body: updated?.body } : c))
+        return next
+      })
+    } catch {}
+    setEditingCommentId(null)
+    setEditBody("")
+  }
+
+  async function removeComment(rowId: string, commentId: string) {
+    setCommentsMap(prev => {
+      const next = new Map(prev)
+      next.set(rowId, (next.get(rowId) ?? []).filter(c => c.id !== commentId))
+      return next
+    })
+    try { await buildingsService.deleteRowComment(buildingId, commentId) } catch {}
+  }
+
+  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }, [])
+
   return (
     <div className="flex-1 overflow-auto">
+      <TooltipProvider>
       <div className="min-w-[640px] flex flex-col">
+
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center border-b border-border bg-muted/40 text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
-          <div className="sticky left-0 z-20 bg-muted/40 border-r border-border/60 w-[280px] shrink-0 px-3">Task</div>
-          <div className="w-[80px] shrink-0 text-center">Duration</div>
-          <div className="w-[88px] shrink-0 text-center">Start</div>
-          <div className="w-[88px] shrink-0 text-center">Finish</div>
-          <div className="flex-1 min-w-[100px] pl-3">Trades</div>
+        <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
+          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center px-3">Task</div>
+          <div className="sticky left-[280px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
+          <div className="sticky left-[360px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
+          <div className="sticky left-[448px] z-20 bg-muted/90 border-r border-border/50 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="bg-muted/90 flex-1 min-w-[160px] flex items-center pl-3">Trades</div>
         </div>
 
         {visibleRows.map((row, i) => {
-          const phaseColor = PHASE_COLORS[rowPhaseIdx[row.id] % PHASE_COLORS.length]
-          const indent     = 8 + (row.level - 1) * 14
-          const dimmed     = resourceFilter.size > 0
-            && !row.isPhase
-            && row.resources.length > 0
-            && !row.resources.some(r => resourceFilter.has(r))
+          const phaseColor      = phaseColors[rowPhaseIdx[row.id] % phaseColors.length]
+          const indent          = 8 + (row.level - 1) * 14
+          const meta            = rowMetas.get(row.id)
+          const isDone          = meta?.status === 'done'
+          const isStartOverdue  = !isDone && !!row.startDate  && row.startDate  < today
+          const isFinishOverdue = !isDone && !!row.finishDate && row.finishDate < today
+          const isRowActive     = hoveredRowId === row.id || lockedRowId === row.id
+          const isCommentsOpen = commentsRowId === row.id
+          const rowComments    = commentsMap.get(row.id) ?? []
+          const hasComments    = commentsMap.has(row.id) && rowComments.length > 0
 
           return (
             <div
               key={row.id}
               className={cn(
-                "flex items-center border-b border-border/20 transition-colors min-h-[32px]",
-                i % 2 !== 0 && "bg-muted/[0.02]",
-                "hover:bg-muted/[0.06]",
-                dimmed && "opacity-25",
+                "group flex items-center border-b border-border/20 transition-colors min-h-[32px]",
+                isDone
+                  ? "bg-green-500/[0.05] hover:bg-green-500/[0.09]"
+                  : cn(i % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
               )}
+              onMouseEnter={() => setHoveredRowId(row.id)}
+              onMouseLeave={() => setHoveredRowId(null)}
             >
+              {/* Task label */}
               <div
-                className="sticky left-0 z-10 bg-background border-r border-border/50 w-[280px] shrink-0 flex items-center gap-1 py-1 pr-2"
+                className={cn(
+                  "sticky left-0 z-10 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center gap-1 pr-2",
+                  isDone ? "bg-transparent" : "bg-background",
+                )}
                 style={{ paddingLeft: indent }}
               >
                 {row.isPhase && (
@@ -588,28 +1278,230 @@ function DatesViewer({
                   {row.isMilestone && "◆ "}{row.name}
                 </span>
               </div>
-              <div className="w-[80px] shrink-0 text-center text-xs text-muted-foreground px-1">
+
+              {/* Duration */}
+              <div className={cn(
+                "sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground",
+                isDone ? "bg-transparent" : "bg-background",
+              )}>
                 {row.isMilestone ? "◆" : row.durationText}
               </div>
-              <div className="w-[88px] shrink-0 text-center text-xs text-muted-foreground">
+
+              {/* Start */}
+              <div className={cn(
+                "sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs",
+                isDone ? "bg-transparent" : "bg-background",
+                isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground",
+              )}>
                 {fmtDateShort(row.startDate)}
               </div>
-              <div className="w-[88px] shrink-0 text-center text-xs text-muted-foreground">
+
+              {/* Finish */}
+              <div className={cn(
+                "sticky left-[448px] z-10 border-r border-border/50 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs",
+                isDone ? "bg-transparent" : "bg-background",
+                isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground",
+              )}>
                 {fmtDateShort(row.finishDate)}
               </div>
-              <div className="flex-1 min-w-[100px] flex flex-wrap gap-0.5 px-3 py-1">
-                {row.resources.slice(0, 5).map(r => {
+
+              {/* Trades — icon badge + plain text (matches Trades popover) */}
+              <div className="flex-1 min-w-[160px] flex flex-wrap gap-x-3 gap-y-1 px-3 py-1 items-center">
+                {row.resources.map(r => {
                   const Icon = resIcon(r)
                   return (
-                    <span key={r} title={toTitleCase(r)}
-                      className={cn("flex items-center justify-center w-5 h-5 rounded", resColor(r))}>
-                      {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0,2)}</span>}
+                    <span key={r} className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <span className={cn("w-5 h-5 rounded flex items-center justify-center shrink-0", resColor(r))}>
+                        {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0, 2)}</span>}
+                      </span>
+                      <span>{toTitleCase(r)}</span>
                     </span>
                   )
                 })}
-                {row.resources.length > 5 && (
-                  <span className="text-[9px] text-muted-foreground self-center">+{row.resources.length - 5}</span>
-                )}
+              </div>
+
+              {/* ── Floating action buttons (zero-width sticky anchor) ─── */}
+              <div className="sticky right-0 z-10 shrink-0 overflow-visible" style={{ width: 0, alignSelf: 'stretch' }}>
+                <div
+                  ref={isCommentsOpen ? commentsRef : undefined}
+                  className={cn(
+                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity",
+                    (hasComments || isRowActive) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                  )}
+                >
+                  {/* Check */}
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          onMouseDown={e => e.stopPropagation()}
+                          onClick={() => onMetaChange(row.id, { status: isDone ? 'pending' : 'done' })}
+                          className={cn(
+                            "flex items-center justify-center w-5 h-5 rounded transition-colors",
+                            isDone
+                              ? "text-green-500 hover:bg-green-500/10"
+                              : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                          )}
+                        />
+                      }
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top">{isDone ? "Mark as pending" : "Mark as done"}</TooltipContent>
+                  </Tooltip>
+
+                  {/* Comments */}
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          onMouseDown={e => e.stopPropagation()}
+                          onClick={() => {
+                            if (isCommentsOpen) { setCommentsRowId(null); setLockedRowId(null) }
+                            else openComments(row.id)
+                          }}
+                          className={cn(
+                            "relative flex items-center justify-center w-5 h-5 rounded transition-colors",
+                            isCommentsOpen
+                              ? "text-primary bg-primary/10"
+                              : hasComments
+                                ? "text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                                : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                          )}
+                        />
+                      }
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      {hasComments && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary text-[7px] text-primary-foreground flex items-center justify-center leading-none font-bold pointer-events-none">
+                          {rowComments.length > 9 ? "9+" : rowComments.length}
+                        </span>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      {hasComments ? `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}` : "Add comment"}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Comments popup */}
+                  {isCommentsOpen && (
+                    <div
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-3 z-50 w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col"
+                      style={{ maxHeight: 320 }}
+                      onMouseDown={e => e.stopPropagation()}
+                    >
+                      <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
+                        <p className="text-[11px] font-semibold text-foreground truncate">{row.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {rowComments.length === 0 ? "No comments yet" : `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}`}
+                        </p>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
+                        {rowComments.length === 0 ? (
+                          <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
+                        ) : rowComments.map(c => {
+                          const isOwn     = c.user_name === currentUserName
+                          const isEditing = editingCommentId === c.id
+                          return (
+                            <div key={c.id} className="group/comment flex gap-2">
+                              {(() => { const Icon = commentRoleIcon(c.user_role); return (
+                                <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
+                                  <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
+                                </div>
+                              )})()}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-0.5">
+                                  <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
+                                  <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
+                                  {isOwn && !isEditing && (
+                                    deletingCommentId === c.id ? (
+                                      <div className="ml-auto flex items-center gap-1 shrink-0">
+                                        <span className="text-[10px] text-muted-foreground">Sure?</span>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => { setDeletingCommentId(null); removeComment(row.id, c.id) }}
+                                          className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors"
+                                        ><X className="w-2.5 h-2.5" /></button>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => setDeletingCommentId(null)}
+                                          className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
+                                        >No</button>
+                                      </div>
+                                    ) : (
+                                      <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
+                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors"
+                                        ><Pencil className="w-2.5 h-2.5" /></button>
+                                        <button
+                                          onMouseDown={e => e.stopPropagation()}
+                                          onClick={() => setDeletingCommentId(c.id)}
+                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                        ><Trash2 className="w-2.5 h-2.5" /></button>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                                {isEditing ? (
+                                  <div className="flex flex-col gap-1">
+                                    <textarea
+                                      value={editBody}
+                                      onChange={e => setEditBody(e.target.value)}
+                                      onKeyDown={e => {
+                                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(row.id, c.id) }
+                                        if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
+                                      }}rows={2}
+                                      className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                                    />
+                                    <div className="flex gap-1">
+                                      <button onMouseDown={e => e.stopPropagation()} onClick={() => saveEditComment(row.id, c.id)}
+                                        className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Save</button>
+                                      <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(null); setEditBody("") }}
+                                        className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">Cancel</button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      <div className="border-t border-border/50 p-2 shrink-0">
+                        <div className="flex gap-1.5 items-end">
+                          <textarea
+                            ref={newCommentRef}
+                            value={newComment}
+                            onChange={e => {
+                              setNewComment(e.target.value)
+                              e.target.style.height = "auto"
+                              e.target.style.height = `${e.target.scrollHeight}px`
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(row.id) }
+                            }}
+                            placeholder="Write a comment… (Enter to send)"
+                            rows={1}
+                            className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+                          />
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => submitComment(row.id)}
+                            disabled={!newComment.trim() || submitting}
+                            className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0"
+                          >
+                            {submitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )
@@ -619,6 +1511,7 @@ function DatesViewer({
           <div className="py-12 text-center text-sm text-muted-foreground">No tasks match the current filter.</div>
         )}
       </div>
+      </TooltipProvider>
     </div>
   )
 }
@@ -627,32 +1520,42 @@ function DatesViewer({
 
 function ScheduleViewer({
   schedule,
+  buildingId,
   viewMode,
   displayResources: extDisplayResources,
-  resourceFilter,
-  toggleResource,
-  clearFilter,
+  filterYear,
+  filterMonth,
   controlsRef,
 }: {
   schedule:          ParsedSchedule
+  buildingId:        string
   viewMode:          "gantt" | "dates"
   displayResources:  string[]
-  resourceFilter:    Set<string>
-  toggleResource:    (r: string) => void
-  clearFilter:       () => void
+  filterYear:        number | null
+  filterMonth:       number | null
   controlsRef?:      React.MutableRefObject<{ expandAll: () => void; collapseAll: () => void } | null>
 }) {
-  // Filter summary/rollup tasks (phases spanning >65% of project)
   const displayRows = useMemo(() => {
     const { projectStart: ps, projectFinish: pf } = schedule
     if (!ps || !pf) return schedule.rows
     const total = pf.getTime() - ps.getTime()
-    if (total <= 0) return schedule.rows
-    return schedule.rows.filter(r => {
+
+    let rows = total <= 0 ? schedule.rows : schedule.rows.filter(r => {
       if (!r.isPhase || !r.startDate || !r.finishDate) return true
       return (r.finishDate.getTime() - r.startDate.getTime()) / total < 0.65
     })
-  }, [schedule])
+
+    if (filterYear != null) {
+      const mStart = filterMonth != null ? new Date(filterYear, filterMonth, 1) : new Date(filterYear, 0, 1)
+      const mEnd   = filterMonth != null ? new Date(filterYear, filterMonth + 1, 0) : new Date(filterYear, 11, 31)
+      rows = rows.filter(r => {
+        if (!r.startDate || !r.finishDate) return true
+        return r.startDate <= mEnd && r.finishDate >= mStart
+      })
+    }
+
+    return rows
+  }, [schedule, filterYear, filterMonth])
 
   const rowPhaseIdx = useMemo(() => {
     const map: Record<string, number> = {}
@@ -661,9 +1564,7 @@ function ScheduleViewer({
     return map
   }, [displayRows])
 
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    () => new Set(displayRows.filter(r => r.isPhase || r.level === 1).map(r => r.id)),
-  )
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set())
 
   // Expose controls to parent synchronously (safe: we only write, never read this ref for rendering)
   if (controlsRef) {
@@ -680,8 +1581,8 @@ function ScheduleViewer({
   }
 
   const visibleRows = useMemo(
-    () => getVisibleRows(displayRows, expandedIds, resourceFilter),
-    [displayRows, expandedIds, resourceFilter],
+    () => getVisibleRows(displayRows, expandedIds, new Set()),
+    [displayRows, expandedIds],
   )
   const hasKidsMap = useMemo(() => {
     const m: Record<string, boolean> = {}
@@ -689,21 +1590,75 @@ function ScheduleViewer({
     return m
   }, [displayRows])
 
-  const shared = { displayRows, visibleRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, resourceFilter }
+  const isDark = useIsDark()
+  const phaseColors = isDark ? PHASE_COLORS_DARK : PHASE_COLORS_LIGHT
+
+  const { user: currentUser } = useAuth()
+  const currentUserName = currentUser?.name || currentUser?.email || "Unknown"
+
+  // ── Comments map (shared between Gantt and Dates views) ────────────────────
+  const [commentsMap, setCommentsMap] = useState<Map<string, RowComment[]>>(new Map())
+
+  useEffect(() => {
+    if (!buildingId) return
+    setCommentsMap(new Map())
+    buildingsService.getAllRowComments(buildingId)
+      .then(items => {
+        const map = new Map<string, RowComment[]>()
+        for (const c of (items ?? [])) {
+          const key = String(c.row_id)
+          if (!map.has(key)) map.set(key, [])
+          map.get(key)?.push(c)
+        }
+        setCommentsMap(map)
+      })
+      .catch(() => {})
+  }, [buildingId])
+
+  // ── Row metas ───────────────────────────────────────────────────────────────
+  const [rowMetas, setRowMetas] = useState<Map<string, RowMeta>>(new Map())
+
+  useEffect(() => {
+    if (!buildingId) return
+    buildingsService.getScheduleRowMeta(buildingId)
+      .then(items => {
+        const map = new Map<string, RowMeta>()
+        for (const item of (items ?? [])) {
+          map.set(String(item.row_id), { status: item.status, observation: item.observation })
+        }
+        setRowMetas(map)
+      })
+      .catch(() => {})
+  }, [buildingId])
+
+  const onMetaChange = useCallback((rowId: string, patch: Partial<RowMeta>) => {
+    setRowMetas(prev => {
+      const next    = new Map(prev)
+      const current = next.get(rowId) ?? { status: 'pending', observation: '' }
+      next.set(rowId, { ...current, ...patch })
+      return next
+    })
+    buildingsService.upsertScheduleRowMeta(buildingId, rowId, patch).catch(() => {})
+  }, [buildingId])
+
+  const shared = { displayRows, visibleRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors }
 
   if (viewMode === "gantt" && schedule.projectStart && schedule.projectFinish) {
-    return <GanttViewer schedule={schedule} {...shared} />
+    return <GanttViewer schedule={schedule} {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} filterYear={filterYear} filterMonth={filterMonth} />
   }
-  return <DatesViewer {...shared} />
+  return <DatesViewer {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} />
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 
 export default function BuildingSchedulePage() {
   const { data: buildings = [], isLoading } = useBuildings()
   const [selectedId, setSelectedId]         = useState<string | null>(null)
   const [viewMode, setViewMode]             = useState<"gantt" | "dates">("gantt")
-  const [resourceFilter, setResourceFilter] = useState<Set<string>>(new Set())
+  const [filterYear, setFilterYear]         = useState<number | null>(null)
+  const [filterMonth, setFilterMonth]       = useState<number | null>(null)
   const scheduleControls = useRef<{ expandAll: () => void; collapseAll: () => void } | null>(null)
 
   const { data: scheduleResp, isLoading: loadingSchedule } = useBuildingSchedule(selectedId)
@@ -715,13 +1670,11 @@ export default function BuildingSchedulePage() {
 
   const selected = buildings.find(b => b.id === selectedId)
 
-  // All unique resources from current schedule
   const displayResources = useMemo(
     () => schedule ? [...new Set(schedule.rows.flatMap(r => r.resources))].sort() : [],
     [schedule],
   )
 
-  // Stats
   const stats = useMemo(() => {
     if (!schedule) return null
     const phases     = schedule.rows.filter(r => r.isPhase).length
@@ -729,53 +1682,129 @@ export default function BuildingSchedulePage() {
     return { total: schedule.rows.length, phases, milestones }
   }, [schedule])
 
-  function toggleResource(r: string) {
-    setResourceFilter(prev => { const n = new Set(prev); n.has(r) ? n.delete(r) : n.add(r); return n })
-  }
-  function clearFilter() { setResourceFilter(new Set()) }
+  const scheduleDateMap = useMemo(() => {
+    if (!schedule) return { years: [] as number[], monthsByYear: {} as Record<number, number[]> }
+    const yearSet = new Set<number>()
+    const monthMap: Record<number, Set<number>> = {}
+    for (const r of schedule.rows) {
+      if (!r.startDate || !r.finishDate) continue
+      const cur = new Date(r.startDate.getFullYear(), r.startDate.getMonth(), 1)
+      const end = new Date(r.finishDate.getFullYear(), r.finishDate.getMonth(), 1)
+      while (cur <= end) {
+        const y = cur.getFullYear()
+        const m = cur.getMonth()
+        yearSet.add(y)
+        if (!monthMap[y]) monthMap[y] = new Set()
+        monthMap[y].add(m)
+        cur.setMonth(cur.getMonth() + 1)
+      }
+    }
+    const years = [...yearSet].sort((a, b) => a - b)
+    const monthsByYear: Record<number, number[]> = {}
+    for (const y of years) monthsByYear[y] = [...monthMap[y]].sort((a, b) => a - b)
+    return { years, monthsByYear }
+  }, [schedule])
 
-  // Reset filter when building changes
-  useEffect(() => { setResourceFilter(new Set()) }, [selectedId])
+  // Reset filters when building changes
+  useEffect(() => { setFilterYear(null); setFilterMonth(null) }, [])
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
 
-      {/* ── Header bar ─────────────────────────────────────────────────────── */}
-      <div className="shrink-0 flex items-center gap-2 pb-3">
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="shrink-0 flex flex-col pb-2">
 
-        {/* Title */}
-        <div>
-          <h1 className="text-lg font-semibold leading-none">Building Schedule</h1>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
-            {selected && stats
-              ? <>
-                  {selected.name} · {stats.total} tasks · {stats.phases} phases
-                  {schedule?.projectStart && schedule?.projectFinish && (
-                    <> · {fmtDateFull(schedule.projectStart)} – {fmtDateFull(schedule.projectFinish)}</>
-                  )}
-                </>
-              : "Track construction progress across all projects"
-            }
-          </p>
-        </div>
+        {/* Row 1: Title + right controls */}
+        <div className="flex items-end gap-2">
 
-        <div className="flex-1" />
+          {/* Title */}
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Building Schedule</h1>
+            <p className="text-sm text-muted-foreground">Track construction progress across all projects</p>
+          </div>
 
-        {/* ── All right-side controls — consistent h-7 ───────────────────── */}
-        <div className="flex items-center gap-1.5">
+          <div className="flex-1" />
 
-          {/* Trades legend */}
-          {schedule && displayResources.length > 0 && (
-            <TradesLegend
-              displayResources={displayResources}
-              resourceFilter={resourceFilter}
-              toggleResource={toggleResource}
-              clearFilter={clearFilter}
+          {/* Building selector */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Building</span>
+            <BuildingDropdown
+              buildings={buildings}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              isLoading={isLoading}
             />
+          </div>
+
+          {/* Period filter */}
+          {schedule && scheduleDateMap.years.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
+              <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+                <div className="flex items-center pl-2.5">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+                <Select
+                  value={filterYear != null ? String(filterYear) : "all"}
+                  onValueChange={v => { setFilterYear(v === "all" ? null : Number(v)); setFilterMonth(null) }}
+                >
+                  <SelectTrigger className="h-8 w-[72px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                    <span className="flex-1 truncate text-left text-sm">{filterYear ?? "All"}</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    {scheduleDateMap.years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <div className="h-4 w-px bg-border" />
+                <Select
+                  value={filterMonth != null ? String(filterMonth) : "all"}
+                  onValueChange={v => setFilterMonth(v === "all" ? null : Number(v))}
+                  disabled={filterYear === null}
+                >
+                  <SelectTrigger className="h-8 w-[110px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                    <span className="flex-1 truncate text-left text-sm">
+                      {filterMonth != null ? MONTHS[filterMonth] : "All months"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All months</SelectItem>
+                    {(filterYear != null ? (scheduleDateMap.monthsByYear[filterYear] ?? []) : [])
+                      .map(m => <SelectItem key={m} value={String(m)}>{MONTHS[m]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           )}
 
-          {/* Gantt | Dates toggle */}
-          {schedule && (
+          {/* Manage */}
+          <a
+            href="/building-schedule/manage"
+            className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[min(var(--radius-md),12px)] bg-primary text-primary-foreground text-[0.8rem] font-medium hover:bg-primary/90 transition-colors shrink-0 select-none"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+            Manage
+          </a>
+        </div>
+
+        {/* Row 2: Display controls (only when schedule loaded) */}
+        {schedule && (
+          <div className="flex items-center gap-2 mt-2 rounded-lg border border-border px-3 py-1.5">
+            <span className="text-[11px] text-muted-foreground">
+              {stats && <>{stats.total} tasks · {stats.phases} phases</>}
+              {schedule?.projectStart && schedule?.projectFinish && (
+                <> · {fmtDateFull(schedule.projectStart)} – {fmtDateFull(schedule.projectFinish)}</>
+              )}
+            </span>
+
+            <div className="flex-1" />
+
+            {/* Trades legend */}
+            {displayResources.length > 0 && (
+              <TradesLegend displayResources={displayResources} />
+            )}
+
+            {/* Gantt | Dates toggle */}
             <div className="flex items-center h-7 rounded-lg border border-border bg-muted/20 p-0.5">
               <button
                 onClick={() => setViewMode("gantt")}
@@ -802,52 +1831,33 @@ export default function BuildingSchedulePage() {
                 Dates
               </button>
             </div>
-          )}
 
-          {/* Expand / Collapse */}
-          {schedule && (
+            {/* Expand / Collapse */}
             <div className="flex items-center h-7 rounded-lg border border-border bg-muted/20 p-0.5">
               <button
-                title="Expand all"
                 onClick={() => scheduleControls.current?.expandAll()}
-                className="flex items-center justify-center w-5 h-full rounded-md text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-sm transition-all"
+                className="flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all text-muted-foreground hover:text-foreground"
               >
                 <ChevronsUpDown className="h-3.5 w-3.5" />
+                Expand
               </button>
               <button
-                title="Collapse all"
                 onClick={() => scheduleControls.current?.collapseAll()}
-                className="flex items-center justify-center w-5 h-full rounded-md text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-sm transition-all"
+                className="flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all text-muted-foreground hover:text-foreground"
               >
                 <ChevronsDownUp className="h-3.5 w-3.5" />
+                Collapse
               </button>
             </div>
-          )}
-
-          {/* Separator */}
-          <div className="w-px h-5 bg-border/60" />
-
-          {/* Building selector */}
-          <BuildingDropdown
-            buildings={buildings}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            isLoading={isLoading}
-          />
-
-          {/* Manage — plain <a> to avoid asChild DOM prop warning */}
-          <a
-            href="/building-schedule/manage"
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-[min(var(--radius-md),12px)] bg-primary text-primary-foreground text-[0.8rem] font-medium hover:bg-primary/90 transition-colors shrink-0 select-none"
-          >
-            <FolderOpen className="h-3.5 w-3.5" />
-            Manage
-          </a>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ── Content ────────────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-border flex flex-col">
+      <div
+        className="flex-1 min-h-0 overflow-hidden rounded-lg border border-border flex flex-col"
+        style={{ backgroundColor: "color-mix(in oklab, var(--color-background) 75%, transparent)" }}
+      >
 
         {/* Empty — no building selected */}
         {!selectedId && (
@@ -885,11 +1895,11 @@ export default function BuildingSchedulePage() {
         {schedule && (
           <ScheduleViewer
             schedule={schedule}
+            buildingId={selectedId!}
             viewMode={viewMode}
             displayResources={displayResources}
-            resourceFilter={resourceFilter}
-            toggleResource={toggleResource}
-            clearFilter={clearFilter}
+            filterYear={filterYear}
+            filterMonth={filterMonth}
             controlsRef={scheduleControls}
           />
         )}

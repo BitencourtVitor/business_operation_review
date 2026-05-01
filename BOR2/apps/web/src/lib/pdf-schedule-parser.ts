@@ -341,7 +341,7 @@ export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
 
   const dates = scheduleRows
     .flatMap(r => [r.startDate, r.finishDate])
-    .filter((d): d is Date => d instanceof Date && !isNaN(d.getTime()))
+    .filter((d): d is Date => d instanceof Date && !Number.isNaN(d.getTime()))
 
   const projectStart  = dates.length ? new Date(Math.min(...dates.map(d => d.getTime()))) : null
   const projectFinish = dates.length ? new Date(Math.max(...dates.map(d => d.getTime()))) : null

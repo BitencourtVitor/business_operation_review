@@ -52,7 +52,7 @@ export function PermitDetailModal({ permit: selected, primaryHex, isDark, onClos
   }
 
   const reqColor  = SIT_HEX['Not Applied']
-  const appColor  = SIT_HEX['Applied']
+  const appColor  = SIT_HEX.Applied
   const issColor  = primaryHex
 
   const daysReqApp = daysBetween(selected.solicitacao, selected.aplicacao)

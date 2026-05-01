@@ -5,7 +5,7 @@ import { BarChart2, Clock } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Permit } from '@/services/permit.service'
 import {
-  DAY_WIDTH, MONTHS_SHORT, SUB_H, TIMELINE_H, LABEL_H, STEM_MAX_H, TOP_PAD,
+  DAY_WIDTH, MONTHS_SHORT, SUB_H, TIMELINE_H, LABEL_H, TOP_PAD,
   type DateField,
 } from '../types'
 import { stemColorForDay } from '../lib'
@@ -101,7 +101,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
       if (!raw) return
       const day = raw.substring(0, 10)
       if (!map.has(day)) map.set(day, [])
-      map.get(day)!.push(p)
+      map.get(day)?.push(p)
     })
     return map
   }, [permits, dateField])
@@ -143,7 +143,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
       const month = day.substring(0, 7)
       if (month !== currentMonth) {
         if (sections.length > 0) sections[sections.length - 1].endX = i * DAY_WIDTH
-        const d = new Date(day + 'T00:00:00Z')
+        const d = new Date(`${day}T00:00:00Z`)
         sections.push({ label: `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`, startX: i * DAY_WIDTH, endX: 0, count: 0, byStatus: {} })
         currentMonth = month
       }
@@ -173,7 +173,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
   }, [popover])
 
   // Close popover when grouped changes (e.g. filter changed while popover was open)
-  useEffect(() => { setPopover(null) }, [grouped])
+  useEffect(() => { setPopover(null) }, [])
 
   function onMouseDown(e: React.MouseEvent) {
     isDragging.current = true
@@ -389,7 +389,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
 
           {/* Footer top half — day number per column */}
           {days.map((day, i) => {
-            const d = new Date(day + 'T00:00:00Z')
+            const d = new Date(`${day}T00:00:00Z`)
             return (
               <div
                 key={`footer-day-${day}`}
@@ -513,7 +513,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
       {popover && (() => {
         const perms = grouped.get(popover.day)
         if (!perms) return null
-        const d     = new Date(popover.day + 'T00:00:00Z')
+        const d     = new Date(`${popover.day}T00:00:00Z`)
         const title = `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`
         const safeX = typeof window !== 'undefined'
           ? Math.max(8, Math.min(popover.x - 130, window.innerWidth - 276))
