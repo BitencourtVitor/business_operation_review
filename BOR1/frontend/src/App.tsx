@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
+import Maintenance from './pages/Maintenance'
 import Dashboard from './pages/Dashboard'
 import InitialLoading from './pages/InitialLoading'
 import WorkforceForecast from './pages/WorkforceForecast'
@@ -21,6 +22,7 @@ export default function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/forecast" element={<MobileForecast />} />
