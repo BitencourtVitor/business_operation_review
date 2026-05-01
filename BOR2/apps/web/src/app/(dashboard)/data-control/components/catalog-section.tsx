@@ -138,12 +138,19 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
   useMemo(() => { setForm({}); setSearch("") }, [])
 
   const filteredRows = useMemo(() => {
-    if (!search.trim()) return rows
-    const q = search.toLowerCase()
-    return rows.filter(row =>
-      tableDef.cols.some(c => String(row[c.field] ?? "").toLowerCase().includes(q)),
-    )
-  }, [rows, search, tableDef])
+    const base = !search.trim()
+      ? rows
+      : rows.filter(row => {
+          const q = search.toLowerCase()
+          return tableDef.cols.some(c => String(row[c.field] ?? "").toLowerCase().includes(q))
+        })
+    if (activeTable === "workforce") {
+      return [...base].sort((a, b) =>
+        String(a.name ?? "").localeCompare(String(b.name ?? ""), undefined, { sensitivity: "base" })
+      )
+    }
+    return base
+  }, [rows, search, tableDef, activeTable])
 
   function handleAdd() {
     if (tableDef.cols.some(c => !form[c.field]?.trim())) return
