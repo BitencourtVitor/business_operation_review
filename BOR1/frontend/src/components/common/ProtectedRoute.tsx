@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
+import Maintenance from '../../pages/Maintenance';
+
+const MAINTENANCE_MODE = true;
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,6 +15,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
 
   useEffect(() => {
+    if (MAINTENANCE_MODE) {
+      setIsLoading(false);
+      return;
+    }
     const checkAuth = async () => {
       try {
         // Verificar se há uma sessão ativa
@@ -70,6 +77,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     checkAuth();
   }, []);
+
+  if (MAINTENANCE_MODE) {
+    return <Maintenance />;
+  }
 
   if (isLoading) {
     return (
