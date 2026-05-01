@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -97,7 +98,7 @@ func calcMachineScore(ctx context.Context, db *pgxpool.Pool, id string) float64 
 		var status string
 		if rows.Scan(&status) == nil {
 			total++
-			if status == "scheduled" || status == "dispensed" {
+			if s := strings.ToLower(status); s == "scheduled" || s == "dispensed" {
 				done++
 			}
 		}
