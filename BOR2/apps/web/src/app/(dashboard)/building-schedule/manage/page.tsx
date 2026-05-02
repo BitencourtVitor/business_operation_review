@@ -614,6 +614,70 @@ function EditEventModal({
   )
 }
 
+// ─── Delete event confirmation modal ─────────────────────────────────────────
+
+function DeleteEventModal({
+  building, event, onClose,
+}: {
+  building: BuildingListItem
+  event:    ScheduleEvent
+  onClose:  () => void
+}) {
+  const deleteEvent = useDeleteBuildingEvent(building.id)
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    setDeleting(true)
+    try { await deleteEvent.mutateAsync(event.id); onClose() }
+    catch { setDeleting(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-sm mx-4">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="font-semibold text-sm text-destructive">Delete Event?</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="p-5">
+          <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-3 mb-4">
+            <div
+              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+              style={{ backgroundColor: event.type_color + "22" }}
+            >
+              <EventIcon name={event.type_icon} className="h-3.5 w-3.5" style={{ color: event.type_color }} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{event.type_name}</span>
+                {event.days_delayed > 0 && (
+                  <span className="text-[10px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
+                    +{event.days_delayed}d
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">{fmtDateStr(event.event_date)}</p>
+              {event.notes && <p className="text-xs text-muted-foreground mt-0.5 italic">{event.notes}</p>}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            This event and its schedule impact will be permanently removed.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={onClose} disabled={deleting}>Cancel</Button>
+            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── History rows ─────────────────────────────────────────────────────────────
 
 function UploadHistoryRow({
@@ -767,17 +831,17 @@ type TimelineItem =
   | { kind: "event";  item: ScheduleEvent;       date: string }
 
 function BuildingCard({ building }: { building: BuildingListItem }) {
-  const [editing,       setEditing]       = useState(false)
-  const [showUpload,    setShowUpload]    = useState(false)
-  const [showAddEvent,  setShowAddEvent]  = useState(false)
-  const [editingEvent,  setEditingEvent]  = useState<ScheduleEvent | null>(null)
-  const [showHistory,   setShowHistory]   = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [editing,            setEditing]            = useState(false)
+  const [showUpload,         setShowUpload]         = useState(false)
+  const [showAddEvent,       setShowAddEvent]       = useState(false)
+  const [editingEvent,       setEditingEvent]       = useState<ScheduleEvent | null>(null)
+  const [confirmDeleteEvent, setConfirmDeleteEvent] = useState<ScheduleEvent | null>(null)
+  const [showHistory,        setShowHistory]        = useState(false)
+  const [confirmDelete,      setConfirmDelete]      = useState(false)
 
-  const updateMut   = useUpdateBuilding()
-  const deleteMut   = useDeleteBuilding()
-  const delSched    = useDeleteSchedule()
-  const deleteEvent = useDeleteBuildingEvent(building.id)
+  const updateMut = useUpdateBuilding()
+  const deleteMut = useDeleteBuilding()
+  const delSched  = useDeleteSchedule()
 
   const eventsQuery  = useBuildingEvents(showHistory  ? building.id : null)
   const historyQuery = useScheduleHistory(showHistory ? building.id : null)
@@ -806,15 +870,10 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
 
   return (
     <>
-      {showUpload   && <UploadModal   building={building} onClose={() => setShowUpload(false)} />}
-      {showAddEvent && <AddEventModal building={building} onClose={() => setShowAddEvent(false)} />}
-      {editingEvent && (
-        <EditEventModal
-          building={building}
-          event={editingEvent}
-          onClose={() => setEditingEvent(null)}
-        />
-      )}
+      {showUpload         && <UploadModal   building={building} onClose={() => setShowUpload(false)} />}
+      {showAddEvent       && <AddEventModal building={building} onClose={() => setShowAddEvent(false)} />}
+      {editingEvent       && <EditEventModal building={building} event={editingEvent} onClose={() => setEditingEvent(null)} />}
+      {confirmDeleteEvent && <DeleteEventModal building={building} event={confirmDeleteEvent} onClose={() => setConfirmDeleteEvent(null)} />}
 
       <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
         {editing ? (
@@ -961,8 +1020,8 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                               item={t.item}
                               isLast={i === timeline.length - 1}
                               onEdit={() => setEditingEvent(t.item)}
-                              onDelete={() => deleteEvent.mutate(t.item.id)}
-                              deleting={deleteEvent.isPending && deleteEvent.variables === t.item.id}
+                              onDelete={() => setConfirmDeleteEvent(t.item)}
+                              deleting={false}
                             />
                           )
                         )}
