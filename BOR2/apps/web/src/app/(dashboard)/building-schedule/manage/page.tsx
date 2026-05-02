@@ -677,7 +677,7 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                       onClick={() => setShowAddEvent(true)}
                       className="flex flex-1 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-md py-1.5 hover:bg-muted transition-colors"
                     >
-                      <Plus className="h-3 w-3" /> Add Event
+                      <Plus className="h-3 w-3" /> Event
                     </button>
                     <button
                       onClick={() => setShowUpload(true)}
