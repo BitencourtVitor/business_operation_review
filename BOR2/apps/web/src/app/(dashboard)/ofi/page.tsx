@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   Select,
   SelectContent,
@@ -89,6 +90,124 @@ function ChartTooltip({
         ))}
       </div>
     </div>
+  )
+}
+
+// ─── SparklineCard ────────────────────────────────────────────────────────────
+
+type TrendPoint = {
+  month:     string
+  total:     number
+  fieldwire: number
+  machines:  number
+  contract:  number
+  systems:   number
+}
+
+type SparklineKey = keyof Omit<TrendPoint, "month">
+
+function SparklineCard({
+  data, dataKey, name, max, score, label, tip, icon, primaryAtMax = false,
+}: {
+  data:          TrendPoint[]
+  dataKey:       SparklineKey
+  name:          string
+  max:           number
+  score:         number
+  label:         string
+  tip:           string
+  icon:          React.ReactNode
+  primaryAtMax?: boolean
+}) {
+  const [hover, setHover] = useState<{
+    clientX: number; clientY: number; label: string; value: number
+  } | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
+
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!data.length || !ref.current) return
+    const rect      = ref.current.getBoundingClientRect()
+    const relX      = e.clientX - rect.left
+    const plotWidth = rect.width - 16            // margin-left 8 + margin-right 8
+    if (plotWidth <= 0) return
+    const idx = Math.max(0, Math.min(
+      data.length - 1,
+      Math.round((relX - 8) / plotWidth * (data.length - 1)),
+    ))
+    const pt = data[idx]
+    if (!pt) return
+    setHover({ clientX: e.clientX, clientY: e.clientY, label: pt.month, value: pt[dataKey] })
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
+          <Tooltip>
+            <TooltipTrigger className="cursor-default text-muted-foreground/50 transition-colors hover:text-muted-foreground">
+              {icon}
+            </TooltipTrigger>
+            <TooltipContent side="top">{tip}</TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-2xl font-bold tabular-nums leading-none ${scoreColor(score, max, primaryAtMax)}`}>
+            {score}
+          </span>
+          <span className="text-xs text-muted-foreground">/ {max}</span>
+        </div>
+        <div
+          ref={ref}
+          style={{ height: 44 }}
+          className="[&_text]:fill-muted-foreground"
+          onMouseMove={onMouseMove}
+          onMouseLeave={() => setHover(null)}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 2, right: 8, bottom: 0, left: 8 }}>
+              <YAxis domain={[0, max]} hide />
+              <Line
+                type="monotone"
+                dataKey={dataKey}
+                stroke="var(--color-primary)"
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {hover && createPortal(
+        <div
+          style={{
+            position:      "fixed",
+            left:          hover.clientX + 14 + 155 > window.innerWidth
+                             ? hover.clientX - 169
+                             : hover.clientX + 14,
+            top:           Math.max(8, hover.clientY - 60),
+            zIndex:        9999,
+            pointerEvents: "none",
+          }}
+        >
+          <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg">
+            <p className="mb-1.5 text-xs font-semibold text-foreground">{hover.label}</p>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
+              <span className="text-xs text-muted-foreground">{name}</span>
+              <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-foreground">
+                {hover.value}
+              </span>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
   )
 }
 
@@ -360,105 +479,30 @@ export default function OFIPage() {
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
 
             {/* ── Row 1: 5 metric cards side by side ── */}
-            <div className="grid shrink-0 grid-cols-5 gap-3 overflow-visible">
-
-              {/* OFI Total */}
-              <div className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3 overflow-visible">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    OFI Total
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger className="cursor-default text-muted-foreground/50 transition-colors hover:text-muted-foreground">
-                      <BarChart3 className="h-3.5 w-3.5" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      Average total score (max 7). Combines Fieldwire, Machines, Contract and Systems.
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                {/* Score + max on same line */}
-                <div className="flex items-baseline gap-1.5">
-                  <span className={`text-2xl font-bold tabular-nums leading-none ${scoreColor(kpis.total, 7, true)}`}>
-                    {kpis.total}
-                  </span>
-                  <span className="text-xs text-muted-foreground">/ 7</span>
-                </div>
-                {/* Sparkline */}
-                <div style={{ height: 44 }} className="overflow-visible [&_text]:fill-muted-foreground">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData} margin={{ top: 2, right: 8, bottom: 0, left: 8 }}>
-                      <XAxis dataKey="month" hide />
-                      <YAxis domain={[0, 7]} tick={false} axisLine={false} tickLine={false} width={0} />
-                      <RechartsTooltip
-                        content={<ChartTooltip />}
-                        cursor={cursor}
-                        allowEscapeViewBox={{ x: true, y: true }}
-                        position={{ y: -64 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="total"
-                        name="OFI Total"
-                        stroke="var(--color-primary)"
-                        strokeWidth={2}
-                        dot={false}
-                        isAnimationActive={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Aspect cards */}
+            <div className="grid shrink-0 grid-cols-5 gap-3">
+              <SparklineCard
+                data={trendData}
+                dataKey="total"
+                name="OFI Total"
+                max={7}
+                score={kpis.total}
+                label="OFI Total"
+                tip="Average total score (max 7). Combines Fieldwire, Machines, Contract and Systems."
+                icon={<BarChart3 className="h-3.5 w-3.5" />}
+                primaryAtMax
+              />
               {aspects.map(a => (
-                <div
+                <SparklineCard
                   key={a.key}
-                  className="flex flex-col gap-1 rounded-xl border border-border/50 bg-card/60 px-4 py-3 overflow-visible"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {a.label}
-                    </span>
-                    <Tooltip>
-                      <TooltipTrigger className="cursor-default text-muted-foreground/50 transition-colors hover:text-muted-foreground">
-                        {a.icon}
-                      </TooltipTrigger>
-                      <TooltipContent side="top">{a.tip}</TooltipContent>
-                    </Tooltip>
-                  </div>
-                  {/* Score + max on same line */}
-                  <div className="flex items-baseline gap-1.5">
-                    <span className={`text-2xl font-bold tabular-nums leading-none ${scoreColor(kpis[a.key], a.max)}`}>
-                      {kpis[a.key]}
-                    </span>
-                    <span className="text-xs text-muted-foreground">/ {a.max}</span>
-                  </div>
-                  {/* Sparkline */}
-                  <div style={{ height: 44 }} className="overflow-visible [&_text]:fill-muted-foreground">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData} margin={{ top: 2, right: 8, bottom: 0, left: 8 }}>
-                        <XAxis dataKey="month" hide />
-                        <YAxis domain={[0, a.max]} tick={false} axisLine={false} tickLine={false} width={0} />
-                        <RechartsTooltip
-                          content={<ChartTooltip />}
-                          cursor={cursor}
-                          allowEscapeViewBox={{ x: true, y: true }}
-                          position={{ y: -64 }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey={a.key}
-                          name={a.label}
-                          stroke="var(--color-primary)"
-                          strokeWidth={2}
-                          dot={false}
-                          isAnimationActive={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
+                  data={trendData}
+                  dataKey={a.key}
+                  name={a.label}
+                  max={a.max}
+                  score={kpis[a.key]}
+                  label={a.label}
+                  tip={a.tip}
+                  icon={a.icon}
+                />
               ))}
             </div>
 

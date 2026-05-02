@@ -23,18 +23,22 @@ export interface BuildingListItem {
 }
 
 export interface RowComment {
-  id:         string
-  row_id:     number
-  user_name:  string
-  user_role:  string
-  body:       string
-  created_at: string
+  id:            string
+  row_id:        number
+  user_name:     string
+  user_role:     string
+  body:          string
+  created_at:    string
+  created_by_id: string
 }
 
 export interface RowMetaItem {
   row_id:      number
   status:      'pending' | 'done'
   observation: string
+  real_start:  string | null
+  real_finish: string | null
+  is_finished: boolean
 }
 
 export interface ScheduleResponse {
@@ -72,9 +76,48 @@ export interface ScheduleRowStored {
   isMilestone: boolean
 }
 
+export interface ScheduleEventType {
+  id:    number
+  name:  string
+  icon:  string   // lucide icon name, e.g. "cloud-rain"
+  color: string   // hex color
+}
+
+export interface ScheduleEvent {
+  id:            string
+  building_id:   string
+  event_type_id: number
+  event_date:    string   // "YYYY-MM-DD"
+  days_delayed:  number
+  notes:         string
+  created_at:    string
+  type_name:     string
+  type_icon:     string
+  type_color:    string
+}
+
+export interface ScheduleHistoryItem {
+  id:             string
+  pdf_filename:   string
+  project_start:  string | null
+  project_finish: string | null
+  uploaded_at:    string
+  is_current:     boolean
+  task_count:     number | null
+}
+
+export interface TradeOwnership {
+  id:          string
+  building_id: string
+  trade_name:  string
+  is_ours:     boolean
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export const buildingsService = {
+  // ── Buildings CRUD ────────────────────────────────────────────────────────
+
   list: () =>
     api.get<BuildingListItem[]>("/api/v1/buildings", tok()),
 
@@ -86,6 +129,8 @@ export const buildingsService = {
 
   delete: (id: string) =>
     api.delete<void>(`/api/v1/buildings/${id}`, tok()),
+
+  // ── Schedule ──────────────────────────────────────────────────────────────
 
   getSchedule: (buildingId: string) =>
     api.get<ScheduleResponse>(`/api/v1/buildings/${buildingId}/schedule`, tok()),
@@ -107,11 +152,28 @@ export const buildingsService = {
   deleteSchedule: (buildingId: string) =>
     api.delete<void>(`/api/v1/buildings/${buildingId}/schedule`, tok()),
 
+  getScheduleHistory: (buildingId: string) =>
+    api.get<ScheduleHistoryItem[]>(`/api/v1/buildings/${buildingId}/schedule/history`, tok()),
+
+  // ── Row meta (status + actuals) ───────────────────────────────────────────
+
   getScheduleRowMeta: (buildingId: string) =>
     api.get<RowMetaItem[]>(`/api/v1/buildings/${buildingId}/schedule/row-meta`, tok()),
 
-  upsertScheduleRowMeta: (buildingId: string, rowId: number | string, patch: { status?: string; observation?: string }) =>
+  upsertScheduleRowMeta: (
+    buildingId: string,
+    rowId: number | string,
+    patch: {
+      status?:      string
+      observation?: string
+      real_start?:  string | null
+      real_finish?: string | null
+      is_finished?: boolean
+    },
+  ) =>
     api.patch<void>(`/api/v1/buildings/${buildingId}/schedule/row-meta/${rowId}`, patch, tok()),
+
+  // ── Row comments ──────────────────────────────────────────────────────────
 
   getAllRowComments: (buildingId: string) =>
     api.get<RowComment[]>(`/api/v1/buildings/${buildingId}/schedule/row-comments`, tok()),
@@ -127,4 +189,29 @@ export const buildingsService = {
 
   deleteRowComment: (buildingId: string, commentId: string) =>
     api.delete<void>(`/api/v1/buildings/${buildingId}/schedule/row-comments/${commentId}`, tok()),
+
+  // ── Schedule Events ───────────────────────────────────────────────────────
+
+  listEventTypes: () =>
+    api.get<ScheduleEventType[]>("/api/v1/buildings/event-types", tok()),
+
+  getBuildingEvents: (buildingId: string) =>
+    api.get<ScheduleEvent[]>(`/api/v1/buildings/${buildingId}/events`, tok()),
+
+  addBuildingEvent: (
+    buildingId: string,
+    body: { event_type_id: number; event_date: string; days_delayed: number; notes: string },
+  ) =>
+    api.post<ScheduleEvent>(`/api/v1/buildings/${buildingId}/events`, body, tok()),
+
+  deleteBuildingEvent: (buildingId: string, eventId: string) =>
+    api.delete<void>(`/api/v1/buildings/${buildingId}/events/${eventId}`, tok()),
+
+  // ── Trade Ownership ───────────────────────────────────────────────────────
+
+  getTradeOwnership: (buildingId: string) =>
+    api.get<TradeOwnership[]>(`/api/v1/buildings/${buildingId}/trades`, tok()),
+
+  upsertTradeOwnership: (buildingId: string, trades: { trade_name: string; is_ours: boolean }[]) =>
+    api.put<void>(`/api/v1/buildings/${buildingId}/trades`, { trades }, tok()),
 }
