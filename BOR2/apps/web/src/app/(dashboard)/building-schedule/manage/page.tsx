@@ -356,17 +356,16 @@ function AddEventModal({
                     key={et.id}
                     type="button"
                     onClick={() => setTypeId(et.id)}
-                    className={cn(
-                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors text-left",
-                      typeId === et.id
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:bg-muted text-foreground",
-                    )}
+                    className="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors text-left"
+                    style={typeId === et.id
+                      ? { borderColor: et.color, backgroundColor: et.color + "26", color: et.color }
+                      : undefined
+                    }
                   >
                     <EventIcon
                       name={et.icon}
                       className="h-3.5 w-3.5 shrink-0"
-                      style={{ color: typeId === et.id ? undefined : et.color }}
+                      style={{ color: et.color }}
                     />
                     {et.name}
                   </button>
