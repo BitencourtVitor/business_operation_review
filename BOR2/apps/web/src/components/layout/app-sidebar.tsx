@@ -105,6 +105,7 @@ const activeGroup: NavGroup = {
     },
     { title: "Operational Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
+    { title: "HVAC Projects", href: "/project-monitoring", image: "/images/sublogo_hvac.png", permKey: "project_monitoring" },
     { title: "Permit Control", href: "/permits", icon: FileCheck, permKey: "permits", editPermKey: "permits" },
     { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
@@ -133,7 +134,6 @@ const comingSoonGroup: NavGroup = {
         { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
       ],
     },
-    { title: "HVAC Project Monitoring", href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
     { title: "Fuel Control",            href: "/fuel",               icon: Fuel, disabled: true },
   ],
 }
