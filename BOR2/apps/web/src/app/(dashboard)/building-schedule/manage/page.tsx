@@ -29,6 +29,8 @@ import {
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Calendar as CalendarUI } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   useBuildings,
   useCreateBuilding,
@@ -373,25 +375,53 @@ function AddEventModal({
             )}
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1">Event Date *</label>
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+          <div className="flex gap-3">
+            {/* Event Date — Calendar + Popover */}
+            <div className="flex-1">
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Event Date *</label>
+              <Popover>
+                <PopoverTrigger
+                  className={cn(
+                    "w-full flex items-center gap-2 text-sm rounded-md border border-border bg-background px-3 py-1.5 hover:bg-muted/50 transition-colors text-left",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarRange className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  {date ? fmtDateStr(date) : "Pick a date"}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarUI
+                    mode="single"
+                    selected={date ? new Date(date + "T12:00:00") : undefined}
+                    onSelect={d => {
+                      if (!d) return
+                      const y = d.getFullYear()
+                      const m = String(d.getMonth() + 1).padStart(2, "0")
+                      const day = String(d.getDate()).padStart(2, "0")
+                      setDate(`${y}-${m}-${day}`)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-          <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1">Days Delayed</label>
-            <input
-              type="number"
-              min={0}
-              value={days}
-              onChange={e => setDays(Math.max(0, Number(e.target.value)))}
-              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+            {/* Days Delayed — stepper */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Days Delayed</label>
+              <div className="flex items-center justify-between rounded-md border border-border bg-background px-1 py-1 h-[34px] gap-1">
+                <Button
+                  type="button" variant="ghost" size="icon"
+                  className="h-6 w-6 text-muted-foreground"
+                  onClick={() => setDays(d => Math.max(0, d - 1))}
+                >−</Button>
+                <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{days}</span>
+                <Button
+                  type="button" variant="ghost" size="icon"
+                  className="h-6 w-6 text-muted-foreground"
+                  onClick={() => setDays(d => d + 1)}
+                >+</Button>
+              </div>
+            </div>
           </div>
 
           <div>
