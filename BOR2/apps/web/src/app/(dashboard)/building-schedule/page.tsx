@@ -1435,12 +1435,11 @@ function DatesViewer({
               : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
             const evBg    = item.type_color + (isDark ? "0d" : "18")
             const evStart  = new Date(item.event_date + "T12:00:00")
-            const evFinish = item.days_delayed > 0
-              ? new Date(evStart.getTime() + item.days_delayed * 86_400_000)
+            // days_delayed is always ≥ 1. finish = start + (N-1) days; N=1 means same day → "—"
+            const evFinish = item.days_delayed > 1
+              ? new Date(evStart.getTime() + (item.days_delayed - 1) * 86_400_000)
               : null
-            const evDuration = item.days_delayed === 0
-              ? "1 day"
-              : `${item.days_delayed} day${item.days_delayed !== 1 ? "s" : ""}`
+            const evDuration = `${item.days_delayed} day${item.days_delayed !== 1 ? "s" : ""}`
             return (
               <div
                 key={`ev-${item.id}`}
@@ -2195,7 +2194,7 @@ function EditEventModal({
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-1">Days Delayed</label>
               <div className="flex items-center justify-between rounded-md border border-border bg-background px-1 py-1 h-[34px] gap-1">
-                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setDays(d => Math.max(0, d - 1))}>−</Button>
+                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setDays(d => Math.max(1, d - 1))}>−</Button>
                 <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{days}</span>
                 <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setDays(d => d + 1)}>+</Button>
               </div>
