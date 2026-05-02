@@ -49,8 +49,8 @@ import {
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useBuildings, useBuildingSchedule, useTradeOwnership, useUpsertTradeOwnership } from "@/hooks/use-buildings"
-import { buildingsService, type RowComment } from "@/services/buildings.service"
+import { useBuildings, useBuildingSchedule, useBuildingEvents, useTradeOwnership, useUpsertTradeOwnership } from "@/hooks/use-buildings"
+import { buildingsService, type RowComment, type ScheduleEvent } from "@/services/buildings.service"
 import { useAuth } from "@/hooks/use-auth"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
@@ -197,6 +197,58 @@ function fmtDateNum(d: Date): string {
 
 function isoDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+// ─── Event-based date adjustment ──────────────────────────────────────────────
+//
+// Rules (applied per event in chronological order):
+//   - Task in progress (start < eventDate ≤ finish): only finish shifts
+//   - Task not yet started (start ≥ eventDate):       both dates shift
+//   - Task already finished (finish < eventDate):     no change
+//
+// Events before the schedule's uploaded_at are ignored — a new PDF upload
+// is the source of truth; only events logged AFTER the upload apply.
+
+function applyEventsToSchedule(
+  schedule:   ParsedSchedule,
+  events:     ScheduleEvent[],
+  uploadedAt: string,
+): ParsedSchedule {
+  const uploadTs = new Date(uploadedAt).getTime()
+
+  const relevant = events
+    .filter(ev => ev.days_delayed > 0 && new Date(ev.event_date).getTime() >= uploadTs)
+    .sort((a, b) => a.event_date.localeCompare(b.event_date))
+
+  if (relevant.length === 0) return schedule
+
+  const rows = schedule.rows.map(r => ({ ...r }))
+
+  for (const ev of relevant) {
+    const eventDate = new Date(ev.event_date)
+    const delayMs   = ev.days_delayed * 86_400_000
+
+    for (const row of rows) {
+      if (!row.startDate || !row.finishDate) continue
+
+      if (row.startDate < eventDate && row.finishDate >= eventDate) {
+        row.finishDate = new Date(row.finishDate.getTime() + delayMs)
+      } else if (row.startDate >= eventDate) {
+        row.startDate  = new Date(row.startDate.getTime()  + delayMs)
+        row.finishDate = new Date(row.finishDate.getTime() + delayMs)
+      }
+    }
+  }
+
+  // Extend projectFinish to cover the latest adjusted finish
+  let projectFinish = schedule.projectFinish
+  for (const row of rows) {
+    if (row.finishDate && (!projectFinish || row.finishDate > projectFinish)) {
+      projectFinish = row.finishDate
+    }
+  }
+
+  return { ...schedule, rows, projectFinish }
 }
 
 function commentRoleIcon(role: string): LucideIcon {
@@ -2024,11 +2076,14 @@ export default function BuildingSchedulePage() {
   useEffect(() => { localStorage.setItem("bs:viewMode", viewMode) }, [viewMode])
 
   const { data: scheduleResp, isLoading: loadingSchedule } = useBuildingSchedule(selectedId)
+  const { data: buildingEvents = [] }                      = useBuildingEvents(selectedId)
 
   const schedule = useMemo<ParsedSchedule | null>(() => {
     if (!scheduleResp?.schedule_data) return null
-    return hydrateSchedule(scheduleResp.schedule_data)
-  }, [scheduleResp])
+    const raw = hydrateSchedule(scheduleResp.schedule_data)
+    if (!scheduleResp.uploaded_at || buildingEvents.length === 0) return raw
+    return applyEventsToSchedule(raw, buildingEvents, scheduleResp.uploaded_at)
+  }, [scheduleResp, buildingEvents])
 
   const selected = buildings.find(b => b.id === selectedId)
 
