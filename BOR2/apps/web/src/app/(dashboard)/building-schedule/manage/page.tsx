@@ -299,7 +299,7 @@ function AddEventModal({
 
   const [typeId,  setTypeId]  = useState<number | null>(null)
   const [date,    setDate]    = useState("")
-  const [days,    setDays]    = useState(0)
+  const [days,    setDays]    = useState(1)
   const [notes,   setNotes]   = useState("")
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -412,7 +412,7 @@ function AddEventModal({
                 <Button
                   type="button" variant="ghost" size="icon"
                   className="h-6 w-6 text-muted-foreground"
-                  onClick={() => setDays(d => Math.max(0, d - 1))}
+                  onClick={() => setDays(d => Math.max(1, d - 1))}
                 >−</Button>
                 <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{days}</span>
                 <Button
@@ -577,7 +577,7 @@ function EditEventModal({
                 <Button
                   type="button" variant="ghost" size="icon"
                   className="h-6 w-6 text-muted-foreground"
-                  onClick={() => setDays(d => Math.max(0, d - 1))}
+                  onClick={() => setDays(d => Math.max(1, d - 1))}
                 >−</Button>
                 <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{days}</span>
                 <Button
