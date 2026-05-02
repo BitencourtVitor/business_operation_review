@@ -300,7 +300,7 @@ function BuildingDropdown({
               key={b.id}
               onClick={() => { onSelect(b.id); setOpen(false) }}
               className={cn(
-                "w-[calc(100%-8px)] text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors rounded-md mx-1",
+                "w-[calc(100%-12px)] text-left px-3 py-1.5 text-sm hover:bg-muted/50 transition-colors rounded-md mx-1.5",
                 selectedId === b.id && "bg-primary/10 text-primary",
               )}
             >
