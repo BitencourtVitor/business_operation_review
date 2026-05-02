@@ -416,6 +416,7 @@ func main() {
 	buildings.Delete("/:id/schedule/row-comments/:commentId", buildingsHandler.DeleteRowComment)
 	buildings.Get("/:id/events",             buildingsHandler.GetBuildingEvents)
 	buildings.Post("/:id/events",            buildingsHandler.AddBuildingEvent)
+	buildings.Patch("/:id/events/:eventId",  buildingsHandler.EditBuildingEvent)
 	buildings.Delete("/:id/events/:eventId", buildingsHandler.DeleteBuildingEvent)
 	buildings.Get("/:id/trades",             buildingsHandler.GetTradeOwnership)
 	buildings.Put("/:id/trades",             buildingsHandler.UpsertTradeOwnership)

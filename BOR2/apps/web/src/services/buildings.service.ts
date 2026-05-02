@@ -204,6 +204,13 @@ export const buildingsService = {
   ) =>
     api.post<ScheduleEvent>(`/api/v1/buildings/${buildingId}/events`, body, tok()),
 
+  editBuildingEvent: (
+    buildingId: string,
+    eventId: string,
+    body: { event_type_id: number; event_date: string; days_delayed: number; notes: string },
+  ) =>
+    api.patch<ScheduleEvent>(`/api/v1/buildings/${buildingId}/events/${eventId}`, body, tok()),
+
   deleteBuildingEvent: (buildingId: string, eventId: string) =>
     api.delete<void>(`/api/v1/buildings/${buildingId}/events/${eventId}`, tok()),
 

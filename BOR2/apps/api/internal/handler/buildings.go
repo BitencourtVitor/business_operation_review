@@ -724,6 +724,48 @@ func (h *BuildingsHandler) AddBuildingEvent(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"data": ev})
 }
 
+// PATCH /api/v1/buildings/:id/events/:eventId
+func (h *BuildingsHandler) EditBuildingEvent(c *fiber.Ctx) error {
+	buildingID := c.Params("id")
+	eventID := c.Params("eventId")
+
+	var body struct {
+		EventTypeID int    `json:"event_type_id"`
+		EventDate   string `json:"event_date"`
+		DaysDelayed int    `json:"days_delayed"`
+		Notes       string `json:"notes"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+	if body.EventTypeID == 0 || body.EventDate == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "event_type_id and event_date are required"})
+	}
+
+	var ev ScheduleEvent
+	err := h.db.QueryRow(c.Context(), `
+		UPDATE schedule_events
+		SET event_type_id = $1, event_date = $2::date, days_delayed = $3, notes = $4
+		WHERE id = $5 AND building_id = $6
+		RETURNING id, building_id, event_type_id, event_date::text, days_delayed, notes, created_at::text
+	`, body.EventTypeID, body.EventDate, body.DaysDelayed, body.Notes, eventID, buildingID).Scan(
+		&ev.ID, &ev.BuildingID, &ev.EventTypeID, &ev.EventDate,
+		&ev.DaysDelayed, &ev.Notes, &ev.CreatedAt,
+	)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "event not found"})
+	}
+
+	_ = h.db.QueryRow(c.Context(), `
+		SELECT name, icon, color FROM schedule_event_types WHERE id = $1
+	`, body.EventTypeID).Scan(&ev.TypeName, &ev.TypeIcon, &ev.TypeColor)
+
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "event_edit", "schedule_event", ev.ID)
+
+	return c.JSON(fiber.Map{"data": ev})
+}
+
 // DELETE /api/v1/buildings/:id/events/:eventId
 func (h *BuildingsHandler) DeleteBuildingEvent(c *fiber.Ctx) error {
 	buildingID := c.Params("id")
