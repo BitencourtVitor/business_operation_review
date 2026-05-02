@@ -214,10 +214,12 @@ function applyEventsToSchedule(
   events:     ScheduleEvent[],
   uploadedAt: string,
 ): ParsedSchedule {
-  const uploadTs = new Date(uploadedAt).getTime()
+  // Compare date-only (YYYY-MM-DD) to avoid timestamp precision issues:
+  // uploaded_at is a full ISO timestamp; event_date is just a date string.
+  const uploadDate = uploadedAt.slice(0, 10)
 
   const relevant = events
-    .filter(ev => ev.days_delayed > 0 && new Date(ev.event_date).getTime() >= uploadTs)
+    .filter(ev => ev.days_delayed > 0 && ev.event_date >= uploadDate)
     .sort((a, b) => a.event_date.localeCompare(b.event_date))
 
   if (relevant.length === 0) return schedule
