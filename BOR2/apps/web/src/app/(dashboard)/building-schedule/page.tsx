@@ -40,6 +40,7 @@ import {
   Compass,
   Gem,
   Pencil,
+  Plus,
   Trash2,
   TrendingUp,
   User,
@@ -50,11 +51,12 @@ import {
   UsersRound,
   Warehouse,
   Wind,
+  Snowflake,
   Zap,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useBuildings, useBuildingSchedule, useBuildingEvents, useTradeOwnership, useUpsertTradeOwnership, useEventTypes, useEditBuildingEvent, useDeleteBuildingEvent } from "@/hooks/use-buildings"
+import { useBuildings, useBuildingSchedule, useBuildingEvents, useTradeOwnership, useUpsertTradeOwnership, useEventTypes, useAddBuildingEvent, useEditBuildingEvent, useDeleteBuildingEvent } from "@/hooks/use-buildings"
 import { Button } from "@/components/ui/button"
 import { buildingsService, type RowComment, type ScheduleEvent } from "@/services/buildings.service"
 import { useAuth } from "@/hooks/use-auth"
@@ -304,7 +306,7 @@ const EVENT_ROW_H = 24
 
 const EV_ICON_MAP: Record<string, LucideIcon> = {
   "cloud-rain":     CloudRain,
-  "snowflake":      Info,          // Snowflake not in lucide-react default set — fallback
+  "snowflake":      Snowflake,
   "calendar-x":     CalendarX,
   "wind":           Wind,
   "triangle-alert": TriangleAlert,
@@ -536,8 +538,9 @@ function GanttViewer({
   const isDark = useIsDark()
 
   // ── Row hover + lock ───────────────────────────────────────────────────────
-  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null)
-  const [lockedRowId,  setLockedRowId]  = useState<string | null>(null)
+  const [hoveredRowId,   setHoveredRowId]   = useState<string | null>(null)
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null)
+  const [lockedRowId,    setLockedRowId]    = useState<string | null>(null)
 
   // ── Comments ────────────────────────────────────────────────────────────────
   const [commentsRowId,    setCommentsRowId]    = useState<string | null>(null)
@@ -807,17 +810,23 @@ function GanttViewer({
 
           // ── Event row (thinner, colored) ──────────────────────────────────
           if (isEventRow(item)) {
-            const evDatePx = Math.max(0, diffDays(timelineStart, new Date(item.event_date + "T12:00:00")) * pxPerDay)
-            const label = item.notes
-              ? item.notes
-              : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
-            const evBg     = item.type_color + (isDark ? "0d" : "18")
+            const evStart  = new Date(item.event_date + "T12:00:00")
+            const evEnd    = item.days_delayed > 1 ? new Date(evStart.getTime() + (item.days_delayed - 1) * 86_400_000) : null
+            const evDatePx = Math.max(0, diffDays(timelineStart, evStart) * pxPerDay)
+            const evBarW   = Math.max(pxPerDay, item.days_delayed * pxPerDay)
+            const evBg      = item.type_color + (isDark ? "0d" : "18")
             const evBgStrip = item.type_color + (isDark ? "08" : "0d")
+            const isEvActive = hoveredEventId === item.id
+            const evS = fmtDateShort(evStart) ?? ""
+            const evF = evEnd ? (fmtDateShort(evEnd) ?? "") : ""
+            const evDateLabel = evF ? `${evS} – ${evF}` : evS
             return (
               <div
                 key={`ev-${item.id}`}
-                className="group/evrow"
+                className="group/evrow flex"
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", height: EVENT_ROW_H, transform: `translateY(${virtualRow.start}px)` }}
+                onMouseEnter={() => setHoveredEventId(item.id)}
+                onMouseLeave={() => setHoveredEventId(null)}
               >
                 {/* Left sticky label */}
                 <div
@@ -828,8 +837,32 @@ function GanttViewer({
                   {item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
-                  <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
-                  <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover/evrow:opacity-100 transition-opacity">
+                  {item.notes && (
+                    <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{item.notes}</span>
+                  )}
+                </div>
+                {/* Timeline: tinted strip + interval bar + animated date label */}
+                <div className="relative flex-1 overflow-hidden" style={{ height: EVENT_ROW_H }}>
+                  <div className="absolute inset-0" style={{ backgroundColor: evBgStrip }} />
+                  <div
+                    className="absolute rounded-sm"
+                    style={{ left: evDatePx, width: evBarW, top: 4, bottom: 4, backgroundColor: item.type_color }}
+                  />
+                  <span
+                    className="absolute top-1/2 -translate-y-1/2 pointer-events-none select-none whitespace-nowrap overflow-hidden text-[9px] text-muted-foreground/70"
+                    style={{
+                      left:      evDatePx + evBarW + 6,
+                      maxWidth:  isEvActive ? `${evDateLabel.length * 6.5}px` : "0px",
+                      opacity:   isEvActive ? 1 : 0,
+                      transition: "max-width 280ms ease-out, opacity 200ms ease-out",
+                    }}
+                  >
+                    {evDateLabel}
+                  </span>
+                </div>
+                {/* Sticky right anchor — edit/delete float at right edge like task buttons */}
+                <div className="sticky right-0 z-30 shrink-0 overflow-visible" style={{ width: 0, height: EVENT_ROW_H }}>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background/80 rounded-md px-0.5 shadow-sm opacity-0 group-hover/evrow:opacity-100 transition-opacity">
                     <button onClick={() => onEditEvent(item)} className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-2.5 w-2.5" />
                     </button>
@@ -837,11 +870,6 @@ function GanttViewer({
                       <Trash2 className="h-2.5 w-2.5" />
                     </button>
                   </div>
-                </div>
-                {/* Timeline: tinted strip + marker at event date */}
-                <div className="absolute inset-0 overflow-hidden" style={{ left: LEFT_W }}>
-                  <div className="absolute inset-0" style={{ backgroundColor: evBgStrip }} />
-                  <div className="absolute top-0 bottom-0 w-px" style={{ left: evDatePx, backgroundColor: item.type_color, opacity: 0.55 }} />
                 </div>
               </div>
             )
@@ -926,7 +954,7 @@ function GanttViewer({
                   className={cn(
                     "text-[11px] ml-1 whitespace-nowrap",
                     isRowActive
-                      ? cn("relative z-10 pr-1 overflow-visible", !isDone && "bg-background")
+                      ? "relative z-10 pr-1 overflow-visible"
                       : "overflow-hidden text-ellipsis flex-1 min-w-0",
                     row.isPhase     && "font-semibold uppercase tracking-wide",
                     !row.isPhase && row.level === 2 && "font-medium",
@@ -2110,7 +2138,7 @@ function ScheduleViewer({
   )
 }
 
-// ─── Event modals (edit + delete confirm) ─────────────────────────────────────
+// ─── Event modals (add + edit + delete confirm) ───────────────────────────────
 
 function fmtDateStr(s: string): string {
   if (!s) return ""
@@ -2118,6 +2146,107 @@ function fmtDateStr(s: string): string {
   const [y, m, d] = datePart.split("-").map(Number)
   if (!y || !m || !d) return ""
   return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+function AddEventModal({
+  buildingId, buildingName, onClose,
+}: {
+  buildingId:   string
+  buildingName: string
+  onClose:      () => void
+}) {
+  const { data: eventTypes = [], isLoading: typesLoading } = useEventTypes()
+  const addEvent = useAddBuildingEvent(buildingId)
+
+  const [typeId, setTypeId] = useState<number | null>(null)
+  const [date,   setDate]   = useState("")
+  const [days,   setDays]   = useState(1)
+  const [notes,  setNotes]  = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState<string | null>(null)
+
+  const canSave = typeId !== null && date !== "" && !saving
+
+  async function handleSave() {
+    if (!canSave) return
+    setSaving(true); setError(null)
+    try {
+      await addEvent.mutateAsync({ event_type_id: typeId!, event_date: date, days_delayed: days, notes: notes.trim() })
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save event")
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div>
+            <h2 className="font-semibold text-sm">Log External Event</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{buildingName}</p>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        </div>
+        <div className="p-5 flex flex-col gap-4">
+          {error && <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</div>}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-2">Event Type *</label>
+            {typesLoading
+              ? <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading types…</div>
+              : (
+                <div className="grid grid-cols-2 gap-1.5">
+                  {eventTypes.map(et => (
+                    <button key={et.id} type="button" onClick={() => setTypeId(et.id)}
+                      className="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors text-left"
+                      style={typeId === et.id ? { borderColor: et.color, backgroundColor: et.color + "26", color: et.color } : undefined}>
+                      <EventTypeIcon name={et.icon} className="h-3.5 w-3.5 shrink-0" style={{ color: et.color }} />
+                      {et.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+          </div>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Event Date *</label>
+              <Popover>
+                <PopoverTrigger className={cn("w-full flex items-center gap-2 text-sm rounded-md border border-border bg-background px-3 py-1.5 hover:bg-muted/50 transition-colors text-left", !date && "text-muted-foreground")}>
+                  <CalendarRange className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  {date ? fmtDateStr(date) : "Pick a date"}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarPicker mode="single" selected={date ? new Date(date + "T12:00:00") : undefined}
+                    onSelect={d => { if (!d) return; const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,"0"); const day = String(d.getDate()).padStart(2,"0"); setDate(`${y}-${m}-${day}`) }} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Days Delayed</label>
+              <div className="flex items-center justify-between rounded-md border border-border bg-background px-1 py-1 h-[34px] gap-1">
+                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setDays(d => Math.max(1, d - 1))}>−</Button>
+                <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{days}</span>
+                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setDays(d => d + 1)}>+</Button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Notes</label>
+            <textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional description…"
+              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 px-5 pb-5">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
+          <Button size="sm" onClick={handleSave} disabled={!canSave}>
+            {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Check className="h-3.5 w-3.5 mr-1.5" />}
+            Log Event
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function EditEventModal({
@@ -2209,8 +2338,7 @@ function EditEventModal({
         <div className="flex justify-end gap-2 px-5 pb-5">
           <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
           <Button size="sm" onClick={handleSave} disabled={!canSave}>
-            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-            <Check className="h-3.5 w-3.5 mr-1.5" />Save Changes
+            {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Check className="h-3.5 w-3.5 mr-1.5" />}Save Changes
           </Button>
         </div>
       </div>
@@ -2263,8 +2391,7 @@ function DeleteEventModal({
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={onClose} disabled={deleting}>Cancel</Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
-              {deleting && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              {deleting ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5 mr-1.5" />}Delete
             </Button>
           </div>
         </div>
@@ -2387,8 +2514,7 @@ function TradeControlModal({
             disabled={upsert.isPending || isLoading}
             className="h-8 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
           >
-            {upsert.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            <Check className="h-3.5 w-3.5" />
+            {upsert.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
             Save
           </button>
         </div>
@@ -2414,6 +2540,7 @@ export default function BuildingSchedulePage() {
   const [filterYear, setFilterYear]         = useState<number | null>(null)
   const [filterMonth, setFilterMonth]       = useState<number | null>(null)
   const [controlOpen, setControlOpen]       = useState(false)
+  const [addingEvent, setAddingEvent]       = useState(false)
   const scheduleControls = useRef<{ expandAll: () => void; collapseAll: () => void } | null>(null)
 
   useEffect(() => { localStorage.setItem("bs:viewMode", viewMode) }, [viewMode])
@@ -2554,6 +2681,17 @@ export default function BuildingSchedulePage() {
             </button>
           )}
 
+          {/* + Event */}
+          {selectedId && schedule && (
+            <button
+              onClick={() => setAddingEvent(true)}
+              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm"
+            >
+              <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm">Event</span>
+            </button>
+          )}
+
           {/* Manage */}
           <a
             href="/building-schedule/manage"
@@ -2570,6 +2708,13 @@ export default function BuildingSchedulePage() {
             buildingId={selectedId}
             allResources={displayResources}
             onClose={() => setControlOpen(false)}
+          />
+        )}
+        {addingEvent && selectedId && selected && (
+          <AddEventModal
+            buildingId={selectedId}
+            buildingName={selected.name}
+            onClose={() => setAddingEvent(false)}
           />
         )}
 
