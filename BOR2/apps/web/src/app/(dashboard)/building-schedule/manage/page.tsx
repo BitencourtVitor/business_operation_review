@@ -439,8 +439,7 @@ function AddEventModal({
         <div className="flex justify-end gap-2 px-5 pb-5">
           <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
           <Button size="sm" onClick={handleSave} disabled={!canSave}>
-            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-            <Check className="h-3.5 w-3.5 mr-1.5" />
+            {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Check className="h-3.5 w-3.5 mr-1.5" />}
             Log Event
           </Button>
         </div>
@@ -604,8 +603,7 @@ function EditEventModal({
         <div className="flex justify-end gap-2 px-5 pb-5">
           <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
           <Button size="sm" onClick={handleSave} disabled={!canSave}>
-            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-            <Check className="h-3.5 w-3.5 mr-1.5" />
+            {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Check className="h-3.5 w-3.5 mr-1.5" />}
             Save Changes
           </Button>
         </div>
@@ -668,8 +666,7 @@ function DeleteEventModal({
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={onClose} disabled={deleting}>Cancel</Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
-              {deleting && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              {deleting ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5 mr-1.5" />}Delete
             </Button>
           </div>
         </div>
