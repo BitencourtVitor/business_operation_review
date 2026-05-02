@@ -222,6 +222,23 @@ export function useAddBuildingEvent(buildingId: string) {
   })
 }
 
+export function useEditBuildingEvent(buildingId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      eventId, body,
+    }: {
+      eventId: string
+      body: { event_type_id: number; event_date: string; days_delayed: number; notes: string }
+    }) =>
+      buildingsService.editBuildingEvent(buildingId, eventId, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.events(buildingId) })
+      qc.invalidateQueries({ queryKey: KEYS.list() })
+    },
+  })
+}
+
 export function useDeleteBuildingEvent(buildingId: string) {
   const qc = useQueryClient()
   return useMutation({
