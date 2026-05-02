@@ -1415,10 +1415,13 @@ function DatesViewer({
               ? item.notes
               : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
             const evBg    = item.type_color + (isDark ? "0d" : "18")
-            const evStart = new Date(item.event_date + "T12:00:00")
+            const evStart  = new Date(item.event_date + "T12:00:00")
             const evFinish = item.days_delayed > 0
               ? new Date(evStart.getTime() + item.days_delayed * 86_400_000)
               : null
+            const evDuration = item.days_delayed === 0
+              ? "1 day"
+              : `${item.days_delayed} day${item.days_delayed !== 1 ? "s" : ""}`
             return (
               <div
                 key={`ev-${item.id}`}
@@ -1434,15 +1437,17 @@ function DatesViewer({
                   )}
                   <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
                 </div>
-                {/* Duration — empty */}
-                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch" style={{ backgroundColor: evBg }} />
+                {/* Duration */}
+                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
+                  {evDuration}
+                </div>
                 {/* Start — event date */}
                 <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </div>
-                {/* Finish — event_date + days_delayed */}
+                {/* Finish — event_date + days_delayed, or "—" for same-day events */}
                 <div className="sticky left-[448px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
-                  {evFinish?.toLocaleDateString("en-US", { month: "short", day: "numeric" }) ?? ""}
+                  {evFinish ? evFinish.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                 </div>
                 {/* Remaining columns — tinted filler */}
                 <div className="flex-1 self-stretch" style={{ backgroundColor: evBg }} />
