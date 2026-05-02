@@ -20,6 +20,8 @@ import {
   Send,
   Settings,
   X,
+  CalendarX,
+  CloudRain,
   Droplets,
   Flame,
   FolderOpen,
@@ -42,7 +44,9 @@ import {
   User,
   PanelLeft,
   Triangle,
+  TriangleAlert,
   Users2,
+  UsersRound,
   Warehouse,
   Wind,
   Zap,
@@ -287,6 +291,30 @@ function fmtCommentTime(isoStr: string): string {
   } catch { return '' }
 }
 
+// ─── Event row types & helpers ────────────────────────────────────────────────
+
+type EventRow = ScheduleEvent & { _kind: "event" }
+type ViewRow  = ScheduleRow   | EventRow
+
+function isEventRow(r: ViewRow): r is EventRow { return "_kind" in r }
+
+const EVENT_ROW_H = 24
+
+const EV_ICON_MAP: Record<string, LucideIcon> = {
+  "cloud-rain":     CloudRain,
+  "snowflake":      Info,          // Snowflake not in lucide-react default set — fallback
+  "calendar-x":     CalendarX,
+  "wind":           Wind,
+  "triangle-alert": TriangleAlert,
+  "users-round":    UsersRound,
+  "circle-help":    Info,
+}
+
+function EventTypeIcon({ name, className, style }: { name: string; className?: string; style?: React.CSSProperties }) {
+  const Icon = EV_ICON_MAP[name] ?? Info
+  return <Icon className={className} style={style} />
+}
+
 // ─── Theme detection ─────────────────────────────────────────────────────────
 
 function useIsDark() {
@@ -460,6 +488,7 @@ function GanttViewer({
   schedule,
   displayRows,
   visibleRows,
+  mergedRows,
   hasKidsMap,
   expandedIds,
   toggleRow,
@@ -478,6 +507,7 @@ function GanttViewer({
   schedule:       ParsedSchedule
   displayRows:    ScheduleRow[]
   visibleRows:    ScheduleRow[]
+  mergedRows:     ViewRow[]
   hasKidsMap:     Record<string, boolean>
   expandedIds:    Set<string>
   toggleRow:      (id: string) => void
@@ -621,10 +651,10 @@ function GanttViewer({
 
   // ── Row virtualizer ─────────────────────────────────────────────────────────
   const rowVirtualizer = useVirtualizer({
-    count:           visibleRows.length,
+    count:            mergedRows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize:    () => ROW_H,
-    overscan:        10,
+    estimateSize:     (i) => isEventRow(mergedRows[i]) ? EVENT_ROW_H : ROW_H,
+    overscan:         10,
   })
   const [scrollLeft, setScrollLeft] = useState(0)
 
@@ -767,7 +797,40 @@ function GanttViewer({
         <div className="relative" style={{ height: rowVirtualizer.getTotalSize() }}>
 
         {rowVirtualizer.getVirtualItems().map(virtualRow => {
-          const row = visibleRows[virtualRow.index]
+          const item = mergedRows[virtualRow.index]
+
+          // ── Event row (thinner, colored) ──────────────────────────────────
+          if (isEventRow(item)) {
+            const evDatePx = Math.max(0, diffDays(timelineStart, new Date(item.event_date + "T12:00:00")) * pxPerDay)
+            const label = item.notes
+              ? item.notes
+              : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            return (
+              <div
+                key={`ev-${item.id}`}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: EVENT_ROW_H, transform: `translateY(${virtualRow.start}px)` }}
+              >
+                {/* Left sticky label */}
+                <div
+                  className="sticky left-0 z-30 border-r border-border/30 shrink-0 flex items-center gap-1.5 pl-2 pr-1 overflow-hidden"
+                  style={{ width: LEFT_W, height: EVENT_ROW_H, backgroundColor: item.type_color + "1a", borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
+                >
+                  <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
+                  {item.type_name !== "Other" && (
+                    <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
+                  )}
+                  <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
+                </div>
+                {/* Timeline: tinted strip + marker at event date */}
+                <div className="absolute inset-0 overflow-hidden" style={{ left: LEFT_W }}>
+                  <div className="absolute inset-0" style={{ backgroundColor: item.type_color + "0a" }} />
+                  <div className="absolute top-0 bottom-0 w-px" style={{ left: evDatePx, backgroundColor: item.type_color, opacity: 0.55 }} />
+                </div>
+              </div>
+            )
+          }
+
+          const row = item
           const phaseColor = phaseColors[rowPhaseIdx[row.id] % phaseColors.length]
           const barColor   = row.resources.length > 0
             ? (resBarColor(row.resources[0], isDark) ?? phaseColor)
@@ -1191,6 +1254,7 @@ function GanttViewer({
 
 function DatesViewer({
   visibleRows,
+  mergedRows,
   hasKidsMap,
   expandedIds,
   toggleRow,
@@ -1205,6 +1269,7 @@ function DatesViewer({
   setCommentsMap,
 }: {
   visibleRows:     ScheduleRow[]
+  mergedRows:      ViewRow[]
   hasKidsMap:      Record<string, boolean>
   expandedIds:     Set<string>
   toggleRow:       (id: string) => void
@@ -1340,7 +1405,40 @@ function DatesViewer({
           <div className="bg-muted/90 flex-1 min-w-[160px] flex items-center pl-3">Trades</div>
         </div>
 
-        {visibleRows.map((row, i) => {
+        {mergedRows.map((item, i) => {
+          // ── Event row ────────────────────────────────────────────────────
+          if (isEventRow(item)) {
+            const label = item.notes
+              ? item.notes
+              : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            return (
+              <div
+                key={`ev-${item.id}`}
+                className="flex items-center border-b border-border/20"
+                style={{ height: EVENT_ROW_H, backgroundColor: item.type_color + "1a", borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
+              >
+                {/* Label column */}
+                <div className="sticky left-0 z-10 w-[280px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden"
+                  style={{ backgroundColor: item.type_color + "1a" }}>
+                  <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
+                  {item.type_name !== "Other" && (
+                    <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
+                  )}
+                  <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
+                </div>
+                {/* Duration — empty */}
+                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch" style={{ backgroundColor: item.type_color + "1a" }} />
+                {/* Start — event date */}
+                <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color }}>
+                  {new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </div>
+                {/* Remaining columns — empty filler */}
+                <div className="flex-1 self-stretch" />
+              </div>
+            )
+          }
+
+          const row = item
           const phaseColor      = phaseColors[rowPhaseIdx[row.id] % phaseColors.length]
           const indent          = 8 + (row.level - 1) * 14
           const meta            = rowMetas.get(row.id)
@@ -1797,6 +1895,7 @@ function ScheduleViewer({
   filterYear,
   filterMonth,
   controlsRef,
+  activeEvents = [],
 }: {
   schedule:          ParsedSchedule
   buildingId:        string
@@ -1805,6 +1904,7 @@ function ScheduleViewer({
   filterYear:        number | null
   filterMonth:       number | null
   controlsRef?:      React.MutableRefObject<{ expandAll: () => void; collapseAll: () => void } | null>
+  activeEvents?:     ScheduleEvent[]
 }) {
   const displayRows = useMemo(() => {
     const { projectStart: ps, projectFinish: pf } = schedule
@@ -1924,7 +2024,23 @@ function ScheduleViewer({
     buildingsService.upsertScheduleRowMeta(buildingId, rowId, patch).catch(() => {})
   }, [buildingId])
 
-  const shared = { displayRows, visibleRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors, oursSet }
+  const mergedRows = useMemo<ViewRow[]>(() => {
+    if (!activeEvents.length) return visibleRows
+    const queue = [...activeEvents].sort((a, b) => a.event_date.localeCompare(b.event_date))
+    const result: ViewRow[] = []
+    let qi = 0
+    for (const row of visibleRows) {
+      const rowDate = row.startDate?.toISOString().slice(0, 10) ?? null
+      while (qi < queue.length && rowDate && queue[qi].event_date <= rowDate) {
+        result.push({ ...queue[qi++], _kind: "event" })
+      }
+      result.push(row)
+    }
+    while (qi < queue.length) result.push({ ...queue[qi++], _kind: "event" })
+    return result
+  }, [visibleRows, activeEvents])
+
+  const shared = { displayRows, visibleRows, mergedRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors, oursSet }
 
   if (viewMode === "gantt" && schedule.projectStart && schedule.projectFinish) {
     return <GanttViewer schedule={schedule} {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} filterYear={filterYear} filterMonth={filterMonth} />
@@ -2079,6 +2195,12 @@ export default function BuildingSchedulePage() {
 
   const { data: scheduleResp, isLoading: loadingSchedule } = useBuildingSchedule(selectedId)
   const { data: buildingEvents = [] }                      = useBuildingEvents(selectedId)
+
+  const activeEvents = useMemo<ScheduleEvent[]>(() => {
+    if (!scheduleResp?.uploaded_at || !buildingEvents.length) return []
+    const uploadDate = scheduleResp.uploaded_at.slice(0, 10)
+    return buildingEvents.filter(ev => ev.days_delayed > 0 && ev.event_date >= uploadDate)
+  }, [buildingEvents, scheduleResp?.uploaded_at])
 
   const schedule = useMemo<ParsedSchedule | null>(() => {
     if (!scheduleResp?.schedule_data) return null
@@ -2340,6 +2462,7 @@ export default function BuildingSchedulePage() {
             filterYear={filterYear}
             filterMonth={filterMonth}
             controlsRef={scheduleControls}
+            activeEvents={activeEvents}
           />
         )}
       </div>
