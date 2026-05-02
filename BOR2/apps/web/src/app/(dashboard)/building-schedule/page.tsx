@@ -805,6 +805,8 @@ function GanttViewer({
             const label = item.notes
               ? item.notes
               : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            const evBg     = item.type_color + (isDark ? "0d" : "18")
+            const evBgStrip = item.type_color + (isDark ? "08" : "0d")
             return (
               <div
                 key={`ev-${item.id}`}
@@ -813,7 +815,7 @@ function GanttViewer({
                 {/* Left sticky label */}
                 <div
                   className="sticky left-0 z-30 border-r border-border/30 shrink-0 flex items-center gap-1.5 pl-2 pr-1 overflow-hidden"
-                  style={{ width: LEFT_W, height: EVENT_ROW_H, backgroundColor: item.type_color + "1a", borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
+                  style={{ width: LEFT_W, height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
                 >
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
                   {item.type_name !== "Other" && (
@@ -823,7 +825,7 @@ function GanttViewer({
                 </div>
                 {/* Timeline: tinted strip + marker at event date */}
                 <div className="absolute inset-0 overflow-hidden" style={{ left: LEFT_W }}>
-                  <div className="absolute inset-0" style={{ backgroundColor: item.type_color + "0a" }} />
+                  <div className="absolute inset-0" style={{ backgroundColor: evBgStrip }} />
                   <div className="absolute top-0 bottom-0 w-px" style={{ left: evDatePx, backgroundColor: item.type_color, opacity: 0.55 }} />
                 </div>
               </div>
@@ -1284,6 +1286,7 @@ function DatesViewer({
   setCommentsMap:  React.Dispatch<React.SetStateAction<Map<string, RowComment[]>>>
 }) {
   const { user: currentUser } = useAuth()
+  const isDark = useIsDark()
 
   const [hoveredRowId,      setHoveredRowId]      = useState<string | null>(null)
   const [lockedRowId,       setLockedRowId]       = useState<string | null>(null)
@@ -1411,15 +1414,16 @@ function DatesViewer({
             const label = item.notes
               ? item.notes
               : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            const evBg = item.type_color + (isDark ? "0d" : "18")
             return (
               <div
                 key={`ev-${item.id}`}
                 className="flex items-center border-b border-border/20"
-                style={{ height: EVENT_ROW_H, backgroundColor: item.type_color + "1a", borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
+                style={{ height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
               >
                 {/* Label column */}
                 <div className="sticky left-0 z-10 w-[280px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden"
-                  style={{ backgroundColor: item.type_color + "1a" }}>
+                  style={{ backgroundColor: evBg }}>
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
                   {item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
@@ -1427,13 +1431,13 @@ function DatesViewer({
                   <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
                 </div>
                 {/* Duration — empty */}
-                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch" style={{ backgroundColor: item.type_color + "1a" }} />
+                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch" style={{ backgroundColor: evBg }} />
                 {/* Start — event date */}
-                <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color }}>
+                <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </div>
-                {/* Remaining columns — empty filler */}
-                <div className="flex-1 self-stretch" />
+                {/* Remaining columns — tinted filler */}
+                <div className="flex-1 self-stretch" style={{ backgroundColor: evBg }} />
               </div>
             )
           }
