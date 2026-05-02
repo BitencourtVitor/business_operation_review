@@ -83,10 +83,10 @@ function EventIcon({
 
 function fmtDateStr(s: string): string {
   if (!s) return ""
-  if (s.includes("T")) {
-    return new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-  }
-  const [y, m, d] = s.split("-").map(Number)
+  // Works with ISO "2026-04-28T...", PostgreSQL "2026-04-28 23:47:12+00", or plain "2026-04-28"
+  const datePart = s.split("T")[0].split(" ")[0]
+  const [y, m, d] = datePart.split("-").map(Number)
+  if (!y || !m || !d) return ""
   return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
@@ -631,11 +631,11 @@ function UploadHistoryRow({
         <FileText className={cn("h-3 w-3", item.is_current ? "text-primary" : "text-muted-foreground")} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between gap-1.5">
           <span className="text-xs font-medium truncate">{item.pdf_filename}</span>
           {item.is_current && (
-            <span className="shrink-0 text-[10px] font-medium bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
-              current
+            <span className="shrink-0 flex items-center justify-center h-4 w-4 rounded-full bg-primary/15">
+              <Check className="h-2.5 w-2.5 text-primary" />
             </span>
           )}
         </div>
