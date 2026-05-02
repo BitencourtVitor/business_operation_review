@@ -6,16 +6,25 @@ function getToken() {
 }
 
 export interface ProjectMonitoringEntry {
-  id: string
-  jobsite: string
-  team: string
-  s1: string
-  s2: string
-  s3: string
-  s4: string
-  completion: number
-  startDate: string
-  endDate: string
+  id:               string
+  city:             string
+  jobSite:          string
+  lotNumber:        string
+  team:             string
+  startDate:        string | null
+  finishDate:       string | null
+  s1Rough:          string
+  s1Date:           string | null
+  s2Machines:       string
+  s2Date:           string | null
+  s3Condenser:      string
+  s3Date:           string | null
+  s4Finish:         string
+  s4Date:           string | null
+  percentCompleted: number
+  lastUpdate:       string | null
+  notes:            string
+  createdAt:        string
 }
 
 export const projectMonitoringService = {
