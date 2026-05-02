@@ -1,21 +1,32 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { type CSSProperties, useRef, useState } from "react"
 import {
   Building2,
   CalendarRange,
+  CalendarX,
   Check,
+  ChevronDown,
+  ChevronUp,
+  CircleHelp,
   ClockIcon,
+  CloudRain,
   FileText,
+  History,
   Layers,
   Loader2,
   Pencil,
   Plus,
   RefreshCw,
+  Snowflake,
   Trash2,
+  TriangleAlert,
   Upload,
+  UsersRound,
+  Wind,
   X,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +36,11 @@ import {
   useDeleteBuilding,
   useUpsertSchedule,
   useDeleteSchedule,
+  useEventTypes,
+  useBuildingEvents,
+  useAddBuildingEvent,
+  useDeleteBuildingEvent,
+  useScheduleHistory,
 } from "@/hooks/use-buildings"
 import {
   parseSchedulePDF,
@@ -32,7 +48,44 @@ import {
   fmtDateFull,
   type ParsedSchedule,
 } from "@/lib/pdf-schedule-parser"
-import type { BuildingListItem, ParsedScheduleStored } from "@/services/buildings.service"
+import type {
+  BuildingListItem,
+  ParsedScheduleStored,
+  ScheduleHistoryItem,
+  ScheduleEvent,
+} from "@/services/buildings.service"
+
+// ─── Event icon map ────────────────────────────────────────────────────────────
+
+const EVENT_ICON_MAP: Record<string, LucideIcon> = {
+  "cloud-rain":     CloudRain,
+  "snowflake":      Snowflake,
+  "calendar-x":     CalendarX,
+  "wind":           Wind,
+  "triangle-alert": TriangleAlert,
+  "users-round":    UsersRound,
+  "circle-help":    CircleHelp,
+}
+
+function EventIcon({
+  name, className, style,
+}: {
+  name: string
+  className?: string
+  style?: CSSProperties
+}) {
+  const Icon = EVENT_ICON_MAP[name] ?? CircleHelp
+  return <Icon className={className} style={style} />
+}
+
+function fmtDateStr(s: string): string {
+  if (!s) return ""
+  if (s.includes("T")) {
+    return new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+  const [y, m, d] = s.split("-").map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
 
 // ─── Drop zone ────────────────────────────────────────────────────────────────
 
@@ -129,7 +182,6 @@ function UploadModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-md mx-4">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div>
             <h2 className="font-semibold text-sm">Upload Schedule PDF</h2>
@@ -140,7 +192,6 @@ function UploadModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-5">
           {error && (
             <div className="mb-4 text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
@@ -216,7 +267,6 @@ function UploadModal({
           )}
         </div>
 
-        {/* Footer */}
         {stage === "preview" && (
           <div className="flex justify-end gap-2 px-5 pb-5">
             <Button variant="outline" size="sm" onClick={() => setStage("drop")}>
@@ -229,6 +279,225 @@ function UploadModal({
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ─── Add event modal ───────────────────────────────────────────────────────────
+
+function AddEventModal({
+  building, onClose,
+}: {
+  building: BuildingListItem
+  onClose: () => void
+}) {
+  const { data: eventTypes = [], isLoading: typesLoading } = useEventTypes()
+  const addEvent = useAddBuildingEvent(building.id)
+
+  const [typeId,  setTypeId]  = useState<number | null>(null)
+  const [date,    setDate]    = useState("")
+  const [days,    setDays]    = useState(0)
+  const [notes,   setNotes]   = useState("")
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
+
+  const canSave = typeId !== null && date !== "" && !saving
+
+  async function handleSave() {
+    if (!canSave) return
+    setSaving(true)
+    setError(null)
+    try {
+      await addEvent.mutateAsync({
+        event_type_id: typeId!,
+        event_date:    date,
+        days_delayed:  days,
+        notes:         notes.trim(),
+      })
+      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save event")
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div>
+            <h2 className="font-semibold text-sm">Log External Event</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{building.name}</p>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="p-5 flex flex-col gap-4">
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-2">Event Type *</label>
+            {typesLoading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading types…
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5">
+                {eventTypes.map(et => (
+                  <button
+                    key={et.id}
+                    type="button"
+                    onClick={() => setTypeId(et.id)}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-colors text-left",
+                      typeId === et.id
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:bg-muted text-foreground",
+                    )}
+                  >
+                    <EventIcon
+                      name={et.icon}
+                      className="h-3.5 w-3.5 shrink-0"
+                      style={{ color: typeId === et.id ? undefined : et.color }}
+                    />
+                    {et.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Event Date *</label>
+            <input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Days Delayed</label>
+            <input
+              type="number"
+              min={0}
+              value={days}
+              onChange={e => setDays(Math.max(0, Number(e.target.value)))}
+              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Notes</label>
+            <textarea
+              rows={2}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Optional description…"
+              className="w-full text-sm rounded-md border border-border bg-background px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 px-5 pb-5">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
+          <Button size="sm" onClick={handleSave} disabled={!canSave}>
+            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            <Check className="h-3.5 w-3.5 mr-1.5" />
+            Log Event
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── History rows ─────────────────────────────────────────────────────────────
+
+function UploadHistoryRow({
+  item, isLast,
+}: {
+  item:   ScheduleHistoryItem
+  isLast: boolean
+}) {
+  return (
+    <div className={cn("flex items-start gap-2.5 py-2", !isLast && "border-b border-border/50")}>
+      <div className={cn(
+        "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
+        item.is_current ? "bg-primary/15" : "bg-muted",
+      )}>
+        <FileText className={cn("h-3 w-3", item.is_current ? "text-primary" : "text-muted-foreground")} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-medium truncate">{item.pdf_filename}</span>
+          {item.is_current && (
+            <span className="shrink-0 text-[10px] font-medium bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
+              current
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+          <span>{fmtDateStr(item.uploaded_at)}</span>
+          {item.task_count != null && (
+            <span>· {item.task_count} tasks</span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EventHistoryRow({
+  item, isLast, onDelete, deleting,
+}: {
+  item:     ScheduleEvent
+  isLast:   boolean
+  onDelete: () => void
+  deleting: boolean
+}) {
+  return (
+    <div className={cn("flex items-start gap-2.5 py-2", !isLast && "border-b border-border/50")}>
+      <div
+        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: item.type_color + "22" }}
+      >
+        <EventIcon
+          name={item.type_icon}
+          className="h-3 w-3"
+          style={{ color: item.type_color }}
+        />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-medium">{item.type_name}</span>
+          {item.days_delayed > 0 && (
+            <span className="shrink-0 text-[10px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
+              +{item.days_delayed}d
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+          <span>{fmtDateStr(item.event_date)}</span>
+          {item.notes && <span>· {item.notes}</span>}
+        </div>
+      </div>
+      <button
+        onClick={onDelete}
+        disabled={deleting}
+        className="shrink-0 p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+      >
+        {deleting
+          ? <Loader2 className="h-3 w-3 animate-spin" />
+          : <X className="h-3 w-3" />}
+      </button>
     </div>
   )
 }
@@ -287,14 +556,37 @@ function BuildingForm({
 
 // ─── Building card ────────────────────────────────────────────────────────────
 
+type TimelineItem =
+  | { kind: "upload"; item: ScheduleHistoryItem; date: string }
+  | { kind: "event";  item: ScheduleEvent;       date: string }
+
 function BuildingCard({ building }: { building: BuildingListItem }) {
   const [editing,       setEditing]       = useState(false)
   const [showUpload,    setShowUpload]    = useState(false)
+  const [showAddEvent,  setShowAddEvent]  = useState(false)
+  const [showHistory,   setShowHistory]   = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const updateMut  = useUpdateBuilding()
-  const deleteMut  = useDeleteBuilding()
-  const delSched   = useDeleteSchedule()
+  const updateMut   = useUpdateBuilding()
+  const deleteMut   = useDeleteBuilding()
+  const delSched    = useDeleteSchedule()
+  const deleteEvent = useDeleteBuildingEvent(building.id)
+
+  const eventsQuery  = useBuildingEvents(showHistory  ? building.id : null)
+  const historyQuery = useScheduleHistory(showHistory ? building.id : null)
+
+  const timeline: TimelineItem[] = []
+  if (showHistory) {
+    for (const h of historyQuery.data ?? []) {
+      timeline.push({ kind: "upload", item: h, date: h.uploaded_at })
+    }
+    for (const e of eventsQuery.data ?? []) {
+      timeline.push({ kind: "event", item: e, date: e.event_date })
+    }
+    timeline.sort((a, b) => b.date.localeCompare(a.date))
+  }
+
+  const historyLoading = showHistory && (eventsQuery.isLoading || historyQuery.isLoading)
 
   async function handleSave(name: string, address: string) {
     await updateMut.mutateAsync({ id: building.id, name, address })
@@ -307,9 +599,8 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
 
   return (
     <>
-      {showUpload && (
-        <UploadModal building={building} onClose={() => setShowUpload(false)} />
-      )}
+      {showUpload    && <UploadModal   building={building} onClose={() => setShowUpload(false)} />}
+      {showAddEvent  && <AddEventModal building={building} onClose={() => setShowAddEvent(false)} />}
 
       <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
         {editing ? (
@@ -320,6 +611,7 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
           />
         ) : (
           <>
+            {/* Building header */}
             <div className="flex items-start gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                 <Building2 className="h-4 w-4 text-primary" />
@@ -382,6 +674,12 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                   </div>
                   <div className="flex gap-1.5 pt-1">
                     <button
+                      onClick={() => setShowAddEvent(true)}
+                      className="flex flex-1 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-md py-1.5 hover:bg-muted transition-colors"
+                    >
+                      <Plus className="h-3 w-3" /> Add Event
+                    </button>
+                    <button
                       onClick={() => setShowUpload(true)}
                       className="flex flex-1 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-md py-1.5 hover:bg-muted transition-colors"
                     >
@@ -407,6 +705,58 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                 </div>
               )}
             </div>
+
+            {/* History section */}
+            {building.has_schedule && (
+              <div className="rounded-lg border border-border overflow-hidden">
+                <button
+                  onClick={() => setShowHistory(h => !h)}
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <History className="h-3.5 w-3.5" />
+                    History
+                  </div>
+                  {showHistory
+                    ? <ChevronUp   className="h-3.5 w-3.5 text-muted-foreground" />
+                    : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                </button>
+
+                {showHistory && (
+                  <div className="border-t border-border px-3 py-1">
+                    {historyLoading && (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                    {!historyLoading && timeline.length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-3">No history yet.</p>
+                    )}
+                    {!historyLoading && timeline.length > 0 && (
+                      <div>
+                        {timeline.map((t, i) =>
+                          t.kind === "upload" ? (
+                            <UploadHistoryRow
+                              key={`u-${t.item.id}`}
+                              item={t.item}
+                              isLast={i === timeline.length - 1}
+                            />
+                          ) : (
+                            <EventHistoryRow
+                              key={`e-${t.item.id}`}
+                              item={t.item}
+                              isLast={i === timeline.length - 1}
+                              onDelete={() => deleteEvent.mutate(t.item.id)}
+                              deleting={deleteEvent.isPending && deleteEvent.variables === t.item.id}
+                            />
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Confirm delete */}
             {confirmDelete && (
@@ -449,12 +799,9 @@ export default function BuildingScheduleManagePage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between pb-4 shrink-0">
         <div>
-          <h1 className="text-xl font-semibold">
-            Schedule Data Management
-          </h1>
+          <h1 className="text-xl font-semibold">Schedule Data Management</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Manage buildings and upload MS Project PDF schedules
           </p>
@@ -465,7 +812,6 @@ export default function BuildingScheduleManagePage() {
         </Button>
       </div>
 
-      {/* Add building modal */}
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-md mx-4">
@@ -482,7 +828,6 @@ export default function BuildingScheduleManagePage() {
         </div>
       )}
 
-      {/* Building grid */}
       {isLoading && (
         <div className="flex flex-1 items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

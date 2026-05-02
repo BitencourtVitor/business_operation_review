@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   ArrowUpDown,
@@ -17,6 +18,7 @@ import {
   ClipboardList,
   DoorOpen,
   Send,
+  Settings,
   X,
   Droplets,
   Flame,
@@ -47,11 +49,13 @@ import {
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useBuildings, useBuildingSchedule } from "@/hooks/use-buildings"
+import { useBuildings, useBuildingSchedule, useTradeOwnership, useUpsertTradeOwnership } from "@/hooks/use-buildings"
 import { buildingsService, type RowComment } from "@/services/buildings.service"
 import { useAuth } from "@/hooks/use-auth"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Calendar as CalendarPicker } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   hydrateSchedule,
   getVisibleRows,
@@ -189,6 +193,10 @@ function diffDays(a: Date, b: Date) {
 
 function fmtDateNum(d: Date): string {
   return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+}
+
+function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
 function commentRoleIcon(role: string): LucideIcon {
@@ -382,7 +390,13 @@ function TradesLegend({ displayResources }: { displayResources: string[] }) {
 
 // ─── Row meta ─────────────────────────────────────────────────────────────────
 
-type RowMeta = { status: 'pending' | 'done'; observation: string }
+type RowMeta = {
+  status:      'pending' | 'done'
+  observation: string
+  real_start:  string | null
+  real_finish: string | null
+  is_finished: boolean
+}
 
 // ─── Gantt viewer ─────────────────────────────────────────────────────────────
 
@@ -397,6 +411,7 @@ function GanttViewer({
   toggleRow,
   rowPhaseIdx,
   phaseColors,
+  oursSet,
   rowMetas,
   onMetaChange,
   buildingId,
@@ -414,6 +429,7 @@ function GanttViewer({
   toggleRow:      (id: string) => void
   rowPhaseIdx:    Record<string, number>
   phaseColors:    string[]
+  oursSet:         Set<string>
   rowMetas:        Map<string, RowMeta>
   onMetaChange:    (rowId: string, patch: Partial<RowMeta>) => void
   buildingId:      string
@@ -440,13 +456,18 @@ function GanttViewer({
   const [editingCommentId,   setEditingCommentId]   = useState<string | null>(null)
   const [editBody,           setEditBody]           = useState("")
   const [deletingCommentId,  setDeletingCommentId]  = useState<string | null>(null)
-  const commentsRef    = useRef<HTMLDivElement>(null)
-  const newCommentRef  = useRef<HTMLTextAreaElement>(null)
+  const commentsButtonsRef = useRef<HTMLDivElement>(null)
+  const commentsPopupRef   = useRef<HTMLDivElement>(null)
+  const newCommentRef      = useRef<HTMLTextAreaElement>(null)
+  const [popupPos, setPopupPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null)
 
   useEffect(() => {
     if (!commentsRowId) return
     const handler = (e: MouseEvent) => {
-      if (commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+      if (
+        !commentsButtonsRef.current?.contains(e.target as Node) &&
+        !commentsPopupRef.current?.contains(e.target as Node)
+      ) {
         setCommentsRowId(null)
         setLockedRowId(null)
         setNewComment("")
@@ -455,6 +476,25 @@ function GanttViewer({
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
+  }, [commentsRowId])
+
+  useLayoutEffect(() => {
+    if (!commentsRowId || !commentsButtonsRef.current) { setPopupPos(null); return }
+    const rect    = commentsButtonsRef.current.getBoundingClientRect()
+    const POPUP_H = 320
+    const GAP     = 12
+    const MARGIN  = 8
+    const midY    = rect.top + rect.height / 2
+    const centered = midY - POPUP_H / 2
+    const right   = window.innerWidth - rect.left + GAP
+
+    if (centered >= MARGIN && centered + POPUP_H <= window.innerHeight - MARGIN) {
+      setPopupPos({ top: centered, right })                           // centered fits — use top
+    } else if (midY >= window.innerHeight / 2) {
+      setPopupPos({ bottom: window.innerHeight - rect.bottom, right }) // lower half — CSS bottom anchors popup-bottom to button-bottom
+    } else {
+      setPopupPos({ top: Math.min(rect.top, window.innerHeight - POPUP_H - MARGIN), right }) // upper half — top anchored
+    }
   }, [commentsRowId])
 
   function openComments(rowId: string) {
@@ -693,6 +733,7 @@ function GanttViewer({
 
           const meta           = rowMetas.get(row.id)
           const isDone         = meta?.status === 'done'
+          const isOurs         = !isDone && row.resources.some(r => oursSet.has(r))
           const isRowActive    = hoveredRowId === row.id || lockedRowId === row.id
           const isCommentsOpen = commentsRowId === row.id
           const rowComments    = commentsMap.get(row.id) ?? []
@@ -705,7 +746,9 @@ function GanttViewer({
                 "group flex border-b border-border/20 transition-colors",
                 isDone
                   ? "bg-green-500/[0.05] hover:bg-green-500/[0.09]"
-                  : cn(virtualRow.index % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
+                  : isOurs
+                    ? "bg-foreground/[0.09] hover:bg-foreground/[0.14]"
+                    : cn(virtualRow.index % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
               )}
               style={{ position: "absolute", top: 0, left: 0, width: "100%", height: ROW_H, transform: `translateY(${virtualRow.start}px)` }}
               onMouseEnter={() => setHoveredRowId(row.id)}
@@ -715,9 +758,10 @@ function GanttViewer({
               <div
                 className={cn(
                   "sticky left-0 z-30 border-r border-border/50 shrink-0 flex items-center gap-1 pr-1 overflow-hidden group-hover:overflow-visible",
-                  isDone ? "bg-transparent" : "bg-background",
+                  (isDone || isOurs) ? "bg-transparent" : "bg-background",
+                  isOurs && "border-l-2 border-l-foreground/50",
                 )}
-                style={{ width: LEFT_W, height: ROW_H, paddingLeft: indent }}
+                style={{ width: LEFT_W, height: ROW_H, paddingLeft: isOurs ? Math.max(0, indent - 2) : indent }}
               >
                 {hasKidsMap[row.id] ? (
                   <button
@@ -735,6 +779,14 @@ function GanttViewer({
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">
                   {row.id}
                 </span>
+                {isOurs && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/minilogo_black.png" alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-60 dark:hidden" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/minilogo_white.png" alt="" aria-hidden className="hidden shrink-0 h-3 w-3 object-contain opacity-60 dark:block" />
+                  </>
+                )}
 
                 <span
                   className={cn(
@@ -855,9 +907,9 @@ function GanttViewer({
               >
                 {/* Buttons float to the left of the right edge */}
                 <div
-                  ref={isCommentsOpen ? commentsRef : undefined}
+                  ref={isCommentsOpen ? commentsButtonsRef : undefined}
                   className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity",
+                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background rounded-md px-0.5 shadow-sm transition-opacity",
                     (hasComments || isRowActive) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
                   )}
                 >
@@ -924,146 +976,6 @@ function GanttViewer({
                       </TooltipContent>
                     </Tooltip>
 
-                  {/* Comments popup — opens to the left of the buttons */}
-                  {isCommentsOpen && (
-                    <div
-                      className="absolute right-full top-1/2 -translate-y-1/2 mr-3 z-50 w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col"
-                      style={{ maxHeight: 320 }}
-                      onMouseDown={e => e.stopPropagation()}
-                    >
-                      {/* Header */}
-                      <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
-                        <p className="text-[11px] font-semibold text-foreground truncate">{row.name}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {rowComments.length === 0 ? "No comments yet" : `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}`}
-                        </p>
-                      </div>
-
-                      {/* Comments list */}
-                      <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
-                        {rowComments.length === 0 ? (
-                          <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
-                        ) : rowComments.map(c => {
-                          const isOwn    = c.user_name === currentUserName
-                          const isEditing = editingCommentId === c.id
-                          return (
-                            <div key={c.id} className="group/comment flex gap-2">
-                              {(() => { const Icon = commentRoleIcon(c.user_role); return (
-                                <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
-                                  <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
-                                </div>
-                              ) })()}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-0.5">
-                                  <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
-                                  <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
-                                  {isOwn && !isEditing && (
-                                    deletingCommentId === c.id ? (
-                                      <div className="ml-auto flex items-center gap-1 shrink-0">
-                                        <span className="text-[10px] text-muted-foreground">Sure?</span>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => { setDeletingCommentId(null); removeComment(row.id, c.id) }}
-                                          className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors"
-                                        >
-                                          <X className="w-2.5 h-2.5" />
-                                        </button>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => setDeletingCommentId(null)}
-                                          className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
-                                        >No</button>
-                                      </div>
-                                    ) : (
-                                      <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
-                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors"
-                                        >
-                                          <Pencil className="w-2.5 h-2.5" />
-                                        </button>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => setDeletingCommentId(c.id)}
-                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                                        >
-                                          <Trash2 className="w-2.5 h-2.5" />
-                                        </button>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                                {isEditing ? (
-                                  <div className="flex flex-col gap-1">
-                                    <textarea
-                                      value={editBody}
-                                      onChange={e => setEditBody(e.target.value)}
-                                      onKeyDown={e => {
-                                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(row.id, c.id) }
-                                        if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
-                                      }}
-                                      rows={2}
-                                      className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                                    />
-                                    <div className="flex gap-1">
-                                      <button
-                                        onMouseDown={e => e.stopPropagation()}
-                                        onClick={() => saveEditComment(row.id, c.id)}
-                                        className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                                      >Save</button>
-                                      <button
-                                        onMouseDown={e => e.stopPropagation()}
-                                        onClick={() => { setEditingCommentId(null); setEditBody("") }}
-                                        className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
-                                      >Cancel</button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      {/* Input area */}
-                      <div className="border-t border-border/50 p-2 shrink-0">
-                        <div className="flex gap-1.5 items-end">
-                          <textarea
-                            ref={newCommentRef}
-                            value={newComment}
-                            onChange={e => {
-                              setNewComment(e.target.value)
-                              e.target.style.height = "auto"
-                              e.target.style.height = `${e.target.scrollHeight}px`
-                            }}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault()
-                                submitComment(row.id)
-                              }
-                            }}
-                            placeholder="Write a comment… (Enter to send)"
-                            rows={1}
-                            className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
-                          />
-                          <button
-                            onMouseDown={e => e.stopPropagation()}
-                            onClick={() => submitComment(row.id)}
-                            disabled={!newComment.trim() || submitting}
-                            className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0"
-                          >
-                            {submitting
-                              ? <Loader2 className="w-3 h-3 animate-spin" />
-                              : <Send className="w-3 h-3" />
-                            }
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -1106,6 +1018,117 @@ function GanttViewer({
           </div>
         )}
       </div>
+
+      {/* Comment popup portal — fixed position, avoids overflow clipping + cursor-grab */}
+      {commentsRowId && popupPos && typeof window !== "undefined" && createPortal(
+        (() => {
+          const commentsOpenRow = visibleRows.find(r => r.id === commentsRowId)
+          if (!commentsOpenRow) return null
+          const portalComments = commentsMap.get(commentsRowId) ?? []
+          return (
+            <div
+              ref={commentsPopupRef}
+              className="w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col cursor-default"
+              style={{
+                position: "fixed",
+                ...(popupPos.bottom !== undefined ? { bottom: popupPos.bottom } : { top: popupPos.top }),
+                right: popupPos.right,
+                maxHeight: 320,
+                zIndex: 9999,
+              }}
+              onMouseDown={e => e.stopPropagation()}
+            >
+              <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
+                <p className="text-[11px] font-semibold text-foreground truncate">{commentsOpenRow.name}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {portalComments.length === 0 ? "No comments yet" : `${portalComments.length} comment${portalComments.length > 1 ? 's' : ''}`}
+                </p>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
+                {portalComments.length === 0 ? (
+                  <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
+                ) : portalComments.map(c => {
+                  const isOwn     = !!c.created_by_id && c.created_by_id === currentUser?.id
+                  const isEditing = editingCommentId === c.id
+                  return (
+                    <div key={c.id} className="group/comment flex gap-2">
+                      {(() => { const Icon = commentRoleIcon(c.user_role); return (
+                        <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
+                          <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
+                        </div>
+                      ) })()}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
+                          <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
+                          {isOwn && !isEditing && (
+                            deletingCommentId === c.id ? (
+                              <div className="ml-auto flex items-center gap-1 shrink-0">
+                                <span className="text-[10px] text-muted-foreground">Sure?</span>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => { setDeletingCommentId(null); removeComment(commentsRowId!, c.id) }}
+                                  className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => setDeletingCommentId(null)}
+                                  className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">No</button>
+                              </div>
+                            ) : (
+                              <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
+                                  className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors">
+                                  <Pencil className="w-2.5 h-2.5" />
+                                </button>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => setDeletingCommentId(c.id)}
+                                  className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+                                  <Trash2 className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            )
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <div className="flex flex-col gap-1">
+                            <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(commentsRowId!, c.id) }
+                                if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
+                              }}
+                              rows={2} className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                            <div className="flex gap-1">
+                              <button onMouseDown={e => e.stopPropagation()} onClick={() => saveEditComment(commentsRowId!, c.id)}
+                                className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Save</button>
+                              <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(null); setEditBody("") }}
+                                className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="border-t border-border/50 p-2 shrink-0">
+                <div className="flex gap-1.5 items-end">
+                  <textarea ref={newCommentRef} value={newComment}
+                    onChange={e => { setNewComment(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px` }}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(commentsRowId!) } }}
+                    placeholder="Write a comment… (Enter to send)" rows={1}
+                    className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <button onMouseDown={e => e.stopPropagation()} onClick={() => submitComment(commentsRowId!)}
+                    disabled={!newComment.trim() || submitting}
+                    className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0">
+                    {submitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })(),
+        document.body,
+      )}
     </div>
   )
 }
@@ -1119,6 +1142,7 @@ function DatesViewer({
   toggleRow,
   rowPhaseIdx,
   phaseColors,
+  oursSet,
   rowMetas,
   onMetaChange,
   buildingId,
@@ -1132,6 +1156,7 @@ function DatesViewer({
   toggleRow:       (id: string) => void
   rowPhaseIdx:     Record<string, number>
   phaseColors:     string[]
+  oursSet:         Set<string>
   rowMetas:        Map<string, RowMeta>
   onMetaChange:    (rowId: string, patch: Partial<RowMeta>) => void
   buildingId:      string
@@ -1149,13 +1174,18 @@ function DatesViewer({
   const [editingCommentId,  setEditingCommentId]  = useState<string | null>(null)
   const [editBody,          setEditBody]          = useState("")
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
-  const commentsRef   = useRef<HTMLDivElement>(null)
-  const newCommentRef = useRef<HTMLTextAreaElement>(null)
+  const commentsButtonsRef = useRef<HTMLDivElement>(null)
+  const commentsPopupRef   = useRef<HTMLDivElement>(null)
+  const newCommentRef      = useRef<HTMLTextAreaElement>(null)
+  const [popupPos, setPopupPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null)
 
   useEffect(() => {
     if (!commentsRowId) return
     const handler = (e: MouseEvent) => {
-      if (commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+      if (
+        !commentsButtonsRef.current?.contains(e.target as Node) &&
+        !commentsPopupRef.current?.contains(e.target as Node)
+      ) {
         setCommentsRowId(null)
         setLockedRowId(null)
         setNewComment("")
@@ -1164,6 +1194,25 @@ function DatesViewer({
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
+  }, [commentsRowId])
+
+  useLayoutEffect(() => {
+    if (!commentsRowId || !commentsButtonsRef.current) { setPopupPos(null); return }
+    const rect    = commentsButtonsRef.current.getBoundingClientRect()
+    const POPUP_H = 320
+    const GAP     = 12
+    const MARGIN  = 8
+    const midY    = rect.top + rect.height / 2
+    const centered = midY - POPUP_H / 2
+    const right   = window.innerWidth - rect.left + GAP
+
+    if (centered >= MARGIN && centered + POPUP_H <= window.innerHeight - MARGIN) {
+      setPopupPos({ top: centered, right })
+    } else if (midY >= window.innerHeight / 2) {
+      setPopupPos({ bottom: window.innerHeight - rect.bottom, right })
+    } else {
+      setPopupPos({ top: Math.min(rect.top, window.innerHeight - POPUP_H - MARGIN), right })
+    }
   }, [commentsRowId])
 
   function openComments(rowId: string) {
@@ -1215,17 +1264,25 @@ function DatesViewer({
 
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }, [])
 
+  const [dateEditState, setDateEditState] = useState<{
+    rowId:      string
+    realStart:  string   // draft value while editing
+    realFinish: string
+  } | null>(null)
+
   return (
     <div className="flex-1 overflow-auto">
       <TooltipProvider>
-      <div className="min-w-[640px] flex flex-col">
+      <div className="min-w-[840px] flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
           <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center px-3">Task</div>
           <div className="sticky left-[280px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
           <div className="sticky left-[360px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
-          <div className="sticky left-[448px] z-20 bg-muted/90 border-r border-border/50 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="sticky left-[448px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Start</div>
+          <div className="bg-muted/90 border-r border-border/50 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
           <div className="bg-muted/90 flex-1 min-w-[160px] flex items-center pl-3">Trades</div>
         </div>
 
@@ -1234,6 +1291,7 @@ function DatesViewer({
           const indent          = 8 + (row.level - 1) * 14
           const meta            = rowMetas.get(row.id)
           const isDone          = meta?.status === 'done'
+          const isOurs          = !isDone && row.resources.some(r => oursSet.has(r))
           const isStartOverdue  = !isDone && !!row.startDate  && row.startDate  < today
           const isFinishOverdue = !isDone && !!row.finishDate && row.finishDate < today
           const isRowActive     = hoveredRowId === row.id || lockedRowId === row.id
@@ -1248,7 +1306,9 @@ function DatesViewer({
                 "group flex items-center border-b border-border/20 transition-colors min-h-[32px]",
                 isDone
                   ? "bg-green-500/[0.05] hover:bg-green-500/[0.09]"
-                  : cn(i % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
+                  : isOurs
+                    ? "bg-foreground/[0.09] hover:bg-foreground/[0.14]"
+                    : cn(i % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
               )}
               onMouseEnter={() => setHoveredRowId(row.id)}
               onMouseLeave={() => setHoveredRowId(null)}
@@ -1257,9 +1317,10 @@ function DatesViewer({
               <div
                 className={cn(
                   "sticky left-0 z-10 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center gap-1 pr-2",
-                  isDone ? "bg-transparent" : "bg-background",
+                  (isDone || isOurs) ? "bg-transparent" : "bg-background",
+                  isOurs && "border-l-2 border-l-foreground/50",
                 )}
-                style={{ paddingLeft: indent }}
+                style={{ paddingLeft: isOurs ? Math.max(0, indent - 2) : indent }}
               >
                 {row.isPhase && (
                   <span className="w-1 h-4 rounded-sm shrink-0 mr-0.5" style={{ backgroundColor: phaseColor }} />
@@ -1271,6 +1332,14 @@ function DatesViewer({
                   </button>
                 ) : <span className="w-4 shrink-0" />}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
+                {isOurs && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/minilogo_black.png" alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-60 dark:hidden" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/minilogo_white.png" alt="" aria-hidden className="hidden shrink-0 h-3 w-3 object-contain opacity-60 dark:block" />
+                  </>
+                )}
                 <span className={cn("text-[11px] truncate ml-1",
                   row.isPhase && "font-semibold uppercase tracking-wide",
                   !row.isPhase && row.level === 2 && "font-medium",
@@ -1282,7 +1351,7 @@ function DatesViewer({
               {/* Duration */}
               <div className={cn(
                 "sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground",
-                isDone ? "bg-transparent" : "bg-background",
+                (isDone || isOurs) ? "bg-transparent" : "bg-background",
               )}>
                 {row.isMilestone ? "◆" : row.durationText}
               </div>
@@ -1290,7 +1359,7 @@ function DatesViewer({
               {/* Start */}
               <div className={cn(
                 "sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs",
-                isDone ? "bg-transparent" : "bg-background",
+                (isDone || isOurs) ? "bg-transparent" : "bg-background",
                 isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground",
               )}>
                 {fmtDateShort(row.startDate)}
@@ -1298,12 +1367,108 @@ function DatesViewer({
 
               {/* Finish */}
               <div className={cn(
-                "sticky left-[448px] z-10 border-r border-border/50 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs",
-                isDone ? "bg-transparent" : "bg-background",
+                "sticky left-[448px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs",
+                (isDone || isOurs) ? "bg-transparent" : "bg-background",
                 isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground",
               )}>
                 {fmtDateShort(row.finishDate)}
               </div>
+
+              {/* Real Start */}
+              {(() => {
+                const isEditing = dateEditState?.rowId === row.id
+                const rsDate = isEditing
+                  ? (dateEditState!.realStart ? new Date(dateEditState!.realStart + "T00:00:00") : undefined)
+                  : (meta?.real_start ? new Date(meta.real_start + "T00:00:00") : undefined)
+                return (
+                  <div className="w-[100px] shrink-0 self-stretch flex items-center justify-center text-xs">
+                    {isEditing ? (
+                      <Popover>
+                        <PopoverTrigger className={cn(
+                          "w-[88px] text-[11px] text-center border border-primary rounded px-1 py-0.5 hover:bg-muted/50 transition-colors truncate",
+                          dateEditState!.realStart ? "text-foreground" : "text-muted-foreground",
+                        )}>
+                          {dateEditState!.realStart
+                            ? new Date(dateEditState!.realStart + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            : "Start…"}
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" side="bottom" align="center">
+                          <CalendarPicker
+                            mode="single"
+                            selected={rsDate}
+                            defaultMonth={rsDate}
+                            onSelect={d => setDateEditState(s => s && ({ ...s, realStart: d ? isoDate(d) : "" }))}
+                          />
+                          {dateEditState!.realStart && (
+                            <div className="border-t border-border px-3 py-2">
+                              <button
+                                onClick={() => setDateEditState(s => s && ({ ...s, realStart: "" }))}
+                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <span className={cn("text-[11px]", meta?.real_start ? "text-foreground" : "text-muted-foreground/30")}>
+                        {meta?.real_start
+                          ? new Date(meta.real_start + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                          : "—"}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
+
+              {/* Real Finish */}
+              {(() => {
+                const isEditing = dateEditState?.rowId === row.id
+                const rfDate = isEditing
+                  ? (dateEditState!.realFinish ? new Date(dateEditState!.realFinish + "T00:00:00") : undefined)
+                  : (meta?.real_finish ? new Date(meta.real_finish + "T00:00:00") : undefined)
+                return (
+                  <div className="border-r border-border/50 w-[100px] shrink-0 self-stretch flex items-center justify-center text-xs">
+                    {isEditing ? (
+                      <Popover>
+                        <PopoverTrigger className={cn(
+                          "w-[88px] text-[11px] text-center border border-primary rounded px-1 py-0.5 hover:bg-muted/50 transition-colors truncate",
+                          dateEditState!.realFinish ? "text-foreground" : "text-muted-foreground",
+                        )}>
+                          {dateEditState!.realFinish
+                            ? new Date(dateEditState!.realFinish + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            : "Finish…"}
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" side="bottom" align="center">
+                          <CalendarPicker
+                            mode="single"
+                            selected={rfDate}
+                            defaultMonth={rfDate}
+                            onSelect={d => setDateEditState(s => s && ({ ...s, realFinish: d ? isoDate(d) : "" }))}
+                          />
+                          {dateEditState!.realFinish && (
+                            <div className="border-t border-border px-3 py-2">
+                              <button
+                                onClick={() => setDateEditState(s => s && ({ ...s, realFinish: "" }))}
+                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <span className={cn("text-[11px]", meta?.real_finish ? "text-foreground" : "text-muted-foreground/30")}>
+                        {meta?.real_finish
+                          ? new Date(meta.real_finish + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                          : "—"}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
 
               {/* Trades — icon badge + plain text (matches Trades popover) */}
               <div className="flex-1 min-w-[160px] flex flex-wrap gap-x-3 gap-y-1 px-3 py-1 items-center">
@@ -1321,34 +1486,93 @@ function DatesViewer({
               </div>
 
               {/* ── Floating action buttons (zero-width sticky anchor) ─── */}
-              <div className="sticky right-0 z-10 shrink-0 overflow-visible" style={{ width: 0, alignSelf: 'stretch' }}>
+              <div className="sticky right-0 z-20 shrink-0 overflow-visible" style={{ width: 0, alignSelf: 'stretch' }}>
                 <div
-                  ref={isCommentsOpen ? commentsRef : undefined}
+                  ref={isCommentsOpen ? commentsButtonsRef : undefined}
                   className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 transition-opacity",
-                    (hasComments || isRowActive) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                    "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background rounded-md px-0.5 shadow-sm transition-opacity",
+                    (hasComments || isRowActive || dateEditState?.rowId === row.id)
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100",
                   )}
                 >
-                  {/* Check */}
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <button
-                          onMouseDown={e => e.stopPropagation()}
-                          onClick={() => onMetaChange(row.id, { status: isDone ? 'pending' : 'done' })}
-                          className={cn(
-                            "flex items-center justify-center w-5 h-5 rounded transition-colors",
-                            isDone
-                              ? "text-green-500 hover:bg-green-500/10"
-                              : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
-                          )}
-                        />
-                      }
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">{isDone ? "Mark as pending" : "Mark as done"}</TooltipContent>
-                  </Tooltip>
+                  {dateEditState?.rowId === row.id ? (
+                    /* ── Edit mode: Confirm + Cancel ─────────────────── */
+<>
+                      <Tooltip>
+                        <TooltipTrigger render={
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => {
+                              onMetaChange(row.id, {
+                                real_start:  dateEditState.realStart  || null,
+                                real_finish: dateEditState.realFinish || null,
+                              })
+                              setDateEditState(null)
+                            }}
+                            className="flex items-center justify-center w-5 h-5 rounded text-green-500 hover:bg-green-500/10 transition-colors"
+                          />
+                        }>
+                          <Check className="w-3.5 h-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">Confirm</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger render={
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => setDateEditState(null)}
+                            className="flex items-center justify-center w-5 h-5 rounded text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                          />
+                        }>
+                          <X className="w-3.5 h-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">Cancel</TooltipContent>
+                      </Tooltip>
+                    </>
+                  ) : (
+                    /* ── Normal mode: Edit real dates + Check + Comments ─ */
+                    <>
+                      {/* Edit real dates */}
+                      <Tooltip>
+                        <TooltipTrigger render={
+                          <button
+                            onMouseDown={e => e.stopPropagation()}
+                            onClick={() => setDateEditState({
+                              rowId:      row.id,
+                              realStart:  meta?.real_start  ?? "",
+                              realFinish: meta?.real_finish ?? "",
+                            })}
+                            className="flex items-center justify-center w-5 h-5 rounded text-muted-foreground/40 hover:text-foreground hover:bg-muted/80 transition-colors"
+                          />
+                        }>
+                          <Pencil className="w-3 h-3" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">Edit real dates</TooltipContent>
+                      </Tooltip>
+
+                      {/* Check */}
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              onMouseDown={e => e.stopPropagation()}
+                              onClick={() => onMetaChange(row.id, { status: isDone ? 'pending' : 'done' })}
+                              className={cn(
+                                "flex items-center justify-center w-5 h-5 rounded transition-colors",
+                                isDone
+                                  ? "text-green-500 hover:bg-green-500/10"
+                                  : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                              )}
+                            />
+                          }
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">{isDone ? "Mark as pending" : "Mark as done"}</TooltipContent>
+                      </Tooltip>
+                    </>
+                  )}
 
                   {/* Comments */}
                   <Tooltip>
@@ -1383,124 +1607,6 @@ function DatesViewer({
                     </TooltipContent>
                   </Tooltip>
 
-                  {/* Comments popup */}
-                  {isCommentsOpen && (
-                    <div
-                      className="absolute right-full top-1/2 -translate-y-1/2 mr-3 z-50 w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col"
-                      style={{ maxHeight: 320 }}
-                      onMouseDown={e => e.stopPropagation()}
-                    >
-                      <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
-                        <p className="text-[11px] font-semibold text-foreground truncate">{row.name}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {rowComments.length === 0 ? "No comments yet" : `${rowComments.length} comment${rowComments.length > 1 ? 's' : ''}`}
-                        </p>
-                      </div>
-
-                      <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
-                        {rowComments.length === 0 ? (
-                          <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
-                        ) : rowComments.map(c => {
-                          const isOwn     = c.user_name === currentUserName
-                          const isEditing = editingCommentId === c.id
-                          return (
-                            <div key={c.id} className="group/comment flex gap-2">
-                              {(() => { const Icon = commentRoleIcon(c.user_role); return (
-                                <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
-                                  <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
-                                </div>
-                              )})()}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-0.5">
-                                  <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
-                                  <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
-                                  {isOwn && !isEditing && (
-                                    deletingCommentId === c.id ? (
-                                      <div className="ml-auto flex items-center gap-1 shrink-0">
-                                        <span className="text-[10px] text-muted-foreground">Sure?</span>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => { setDeletingCommentId(null); removeComment(row.id, c.id) }}
-                                          className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors"
-                                        ><X className="w-2.5 h-2.5" /></button>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => setDeletingCommentId(null)}
-                                          className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors"
-                                        >No</button>
-                                      </div>
-                                    ) : (
-                                      <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
-                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors"
-                                        ><Pencil className="w-2.5 h-2.5" /></button>
-                                        <button
-                                          onMouseDown={e => e.stopPropagation()}
-                                          onClick={() => setDeletingCommentId(c.id)}
-                                          className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                                        ><Trash2 className="w-2.5 h-2.5" /></button>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                                {isEditing ? (
-                                  <div className="flex flex-col gap-1">
-                                    <textarea
-                                      value={editBody}
-                                      onChange={e => setEditBody(e.target.value)}
-                                      onKeyDown={e => {
-                                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(row.id, c.id) }
-                                        if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
-                                      }}rows={2}
-                                      className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                                    />
-                                    <div className="flex gap-1">
-                                      <button onMouseDown={e => e.stopPropagation()} onClick={() => saveEditComment(row.id, c.id)}
-                                        className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Save</button>
-                                      <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(null); setEditBody("") }}
-                                        className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">Cancel</button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      <div className="border-t border-border/50 p-2 shrink-0">
-                        <div className="flex gap-1.5 items-end">
-                          <textarea
-                            ref={newCommentRef}
-                            value={newComment}
-                            onChange={e => {
-                              setNewComment(e.target.value)
-                              e.target.style.height = "auto"
-                              e.target.style.height = `${e.target.scrollHeight}px`
-                            }}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(row.id) }
-                            }}
-                            placeholder="Write a comment… (Enter to send)"
-                            rows={1}
-                            className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
-                          />
-                          <button
-                            onMouseDown={e => e.stopPropagation()}
-                            onClick={() => submitComment(row.id)}
-                            disabled={!newComment.trim() || submitting}
-                            className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0"
-                          >
-                            {submitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -1512,6 +1618,117 @@ function DatesViewer({
         )}
       </div>
       </TooltipProvider>
+
+      {/* Comment popup portal — fixed position, avoids overflow clipping */}
+      {commentsRowId && popupPos && typeof window !== "undefined" && createPortal(
+        (() => {
+          const commentsOpenRow = visibleRows.find(r => r.id === commentsRowId)
+          if (!commentsOpenRow) return null
+          const portalComments = commentsMap.get(commentsRowId) ?? []
+          return (
+            <div
+              ref={commentsPopupRef}
+              className="w-72 bg-popover border border-border rounded-lg shadow-xl flex flex-col cursor-default"
+              style={{
+                position: "fixed",
+                ...(popupPos.bottom !== undefined ? { bottom: popupPos.bottom } : { top: popupPos.top }),
+                right: popupPos.right,
+                maxHeight: 320,
+                zIndex: 9999,
+              }}
+              onMouseDown={e => e.stopPropagation()}
+            >
+              <div className="px-3 pt-2.5 pb-2 border-b border-border/50 shrink-0">
+                <p className="text-[11px] font-semibold text-foreground truncate">{commentsOpenRow.name}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {portalComments.length === 0 ? "No comments yet" : `${portalComments.length} comment${portalComments.length > 1 ? 's' : ''}`}
+                </p>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 space-y-2.5 min-h-0">
+                {portalComments.length === 0 ? (
+                  <p className="text-[11px] text-muted-foreground/60 text-center py-3">Be the first to comment.</p>
+                ) : portalComments.map(c => {
+                  const isOwn     = !!c.created_by_id && c.created_by_id === currentUser?.id
+                  const isEditing = editingCommentId === c.id
+                  return (
+                    <div key={c.id} className="group/comment flex gap-2">
+                      {(() => { const Icon = commentRoleIcon(c.user_role); return (
+                        <div className={cn("w-6 h-6 rounded-full bg-muted/60 border flex items-center justify-center shrink-0 mt-0.5", commentRoleBorder(c.user_role))}>
+                          <Icon className={cn("w-3 h-3", commentRoleColor(c.user_role))} />
+                        </div>
+                      )})()}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="text-[11px] font-medium text-foreground truncate">{c.user_name || "Unknown"}</span>
+                          <span className="text-[10px] text-muted-foreground/60 shrink-0">{fmtCommentTime(c.created_at)}</span>
+                          {isOwn && !isEditing && (
+                            deletingCommentId === c.id ? (
+                              <div className="ml-auto flex items-center gap-1 shrink-0">
+                                <span className="text-[10px] text-muted-foreground">Sure?</span>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => { setDeletingCommentId(null); removeComment(commentsRowId!, c.id) }}
+                                  className="flex items-center justify-center w-4 h-4 rounded bg-red-500/15 text-red-500 hover:bg-red-500/25 transition-colors">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => setDeletingCommentId(null)}
+                                  className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">No</button>
+                              </div>
+                            ) : (
+                              <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
+                                  className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors">
+                                  <Pencil className="w-2.5 h-2.5" />
+                                </button>
+                                <button onMouseDown={e => e.stopPropagation()} onClick={() => setDeletingCommentId(c.id)}
+                                  className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+                                  <Trash2 className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            )
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <div className="flex flex-col gap-1">
+                            <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(commentsRowId!, c.id) }
+                                if (e.key === 'Escape') { setEditingCommentId(null); setEditBody("") }
+                              }}
+                              rows={2} className="w-full text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 resize-none text-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                            <div className="flex gap-1">
+                              <button onMouseDown={e => e.stopPropagation()} onClick={() => saveEditComment(commentsRowId!, c.id)}
+                                className="text-[10px] px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Save</button>
+                              <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(null); setEditBody("") }}
+                                className="text-[10px] px-2 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-foreground/80 break-words leading-snug">{c.body}</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="border-t border-border/50 p-2 shrink-0">
+                <div className="flex gap-1.5 items-end">
+                  <textarea ref={newCommentRef} value={newComment}
+                    onChange={e => { setNewComment(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px` }}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(commentsRowId!) } }}
+                    placeholder="Write a comment… (Enter to send)" rows={1}
+                    className="flex-1 text-[11px] bg-muted/30 border border-border rounded-md px-2 py-1.5 leading-normal resize-none overflow-hidden max-h-28 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <button onMouseDown={e => e.stopPropagation()} onClick={() => submitComment(commentsRowId!)}
+                    disabled={!newComment.trim() || submitting}
+                    className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0">
+                    {submitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })(),
+        document.body,
+      )}
     </div>
   )
 }
@@ -1593,6 +1810,12 @@ function ScheduleViewer({
   const isDark = useIsDark()
   const phaseColors = isDark ? PHASE_COLORS_DARK : PHASE_COLORS_LIGHT
 
+  const { data: ownershipData = [] } = useTradeOwnership(buildingId)
+  const oursSet = useMemo(
+    () => new Set(ownershipData.filter(o => o.is_ours).map(o => o.trade_name)),
+    [ownershipData],
+  )
+
   const { user: currentUser } = useAuth()
   const currentUserName = currentUser?.name || currentUser?.email || "Unknown"
 
@@ -1624,7 +1847,13 @@ function ScheduleViewer({
       .then(items => {
         const map = new Map<string, RowMeta>()
         for (const item of (items ?? [])) {
-          map.set(String(item.row_id), { status: item.status, observation: item.observation })
+          map.set(String(item.row_id), {
+            status:      item.status,
+            observation: item.observation,
+            real_start:  item.real_start  ?? null,
+            real_finish: item.real_finish ?? null,
+            is_finished: item.is_finished ?? false,
+          })
         }
         setRowMetas(map)
       })
@@ -1634,19 +1863,143 @@ function ScheduleViewer({
   const onMetaChange = useCallback((rowId: string, patch: Partial<RowMeta>) => {
     setRowMetas(prev => {
       const next    = new Map(prev)
-      const current = next.get(rowId) ?? { status: 'pending', observation: '' }
+      const current = next.get(rowId) ?? { status: 'pending', observation: '', real_start: null, real_finish: null, is_finished: false }
       next.set(rowId, { ...current, ...patch })
       return next
     })
     buildingsService.upsertScheduleRowMeta(buildingId, rowId, patch).catch(() => {})
   }, [buildingId])
 
-  const shared = { displayRows, visibleRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors }
+  const shared = { displayRows, visibleRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors, oursSet }
 
   if (viewMode === "gantt" && schedule.projectStart && schedule.projectFinish) {
     return <GanttViewer schedule={schedule} {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} filterYear={filterYear} filterMonth={filterMonth} />
   }
   return <DatesViewer {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} />
+}
+
+// ─── Trade control modal ──────────────────────────────────────────────────────
+
+function TradeControlModal({
+  buildingId,
+  allResources,
+  onClose,
+}: {
+  buildingId:   string
+  allResources: string[]
+  onClose:      () => void
+}) {
+  const { data: ownership = [], isLoading } = useTradeOwnership(buildingId)
+  const upsert = useUpsertTradeOwnership(buildingId)
+
+  const [localTrades, setLocalTrades] = useState<Record<string, boolean>>({})
+  const [initialized, setInitialized] = useState(false)
+
+  useEffect(() => {
+    if (isLoading || initialized) return
+    const map: Record<string, boolean> = {}
+    for (const t of allResources) {
+      const existing = ownership.find(o => o.trade_name === t)
+      map[t] = existing?.is_ours ?? true
+    }
+    setLocalTrades(map)
+    setInitialized(true)
+  }, [ownership, allResources, isLoading, initialized])
+
+  async function handleSave() {
+    await upsert.mutateAsync(
+      Object.entries(localTrades).map(([trade_name, is_ours]) => ({ trade_name, is_ours }))
+    )
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-sm mx-4 max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+          <div>
+            <h2 className="font-semibold text-sm">Trade Control</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Which trades does our team perform?</p>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1.5">
+          {isLoading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {!isLoading && allResources.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No trades found in this schedule.</p>
+          )}
+          {!isLoading && allResources.map(trade => {
+            const isOurs = localTrades[trade] ?? true
+            const Icon   = resIcon(trade)
+            return (
+              <button
+                key={trade}
+                type="button"
+                onClick={() => setLocalTrades(prev => ({ ...prev, [trade]: !prev[trade] }))}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors text-left",
+                  isOurs
+                    ? "border-primary/40 bg-primary/5"
+                    : "border-border hover:bg-muted/30",
+                )}
+              >
+                <span className={cn("w-6 h-6 rounded flex items-center justify-center shrink-0", resColor(trade))}>
+                  {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="text-[9px] font-bold">{toTitleCase(trade).slice(0, 2)}</span>}
+                </span>
+                <span className="flex-1 text-[11px] font-medium truncate">{toTitleCase(trade)}</span>
+                <span className={cn(
+                  "shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full",
+                  isOurs ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
+                )}>
+                  {isOurs ? "Our team" : "Subcontractor"}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="flex items-center gap-2 px-5 py-4 border-t border-border shrink-0">
+          {/* Select / Deselect All */}
+          <button
+            type="button"
+            disabled={allResources.length === 0 || isLoading}
+            onClick={() => {
+              const allOurs = allResources.every(t => localTrades[t] ?? true)
+              setLocalTrades(Object.fromEntries(allResources.map(t => [t, !allOurs])))
+            }}
+            className="h-8 px-3 rounded-md border border-border text-sm hover:bg-muted transition-colors disabled:opacity-40"
+          >
+            {allResources.every(t => localTrades[t] ?? true) ? "Deselect All" : "Select All"}
+          </button>
+
+          <div className="flex-1" />
+
+          <button
+            onClick={onClose}
+            className="h-8 px-3 rounded-md border border-border text-sm hover:bg-muted transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={upsert.isPending || isLoading}
+            className="h-8 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {upsert.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <Check className="h-3.5 w-3.5" />
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -1656,10 +2009,19 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 export default function BuildingSchedulePage() {
   const { data: buildings = [], isLoading } = useBuildings()
   const [selectedId, setSelectedId]         = useState<string | null>(null)
-  const [viewMode, setViewMode]             = useState<"gantt" | "dates">("gantt")
+  const [viewMode, setViewMode]             = useState<"gantt" | "dates">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("bs:viewMode")
+      if (saved === "gantt" || saved === "dates") return saved
+    }
+    return "gantt"
+  })
   const [filterYear, setFilterYear]         = useState<number | null>(null)
   const [filterMonth, setFilterMonth]       = useState<number | null>(null)
+  const [controlOpen, setControlOpen]       = useState(false)
   const scheduleControls = useRef<{ expandAll: () => void; collapseAll: () => void } | null>(null)
+
+  useEffect(() => { localStorage.setItem("bs:viewMode", viewMode) }, [viewMode])
 
   const { data: scheduleResp, isLoading: loadingSchedule } = useBuildingSchedule(selectedId)
 
@@ -1777,6 +2139,17 @@ export default function BuildingSchedulePage() {
             </div>
           )}
 
+          {/* Our Work */}
+          {schedule && (
+            <button
+              onClick={() => setControlOpen(true)}
+              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm self-end"
+            >
+              <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm">Our Work</span>
+            </button>
+          )}
+
           {/* Manage */}
           <a
             href="/building-schedule/manage"
@@ -1786,6 +2159,15 @@ export default function BuildingSchedulePage() {
             Manage
           </a>
         </div>
+
+        {/* Trade control modal */}
+        {controlOpen && selectedId && schedule && (
+          <TradeControlModal
+            buildingId={selectedId}
+            allResources={displayResources}
+            onClose={() => setControlOpen(false)}
+          />
+        )}
 
         {/* Row 2: Display controls (only when schedule loaded) */}
         {schedule && (
