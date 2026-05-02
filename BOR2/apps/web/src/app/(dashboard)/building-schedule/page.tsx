@@ -1414,7 +1414,11 @@ function DatesViewer({
             const label = item.notes
               ? item.notes
               : new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
-            const evBg = item.type_color + (isDark ? "0d" : "18")
+            const evBg    = item.type_color + (isDark ? "0d" : "18")
+            const evStart = new Date(item.event_date + "T12:00:00")
+            const evFinish = item.days_delayed > 0
+              ? new Date(evStart.getTime() + item.days_delayed * 86_400_000)
+              : null
             return (
               <div
                 key={`ev-${item.id}`}
@@ -1434,7 +1438,11 @@ function DatesViewer({
                 <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch" style={{ backgroundColor: evBg }} />
                 {/* Start — event date */}
                 <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
-                  {new Date(item.event_date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {evStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </div>
+                {/* Finish — event_date + days_delayed */}
+                <div className="sticky left-[448px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                  {evFinish?.toLocaleDateString("en-US", { month: "short", day: "numeric" }) ?? ""}
                 </div>
                 {/* Remaining columns — tinted filler */}
                 <div className="flex-1 self-stretch" style={{ backgroundColor: evBg }} />
