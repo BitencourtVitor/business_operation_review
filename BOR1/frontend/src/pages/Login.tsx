@@ -135,11 +135,15 @@ export default function Login() {
         const loginTimestamp = Date.now();
         sessionStorage.setItem('loginTimestamp', loginTimestamp.toString());
         
-        // Limpar dados antigos do sessionStorage, mas manter o timestamp
+        // Limpar dados antigos do sessionStorage, mas manter o timestamp e o flag de acesso BOR1
         const currentTimestamp = sessionStorage.getItem('loginTimestamp');
+        const bor1Access = sessionStorage.getItem('bor1_access');
         sessionStorage.clear();
         if (currentTimestamp) {
           sessionStorage.setItem('loginTimestamp', currentTimestamp);
+        }
+        if (bor1Access) {
+          sessionStorage.setItem('bor1_access', bor1Access);
         }
 
         // Navegar para a tela de loading que irá processar todas as edge functions
