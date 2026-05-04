@@ -34,6 +34,7 @@ type ofiRow struct {
 	TotalScore     float64 `json:"totalScore"`
 	CaptureDate    string  `json:"captureDate"`
 	ProjectName    string  `json:"projectName"`
+	Address        string  `json:"address"`
 }
 
 type executionRow struct {
@@ -47,6 +48,8 @@ type executionRow struct {
 	Subcontractor    string `json:"subcontractor"`
 	IsCycleCompleted bool   `json:"isCycleCompleted"`
 	ProjectName      string `json:"projectName"`
+	JobSite          string `json:"jobSite"`
+	Address          string `json:"address"`
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -126,7 +129,8 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
 		         ELSE o.obra_id
-		       END AS project_name
+		       END AS project_name,
+		       COALESCE(fc.address, '') AS address
 		FROM   operational_forecast_index o
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(o.obra_id)
 		WHERE  ($1 = 0 OR o.reference_year  = $1)
@@ -144,7 +148,7 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&r.ID, &r.ObraID, &r.ReferenceMonth, &r.ReferenceYear,
 			&r.FieldwireScore, &r.MachinesScore, &r.ContractScore, &r.SystemsScore, &r.TotalScore,
-			&r.CaptureDate, &r.ProjectName,
+			&r.CaptureDate, &r.ProjectName, &r.Address,
 		); err != nil {
 			continue
 		}
@@ -169,7 +173,9 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
 		         ELSE e.obra_id
-		       END AS project_name
+		       END AS project_name,
+		       COALESCE(fc.job_site, '') AS job_site,
+		       COALESCE(fc.address,  '') AS address
 		FROM   monthly_execution_history e
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(e.obra_id)
 		WHERE  ($1 = 0 OR e.reference_year  = $1)
@@ -187,7 +193,7 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&r.ID, &r.ObraID, &r.ReferenceMonth, &r.ReferenceYear,
 			&r.PlannedStatus, &r.ActualStatus, &r.Reason, &r.Subcontractor, &r.IsCycleCompleted,
-			&r.ProjectName,
+			&r.ProjectName, &r.JobSite, &r.Address,
 		); err != nil {
 			continue
 		}
@@ -316,8 +322,9 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 				continue
 			}
 
-			isStartedFlag   := status == "open" || status == "started" || status == "closed"
-			isCompletedFlag := status == "closed"
+			statusLower     := strings.ToLower(strings.TrimSpace(status))
+			isStartedFlag   := statusLower == "open" || statusLower == "started" || statusLower == "closed"
+			isCompletedFlag := statusLower == "closed"
 
 			actualStatus := "not_started"
 			if isCompletedFlag {

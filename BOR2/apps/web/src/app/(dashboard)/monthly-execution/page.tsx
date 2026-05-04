@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, ResponsiveContainer,
 } from "recharts"
 import {
@@ -16,21 +16,22 @@ import { Button }   from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge }    from "@/components/ui/badge"
 import { PageSkeleton } from "@/components/common/page-skeleton"
-import { useMonthlyExecution } from "@/hooks/use-ofi"
-import { useOfi }              from "@/hooks/use-ofi"
+import { useMonthlyExecution, useOfi } from "@/hooks/use-ofi"
 import { ofiService, type ExecutionEntry } from "@/services/ofi.service"
 import {
-  CalendarCheck, CheckCircle2, ChevronDown, ChevronRight,
+  Calendar, CalendarCheck, CheckCircle2,
   Info, MapPin, Pencil, Play,
 } from "lucide-react"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-const MONTHS       = MONTH_LABELS.map((label, i) => ({ value: String(i + 1), label }))
+const MONTH_NAMES  = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+]
 const currentYear  = new Date().getFullYear()
 const currentMonth = new Date().getMonth() + 1
-const YEARS        = Array.from({ length: 3 }, (_, i) => String(currentYear - i))
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,26 +45,6 @@ function StatusBadge({ entry }: { entry: ExecutionEntry }) {
   if (isStarted(entry))
     return <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/20 text-[10px] font-semibold">Started</Badge>
   return <Badge variant="outline" className="text-[10px] font-semibold text-muted-foreground">Not Started</Badge>
-}
-
-// ─── BOR1 stats type ──────────────────────────────────────────────────────────
-
-interface Bor1Stats { planned: number[]; started: number[] }
-
-function useBor1Stats(year: string) {
-  const [data, setData]     = useState<Bor1Stats | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    setLoading(true)
-    fetch(`/api/bor1/monthly-execution-stats?year=${year}`)
-      .then(r => r.json())
-      .then((d: Bor1Stats) => setData(d))
-      .catch(() => setData(null))
-      .finally(() => setLoading(false))
-  }, [year])
-
-  return { data, loading }
 }
 
 // ─── Chart ────────────────────────────────────────────────────────────────────
@@ -92,7 +73,7 @@ function ChartTooltip({ active, payload, label }: {
 
 function ExecutionChart({ data, year }: { data: ChartPoint[]; year: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card px-5 pt-4 pb-3">
+    <div className="rounded-xl border border-border bg-card/60 px-5 pt-4 pb-3">
       {/* Header row: title left, legend right */}
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-medium text-muted-foreground">
@@ -116,7 +97,17 @@ function ExecutionChart({ data, year }: { data: ChartPoint[]; year: string }) {
         style={{ height: 200 }}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="gradPlanned" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor="#3B82F6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}    />
+              </linearGradient>
+              <linearGradient id="gradStarted" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor="#F59E0B" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#F59E0B" stopOpacity={0}    />
+              </linearGradient>
+            </defs>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="hsl(var(--border))"
@@ -138,21 +129,23 @@ function ExecutionChart({ data, year }: { data: ChartPoint[]; year: string }) {
               content={<ChartTooltip />}
               cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1 }}
             />
-            <Line
+            <Area
               type="monotone" dataKey="planned" name="Planned"
               stroke="#3B82F6" strokeWidth={2.5}
+              fill="url(#gradPlanned)"
               dot={{ r: 3, fill: "#3B82F6", strokeWidth: 0 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
               connectNulls={false}
             />
-            <Line
+            <Area
               type="monotone" dataKey="started" name="Started / Executed"
               stroke="#F59E0B" strokeWidth={2.5}
+              fill="url(#gradStarted)"
               dot={{ r: 3, fill: "#F59E0B", strokeWidth: 0 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
               connectNulls={false}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>
@@ -177,7 +170,9 @@ function ProjectCard({
         <StatusBadge entry={entry} />
       </div>
 
-      <p className="mt-0.5 font-mono text-[10px] text-muted-foreground/60">{entry.obraId}</p>
+      {entry.address && (
+        <p className="mt-0.5 text-[11px] text-muted-foreground/60">{entry.address}</p>
+      )}
 
       {entry.subcontractor && (
         <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -227,20 +222,13 @@ function KanbanColumn({
   canEdit: boolean
   onEdit: (entry: ExecutionEntry) => void
 }) {
-  const [expanded, setExpanded] = useState(true)
   const { label, icon: Icon, color } = COL_CONFIG[variant]
   const isPlanned = variant === "planned"
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-muted/20">
-      <button
-        className="flex items-center gap-2 rounded-t-xl px-4 py-3 text-left transition-colors hover:bg-muted/40"
-        onClick={() => setExpanded(v => !v)}
-      >
-        {expanded
-          ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-          : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-        }
+    <div className="flex min-h-0 flex-col rounded-xl border border-border bg-muted/20">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-3">
         <Icon className="h-4 w-4 shrink-0" style={{ color }} />
         <span className="flex-1 text-sm font-semibold uppercase tracking-wide" style={{ color }}>
           {label}
@@ -248,26 +236,27 @@ function KanbanColumn({
         <span className="text-sm font-bold tabular-nums">
           {isPlanned ? totalCaptured : entries.length}
         </span>
-      </button>
+      </div>
 
-      {isPlanned && expanded && (
-        <div className="flex items-center gap-2 border-t border-border/50 px-4 py-1.5 text-xs text-muted-foreground">
+      {isPlanned && (
+        <div className="flex items-center justify-between border-t border-border/50 px-4 py-1.5 text-xs text-muted-foreground">
           <span>Remaining</span>
           <span className="font-semibold tabular-nums text-primary">{entries.length}</span>
         </div>
       )}
 
-      {expanded && (
-        <div className="no-scrollbar flex flex-col gap-2 overflow-y-auto p-3" style={{ maxHeight: "60vh" }}>
-          {entries.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground/50">No projects</p>
-          ) : (
-            entries.map(e => (
-              <ProjectCard key={e.id} entry={e} canEdit={canEdit} onEdit={onEdit} />
-            ))
-          )}
-        </div>
-      )}
+      <div className="no-scrollbar flex flex-1 flex-col gap-2 overflow-y-auto p-3">
+        {entries.length === 0 ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground/30">
+            <Icon className="h-8 w-8" style={{ color: "currentColor" }} />
+            <p className="text-sm">No projects</p>
+          </div>
+        ) : (
+          entries.map(e => (
+            <ProjectCard key={e.id} entry={e} canEdit={canEdit} onEdit={onEdit} />
+          ))
+        )}
+      </div>
     </div>
   )
 }
@@ -327,63 +316,61 @@ function ReasonDialog({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MonthlyExecutionPage() {
-  const [year,      setYear]      = useState(String(currentYear))
+  const year = String(currentYear)
   const [month,     setMonth]     = useState(String(currentMonth))
   const [editEntry, setEditEntry] = useState<ExecutionEntry | null>(null)
 
-  // BOR2 data — execution history for the selected year
+  // BOR2 execution history — all months of the year
   const { data: allYear = [], isLoading } = useMonthlyExecution({ year: Number(year) })
 
-  // BOR2 OFI — planned counts (includes future months not yet in execution history)
+  // BOR2 OFI — all months of the year (for the chart)
   const { data: bor2Ofi = [] } = useOfi({ year: Number(year) })
 
-  // BOR1 historical stats — monthly aggregates from Supabase
-  const { data: bor1Stats } = useBor1Stats(year)
+  // BOR2 OFI — selected month only (for the kanban fallback when no execution yet)
+  const { data: ofiForMonth = [] } = useOfi({ year: Number(year), month: Number(month) })
 
-  // ── Chart data: merge BOR1 (historical) + BOR2 (latest cycle) ──────────────
-  //
-  // BOR2 calculator first ran on 2026-04-30, so BOR2 has execution data for
-  // April 2026 onwards and OFI data from May 2026.
-  // For months not yet covered by BOR2, fall back to BOR1 Supabase.
-
-  const bor2ExecMonths = useMemo(
-    () => new Set(allYear.map(e => e.referenceMonth)),
-    [allYear],
-  )
-  const bor2OfiMonths = useMemo(
-    () => new Set(bor2Ofi.map(e => e.referenceMonth)),
-    [bor2Ofi],
-  )
+  // ── Chart: purely BOR2 data ───────────────────────────────────────────────
 
   const chartData = useMemo<ChartPoint[]>(() =>
     MONTH_LABELS.map((label, i) => {
-      const m      = i + 1
-      const hasBor2 = bor2ExecMonths.has(m) || bor2OfiMonths.has(m)
-
-      if (hasBor2) {
-        const execEntries = allYear.filter(e => e.referenceMonth === m)
-        const ofiEntries  = bor2Ofi.filter(e => e.referenceMonth === m)
-        // Planned = OFI count (what was captured at snapshot time)
-        // Started = execution records with non-not-started status
-        const planned = ofiEntries.length  || null
-        const started = execEntries.filter(e => !isNotStarted(e)).length || null
-        return { month: label, planned, started }
+      const m   = i + 1
+      const ofi = bor2Ofi.filter(e => e.referenceMonth === m)
+      const exe = allYear.filter(e => e.referenceMonth === m)
+      const started = exe.length ? (exe.filter(e => !isNotStarted(e)).length || null) : null
+      // January 2026: no real execution records exist in any DB — hardcoded from BOR1 legacy
+      const startedFinal = (m === 1 && started === null) ? 10 : started
+      return {
+        month:   label,
+        planned: ofi.length || null,
+        started: startedFinal,
       }
-
-      // BOR1 fallback
-      const p = bor1Stats?.planned[i] ?? 0
-      const s = bor1Stats?.started[i] ?? 0
-      return { month: label, planned: p || null, started: s || null }
     }),
-    [allYear, bor2Ofi, bor1Stats, bor2ExecMonths, bor2OfiMonths],
+    [allYear, bor2Ofi],
   )
 
-  // ── Kanban: current selected month (always BOR2 data) ─────────────────────
+  // ── Kanban: selected month ─────────────────────────────────────────────────
+  // Execution history → use real statuses.
+  // No execution yet → show OFI obras as Planned (no editing).
 
-  const forMonth = useMemo(
-    () => allYear.filter(e => e.referenceMonth === Number(month)),
-    [allYear, month],
-  )
+  const { forMonth, isOFIFallback } = useMemo(() => {
+    const execRecords = allYear.filter(e => e.referenceMonth === Number(month))
+    if (execRecords.length > 0) return { forMonth: execRecords, isOFIFallback: false }
+
+    const ofiRecords: ExecutionEntry[] = ofiForMonth.map(o => ({
+      id:               o.id,
+      obraId:           o.obraId,
+      referenceMonth:   o.referenceMonth,
+      referenceYear:    o.referenceYear,
+      plannedStatus:    "not_started",
+      actualStatus:     "not_started" as const,
+      reason:           "",
+      subcontractor:    "",
+      isCycleCompleted: false,
+      projectName:      o.projectName,
+      address:          o.address,
+    }))
+    return { forMonth: ofiRecords, isOFIFallback: true }
+  }, [allYear, ofiForMonth, month])
 
   const planned  = useMemo(() => forMonth.filter(isNotStarted),  [forMonth])
   const started  = useMemo(() => forMonth.filter(isStarted),     [forMonth])
@@ -392,39 +379,49 @@ export default function MonthlyExecutionPage() {
   if (isLoading) return <PageSkeleton />
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex h-full flex-col gap-5">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Monthly Execution</h1>
           <p className="text-sm text-muted-foreground">Track project execution progress by month</p>
         </div>
-        <div className="flex gap-2">
-          <Select value={year} onValueChange={v => v && setYear(v)}>
-            <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {YEARS.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={month} onValueChange={v => v && setMonth(v)}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {MONTHS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+
+        {/* Period filter — standardized pill */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            Period
+          </span>
+          <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+            <div className="flex items-center gap-1.5 pl-2.5 pr-2">
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{year}</span>
+            </div>
+            <div className="h-5 w-px shrink-0 bg-border" />
+            <Select value={month} onValueChange={v => v && setMonth(v)}>
+              <SelectTrigger className="h-8 w-[140px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className="flex-1 truncate text-left text-sm">{MONTH_NAMES[Number(month) - 1]}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {MONTH_NAMES.map((name, i) => (
+                  <SelectItem key={i + 1} value={String(i + 1)}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* Yearly chart */}
       <ExecutionChart data={chartData} year={year} />
 
-      {/* Kanban */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Kanban — fills remaining viewport height, scroll inside each column */}
+      <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-3">
         <KanbanColumn
           variant="planned"
           entries={planned}
           totalCaptured={forMonth.length}
-          canEdit
+          canEdit={!isOFIFallback}
           onEdit={setEditEntry}
         />
         <KanbanColumn variant="started"  entries={started}  canEdit={false} onEdit={setEditEntry} />
