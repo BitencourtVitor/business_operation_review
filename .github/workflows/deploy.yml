@@ -61,11 +61,12 @@ jobs:
       - name: Trigger Railway web deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $RAILWAY_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"query":"mutation { serviceInstanceDeploy(serviceId: \"8ec0eb46-9650-459f-b5bf-ed78b8c45b39\", environmentId: \"259dcbce-b122-4341-ac64-15f4285abcc8\", latestCommit: true) }"}' \
+            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"8ec0eb46-9650-459f-b5bf-ed78b8c45b39\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
             https://backboard.railway.app/graphql/v2)
           echo "$response"
           if echo "$response" | grep -q '"errors"'; then
@@ -81,11 +82,12 @@ jobs:
       - name: Trigger Railway API deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $RAILWAY_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"query":"mutation { serviceInstanceDeploy(serviceId: \"2ed6d89d-a8c1-4991-9bfe-3239d0b24c11\", environmentId: \"259dcbce-b122-4341-ac64-15f4285abcc8\", latestCommit: true) }"}' \
+            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"2ed6d89d-a8c1-4991-9bfe-3239d0b24c11\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
             https://backboard.railway.app/graphql/v2)
           echo "$response"
           if echo "$response" | grep -q '"errors"'; then
@@ -96,11 +98,12 @@ jobs:
       - name: Trigger Railway Monthly Calculator deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $RAILWAY_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"query":"mutation { serviceInstanceDeploy(serviceId: \"4f924f85-e26a-42e7-ae12-edb034a1163d\", environmentId: \"259dcbce-b122-4341-ac64-15f4285abcc8\", latestCommit: true) }"}' \
+            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"4f924f85-e26a-42e7-ae12-edb034a1163d\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
             https://backboard.railway.app/graphql/v2)
           echo "$response"
           if echo "$response" | grep -q '"errors"'; then
