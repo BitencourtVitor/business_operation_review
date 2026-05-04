@@ -306,30 +306,39 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 		}
 
 		for _, obraID := range plannedIDs {
-			var status string
+			var status    string
+			var startDate *time.Time
+			var endDate   *time.Time
 			if err := h.db.QueryRow(ctx,
-				`SELECT COALESCE(status,'') FROM forecast_core WHERE id = $1`, obraID,
-			).Scan(&status); err != nil {
+				`SELECT COALESCE(status,''), previous_start_date, previous_end_date
+				 FROM forecast_core WHERE id = $1`, obraID,
+			).Scan(&status, &startDate, &endDate); err != nil {
 				continue
 			}
 
-			isStarted   := status == "open" || status == "started" || status == "closed"
-			isCompleted := status == "closed"
+			isStartedFlag   := status == "open" || status == "started" || status == "closed"
+			isCompletedFlag := status == "closed"
 
 			actualStatus := "not_started"
-			if isCompleted {
+			if isCompletedFlag {
 				actualStatus = "completed"
-			} else if isStarted {
+			} else if isStartedFlag {
 				actualStatus = "started"
 			}
+
+			var actualStart, actualEnd *time.Time
+			if isStartedFlag   { actualStart = startDate }
+			if isCompletedFlag { actualEnd   = endDate   }
 
 			if _, err = h.db.Exec(ctx, `
 				INSERT INTO monthly_execution_history
 				  (obra_id, reference_month, reference_year,
-				   planned_status, actual_status, reason, subcontractor, is_cycle_completed)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+				   planned_status, actual_status, reason, subcontractor,
+				   is_cycle_completed, actual_start_date, actual_end_date)
+				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
 				obraID, execMonth, execYear,
-				status, actualStatus, reasonMap[obraID], "", isCompleted,
+				status, actualStatus, reasonMap[obraID], "",
+				isCompletedFlag, actualStart, actualEnd,
 			); err != nil {
 				return ofiInternalErr(c, "insert execution record", err)
 			}

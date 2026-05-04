@@ -7,3 +7,10 @@ export function useOfi(filters?: OfiFilters) {
     queryFn:  () => ofiService.list(filters),
   })
 }
+
+export function useMonthlyExecution(filters?: { year?: number }) {
+  return useQuery({
+    queryKey: ["monthly-execution", filters],
+    queryFn:  () => ofiService.listExecution(filters),
+  })
+}
