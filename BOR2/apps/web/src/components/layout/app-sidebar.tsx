@@ -90,7 +90,16 @@ const activeGroup: NavGroup = {
   items: [
     { title: "Operational Forecast Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
     { title: "Monthly Execution",    href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
-    { title: "Workforce Productivity", href: "/workforce-productivity", icon: Users, permKey: "workforce" },
+    {
+      title: "Workforce Productivity", href: "/workforce-productivity", icon: Users,
+      permKey: "workforce",
+      editPermKey: "workforce",
+      children: [
+        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
+        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
+        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
+      ],
+    },
     { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
     { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
     {
