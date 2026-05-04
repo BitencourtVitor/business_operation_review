@@ -84,29 +84,22 @@ type NavGroup = {
   items: NavItem[]
 }
 
-// Active — no section label
+// Active — ordered to match BOR1 canonical sequence (ordenarTelas in Dashboard.tsx)
+// BOR1: OFI(1) → Monthly Execution → Inventory(2) → Permits(3) → Forecast(4)
+//       → Service Requests(5) → Accounting(7) → [Workforce≈Takeoff/Timesheet(9/10)]
+//       → Building Schedule (new in BOR2, no BOR1 equivalent)
 const activeGroup: NavGroup = {
   items: [
+    { title: "Operational Index",  href: "/ofi",               icon: BarChart2,    permKey: "ofi"               },
+    { title: "Monthly Execution",  href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
+    { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
     {
       title: "Framing Forecast", href: "/forecast",
       image: "/images/sublogo_framing.png",
       permKey: "forecast",
       metricsHref: "/forecast/metrics",
     },
-    { title: "Inventory Control", href: "/inventory", icon: Package, permKey: "inventory" },
-    {
-      title: "Workforce", href: "/workforce-productivity", icon: Users,
-      permKey: "workforce", editPermKey: "workforce",
-      children: [
-        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
-        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
-        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
-      ],
-    },
-    { title: "Operational Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
-    { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
-    { title: "HVAC Projects", href: "/project-monitoring", image: "/images/sublogo_hvac.png", permKey: "project_monitoring" },
-    { title: "Permit Control", href: "/permits", icon: FileCheck, permKey: "permits", editPermKey: "permits" },
     { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
       title: "Accounting", href: "/accounting", icon: Banknote,
@@ -117,6 +110,16 @@ const activeGroup: NavGroup = {
         { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
       ],
     },
+    {
+      title: "Workforce", href: "/workforce-productivity", icon: Users,
+      permKey: "workforce", editPermKey: "workforce",
+      children: [
+        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
+        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
+        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
+      ],
+    },
+    { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
   ],
 }
 
@@ -126,15 +129,15 @@ const comingSoonGroup: NavGroup = {
   items: [
     {
       title: "Operational Efficiency",
-      href: "/monthly-execution",
+      href: "/subcontractors",
       icon: Gauge,
       disabled: true,
       children: [
-        { title: "Monthly Execution",         href: "/monthly-execution", icon: CalendarCheck  },
-        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
+        { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
       ],
     },
-    { title: "Fuel Control",            href: "/fuel",               icon: Fuel, disabled: true },
+    { title: "HVAC Projects",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
+    { title: "Fuel Control",   href: "/fuel",               icon: Fuel,                       disabled: true },
   ],
 }
 
@@ -276,6 +279,7 @@ function NavGroupItems({
   isItemExpanded,
   toggleExpanded,
   canEdit,
+  canPreviewDisabled,
   onEditOpen,
 }: {
   items: NavItem[]
@@ -285,6 +289,7 @@ function NavGroupItems({
   isItemExpanded: (item: NavItem) => boolean
   toggleExpanded: (title: string) => void
   canEdit: (permKey: string) => boolean
+  canPreviewDisabled: boolean
   onEditOpen: (item: NavItem) => void
 }) {
   const router = useRouter()
@@ -294,7 +299,7 @@ function NavGroupItems({
         item.children ? (
           <SidebarMenuItem key={item.title}>
             {!open ? (
-              item.disabled ? (
+              item.disabled && !canPreviewDisabled ? (
                 <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
@@ -302,7 +307,7 @@ function NavGroupItems({
               ) : (
                 <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} onEditOpen={onEditOpen} />
               )
-            ) : item.disabled ? (
+            ) : item.disabled && !canPreviewDisabled ? (
               <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
                 <NavItemIcon item={item} />
                 <span>{item.title}</span>
@@ -314,7 +319,7 @@ function NavGroupItems({
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}
+                  className={`${item.disabled ? "opacity-50" : ""} ${item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}`}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
@@ -511,8 +516,11 @@ export function AppSidebar() {
     return expanded.includes(item.title) || isGroupActive(item)
   }
 
+  const canPreviewDisabled = !!user && ADMIN_ROLES.includes(user.role)
+
   const groupProps = {
     open, isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
+    canPreviewDisabled,
     onEditOpen: setEditItem,
   }
 
