@@ -84,20 +84,13 @@ type NavGroup = {
   items: NavItem[]
 }
 
-// Active — ordered to match BOR1 canonical sequence with sub-items (Operational Efficiency parent)
-// BOR1: Operational Efficiency (OFI + Monthly Execution + Workforce + Subcontractors)
-//       → Inventory → Permits → Forecast → Service Requests → Accounting → Building Schedule
+// Active — ordered to match BOR1 canonical sequence
+// BOR1: OFI → Monthly Execution → Workforce Productivity → Inventory → Permits → Forecast → Service Requests → Accounting → Building Schedule
 const activeGroup: NavGroup = {
   items: [
-    {
-      title: "Operational Efficiency", href: "/ofi", icon: Gauge,
-      permKey: "ofi",
-      children: [
-        { title: "OFI Metrics",          href: "/ofi",               icon: BarChart2,    permKey: "ofi"               },
-        { title: "Monthly Execution",    href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
-        { title: "Workforce Productivity", href: "/workforce-productivity", icon: Users, permKey: "workforce" },
-      ],
-    },
+    { title: "Operational Forecast Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
+    { title: "Monthly Execution",    href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    { title: "Workforce Productivity", href: "/workforce-productivity", icon: Users, permKey: "workforce" },
     { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
     { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
     {

@@ -30,6 +30,39 @@ const WORKTYPE_COLORS = [
 
 const TOP_N_OPTIONS = [5, 10, 15, 20]
 
+// Canonical worktype names — keyed by lowercase trimmed variant
+const WORKTYPE_CANONICAL: Record<string, string> = {
+  "normal labor":        "Normal Labor",
+  "normal labour":       "Normal Labor",
+  "panels":              "Panels",
+  "office":              "Office",
+  "back charge":         "Back Charge",
+  "new installation":    "New Installation",
+  "new instalation":     "New Installation",
+  "callahan":            "Callahan",
+  "lunch break":         "Lunch Break",
+  "lunch break office":  "Lunch Break Office",
+  "lunch break es":      "Lunch Break",
+  "lunch break paid":    "Lunch Break",
+  "doors":               "Doors",
+  "extra":               "Extra",
+  "transport":           "Transport",
+  "holiday":             "Holiday",
+  "holiday paid":        "Holiday",
+  "sick":                "Sick",
+  "maintenance":         "Maintenance",
+  "shift total":         "Shift Total",
+  "warranty":            "Warranty",
+  "service":             "Service",
+  "admin":               "Admin",
+  "unregistered location": "Unregistered Location",
+}
+
+function normalizeWorktype(raw: string): string {
+  const key = raw.trim().toLowerCase()
+  return WORKTYPE_CANONICAL[key] ?? raw.trim()
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMonth(ym: string) {
@@ -235,7 +268,8 @@ export default function WorkforceProductivityPage() {
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = r.worktype || r.client || r.jobsite || "Other"
+      const raw = r.worktype || r.client || r.jobsite || "Other"
+      const wt = normalizeWorktype(raw)
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
@@ -615,21 +649,35 @@ export default function WorkforceProductivityPage() {
 
                   {/* Chart #3 — Hours by Service Type */}
                   {hoursByWorktype.length > 0 && (
-                    <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <div className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-card/60 p-4">
                       <span className="mb-2 shrink-0 text-sm font-semibold">Hours by Work Type</span>
-                      <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      {/* Bars — scrollable, fills available space */}
+                      <div className="min-h-0 flex-1 overflow-y-auto [&_text]:fill-muted-foreground">
+                        <div style={{ height: Math.max(hoursByWorktype.length * 28 + 8, 80) }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={hoursByWorktype} layout="vertical" barSize={14}
+                              margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                              <XAxis type="number" tick={false} axisLine={false} tickLine={false} height={0} domain={[0, "auto"]} />
+                              <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
+                              <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
+                              <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
+                                {hoursByWorktype.map((entry, i) => (
+                                  <Cell key={i} fill={entry.color} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                      {/* X-axis — fixed at bottom */}
+                      <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 24 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={hoursByWorktype} layout="vertical" barSize={14}
+                          <BarChart data={hoursByWorktype} layout="vertical"
                             margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                            <XAxis type="number" tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} />
-                            <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
-                            <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
-                            <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
-                              {hoursByWorktype.map((entry, i) => (
-                                <Cell key={i} fill={entry.color} />
-                              ))}
-                            </Bar>
+                            <XAxis type="number" orientation="top" tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} domain={[0, "auto"]} />
+                            <YAxis type="category" dataKey="name" width={120} tick={false} axisLine={false} tickLine={false} />
+                            <Bar dataKey="hours" opacity={0} />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
