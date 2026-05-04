@@ -2,10 +2,10 @@
   "$schema": "https://schema.railway.app/railway-schema.json",
   "services": {
     "api": {
-      "watchPaths": ["apps/api/**", "packages/**"]
+      "watchPaths": ["BOR2/apps/api/**", "BOR2/packages/**"]
     },
     "web": {
-      "watchPaths": ["apps/web/**", "packages/**"]
+      "watchPaths": ["BOR2/apps/web/**", "BOR2/packages/**"]
     }
   }
 }
