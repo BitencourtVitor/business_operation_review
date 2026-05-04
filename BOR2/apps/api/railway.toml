@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
+watchPatterns = ["BOR2/apps/api/**"]
 
 [deploy]
 startCommand = "./api"
