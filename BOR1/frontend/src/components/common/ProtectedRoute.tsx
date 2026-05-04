@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import Maintenance from '../../pages/Maintenance';
+import NewExperience from '../../pages/NewExperience';
 
-export const MAINTENANCE_MODE = true;
+export const MAINTENANCE_MODE = false;
+export const NEW_EXPERIENCE_MODE = true;
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,9 +15,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  const bor1Access = sessionStorage.getItem('bor1_access') === 'true';
 
   useEffect(() => {
-    if (MAINTENANCE_MODE) {
+    if (MAINTENANCE_MODE || (NEW_EXPERIENCE_MODE && !bor1Access)) {
       setIsLoading(false);
       return;
     }
@@ -80,6 +83,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (MAINTENANCE_MODE) {
     return <Maintenance />;
+  }
+
+  if (NEW_EXPERIENCE_MODE && !bor1Access) {
+    return <NewExperience />;
   }
 
   if (isLoading) {
