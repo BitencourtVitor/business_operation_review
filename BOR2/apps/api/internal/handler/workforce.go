@@ -30,6 +30,7 @@ type workforceRow struct {
 	RegularHours   float64 `json:"regularHours"`
 	ReferenceMonth string  `json:"referenceMonth"`
 	Company        string  `json:"company"`
+	WorkDate       string  `json:"workDate"`
 }
 
 type attributionRule struct {
@@ -90,12 +91,13 @@ func (h *WorkforceHandler) List(c *fiber.Ctx) error {
 		SELECT id, COALESCE(upload_id::text,''), COALESCE(client,''), COALESCE(jobsite,''),
 		       COALESCE(lot_building,''), COALESCE(worktype,''), COALESCE(employee_name,''),
 		       COALESCE(regular_rate,0), COALESCE(regular_hours,0),
-		       COALESCE(reference_month,''), COALESCE(company,'')
+		       COALESCE(reference_month,''), COALESCE(company,''),
+		       COALESCE(work_date::text,'')
 		FROM workforce_productivity
 		WHERE ($1 = '' OR reference_month = $1)
 		  AND ($2 = '' OR worktype        = $2)
 		  AND ($3 = '' OR jobsite ILIKE '%' || $3 || '%')
-		ORDER BY reference_month DESC, regular_hours DESC
+		ORDER BY reference_month DESC, work_date ASC, regular_hours DESC
 	`
 
 	dbRows, err := h.db.Query(ctx, query, month, worktype, jobsite)
@@ -111,7 +113,7 @@ func (h *WorkforceHandler) List(c *fiber.Ctx) error {
 		var r workforceRow
 		if err := dbRows.Scan(&r.ID, &r.UploadID, &r.Client, &r.Jobsite, &r.LotBuilding,
 			&r.Worktype, &r.EmployeeName, &r.RegularRate, &r.RegularHours,
-			&r.ReferenceMonth, &r.Company); err != nil {
+			&r.ReferenceMonth, &r.Company, &r.WorkDate); err != nil {
 			continue
 		}
 		// Apply attribution rules: first matching rule overrides company

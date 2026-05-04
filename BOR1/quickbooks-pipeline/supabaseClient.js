@@ -1,7 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const { Pool } = pg;
+let _railwayPool = null;
+function getRailwayPool() {
+  if (!_railwayPool) {
+    _railwayPool = new Pool({ connectionString: process.env.RAILWAY_DATABASE_URL });
+  }
+  return _railwayPool;
+}
 
 class SupabaseClient {
   constructor(company = 'hvac') {
@@ -449,6 +459,19 @@ class SupabaseClient {
       }
     } catch (error) {
       console.log(`Table ${tableName} might already exist:`, error.message);
+    }
+  }
+
+  async logSync({ runId, script, rowsFetched = null, rowsSent = null, status, errorMessage = null, durationMs = null }) {
+    try {
+      const pool = getRailwayPool();
+      await pool.query(
+        `INSERT INTO qb_sync_log (run_id, company, script, rows_fetched, rows_sent, status, error_message, duration_ms)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [runId, this.company, script, rowsFetched, rowsSent, status, errorMessage ?? null, durationMs ?? null]
+      );
+    } catch (err) {
+      console.warn('⚠️ Falha ao registrar sync log:', err.message);
     }
   }
 

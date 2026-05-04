@@ -148,61 +148,56 @@ function transformPayments(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Payments ---');
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada sem salvamento de JSON
-  let allPayments = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Payment ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Payment registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Payment ? response.QueryResponse.Payment : [];
-    if (batch.length === 0) break;
-    allPayments.push(...batch);
-    // Removido o salvamento de JSON para evitar problemas de arquivo
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Payments coletados: ${allPayments.length}`);
-
-  // 2. Transformação
-  let payments, payment_links;
   try {
-    ({ payments, payment_links } = transformPayments(allPayments));
+    console.log(`--- Iniciando sincronização de Payments (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allPayments = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM Payment ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Payment registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.Payment ?? [];
+      if (batch.length === 0) break;
+      allPayments.push(...batch);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allPayments.length;
+    console.log(`✅ Payments coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { payments, payment_links } = transformPayments(allPayments);
+    rowsSent = payments.length;
     console.log(`🔄 Transformação concluída: ${payments.length} payments, ${payment_links.length} links.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert payments principais
-  try {
+    // 3. Upsert payments principais
     await sb.upsertPayments(payments);
     console.log(`✅ Payments upserted: ${payments.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_payments:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Upsert payment_links
-  try {
+    // 4. Upsert payment_links
     await sb.upsertPaymentLinks(payment_links);
     console.log(`✅ Payment links upserted: ${payment_links.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'payments', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_payment_links:`, err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'payments', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 5. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
 }
 
 main(); 

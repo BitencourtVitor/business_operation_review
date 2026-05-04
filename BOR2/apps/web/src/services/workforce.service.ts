@@ -29,6 +29,7 @@ export interface WorkforceRow {
   regularHours: number
   referenceMonth: string
   company: string
+  workDate?: string
 }
 
 export interface WorkforceFilters {

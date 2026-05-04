@@ -148,73 +148,66 @@ function transformDeposits(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Deposits ---');
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allDeposits = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Deposit ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Deposit registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Deposit ? response.QueryResponse.Deposit : [];
-    if (batch.length === 0) break;
-    allDeposits.push(...batch);
-    await saveDepositsBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Deposits coletados: ${allDeposits.length}`);
-
-  // 2. Transformação
-  let deposits, deposit_lines;
   try {
-    ({ deposits, deposit_lines } = transformDeposits(allDeposits));
+    console.log(`--- Iniciando sincronização de Deposits (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allDeposits = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM Deposit ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Deposit registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.Deposit ?? [];
+      if (batch.length === 0) break;
+      allDeposits.push(...batch);
+      await saveDepositsBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allDeposits.length;
+    console.log(`✅ Deposits coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { deposits, deposit_lines } = transformDeposits(allDeposits);
+    rowsSent = deposits.length;
     console.log(`🔄 Transformação concluída: ${deposits.length} deposits, ${deposit_lines.length} linhas.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert deposits principais e obter mapping external_id -> id
-  let idMap;
-  try {
-    idMap = await sb.upsertDeposits(deposits);
+    // 3. Upsert principais
+    const idMap = await sb.upsertDeposits(deposits);
     console.log(`✅ Deposits upserted: ${deposits.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_deposits:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nas linhas, removendo external_id dos objetos finais
-  const linesWithFK = [];
-  for (const line of deposit_lines) {
-    const { external_id, ...rest } = line;
-    const deposit_id = idMap[line.external_id];
-    if (!deposit_id) continue;
-    linesWithFK.push({ ...rest, deposit_id });
-  }
+    // 4. FKs
+    const linesWithFK = [];
+    for (const line of deposit_lines) {
+      const { external_id, ...rest } = line;
+      const deposit_id = idMap[line.external_id];
+      if (!deposit_id) continue;
+      linesWithFK.push({ ...rest, deposit_id });
+    }
 
-  // 5. Upsert linhas em lote
-  try {
+    // 5. Upsert linhas
     await sb.upsertDepositLines(linesWithFK);
     console.log(`✅ Deposit lines upserted: ${linesWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'deposits', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'deposits', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 6. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
-  console.log(`📊 Dados coletados: ${deposits.length} deposits, ${deposit_lines.length} linhas`);
-  console.log(`💾 Arquivo salvo: ${DATA_FILE}`);
 }
 
 main(); 

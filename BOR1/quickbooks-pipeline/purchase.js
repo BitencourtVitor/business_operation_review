@@ -134,83 +134,66 @@ function transformPurchases(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Purchases ---');
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allPurchases = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  
   try {
+    console.log(`--- Iniciando sincronização de Purchases (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allPurchases = [];
+    let startPosition = 1;
+    const maxResults = 100;
     while (true) {
-      let query = `SELECT * FROM Purchase ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      const query = `SELECT * FROM Purchase ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
       console.log(`📥 Buscando Purchase registros da posição ${startPosition}...`);
-      
       const response = await qb.makeRequest('query', { query });
-      const batch = response.QueryResponse && response.QueryResponse.Purchase ? response.QueryResponse.Purchase : [];
-      
+      const batch = response.QueryResponse?.Purchase ?? [];
       if (batch.length === 0) break;
-      
       allPurchases.push(...batch);
       await savePurchasesBatch(batch, startPosition > 1);
-      
       if (batch.length < maxResults) break;
       startPosition += maxResults;
     }
-    console.log(`✅ Purchases coletados: ${allPurchases.length}`);
-  } catch (error) {
-    console.error(`❌ Erro na coleta de dados: ${error.message}`);
-    throw error;
-  }
+    rowsFetched = allPurchases.length;
+    console.log(`✅ Purchases coletados: ${rowsFetched}`);
 
-  // 2. Transformação
-  let purchases, purchase_lines;
-  try {
-    ({ purchases, purchase_lines } = transformPurchases(allPurchases));
+    // 2. Transformação
+    const { purchases, purchase_lines } = transformPurchases(allPurchases);
+    rowsSent = purchases.length;
     console.log(`🔄 Transformação concluída: ${purchases.length} purchases, ${purchase_lines.length} linhas.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert purchases principais e obter mapping external_id -> id
-  let idMap;
-  try {
-    idMap = await sb.upsertPurchases(purchases);
+    // 3. Upsert purchases principais
+    const idMap = await sb.upsertPurchases(purchases);
     console.log(`✅ Purchases upserted: ${purchases.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_purchases:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nas linhas, removendo external_id dos objetos finais
-  const linesWithFK = [];
-  for (const line of purchase_lines) {
-    const { external_id, ...rest } = line;
-    const purchase_id = idMap[line.external_id];
-    if (!purchase_id) continue;
-    linesWithFK.push({ ...rest, purchase_id });
-  }
+    // 4. FKs
+    const linesWithFK = [];
+    for (const line of purchase_lines) {
+      const { external_id, ...rest } = line;
+      const purchase_id = idMap[line.external_id];
+      if (!purchase_id) continue;
+      linesWithFK.push({ ...rest, purchase_id });
+    }
 
-  // 5. Upsert linhas em lote
-  try {
+    // 5. Upsert linhas
     await sb.upsertPurchaseLines(linesWithFK);
     console.log(`✅ Purchase lines upserted: ${linesWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'purchases', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'purchases', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 6. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
-  console.log(`📊 Dados coletados: ${purchases.length} purchases, ${purchase_lines.length} linhas`);
-  console.log(`💾 Arquivo salvo: ${DATA_FILE}`);
 }
 
 main();
