@@ -141,73 +141,66 @@ function transformVendorCredits(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Vendor Credits ---');
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allVendorCredits = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM VendorCredit ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando VendorCredit registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.VendorCredit ? response.QueryResponse.VendorCredit : [];
-    if (batch.length === 0) break;
-    allVendorCredits.push(...batch);
-    await saveVendorCreditsBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Vendor Credits coletados: ${allVendorCredits.length}`);
-
-  // 2. Transformação
-  let vendor_credits, vendor_credit_lines;
   try {
-    ({ vendor_credits, vendor_credit_lines } = transformVendorCredits(allVendorCredits));
+    console.log(`--- Iniciando sincronização de Vendor Credits (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allVendorCredits = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM VendorCredit ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando VendorCredit registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.VendorCredit ?? [];
+      if (batch.length === 0) break;
+      allVendorCredits.push(...batch);
+      await saveVendorCreditsBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allVendorCredits.length;
+    console.log(`✅ Vendor Credits coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { vendor_credits, vendor_credit_lines } = transformVendorCredits(allVendorCredits);
+    rowsSent = vendor_credits.length;
     console.log(`🔄 Transformação concluída: ${vendor_credits.length} vendor credits, ${vendor_credit_lines.length} linhas.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert vendor credits principais e obter mapping external_id -> id
-  let idMap;
-  try {
-    idMap = await sb.upsertVendorCredits(vendor_credits);
+    // 3. Upsert principais
+    const idMap = await sb.upsertVendorCredits(vendor_credits);
     console.log(`✅ Vendor Credits upserted: ${vendor_credits.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_vendor_credits:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nas linhas, removendo external_id dos objetos finais
-  const linesWithFK = [];
-  for (const line of vendor_credit_lines) {
-    const { external_id, ...rest } = line;
-    const vendor_credit_id = idMap[line.external_id];
-    if (!vendor_credit_id) continue;
-    linesWithFK.push({ ...rest, vendor_credit_id });
-  }
+    // 4. FKs
+    const linesWithFK = [];
+    for (const line of vendor_credit_lines) {
+      const { external_id, ...rest } = line;
+      const vendor_credit_id = idMap[line.external_id];
+      if (!vendor_credit_id) continue;
+      linesWithFK.push({ ...rest, vendor_credit_id });
+    }
 
-  // 5. Upsert linhas em lote
-  try {
+    // 5. Upsert linhas
     await sb.upsertVendorCreditLines(linesWithFK);
     console.log(`✅ Vendor Credit lines upserted: ${linesWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'vendor_credits', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'vendor_credits', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 6. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
-  console.log(`📊 Dados coletados: ${vendor_credits.length} vendor credits, ${vendor_credit_lines.length} linhas`);
-  console.log(`💾 Arquivo salvo: ${DATA_FILE}`);
 }
 
 main(); 

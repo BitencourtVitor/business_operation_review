@@ -218,11 +218,24 @@ export default function WorkforceProductivityPage() {
       .map(([m, h]) => ({ month: formatMonth(m), hours: Math.round(h) }))
   }, [rows])
 
+  // Chart #1b — Hours by Day (when month is selected)
+  const hoursByDay = useMemo(() => {
+    if (!month) return []
+    const map: Record<string, number> = {}
+    rows.forEach(r => {
+      const day = r.workDate || r.referenceMonth
+      map[day] = (map[day] ?? 0) + r.regularHours
+    })
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([d, h]) => ({ month: d, hours: Math.round(h) }))
+  }, [rows, month])
+
   // Chart #3 — Hours by Service Type (worktype)
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = r.worktype || "Unclassified"
+      const wt = r.worktype || r.client || r.jobsite || "Other"
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
@@ -255,7 +268,7 @@ export default function WorkforceProductivityPage() {
 
   const spWorktypes = useMemo(() =>
     isSingleProject
-      ? Array.from(new Set(rows.map(r => r.worktype || "Unclassified")))
+      ? Array.from(new Set(rows.map(r => r.worktype || r.client || r.jobsite || "Other")))
       : []
   , [rows, isSingleProject])
 
@@ -272,7 +285,7 @@ export default function WorkforceProductivityPage() {
       spWorktypes.forEach(wt => {
         entry[wt] = Math.round(
           mRows
-            .filter(r => (r.worktype || "Unclassified") === wt)
+            .filter(r => (r.worktype || r.client || r.jobsite || "Other") === wt)
             .reduce((s, r) => s + r.regularHours, 0)
         )
       })
@@ -285,7 +298,7 @@ export default function WorkforceProductivityPage() {
     if (!isSingleProject) return []
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = r.worktype || "Unclassified"
+      const wt = r.worktype || r.client || r.jobsite || "Other"
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
@@ -580,13 +593,15 @@ export default function WorkforceProductivityPage() {
                 {/* Row 1 — Chart #1 + Chart #3 */}
                 <div className="grid min-h-0 flex-[3] grid-cols-1 gap-4 lg:grid-cols-2">
 
-                  {/* Chart #1 — Total Hours by Month */}
-                  {hoursByMonth.length > 1 && (
+                  {/* Chart #1 — Total Hours by Month OR Hours by Day */}
+                  {(month ? hoursByDay.length > 0 : hoursByMonth.length > 1) && (
                     <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
-                      <span className="mb-2 shrink-0 text-sm font-semibold">Total Hours by Month</span>
+                      <span className="mb-2 shrink-0 text-sm font-semibold">
+                        {month ? "Hours by Day" : "Total Hours by Month"}
+                      </span>
                       <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={hoursByMonth} barSize={24} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
+                          <BarChart data={month ? hoursByDay : hoursByMonth} barSize={24} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                             <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                             <YAxis tick={tick} axisLine={false} tickLine={false} width={44} tickFormatter={fmtAxisY} />

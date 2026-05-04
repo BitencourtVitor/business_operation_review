@@ -102,68 +102,69 @@ function mapLinkToDbRow(link, estimateId) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Estimates ---');
-  await backupAndDeleteOldJson();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allEstimates = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Estimate ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Estimate registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Estimate ? response.QueryResponse.Estimate : [];
-    if (batch.length === 0) break;
-    allEstimates.push(...batch);
-    await saveEstimatesBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Estimates coletados: ${allEstimates.length}`);
-
-  // 2. Transformação e upsert relacional
-  const mainRows = allEstimates.map(mapEstimateToDbRow);
-  let idMap;
   try {
-    idMap = await sb.upsertEstimates(mainRows);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_estimates:`, err.message || err);
-    process.exit(1);
-  }
+    console.log(`--- Iniciando sincronização de Estimates (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    const qb = new QuickBooksClient(company);
 
-  // 3. Linhas e links
-  let linesRows = [];
-  let linksRows = [];
-  for (const est of allEstimates) {
-    const estId = idMap[est.Id];
-    if (!estId) continue;
-    if (Array.isArray(est.Line)) {
-      linesRows.push(...est.Line.filter(l => l.DetailType === 'SalesItemLineDetail').map(line => mapLineToDbRow(line, estId)));
+    // 1. Coleta paginada
+    let allEstimates = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM Estimate ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Estimate registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.Estimate ?? [];
+      if (batch.length === 0) break;
+      allEstimates.push(...batch);
+      await saveEstimatesBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
     }
-    if (Array.isArray(est.LinkedTxn)) {
-      linksRows.push(...est.LinkedTxn.map(link => mapLinkToDbRow(link, estId)));
-    }
-  }
+    rowsFetched = allEstimates.length;
+    console.log(`✅ Estimates coletados: ${rowsFetched}`);
 
-  // 4. Upsert linhas e links
-  try {
+    // 2. Transformação e upsert relacional
+    const mainRows = allEstimates.map(mapEstimateToDbRow);
+    rowsSent = mainRows.length;
+    const idMap = await sb.upsertEstimates(mainRows);
+
+    // 3. Linhas e links
+    let linesRows = [];
+    let linksRows = [];
+    for (const est of allEstimates) {
+      const estId = idMap[est.Id];
+      if (!estId) continue;
+      if (Array.isArray(est.Line)) {
+        linesRows.push(...est.Line.filter(l => l.DetailType === 'SalesItemLineDetail').map(line => mapLineToDbRow(line, estId)));
+      }
+      if (Array.isArray(est.LinkedTxn)) {
+        linksRows.push(...est.LinkedTxn.map(link => mapLinkToDbRow(link, estId)));
+      }
+    }
+
+    // 4. Upsert linhas e links
     await sb.upsertEstimateLines(linesRows);
     await sb.upsertEstimateLinks(linksRows);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`✅ Estimates upserted: ${mainRows.length}`);
+    console.log(`✅ Estimate lines upserted: ${linesRows.length}`);
+    console.log(`✅ Estimate links upserted: ${linksRows.length}`);
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'estimates', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas/links:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'estimates', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 5. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`✅ Estimates upserted: ${mainRows.length}`);
-  console.log(`✅ Estimate lines upserted: ${linesRows.length}`);
-  console.log(`✅ Estimate links upserted: ${linksRows.length}`);
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
 }
 
 main(); 

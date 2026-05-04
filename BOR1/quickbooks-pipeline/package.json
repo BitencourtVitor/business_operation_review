@@ -17,9 +17,15 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0"
+    "@types/node": "^20.10.0",
+    "pg": "^8.20.0"
   },
-  "keywords": ["quickbooks", "supabase", "pipeline", "data-sync"],
+  "keywords": [
+    "quickbooks",
+    "supabase",
+    "pipeline",
+    "data-sync"
+  ],
   "author": "",
   "license": "MIT"
-} 
+}

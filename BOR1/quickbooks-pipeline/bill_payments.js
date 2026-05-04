@@ -110,70 +110,65 @@ function transformBillPayments(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Bill Payments ---');
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allBillPayments = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM BillPayment ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando BillPayment registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.BillPayment ? response.QueryResponse.BillPayment : [];
-    if (batch.length === 0) break;
-    allBillPayments.push(...batch);
-    await saveBillPaymentsBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ BillPayments coletados: ${allBillPayments.length}`);
-
-  // 2. Transformação
-  let bill_payments, bill_payment_links;
   try {
-    ({ bill_payments, bill_payment_links } = transformBillPayments(allBillPayments));
+    console.log(`--- Iniciando sincronização de Bill Payments (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allBillPayments = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM BillPayment ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando BillPayment registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.BillPayment ?? [];
+      if (batch.length === 0) break;
+      allBillPayments.push(...batch);
+      await saveBillPaymentsBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allBillPayments.length;
+    console.log(`✅ BillPayments coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { bill_payments, bill_payment_links } = transformBillPayments(allBillPayments);
+    rowsSent = bill_payments.length;
     console.log(`🔄 Transformação concluída: ${bill_payments.length} bill_payments, ${bill_payment_links.length} links.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert bill_payments principais e obter mapping external_id -> id (UUID)
-  let idMap;
-  try {
-    idMap = await sb.upsertBillPayments(bill_payments);
+    // 3. Upsert principais
+    const idMap = await sb.upsertBillPayments(bill_payments);
     console.log(`✅ BillPayments upserted: ${bill_payments.length}`);
-  } catch (err) {
-    console.error('❌ Erro ao upsert em bill_payments:', err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nos links, removendo external_id e usando bill_payment_id (UUID)
-  const linksWithFK = bill_payment_links.map(link => {
-    const { external_id, ...rest } = link;
-    const bill_payment_id = idMap[link.external_id];
-    if (!bill_payment_id) return null;
-    return { ...rest, bill_payment_id };
-  }).filter(Boolean);
+    // 4. FKs
+    const linksWithFK = bill_payment_links.map(link => {
+      const { external_id, ...rest } = link;
+      const bill_payment_id = idMap[link.external_id];
+      if (!bill_payment_id) return null;
+      return { ...rest, bill_payment_id };
+    }).filter(Boolean);
 
-  // 5. Upsert bill_payment_links
-  try {
+    // 5. Upsert links
     await sb.upsertBillPaymentLinks(linksWithFK);
     console.log(`✅ BillPayment links upserted: ${linksWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'bill_payments', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em bill_payment_links:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'bill_payments', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 5. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
 }
 
 main(); 

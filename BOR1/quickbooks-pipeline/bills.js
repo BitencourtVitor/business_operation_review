@@ -127,80 +127,71 @@ function transformBills(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log(`--- Iniciando sincronização de Bills (${company.toUpperCase()}) ---`);
-  await backupAndDeleteOldJson();
-  await prepareDataFile();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allBills = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Bill ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Bill registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Bill ? response.QueryResponse.Bill : [];
-    if (batch.length === 0) break;
-    allBills.push(...batch);
-    await saveBillsBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Bills coletados: ${allBills.length}`);
-
-  // 2. Transformação
-  let bills, lines, links;
   try {
-    ({ bills, lines, links } = transformBills(allBills));
+    console.log(`--- Iniciando sincronização de Bills (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    await prepareDataFile();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allBills = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM Bill ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Bill registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.Bill ?? [];
+      if (batch.length === 0) break;
+      allBills.push(...batch);
+      await saveBillsBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allBills.length;
+    console.log(`✅ Bills coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { bills, lines, links } = transformBills(allBills);
+    rowsSent = bills.length;
     console.log(`🔄 Transformação concluída: ${bills.length} bills, ${lines.length} linhas, ${links.length} links.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert bills principais e obter mapping external_id -> id
-  let idMap;
-  try {
-    idMap = await sb.upsertBills(bills);
+    // 3. Upsert bills principais
+    const idMap = await sb.upsertBills(bills);
     console.log(`✅ Bills upserted: ${bills.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_bills:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nas linhas e links, removendo external_id dos objetos finais
-  const linesWithFK = [];
-  for (const line of lines) {
-    const { external_id, ...rest } = line;
-    const bill_id = idMap[line.external_id];
-    if (!bill_id) continue;
-    linesWithFK.push({ ...rest, bill_id });
-  }
-  const linksWithFK = [];
-  for (const link of links) {
-    const { external_id, ...rest } = link;
-    const bill_id = idMap[link.external_id];
-    if (!bill_id) continue;
-    linksWithFK.push({ ...rest, bill_id });
-  }
+    // 4. FKs
+    const linesWithFK = lines.flatMap(line => {
+      const { external_id, ...rest } = line;
+      const bill_id = idMap[external_id];
+      return bill_id ? [{ ...rest, bill_id }] : [];
+    });
+    const linksWithFK = links.flatMap(link => {
+      const { external_id, ...rest } = link;
+      const bill_id = idMap[external_id];
+      return bill_id ? [{ ...rest, bill_id }] : [];
+    });
 
-  // 5. Upsert linhas e links em lote
-  try {
+    // 5. Upsert linhas e links
     await sb.upsertBillLines(linesWithFK);
     await sb.upsertBillLinks(linksWithFK);
     console.log(`✅ Bill lines upserted: ${linesWithFK.length}`);
     console.log(`✅ Bill links upserted: ${linksWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'bills', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas/links:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'bills', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 6. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
 }
 
 main(); 

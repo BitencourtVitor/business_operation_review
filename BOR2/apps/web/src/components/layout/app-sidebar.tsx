@@ -84,14 +84,20 @@ type NavGroup = {
   items: NavItem[]
 }
 
-// Active — ordered to match BOR1 canonical sequence (ordenarTelas in Dashboard.tsx)
-// BOR1: OFI(1) → Monthly Execution → Inventory(2) → Permits(3) → Forecast(4)
-//       → Service Requests(5) → Accounting(7) → [Workforce≈Takeoff/Timesheet(9/10)]
-//       → Building Schedule (new in BOR2, no BOR1 equivalent)
+// Active — ordered to match BOR1 canonical sequence with sub-items (Operational Efficiency parent)
+// BOR1: Operational Efficiency (OFI + Monthly Execution + Workforce + Subcontractors)
+//       → Inventory → Permits → Forecast → Service Requests → Accounting → Building Schedule
 const activeGroup: NavGroup = {
   items: [
-    { title: "Operational Index",  href: "/ofi",               icon: BarChart2,    permKey: "ofi"               },
-    { title: "Monthly Execution",  href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    {
+      title: "Operational Efficiency", href: "/ofi", icon: Gauge,
+      permKey: "ofi",
+      children: [
+        { title: "OFI Metrics",          href: "/ofi",               icon: BarChart2,    permKey: "ofi"               },
+        { title: "Monthly Execution",    href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+        { title: "Workforce Productivity", href: "/workforce-productivity", icon: Users, permKey: "workforce" },
+      ],
+    },
     { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
     { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
     {
@@ -110,15 +116,6 @@ const activeGroup: NavGroup = {
         { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
       ],
     },
-    {
-      title: "Workforce", href: "/workforce-productivity", icon: Users,
-      permKey: "workforce", editPermKey: "workforce",
-      children: [
-        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
-        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
-        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
-      ],
-    },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
   ],
 }
@@ -127,15 +124,6 @@ const activeGroup: NavGroup = {
 const comingSoonGroup: NavGroup = {
   label: "Coming Soon",
   items: [
-    {
-      title: "Operational Efficiency",
-      href: "/subcontractors",
-      icon: Gauge,
-      disabled: true,
-      children: [
-        { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
-      ],
-    },
     { title: "HVAC Projects",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
     { title: "Fuel Control",   href: "/fuel",               icon: Fuel,                       disabled: true },
   ],

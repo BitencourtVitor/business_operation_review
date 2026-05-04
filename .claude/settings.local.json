@@ -6,7 +6,21 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(curl -s http://localhost:8080/)",
       "Bash(curl -s --connect-timeout 3 http://localhost:8080/)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(go build:*)",
+      "Bash(find C:/Users/Ryzen/.claude/ -name *.json)",
+      "Bash(ls \"C:\\\\Users\\\\Ryzen\\\\Documents\\\\trae_projects\\\\Premium - BOR\\\\BOR2\\\\apps\\\\web\\\\src\\\\app\\\\\\(dashboard\\)\\\\autolog\")",
+      "Bash(\"C:/Users/Ryzen/Documents/trae_projects/Premium -:*)",
+      "Bash(bun run:*)",
+      "Bash(powershell -Command \"Remove-Item -Recurse -Force ''C:\\\\Users\\\\Ryzen\\\\Documents\\\\trae_projects\\\\Premium - BOR\\\\BOR2\\\\apps\\\\web\\\\.next'' -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -State Listen | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_-Force }\")",
+      "Bash(powershell -Command \"Get-Process -Name ''node'',''bun'' -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(taskkill /F /IM node.exe /T)",
+      "Bash(taskkill /F /IM bun.exe /T)",
+      "Bash(cmd /c \"taskkill /F /IM node.exe /T & taskkill /F /IM bun.exe /T\")",
+      "Bash(find 'C:\\\\Users\\\\Ryzen\\\\Documents\\\\trae_projects\\\\Premium - BOR\\\\BOR2\\\\apps\\\\web\\\\src\\\\app\\\\\\(dashboard\\)\\\\autolog' -type f)",
+      "Bash(curl -s 'https://zsqbejfmbyuanetoxewt.supabase.co/rest/v1/forecast_data?select=id' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWJlamZtYnl1YW5ldG94ZXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDk5MjQsImV4cCI6MjA2NjQyNTkyNH0.YB7OWzXXX7B9moO6rTmcQA2AvnJNAO_VoGEpPHC-AQ0' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWJlamZtYnl1YW5ldG94ZXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDk5MjQsImV4cCI6MjA2NjQyNTkyNH0.YB7OWzXXX7B9moO6rTmcQA2AvnJNAO_VoGEpPHC-AQ0')",
+      "Bash(netstat -ano)"
     ]
   }
 }

@@ -110,79 +110,68 @@ function transformInvoices(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Invoices ---');
-  await backupAndDeleteOldJson();
-  const qb = new QuickBooksClient(company);
+  const runId = process.env.QB_RUN_ID || null;
+  let rowsFetched = 0, rowsSent = 0;
   const sb = new SupabaseClient(company);
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
-  let allInvoices = [];
-  let startPosition = 1;
-  const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Invoice ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Invoice registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Invoice ? response.QueryResponse.Invoice : [];
-    if (batch.length === 0) break;
-    allInvoices.push(...batch);
-    await saveInvoicesBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
-  }
-  console.log(`✅ Invoices coletados: ${allInvoices.length}`);
-
-  // 2. Transformação
-  let invoices, lines, links;
   try {
-    ({ invoices, lines, links } = transformInvoices(allInvoices));
+    console.log(`--- Iniciando sincronização de Invoices (${company.toUpperCase()}) ---`);
+    await backupAndDeleteOldJson();
+    const qb = new QuickBooksClient(company);
+
+    // 1. Coleta paginada
+    let allInvoices = [];
+    let startPosition = 1;
+    const maxResults = 100;
+    while (true) {
+      const query = `SELECT * FROM Invoice ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Invoice registros da posição ${startPosition}...`);
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse?.Invoice ?? [];
+      if (batch.length === 0) break;
+      allInvoices.push(...batch);
+      await saveInvoicesBatch(batch, startPosition > 1);
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    rowsFetched = allInvoices.length;
+    console.log(`✅ Invoices coletados: ${rowsFetched}`);
+
+    // 2. Transformação
+    const { invoices, lines, links } = transformInvoices(allInvoices);
+    rowsSent = invoices.length;
     console.log(`🔄 Transformação concluída: ${invoices.length} invoices, ${lines.length} itens, ${links.length} links.`);
-  } catch (err) {
-    console.error('❌ Erro na transformação dos dados:', err.message || err);
-    process.exit(1);
-  }
 
-  // 3. Upsert invoices principais e obter mapping external_id -> id
-  let idMap;
-  try {
-    idMap = await sb.upsertInvoices(invoices);
+    // 3. Upsert invoices principais
+    const idMap = await sb.upsertInvoices(invoices);
     console.log(`✅ Invoices upserted: ${invoices.length}`);
-  } catch (err) {
-    console.error(`❌ Erro ao upsert em ${company}_invoices:`, err.message || err);
-    process.exit(1);
-  }
 
-  // 4. Ajustar FKs nas linhas e links, removendo external_id dos objetos finais
-  const linesWithFK = lines.map(line => {
-    const { external_id, ...rest } = line;
-    return {
-      ...rest,
-      invoice_id: idMap[line.external_id]
-    };
-  });
-  const linksWithFK = links.map(link => {
-    const { external_id, ...rest } = link;
-    return {
-      ...rest,
-      invoice_id: idMap[link.external_id]
-    };
-  });
+    // 4. FKs
+    const linesWithFK = lines.map(line => {
+      const { external_id, ...rest } = line;
+      return { ...rest, invoice_id: idMap[line.external_id] };
+    });
+    const linksWithFK = links.map(link => {
+      const { external_id, ...rest } = link;
+      return { ...rest, invoice_id: idMap[link.external_id] };
+    });
 
-  // 5. Upsert linhas e links
-  try {
+    // 5. Upsert linhas e links
     await sb.upsertInvoiceLines(linesWithFK);
     await sb.upsertInvoiceLinks(linksWithFK);
     console.log(`✅ Invoice lines upserted: ${linesWithFK.length}`);
     console.log(`✅ Invoice links upserted: ${linksWithFK.length}`);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('--- Sincronização finalizada ---');
+    console.log(`⏱️  Tempo total: ${elapsed}s`);
+
+    await sb.logSync({ runId, script: 'invoices', rowsFetched, rowsSent, status: 'success', durationMs: Date.now() - startTime });
   } catch (err) {
-    console.error('❌ Erro ao upsert em linhas/links:', err.message || err);
+    console.error('❌ Erro fatal:', err.message || err);
+    await sb.logSync({ runId, script: 'invoices', rowsFetched, rowsSent, status: 'error', errorMessage: err.message || String(err), durationMs: Date.now() - startTime });
     process.exit(1);
   }
-
-  // 6. Logs finais
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('--- Sincronização finalizada ---');
-  console.log(`⏱️  Tempo total: ${elapsed}s`);
 }
 
 main(); 

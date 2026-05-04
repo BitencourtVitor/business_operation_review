@@ -396,6 +396,9 @@ export default function WexCategorization() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
+  // All entries across all companies — used for driver lookup during Run
+  const [normEntriesAll, setNormEntriesAll] = useState<NormEntry[]>([])
+
   // ── Normalization CRUD ────────────────────────────────────────────────────
   const fetchNorm = async (c: Company = company) => {
     setMappingLoading(true)
@@ -408,9 +411,30 @@ export default function WexCategorization() {
     setMappingLoading(false)
   }
 
-  useEffect(() => { fetchNorm(company) }, [company])
+  const fetchNormAll = async () => {
+    const { data } = await supabase
+      .from('wex_normalization')
+      .select('*')
+      .eq('is_active', true)
+      .order('driver_id')
+    if (data) setNormEntriesAll(data as NormEntry[])
+  }
 
-  const normMap = new Map<string, NormEntry>(normEntries.map(e => [e.driver_id, e]))
+  useEffect(() => { fetchNorm(company) }, [company])
+  useEffect(() => { fetchNormAll() }, [])
+
+  // For the Mapping section display: filtered by selected company
+  // For Run allocation: all entries (driver IDs are globally unique across WEX cards)
+  // When the same driver_id exists in multiple companies, prefer the runCompany entry
+  const normMap = (() => {
+    const map = new Map<string, NormEntry>()
+    for (const e of normEntriesAll) {
+      if (!map.has(e.driver_id) || e.company === (runCompany ?? company)) {
+        map.set(e.driver_id, e)
+      }
+    }
+    return map
+  })()
 
   const handleAdd = async () => {
     if (!newId.trim() || !newQbName.trim()) {
@@ -428,13 +452,13 @@ export default function WexCategorization() {
     if (error) { setToast({ type: 'error', text: error.message }); return }
     setNewId(''); setNewWexName(''); setNewQbName('')
     setToast({ type: 'success', text: 'Entry added.' })
-    fetchNorm()
+    fetchNorm(); fetchNormAll()
   }
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Delete this entry?')) return
     await supabase.from('wex_normalization').delete().eq('id', id)
-    fetchNorm()
+    fetchNorm(); fetchNormAll()
   }
 
   const handleSaveEdit = async () => {
@@ -446,7 +470,7 @@ export default function WexCategorization() {
     }).eq('id', editId)
     if (error) { setToast({ type: 'error', text: error.message }); return }
     setEditId(null)
-    fetchNorm()
+    fetchNorm(); fetchNormAll()
   }
 
   const startEdit = (e: NormEntry) => {
@@ -550,7 +574,7 @@ export default function WexCategorization() {
       setToast({ type: 'error', text: `Erro ao salvar mapeamento: ${error.message}` })
     } else {
       setToast({ type: 'success', text: `Mapeamento de "${wexName}" salvo.` })
-      fetchNorm() // refresh mapping table
+      fetchNorm(); fetchNormAll()
     }
   }
 
@@ -871,7 +895,7 @@ export default function WexCategorization() {
             }
           </span>
           {results.length > 0 && (
-            <button onClick={() => exportToExcel(results, company)} className="btn-secondary-custom"
+            <button onClick={() => exportToExcel(results, runCompany ?? company)} className="btn-secondary-custom"
               style={{ padding: '5px 14px', borderRadius: 7, fontWeight: 600, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <i className="bi bi-file-earmark-excel" />Export Excel
             </button>
@@ -944,12 +968,12 @@ export default function WexCategorization() {
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h2 style={{ color: 'var(--color-text-primary)', fontSize: 22, fontWeight: 400, margin: 0 }}>Results — {company.toUpperCase()}</h2>
+            <h2 style={{ color: 'var(--color-text-primary)', fontSize: 22, fontWeight: 400, margin: 0 }}>Results — {(runCompany ?? company).toUpperCase()}</h2>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: '4px 0 0' }}>
               {results.length} transactions · {[...new Set(results.map(r => r.driverQbName).filter(Boolean))].length} drivers matched
             </p>
           </div>
-          <button onClick={() => exportToExcel(results, company)} className="btn-secondary-custom"
+          <button onClick={() => exportToExcel(results, runCompany ?? company)} className="btn-secondary-custom"
             style={{ padding: '8px 18px', borderRadius: 8, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
             <i className="bi bi-file-earmark-excel" />Export Excel
           </button>
