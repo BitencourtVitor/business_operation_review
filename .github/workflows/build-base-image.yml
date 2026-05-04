@@ -1,0 +1,32 @@
+name: Build & Push Base Image
+
+on:
+  push:
+    paths:
+      - "BOR2/apps/web/Dockerfile.base"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: BOR2/apps/web
+          file: BOR2/apps/web/Dockerfile.base
+          push: true
+          tags: ghcr.io/bitencourtVitor/bor-base:bun-1.3.11
