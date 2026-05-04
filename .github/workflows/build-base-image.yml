@@ -1,9 +1,6 @@
 ﻿name: Build & Push Base Image
 
 on:
-  push:
-    paths:
-      - "BOR2/apps/web/Dockerfile.base"
   workflow_dispatch:
 
 jobs:
