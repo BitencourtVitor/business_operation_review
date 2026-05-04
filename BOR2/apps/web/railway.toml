@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
+watchPatterns = ["BOR2/apps/web/**"]
 
 [deploy]
 startCommand = "bun server.js"
