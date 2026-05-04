@@ -17,6 +17,7 @@ export interface OfiEntry {
   totalScore: number
   captureDate: string
   projectName: string
+  address: string
 }
 
 export interface ExecutionEntry {
@@ -30,16 +31,20 @@ export interface ExecutionEntry {
   subcontractor: string
   isCycleCompleted: boolean
   projectName: string
+  jobSite?: string
+  address?: string
 }
 
 export interface OfiFilters {
   year?: number
+  month?: number
 }
 
 export const ofiService = {
   list: async (filters?: OfiFilters): Promise<OfiEntry[]> => {
     const params = new URLSearchParams()
-    if (filters?.year) params.set("year", String(filters.year))
+    if (filters?.year)  params.set("year",  String(filters.year))
+    if (filters?.month) params.set("month", String(filters.month))
     const qs = params.toString()
     return await api.get<OfiEntry[]>(`/api/v1/ofi${qs ? `?${qs}` : ""}`, getToken())
   },
