@@ -584,7 +584,7 @@ export default function ForecastPage() {
                     <span className="text-[11px] text-muted-foreground">{items.length} total</span>
                   </div>
                 </div>
-                <div className="grid items-start gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid items-start gap-3 p-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
                   {items.map(p => <ForecastCard key={p.id} project={p} />)}
                 </div>
               </section>

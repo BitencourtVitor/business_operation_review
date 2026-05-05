@@ -295,7 +295,7 @@ export function ForecastCard({ project: p }: { project: ForecastProject }) {
             {p.address && (
               <div className="flex items-start gap-1 text-xs text-muted-foreground">
                 <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
-                <span className="line-clamp-2 leading-snug">{p.address}</span>
+                <span className="leading-snug">{p.address}</span>
               </div>
             )}
 
