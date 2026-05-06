@@ -57,7 +57,18 @@ export function ScheduleViewer({
     return map
   }, [displayRows])
 
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set())
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set(schedule.rows.map(r => r.id))
+    const saved = localStorage.getItem(`bs:expanded:${buildingId}`)
+    if (saved) {
+      try { return new Set(JSON.parse(saved) as string[]) } catch {}
+    }
+    return new Set(schedule.rows.map(r => r.id))
+  })
+
+  useEffect(() => {
+    localStorage.setItem(`bs:expanded:${buildingId}`, JSON.stringify([...expandedIds]))
+  }, [expandedIds, buildingId])
 
   if (controlsRef) {
     controlsRef.current = {
