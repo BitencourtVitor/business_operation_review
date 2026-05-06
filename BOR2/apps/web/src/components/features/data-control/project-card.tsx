@@ -963,13 +963,15 @@ export function NewProjectCard({
   function set<K extends keyof NewFormState>(k: K, v: NewFormState[K]) { setForm(f => ({ ...f, [k]: v })) }
 
   async function handleCreate() {
-    await onSave(form)
-    // Partial reset — keep client, job site, type, status for the next project
-    setForm(f => ({
-      ...EMPTY_NEW_FORM,
-      ...Object.fromEntries(PERSISTENT_FIELDS.map(k => [k, f[k]])),
-    }))
-    setTab("info")
+    try {
+      await onSave(form)
+    } finally {
+      setForm(f => ({
+        ...EMPTY_NEW_FORM,
+        ...Object.fromEntries(PERSISTENT_FIELDS.map(k => [k, f[k]])),
+      }))
+      setTab("info")
+    }
   }
 
   const canCreate = !saving && !!form.cliente.trim() && !!form.jobSite.trim()

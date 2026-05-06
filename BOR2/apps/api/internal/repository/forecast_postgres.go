@@ -189,13 +189,14 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	// - client+type specific entries (matched by project cliente and type)
 	// - universal entries (client = '' and type = '' → apply to all projects)
 	if _, err := r.db.Exec(ctx, `
+		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_fieldwire)
 		INSERT INTO forecast_fieldwire (id, project_id, category, document, status)
-		SELECT gen_random_uuid(),
+		SELECT max_id.m + ROW_NUMBER() OVER (ORDER BY c.document),
 		       $1,
 		       CASE WHEN c.client = '' THEN '' ELSE c.client || ' – ' || c.type END,
 		       c.document,
 		       false
-		FROM catalog_forecast_fieldwire c
+		FROM catalog_forecast_fieldwire c, max_id
 		WHERE (LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
 		   OR (c.client = '' AND c.type = '')
 	`, p.ID, p.Cliente, p.Type); err != nil {
