@@ -36,14 +36,7 @@ export function ScheduleViewer({
   activeEvents?:    ScheduleEvent[]
 }) {
   const displayRows = useMemo(() => {
-    const { projectStart: ps, projectFinish: pf } = schedule
-    if (!ps || !pf) return schedule.rows
-    const total = pf.getTime() - ps.getTime()
-
-    let rows = total <= 0 ? schedule.rows : schedule.rows.filter(r => {
-      if (!r.isPhase || !r.startDate || !r.finishDate) return true
-      return (r.finishDate.getTime() - r.startDate.getTime()) / total < 0.65
-    })
+    let rows = schedule.rows
 
     if (filterYear != null) {
       const mStart = filterMonth != null ? new Date(filterYear, filterMonth, 1) : new Date(filterYear, 0, 1)
