@@ -115,6 +115,16 @@ export const RES_BAR_HEX: Array<{ match: RegExp; dark: string; light: string }> 
   { match: /client|owner/i,                 dark: "#2dd4bf", light: "#0d9488" },
 ]
 
+const SUBLOGO_ENTRIES: Array<{ match: RegExp; src: string }> = [
+  { match: /framing|framer/i, src: "/images/sublogo_framing.png" },
+  { match: /hvac|mechanical/i, src: "/images/sublogo_hvac.png" },
+  { match: /\bpcg\b/i,        src: "/images/sublogo_pcg.png" },
+]
+
+export function resSubLogo(r: string): string | null {
+  return SUBLOGO_ENTRIES.find(e => e.match.test(r))?.src ?? null
+}
+
 export function resBarColor(r: string, isDark: boolean): string | null {
   const entry = RES_BAR_HEX.find(e => e.match.test(r))
   return entry ? (isDark ? entry.dark : entry.light) : null

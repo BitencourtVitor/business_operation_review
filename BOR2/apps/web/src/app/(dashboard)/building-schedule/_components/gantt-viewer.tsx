@@ -42,7 +42,7 @@ import {
   EventTypeIcon,
   useIsDark,
 } from "../_lib/schedule-utils"
-import { resBarColor, resIcon, toTitleCase } from "../_lib/trade-config"
+import { resBarColor, resIcon, resSubLogo, toTitleCase } from "../_lib/trade-config"
 
 export function GanttViewer({
   schedule,
@@ -420,6 +420,8 @@ export function GanttViewer({
           const meta           = rowMetas.get(row.id)
           const isDone         = meta?.status === "done"
           const isOurs         = !isDone && row.resources.some(r => oursSet.has(r))
+          const oursResource   = isOurs ? row.resources.find(r => oursSet.has(r)) : null
+          const oursSubLogo    = oursResource ? resSubLogo(oursResource) : null
           const isRowActive    = hoveredRowId === row.id || lockedRowId === row.id
           const isCommentsOpen = commentsRowId === row.id
           const rowComments    = commentsMap.get(row.id) ?? []
@@ -461,13 +463,9 @@ export function GanttViewer({
                   <span className="w-4 shrink-0" />
                 )}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
-                {isOurs && (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/minilogo_black.png" alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-60 dark:hidden" />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/minilogo_white.png" alt="" aria-hidden className="hidden shrink-0 h-3 w-3 object-contain opacity-60 dark:block" />
-                  </>
+                {isOurs && oursSubLogo && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={oursSubLogo} alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-70" />
                 )}
                 <span
                   className={cn(
@@ -571,27 +569,42 @@ export function GanttViewer({
                     (hasComments || isRowActive) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
                   )}
                 >
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <button
-                          onMouseDown={e => e.stopPropagation()}
-                          onClick={() => onMetaChange(row.id, { status: isDone ? "pending" : "done" })}
-                          className={cn(
-                            "flex items-center justify-center w-5 h-5 rounded transition-colors",
-                            isDone ? "text-green-500 hover:bg-green-500/10" : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
-                          )}
-                        />
-                      }
+                  {hasComments && !isRowActive ? (
+                    <button
+                      onMouseDown={e => e.stopPropagation()}
+                      onClick={() => {
+                        if (isCommentsOpen) { setCommentsRowId(null); setLockedRowId(null) }
+                        else openComments(row.id)
+                      }}
+                      className={cn(
+                        "flex items-center gap-1 px-1 h-5 rounded transition-colors text-primary",
+                        isCommentsOpen ? "bg-primary/10" : "hover:bg-primary/10",
+                      )}
                     >
-                      <Check className="w-3.5 h-3.5" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">{isDone ? "Mark as pending" : "Mark as done"}</TooltipContent>
-                  </Tooltip>
+                      <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                      <span className="text-[10px] font-semibold leading-none">{rowComments.length > 9 ? "9+" : rowComments.length}</span>
+                    </button>
+                  ) : (
+                    <>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              onMouseDown={e => e.stopPropagation()}
+                              onClick={() => onMetaChange(row.id, { status: isDone ? "pending" : "done" })}
+                              className={cn(
+                                "flex items-center justify-center w-5 h-5 rounded transition-colors",
+                                isDone ? "text-green-500 hover:bg-green-500/10" : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                              )}
+                            />
+                          }
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">{isDone ? "Mark as pending" : "Mark as done"}</TooltipContent>
+                      </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
+                      {hasComments ? (
                         <button
                           onMouseDown={e => e.stopPropagation()}
                           onClick={() => {
@@ -599,27 +612,31 @@ export function GanttViewer({
                             else openComments(row.id)
                           }}
                           className={cn(
-                            "relative flex items-center justify-center w-5 h-5 rounded transition-colors",
-                            isCommentsOpen
-                              ? "text-primary bg-primary/10"
-                              : hasComments
-                                ? "text-muted-foreground hover:text-foreground hover:bg-muted/80"
-                                : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                            "flex items-center gap-1 px-1 h-5 rounded transition-colors text-primary",
+                            isCommentsOpen ? "bg-primary/10" : "hover:bg-primary/10",
                           )}
-                        />
-                      }
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      {hasComments && (
-                        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary text-[7px] text-primary-foreground flex items-center justify-center leading-none font-bold pointer-events-none">
-                          {rowComments.length > 9 ? "9+" : rowComments.length}
-                        </span>
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                          <span className="text-[10px] font-semibold leading-none">{rowComments.length > 9 ? "9+" : rowComments.length}</span>
+                        </button>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <button
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={() => openComments(row.id)}
+                                className="flex items-center justify-center w-5 h-5 rounded text-muted-foreground/40 hover:text-foreground hover:bg-muted/80 transition-colors"
+                              />
+                            }
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top">Add comment</TooltipContent>
+                        </Tooltip>
                       )}
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      {hasComments ? `${rowComments.length} comment${rowComments.length > 1 ? "s" : ""}` : "Add comment"}
-                    </TooltipContent>
-                  </Tooltip>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
