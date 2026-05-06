@@ -39,6 +39,7 @@ export function NewProjectSection({ onCreated }: NewProjectSectionProps) {
             previousStartDate: toRFC3339(data.previousStartDate),
             previousEndDate:   toRFC3339(data.previousEndDate),
           })
+          onCreated()
         }}
       />
     </div>
