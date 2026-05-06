@@ -27,6 +27,7 @@ export function NewProjectSection({ onCreated }: NewProjectSectionProps) {
         availableJobSites={availableJobSites}
         saving={createMutation.isPending}
         onSave={async data => {
+          const toRFC3339 = (d: string) => d ? `${d}T00:00:00Z` : null
           await createMutation.mutateAsync({
             ...data,
             company: "framing",
@@ -34,9 +35,9 @@ export function NewProjectSection({ onCreated }: NewProjectSectionProps) {
             contractValue: 0,
             team: "",
             machineProvider: "",
-            previousBeamsDate: data.previousBeamsDate || null,
-            previousStartDate: data.previousStartDate || null,
-            previousEndDate:   data.previousEndDate   || null,
+            previousBeamsDate: toRFC3339(data.previousBeamsDate),
+            previousStartDate: toRFC3339(data.previousStartDate),
+            previousEndDate:   toRFC3339(data.previousEndDate),
           })
         }}
       />
