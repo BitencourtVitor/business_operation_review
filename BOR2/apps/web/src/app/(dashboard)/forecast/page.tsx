@@ -246,7 +246,7 @@ function FiltersPopover(props: FiltersPopoverProps) {
                       <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate text-left">{location === "all" ? "All" : location}</span>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="min-w-max">
                       <SelectItem value="all">All</SelectItem>
                       {locationOpts.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                     </SelectContent>
@@ -442,24 +442,24 @@ export default function ForecastPage() {
     <div className="flex h-full flex-col gap-4">
 
       {/* ── Header ── */}
-      <div className="flex flex-col gap-3">
-        {/* Title + Metrics link */}
-        <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        {/* Title — on mobile also contains the Metrics button */}
+        <div className="flex items-start justify-between gap-2 sm:block">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Framing Forecast</h1>
             <p className="text-sm text-muted-foreground">Project pipeline and execution schedule</p>
           </div>
           <Link
             href="/forecast/metrics"
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="sm:hidden inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <TrendingUp className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Metrics</span>
           </Link>
         </div>
 
-        {/* Controls — 2-col grid on mobile, flex row on sm+ */}
-        <div className="grid grid-cols-2 items-end gap-2 sm:flex sm:flex-wrap">
+        {/* Controls + Metrics (desktop: same row; mobile: below title) */}
+        <div className="flex items-end gap-2">
+          <div className="grid grid-cols-2 items-end gap-2 sm:flex sm:flex-wrap">
           {/* Period — full width on mobile */}
           <div className="col-span-2 flex flex-col gap-1 sm:col-auto">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
@@ -542,6 +542,14 @@ export default function ForecastPage() {
               onClear={clearFilters}
             />
           </div>
+          </div>
+          <Link
+            href="/forecast/metrics"
+            className="hidden sm:inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span>Metrics</span>
+          </Link>
         </div>
       </div>
 
