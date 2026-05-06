@@ -360,6 +360,8 @@ function tryParseRotated(fileName: string, items: TextItem[]): ParsedSchedule | 
 
       // Some tasks have duration embedded at the end of the name string
       let durationText = atY(durDef, ROTATED_FIELD_Y_TOL)
+      const durClean = durationText.match(/\d+(?:\.\d+)?\s*days?/i)
+      if (durClean) durationText = durClean[0]
       if (!durationText) {
         const m = name.match(/\s+(\d+(?:\.\d+)?\s*days?)\s*$/i)
         if (m) { durationText = m[1]; name = name.slice(0, -m[0].length).trim() }

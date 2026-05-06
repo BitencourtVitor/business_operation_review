@@ -35,7 +35,7 @@ export default function BuildingSchedulePage() {
       const saved = localStorage.getItem("bs:viewMode")
       if (saved === "gantt" || saved === "dates") return saved
     }
-    return "gantt"
+    return "dates"
   })
   const [filterYear,  setFilterYear]  = useState<number | null>(null)
   const [filterMonth, setFilterMonth] = useState<number | null>(null)
