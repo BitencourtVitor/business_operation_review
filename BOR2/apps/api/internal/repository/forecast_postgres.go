@@ -167,15 +167,16 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	now := time.Now()
 	if _, err := r.db.Exec(ctx, `
 		INSERT INTO forecast_core
-		  (id, name, company, status, previous_start_date, previous_end_date,
+		  (id, name, company, status,
+		   previous_beams_date, previous_start_date, previous_end_date,
 		   contract_value, team, qb_time,
 		   cliente, job_site, type, lote_bld, address, obs,
 		   hvac, buildertrend, storage, machine_provider,
 		   create_datetime, lastupdate_datetimez)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$20)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$21)
 	`,
 		p.ID, p.Name, p.Company, statusToBOR1(p.Status),
-		nullTime(p.StartDate), nullTime(p.EndDate),
+		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
 		p.Hvac, p.Buildertrend, p.Storage, p.MachineProvider,
@@ -188,8 +189,9 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	// - client+type specific entries (matched by project cliente and type)
 	// - universal entries (client = '' and type = '' → apply to all projects)
 	if _, err := r.db.Exec(ctx, `
-		INSERT INTO forecast_fieldwire (project_id, category, document, status)
-		SELECT $1,
+		INSERT INTO forecast_fieldwire (id, project_id, category, document, status)
+		SELECT gen_random_uuid(),
+		       $1,
 		       CASE WHEN c.client = '' THEN '' ELSE c.client || ' – ' || c.type END,
 		       c.document,
 		       false
