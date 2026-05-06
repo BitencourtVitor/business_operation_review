@@ -61,6 +61,11 @@ export function EditProjectSection({
         if (!haystack.some(v => v.includes(q))) return false
       }
       return true
+    }).sort((a, b) => {
+      const numA = parseInt((a.loteBld ?? "").replace(/\D/g, "") || "0", 10)
+      const numB = parseInt((b.loteBld ?? "").replace(/\D/g, "") || "0", 10)
+      if (numA !== numB) return numA - numB
+      return (a.loteBld ?? "").localeCompare(b.loteBld ?? "")
     })
   }, [projects, clientFilter, jobSiteFilter, statusFilter, search])
 

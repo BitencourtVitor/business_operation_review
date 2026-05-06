@@ -2,19 +2,32 @@
 
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { NotificationBell } from "@/components/layout/notification-bell"
+import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
+import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
 import { permitService } from "@/services/permit.service"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import {
   Award,
+  Bell,
   Compass,
+  Ellipsis,
   Eye,
   EyeOff,
   Gem,
   LogOut,
+  Menu,
   Moon,
   RefreshCw,
   Sun,
@@ -80,12 +93,15 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
 }
 
 export function Header() {
+  const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
+  const { data: notifications = [] } = useNotifications()
   const { showFinancialData, toggleFinancialData } = useFinancialStore()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const pathname    = usePathname()
   const [refreshing, setRefreshing] = useState(false)
+  const [notifOpen,  setNotifOpen]  = useState(false)
 
   async function handleRefresh() {
     setRefreshing(true)
@@ -104,11 +120,26 @@ export function Header() {
   const BadgeIcon  = badge.icon
   const badgeStyle = resolvedTheme === "dark" ? badge.dark : badge.light
 
+  const userID = user?.id ?? ""
+  const unread = notifications.filter(n => !n.viewedBy.includes(userID)).length
+
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b bg-background px-4">
 
-      {/* Title */}
-      <div className="flex flex-1 flex-col justify-center">
+      {/* Mobile: hamburger + mini logo + title */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 md:hidden">
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="-ml-2 shrink-0">
+          <Menu className="h-5 w-5" />
+        </Button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/minilogo_black.png" alt="Premium" className="h-6 w-6 shrink-0 object-contain dark:hidden" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/minilogo_white.png" alt="Premium" className="hidden h-6 w-6 shrink-0 object-contain dark:block" />
+        <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Business Operations Review</span>
+      </div>
+
+      {/* Desktop: title + subtitle */}
+      <div className="hidden flex-1 flex-col justify-center md:flex">
         <h1 className="text-base font-medium tracking-tight text-primary">
           Business Operations Review
         </h1>
@@ -127,7 +158,7 @@ export function Header() {
           )}
 
           {user && (
-            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${badgeStyle}`}>
+            <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide md:inline-flex ${badgeStyle}`}>
               <BadgeIcon className="h-3 w-3" />
               {badge.label}
             </span>
@@ -135,28 +166,29 @@ export function Header() {
 
           <div className="mx-1.5 w-px self-stretch bg-border" />
 
+          {/* Desktop-only individual buttons */}
           <Tip label="Refresh data">
-            <Button variant="ghost" size="icon" onClick={handleRefresh}>
+            <Button variant="ghost" size="icon" onClick={handleRefresh} className="hidden md:inline-flex">
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
             </Button>
           </Tip>
 
-          {/* Notifications */}
-          <NotificationBell />
+          {/* Single NotificationBell — trigger hidden on mobile, Dialog opened via notifOpen */}
+          <NotificationBell
+            open={notifOpen}
+            onOpenChange={setNotifOpen}
+            triggerClassName="hidden md:inline-flex"
+          />
 
           <Tip label={showFinancialData ? "Hide financial data" : "Show financial data"}>
-            <Button variant="ghost" size="icon" onClick={toggleFinancialData}>
+            <Button variant="ghost" size="icon" onClick={toggleFinancialData} className="hidden md:inline-flex">
               {showFinancialData ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </Button>
           </Tip>
 
           <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
-            <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-              {resolvedTheme === "dark" ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
+            <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} className="hidden md:inline-flex">
+              {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
           </Tip>
 
@@ -165,11 +197,53 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => logout()}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              className="hidden text-destructive hover:bg-destructive/10 hover:text-destructive md:inline-flex"
             >
               <LogOut className="h-4 w-4" />
             </Button>
           </Tip>
+
+          {/* Mobile: single dropdown with all 5 actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="ghost" size="icon" className="md:hidden" />}
+            >
+              <Ellipsis className="h-5 w-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="w-52">
+              {user && <DropdownMenuGroup><DropdownMenuLabel>{user.name}</DropdownMenuLabel></DropdownMenuGroup>}
+              <DropdownMenuItem onClick={handleRefresh}>
+                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                Refresh data
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setNotifOpen(true)}>
+                <div className="relative">
+                  <Bell className="h-4 w-4" />
+                  {unread > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </div>
+                Notifications
+                {unread > 0 && (
+                  <span className="ml-auto text-xs font-semibold text-destructive">{unread}</span>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleFinancialData}>
+                {showFinancialData ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {showFinancialData ? "Hide financial data" : "Show financial data"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+                {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={() => logout()}>
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </TooltipProvider>
 

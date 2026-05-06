@@ -2,6 +2,7 @@
 
 import { useNotifications, useMarkNotificationViewed, useDeleteNotification } from "@/hooks/use-notifications"
 import { useAuth } from "@/hooks/use-auth"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -16,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Bell, Trash2, ExternalLink, CheckCheck } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Notification } from "@/services/notification.service"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -76,15 +77,36 @@ function NotificationRow({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function NotificationBell() {
+export function NotificationBell({
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  triggerClassName,
+}: {
+  open?: boolean
+  onOpenChange?: (v: boolean) => void
+  triggerClassName?: string
+} = {}) {
   const { user }                                  = useAuth()
   const { data: notifications = [] }              = useNotifications()
   const markViewed                                = useMarkNotificationViewed()
   const deleteNotif                               = useDeleteNotification()
 
-  const [popoverOpen, setPopoverOpen] = useState(false)
+  const isMobile = useIsMobile()
+
+  const [_popoverOpen, _setPopoverOpen] = useState(false)
+  const popoverOpen    = openProp    !== undefined ? openProp    : _popoverOpen
+  const setPopoverOpen = onOpenChangeProp !== undefined ? onOpenChangeProp : _setPopoverOpen
   const [selected,    setSelected]    = useState<Notification | null>(null)
   const [modalOpen,   setModalOpen]   = useState(false)
+
+  // On mobile, external open → skip popover, open modal directly
+  useEffect(() => {
+    if (openProp && isMobile) {
+      setSelected(null)
+      setModalOpen(true)
+      onOpenChangeProp?.(false)
+    }
+  }, [openProp, isMobile, onOpenChangeProp])
 
   const userID = user?.id ?? ""
   const unread = notifications.filter(n => !n.viewedBy.includes(userID)).length
@@ -106,7 +128,7 @@ export function NotificationBell() {
       {/* ── Bell trigger — Base UI uses render prop, not asChild ── */}
       <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <PopoverTrigger
-          render={<Button variant="ghost" size="icon" className="relative" />}
+          render={<Button variant="ghost" size="icon" className={`relative ${triggerClassName ?? ""}`} />}
           title="Notifications"
         >
           <Bell className="h-4 w-4" />

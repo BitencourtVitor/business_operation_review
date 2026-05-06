@@ -442,15 +442,26 @@ export default function ForecastPage() {
     <div className="flex h-full flex-col gap-4">
 
       {/* ── Header ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Framing Forecast</h1>
-          <p className="text-sm text-muted-foreground">Project pipeline and execution schedule</p>
+      <div className="flex flex-col gap-3">
+        {/* Title + Metrics link */}
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Framing Forecast</h1>
+            <p className="text-sm text-muted-foreground">Project pipeline and execution schedule</p>
+          </div>
+          <Link
+            href="/forecast/metrics"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Metrics</span>
+          </Link>
         </div>
 
-        <div className="flex items-end gap-2">
-          {/* Period */}
-          <div className="flex flex-col gap-1">
+        {/* Controls — 2-col grid on mobile, flex row on sm+ */}
+        <div className="grid grid-cols-2 items-end gap-2 sm:flex sm:flex-wrap">
+          {/* Period — full width on mobile */}
+          <div className="col-span-2 flex flex-col gap-1 sm:col-auto">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
             <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
               <div className="flex items-center pl-2.5">
@@ -469,7 +480,7 @@ export default function ForecastPage() {
               </Select>
               <div className="h-4 w-px bg-border" />
               <Select value={String(month)} onValueChange={(v) => setMonth(v === "all" ? "all" : Number(v))}>
-                <SelectTrigger className="h-8 w-[100px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <SelectTrigger className="h-8 flex-1 border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent sm:w-[100px] sm:flex-none">
                   <span className="flex-1 truncate text-left text-sm">
                     {month === "all" ? "All" : MONTHS.find(m => m.value === month)?.label ?? "All"}
                   </span>
@@ -488,7 +499,7 @@ export default function ForecastPage() {
             <div className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
               {(["start","beams"] as DateMode[]).map((m) => (
                 <button key={m} onClick={() => setDateMode(m)}
-                  className={cn("flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
+                  className={cn("flex h-7 flex-1 items-center justify-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors sm:gap-1.5 sm:px-2.5",
                     dateMode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -509,7 +520,7 @@ export default function ForecastPage() {
               ] as const).map(({ value, label, Icon }) => (
                 <button key={value} onClick={() => setSortOrder(value)}
                   className={cn(
-                    "flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
+                    "flex h-7 flex-1 items-center justify-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors sm:gap-1.5 sm:px-2.5",
                     sortOrder === value ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -531,15 +542,6 @@ export default function ForecastPage() {
               onClear={clearFilters}
             />
           </div>
-
-          {/* Metrics */}
-          <Link
-            href="/forecast/metrics"
-            className="inline-flex h-8 items-center gap-1.5 self-end rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-            Metrics
-          </Link>
         </div>
       </div>
 
@@ -573,18 +575,18 @@ export default function ForecastPage() {
           <div className="flex flex-col gap-5 pb-4">
             {grouped.map(({ key, label, items, statusCounts }) => (
               <section key={key} className="overflow-hidden rounded-xl border bg-muted/30">
-                <div className="flex items-center justify-between border-b bg-card px-4 py-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b bg-card px-4 py-2.5">
                   <h2 className="text-sm font-semibold">{label}</h2>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
                     {statusCounts.overdue   ? <span className="text-[11px] font-medium text-red-500 dark:text-red-400">{statusCounts.overdue} overdue</span>   : null}
                     {statusCounts.planned   ? <span className="text-[11px] font-medium text-blue-500 dark:text-blue-400">{statusCounts.planned} not started</span> : null}
                     {statusCounts.active    ? <span className="text-[11px] font-medium text-green-500 dark:text-green-400">{statusCounts.active} open</span>      : null}
                     {statusCounts.completed ? <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">{statusCounts.completed} closed</span>   : null}
-                    <span className="h-3 w-px bg-border" />
+                    <span className="hidden h-3 w-px bg-border sm:block" />
                     <span className="text-[11px] text-muted-foreground">{items.length} total</span>
                   </div>
                 </div>
-                <div className="grid items-start gap-3 p-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
+                <div className="grid items-start gap-3 p-3 sm:p-4 [grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr))]">
                   {items.map(p => <ForecastCard key={p.id} project={p} />)}
                 </div>
               </section>
