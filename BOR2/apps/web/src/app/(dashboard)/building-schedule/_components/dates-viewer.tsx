@@ -272,7 +272,7 @@ export function DatesViewer({
               {/* Task label */}
               <div
                 className={cn(
-                  "sticky left-0 z-10 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center gap-1 pr-2",
+                  "sticky left-0 z-30 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
                   (isDone || isOurs) ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
@@ -293,7 +293,7 @@ export function DatesViewer({
                 )}
                 <span className={cn("text-[11px] ml-1 whitespace-nowrap",
                   isRowActive
-                    ? "relative z-10 pr-1 overflow-visible"
+                    ? "relative z-10 pr-2 overflow-visible"
                     : "overflow-hidden text-ellipsis flex-1 min-w-0",
                   row.isPhase && "font-semibold uppercase tracking-wide",
                   !row.isPhase && row.level === 2 && "font-medium",
