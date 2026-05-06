@@ -517,7 +517,7 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
     const stripped = name.replace(/[\d\s\-_.]/g, "")
     const isPhase  = stripped.length > 1 && stripped === stripped.toUpperCase()
 
-    const level = isPhase ? 1 : indentLevel(row, tnCol, baseX)
+    const level = indentLevel(row, tnCol, baseX)
 
     scheduleRows.push({
       id:           idText,
