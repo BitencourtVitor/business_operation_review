@@ -320,8 +320,8 @@ function FiltersPopover(props: FiltersPopoverProps) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ForecastPage() {
-  const [year, setYear]         = useState<number | "all">(CURRENT_YEAR)
-  const [month, setMonth]       = useState<number | "all">(new Date().getMonth())
+  const [year, setYear]         = useState<number | "all">("all")
+  const [month, setMonth]       = useState<number | "all">("all")
   const [dateMode, setDateMode] = useState<DateMode>("start")
   const [status, setStatus]     = useState<StatusToggles>(DEFAULT_STATUS)
   const [integ, setInteg]       = useState<IntegFilters>(DEFAULT_INTEG)
