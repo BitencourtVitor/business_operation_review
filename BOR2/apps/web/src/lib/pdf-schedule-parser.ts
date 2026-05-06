@@ -280,146 +280,145 @@ function indentLevel(row: TextItem[], tnCol: ColDef, baseX: number): number {
 
 // ─── Rotated layout detection & parsing ──────────────────────────────────────
 // Some MS Project exports rotate the view 90°: column headers are stacked
-// vertically on the left (all at similar X), and each task occupies a vertical
-// strip (a unique X position).  We detect this when no horizontal header row
-// is found and instead find multiple column keywords at the same X.
+// vertically on the left margin (x≈47), and each task occupies a vertical
+// strip at a unique X position.  Pages repeat the header and reset X coords,
+// so we must process each page independently to avoid X collisions.
 
-function detectRotatedHeaders(items: TextItem[]): { headerX: number; ydefs: YDef[] } | null {
-  const TOL = 12
+const ROTATED_HEADER_X     = 47   // x of the header column
+const ROTATED_HEADER_X_TOL = 15   // tolerance around header x
+const ROTATED_LEGEND_X_CUT = 440  // items at x > this are legend/footer noise
+const ROTATED_ID_Y_TOL     = 20   // tolerance when matching ID values to header y
+const ROTATED_FIELD_Y_TOL  = 15   // tolerance for Duration / Start / Finish
+const ROTATED_TN_Y_TOL     = 45   // larger: task names shift up with each indent level
 
-  // Score each X bucket by how many distinct column keywords appear there
-  const buckets = new Map<number, YDef[]>()
-
-  for (const item of items) {
-    const key = matchCol(item.str)
-    if (!key) continue
-
-    let matched = false
-    for (const [bx, ydefs] of buckets) {
-      if (Math.abs(item.x - bx) <= TOL) {
-        if (!ydefs.find(d => d.key === key)) ydefs.push({ key, y: item.y })
-        matched = true
-        break
-      }
-    }
-    if (!matched) buckets.set(item.x, [{ key, y: item.y }])
+function detectRotatedYdefs(items: TextItem[]): YDef[] | null {
+  // Build ydefs from header column items on the first page
+  const headerItems = items.filter(
+    it => it.page === 1 && Math.abs(it.x - ROTATED_HEADER_X) <= ROTATED_HEADER_X_TOL
+  )
+  const ydefs: YDef[] = []
+  for (const it of headerItems) {
+    const key = matchCol(it.str)
+    if (key && !ydefs.find(d => d.key === key)) ydefs.push({ key, y: it.y })
   }
-
-  let bestX = -1
-  let bestYdefs: YDef[] = []
-  for (const [x, ydefs] of buckets) {
-    if (ydefs.length > bestYdefs.length) { bestX = x; bestYdefs = ydefs }
-  }
-
-  const keys = bestYdefs.map(d => d.key)
-  if (bestYdefs.length >= 3 && keys.includes("TaskName") && keys.includes("Start") && keys.includes("Finish")) {
-    return { headerX: bestX, ydefs: bestYdefs }
-  }
-  return null
+  const keys = ydefs.map(d => d.key)
+  return keys.includes("TaskName") && keys.includes("Start") && keys.includes("Finish")
+    ? ydefs
+    : null
 }
 
 function tryParseRotated(fileName: string, items: TextItem[]): ParsedSchedule | null {
-  const layout = detectRotatedHeaders(items)
-  if (!layout) return null
+  const ydefs = detectRotatedYdefs(items)
+  if (!ydefs) return null
 
-  const { headerX, ydefs } = layout
   const tnDef     = ydefs.find(d => d.key === "TaskName")!
   const idDef     = ydefs.find(d => d.key === "ID")
   const startDef  = ydefs.find(d => d.key === "Start")!
   const finishDef = ydefs.find(d => d.key === "Finish")!
   const durDef    = ydefs.find(d => d.key === "Duration")
-  const resDef    = ydefs.find(d => d.key === "Resources")
-  const notesDef  = ydefs.find(d => d.key === "Notes")
 
-  // Find task anchors: numeric items at approximately the ID header Y
-  // (or fall back to TaskName Y if there's no ID column)
-  const anchorY   = idDef ? idDef.y : tnDef.y
-  const ANCHOR_TOL = 20
-  const HEADER_TOL = 15
-
-  const anchors = items
-    .filter(it =>
-      Math.abs(it.y - anchorY) <= ANCHOR_TOL &&
-      /^\d+$/.test(it.str) &&
-      Math.abs(it.x - headerX) > HEADER_TOL
-    )
-    .sort((a, b) => a.x - b.x)
-
-  if (anchors.length === 0) return null
-
+  const anchorY = idDef?.y ?? tnDef.y
   const scheduleRows: ScheduleRow[] = []
 
-  for (let t = 0; t < anchors.length; t++) {
-    const taskX    = anchors[t].x
-    const nextX    = anchors[t + 1]?.x ?? 99999
-    const xMin     = taskX - HEADER_TOL
-    const xMax     = nextX - HEADER_TOL
+  // Process each page independently — X coordinates reset per page
+  const pages = [...new Set(items.map(it => it.page))].sort((a, b) => a - b)
 
-    const taskItems = items.filter(it =>
-      it.x >= xMin && it.x < xMax &&
-      Math.abs(it.x - headerX) > HEADER_TOL
+  for (const pageNum of pages) {
+    // Only data items: not in header column, not in legend section
+    const pageItems = items.filter(it =>
+      it.page === pageNum &&
+      it.x > ROTATED_HEADER_X + ROTATED_HEADER_X_TOL &&
+      it.x < ROTATED_LEGEND_X_CUT
     )
 
-    // Get text near a Y definition (large tolerance for task name due to indentation)
-    const atY = (def: YDef | undefined, tol: number): string => {
-      if (!def) return ""
-      return taskItems
-        .filter(it => Math.abs(it.y - def.y) <= tol)
-        .sort((a, b) => a.x - b.x)
-        .map(it => it.str)
-        .join(" ")
-        .trim()
+    // Task anchors = numeric items at the ID row Y
+    const anchors = pageItems
+      .filter(it => Math.abs(it.y - anchorY) <= ROTATED_ID_Y_TOL && /^\d+$/.test(it.str))
+      .sort((a, b) => a.x - b.x)
+
+    for (let t = 0; t < anchors.length; t++) {
+      const taskX = anchors[t].x
+      const nextX = anchors[t + 1]?.x ?? ROTATED_LEGEND_X_CUT
+      const xMin  = taskX - 10
+      const xMax  = nextX - 10
+
+      const taskItems = pageItems.filter(it => it.x >= xMin && it.x < xMax)
+
+      const atY = (def: YDef | undefined, tol: number): string => {
+        if (!def) return ""
+        return taskItems
+          .filter(it => Math.abs(it.y - def.y) <= tol)
+          .sort((a, b) => a.x - b.x)
+          .map(it => it.str)
+          .join(" ")
+          .trim()
+      }
+
+      let name = atY(tnDef, ROTATED_TN_Y_TOL)
+      if (!name) continue
+
+      // Some tasks have duration embedded at the end of the name string
+      let durationText = atY(durDef, ROTATED_FIELD_Y_TOL)
+      if (!durationText) {
+        const m = name.match(/\s+(\d+(?:\.\d+)?\s*days?)\s*$/i)
+        if (m) { durationText = m[1]; name = name.slice(0, -m[0].length).trim() }
+      }
+
+      const startStr  = atY(startDef, ROTATED_FIELD_Y_TOL)
+      const finishStr = atY(finishDef, ROTATED_FIELD_Y_TOL).replace(/\s*NA\s*$/i, "").trim()
+
+      // Indent level from Y offset of task name item relative to header Y
+      const tnItem = taskItems.find(it => Math.abs(it.y - tnDef.y) <= ROTATED_TN_Y_TOL)
+      const offset = tnItem ? Math.abs(tnDef.y - tnItem.y) : 0
+      const level  = 1 + Math.max(0, Math.round(offset / 13))
+
+      const durationDays = parseDuration(durationText)
+      const stripped     = name.replace(/[\d\s\-_.]/g, "")
+      const isPhase      = stripped.length > 1 && stripped === stripped.toUpperCase()
+
+      scheduleRows.push({
+        id:           anchors[t].str,
+        name,
+        durationText: durationText || "—",
+        durationDays,
+        predecessors: "",
+        start:        startStr,
+        finish:       finishStr,
+        startDate:    parseMSPDate(startStr),
+        finishDate:   parseMSPDate(finishStr),
+        resources:    [],
+        notes:        "",
+        level,
+        isPhase,
+        isMilestone:  durationDays === 0,
+      })
     }
-
-    const name = atY(tnDef, 35)
-    if (!name) continue
-
-    const idText     = anchors[t].str
-    const durationText = atY(durDef, 15)
-    const startStr   = atY(startDef, 15)
-    // Strip trailing "NA" that bleeds from Actual Finish column
-    const finishStr  = atY(finishDef, 15).replace(/\s*NA\s*$/i, "").trim()
-    const resourceStr = atY(resDef, 15)
-    const notesStr   = atY(notesDef, 15)
-
-    // Indent level: how far the task name Y is from the header Y
-    const tnItem = taskItems.find(it => Math.abs(it.y - tnDef.y) <= 35)
-    const offset = tnItem ? Math.abs(tnDef.y - tnItem.y) : 0
-    const level  = 1 + Math.max(0, Math.round(offset / 13))
-
-    const durationDays = parseDuration(durationText)
-    const isMilestone  = durationDays === 0
-    const stripped     = name.replace(/[\d\s\-_.]/g, "")
-    const isPhase      = stripped.length > 1 && stripped === stripped.toUpperCase()
-
-    scheduleRows.push({
-      id:           idText,
-      name,
-      durationText: durationText || "—",
-      durationDays,
-      predecessors: "",
-      start:        startStr,
-      finish:       finishStr,
-      startDate:    parseMSPDate(startStr),
-      finishDate:   parseMSPDate(finishStr),
-      resources:    resourceStr ? resourceStr.split(",").map(r => r.trim()).filter(Boolean) : [],
-      notes:        notesStr,
-      level:        isPhase ? 1 : level,
-      isPhase,
-      isMilestone,
-    })
   }
 
   if (scheduleRows.length === 0) return null
 
-  const allResources  = [...new Set(scheduleRows.flatMap(r => r.resources))].sort()
+  // Project name from footer ("Project: XXX" at x>440)
+  const footerItem = items.find(it =>
+    it.x > ROTATED_LEGEND_X_CUT && /^project:/i.test(it.str)
+  )
+  const projectName = footerItem
+    ? footerItem.str.replace(/^project:\s*/i, "").trim()
+    : fileName.replace(/\.pdf$/i, "")
+
   const dates = scheduleRows
     .flatMap(r => [r.startDate, r.finishDate])
     .filter((d): d is Date => d instanceof Date && !Number.isNaN(d.getTime()))
   const projectStart  = dates.length ? new Date(Math.min(...dates.map(d => d.getTime()))) : null
   const projectFinish = dates.length ? new Date(Math.max(...dates.map(d => d.getTime()))) : null
 
-  return { fileName, projectName: fileName.replace(/\.pdf$/i, ""), rows: scheduleRows, allResources, projectStart, projectFinish }
+  return {
+    fileName,
+    projectName,
+    rows:         scheduleRows,
+    allResources: [],
+    projectStart,
+    projectFinish,
+  }
 }
 
 // ─── Main entry point ─────────────────────────────────────────────────────────
