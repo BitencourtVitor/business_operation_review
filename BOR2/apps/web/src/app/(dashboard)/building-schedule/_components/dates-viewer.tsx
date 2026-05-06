@@ -291,7 +291,10 @@ export function DatesViewer({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={oursSubLogo} alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-70" />
                 )}
-                <span className={cn("text-[11px] truncate ml-1",
+                <span className={cn("text-[11px] ml-1 whitespace-nowrap",
+                  isRowActive
+                    ? "relative z-10 pr-1 overflow-visible"
+                    : "overflow-hidden text-ellipsis flex-1 min-w-0",
                   row.isPhase && "font-semibold uppercase tracking-wide",
                   !row.isPhase && row.level === 2 && "font-medium",
                   row.isMilestone && "text-amber-500")}>
