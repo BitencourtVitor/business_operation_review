@@ -52,6 +52,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useAuth } from "@/hooks/use-auth"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashboard)/permits/manage-data-modal"
 import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
 import { ManageDataModal as WorkforceManageDataModal }      from "@/app/(dashboard)/workforce-productivity/manage-data-modal"
@@ -264,6 +265,7 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
 function NavGroupItems({
   items,
   open,
+  isMobile,
   isActive,
   isGroupActive,
   isItemExpanded,
@@ -274,6 +276,7 @@ function NavGroupItems({
 }: {
   items: NavItem[]
   open: boolean
+  isMobile: boolean
   isActive: (href: string) => boolean
   isGroupActive: (item: NavItem) => boolean
   isItemExpanded: (item: NavItem) => boolean
@@ -285,8 +288,24 @@ function NavGroupItems({
   const router = useRouter()
   return (
     <SidebarMenu>
-      {items.map((item) =>
-        item.children ? (
+      {items.map((item) => {
+        // On mobile, every page except /forecast is locked — tapping redirects to /forecast
+        if (isMobile && item.href !== "/forecast") {
+          return (
+            <SidebarMenuItem key={item.title + item.href}>
+              <SidebarMenuButton
+                render={<Link href="/forecast" />}
+                className="opacity-40"
+                tooltip="Mobile version coming soon"
+              >
+                <NavItemIcon item={item} />
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        }
+
+        return item.children ? (
           <SidebarMenuItem key={item.title}>
             {!open ? (
               item.disabled && !canPreviewDisabled ? (
@@ -425,7 +444,7 @@ function NavGroupItems({
             )}
           </SidebarMenuItem>
         )
-      )}
+      })}
     </SidebarMenu>
   )
 }
@@ -434,6 +453,7 @@ export function AppSidebar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { open, toggleSidebar } = useSidebar()
+  const isMobile = useIsMobile()
   const [expanded, setExpanded] = useState<string[]>([])
   const [editItem, setEditItem] = useState<NavItem | null>(null)
 
@@ -509,7 +529,9 @@ export function AppSidebar() {
   const canPreviewDisabled = !!user && ADMIN_ROLES.includes(user.role)
 
   const groupProps = {
-    open, isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
+    open: isMobile ? true : open,
+    isMobile,
+    isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
     canPreviewDisabled,
     onEditOpen: setEditItem,
   }
@@ -551,7 +573,7 @@ export function AppSidebar() {
     </Sheet>
     <Sidebar collapsible="icon" className="overflow-x-hidden">
       <SidebarHeader className="flex h-14 items-center justify-center border-b bg-background p-0">
-        {open ? (
+        {(open || isMobile) ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo_black.png" alt="Premium Group" className="h-6 object-contain dark:hidden" />
@@ -582,7 +604,7 @@ export function AppSidebar() {
 
         {/* Coming Soon */}
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-muted-foreground/50">{comingSoonGroup.label}</SidebarGroupLabel>}
+          {(open || isMobile) && <SidebarGroupLabel className="text-muted-foreground/50">{comingSoonGroup.label}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <NavGroupItems items={comingSoonGroup.items} {...groupProps} />
           </SidebarGroupContent>
@@ -594,20 +616,26 @@ export function AppSidebar() {
       <SidebarFooter className="gap-0 overflow-x-hidden p-0">
         <div className="h-px bg-sidebar-border" />
         <SidebarGroup>
-          {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
+          {(open || isMobile) && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
           <SidebarGroupContent>
             <NavGroupItems items={filterNavItems(bottomGroup.items)} {...groupProps} />
           </SidebarGroupContent>
         </SidebarGroup>
         <div className="h-px bg-sidebar-border" />
-        <SidebarMenu className="p-2">
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
-              {open ? <PanelLeftClose /> : <PanelLeftOpen />}
-              <span>Collapse</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {isMobile ? (
+          <div className="px-4 py-3 text-xs leading-relaxed text-muted-foreground/70">
+            Mobile versions for other pages are on the way. Full experience available on desktop.
+          </div>
+        ) : (
+          <SidebarMenu className="p-2">
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
+                {open ? <PanelLeftClose /> : <PanelLeftOpen />}
+                <span>Collapse</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
     </>
