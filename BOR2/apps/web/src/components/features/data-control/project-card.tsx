@@ -311,9 +311,9 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
           placeholder="Observations..." />
       </div>
       <div className="flex w-36 flex-col gap-2">
-        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v || null)} isSaving={savingField === "previousBeamsDate"} />
-        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v || null)} isSaving={savingField === "previousStartDate"} />
-        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v || null)} isSaving={savingField === "previousEndDate"} />
+        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
+        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
+        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
       </div>
     </div>
   )
