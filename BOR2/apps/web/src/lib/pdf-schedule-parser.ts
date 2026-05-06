@@ -504,7 +504,7 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
     }
 
     const rawDuration  = get("Duration")
-    const durMatch     = rawDuration.match(/\d+(?:\.\d+)?\s*days?\??/i)
+    const durMatch     = rawDuration.match(/\d+(?:\.\d+)?\s*days?/i)
     const durationText = durMatch ? durMatch[0] : rawDuration
     const durationDays = parseDuration(durationText)
     const startStr     = get("Start")
