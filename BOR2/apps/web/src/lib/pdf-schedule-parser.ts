@@ -69,17 +69,17 @@ interface ColDef {
   xMax: number
 }
 
-// Column keyword matchers
+// Column keyword matchers — order matters: more specific first
 const COL_MATCHERS: Array<{ key: string; match: RegExp }> = [
-  { key: "TaskName",    match: /task.?name/i },
-  { key: "Duration",    match: /duration/i },
-  { key: "Start",       match: /^start$/i },
-  { key: "Finish",      match: /^finish$/i },
-  { key: "Resources",   match: /resource/i },
-  { key: "Predecessors",match: /predecessor/i },
-  { key: "Notes",       match: /^notes$/i },
-  { key: "ID",          match: /^id$/i },
   { key: "TaskMode",    match: /task.?mode/i },
+  { key: "TaskName",    match: /task.?name|^name$/i },
+  { key: "Duration",    match: /^dur(ation)?\.?$/i },
+  { key: "Predecessors",match: /^pred(ecessors?)?\.?$/i },
+  { key: "Start",       match: /^start(s|.?date)?$/i },
+  { key: "Finish",      match: /^(finish(es)?|end)(s|.?date)?$/i },
+  { key: "Resources",   match: /resource/i },
+  { key: "Notes",       match: /^notes?$/i },
+  { key: "ID",          match: /^(id|#|no\.?)$/i },
 ]
 
 // ─── Date parsing ─────────────────────────────────────────────────────────────
@@ -190,38 +190,66 @@ function groupRows(items: TextItem[], yTol = 4): TextItem[][] {
   return rows
 }
 
-/** Detect header row and build column definitions. */
+/** Try to match a text string (possibly joined from adjacent items) to a column key. */
+function matchCol(text: string): string | null {
+  const m = COL_MATCHERS.find(c => c.match.test(text.trim()))
+  return m ? m.key : null
+}
+
+/** Detect header row and build column definitions.
+ *  Scores every candidate row by number of recognised columns;
+ *  returns the row with the highest score that has TaskName + Start + Finish. */
 function detectColumns(rows: TextItem[][]): { idx: number; cols: ColDef[] } | null {
+  let best: { idx: number; cols: ColDef[]; score: number } | null = null
+
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
     const joined = row.map(it => it.str).join(" ").toLowerCase()
 
-    // Header must contain at least task name + start/finish
-    if (!joined.includes("task") || !joined.includes("start")) continue
+    // Quick pre-filter: must mention at least two schedule-related words
+    const keywords = ["task", "name", "start", "finish", "end", "duration", "resource"]
+    const hits = keywords.filter(k => joined.includes(k)).length
+    if (hits < 2) continue
 
-    // Sort header items by x and match to column definitions
     const sorted = [...row].sort((a, b) => a.x - b.x)
-    const cols: ColDef[] = []
+    const cols: ColDef[]    = []
+    const consumed = new Set<number>()
 
     for (let j = 0; j < sorted.length; j++) {
-      const text = sorted[j].str
-      const match = COL_MATCHERS.find(m => m.match.test(text))
-      if (match) {
+      if (consumed.has(j)) continue
+
+      // Build candidates: single, pair, triple (by joining adjacent items)
+      const candidates: Array<{ text: string; span: number }> = [
+        { text: sorted[j].str, span: 1 },
+      ]
+      if (j + 1 < sorted.length && !consumed.has(j + 1))
+        candidates.push({ text: `${sorted[j].str} ${sorted[j + 1].str}`, span: 2 })
+      if (j + 2 < sorted.length && !consumed.has(j + 2))
+        candidates.push({ text: `${sorted[j].str} ${sorted[j + 1].str} ${sorted[j + 2].str}`, span: 3 })
+
+      for (const { text, span } of candidates) {
+        const key = matchCol(text)
+        if (!key) continue
+        // Mark consumed items so they don't get re-matched
+        for (let k = 1; k < span; k++) consumed.add(j + k)
+        const nextIdx = j + span
         cols.push({
-          key:  match.key,
+          key,
           xMin: sorted[j].x - 2,
-          xMax: j < sorted.length - 1 ? sorted[j + 1].x - 2 : 99999,
+          xMax: nextIdx < sorted.length ? sorted[nextIdx].x - 2 : 99999,
         })
+        break
       }
     }
 
-    // Need at least ID, TaskName, Start, Finish
     const keys = cols.map(c => c.key)
-    if (keys.includes("TaskName") && keys.includes("Start") && keys.includes("Finish")) {
-      return { idx: i, cols }
+    const valid = keys.includes("TaskName") && keys.includes("Start") && keys.includes("Finish")
+    if (valid && (!best || keys.length > best.score)) {
+      best = { idx: i, cols, score: keys.length }
     }
   }
-  return null
+
+  return best ? { idx: best.idx, cols: best.cols } : null
 }
 
 /** Get concatenated text for a column from a row. */
@@ -248,26 +276,34 @@ function indentLevel(row: TextItem[], tnCol: ColDef, baseX: number): number {
 
 export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
   const items = await extractItems(file)
-  const rows  = groupRows(items)
+
+  // Try progressively looser row-grouping tolerances until we get a valid parse
+  for (const yTol of [4, 6, 9]) {
+    const result = tryParse(file.name, items, yTol)
+    if (result) return result
+  }
+
+  throw new Error(
+    "Could not detect schedule columns. " +
+    "Make sure this PDF was exported from Microsoft Project with the standard column layout."
+  )
+}
+
+function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSchedule | null {
+  const rows = groupRows(items, yTol)
 
   // 1. Find header and column definitions
   const header = detectColumns(rows)
-  if (!header) {
-    throw new Error(
-      "Could not detect schedule columns. " +
-      "Make sure this PDF was exported from Microsoft Project with the standard column layout."
-    )
-  }
+  if (!header) return null
 
   const { idx: headerIdx, cols } = header
   const tnCol  = cols.find(c => c.key === "TaskName")
   const baseX  = tnCol ? tnCol.xMin : 0
 
   // 2. Extract project name from the rows above the header
-  let projectName = file.name.replace(/\.pdf$/i, "")
+  let projectName = fileName.replace(/\.pdf$/i, "")
   for (let i = 0; i < Math.min(headerIdx, 6); i++) {
     const text = rows[i].map(it => it.str).join(" ").trim()
-    // Skip date-like or page-number-like rows
     if (
       text.length > 4 &&
       !/page\s+\d+/i.test(text) &&
@@ -281,14 +317,26 @@ export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
 
   // 3. Parse data rows
   const scheduleRows: ScheduleRow[] = []
+  const idCol = cols.find(c => c.key === "ID")
+  let autoId  = 0
 
   for (let i = headerIdx + 1; i < rows.length; i++) {
     const row = rows[i]
 
-    // Must have an ID column with a numeric value
-    const idCol = cols.find(c => c.key === "ID")
-    const idText = idCol ? cellText(row, idCol) : ""
-    if (!idText || !/^\d+$/.test(idText)) continue
+    // Resolve row ID: prefer explicit ID column, fallback to sequential counter
+    let idText: string
+    if (idCol) {
+      const raw = cellText(row, idCol)
+      if (!raw || !/^\d+$/.test(raw)) continue
+      idText = raw
+    } else {
+      // No ID column — require a non-empty task name to count the row
+      if (!tnCol) continue
+      const name = cellText(row, tnCol)
+      if (!name) continue
+      autoId++
+      idText = String(autoId)
+    }
 
     // Task name is required
     if (!tnCol) continue
@@ -336,6 +384,9 @@ export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
     })
   }
 
+  // Bail out if we got nothing useful
+  if (scheduleRows.length === 0) return null
+
   // 4. Collect metadata
   const allResources = [...new Set(scheduleRows.flatMap(r => r.resources))].sort()
 
@@ -347,7 +398,7 @@ export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
   const projectFinish = dates.length ? new Date(Math.max(...dates.map(d => d.getTime()))) : null
 
   return {
-    fileName:     file.name,
+    fileName:     fileName,
     projectName,
     rows:         scheduleRows,
     allResources,
