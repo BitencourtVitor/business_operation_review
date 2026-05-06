@@ -19,7 +19,7 @@ export const forecastService = {
   get: (id: string) =>
     api.get<ForecastProject>(`/api/v1/forecast/${id}`, getToken()),
 
-  create: (data: Omit<ForecastProject, "id" | "createdAt" | "updatedAt">) =>
+  create: (data: Omit<ForecastProject, "id" | "createdAt" | "updatedAt" | "startDate" | "endDate">) =>
     api.post<ForecastProject>("/api/v1/forecast", data, getToken()),
 
   update: (id: string, data: Partial<ForecastProject>) =>

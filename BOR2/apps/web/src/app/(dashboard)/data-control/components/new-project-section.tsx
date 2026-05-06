@@ -31,8 +31,6 @@ export function NewProjectSection({ onCreated }: NewProjectSectionProps) {
             ...data,
             company: "framing",
             name: "",
-            startDate: "",
-            endDate: "",
             contractValue: 0,
             team: "",
             machineProvider: "",
