@@ -79,9 +79,10 @@ interface YDef {
 const COL_MATCHERS: Array<{ key: string; match: RegExp }> = [
   { key: "TaskMode",    match: /task.?mode/i },
   { key: "TaskName",    match: /task.?name|^name$/i },
-  { key: "Duration",    match: /^dur(ation)?\.?$/i },
-  { key: "Predecessors",match: /^pred(ecessors?)?\.?$/i },
-  { key: "Start",       match: /^start(s|.?date)?$/i },
+  { key: "Duration",        match: /^dur(ation)?\.?$/i },
+  { key: "PercentComplete", match: /^%\s*comp|^percent\s*comp/i },
+  { key: "Predecessors",    match: /^pred(ecessors?)?\.?$/i },
+  { key: "Start",           match: /^start(s|.?date)?$/i },
   { key: "Finish",      match: /^(finish(es)?|end)(s|.?date)?$/i },
   { key: "Resources",   match: /resource/i },
   { key: "Notes",       match: /^notes?$/i },
