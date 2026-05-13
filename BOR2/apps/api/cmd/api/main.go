@@ -70,6 +70,7 @@ func main() {
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
 	qbtimeDailyRepo      := repository.NewPostgresQBTimeDailyReportRepository(db)
 	qbtimeTeamRepo       := repository.NewPostgresQBTimeTeamRepository(db)
+	qbtimeExceptionsRepo := repository.NewPostgresQBTimeExceptionsRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -93,6 +94,7 @@ func main() {
 	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
 	qbtimeDailySvc       := service.NewQBTimeDailyReportService(qbtimeDailyRepo)
 	qbtimeTeamSvc        := service.NewQBTimeTeamService(qbtimeTeamRepo)
+	whosWorkingSvc       := service.NewWhosWorkingService(qbtimeExceptionsRepo, qbtimeTeamRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -128,6 +130,7 @@ func main() {
 	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
 	qbtimeDailyHandler       := handler.NewQBTimeDailyReportHandler(qbtimeDailySvc, auditService)
 	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
+	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
@@ -236,6 +239,15 @@ func main() {
 	qbtimeTeams.Post("/", qbtimeTeamHandler.Create)
 	qbtimeTeams.Patch("/:id", qbtimeTeamHandler.Update)
 	qbtimeTeams.Delete("/:id", qbtimeTeamHandler.Delete)
+
+	// QBTime Who's Working
+	api.Get("/qbtime/whos-working", whosWorkingHandler.Get)
+
+	// QBTime Exceptions
+	qbtimeExceptions := api.Group("/qbtime/exceptions")
+	qbtimeExceptions.Get("/", whosWorkingHandler.ListExceptions)
+	qbtimeExceptions.Post("/", whosWorkingHandler.UpsertException)
+	qbtimeExceptions.Delete("/:id", whosWorkingHandler.DeleteException)
 
 	// WEX Categorization
 	wexNorm := api.Group("/wex/normalization")
@@ -411,9 +423,9 @@ func main() {
 	buildings.Patch("/:id/schedule/row-meta/:rowId",     buildingsHandler.UpsertScheduleRowMeta)
 	buildings.Get("/:id/schedule/row-comments",                buildingsHandler.GetAllRowComments)
 	buildings.Get("/:id/schedule/row-comments/:rowId",        buildingsHandler.GetRowComments)
-	buildings.Post("/:id/schedule/row-comments/:rowId",       buildingsHandler.AddRowComment)
-	buildings.Patch("/:id/schedule/row-comments/:commentId",  buildingsHandler.EditRowComment)
-	buildings.Delete("/:id/schedule/row-comments/:commentId", buildingsHandler.DeleteRowComment)
+	buildings.Post("/:id/schedule/row-comments/:rowId",       middleware.RequireAuthFull(authService), buildingsHandler.AddRowComment)
+	buildings.Patch("/:id/schedule/row-comments/:commentId",  middleware.RequireAuthFull(authService), buildingsHandler.EditRowComment)
+	buildings.Delete("/:id/schedule/row-comments/:commentId", middleware.RequireAuthFull(authService), buildingsHandler.DeleteRowComment)
 	buildings.Get("/:id/events",             buildingsHandler.GetBuildingEvents)
 	buildings.Post("/:id/events",            buildingsHandler.AddBuildingEvent)
 	buildings.Patch("/:id/events/:eventId",  buildingsHandler.EditBuildingEvent)
