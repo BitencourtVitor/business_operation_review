@@ -29,7 +29,7 @@ import {
   Gem, KeyRound, Loader2,
   Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
-  User, UserCog, UserPlus, Users, Wrench,
+  User, UserCheck, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react"
 import type { UserWithPermissions, PermissionLevel } from "@/services/settings.service"
 
@@ -105,6 +105,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
     label: "Data Management",
     permissions: [
       { key: "autolog",          label: "Quickbooks Time Auto Log", icon: Activity   },
+      { key: "whos_working",     label: "Who's Working Report",  icon: UserCheck    },
       { key: "data_control",     label: "Forecast Data Control", icon: ClipboardList },
       { key: "permits",          label: "Permit Control",        icon: FileCheck     },
       { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },

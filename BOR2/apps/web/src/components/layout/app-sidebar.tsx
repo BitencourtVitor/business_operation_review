@@ -44,6 +44,7 @@ import {
   ScrollText,
   Settings,
   TrendingUp,
+  UserCheck,
   Users,
   Wrench,
 } from "lucide-react"
@@ -147,6 +148,7 @@ const bottomGroup: NavGroup = {
         { title: "Daily Report",         href: "/qbtime/daily-report",  icon: CalendarDays,  permKey: "daily_report"      },
         { title: "Pay Period Report",    href: "/qbtime/job-costing",   icon: ScrollText,    permKey: "pay_period_report" },
         { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock, permKey: "weekly_hours"      },
+        { title: "Who's Working",        href: "/qbtime/whos-working",  icon: UserCheck,     permKey: "whos_working"      },
       ],
     },
     { title: "Settings", href: "/settings", icon: Settings, permKey: "settings" },
