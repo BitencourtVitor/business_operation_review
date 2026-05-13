@@ -7,7 +7,7 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, CalendarCheck, CalendarClock, CalendarDays,
+  BarChart2, Banknote, Building2, CalendarCheck, CalendarClock, CalendarDays,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, Fuel,
   Gauge, Gem, GripVertical, ImageIcon, Loader2, Package, ScrollText, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
@@ -33,21 +33,22 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "",
     permissions: [
-      { key: "forecast",         label: "Framing Forecast",       image: "/images/sublogo_framing.png"  },
-      { key: "inventory",        label: "Inventory Control",      icon: Package    },
-      { key: "ofi",              label: "Operational Index",      icon: BarChart2  },
-      { key: "permits",          label: "Permit Control",         icon: FileCheck  },
-      { key: "service_requests", label: "Service Requests",       icon: Wrench     },
-      { key: "accounting",       label: "Accounting",             icon: Banknote,  writeLabel: "Ask Aria" },
+      { key: "ofi",               label: "Operational Forecast Index", icon: BarChart2     },
+      { key: "monthly_execution", label: "Monthly Execution",          icon: CalendarCheck },
+      { key: "workforce",         label: "Workforce Productivity",     icon: Users         },
+      { key: "inventory",         label: "Inventory Control",          icon: Package       },
+      { key: "permits",           label: "Permit Control",             icon: FileCheck     },
+      { key: "forecast",          label: "Framing Forecast",           image: "/images/sublogo_framing.png" },
+      { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
+      { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
+      { key: "building_schedule", label: "Building Schedule",          icon: Building2     },
     ],
   },
   {
     label: "Coming Soon",
     permissions: [
-      { key: "monthly_execution",  label: "Monthly Execution",         icon: CalendarCheck  },
-      { key: "subcontractors",     label: "Subcontractor Performance", icon: ClipboardCheck },
-      { key: "project_monitoring", label: "HVAC Project Monitoring",   image: "/images/sublogo_hvac.png" },
-      { key: "fuel",               label: "Fuel Control",              icon: Fuel           },
+      { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },
+      { key: "fuel",               label: "Fuel Control",            icon: Fuel           },
     ],
   },
   {

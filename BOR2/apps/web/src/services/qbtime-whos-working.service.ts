@@ -1,4 +1,9 @@
 import { api } from "@/lib/api"
+import { useAuthStore } from "@/store/auth.store"
+
+function getToken() {
+  return useAuthStore.getState().token ?? ""
+}
 
 export interface WhosWorkingEntry {
   qbtUserId: number
@@ -28,19 +33,17 @@ export interface WhosWorkingException {
 }
 
 export const whosWorkingService = {
-  get(company: string): Promise<{ data: WhosWorkingResponse }> {
-    return api.get(`/qbtime/whos-working?company=${company}`)
-  },
+  get: (company: string) =>
+    api.get<WhosWorkingResponse>(`/api/v1/qbtime/whos-working?company=${company}`, getToken()),
 }
 
 export const whosWorkingExceptionsService = {
-  list(company: string): Promise<{ data: WhosWorkingException[] }> {
-    return api.get(`/qbtime/exceptions?company=${company}`)
-  },
-  upsert(company: string, name: string): Promise<{ data: WhosWorkingException }> {
-    return api.post("/qbtime/exceptions", { company, name })
-  },
-  delete(id: string): Promise<void> {
-    return api.delete(`/qbtime/exceptions/${id}`)
-  },
+  list: (company: string) =>
+    api.get<WhosWorkingException[]>(`/api/v1/qbtime/exceptions?company=${company}`, getToken()),
+
+  upsert: (company: string, name: string) =>
+    api.post<WhosWorkingException>("/api/v1/qbtime/exceptions", { company, name }, getToken()),
+
+  delete: (id: string) =>
+    api.delete<void>(`/api/v1/qbtime/exceptions/${id}`, getToken()),
 }

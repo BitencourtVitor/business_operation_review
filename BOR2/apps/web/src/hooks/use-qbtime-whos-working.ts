@@ -7,9 +7,9 @@ import {
 export function useWhosWorking(company: string, enabled: boolean) {
   return useQuery({
     queryKey: ["qbtime-whos-working", company],
-    queryFn:  () => whosWorkingService.get(company).then(r => r.data),
+    queryFn:  () => whosWorkingService.get(company),
     enabled:  enabled && !!company,
-    staleTime: 0,           // always fresh — live data
+    staleTime: 0,
     refetchOnWindowFocus: false,
   })
 }
@@ -17,7 +17,7 @@ export function useWhosWorking(company: string, enabled: boolean) {
 export function useWhosWorkingExceptions(company: string) {
   return useQuery({
     queryKey: ["qbtime-exceptions", company],
-    queryFn:  () => whosWorkingExceptionsService.list(company).then(r => r.data),
+    queryFn:  () => whosWorkingExceptionsService.list(company),
     enabled:  !!company,
     staleTime: 60_000,
   })
