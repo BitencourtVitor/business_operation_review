@@ -1,11 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Download, Loader2, RefreshCw, Settings2, UserX, X } from "lucide-react"
+import { Check, Copy, Loader2, RefreshCw, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { useQBTimeTeams } from "@/hooks/use-qbtime-teams"
 import {
   useWhosWorking,
@@ -18,11 +16,13 @@ import type { WhosWorkingResponse } from "@/services/qbtime-whos-working.service
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const COMPANIES = [
-  { value: "framing", label: "Framing" },
-  { value: "hvac",    label: "HVAC"    },
+  { value: "framing", label: "Framing", logo: "/images/sublogo_framing.png" },
+  { value: "hvac",    label: "HVAC",    logo: "/images/sublogo_hvac.png"    },
 ]
 
-const COMPANY_LABEL: Record<string, string> = { framing: "Framing", hvac: "HVAC" }
+const COMPANY_META: Record<string, { label: string; logo: string }> = Object.fromEntries(
+  COMPANIES.map(c => [c.value, { label: c.label, logo: c.logo }])
+)
 
 // ─── Hour formatting ──────────────────────────────────────────────────────────
 
@@ -35,21 +35,28 @@ function fmtElapsed(hours: number, mode: "decimal" | "time"): string {
 
 // ─── Canvas renderer ──────────────────────────────────────────────────────────
 
-const CANVAS_W       = 860
-const PAD            = 28
-const ROW_H          = 42
-const TEAM_H         = 38
-const HEADER_H       = 76
-const TEAM_GAP       = 14
-const FOOTER_H       = 32
+const CANVAS_W  = 900
+const PAD       = 32
+const ROW_H     = 44
+const COL_HDR_H = 28   // column label row inside each group
+const TEAM_H    = 36
+const HEADER_H  = 84
+const TEAM_GAP  = 16
+const FOOTER_H  = 36
+const SF        = "'Inter', system-ui, sans-serif"
+
+// Fixed column X anchors
+const COL_NAME    = PAD + 16
+const COL_IN_X    = 560        // right-edge of "clock-in" value
+const COL_ELA_X   = CANVAS_W - PAD - 16  // right-edge of elapsed value
 
 function calcCanvasHeight(data: WhosWorkingResponse): number {
   let h = HEADER_H + PAD
   for (const g of data.groups) {
-    h += TEAM_H + g.entries.length * ROW_H + TEAM_GAP
+    h += TEAM_H + COL_HDR_H + g.entries.length * ROW_H + TEAM_GAP
   }
-  h += FOOTER_H + PAD
-  return Math.max(h, 200)
+  h += FOOTER_H
+  return Math.max(h, 220)
 }
 
 function drawReport(
@@ -57,139 +64,152 @@ function drawReport(
   data: WhosWorkingResponse,
   mode: "decimal" | "time",
 ) {
-  const H  = calcCanvasHeight(data)
-  canvas.width  = CANVAS_W
-  canvas.height = H
-
-  const ctx = canvas.getContext("2d")!
+  const H   = calcCanvasHeight(data)
   const dpr = window.devicePixelRatio || 1
-  canvas.width  = CANVAS_W * dpr
-  canvas.height = H       * dpr
+  canvas.width        = CANVAS_W * dpr
+  canvas.height       = H * dpr
   canvas.style.width  = `${CANVAS_W}px`
   canvas.style.height = `${H}px`
+
+  const ctx = canvas.getContext("2d")!
   ctx.scale(dpr, dpr)
 
   // ── Background ──────────────────────────────────────────────────────────────
   ctx.fillStyle = "#0d1117"
   ctx.fillRect(0, 0, CANVAS_W, H)
 
-  // ── Header band ─────────────────────────────────────────────────────────────
+  // ── Header ──────────────────────────────────────────────────────────────────
   ctx.fillStyle = "#161b22"
   ctx.fillRect(0, 0, CANVAS_W, HEADER_H)
 
-  // Accent line
+  // Left accent bar
   ctx.fillStyle = "#2563eb"
   ctx.fillRect(0, 0, 4, HEADER_H)
 
-  // Company name
-  ctx.font      = "bold 15px 'Inter', system-ui, sans-serif"
-  ctx.fillStyle = "#60a5fa"
-  ctx.textAlign = "left"
+  // Company label
+  ctx.font         = `600 11px ${SF}`
+  ctx.fillStyle    = "#60a5fa"
+  ctx.textAlign    = "left"
   ctx.textBaseline = "middle"
-  ctx.fillText(COMPANY_LABEL[data.company] ?? data.company, PAD + 8, HEADER_H / 2 - 10)
+  ctx.fillText(
+    (COMPANY_META[data.company]?.label ?? data.company).toUpperCase(),
+    PAD + 12, HEADER_H / 2 - 13,
+  )
 
-  // Title
-  ctx.font      = "bold 22px 'Inter', system-ui, sans-serif"
+  // Main title
+  ctx.font      = `bold 24px ${SF}`
   ctx.fillStyle = "#f0f6fc"
-  ctx.fillText("WHO'S WORKING", PAD + 8, HEADER_H / 2 + 12)
+  ctx.fillText("WHO'S WORKING", PAD + 12, HEADER_H / 2 + 11)
 
-  // Generated at — right side
-  ctx.font      = "13px 'Inter', system-ui, sans-serif"
-  ctx.fillStyle = "#8b949e"
+  // Right — generated timestamp
+  ctx.font      = `400 12px ${SF}`
+  ctx.fillStyle = "#6e7681"
   ctx.textAlign = "right"
-  ctx.fillText(`Generated ${data.generatedAt}`, CANVAS_W - PAD, HEADER_H / 2 - 10)
+  ctx.fillText(`Generated  ${data.generatedAt}`, CANVAS_W - PAD - 12, HEADER_H / 2 - 13)
 
-  // Total on clock
-  ctx.font      = "bold 13px 'Inter', system-ui, sans-serif"
+  // Right — on clock badge
+  ctx.font      = `600 13px ${SF}`
   ctx.fillStyle = "#3fb950"
-  ctx.fillText(`${data.totalOnClock} on clock`, CANVAS_W - PAD, HEADER_H / 2 + 12)
+  ctx.fillText(`${data.totalOnClock} on clock`, CANVAS_W - PAD - 12, HEADER_H / 2 + 11)
 
-  // ── Team groups ─────────────────────────────────────────────────────────────
+  // ── Groups ───────────────────────────────────────────────────────────────────
   let y = HEADER_H + PAD
 
   for (const group of data.groups) {
-    // Team header row
+    const bodyW = CANVAS_W - PAD * 2
+
+    // Team header pill
     ctx.fillStyle = "#1c2128"
-    roundRect(ctx, PAD, y, CANVAS_W - PAD * 2, TEAM_H, 6)
+    roundRect(ctx, PAD, y, bodyW, TEAM_H, 7)
     ctx.fill()
 
-    ctx.fillStyle = "#e6edf3"
-    ctx.font      = "bold 12px 'Inter', system-ui, sans-serif"
-    ctx.textAlign = "left"
+    // Team name
+    ctx.font         = `700 11px ${SF}`
+    ctx.fillStyle    = "#c9d1d9"
+    ctx.textAlign    = "left"
     ctx.textBaseline = "middle"
-    ctx.fillText(group.team.toUpperCase(), PAD + 12, y + TEAM_H / 2)
+    ctx.fillText(group.team.toUpperCase(), COL_NAME, y + TEAM_H / 2)
 
-    ctx.fillStyle = "#3fb950"
-    ctx.font      = "bold 11px 'Inter', system-ui, sans-serif"
-    ctx.textAlign = "right"
-    ctx.fillText(`${group.entries.length}`, CANVAS_W - PAD - 12, y + TEAM_H / 2)
+    // Count badge background
+    const countStr  = String(group.entries.length)
+    ctx.font        = `700 11px ${SF}`
+    const countW    = ctx.measureText(countStr).width + 14
+    const badgeX    = CANVAS_W - PAD - 12 - countW
+    const badgeY    = y + TEAM_H / 2 - 9
+    ctx.fillStyle   = "#238636"
+    roundRect(ctx, badgeX, badgeY, countW, 18, 9)
+    ctx.fill()
+    ctx.fillStyle   = "#f0f6fc"
+    ctx.textAlign   = "right"
+    ctx.fillText(countStr, CANVAS_W - PAD - 19, y + TEAM_H / 2)
 
     y += TEAM_H
+
+    // Column labels row
+    ctx.fillStyle    = "#0f1318"
+    ctx.fillRect(PAD, y, bodyW, COL_HDR_H)
+
+    ctx.font         = `500 10px ${SF}`
+    ctx.fillStyle    = "#484f58"
+    ctx.textAlign    = "left"
+    ctx.textBaseline = "middle"
+    ctx.fillText("EMPLOYEE", COL_NAME, y + COL_HDR_H / 2)
+
+    ctx.textAlign = "right"
+    ctx.fillText("CLOCK IN", COL_IN_X, y + COL_HDR_H / 2)
+    ctx.fillText("ELAPSED",  COL_ELA_X, y + COL_HDR_H / 2)
+
+    y += COL_HDR_H
 
     // Employee rows
     for (let i = 0; i < group.entries.length; i++) {
       const entry = group.entries[i]
       const rowY  = y + i * ROW_H
+      const mid   = rowY + ROW_H / 2
 
-      // Alternate row shading
-      if (i % 2 === 0) {
-        ctx.fillStyle = "#0d1117"
-      } else {
-        ctx.fillStyle = "#13191f"
-      }
-      ctx.fillRect(PAD, rowY, CANVAS_W - PAD * 2, ROW_H)
+      // Row background
+      ctx.fillStyle = i % 2 === 0 ? "#0d1117" : "#0f1318"
+      ctx.fillRect(PAD, rowY, bodyW, ROW_H)
 
-      // Separator line
+      // Bottom separator
       ctx.strokeStyle = "#21262d"
       ctx.lineWidth   = 1
       ctx.beginPath()
-      ctx.moveTo(PAD, rowY + ROW_H)
-      ctx.lineTo(CANVAS_W - PAD, rowY + ROW_H)
+      ctx.moveTo(PAD + 16, rowY + ROW_H)
+      ctx.lineTo(CANVAS_W - PAD - 16, rowY + ROW_H)
       ctx.stroke()
 
-      const mid = rowY + ROW_H / 2
-
       // Name
-      ctx.font      = "14px 'Inter', system-ui, sans-serif"
-      ctx.fillStyle = "#e6edf3"
-      ctx.textAlign = "left"
+      ctx.font         = `500 14px ${SF}`
+      ctx.fillStyle    = "#e6edf3"
+      ctx.textAlign    = "left"
       ctx.textBaseline = "middle"
-      ctx.fillText(entry.name, PAD + 12, mid)
+      ctx.fillText(entry.name, COL_NAME, mid)
 
-      // Clock-in label + time — center column
-      const centerX = CANVAS_W * 0.5
-      ctx.font      = "11px 'Inter', system-ui, sans-serif"
-      ctx.fillStyle = "#8b949e"
+      // Clock-in time
+      ctx.font      = `500 13px ${SF}`
+      ctx.fillStyle = "#58a6ff"
       ctx.textAlign = "right"
-      ctx.fillText("In:", centerX - 4, mid)
+      ctx.fillText(entry.clockIn, COL_IN_X, mid)
 
-      ctx.font      = "13px 'Inter', system-ui, sans-serif"
-      ctx.fillStyle = "#60a5fa"
-      ctx.textAlign = "left"
-      ctx.fillText(entry.clockIn, centerX + 4, mid)
-
-      // Elapsed label + value — right column
-      const rightX = CANVAS_W - PAD - 12
-      ctx.font      = "11px 'Inter', system-ui, sans-serif"
-      ctx.fillStyle = "#8b949e"
-      ctx.textAlign = "right"
-      ctx.fillText("Elapsed:", rightX - 52, mid)
-
-      ctx.font      = "bold 13px 'Inter', system-ui, sans-serif"
+      // Elapsed value
+      ctx.font      = `700 14px ${SF}`
       ctx.fillStyle = "#3fb950"
-      ctx.textAlign = "right"
-      ctx.fillText(fmtElapsed(entry.elapsed, mode), rightX, mid)
+      ctx.fillText(fmtElapsed(entry.elapsed, mode), COL_ELA_X, mid)
     }
 
     y += group.entries.length * ROW_H + TEAM_GAP
   }
 
   // ── Footer ───────────────────────────────────────────────────────────────────
-  ctx.fillStyle = "#8b949e"
-  ctx.font      = "11px 'Inter', system-ui, sans-serif"
-  ctx.textAlign = "center"
+  ctx.fillStyle    = "#30363d"
+  ctx.fillRect(0, H - FOOTER_H, CANVAS_W, 1)
+
+  ctx.font         = `400 11px ${SF}`
+  ctx.fillStyle    = "#484f58"
+  ctx.textAlign    = "center"
   ctx.textBaseline = "middle"
-  ctx.fillText("BOR2 · Premium Group", CANVAS_W / 2, H - FOOTER_H / 2)
+  ctx.fillText("BOR2  ·  Premium Group", CANVAS_W / 2, H - FOOTER_H / 2)
 }
 
 function roundRect(
@@ -277,10 +297,10 @@ function ExceptionsPanel({ company }: { company: string }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function WhosWorkingPage() {
-  const [company,     setCompany]     = useState("framing")
-  const [metricMode,  setMetricMode]  = useState<"decimal" | "time">("time")
+  const [company,      setCompany]      = useState("framing")
+  const [metricMode,   setMetricMode]   = useState<"decimal" | "time">("time")
   const [fetchEnabled, setFetchEnabled] = useState(false)
-  const [showExceptions, setShowExceptions] = useState(false)
+  const [copied,       setCopied]       = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const { data, isFetching, refetch } = useWhosWorking(company, fetchEnabled)
@@ -306,125 +326,173 @@ export default function WhosWorkingPage() {
     }
   }
 
-  function exportPNG() {
+  function copyPNG() {
     if (!canvasRef.current) return
-    const link = document.createElement("a")
-    link.download = `whos-working-${company}-${new Date().toISOString().slice(0, 16).replace("T", "_")}.png`
-    link.href = canvasRef.current.toDataURL("image/png")
-    link.click()
+    // Fire visual feedback immediately — don't wait on async clipboard
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    canvasRef.current.toBlob(blob => {
+      if (!blob) return
+      navigator.clipboard
+        .write([new ClipboardItem({ "image/png": blob })])
+        .catch(() => {})
+    })
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-xl font-semibold">Who's Working</h1>
-        <p className="text-sm text-muted-foreground">
-          Real-time clock-in status from QuickBooks Time
-        </p>
-      </div>
+    <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
 
-      {/* ── Controls ────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Select value={company} onValueChange={handleCompanyChange}>
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {COMPANIES.map(c => (
-              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
+      <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
 
-        <Button onClick={generate} disabled={isFetching} className="gap-2">
-          {isFetching ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          {isFetching ? "Fetching…" : "Generate Report"}
-        </Button>
-
-        {/* Metric mode toggle */}
-        <div className="flex items-center rounded-lg border border-input overflow-hidden">
-          {(["time", "decimal"] as const).map(m => (
-            <button
-              key={m}
-              onClick={() => setMetricMode(m)}
-              className={[
-                "px-3 py-1 text-xs font-medium transition-colors",
-                metricMode === m
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-transparent text-muted-foreground hover:text-foreground",
-              ].join(" ")}
-            >
-              {m === "time" ? "3:30" : "3.5h"}
-            </button>
-          ))}
+        <div className="border-b border-sidebar-border px-4 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
+            Who's Working
+          </p>
         </div>
 
-        {data && (
-          <>
-            <Button variant="outline" size="sm" onClick={exportPNG} className="gap-2">
-              <Download className="h-4 w-4" />
-              PNG
-            </Button>
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
 
+          {/* Company */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              Company
+            </p>
+            <div className="flex flex-col gap-1">
+              {COMPANIES.map(c => (
+                <button
+                  key={c.value}
+                  onClick={() => handleCompanyChange(c.value)}
+                  className={cn(
+                    "flex h-9 items-center gap-2.5 rounded-lg border px-3 text-left transition-colors",
+                    company === c.value
+                      ? "border-border bg-accent text-accent-foreground"
+                      : "border-transparent text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img alt={c.label} className="h-4 w-auto object-contain" src={c.logo} />
+                  <span className="text-xs font-medium">{c.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="-mx-4 h-px bg-sidebar-border" />
+
+          {/* Metric Mode */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              Metric Mode
+            </p>
+            <div className="flex h-8 w-full items-center rounded-lg border border-border bg-muted/40 p-0.5">
+              {(["decimal", "time"] as const).map(m => (
+                <button
+                  key={m}
+                  onClick={() => setMetricMode(m)}
+                  className={cn(
+                    "flex h-7 flex-1 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    metricMode === m
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {m === "time" ? "Hour" : "Number"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="-mx-4 h-px bg-sidebar-border" />
+
+          {/* Exceptions */}
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              Exceptions
+            </p>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Employees excluded from the report image.
+            </p>
+            <ExceptionsPanel company={company} />
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="flex flex-col gap-2 border-t border-sidebar-border p-2">
+          <Button onClick={generate} disabled={isFetching} className="w-full gap-2">
+            {isFetching
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <RefreshCw className="h-4 w-4" />}
+            {isFetching ? "Fetching…" : "Generate Report"}
+          </Button>
+          {data && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowExceptions(v => !v)}
-              className="gap-2 ml-auto"
+              onClick={copyPNG}
+              disabled={copied}
+              className={cn(
+                "relative w-full overflow-hidden transition-colors duration-200",
+                copied && "border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/15 disabled:opacity-100",
+              )}
             >
-              <Settings2 className="h-4 w-4" />
-              Exceptions
+              <span className={cn(
+                "flex items-center gap-2 transition-all duration-200",
+                copied ? "-translate-y-4 opacity-0" : "translate-y-0 opacity-100",
+              )}>
+                <Copy className="h-4 w-4" />
+                Copy Image
+              </span>
+              <span className={cn(
+                "absolute inset-0 flex items-center justify-center gap-2 transition-all duration-200",
+                copied ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+              )}>
+                <Check className="h-4 w-4" />
+                Copied!
+              </span>
             </Button>
-          </>
-        )}
+          )}
+        </div>
+
+      </aside>
+
+      {/* ── Main ────────────────────────────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6">
+
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold tracking-tight">Who's Working Report</h1>
+            <p className="text-sm text-muted-foreground">
+              Real-time clock-in status from QuickBooks Time
+            </p>
+          </div>
+
+          {!data && !isFetching && (
+            <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground">
+              <RefreshCw className="h-8 w-8 opacity-40" />
+              <p className="text-sm">Select a company and click Generate Report</p>
+            </div>
+          )}
+
+          {isFetching && (
+            <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin opacity-60" />
+              <p className="text-sm">Fetching from QuickBooks Time…</p>
+            </div>
+          )}
+
+          {data && !isFetching && (
+            <div className="flex justify-start">
+              <div className="overflow-hidden rounded-xl border border-border">
+                <canvas ref={canvasRef} className="block" />
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
 
-      {/* ── Exceptions panel ────────────────────────────────────────────────── */}
-      {showExceptions && (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm font-semibold">Exception List</p>
-              <p className="text-xs text-muted-foreground">
-                Employees marked as exceptions are excluded from the report image.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowExceptions(false)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <ExceptionsPanel company={company} />
-        </div>
-      )}
-
-      {/* ── Canvas / placeholder ─────────────────────────────────────────────── */}
-      {!data && !isFetching && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 h-64 gap-3 text-muted-foreground">
-          <RefreshCw className="h-8 w-8 opacity-40" />
-          <p className="text-sm">Select a company and click Generate Report</p>
-        </div>
-      )}
-
-      {isFetching && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 h-64 gap-3 text-muted-foreground">
-          <Loader2 className="h-8 w-8 animate-spin opacity-60" />
-          <p className="text-sm">Fetching from QuickBooks Time…</p>
-        </div>
-      )}
-
-      {data && !isFetching && (
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <canvas ref={canvasRef} className="block" />
-        </div>
-      )}
     </div>
   )
 }
