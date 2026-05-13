@@ -27,6 +27,21 @@ if (typeof window !== "undefined") {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+/**
+ * Known MS Project PDF export formats.
+ *
+ * standard            – plain table, no Gantt bar visible in the PDF
+ * standard-with-gantt – table + Gantt bar; later pages may contain resource/date
+ *                       labels that overlap the Task Name x-range
+ * rotated             – layout rotated 90°; column headers stacked vertically
+ * unknown             – header could not be identified
+ */
+export type ScheduleFormat =
+  | "standard"
+  | "standard-with-gantt"
+  | "rotated"
+  | "unknown"
+
 export interface ScheduleRow {
   id:           string
   name:         string
@@ -51,6 +66,7 @@ export interface ParsedSchedule {
   allResources:  string[]
   projectStart:  Date | null
   projectFinish: Date | null
+  format?:       ScheduleFormat   // set by parseSchedulePDF; absent in legacy DB records
 }
 
 // ─── Internal types ───────────────────────────────────────────────────────────
@@ -123,6 +139,8 @@ export function hydrateSchedule(raw: unknown): ParsedSchedule {
   const s = raw as ParsedSchedule
   return {
     ...s,
+    // Schedules stored before the format field was added default to "standard"
+    format: s.format ?? "standard",
     projectStart:  s.projectStart  ? new Date(s.projectStart  as unknown as string) : null,
     projectFinish: s.projectFinish ? new Date(s.projectFinish as unknown as string) : null,
     rows: (s.rows ?? []).map(r => ({
@@ -225,13 +243,21 @@ function detectColumns(rows: TextItem[][]): { idx: number; cols: ColDef[] } | nu
     for (let j = 0; j < sorted.length; j++) {
       if (consumed.has(j)) continue
 
-      // Build candidates: single, pair, triple (by joining adjacent items)
+      // Build candidates: single, pair, triple (by joining adjacent items).
+      //
+      // Guard: only extend to span=2/3 when the neighbour items do NOT already
+      // match a column on their own.  This prevents a stray word from an
+      // adjacent column header (e.g. "Task" belonging to "Task Mode") from
+      // consuming the next item ("Task Name") through a spurious span=2 join.
+      const j1Free = j + 1 < sorted.length && !consumed.has(j + 1) && !matchCol(sorted[j + 1].str)
+      const j2Free = j + 2 < sorted.length && !consumed.has(j + 2) && !matchCol(sorted[j + 2].str)
+
       const candidates: Array<{ text: string; span: number }> = [
         { text: sorted[j].str, span: 1 },
       ]
-      if (j + 1 < sorted.length && !consumed.has(j + 1))
+      if (j1Free)
         candidates.push({ text: `${sorted[j].str} ${sorted[j + 1].str}`, span: 2 })
-      if (j + 2 < sorted.length && !consumed.has(j + 2))
+      if (j1Free && j2Free)
         candidates.push({ text: `${sorted[j].str} ${sorted[j + 1].str} ${sorted[j + 2].str}`, span: 3 })
 
       for (const { text, span } of candidates) {
@@ -259,6 +285,32 @@ function detectColumns(rows: TextItem[][]): { idx: number; cols: ColDef[] } | nu
   return best ? { idx: best.idx, cols: best.cols } : null
 }
 
+// ─── Format detection ─────────────────────────────────────────────────────────
+
+/**
+ * Inspect the raw text items and classify the document layout.
+ * Called once per upload before any parsing attempt so each format
+ * can follow its own code path without risk of cross-contamination.
+ */
+function classifyFormat(items: TextItem[]): ScheduleFormat {
+  // Rotated layout: column header labels are stacked at x ≈ 47 on page 1
+  if (detectRotatedYdefs(items)) return "rotated"
+
+  // Standard layouts: need a detectable column header row
+  const rows  = groupRows(items, 4)
+  const header = detectColumns(rows)
+  if (!header) return "unknown"
+
+  // Gantt-bar zone: rows of 1-2 digit day-number labels (21, 23, 25…) appear
+  // to the right of the Finish column.  More than 15 such items is a reliable
+  // signal that the Gantt chart is embedded in the PDF.
+  const { cols } = header
+  const finishCol = cols.find(c => c.key === "Finish")
+  const cutX      = finishCol ? finishCol.xMax : 600
+  const dayLabels = items.filter(it => it.x > cutX && /^\d{1,2}$/.test(it.str))
+  return dayLabels.length > 15 ? "standard-with-gantt" : "standard"
+}
+
 /** Get concatenated text for a column from a row. */
 function cellText(row: TextItem[], col: ColDef): string {
   return row
@@ -269,11 +321,51 @@ function cellText(row: TextItem[], col: ColDef): string {
     .trim()
 }
 
-/** Determine indent level from Task Name column x position. */
-function indentLevel(row: TextItem[], tnCol: ColDef, baseX: number): number {
+/**
+ * Cluster x-values that differ by ≤ gap into groups, return the representative
+ * (minimum) x of each group sorted ascending.  Used for rank-based indent levels.
+ */
+function clusterXValues(xs: number[], gap = 5): number[] {
+  const sorted = [...new Set(xs)].sort((a, b) => a - b)
+  const clusters: number[] = []
+  for (const x of sorted) {
+    if (!clusters.length || x - clusters[clusters.length - 1] > gap) clusters.push(x)
+  }
+  return clusters
+}
+
+/**
+ * Determine indent level from Task Name column x position.
+ *
+ * When xClusters is supplied (rank-based mode) the level equals the rank of the
+ * nearest cluster value — this handles files where MS Project uses a smaller
+ * indent step than the default 14 px, or where the column xMin was matched to a
+ * wider position than the actual first task.
+ *
+ * Falls back to the original pixel-based formula when xClusters is absent.
+ */
+function indentLevel(
+  row:       TextItem[],
+  tnCol:     ColDef,
+  baseX:     number,
+  xClusters?: number[],
+): number {
   const items = row.filter(it => it.x >= tnCol.xMin && it.x < tnCol.xMax)
   if (!items.length) return 1
   const firstX = Math.min(...items.map(it => it.x))
+
+  if (xClusters && xClusters.length) {
+    // Find the cluster whose representative is closest to firstX
+    let best = 0
+    let bestDist = Math.abs(firstX - xClusters[0])
+    for (let i = 1; i < xClusters.length; i++) {
+      const d = Math.abs(firstX - xClusters[i])
+      if (d < bestDist) { bestDist = d; best = i }
+    }
+    return best + 1
+  }
+
+  // Original pixel-based fallback
   const indent = firstX - baseX
   // MS Project uses ~13-19 px per indent level
   return 1 + Math.max(0, Math.floor(indent / 14))
@@ -427,17 +519,28 @@ function tryParseRotated(fileName: string, items: TextItem[]): ParsedSchedule | 
 // ─── Main entry point ─────────────────────────────────────────────────────────
 
 export async function parseSchedulePDF(file: File): Promise<ParsedSchedule> {
-  const items = await extractItems(file)
+  const items  = await extractItems(file)
+  const format = classifyFormat(items)
 
-  // 1. Try standard horizontal layout (headers in a row) with increasing y tolerance
-  for (const yTol of [4, 6, 9]) {
-    const result = tryParse(file.name, items, yTol)
-    if (result) return result
+  // Rotated layout: dedicated parser first
+  if (format === "rotated") {
+    const result = tryParseRotated(file.name, items)
+    if (result) return { ...result, format }
+    // fall through — if dedicated parser yields nothing, try standard paths
   }
 
-  // 2. Try rotated layout (headers stacked vertically, each task is a column)
-  const rotated = tryParseRotated(file.name, items)
-  if (rotated) return rotated
+  // Standard / standard-with-gantt / unknown: try horizontal layout with
+  // increasing y-tolerance to handle split header rows
+  for (const yTol of [4, 6, 9]) {
+    const result = tryParse(file.name, items, yTol)
+    if (result) return { ...result, format }
+  }
+
+  // Last resort: try rotated even when not classified as such
+  if (format !== "rotated") {
+    const result = tryParseRotated(file.name, items)
+    if (result) return { ...result, format: "rotated" as ScheduleFormat }
+  }
 
   throw new Error(
     "Could not detect schedule columns. " +
@@ -454,7 +557,40 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
 
   const { idx: headerIdx, cols } = header
   const tnCol  = cols.find(c => c.key === "TaskName")
-  const baseX  = tnCol ? tnCol.xMin : 0
+  const idCol  = cols.find(c => c.key === "ID")
+
+  // Compute the real baseX and x-clusters from actual data rows.
+  //
+  // tnCol.xMin can be set too far left when the header row contains an
+  // adjacent unrelated word (e.g. "Task" from "Task Mode") that the column
+  // detector pairs with "Task Name", shifting xMin to the left neighbour.
+  // Using the minimum x of actual task-name items gives the correct anchor.
+  //
+  // We only collect x values from rows that carry a single numeric ID so
+  // that Gantt-bar resource labels (which can fall inside the TaskName x
+  // range on chart-only pages) are excluded from the cluster calculation.
+  let baseX = tnCol ? tnCol.xMin : 0
+  let xClusters: number[] | undefined
+  if (tnCol) {
+    const taskNameXs: number[] = []
+    for (const row of rows.slice(headerIdx + 1)) {
+      if (idCol) {
+        const rawId = row
+          .filter(it => it.x >= idCol.xMin && it.x < idCol.xMax)
+          .sort((a, b) => a.x - b.x)
+          .map(it => it.str)
+          .join(" ")
+          .trim()
+        if (!rawId || !/^\d+$/.test(rawId)) continue
+      }
+      row.filter(it => it.x >= tnCol.xMin && it.x < tnCol.xMax)
+        .forEach(it => taskNameXs.push(it.x))
+    }
+    if (taskNameXs.length) {
+      xClusters = clusterXValues(taskNameXs, 8)
+      baseX = xClusters[0]
+    }
+  }
 
   // 2. Extract project name from the rows above the header
   let projectName = fileName.replace(/\.pdf$/i, "")
@@ -473,7 +609,6 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
 
   // 3. Parse data rows
   const scheduleRows: ScheduleRow[] = []
-  const idCol = cols.find(c => c.key === "ID")
   let autoId  = 0
 
   for (let i = headerIdx + 1; i < rows.length; i++) {
@@ -522,7 +657,7 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
     const stripped = name.replace(/[\d\s\-_.]/g, "")
     const isPhase  = stripped.length > 1 && stripped === stripped.toUpperCase()
 
-    const level = indentLevel(row, tnCol, baseX)
+    const level = indentLevel(row, tnCol, baseX, xClusters)
 
     scheduleRows.push({
       id:           idText,
