@@ -1,0 +1,1 @@
+ALTER TABLE qbtime_exceptions RENAME TO qbtime_whos_working_exceptions;
