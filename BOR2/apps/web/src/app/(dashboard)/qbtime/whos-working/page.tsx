@@ -26,7 +26,7 @@ const COMPANY_META: Record<string, { label: string; logo: string }> = Object.fro
 
 // ─── Hour formatting ──────────────────────────────────────────────────────────
 
-function fmtElapsed(hours: number, mode: "decimal" | "time"): string {
+function fmtHours(hours: number, mode: "decimal" | "time"): string {
   if (mode === "decimal") return `${hours.toFixed(1)}h`
   const h = Math.floor(hours)
   const m = Math.round((hours - h) * 60)
@@ -37,7 +37,7 @@ function fmtElapsed(hours: number, mode: "decimal" | "time"): string {
 
 const CANVAS_W  = 720
 const PAD       = 28
-const ROW_H     = 48
+const ROW_H     = 56
 const COL_HDR_H = 30
 const TEAM_H    = 40
 const HEADER_H  = 88
@@ -45,10 +45,8 @@ const TEAM_GAP  = 14
 const FOOTER_H  = 36
 const SF        = "'Inter', system-ui, sans-serif"
 
-// Fixed column X anchors
-const COL_NAME    = PAD + 12              // ~40
-const COL_IN_X    = 430                   // right-edge of "clock-in" value
-const COL_ELA_X   = CANVAS_W - PAD - 12  // ~680
+const COL_NAME  = PAD + 12
+const COL_R     = CANVAS_W - PAD - 12  // right edge
 
 function calcCanvasHeight(data: WhosWorkingResponse): number {
   let h = HEADER_H + PAD
@@ -82,11 +80,9 @@ function drawReport(
   ctx.fillStyle = "#161b22"
   ctx.fillRect(0, 0, CANVAS_W, HEADER_H)
 
-  // Left accent bar
   ctx.fillStyle = "#2563eb"
   ctx.fillRect(0, 0, 4, HEADER_H)
 
-  // Company label
   ctx.font         = `600 12px ${SF}`
   ctx.fillStyle    = "#60a5fa"
   ctx.textAlign    = "left"
@@ -96,21 +92,18 @@ function drawReport(
     PAD + 12, HEADER_H / 2 - 15,
   )
 
-  // Main title
   ctx.font      = `bold 26px ${SF}`
   ctx.fillStyle = "#f0f6fc"
   ctx.fillText("WHO'S WORKING", PAD + 12, HEADER_H / 2 + 12)
 
-  // Right — generated timestamp
   ctx.font      = `400 13px ${SF}`
   ctx.fillStyle = "#6e7681"
   ctx.textAlign = "right"
-  ctx.fillText(`Generated  ${data.generatedAt}`, CANVAS_W - PAD - 12, HEADER_H / 2 - 15)
+  ctx.fillText(`Generated  ${data.generatedAt}`, COL_R, HEADER_H / 2 - 15)
 
-  // Right — on clock badge
   ctx.font      = `600 15px ${SF}`
   ctx.fillStyle = "#3fb950"
-  ctx.fillText(`${data.totalOnClock} on clock`, CANVAS_W - PAD - 12, HEADER_H / 2 + 12)
+  ctx.fillText(`${data.totalOnClock} on clock`, COL_R, HEADER_H / 2 + 12)
 
   // ── Groups ───────────────────────────────────────────────────────────────────
   let y = HEADER_H + PAD
@@ -123,29 +116,27 @@ function drawReport(
     roundRect(ctx, PAD, y, bodyW, TEAM_H, 7)
     ctx.fill()
 
-    // Team name
     ctx.font         = `700 13px ${SF}`
     ctx.fillStyle    = "#c9d1d9"
     ctx.textAlign    = "left"
     ctx.textBaseline = "middle"
     ctx.fillText(group.team.toUpperCase(), COL_NAME, y + TEAM_H / 2)
 
-    // Count badge background
-    const countStr  = String(group.entries.length)
-    ctx.font        = `700 12px ${SF}`
-    const countW    = ctx.measureText(countStr).width + 14
-    const badgeX    = CANVAS_W - PAD - 12 - countW
-    const badgeY    = y + TEAM_H / 2 - 9
-    ctx.fillStyle   = "#238636"
+    const countStr = String(group.entries.length)
+    ctx.font       = `700 12px ${SF}`
+    const countW   = ctx.measureText(countStr).width + 14
+    const badgeX   = COL_R - countW
+    const badgeY   = y + TEAM_H / 2 - 9
+    ctx.fillStyle  = "#238636"
     roundRect(ctx, badgeX, badgeY, countW, 18, 9)
     ctx.fill()
-    ctx.fillStyle   = "#f0f6fc"
-    ctx.textAlign   = "right"
-    ctx.fillText(countStr, CANVAS_W - PAD - 19, y + TEAM_H / 2)
+    ctx.fillStyle  = "#f0f6fc"
+    ctx.textAlign  = "right"
+    ctx.fillText(countStr, COL_R - 7, y + TEAM_H / 2)
 
     y += TEAM_H
 
-    // Column labels row
+    // Column labels
     ctx.fillStyle    = "#0f1318"
     ctx.fillRect(PAD, y, bodyW, COL_HDR_H)
 
@@ -156,20 +147,27 @@ function drawReport(
     ctx.fillText("EMPLOYEE", COL_NAME, y + COL_HDR_H / 2)
 
     ctx.textAlign = "right"
-    ctx.fillText("CLOCK IN", COL_IN_X, y + COL_HDR_H / 2)
-    ctx.fillText("ELAPSED",  COL_ELA_X, y + COL_HDR_H / 2)
+    ctx.fillText("HOURS TODAY", COL_R, y + COL_HDR_H / 2)
 
     y += COL_HDR_H
 
     // Employee rows
     for (let i = 0; i < group.entries.length; i++) {
-      const entry = group.entries[i]
-      const rowY  = y + i * ROW_H
-      const mid   = rowY + ROW_H / 2
+      const entry      = group.entries[i]
+      const onBreak    = entry.currentBlockType === "break"
+      const rowY       = y + i * ROW_H
+      const line1Y     = rowY + ROW_H * 0.36
+      const line2Y     = rowY + ROW_H * 0.72
 
       // Row background
       ctx.fillStyle = i % 2 === 0 ? "#0d1117" : "#0f1318"
       ctx.fillRect(PAD, rowY, bodyW, ROW_H)
+
+      // Amber left bar if on break
+      if (onBreak) {
+        ctx.fillStyle = "#d29922"
+        ctx.fillRect(PAD, rowY, 3, ROW_H)
+      }
 
       // Bottom separator
       ctx.strokeStyle = "#21262d"
@@ -179,23 +177,42 @@ function drawReport(
       ctx.lineTo(CANVAS_W - PAD - 16, rowY + ROW_H)
       ctx.stroke()
 
-      // Name
+      // ── Line 1: Name  |  total hours ──────────────────────────────────────
       ctx.font         = `500 16px ${SF}`
       ctx.fillStyle    = "#e6edf3"
       ctx.textAlign    = "left"
       ctx.textBaseline = "middle"
-      ctx.fillText(entry.name, COL_NAME, mid)
+      ctx.fillText(entry.name, COL_NAME + (onBreak ? 6 : 0), line1Y)
 
-      // Clock-in time
-      ctx.font      = `500 15px ${SF}`
-      ctx.fillStyle = "#58a6ff"
-      ctx.textAlign = "right"
-      ctx.fillText(entry.clockIn, COL_IN_X, mid)
-
-      // Elapsed value
       ctx.font      = `700 16px ${SF}`
-      ctx.fillStyle = "#3fb950"
-      ctx.fillText(fmtElapsed(entry.elapsed, mode), COL_ELA_X, mid)
+      ctx.fillStyle = onBreak ? "#d29922" : "#3fb950"
+      ctx.textAlign = "right"
+      ctx.fillText(fmtHours(entry.totalWorkHours ?? entry.elapsed, mode), COL_R, line1Y)
+
+      // ── Line 2: detail  |  status ─────────────────────────────────────────
+      // Build detail string: "First: HH:MM · lunch HH:MM–HH:MM"
+      const firstIn = entry.firstClockIn || entry.clockIn
+      let detail = `First: ${firstIn}`
+      if (entry.breaks && entry.breaks.length > 0) {
+        for (const b of entry.breaks) {
+          const label = entry.breaks.length === 1 ? "lunch" : "break"
+          detail += `  ·  ${label} ${b.start}–${b.end}`
+        }
+      }
+
+      ctx.font      = `400 11px ${SF}`
+      ctx.fillStyle = "#6e7681"
+      ctx.textAlign = "left"
+      ctx.fillText(detail, COL_NAME + (onBreak ? 6 : 0), line2Y)
+
+      // Status label (right of row)
+      const statusLabel = onBreak
+        ? `on break since ${entry.currentBlockStart || entry.clockIn}`
+        : `since ${entry.currentBlockStart || entry.clockIn}`
+      ctx.font      = `400 11px ${SF}`
+      ctx.fillStyle = onBreak ? "#d29922" : "#58a6ff"
+      ctx.textAlign = "right"
+      ctx.fillText(statusLabel, COL_R, line2Y)
     }
 
     y += group.entries.length * ROW_H + TEAM_GAP

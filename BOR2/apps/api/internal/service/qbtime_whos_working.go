@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -52,11 +53,13 @@ func qbtToken(company string) string {
 // ── QB Time API response shapes ───────────────────────────────────────────────
 
 type qbtTimesheetItem struct {
-	ID       int    `json:"id"`
-	UserID   int    `json:"user_id"`
-	Start    string `json:"start"`
-	End      string `json:"end"`
-	Duration int    `json:"duration"`
+	ID         int    `json:"id"`
+	UserID     int    `json:"user_id"`
+	JobcodeID  int    `json:"jobcode_id"`
+	Start      string `json:"start"`
+	End        string `json:"end"`
+	Duration   int    `json:"duration"` // seconds; -1 when open
+	Type       string `json:"type"`     // "regular" | "break"
 }
 
 type qbtUserItem struct {
@@ -65,39 +68,24 @@ type qbtUserItem struct {
 	LastName  string `json:"last_name"`
 }
 
-type qbtOnTheClockResp struct {
+type qbtJobcodeItem struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type qbtTimesheetResp struct {
 	Results struct {
 		Timesheets map[string]qbtTimesheetItem `json:"timesheets"`
 	} `json:"results"`
 	SupplementalData struct {
-		Users map[string]qbtUserItem `json:"users"`
+		Users    map[string]qbtUserItem    `json:"users"`
+		Jobcodes map[string]qbtJobcodeItem `json:"jobcodes"`
 	} `json:"supplemental_data"`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-// GetWhosWorking calls QB Time and returns who is currently clocked in,
-// grouped by BOR2 team and with exceptions filtered out.
-func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string) (*domain.WhosWorkingResponse, error) {
-	token := qbtToken(company)
-	if token == "" {
-		return nil, fmt.Errorf("no QB Time token configured for company %q", company)
-	}
-
-	loc, err := time.LoadLocation("America/New_York")
-	if err != nil {
-		return nil, fmt.Errorf("load timezone: %w", err)
-	}
-
-	now := time.Now()
-	nowEastern := now.In(loc)
-	today := nowEastern.Format("2006-01-02")
-
-	// ── QB Time API call ──────────────────────────────────────────────────────
-	url := fmt.Sprintf(
-		"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=yes&supplemental_data=yes",
-		qbtBaseURL, today, today,
-	)
+func (s *WhosWorkingService) fetchTimesheets(ctx context.Context, token, url string) (*qbtTimesheetResp, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("build qbt request: %w", err)
@@ -119,17 +107,88 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 		return nil, fmt.Errorf("qbt api returned %d: %s", resp.StatusCode, string(body))
 	}
 
-	var qbtResp qbtOnTheClockResp
-	if err := json.Unmarshal(body, &qbtResp); err != nil {
+	var r qbtTimesheetResp
+	if err := json.Unmarshal(body, &r); err != nil {
 		return nil, fmt.Errorf("parse qbt response: %w", err)
 	}
+	return &r, nil
+}
 
-	// ── User name lookup ──────────────────────────────────────────────────────
-	type userInfo struct{ id int; name string }
-	userByID := make(map[int]userInfo, len(qbtResp.SupplementalData.Users))
-	for _, u := range qbtResp.SupplementalData.Users {
+// GetWhosWorking calls QB Time and returns who is currently clocked in,
+// grouped by BOR2 team and with exceptions filtered out.
+func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string) (*domain.WhosWorkingResponse, error) {
+	token := qbtToken(company)
+	if token == "" {
+		return nil, fmt.Errorf("no QB Time token configured for company %q", company)
+	}
+
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return nil, fmt.Errorf("load timezone: %w", err)
+	}
+
+	now := time.Now()
+	nowEastern := now.In(loc)
+	today := nowEastern.Format("2006-01-02")
+
+	// ── Two parallel QB Time calls ────────────────────────────────────────────
+	// Call 1: open blocks (on_the_clock=yes)
+	// Call 2: closed blocks for today (on_the_clock=no, same date range)
+	openURL := fmt.Sprintf(
+		"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=yes&supplemental_data=yes",
+		qbtBaseURL, today, today,
+	)
+	closedURL := fmt.Sprintf(
+		"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=no&supplemental_data=yes",
+		qbtBaseURL, today, today,
+	)
+
+	var (
+		openResp   *qbtTimesheetResp
+		closedResp *qbtTimesheetResp
+		openErr    error
+		closedErr  error
+		wg         sync.WaitGroup
+	)
+	wg.Add(2)
+	go func() { defer wg.Done(); openResp, openErr = s.fetchTimesheets(ctx, token, openURL) }()
+	go func() { defer wg.Done(); closedResp, closedErr = s.fetchTimesheets(ctx, token, closedURL) }()
+	wg.Wait()
+
+	if openErr != nil {
+		return nil, openErr
+	}
+	if closedErr != nil {
+		return nil, closedErr
+	}
+
+	// ── Build user name + jobcode lookup from both responses ──────────────────
+	type userInfo struct {
+		id   int
+		name string
+	}
+	userByID   := make(map[int]userInfo)
+	jobcodeByID := make(map[int]string)
+
+	for _, u := range openResp.SupplementalData.Users {
 		name := strings.TrimSpace(u.FirstName + " " + u.LastName)
 		userByID[u.ID] = userInfo{id: u.ID, name: name}
+	}
+	for _, u := range closedResp.SupplementalData.Users {
+		name := strings.TrimSpace(u.FirstName + " " + u.LastName)
+		userByID[u.ID] = userInfo{id: u.ID, name: name}
+	}
+	for _, jc := range openResp.SupplementalData.Jobcodes {
+		jobcodeByID[jc.ID] = jc.Name
+	}
+	for _, jc := range closedResp.SupplementalData.Jobcodes {
+		jobcodeByID[jc.ID] = jc.Name
+	}
+
+	// ── Group closed blocks by userID ─────────────────────────────────────────
+	closedByUser := make(map[int][]qbtTimesheetItem)
+	for _, ts := range closedResp.Results.Timesheets {
+		closedByUser[ts.UserID] = append(closedByUser[ts.UserID], ts)
 	}
 
 	// ── Exceptions (excluded employees) ──────────────────────────────────────
@@ -157,8 +216,8 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 	// ── Build entries grouped by team ─────────────────────────────────────────
 	groupMap := make(map[string][]domain.WhosWorkingEntry)
 
-	for _, ts := range qbtResp.Results.Timesheets {
-		u, ok := userByID[ts.UserID]
+	for _, openTS := range openResp.Results.Timesheets {
+		u, ok := userByID[openTS.UserID]
 		if !ok {
 			continue
 		}
@@ -166,11 +225,79 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 			continue
 		}
 
-		clockIn, err := time.Parse(time.RFC3339, ts.Start)
+		currentStart, err := time.Parse(time.RFC3339, openTS.Start)
 		if err != nil {
 			continue
 		}
-		elapsed := math.Max(0, math.Round(now.Sub(clockIn).Hours()*100)/100)
+		currentStart = currentStart.In(loc)
+
+		currentType := openTS.Type
+		if currentType == "" {
+			currentType = "regular"
+		}
+
+		// Aggregate closed blocks for this user.
+		var (
+			completedWorkSec  int
+			totalBreakSec     int
+			firstStart        = currentStart
+			breaks            []domain.WhosWorkingBreak
+		)
+
+		for _, closedTS := range closedByUser[openTS.UserID] {
+			s2, err := time.Parse(time.RFC3339, closedTS.Start)
+			if err != nil {
+				continue
+			}
+			s2 = s2.In(loc)
+
+			// Track the earliest clock-in across all blocks.
+			if s2.Before(firstStart) {
+				firstStart = s2
+			}
+
+			blockType := closedTS.Type
+			if blockType == "" {
+				blockType = "regular"
+			}
+
+			dur := closedTS.Duration
+			if dur < 0 {
+				dur = 0
+			}
+
+			if blockType == "regular" {
+				completedWorkSec += dur
+			} else {
+				// break block
+				totalBreakSec += dur
+				e2, err := time.Parse(time.RFC3339, closedTS.End)
+				if err == nil {
+					e2 = e2.In(loc)
+					breaks = append(breaks, domain.WhosWorkingBreak{
+						Start:   s2.Format("03:04 PM"),
+						End:     e2.Format("03:04 PM"),
+						Minutes: dur / 60,
+					})
+				}
+			}
+		}
+
+		// Sort breaks chronologically.
+		sort.Slice(breaks, func(i, j int) bool {
+			return breaks[i].Start < breaks[j].Start
+		})
+
+		// Current block contribution.
+		elapsedCurrent := math.Max(0, now.Sub(currentStart.In(time.UTC)).Hours())
+		totalWorkHours := float64(completedWorkSec) / 3600.0
+		if currentType == "regular" {
+			totalWorkHours += elapsedCurrent
+		}
+		totalWorkHours = math.Round(totalWorkHours*100) / 100
+
+		// Current address from open block's jobcode.
+		currentAddress := jobcodeByID[openTS.JobcodeID]
 
 		team := nameToTeam[strings.ToLower(u.name)]
 		if team == "" {
@@ -178,10 +305,17 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 		}
 
 		groupMap[team] = append(groupMap[team], domain.WhosWorkingEntry{
-			QBTUserID: u.id,
-			Name:      u.name,
-			ClockIn:   clockIn.In(loc).Format("03:04 PM"),
-			Elapsed:   elapsed,
+			QBTUserID:         u.id,
+			Name:              u.name,
+			ClockIn:           currentStart.Format("03:04 PM"),
+			Elapsed:           elapsedCurrent,
+			FirstClockIn:      firstStart.Format("03:04 PM"),
+			CurrentBlockStart: currentStart.Format("03:04 PM"),
+			CurrentBlockType:  currentType,
+			TotalWorkHours:    totalWorkHours,
+			TotalBreakMinutes: totalBreakSec / 60,
+			CurrentAddress:    currentAddress,
+			Breaks:            breaks,
 		})
 	}
 

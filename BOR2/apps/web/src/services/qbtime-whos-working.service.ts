@@ -5,11 +5,26 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
+export interface WhosWorkingBreak {
+  start:   string  // "07:30 AM"
+  end:     string  // "08:00 AM"
+  minutes: number
+}
+
 export interface WhosWorkingEntry {
-  qbtUserId: number
-  name:      string
-  clockIn:   string  // "07:30 AM"
-  elapsed:   number  // decimal hours
+  qbtUserId:         number
+  name:              string
+  // legacy fields (kept for backward compat)
+  clockIn:           string  // current block start, "07:30 AM"
+  elapsed:           number  // hours since current block started
+  // enriched fields
+  firstClockIn:      string  // start of first block today
+  currentBlockStart: string  // same as clockIn
+  currentBlockType:  string  // "regular" | "break"
+  totalWorkHours:    number  // sum of regular hours today
+  totalBreakMinutes: number  // sum of break minutes today
+  currentAddress:    string  // jobcode name of open block
+  breaks:            WhosWorkingBreak[]
 }
 
 export interface WhosWorkingGroup {
