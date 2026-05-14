@@ -26,7 +26,7 @@ func (r *PostgresQBTimeExceptionsRepository) List(ctx context.Context, company s
 	rows, err := r.db.Query(ctx, `
 		SELECT id, company, employee_name, created_at
 		FROM qbtime_exceptions
-		WHERE company = $1
+		WHERE LOWER(company) = $1
 		ORDER BY employee_name ASC
 	`, company)
 	if err != nil {
