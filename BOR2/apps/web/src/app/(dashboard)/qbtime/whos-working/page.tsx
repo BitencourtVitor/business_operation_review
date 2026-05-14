@@ -35,20 +35,20 @@ function fmtElapsed(hours: number, mode: "decimal" | "time"): string {
 
 // ─── Canvas renderer ──────────────────────────────────────────────────────────
 
-const CANVAS_W  = 900
-const PAD       = 32
-const ROW_H     = 44
-const COL_HDR_H = 28   // column label row inside each group
-const TEAM_H    = 36
-const HEADER_H  = 84
-const TEAM_GAP  = 16
+const CANVAS_W  = 720
+const PAD       = 28
+const ROW_H     = 48
+const COL_HDR_H = 30
+const TEAM_H    = 40
+const HEADER_H  = 88
+const TEAM_GAP  = 14
 const FOOTER_H  = 36
 const SF        = "'Inter', system-ui, sans-serif"
 
 // Fixed column X anchors
-const COL_NAME    = PAD + 16
-const COL_IN_X    = 560        // right-edge of "clock-in" value
-const COL_ELA_X   = CANVAS_W - PAD - 16  // right-edge of elapsed value
+const COL_NAME    = PAD + 12              // ~40
+const COL_IN_X    = 430                   // right-edge of "clock-in" value
+const COL_ELA_X   = CANVAS_W - PAD - 12  // ~680
 
 function calcCanvasHeight(data: WhosWorkingResponse): number {
   let h = HEADER_H + PAD
@@ -87,30 +87,30 @@ function drawReport(
   ctx.fillRect(0, 0, 4, HEADER_H)
 
   // Company label
-  ctx.font         = `600 11px ${SF}`
+  ctx.font         = `600 12px ${SF}`
   ctx.fillStyle    = "#60a5fa"
   ctx.textAlign    = "left"
   ctx.textBaseline = "middle"
   ctx.fillText(
     (COMPANY_META[data.company]?.label ?? data.company).toUpperCase(),
-    PAD + 12, HEADER_H / 2 - 13,
+    PAD + 12, HEADER_H / 2 - 15,
   )
 
   // Main title
-  ctx.font      = `bold 24px ${SF}`
+  ctx.font      = `bold 26px ${SF}`
   ctx.fillStyle = "#f0f6fc"
-  ctx.fillText("WHO'S WORKING", PAD + 12, HEADER_H / 2 + 11)
+  ctx.fillText("WHO'S WORKING", PAD + 12, HEADER_H / 2 + 12)
 
   // Right — generated timestamp
-  ctx.font      = `400 12px ${SF}`
+  ctx.font      = `400 13px ${SF}`
   ctx.fillStyle = "#6e7681"
   ctx.textAlign = "right"
-  ctx.fillText(`Generated  ${data.generatedAt}`, CANVAS_W - PAD - 12, HEADER_H / 2 - 13)
+  ctx.fillText(`Generated  ${data.generatedAt}`, CANVAS_W - PAD - 12, HEADER_H / 2 - 15)
 
   // Right — on clock badge
-  ctx.font      = `600 13px ${SF}`
+  ctx.font      = `600 15px ${SF}`
   ctx.fillStyle = "#3fb950"
-  ctx.fillText(`${data.totalOnClock} on clock`, CANVAS_W - PAD - 12, HEADER_H / 2 + 11)
+  ctx.fillText(`${data.totalOnClock} on clock`, CANVAS_W - PAD - 12, HEADER_H / 2 + 12)
 
   // ── Groups ───────────────────────────────────────────────────────────────────
   let y = HEADER_H + PAD
@@ -124,7 +124,7 @@ function drawReport(
     ctx.fill()
 
     // Team name
-    ctx.font         = `700 11px ${SF}`
+    ctx.font         = `700 13px ${SF}`
     ctx.fillStyle    = "#c9d1d9"
     ctx.textAlign    = "left"
     ctx.textBaseline = "middle"
@@ -132,7 +132,7 @@ function drawReport(
 
     // Count badge background
     const countStr  = String(group.entries.length)
-    ctx.font        = `700 11px ${SF}`
+    ctx.font        = `700 12px ${SF}`
     const countW    = ctx.measureText(countStr).width + 14
     const badgeX    = CANVAS_W - PAD - 12 - countW
     const badgeY    = y + TEAM_H / 2 - 9
@@ -149,7 +149,7 @@ function drawReport(
     ctx.fillStyle    = "#0f1318"
     ctx.fillRect(PAD, y, bodyW, COL_HDR_H)
 
-    ctx.font         = `500 10px ${SF}`
+    ctx.font         = `500 11px ${SF}`
     ctx.fillStyle    = "#484f58"
     ctx.textAlign    = "left"
     ctx.textBaseline = "middle"
@@ -180,20 +180,20 @@ function drawReport(
       ctx.stroke()
 
       // Name
-      ctx.font         = `500 14px ${SF}`
+      ctx.font         = `500 16px ${SF}`
       ctx.fillStyle    = "#e6edf3"
       ctx.textAlign    = "left"
       ctx.textBaseline = "middle"
       ctx.fillText(entry.name, COL_NAME, mid)
 
       // Clock-in time
-      ctx.font      = `500 13px ${SF}`
+      ctx.font      = `500 15px ${SF}`
       ctx.fillStyle = "#58a6ff"
       ctx.textAlign = "right"
       ctx.fillText(entry.clockIn, COL_IN_X, mid)
 
       // Elapsed value
-      ctx.font      = `700 14px ${SF}`
+      ctx.font      = `700 16px ${SF}`
       ctx.fillStyle = "#3fb950"
       ctx.fillText(fmtElapsed(entry.elapsed, mode), COL_ELA_X, mid)
     }
@@ -483,8 +483,8 @@ export default function WhosWorkingPage() {
           )}
 
           {data && !isFetching && (
-            <div className="flex justify-start">
-              <div className="overflow-hidden rounded-xl border border-border">
+            <div className="overflow-x-auto">
+              <div className="w-fit border border-border">
                 <canvas ref={canvasRef} className="block" />
               </div>
             </div>
