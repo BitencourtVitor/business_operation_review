@@ -44,7 +44,7 @@ func (r *PostgresQBTimeTeamRepository) List(ctx context.Context, company string)
 	rows, err := r.db.Query(ctx, `
 		SELECT id, company, name, array_to_json(members)::text, created_at
 		FROM qbtime_teams
-		WHERE company = $1
+		WHERE LOWER(company) = $1
 		ORDER BY created_at ASC
 	`, company)
 	if err != nil {
