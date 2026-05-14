@@ -6,6 +6,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  HardHat,
   Loader2,
   MessageSquare,
   Pencil,
@@ -33,7 +34,6 @@ import {
   EventTypeIcon,
   useIsDark,
 } from "../_lib/schedule-utils"
-import { resColor, resIcon, resSubLogo, toTitleCase } from "../_lib/trade-config"
 
 export function DatesViewer({
   visibleRows,
@@ -43,7 +43,6 @@ export function DatesViewer({
   toggleRow,
   rowPhaseIdx,
   phaseColors,
-  oursSet,
   rowMetas,
   onMetaChange,
   buildingId,
@@ -60,7 +59,6 @@ export function DatesViewer({
   toggleRow:       (id: string) => void
   rowPhaseIdx:     Record<string, number>
   phaseColors:     string[]
-  oursSet:         Set<string>
   rowMetas:        Map<string, RowMeta>
   onMetaChange:    (rowId: string, patch: Partial<RowMeta>) => void
   buildingId:      string
@@ -180,17 +178,16 @@ export function DatesViewer({
   return (
     <div className="flex-1 overflow-auto">
       <TooltipProvider>
-      <div className="min-w-[840px] flex flex-col">
+      <div className="min-w-[980px] flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
-          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center px-3">Task</div>
-          <div className="sticky left-[280px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
-          <div className="sticky left-[360px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
-          <div className="sticky left-[448px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[420px] shrink-0 self-stretch flex items-center px-3">Task</div>
+          <div className="sticky left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
+          <div className="sticky left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
+          <div className="sticky left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Start</div>
-          <div className="bg-muted/90 border-r border-border/50 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
-          <div className="bg-muted/90 flex-1 min-w-[160px] flex items-center pl-3">Trades</div>
+          <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
         </div>
 
         {mergedRows.map((item, i) => {
@@ -210,20 +207,20 @@ export function DatesViewer({
                 className="group/evrow flex items-center border-b border-border/20"
                 style={{ height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
               >
-                <div className="sticky left-0 z-10 w-[280px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ backgroundColor: evBg }}>
+                <div className="sticky left-0 z-10 w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ backgroundColor: evBg }}>
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
                   {item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
                   <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
                 </div>
-                <div className="sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="sticky left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evDuration}
                 </div>
-                <div className="sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="sticky left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </div>
-                <div className="sticky left-[448px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="sticky left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evFinish ? evFinish.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                 </div>
                 <div className="flex-1 self-stretch flex items-center justify-end pr-2" style={{ backgroundColor: evBg }}>
@@ -245,9 +242,7 @@ export function DatesViewer({
           const indent          = 8 + (row.level - 1) * 14
           const meta            = rowMetas.get(row.id)
           const isDone          = meta?.status === "done"
-          const isOurs          = !isDone && row.resources.some(r => oursSet.has(r))
-          const oursResource    = isOurs ? row.resources.find(r => oursSet.has(r)) : null
-          const oursSubLogo     = oursResource ? resSubLogo(oursResource) : null
+          const isOurs          = !!meta?.is_ours
           const isStartOverdue  = !isDone && !!row.startDate  && row.startDate  < today
           const isFinishOverdue = !isDone && !!row.finishDate && row.finishDate < today
           const isRowActive     = hoveredRowId === row.id || lockedRowId === row.id
@@ -272,7 +267,7 @@ export function DatesViewer({
               {/* Task label */}
               <div
                 className={cn(
-                  "sticky left-0 z-30 border-r border-border/50 w-[280px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
+                  "sticky left-0 z-30 border-r border-border/50 w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
                   (isDone || isOurs) ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
@@ -287,9 +282,8 @@ export function DatesViewer({
                   </button>
                 ) : <span className="w-4 shrink-0" />}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
-                {isOurs && oursSubLogo && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={oursSubLogo} alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-70" />
+                {isOurs && (
+                  <HardHat className="shrink-0 h-3 w-3 text-amber-500" aria-hidden />
                 )}
                 <span className={cn("text-[11px] ml-1 whitespace-nowrap",
                   isRowActive
@@ -303,17 +297,17 @@ export function DatesViewer({
               </div>
 
               {/* Duration */}
-              <div className={cn("sticky left-[280px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
+              <div className={cn("sticky left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
                 {row.isMilestone ? "◆" : row.durationText}
               </div>
 
               {/* Start */}
-              <div className={cn("sticky left-[360px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("sticky left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.startDate)}
               </div>
 
               {/* Finish */}
-              <div className={cn("sticky left-[448px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("sticky left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.finishDate)}
               </div>
 
@@ -356,7 +350,7 @@ export function DatesViewer({
                   ? (dateEditState!.realFinish ? new Date(dateEditState!.realFinish + "T00:00:00") : undefined)
                   : (meta?.real_finish ? new Date(meta.real_finish + "T00:00:00") : undefined)
                 return (
-                  <div className="border-r border-border/50 w-[100px] shrink-0 self-stretch flex items-center justify-center text-xs">
+                  <div className="w-[100px] shrink-0 self-stretch flex items-center justify-center text-xs">
                     {isEditing ? (
                       <Popover>
                         <PopoverTrigger className={cn("w-[88px] text-[11px] text-center border border-primary rounded px-1 py-0.5 hover:bg-muted/50 transition-colors truncate", dateEditState!.realFinish ? "text-foreground" : "text-muted-foreground")}>
@@ -380,21 +374,6 @@ export function DatesViewer({
                   </div>
                 )
               })()}
-
-              {/* Trades */}
-              <div className="flex-1 min-w-[160px] flex flex-wrap gap-x-3 gap-y-1 px-3 py-1 items-center">
-                {row.resources.map(r => {
-                  const Icon = resIcon(r)
-                  return (
-                    <span key={r} className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                      <span className={cn("w-5 h-5 rounded flex items-center justify-center shrink-0", resColor(r))}>
-                        {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0, 2)}</span>}
-                      </span>
-                      <span>{toTitleCase(r)}</span>
-                    </span>
-                  )
-                })}
-              </div>
 
               {/* Floating action buttons (zero-width sticky anchor) */}
               <div className="sticky right-0 z-20 shrink-0 overflow-visible" style={{ width: 0, alignSelf: "stretch" }}>
@@ -517,6 +496,24 @@ export function DatesViewer({
                           <TooltipContent side="top">Add comment</TooltipContent>
                         </Tooltip>
                       )}
+
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              onMouseDown={e => e.stopPropagation()}
+                              onClick={() => onMetaChange(row.id, { is_ours: !isOurs })}
+                              className={cn(
+                                "flex items-center justify-center w-5 h-5 rounded transition-colors",
+                                isOurs ? "text-amber-500 hover:bg-amber-500/10" : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                              )}
+                            />
+                          }
+                        >
+                          <HardHat className="w-3.5 h-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top">{isOurs ? "Unmark as our work" : "Mark as our work"}</TooltipContent>
+                      </Tooltip>
                     </>
                   )}
                 </div>

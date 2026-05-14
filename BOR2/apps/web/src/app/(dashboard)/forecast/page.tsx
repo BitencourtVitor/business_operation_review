@@ -158,7 +158,7 @@ interface FiltersPopoverProps {
   status:       StatusToggles
   integ:        IntegFilters
   client:       string
-  location:     string
+  location:     string[]
   type:         "all" | "building" | "lot"
   activeCount:  number
   clientOpts:   string[]
@@ -166,7 +166,7 @@ interface FiltersPopoverProps {
   onStatus:     (k: keyof StatusToggles, v: StatusMode) => void
   onInteg:      (k: keyof IntegFilters, v: IntegMode) => void
   onClient:     (v: string) => void
-  onLocation:   (v: string) => void
+  onLocation:   (v: string[]) => void
   onType:       (v: "all" | "building" | "lot") => void
   onClear:      () => void
 }
@@ -174,6 +174,14 @@ interface FiltersPopoverProps {
 function FiltersPopover(props: FiltersPopoverProps) {
   const { status, integ, client, location, type, activeCount, clientOpts, locationOpts,
           onStatus, onInteg, onClient, onLocation, onType, onClear } = props
+
+  function toggleLocation(loc: string) {
+    if (location.includes(loc)) {
+      onLocation(location.filter(l => l !== loc))
+    } else {
+      onLocation([...location, loc])
+    }
+  }
 
   const hasOnly = Object.values(status).some(v => v === "only")
 
@@ -238,19 +246,53 @@ function FiltersPopover(props: FiltersPopoverProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Location */}
+                {/* Location — multi-select */}
                 <div className="flex flex-1 flex-col gap-1">
                   <span className="text-[10px] font-medium text-muted-foreground">Location</span>
-                  <Select value={location} onValueChange={(v) => onLocation(v ?? "all")}>
-                    <SelectTrigger className="h-7 w-full gap-1.5 text-xs">
+                  <Popover>
+                    <PopoverTrigger
+                      render={
+                        <button className="flex h-7 w-full items-center gap-1.5 rounded-md border border-input bg-transparent px-2 text-xs text-muted-foreground hover:text-foreground transition-colors" />
+                      }
+                    >
                       <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 truncate text-left">{location === "all" ? "All" : location}</span>
-                    </SelectTrigger>
-                    <SelectContent className="min-w-max">
-                      <SelectItem value="all">All</SelectItem>
-                      {locationOpts.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                      <span className="flex-1 truncate text-left">
+                        {location.length === 0 ? "All" : location.length === 1 ? location[0] : `${location.length} selected`}
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" sideOffset={4} className="w-52 p-1">
+                      <button
+                        onClick={() => onLocation([])}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors hover:bg-muted",
+                          location.length === 0 && "font-medium text-foreground",
+                        )}
+                      >
+                        <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-sm border", location.length === 0 ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                          {location.length === 0 && <X className="h-2.5 w-2.5" />}
+                        </span>
+                        All
+                      </button>
+                      <div className="my-1 h-px bg-border" />
+                      <div className="max-h-48 overflow-y-auto">
+                        {locationOpts.map(l => {
+                          const checked = location.includes(l)
+                          return (
+                            <button
+                              key={l}
+                              onClick={() => toggleLocation(l)}
+                              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors hover:bg-muted"
+                            >
+                              <span className={cn("flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border", checked ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                                {checked && <X className="h-2.5 w-2.5" />}
+                              </span>
+                              <span className="truncate">{l}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </div>
@@ -326,7 +368,7 @@ export default function ForecastPage() {
   const [status, setStatus]     = useState<StatusToggles>(DEFAULT_STATUS)
   const [integ, setInteg]       = useState<IntegFilters>(DEFAULT_INTEG)
   const [client, setClient]     = useState("all")
-  const [location, setLocation] = useState("all")
+  const [location, setLocation] = useState<string[]>([])
   const [type, setType]         = useState<"all" | "building" | "lot">("all")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
@@ -343,7 +385,7 @@ export default function ForecastPage() {
     ;(Object.keys(DEFAULT_STATUS) as (keyof StatusToggles)[]).forEach(k => { if (status[k] !== DEFAULT_STATUS[k]) n++ })
     Object.values(integ).forEach(v => { if (v !== "all") n++ })
     if (client !== "all") n++
-    if (location !== "all") n++
+    if (location.length > 0) n++
     if (type !== "all") n++
     return n
   }, [status, integ, client, location, type])
@@ -352,7 +394,7 @@ export default function ForecastPage() {
     setStatus(DEFAULT_STATUS)
     setInteg(DEFAULT_INTEG)
     setClient("all")
-    setLocation("all")
+    setLocation([])
     setType("all")
   }
 
@@ -391,7 +433,7 @@ export default function ForecastPage() {
 
       // Project filters
       if (client !== "all" && p.cliente !== client) return false
-      if (location !== "all" && p.jobSite !== location) return false
+      if (location.length > 0 && !location.includes(p.jobSite ?? "")) return false
 
       // Type filter
       if (type !== "all") {

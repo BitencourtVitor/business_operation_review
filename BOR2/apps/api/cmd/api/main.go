@@ -131,6 +131,8 @@ func main() {
 	qbtimeDailyHandler       := handler.NewQBTimeDailyReportHandler(qbtimeDailySvc, auditService)
 	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
+	weeklyReportSvc          := service.NewWeeklyReportService()
+	weeklyReportHandler      := handler.NewWeeklyReportHandler(weeklyReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
@@ -242,6 +244,9 @@ func main() {
 
 	// QBTime Who's Working
 	api.Get("/qbtime/whos-working", whosWorkingHandler.Get)
+
+	// QBTime Weekly Report
+	api.Get("/qbtime/weekly-report", weeklyReportHandler.Get)
 
 	// QBTime Exceptions
 	qbtimeExceptions := api.Group("/qbtime/exceptions")

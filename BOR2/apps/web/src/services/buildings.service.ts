@@ -39,6 +39,7 @@ export interface RowMetaItem {
   real_start:  string | null
   real_finish: string | null
   is_finished: boolean
+  is_ours:     boolean
 }
 
 export interface ScheduleResponse {
@@ -169,6 +170,7 @@ export const buildingsService = {
       real_start?:  string | null
       real_finish?: string | null
       is_finished?: boolean
+      is_ours?:     boolean
     },
   ) =>
     api.patch<void>(`/api/v1/buildings/${buildingId}/schedule/row-meta/${rowId}`, patch, tok()),
