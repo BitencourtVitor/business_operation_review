@@ -1,0 +1,41 @@
+name: OFI Monthly Calculator
+
+on:
+  # Runs at 23:59 UTC on days 28–31 of every month.
+  # The API endpoint itself is idempotent — safe to run on non-last days.
+  schedule:
+    - cron: '59 23 28-31 * *'
+  # Allow manual trigger for backfill / testing
+  workflow_dispatch:
+
+jobs:
+  calculate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if today is the last day of the month
+        id: check
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          TOMORROW=$(date -u -d "+1 day" +%Y-%m-%d)
+          if [ "$(date -u -d "$TODAY" +%m)" != "$(date -u -d "$TOMORROW" +%m)" ]; then
+            echo "last_day=true" >> "$GITHUB_OUTPUT"
+            echo "Today ($TODAY) is the last day of the month — will trigger OFI."
+          else
+            echo "last_day=false" >> "$GITHUB_OUTPUT"
+            echo "Today ($TODAY) is NOT the last day of the month — skipping."
+          fi
+
+      - name: Trigger OFI calculate
+        if: steps.check.outputs.last_day == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          STATUS=$(curl -s -o /tmp/ofi_resp.json -w "%{http_code}" \
+            -X POST "${{ secrets.API_URL }}/api/v1/ofi/calculate" \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            -d '{}')
+          echo "HTTP status: $STATUS"
+          cat /tmp/ofi_resp.json
+          if [ "$STATUS" != "200" ]; then
+            echo "OFI calculate failed with HTTP $STATUS" >&2
+            exit 1
+          fi

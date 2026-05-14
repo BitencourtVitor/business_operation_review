@@ -44,6 +44,7 @@ type RowMetaItem struct {
 	RealStart   *string `json:"real_start"`
 	RealFinish  *string `json:"real_finish"`
 	IsFinished  bool    `json:"is_finished"`
+	IsOurs      bool    `json:"is_ours"`
 }
 
 type RowComment struct {
@@ -344,7 +345,7 @@ func (h *BuildingsHandler) GetScheduleRowMeta(c *fiber.Ctx) error {
 	buildingID := c.Params("id")
 	rows, err := h.db.Query(c.Context(), `
 		SELECT m.row_id, m.status, m.observation,
-		       m.real_start::text, m.real_finish::text, m.is_finished
+		       m.real_start::text, m.real_finish::text, m.is_finished, m.is_ours
 		FROM construction_schedule_row_meta m
 		JOIN construction_schedules s ON s.id = m.schedule_id
 		WHERE s.building_id = $1 AND s.is_current = TRUE
@@ -360,7 +361,7 @@ func (h *BuildingsHandler) GetScheduleRowMeta(c *fiber.Ctx) error {
 		var item RowMetaItem
 		if err := rows.Scan(
 			&item.RowID, &item.Status, &item.Observation,
-			&item.RealStart, &item.RealFinish, &item.IsFinished,
+			&item.RealStart, &item.RealFinish, &item.IsFinished, &item.IsOurs,
 		); err != nil {
 			continue
 		}
@@ -385,6 +386,7 @@ func (h *BuildingsHandler) UpsertScheduleRowMeta(c *fiber.Ctx) error {
 		RealStart   json.RawMessage `json:"real_start"`
 		RealFinish  json.RawMessage `json:"real_finish"`
 		IsFinished  *bool           `json:"is_finished"`
+		IsOurs      *bool           `json:"is_ours"`
 	}
 	if err := json.Unmarshal(c.Body(), &body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
@@ -421,25 +423,27 @@ func (h *BuildingsHandler) UpsertScheduleRowMeta(c *fiber.Ctx) error {
 	// $6/$8 are the actual values (nil = NULL = clear the column).
 	_, err := h.db.Exec(c.Context(), `
 		INSERT INTO construction_schedule_row_meta
-			(schedule_id, row_id, status, observation, real_start, real_finish, is_finished)
+			(schedule_id, row_id, status, observation, real_start, real_finish, is_finished, is_ours)
 		VALUES ($1, $2,
 			COALESCE($3, 'pending'),
 			COALESCE($4, ''),
 			CASE WHEN $5 THEN $6::date ELSE NULL END,
 			CASE WHEN $7 THEN $8::date ELSE NULL END,
-			COALESCE($9, false))
+			COALESCE($9, false),
+			COALESCE($10, false))
 		ON CONFLICT (schedule_id, row_id) DO UPDATE SET
 			status      = COALESCE($3, construction_schedule_row_meta.status),
 			observation = COALESCE($4, construction_schedule_row_meta.observation),
 			real_start  = CASE WHEN $5 THEN $6::date ELSE construction_schedule_row_meta.real_start  END,
 			real_finish = CASE WHEN $7 THEN $8::date ELSE construction_schedule_row_meta.real_finish END,
 			is_finished = CASE WHEN $9 IS NOT NULL THEN $9 ELSE construction_schedule_row_meta.is_finished END,
+			is_ours     = CASE WHEN $10 IS NOT NULL THEN $10 ELSE construction_schedule_row_meta.is_ours END,
 			updated_at  = NOW()
 	`, schedID, rowID,
 		body.Status, body.Observation,
 		rsSet, rsVal,
 		rfSet, rfVal,
-		body.IsFinished)
+		body.IsFinished, body.IsOurs)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}

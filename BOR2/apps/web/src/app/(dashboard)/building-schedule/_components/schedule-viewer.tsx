@@ -138,6 +138,7 @@ export function ScheduleViewer({
             real_start:  item.real_start  ?? null,
             real_finish: item.real_finish ?? null,
             is_finished: item.is_finished ?? false,
+            is_ours:     item.is_ours     ?? false,
           })
         }
         setRowMetas(map)
@@ -148,7 +149,7 @@ export function ScheduleViewer({
   const onMetaChange = useCallback((rowId: string, patch: Partial<RowMeta>) => {
     setRowMetas(prev => {
       const next    = new Map(prev)
-      const current = next.get(rowId) ?? { status: "pending", observation: "", real_start: null, real_finish: null, is_finished: false }
+      const current = next.get(rowId) ?? { status: "pending", observation: "", real_start: null, real_finish: null, is_finished: false, is_ours: false }
       next.set(rowId, { ...current, ...patch })
       return next
     })
@@ -171,7 +172,8 @@ export function ScheduleViewer({
     return result
   }, [visibleRows, activeEvents])
 
-  const shared = { displayRows, visibleRows, mergedRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors, oursSet }
+  const shared    = { displayRows, visibleRows, mergedRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors, oursSet }
+  const datesShared = { displayRows, visibleRows, mergedRows, hasKidsMap, expandedIds, toggleRow, rowPhaseIdx, phaseColors }
   const evCallbacks = {
     onEditEvent:   (ev: ScheduleEvent) => setEditingEvent(ev),
     onDeleteEvent: (ev: ScheduleEvent) => setDeletingEvent(ev),
@@ -187,7 +189,7 @@ export function ScheduleViewer({
       )}
       {viewMode === "gantt" && schedule.projectStart && schedule.projectFinish
         ? <GanttViewer schedule={schedule} {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} filterYear={filterYear} filterMonth={filterMonth} {...evCallbacks} />
-        : <DatesViewer {...shared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} {...evCallbacks} />
+        : <DatesViewer {...datesShared} rowMetas={rowMetas} onMetaChange={onMetaChange} buildingId={buildingId} currentUserName={currentUserName} commentsMap={commentsMap} setCommentsMap={setCommentsMap} {...evCallbacks} />
       }
     </>
   )

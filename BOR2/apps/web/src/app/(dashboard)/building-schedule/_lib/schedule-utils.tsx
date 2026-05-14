@@ -35,6 +35,7 @@ export type RowMeta = {
   real_start:  string | null
   real_finish: string | null
   is_finished: boolean
+  is_ours:     boolean
 }
 
 // ─── Event row types ──────────────────────────────────────────────────────────

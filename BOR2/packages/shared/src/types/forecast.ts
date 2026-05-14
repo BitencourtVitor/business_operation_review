@@ -30,8 +30,8 @@ export interface ForecastProject {
   company: Company
   name: string
   status: ForecastStatus
-  startDate: string
-  endDate: string
+  startDate: string | null
+  endDate: string | null
   contractValue: number
   team: string
   qbTime: boolean

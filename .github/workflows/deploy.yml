@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       base-image: ${{ steps.filter.outputs.base-image }}
-      web: ${{ steps.filter.outputs.web }}
-      api: ${{ steps.filter.outputs.api }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,10 +18,6 @@ jobs:
           filters: |
             base-image:
               - 'BOR2/apps/web/Dockerfile.base'
-            web:
-              - 'BOR2/apps/web/**'
-            api:
-              - 'BOR2/apps/api/**'
 
   build-base-image:
     needs: paths-filter
@@ -49,64 +43,3 @@ jobs:
           file: BOR2/apps/web/Dockerfile.base
           push: true
           tags: ghcr.io/bitencourtvitor/bor-base:bun-1.3.11
-
-  deploy-web:
-    needs: [paths-filter, build-base-image]
-    if: |
-      always() &&
-      needs.paths-filter.outputs.web == 'true' &&
-      (needs.build-base-image.result == 'success' || needs.build-base-image.result == 'skipped')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Railway web deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          response=$(curl -s -X POST \
-            -H "Authorization: Bearer $RAILWAY_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"8ec0eb46-9650-459f-b5bf-ed78b8c45b39\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
-            https://backboard.railway.app/graphql/v2)
-          echo "$response"
-          if echo "$response" | grep -q '"errors"'; then
-            echo "Railway deploy failed"
-            exit 1
-          fi
-
-  deploy-api:
-    needs: paths-filter
-    if: needs.paths-filter.outputs.api == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Railway API deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          response=$(curl -s -X POST \
-            -H "Authorization: Bearer $RAILWAY_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"2ed6d89d-a8c1-4991-9bfe-3239d0b24c11\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
-            https://backboard.railway.app/graphql/v2)
-          echo "$response"
-          if echo "$response" | grep -q '"errors"'; then
-            echo "Railway API deploy failed"
-            exit 1
-          fi
-
-      - name: Trigger Railway Monthly Calculator deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          response=$(curl -s -X POST \
-            -H "Authorization: Bearer $RAILWAY_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"4f924f85-e26a-42e7-ae12-edb034a1163d\\\", environmentId: \\\"259dcbce-b122-4341-ac64-15f4285abcc8\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}" \
-            https://backboard.railway.app/graphql/v2)
-          echo "$response"
-          if echo "$response" | grep -q '"errors"'; then
-            echo "Railway Monthly Calculator deploy failed"
-            exit 1
-          fi
