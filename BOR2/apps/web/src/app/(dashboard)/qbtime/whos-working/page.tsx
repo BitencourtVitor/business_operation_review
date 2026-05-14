@@ -236,17 +236,20 @@ function ExceptionsPanel({ company }: { company: string }) {
   const { data: exceptions = [] } = useWhosWorkingExceptions(company)
   const upsert                    = useUpsertException(company)
   const remove                    = useDeleteException(company)
+  const [pendingName, setPendingName] = useState<string | null>(null)
 
   const exceptionSet = new Set(exceptions.map(e => e.employeeName.toLowerCase()))
 
   function toggle(name: string) {
+    if (pendingName) return
+    setPendingName(name)
     const existing = exceptions.find(
       e => e.employeeName.toLowerCase() === name.toLowerCase()
     )
     if (existing) {
-      remove.mutate(existing.id)
+      remove.mutate(existing.id, { onSettled: () => setPendingName(null) })
     } else {
-      upsert.mutate(name)
+      upsert.mutate(name,        { onSettled: () => setPendingName(null) })
     }
   }
 
@@ -267,19 +270,27 @@ function ExceptionsPanel({ company }: { company: string }) {
           </p>
           <div className="flex flex-wrap gap-2">
             {(team.members ?? []).map(member => {
-              const excluded = exceptionSet.has(member.toLowerCase())
+              const excluded   = exceptionSet.has(member.toLowerCase())
+              const isPending  = pendingName === member
               return (
                 <button
                   key={member}
                   onClick={() => toggle(member)}
-                  className={[
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                    excluded
-                      ? "border-destructive/40 bg-destructive/10 text-destructive line-through"
-                      : "border-border bg-secondary text-foreground hover:bg-accent",
-                  ].join(" ")}
+                  disabled={isPending}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
+                    isPending
+                      ? "cursor-wait opacity-60 border-border bg-secondary text-muted-foreground"
+                      : excluded
+                        ? "border-destructive/40 bg-destructive/10 text-destructive line-through hover:bg-destructive/20"
+                        : "border-border bg-secondary text-foreground hover:bg-accent",
+                  )}
                 >
-                  {excluded && <UserX className="h-3 w-3" />}
+                  {isPending
+                    ? <Loader2 className="h-3 w-3 animate-spin" />
+                    : excluded
+                      ? <UserX className="h-3 w-3" />
+                      : null}
                   {member}
                 </button>
               )
