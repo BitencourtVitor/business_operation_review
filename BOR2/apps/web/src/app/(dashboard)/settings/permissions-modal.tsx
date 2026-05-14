@@ -64,6 +64,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
           { key: "daily_report",      label: "Daily Report",        icon: CalendarDays  },
           { key: "pay_period_report", label: "Pay Period Report",   icon: ScrollText    },
           { key: "weekly_hours",      label: "Weekly Hours Control",icon: CalendarClock },
+          { key: "whos_working",      label: "Who's Working",       icon: UserCheck     },
         ],
       },
     ],
