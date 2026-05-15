@@ -283,7 +283,7 @@ export function DatesViewer({
                 ) : <span className="w-4 shrink-0" />}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
                 {isOurs && (
-                  <HardHat className="shrink-0 h-3 w-3 text-amber-500" aria-hidden />
+                  <HardHat className="shrink-0 h-3 w-3 text-gray-500 dark:text-gray-400" aria-hidden />
                 )}
                 <span className={cn("text-[11px] ml-1 whitespace-nowrap",
                   isRowActive
