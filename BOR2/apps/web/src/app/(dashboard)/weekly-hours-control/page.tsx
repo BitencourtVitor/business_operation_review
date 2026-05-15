@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { ChevronDown, ChevronRight, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronsDownUp, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
@@ -103,7 +104,8 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
-function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[]): HTMLCanvasElement {
+// dayLabel: when provided → day mode (2 cols: name + hours for that day). Undefined → week mode (4 cols).
+function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const W = 860, padX = 40, padY = 36, rowH = 42, thH = 40, titleH = 72, statsH = 72, footerH = 32
   const H = padY + titleH + statsH + thH + results.length * rowH + padY + footerH
@@ -120,13 +122,19 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
 
   const pastLabel = rangeLabel(pastDays)
   const remainingLabel = rangeLabel(remainingDays)
+  const isDayMode = !!dayLabel
 
-  const cols = [
-    { label: "Employee", x: padX, w: 300, align: "left" as const },
-    { label: `Hours ${pastLabel}`, x: padX + 300, w: 150, align: "center" as const },
-    { label: "Surplus", x: padX + 450, w: 130, align: "center" as const },
-    { label: `${remainingLabel} Available`, x: padX + 580, w: 200, align: "center" as const },
-  ]
+  const cols = isDayMode
+    ? [
+        { label: "Employee",            x: padX,       w: 560, align: "left"   as const },
+        { label: `Hours ${dayLabel}`,   x: padX + 560, w: 200, align: "center" as const },
+      ]
+    : [
+        { label: "Employee",                  x: padX,       w: 300, align: "left"   as const },
+        { label: `Hours ${pastLabel}`,        x: padX + 300, w: 150, align: "center" as const },
+        { label: "Surplus",                   x: padX + 450, w: 130, align: "center" as const },
+        { label: `${remainingLabel} Available`, x: padX + 580, w: 200, align: "center" as const },
+      ]
 
   ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H)
   ctx.fillStyle = CARD
@@ -139,12 +147,19 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   ctx.font = `12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
   ctx.fillText(`Week of ${weekStart}  ·  ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "short", day: "numeric" })}`, padX, padY + 44)
 
-  const sy = padY + titleH, sw = (W - padX * 2) / 3 - 8
-  const statData = [
-    { label: "Employees", value: `${results.length}`, color: ACCENT },
-    { label: `Expected ${pastLabel}`, value: `${hoursPerDay * pastDays.length}h`, color: T1 },
-    { label: `Max ${remainingLabel}`, value: `${hoursPerDay * remainingDays.length}h`, color: GREEN },
-  ]
+  const sy = padY + titleH
+  const totalHours = results.reduce((s, r) => s + r.hoursLogged, 0)
+  const statData = isDayMode
+    ? [
+        { label: "Employees",          value: `${results.length}`,           color: ACCENT },
+        { label: `Total ${dayLabel}`,  value: `${totalHours.toFixed(1)}h`,   color: T1 },
+      ]
+    : [
+        { label: "Employees",            value: `${results.length}`,                     color: ACCENT },
+        { label: `Expected ${pastLabel}`, value: `${hoursPerDay * pastDays.length}h`,    color: T1 },
+        { label: `Max ${remainingLabel}`, value: `${hoursPerDay * remainingDays.length}h`, color: GREEN },
+      ]
+  const sw = (W - padX * 2) / statData.length - 8
   statData.forEach((s, i) => {
     const sx = padX + i * (sw + 8)
     ctx.fillStyle = isDark ? "#111122" : "#f0f4ff"
@@ -177,11 +192,13 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
     ctx.textAlign = "left"; ctx.fillText(r.name, cols[0].x, cy)
     ctx.fillStyle = T1; ctx.font = `700 14px monospace`; ctx.textAlign = "center"
     ctx.fillText(`${r.hoursLogged}h`, cols[1].x + cols[1].w / 2, cy)
-    ctx.fillStyle = r.surplus > 0 ? RED : r.surplus < 0 ? GREEN : T2
-    ctx.font = `700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-    ctx.fillText(`${r.surplus > 0 ? "+" : ""}${r.surplus}h`, cols[2].x + cols[2].w / 2, cy)
-    ctx.fillStyle = r.available === 0 ? RED : T1; ctx.font = `700 14px monospace`
-    ctx.fillText(`${r.available}h`, cols[3].x + cols[3].w / 2, cy)
+    if (!isDayMode) {
+      ctx.fillStyle = r.surplus > 0 ? RED : r.surplus < 0 ? GREEN : T2
+      ctx.font = `700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+      ctx.fillText(`${r.surplus > 0 ? "+" : ""}${r.surplus}h`, cols[2].x + cols[2].w / 2, cy)
+      ctx.fillStyle = r.available === 0 ? RED : T1; ctx.font = `700 14px monospace`
+      ctx.fillText(`${r.available}h`, cols[3].x + cols[3].w / 2, cy)
+    }
     ctx.textAlign = "left"
   })
 
@@ -191,15 +208,15 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   return canvas
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[]) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays)
+function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, dayLabel)
   const link = document.createElement("a")
   link.download = `weekly-hours-${new Date().toISOString().split("T")[0]}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
 }
 
-function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[]) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays)
+function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, dayLabel)
   const dataUrl = canvas.toDataURL("image/png")
   const win = window.open("", "_blank")
   if (!win) return
@@ -239,6 +256,8 @@ export default function WeeklyHoursControlPage() {
   }, [selectedDays])
 
   const { pastDays, remainingDays } = useMemo(() => getWeekdaySplit(new Date()), [])
+  const isWeekMode = useMemo(() => WORKDAYS.every(d => selectedDays.has(d)), [selectedDays])
+  const selectedDaysLabel = useMemo(() => rangeLabel(WORKDAYS.filter(d => selectedDays.has(d))), [selectedDays])
 
   useEffect(() => {
     async function fetchWeeklyData() {
@@ -352,19 +371,40 @@ export default function WeeklyHoursControlPage() {
     setSelectedDays(new Set(WORKDAYS))
   }
 
+  function clearAllDays() {
+    setSelectedDays(new Set())
+  }
+
+  function expandTeam(names: string[]) {
+    setExpandedEmployees(prev => {
+      const next = new Set(prev)
+      names.forEach(n => next.add(n))
+      return next
+    })
+  }
+
+  function collapseTeam(names: string[]) {
+    setExpandedEmployees(prev => {
+      const next = new Set(prev)
+      names.forEach(n => next.delete(n))
+      return next
+    })
+  }
+
   function currentIsDark() {
     return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   }
 
-  // Flat results for export (one row per employee, hour totals)
+  // Flat results for export — adapts to current mode
   const exportRows = useMemo(() => {
-    return jobCostingTeams.flatMap(g => g.employees.map(e => ({
-      name: e.name,
-      hoursLogged: e.hoursLogged,
-      surplus: e.surplus,
-      available: e.available,
-    })))
-  }, [jobCostingTeams])
+    return jobCostingTeams.flatMap(g => g.employees.map(e => {
+      if (isWeekMode) {
+        return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available }
+      }
+      const filtered = Math.round(e.days.filter(d => selectedDays.has(d.day)).reduce((s, d) => s + d.totalHours, 0) * 10) / 10
+      return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0 }
+    }))
+  }, [jobCostingTeams, isWeekMode, selectedDays])
 
   return (
     <div className="flex h-full flex-col">
@@ -372,7 +412,12 @@ export default function WeeklyHoursControlPage() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
-            <p className="text-sm text-muted-foreground">{rangeLabel(pastDays)} summary · {rangeLabel(remainingDays)} availability</p>
+            <p className="text-sm text-muted-foreground">
+              {isWeekMode
+                ? <>{rangeLabel(pastDays)} summary · {rangeLabel(remainingDays)} availability</>
+                : selectedDays.size === 0 ? "No days selected" : <>{selectedDaysLabel} view</>
+              }
+            </p>
           </div>
 
           <div className="flex shrink-0 items-end gap-3">
@@ -438,7 +483,7 @@ export default function WeeklyHoursControlPage() {
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays)}
+                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)}
                     >
                       <ImageIcon className="h-4 w-4" />
                       Image (PNG)
@@ -447,7 +492,7 @@ export default function WeeklyHoursControlPage() {
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays)}
+                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)}
                     >
                       <FileText className="h-4 w-4" />
                       PDF
@@ -513,7 +558,11 @@ export default function WeeklyHoursControlPage() {
               <div className="rounded-xl border border-border bg-card/60 px-4 py-3">
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Days</p>
-                  <button onClick={selectAllDays} className="text-[10px] font-medium text-muted-foreground hover:text-foreground">All</button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={selectAllDays} className="text-[10px] font-medium text-muted-foreground hover:text-foreground">All</button>
+                    <span className="text-[10px] text-muted-foreground/40">·</span>
+                    <button onClick={clearAllDays} className="text-[10px] font-medium text-muted-foreground hover:text-foreground">None</button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-1">
                   {WORKDAYS.map(day => {
@@ -544,12 +593,52 @@ export default function WeeklyHoursControlPage() {
                 <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2.5">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{group.teamName}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{group.employees.length} member{group.employees.length !== 1 ? "s" : ""}</span>
+                  <TooltipProvider>
+                    <div className="ml-2 flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger
+                          onClick={() => expandTeam(group.employees.map(e => e.name))}
+                          className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        >
+                          <ChevronsUpDown className="h-3.5 w-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>Expand all</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger
+                          onClick={() => collapseTeam(group.employees.map(e => e.name))}
+                          className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        >
+                          <ChevronsDownUp className="h-3.5 w-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>Collapse all</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger
+                          onClick={() => {
+                            if (!data) return
+                            const rows = group.employees.map(e => {
+                              if (isWeekMode) return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available }
+                              const filtered = Math.round(e.days.filter(d => selectedDays.has(d.day)).reduce((s, d) => s + d.totalHours, 0) * 10) / 10
+                              return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0 }
+                            })
+                            exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)
+                          }}
+                          className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        >
+                          <ImageIcon className="h-3.5 w-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>Export team PNG</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
                 </div>
 
                 <div className="divide-y divide-border/50">
                   {group.employees.map(emp => {
                     const isExpanded = expandedEmployees.has(emp.name)
                     const visibleDays = emp.days.filter(d => selectedDays.has(d.day))
+                    const filteredHours = Math.round(visibleDays.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
                     return (
                       <div key={emp.name}>
                         {/* Employee row — clickable to expand */}
@@ -563,32 +652,41 @@ export default function WeeklyHoursControlPage() {
                           }
                           <span className="flex-1 truncate text-sm font-medium">{emp.name}</span>
 
-                          {/* Stats: logged | surplus | available */}
+                          {/* Stats: week mode shows logged/surplus/available; day mode shows filtered hours only */}
                           <div className="hidden items-center sm:flex" style={{ gap: "2.5rem" }}>
-                            <div className="flex min-w-[56px] flex-col items-end">
-                              <span className="font-mono text-sm font-bold tabular-nums">{fmtH(emp.hoursLogged, hourFormat)}</span>
-                              <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{rangeLabel(pastDays)}</span>
-                            </div>
-                            <div className="flex min-w-[56px] flex-col items-end">
-                              <span className={cn(
-                                "font-mono text-sm font-bold tabular-nums",
-                                emp.surplus > 0 ? "text-destructive"
-                                  : emp.surplus < 0 ? "text-emerald-600"
-                                  : "text-muted-foreground",
-                              )}>
-                                {emp.surplus > 0 ? "+" : ""}{fmtH(Math.abs(emp.surplus), hourFormat)}
-                              </span>
-                              <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                                {emp.surplus > 0 ? "Over" : emp.surplus < 0 ? "Under" : "On track"}
-                              </span>
-                            </div>
-                            <div className="flex min-w-[56px] flex-col items-end">
-                              <span className={cn(
-                                "font-mono text-sm font-bold tabular-nums",
-                                emp.available === 0 && "text-destructive",
-                              )}>{fmtH(emp.available, hourFormat)}</span>
-                              <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{rangeLabel(remainingDays)} avail</span>
-                            </div>
+                            {isWeekMode ? (
+                              <>
+                                <div className="flex min-w-[56px] flex-col items-end">
+                                  <span className="font-mono text-sm font-bold tabular-nums">{fmtH(emp.hoursLogged, hourFormat)}</span>
+                                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{rangeLabel(pastDays)}</span>
+                                </div>
+                                <div className="flex min-w-[56px] flex-col items-end">
+                                  <span className={cn(
+                                    "font-mono text-sm font-bold tabular-nums",
+                                    emp.surplus > 0 ? "text-destructive"
+                                      : emp.surplus < 0 ? "text-emerald-600"
+                                      : "text-muted-foreground",
+                                  )}>
+                                    {emp.surplus > 0 ? "+" : ""}{fmtH(Math.abs(emp.surplus), hourFormat)}
+                                  </span>
+                                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                                    {emp.surplus > 0 ? "Over" : emp.surplus < 0 ? "Under" : "On track"}
+                                  </span>
+                                </div>
+                                <div className="flex min-w-[56px] flex-col items-end">
+                                  <span className={cn(
+                                    "font-mono text-sm font-bold tabular-nums",
+                                    emp.available === 0 && "text-destructive",
+                                  )}>{fmtH(emp.available, hourFormat)}</span>
+                                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{rangeLabel(remainingDays)} avail</span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex min-w-[56px] flex-col items-end">
+                                <span className="font-mono text-sm font-bold tabular-nums">{fmtH(filteredHours, hourFormat)}</span>
+                                <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{selectedDaysLabel || "—"}</span>
+                              </div>
+                            )}
                           </div>
                         </button>
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"sort"
@@ -47,6 +48,7 @@ type weeklyQBTResp struct {
 		Users    map[string]weeklyUserItem    `json:"users"`
 		Jobcodes map[string]weeklyJobcodeItem `json:"jobcodes"`
 	} `json:"supplemental_data"`
+	More bool `json:"more"`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -56,7 +58,7 @@ type WeeklyReportService struct {
 }
 
 func NewWeeklyReportService() *WeeklyReportService {
-	return &WeeklyReportService{httpClient: &http.Client{Timeout: 20 * time.Second}}
+	return &WeeklyReportService{httpClient: &http.Client{Timeout: 60 * time.Second}}
 }
 
 func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company string, date time.Time) (*domain.WeeklyReportResponse, error) {
@@ -82,35 +84,64 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 	weekStartStr := weekStart.Format("2006-01-02")
 	weekEndStr := weekEnd.Format("2006-01-02")
 
-	// ── QB Time API call ─────────────────────────────────────────────────────
-	url := fmt.Sprintf(
-		"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=no&supplemental_data=yes&per_page=200",
-		qbtBaseURL, weekStartStr, weekEndStr,
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("build qbt request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("Content-Type", "application/json")
+	// ── QB Time API call (paginated) ─────────────────────────────────────────
+	// QB Time caps per_page at 200. We must iterate until `more=false`,
+	// otherwise weeks with many timesheet entries lose data silently.
+	qbtResp := weeklyQBTResp{}
+	qbtResp.Results.Timesheets = make(map[string]weeklyTSItem)
+	qbtResp.SupplementalData.Users = make(map[string]weeklyUserItem)
+	qbtResp.SupplementalData.Jobcodes = make(map[string]weeklyJobcodeItem)
 
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("qbt api request: %w", err)
-	}
-	defer resp.Body.Close()
+	for page := 1; ; page++ {
+		url := fmt.Sprintf(
+			"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=no&supplemental_data=yes&per_page=200&page=%d",
+			qbtBaseURL, weekStartStr, weekEndStr, page,
+		)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("build qbt request: %w", err)
+		}
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Content-Type", "application/json")
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read qbt response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("qbt api returned %d: %s", resp.StatusCode, string(body))
-	}
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("qbt api request: %w", err)
+		}
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return nil, fmt.Errorf("read qbt response: %w", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("qbt api returned %d: %s", resp.StatusCode, string(body))
+		}
 
-	var qbtResp weeklyQBTResp
-	if err := json.Unmarshal(body, &qbtResp); err != nil {
-		return nil, fmt.Errorf("parse qbt response: %w", err)
+		var pageResp weeklyQBTResp
+		if err := json.Unmarshal(body, &pageResp); err != nil {
+			return nil, fmt.Errorf("parse qbt response: %w", err)
+		}
+
+		for k, v := range pageResp.Results.Timesheets {
+			qbtResp.Results.Timesheets[k] = v
+		}
+		for k, v := range pageResp.SupplementalData.Users {
+			qbtResp.SupplementalData.Users[k] = v
+		}
+		for k, v := range pageResp.SupplementalData.Jobcodes {
+			qbtResp.SupplementalData.Jobcodes[k] = v
+		}
+
+		log.Printf("[weekly-report] %s page=%d entries=%d more=%v total=%d",
+			company, page, len(pageResp.Results.Timesheets), pageResp.More, len(qbtResp.Results.Timesheets))
+
+		if !pageResp.More {
+			break
+		}
+		if page >= 20 { // safety cap: 4000 timesheets/week is way more than any sane scenario
+			log.Printf("[weekly-report] %s hit page cap of 20", company)
+			break
+		}
 	}
 
 	// ── Build user lookup ────────────────────────────────────────────────────
