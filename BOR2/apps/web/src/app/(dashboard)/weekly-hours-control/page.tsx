@@ -696,7 +696,7 @@ export default function WeeklyHoursControlPage() {
                             {visibleDays.length === 0 ? (
                               <p className="py-2 text-xs italic text-muted-foreground">No data for the selected days</p>
                             ) : (
-                              <div className="flex flex-col gap-3">
+                              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                 {visibleDays.map(day => (
                                   <div key={day.date} className="overflow-hidden rounded-md border border-border/40 bg-card/40">
                                     <div className="flex items-center gap-2 border-b border-border/40 bg-muted/20 px-3 py-1.5">
