@@ -28,8 +28,9 @@ type weeklyTSItem struct {
 }
 
 type weeklyJobcodeItem struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	ParentID int    `json:"parent_id"`
 }
 
 type weeklyUserItem struct {
@@ -64,17 +65,15 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 		return nil, fmt.Errorf("no QB Time token configured for company %q", company)
 	}
 
-	// ── Calculate week window ────────────────────────────────────────────────
+	// ── Calculate week window (Sunday to Saturday) ───────────────────────────
 	weekEnd := date.AddDate(0, 0, -1) // yesterday
 
-	// Monday of the week that contains weekEnd
+	// Sunday of the week that contains weekEnd
+	// getDay() returns 0=Sunday, 1=Monday, ..., 6=Saturday
 	weekday := int(weekEnd.Weekday())
-	if weekday == 0 {
-		weekday = 7 // treat Sunday as 7 so Monday offset = weekday-1
-	}
-	weekStart := weekEnd.AddDate(0, 0, -(weekday - 1))
+	weekStart := weekEnd.AddDate(0, 0, -weekday) // offset back to Sunday
 
-	// If date is Monday, weekEnd was Sunday (before weekStart) — show only today
+	// If date is Sunday, weekEnd was Saturday (before weekStart) — show only today
 	if weekEnd.Before(weekStart) {
 		weekStart = date
 		weekEnd = date
@@ -114,23 +113,77 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 		return nil, fmt.Errorf("parse qbt response: %w", err)
 	}
 
-	// ── Build lookup maps ────────────────────────────────────────────────────
+	// ── Build user lookup ────────────────────────────────────────────────────
 	userByID := make(map[int]string, len(qbtResp.SupplementalData.Users))
 	for _, u := range qbtResp.SupplementalData.Users {
 		name := strings.TrimSpace(u.FirstName + " " + u.LastName)
 		userByID[u.ID] = name
 	}
 
+	// ── Seed job code maps from supplemental_data ────────────────────────────
 	jobcodeByID := make(map[int]string, len(qbtResp.SupplementalData.Jobcodes))
+	jobcodeParentID := make(map[int]int, len(qbtResp.SupplementalData.Jobcodes))
 	for _, jc := range qbtResp.SupplementalData.Jobcodes {
 		jobcodeByID[jc.ID] = jc.Name
+		if jc.ParentID != 0 {
+			jobcodeParentID[jc.ID] = jc.ParentID
+		}
 	}
 
-	// ── Aggregate: employee → date → jobcode → hours ─────────────────────────
-	// empDayAddr[employeeName][date][jobcodeName] = hours
-	_ = struct{ date, addr string }{} // unused tuple
-	empHours := make(map[string]map[string]map[string]float64)
-	// empShifts[employeeName][date] = []shift
+	// ── Fetch ALL job codes to resolve complete hierarchy ────────────────────
+	// supplemental_data only contains job codes directly used in timesheets;
+	// ancestors at any depth may be absent. One extra call gives us the full tree.
+	allJCURL := fmt.Sprintf("%s/jobcodes?active=yes&per_page=200", qbtBaseURL)
+	if allJCReq, err := http.NewRequestWithContext(ctx, http.MethodGet, allJCURL, nil); err == nil {
+		allJCReq.Header.Set("Authorization", "Bearer "+token)
+		allJCReq.Header.Set("Content-Type", "application/json")
+		if allJCResp, err := s.httpClient.Do(allJCReq); err == nil {
+			defer allJCResp.Body.Close()
+			if allJCBody, err := io.ReadAll(allJCResp.Body); err == nil && allJCResp.StatusCode == http.StatusOK {
+				var allJCData struct {
+					Results struct {
+						Jobcodes map[string]weeklyJobcodeItem `json:"jobcodes"`
+					} `json:"results"`
+				}
+				if json.Unmarshal(allJCBody, &allJCData) == nil {
+					for _, jc := range allJCData.Results.Jobcodes {
+						jobcodeByID[jc.ID] = jc.Name
+						if jc.ParentID != 0 {
+							jobcodeParentID[jc.ID] = jc.ParentID
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// resolveJobcodePath returns the full path from root to the given job code id.
+	// e.g. ["Canton, Neponset", "Normal Labor"]
+	resolveJobcodePath := func(id int) []string {
+		var path []string
+		cur := id
+		visited := make(map[int]bool)
+		for cur != 0 && !visited[cur] {
+			visited[cur] = true
+			name := jobcodeByID[cur]
+			if name == "" {
+				name = fmt.Sprintf("Jobcode %d", cur)
+			}
+			path = append([]string{name}, path...) // prepend → top-down order
+			cur = jobcodeParentID[cur]
+		}
+		if len(path) == 0 {
+			return []string{fmt.Sprintf("Jobcode %d", id)}
+		}
+		return path
+	}
+
+	// ── Aggregate: employee → date → pathKey → {path, hours} ─────────────────
+	type pathEntry struct {
+		path  []string
+		hours float64
+	}
+	empHours := make(map[string]map[string]map[string]pathEntry) // name → date → pathKey → entry
 	empShifts := make(map[string]map[string][]domain.WeeklyReportShift)
 
 	for _, ts := range qbtResp.Results.Timesheets {
@@ -141,21 +194,22 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 		if !ok || name == "" {
 			continue
 		}
-		jcName := jobcodeByID[ts.JobcodeID]
-		if jcName == "" {
-			jcName = fmt.Sprintf("Jobcode %d", ts.JobcodeID)
-		}
+
+		path := resolveJobcodePath(ts.JobcodeID)
+		pathKey := strings.Join(path, "|")
 		hours := math.Round(float64(ts.Duration)/3600.0*100) / 100
 
 		if empHours[name] == nil {
-			empHours[name] = make(map[string]map[string]float64)
+			empHours[name] = make(map[string]map[string]pathEntry)
 		}
 		if empHours[name][ts.Date] == nil {
-			empHours[name][ts.Date] = make(map[string]float64)
+			empHours[name][ts.Date] = make(map[string]pathEntry)
 		}
-		empHours[name][ts.Date][jcName] += hours
+		e := empHours[name][ts.Date][pathKey]
+		e.path = path
+		e.hours += hours
+		empHours[name][ts.Date][pathKey] = e
 
-		// Track raw shift start/end times for AutoLog
 		if empShifts[name] == nil {
 			empShifts[name] = make(map[string][]domain.WeeklyReportShift)
 		}
@@ -168,7 +222,6 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 	// ── Build domain employees ────────────────────────────────────────────────
 	const hoursPerDay = 8.0
 
-	// daysRemainingInWeek: workdays Mon–Fri from date through Friday, inclusive
 	daysRemaining := 0
 	for d := date; ; d = d.AddDate(0, 0, 1) {
 		wd := d.Weekday()
@@ -186,7 +239,7 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 	for name, dateMap := range empHours {
 		var days []domain.WeeklyReportDay
 
-		for dateStr, addrMap := range dateMap {
+		for dateStr, keyMap := range dateMap {
 			t, err := time.Parse("2006-01-02", dateStr)
 			if err != nil {
 				continue
@@ -195,11 +248,14 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 
 			var addrs []domain.WeeklyReportAddress
 			dayTotal := 0.0
-			for addr, h := range addrMap {
+			for _, e := range keyMap {
+				h := math.Round(e.hours*100) / 100
 				dayTotal += h
-				addrs = append(addrs, domain.WeeklyReportAddress{Address: addr, Hours: math.Round(h*100) / 100})
+				addrs = append(addrs, domain.WeeklyReportAddress{
+					Path:  e.path,
+					Hours: h,
+				})
 			}
-			// Sort addresses by hours descending
 			sort.Slice(addrs, func(i, j int) bool { return addrs[i].Hours > addrs[j].Hours })
 
 			var shifts []domain.WeeklyReportShift

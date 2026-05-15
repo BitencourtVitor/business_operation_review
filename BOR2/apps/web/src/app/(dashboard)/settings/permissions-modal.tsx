@@ -7,9 +7,9 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, Building2, CalendarCheck, CalendarClock, CalendarDays,
+  BarChart2, Banknote, Building2, CalendarCheck, CalendarClock,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, Fuel,
-  Gauge, Gem, GripVertical, ImageIcon, Loader2, Package, ScrollText, Settings,
+  Gauge, Gem, GripVertical, ImageIcon, Loader2, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -60,11 +60,9 @@ const PERMISSION_GROUPS: PermGroup[] = [
         label: "QBTime Reports",
         image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
         children: [
-          { key: "autolog",           label: "Auto Log",            icon: ImageIcon     },
-          { key: "daily_report",      label: "Daily Report",        icon: CalendarDays  },
-          { key: "pay_period_report", label: "Pay Period Report",   icon: ScrollText    },
-          { key: "weekly_hours",      label: "Weekly Hours Control",icon: CalendarClock },
-          { key: "whos_working",      label: "Who's Working",       icon: UserCheck     },
+          { key: "autolog",      label: "Auto Log",             icon: ImageIcon     },
+          { key: "weekly_hours", label: "Weekly Hours Control", icon: CalendarClock },
+          { key: "whos_working", label: "Who's Working",        icon: UserCheck     },
         ],
       },
     ],

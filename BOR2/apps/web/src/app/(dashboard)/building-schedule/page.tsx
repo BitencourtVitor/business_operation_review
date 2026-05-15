@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
-  Briefcase,
   Building2,
   Calendar,
   CalendarDays,
@@ -21,7 +20,6 @@ import type { ScheduleEvent } from "@/services/buildings.service"
 import { applyEventsToSchedule } from "./_lib/schedule-utils"
 import { BuildingDropdown } from "./_components/building-dropdown"
 import { TradesLegend } from "./_components/trades-legend"
-import { TradeControlModal } from "./_components/trade-control-modal"
 import { AddEventModal } from "./_components/event-modals"
 import { ScheduleViewer } from "./_components/schedule-viewer"
 
@@ -39,7 +37,6 @@ export default function BuildingSchedulePage() {
   })
   const [filterYear,  setFilterYear]  = useState<number | null>(null)
   const [filterMonth, setFilterMonth] = useState<number | null>(null)
-  const [controlOpen, setControlOpen] = useState(false)
   const [addingEvent, setAddingEvent] = useState(false)
   const scheduleControls = useRef<{ expandAll: () => void; collapseAll: () => void } | null>(null)
 
@@ -162,17 +159,6 @@ export default function BuildingSchedulePage() {
             </div>
           )}
 
-          {/* Our Work */}
-          {schedule && (
-            <button
-              onClick={() => setControlOpen(true)}
-              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm self-end"
-            >
-              <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-sm">Our Work</span>
-            </button>
-          )}
-
           {/* + Event */}
           {selectedId && schedule && (
             <button
@@ -195,9 +181,6 @@ export default function BuildingSchedulePage() {
         </div>
 
         {/* Modals */}
-        {controlOpen && selectedId && schedule && (
-          <TradeControlModal buildingId={selectedId} allResources={displayResources} onClose={() => setControlOpen(false)} />
-        )}
         {addingEvent && selectedId && selected && (
           <AddEventModal buildingId={selectedId} buildingName={selected.name} onClose={() => setAddingEvent(false)} />
         )}

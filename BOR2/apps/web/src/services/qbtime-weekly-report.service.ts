@@ -6,8 +6,8 @@ function getToken() {
 }
 
 export interface WeeklyAddress {
-  address: string
-  hours:   number
+  path:  string[]  // full hierarchy from root to leaf, e.g. ["Canton, Neponset", "Normal Labor"]
+  hours: number
 }
 
 export interface WeeklyShift {
