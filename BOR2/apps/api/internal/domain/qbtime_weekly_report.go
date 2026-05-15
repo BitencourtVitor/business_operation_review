@@ -5,11 +5,17 @@ type WeeklyReportAddress struct {
 	Hours   float64 `json:"hours"`
 }
 
+type WeeklyReportShift struct {
+	Start string `json:"start"` // ISO 8601: "2026-05-13T07:00:00-04:00"
+	End   string `json:"end"`   // ISO 8601 (empty if still clocked-in)
+}
+
 type WeeklyReportDay struct {
 	Date       string                `json:"date"`       // "2026-05-13"
 	Day        string                `json:"day"`        // "Wednesday"
 	TotalHours float64               `json:"totalHours"`
 	Addresses  []WeeklyReportAddress `json:"addresses"`
+	Shifts     []WeeklyReportShift   `json:"shifts"`
 }
 
 type WeeklyReportEmployee struct {

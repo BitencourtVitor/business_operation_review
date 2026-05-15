@@ -10,11 +10,17 @@ export interface WeeklyAddress {
   hours:   number
 }
 
+export interface WeeklyShift {
+  start: string  // ISO 8601: "2026-05-13T07:00:00-04:00"
+  end:   string  // ISO 8601 (empty if still clocked-in)
+}
+
 export interface WeeklyDay {
   date:       string   // "2026-05-13"
   day:        string   // "Wednesday"
   totalHours: number
   addresses:  WeeklyAddress[]
+  shifts:     WeeklyShift[]
 }
 
 export interface WeeklyEmployee {

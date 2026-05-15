@@ -128,8 +128,10 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 
 	// ── Aggregate: employee → date → jobcode → hours ─────────────────────────
 	// empDayAddr[employeeName][date][jobcodeName] = hours
-	type dayAddrKey struct{ date, addr string }
+	_ = struct{ date, addr string }{} // unused tuple
 	empHours := make(map[string]map[string]map[string]float64)
+	// empShifts[employeeName][date] = []shift
+	empShifts := make(map[string]map[string][]domain.WeeklyReportShift)
 
 	for _, ts := range qbtResp.Results.Timesheets {
 		if ts.Type != "regular" {
@@ -152,6 +154,15 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 			empHours[name][ts.Date] = make(map[string]float64)
 		}
 		empHours[name][ts.Date][jcName] += hours
+
+		// Track raw shift start/end times for AutoLog
+		if empShifts[name] == nil {
+			empShifts[name] = make(map[string][]domain.WeeklyReportShift)
+		}
+		empShifts[name][ts.Date] = append(empShifts[name][ts.Date], domain.WeeklyReportShift{
+			Start: ts.Start,
+			End:   ts.End,
+		})
 	}
 
 	// ── Build domain employees ────────────────────────────────────────────────
@@ -191,11 +202,18 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 			// Sort addresses by hours descending
 			sort.Slice(addrs, func(i, j int) bool { return addrs[i].Hours > addrs[j].Hours })
 
+			var shifts []domain.WeeklyReportShift
+			if s, ok := empShifts[name][dateStr]; ok {
+				shifts = s
+				sort.Slice(shifts, func(i, j int) bool { return shifts[i].Start < shifts[j].Start })
+			}
+
 			days = append(days, domain.WeeklyReportDay{
 				Date:       dateStr,
 				Day:        dayName,
 				TotalHours: math.Round(dayTotal*100) / 100,
 				Addresses:  addrs,
+				Shifts:     shifts,
 			})
 		}
 
