@@ -1,95 +1,58 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import {
-  ArrowDown,
-  ArrowUp,
-  ChevronsUpDown,
-  ChevronDown,
-  FileText,
-  FileUp,
-  Filter,
-  ImageIcon,
-  RotateCcw,
-  Search,
-} from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, FileText, Filter, ImageIcon, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
-// ─── CSV Parsing ──────────────────────────────────────────────────────────────
-
-function guessDelimiter(text: string): "," | ";" | "\t" {
-  const lines = text.split(/\r?\n/).filter(l => l.trim()).slice(0, 5)
-  const sample = lines.join("\n")
-  const counts: Record<string, number> = { ",": 0, ";": 0, "\t": 0 }
-  let inQ = false
-  for (let i = 0; i < sample.length; i++) {
-    const ch = sample[i]
-    if (ch === '"') { if (inQ && sample[i + 1] === '"') { i++; continue } inQ = !inQ; continue }
-    if (!inQ && (ch === "," || ch === ";" || ch === "\t")) counts[ch]++
-  }
-  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
-  return (best?.[0] as "," | ";" | "\t") || ","
-}
-
-function parseCsvText(text: string): { headers: string[]; rows: string[][] } {
-  const delim = guessDelimiter(text)
-  const rowsRaw: string[][] = []
-  let row: string[] = [], field = "", inQ = false
-  const pushF = () => { row.push(field.trim()); field = "" }
-  const pushR = () => { if (row.length) { rowsRaw.push(row); row = [] } }
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]
-    if (inQ) {
-      if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++ } else { inQ = false } }
-      else { field += ch }
-      continue
-    }
-    if (ch === '"') { inQ = true; continue }
-    if (ch === delim) { pushF(); continue }
-    if (ch === "\n") { pushF(); pushR(); continue }
-    if (ch === "\r") { if (text[i + 1] === "\n") continue; pushF(); pushR(); continue }
-    field += ch
-  }
-  pushF()
-  if (row.length > 1 || row[0]?.trim()) pushR()
-  const headers = (rowsRaw[0] || []).map(h => h.trim())
-  return { headers, rows: rowsRaw.slice(1).filter(r => r.some(c => c.trim())) }
-}
-
-function parseHours(raw: string): number {
-  if (!raw) return 0
-  const t = raw.trim()
-  if (t.includes(":")) {
-    const [h, m] = t.split(":").map(Number)
-    return (Number.isNaN(h) ? 0 : h) + (Number.isNaN(m) ? 0 : m) / 60
-  }
-  return parseFloat(t) || 0
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MON_WED = new Set(["Mon", "Tue", "Wed"])
-const LS_EXCLUDED_KEY = "whc_excluded_categories"
-const LS_FORMAT_KEY   = "whc_hour_format"
-const LS_SORT_KEY     = "whc_sort"
-
 type HourFormat = "number" | "time"
-type SortKey    = "name" | "hoursMonWed" | "surplus" | "thursFriAvailable"
-type SortDir    = "asc" | "desc"
+type SortKey = "name" | "hoursMonWed" | "surplus" | "thursFriAvailable"
+type SortDir = "asc" | "desc"
+type ViewMode = "employee" | "job_costing"
+
+type EmployeeResult = {
+  name: string
+  hoursMonWed: number
+  surplus: number
+  thursFriAvailable: number
+}
+
+type JobCodeResult = {
+  jobCode: string
+  regularHours: number
+  overtimeHours: number
+  totalHours: number
+}
+
+type QBTimeWeeklyResponse = {
+  data: {
+    company: string
+    weekStart: string
+    weekEnd: string
+    reportDate: string
+    hoursPerDay: number
+    employees: Array<{
+      name: string
+      weekTotal: number
+      weekExcess: number
+      suggestionHours: number
+      days: Array<{
+        date: string
+        day: string
+        totalHours: number
+        addresses: Array<{
+          address: string
+          hours: number
+        }>
+      }>
+    }>
+  }
+}
+
+const LS_FORMAT_KEY = "whc_hour_format"
+const LS_SORT_KEY = "whc_sort"
+const MON_WED = new Set(["Monday", "Tuesday", "Wednesday"])
 
 function loadSavedFormat(): HourFormat {
   try { return (localStorage.getItem(LS_FORMAT_KEY) as HourFormat) || "number" } catch { return "number" }
@@ -113,54 +76,6 @@ function fmtH(h: number, format: HourFormat): string {
   return `${h.toFixed(1)}h`
 }
 
-const KNOWN_EXCLUDED_PREFIXES = [
-  "Lunch break", "Lunch Break", "Lunch Break Paid", "Lunch Break Office",
-  "Lunck Break Paid", "Holiday Paid", "Holiday", "Sick", "Admin", "Office",
-]
-
-function isKnownExcluded(key: string) {
-  return KNOWN_EXCLUDED_PREFIXES.some(p => key === p || key.startsWith(`${p} ›`))
-}
-
-function buildJobcodeKey(row: string[], headers: string[]): string {
-  return ["jobcode_1", "jobcode_2", "jobcode_3", "jobcode_4"]
-    .map(col => row[headers.indexOf(col)]?.trim() || "")
-    .filter(Boolean)
-    .join(" › ")
-}
-
-function loadSavedExcluded(): Set<string> | null {
-  try {
-    const raw = localStorage.getItem(LS_EXCLUDED_KEY)
-    if (!raw) return null
-    return new Set(JSON.parse(raw) as string[])
-  } catch { return null }
-}
-
-function saveExcluded(excluded: Set<string>) {
-  try { localStorage.setItem(LS_EXCLUDED_KEY, JSON.stringify([...excluded])) } catch { /* */ }
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type EmployeeResult = {
-  name: string
-  hoursMonWed: number
-  surplus: number
-  thursFriAvailable: number
-}
-
-type JobCodeResult = {
-  jobCode: string
-  regularHours: number
-  overtimeHours: number
-  totalHours: number
-}
-
-type ViewMode = "employee" | "job_costing"
-
-// ─── Canvas Export ────────────────────────────────────────────────────────────
-
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
   ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r)
@@ -170,7 +85,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
-function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean): HTMLCanvasElement {
+function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const W = 860, padX = 40, padY = 36, rowH = 42, thH = 40, titleH = 72, statsH = 72, footerH = 32
   const H = padY + titleH + statsH + thH + results.length * rowH + padY + footerH
@@ -186,9 +101,9 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, file
   const RED = "#ef4444", GREEN = "#10B981", ROWODD = isDark ? "#131325" : "#f8fafc"
 
   const cols = [
-    { label: "Employee",          x: padX,       w: 300, align: "left"   as const },
-    { label: "Hours Mon–Wed",     x: padX + 300, w: 150, align: "center" as const },
-    { label: "Surplus",           x: padX + 450, w: 130, align: "center" as const },
+    { label: "Employee", x: padX, w: 300, align: "left" as const },
+    { label: "Hours Mon–Wed", x: padX + 300, w: 150, align: "center" as const },
+    { label: "Surplus", x: padX + 450, w: 130, align: "center" as const },
     { label: "Thu–Fri Available", x: padX + 580, w: 200, align: "center" as const },
   ]
 
@@ -201,13 +116,13 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, file
   ctx.fillText("Weekly Hours Control", padX, padY + 22)
   ctx.fillStyle = T2
   ctx.font = `12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-  ctx.fillText(`${fileName}  ·  ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "short", day: "numeric" })}`, padX, padY + 44)
+  ctx.fillText(`Week of ${weekStart}  ·  ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "short", day: "numeric" })}`, padX, padY + 44)
 
   const sy = padY + titleH, sw = (W - padX * 2) / 3 - 8
   const statData = [
-    { label: "Employees",        value: `${results.length}`,   color: ACCENT },
-    { label: "Expected Mon–Wed", value: `${hoursPerDay * 3}h`, color: T1    },
-    { label: "Max Thu–Fri",      value: `${hoursPerDay * 2}h`, color: GREEN },
+    { label: "Employees", value: `${results.length}`, color: ACCENT },
+    { label: "Expected Mon–Wed", value: `${hoursPerDay * 3}h`, color: T1 },
+    { label: "Max Thu–Fri", value: `${hoursPerDay * 2}h`, color: GREEN },
   ]
   statData.forEach((s, i) => {
     const sx = padX + i * (sw + 8)
@@ -255,15 +170,15 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, file
   return canvas
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, fileName, isDark)
+function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark)
   const link = document.createElement("a")
   link.download = `weekly-hours-${new Date().toISOString().split("T")[0]}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
 }
 
-function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, fileName, isDark)
+function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark)
   const dataUrl = canvas.toDataURL("image/png")
   const win = window.open("", "_blank")
   if (!win) return
@@ -282,120 +197,18 @@ function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, file
   win.document.close()
 }
 
-// ─── Category Dropdown ────────────────────────────────────────────────────────
-
-function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
-  allCategories: string[]
-  excluded: Set<string>
-  onChange: (next: Set<string>) => void
-  disabled: boolean
-}) {
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState("")
-
-  const q = search.toLowerCase()
-  const filteredExcluded = allCategories.filter(c => excluded.has(c) && c.toLowerCase().includes(q))
-  const filteredIncluded = allCategories.filter(c => !excluded.has(c) && c.toLowerCase().includes(q))
-  const hasResults = filteredExcluded.length > 0 || filteredIncluded.length > 0
-
-  function toggle(cat: string) {
-    const next = new Set(excluded)
-    if (next.has(cat)) next.delete(cat); else next.add(cat)
-    onChange(next)
-  }
-
-  const triggerLabel = disabled
-    ? "Upload a file first"
-    : `${allCategories.length} categor${allCategories.length !== 1 ? "ies" : "y"}`
-
-  return (
-    <Popover open={open && !disabled} onOpenChange={v => { if (!disabled) setOpen(v) }}>
-      <PopoverTrigger render={
-        <Button variant="outline" size="sm" disabled={disabled} className="w-full justify-between font-normal text-xs" />
-      }>
-        <span className="truncate">{triggerLabel}</span>
-        <ChevronDown className={cn("ml-1 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 gap-0" align="start">
-
-        {/* Search */}
-        <div className="flex items-center gap-2 border-b px-3 py-2">
-          <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search categories…"
-            className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-          />
-        </div>
-
-        {/* Sectioned list */}
-        <div className="max-h-72 overflow-y-auto">
-          {!hasResults && (
-            <p className="px-3 py-4 text-xs text-muted-foreground">No matches</p>
-          )}
-
-          {/* ── Excluded ── */}
-          {filteredExcluded.length > 0 && (
-            <div>
-              <div className="sticky top-0 z-10 flex items-center border-b border-destructive/20 bg-destructive/8 px-3 py-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-destructive">Excluded</span>
-                <span className="ml-auto text-[10px] tabular-nums text-destructive/70">{filteredExcluded.length}</span>
-              </div>
-              {filteredExcluded.map(cat => (
-                <div key={cat} onClick={() => toggle(cat)}
-                  className="flex cursor-pointer items-center border-l-2 border-destructive bg-destructive/5 px-3 py-2 transition-colors hover:bg-destructive/10">
-                  <span title={cat} className="truncate text-xs font-medium text-destructive">{cat}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ── Included ── */}
-          {filteredIncluded.length > 0 && (
-            <div>
-              <div className="sticky top-0 z-10 flex items-center border-b border-emerald-600/20 bg-emerald-600/5 px-3 py-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">Included</span>
-                <span className="ml-auto text-[10px] tabular-nums text-emerald-700/70 dark:text-emerald-500/70">{filteredIncluded.length}</span>
-              </div>
-              {filteredIncluded.map(cat => (
-                <div key={cat} onClick={() => toggle(cat)}
-                  className="flex cursor-pointer items-center border-l-2 border-transparent px-3 py-2 transition-colors hover:bg-muted/50">
-                  <span title={cat} className="truncate text-xs text-foreground">{cat}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function WeeklyHoursControlPage() {
-  const [step, setStep]               = useState<"upload" | "results">("upload")
-  const [fileName, setFileName]       = useState("")
-  const [headers, setHeaders]         = useState<string[]>([])
-  const [rows, setRows]               = useState<string[][]>([])
-  const [allCategories, setAllCategories] = useState<string[]>([])
-  const [excluded, setExcluded]       = useState<Set<string>>(() => loadSavedExcluded() ?? new Set())
-  const [results, setResults]         = useState<EmployeeResult[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [data, setData] = useState<QBTimeWeeklyResponse | null>(null)
+  const [results, setResults] = useState<EmployeeResult[]>([])
   const [jobCodeResults, setJobCodeResults] = useState<JobCodeResult[]>([])
-  const [viewMode, setViewMode]       = useState<ViewMode>("employee")
+  const [viewMode, setViewMode] = useState<ViewMode>("employee")
   const [onlyExceeding, setOnlyExceeding] = useState(false)
-  const [hoursPerDay, setHoursPerDay] = useState(8)
   const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
-  const [sortKey, setSortKey]         = useState<SortKey>(() => loadSavedSort().key)
-  const [sortDir, setSortDir]         = useState<SortDir>(() => loadSavedSort().dir)
-  const [error, setError]             = useState("")
-  const [isDragging, setIsDragging]   = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [sortKey, setSortKey] = useState<SortKey>(() => loadSavedSort().key)
+  const [sortDir, setSortDir] = useState<SortDir>(() => loadSavedSort().dir)
 
-  function currentIsDark() {
-    return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-  }
-
-  useEffect(() => { saveExcluded(excluded) }, [excluded])
   useEffect(() => {
     try { localStorage.setItem(LS_FORMAT_KEY, hourFormat) } catch { /* */ }
   }, [hourFormat])
@@ -404,136 +217,87 @@ export default function WeeklyHoursControlPage() {
     try { localStorage.setItem(LS_SORT_KEY, JSON.stringify({ key: sortKey, dir: sortDir })) } catch { /* */ }
   }, [sortKey, sortDir])
 
+  useEffect(() => {
+    async function fetchWeeklyData() {
+      try {
+        const today = new Date().toISOString().split("T")[0]
+        const res = await fetch(`/api/v1/qbtime/weekly-report?company=all&date=${today}`)
+        if (!res.ok) throw new Error(`API error: ${res.status}`)
+        const json: QBTimeWeeklyResponse = await res.json()
+        setData(json)
+
+        const apiData = json.data
+        const hoursPerDay = apiData.hoursPerDay || 8
+        const expectedMonWed = hoursPerDay * 3
+        const fullWeek = hoursPerDay * 5
+
+        // Build employee results
+        const employeeMap = new Map<string, { name: string; hoursMonWed: number }>()
+        const jobCodeMap = new Map<string, { regularHours: number; overtimeHours: number; totalHours: number }>()
+
+        for (const emp of apiData.employees) {
+          let monWedHours = 0
+          for (const day of emp.days) {
+            if (MON_WED.has(day.day)) {
+              monWedHours += day.totalHours
+            }
+          }
+
+          const hoursMonWed = Math.round(monWedHours * 10) / 10
+          const surplus = Math.round((hoursMonWed - expectedMonWed) * 10) / 10
+          const thursFriAvailable = Math.max(0, Math.round((fullWeek - hoursMonWed) * 10) / 10)
+
+          employeeMap.set(emp.name, {
+            name: emp.name,
+            hoursMonWed,
+          })
+
+          // For now, use employee name as jobCode placeholder (no separate job codes in API response)
+          if (!jobCodeMap.has(emp.name)) {
+            jobCodeMap.set(emp.name, { regularHours: 0, overtimeHours: 0, totalHours: 0 })
+          }
+          const jc = jobCodeMap.get(emp.name)!
+          jc.totalHours += emp.weekTotal
+          jc.overtimeHours += emp.weekExcess
+          jc.regularHours += (emp.weekTotal - emp.weekExcess)
+        }
+
+        setResults(
+          [...employeeMap.values()].map(({ name, hoursMonWed }) => ({
+            name,
+            hoursMonWed,
+            surplus: Math.round((hoursMonWed - expectedMonWed) * 10) / 10,
+            thursFriAvailable: Math.max(0, Math.round((fullWeek - hoursMonWed) * 10) / 10),
+          })).sort((a, b) => b.surplus - a.surplus),
+        )
+
+        setJobCodeResults(
+          [...jobCodeMap.entries()].map(([jobCode, { regularHours, overtimeHours, totalHours }]) => ({
+            jobCode,
+            regularHours: Math.round(regularHours * 10) / 10,
+            overtimeHours: Math.round(overtimeHours * 10) / 10,
+            totalHours: Math.round(totalHours * 10) / 10,
+          })).sort((a, b) => b.totalHours - a.totalHours),
+        )
+
+        setError("")
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch weekly data")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchWeeklyData()
+  }, [])
+
   function handleSort(key: SortKey) {
     if (key === sortKey) { setSortDir(d => d === "asc" ? "desc" : "asc") }
     else { setSortKey(key); setSortDir("asc") }
   }
 
-  useEffect(() => {
-    if (!rows.length) return
-    const dayIdx      = headers.indexOf("local_day")
-    const hoursIdx    = headers.indexOf("hours")
-    const fnameIdx    = headers.indexOf("fname")
-    const lnameIdx    = headers.indexOf("lname")
-    const usernameIdx = headers.indexOf("username")
-    const regHoursIdx = headers.indexOf("regular_hours")
-    const ovtHoursIdx = headers.indexOf("overtime_hours")
-
-    const expectedMonWed = hoursPerDay * 3
-    const fullWeek       = hoursPerDay * 5
-    const employeeMap = new Map<string, { name: string; hours: number }>()
-    const jobCodeMap = new Map<string, { regularHours: number; overtimeHours: number; totalHours: number }>()
-
-    for (const row of rows) {
-      const day = row[dayIdx]?.trim()
-      if (!MON_WED.has(day)) continue
-      const cat = buildJobcodeKey(row, headers)
-      if (excluded.has(cat)) continue
-
-      // Employee aggregation
-      const fname    = row[fnameIdx]?.trim() || ""
-      const lname    = row[lnameIdx]?.trim() || ""
-      const username = row[usernameIdx]?.trim() || ""
-      const key      = username || `${fname} ${lname}`.trim()
-      const name     = `${fname} ${lname}`.trim() || username
-      if (!employeeMap.has(key)) employeeMap.set(key, { name, hours: 0 })
-      employeeMap.get(key)!.hours += parseHours(row[hoursIdx] || "0")
-
-      // Job Code aggregation
-      const jobCode = buildJobcodeKey(row, headers)
-      const regHours = parseHours(row[regHoursIdx] || "0")
-      const ovtHours = parseHours(row[ovtHoursIdx] || "0")
-      const totalHours = parseHours(row[hoursIdx] || "0")
-
-      if (!jobCodeMap.has(jobCode)) {
-        jobCodeMap.set(jobCode, { regularHours: 0, overtimeHours: 0, totalHours: 0 })
-      }
-      const jc = jobCodeMap.get(jobCode)!
-      jc.regularHours += regHours
-      jc.overtimeHours += ovtHours
-      jc.totalHours += totalHours
-    }
-
-    setResults(
-      [...employeeMap.values()].map(({ name, hours }) => {
-        const h = Math.round(hours * 10) / 10
-        return {
-          name,
-          hoursMonWed: h,
-          surplus: Math.round((h - expectedMonWed) * 10) / 10,
-          thursFriAvailable: Math.max(0, Math.round((fullWeek - h) * 10) / 10),
-        }
-      }).sort((a, b) => b.surplus - a.surplus),
-    )
-
-    setJobCodeResults(
-      [...jobCodeMap.entries()].map(([jobCode, { regularHours, overtimeHours, totalHours }]) => ({
-        jobCode,
-        regularHours: Math.round(regularHours * 10) / 10,
-        overtimeHours: Math.round(overtimeHours * 10) / 10,
-        totalHours: Math.round(totalHours * 10) / 10,
-      })).sort((a, b) => b.totalHours - a.totalHours),
-    )
-  }, [rows, headers, excluded, hoursPerDay])
-
-  function processFile(file: File) {
-    setError("")
-    const reader = new FileReader()
-    reader.onload = e => {
-      try {
-        const text = e.target?.result as string
-        const { headers: h, rows: r } = parseCsvText(text)
-
-        const dayIdx   = h.indexOf("local_day")
-        const hoursIdx = h.indexOf("hours")
-        const jc1Idx   = h.indexOf("jobcode_1")
-
-        if (jc1Idx === -1 || dayIdx === -1 || hoursIdx === -1) {
-          setError("Required columns not found. Make sure this is a QB Time CSV export.")
-          return
-        }
-
-        const cats = new Set<string>()
-        for (const row of r) {
-          const key = buildJobcodeKey(row, h)
-          if (key) cats.add(key)
-        }
-
-        setHeaders(h); setRows(r); setFileName(file.name)
-        setAllCategories([...cats].sort((a, b) => a.localeCompare(b)))
-
-        const saved = loadSavedExcluded()
-        if (saved) {
-          const merged = new Set(saved)
-          for (const cat of cats) { if (isKnownExcluded(cat)) merged.add(cat) }
-          setExcluded(merged)
-        } else {
-          setExcluded(new Set([...cats].filter(isKnownExcluded)))
-        }
-
-        setStep("results")
-      } catch {
-        setError("Failed to parse the file. Make sure it is a valid QB Time CSV export.")
-      }
-    }
-    reader.readAsText(file)
-  }
-
-  function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) processFile(file)
-    e.target.value = ""
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault(); setIsDragging(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file) processFile(file)
-  }
-
-  function handleReset() {
-    setStep("upload"); setRows([]); setHeaders([])
-    setAllCategories([]); setFileName(""); setResults([]); setError("")
+  function currentIsDark() {
+    return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   }
 
   const displayResults = useMemo(() => {
@@ -547,160 +311,29 @@ export default function WeeklyHoursControlPage() {
   }, [results, onlyExceeding, sortKey, sortDir])
 
   return (
-    <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
-
-      {/* ── Settings sidebar ── */}
-      <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-
-        {/* Sidebar header */}
-        <div className="border-b border-sidebar-border px-4 py-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
-            Weekly Hours
-          </p>
-        </div>
-
-        {/* Settings content */}
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
-
-          {/* Hours per day */}
-          <div className="flex flex-col gap-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
-              Expected Hours / Day
-            </p>
-            <div className="flex items-center justify-between rounded-lg border border-border bg-background px-1 py-1">
-              <Button
-                variant="ghost" size="icon-sm"
-                className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.max(1, h - 1))}
-              >−</Button>
-              <span className="min-w-[2ch] text-center text-sm font-bold tabular-nums">{hoursPerDay}</span>
-              <Button
-                variant="ghost" size="icon-sm"
-                className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.min(24, h + 1))}
-              >+</Button>
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Mon–Wed <span className="font-semibold text-foreground">{hoursPerDay * 3}h</span></span>
-              <span>Thu–Fri <span className="font-semibold text-foreground">{hoursPerDay * 2}h</span></span>
-            </div>
+    <div className="flex h-full flex-col">
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
+            <p className="text-sm text-muted-foreground">Mon–Wed summary · Thu–Fri availability</p>
           </div>
 
-          <div className="-mx-4 h-px bg-sidebar-border" />
-
-          {/* Job code categories */}
-          <div className="flex flex-col gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
-              Job Code Categories
-            </p>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
-              Checked items are{" "}
-              <span className="font-semibold text-destructive">excluded</span>{" "}
-              from hours. Saved automatically.
-            </p>
-            <CategoryDropdown
-              allCategories={allCategories}
-              excluded={excluded}
-              onChange={setExcluded}
-              disabled={allCategories.length === 0}
-            />
-            {allCategories.length > 0 && (
-              <div className="flex items-center text-[11px] text-muted-foreground">
-                <span className="flex-1 text-center text-destructive/80">{excluded.size} excluded</span>
-                <span className="h-3 w-px bg-border" />
-                <span className="flex-1 text-center">{allCategories.length - excluded.size} counted</span>
-              </div>
-            )}
-          </div>
-
-
-        </div>
-
-        {/* Footer */}
-        {step === "results" && (
-          <div className="border-t border-sidebar-border p-2">
-            <Button variant="ghost" className="w-full gap-2 text-sm text-muted-foreground" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4" />
-              New file
-            </Button>
-          </div>
-        )}
-      </aside>
-
-      {/* ── Main content ── */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6">
-
-          {/* Page title */}
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
-              <p className="text-sm text-muted-foreground">Mon–Wed summary · Thu–Fri availability</p>
-            </div>
-
-            <div className="flex shrink-0 items-end gap-3">
-              {/* View mode tabs — visible when results loaded */}
-              {step === "results" && (results.length > 0 || jobCodeResults.length > 0) && (
-                <div className="flex flex-col items-start gap-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    View
-                  </p>
-                  <div className="flex h-8 w-auto items-center rounded-lg border border-border bg-muted/40 p-0.5">
-                    {([
-                      { mode: "employee" as ViewMode, label: "Agregação Semanal" },
-                      { mode: "job_costing" as ViewMode, label: "Job Costing" },
-                    ]).map(({ mode, label }) => (
-                      <button
-                        key={mode}
-                        onClick={() => setViewMode(mode)}
-                        className={cn(
-                          "flex h-7 items-center rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
-                          viewMode === mode
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground",
-                        )}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Only exceeding filter — visible when results loaded AND viewing employee mode */}
-              {step === "results" && results.length > 0 && viewMode === "employee" && (
-                <div className="flex flex-col items-start gap-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Filter
-                  </p>
-                  <Button
-                    variant={onlyExceeding ? "destructive" : "outline"}
-                    size="sm"
-                    className="h-8 gap-1.5"
-                    onClick={() => setOnlyExceeding(v => !v)}
-                  >
-                    <Filter className="h-3.5 w-3.5" />
-                    Only exceeding
-                  </Button>
-                </div>
-              )}
-
-              {/* Metric mode toggle */}
+          <div className="flex shrink-0 items-end gap-3">
+            {!loading && results.length > 0 && (
               <div className="flex flex-col items-start gap-1">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Metric Mode
-                </p>
-                <div className="flex h-8 w-36 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">View</p>
+                <div className="flex h-8 w-auto items-center rounded-lg border border-border bg-muted/40 p-0.5">
                   {([
-                    { fmt: "number", label: "Number" },
-                    { fmt: "time",   label: "Hour"   },
-                  ] as { fmt: HourFormat; label: string }[]).map(({ fmt, label }) => (
+                    { mode: "employee" as ViewMode, label: "Agregação Semanal" },
+                    { mode: "job_costing" as ViewMode, label: "Job Costing" },
+                  ]).map(({ mode, label }) => (
                     <button
-                      key={fmt}
-                      onClick={() => setHourFormat(fmt)}
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
                       className={cn(
-                        "flex h-7 flex-1 items-center justify-center rounded-md px-4 text-xs font-medium transition-colors",
-                        hourFormat === fmt
+                        "flex h-7 items-center rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
+                        viewMode === mode
                           ? "bg-background text-foreground shadow-sm"
                           : "text-muted-foreground hover:text-foreground",
                       )}
@@ -710,243 +343,222 @@ export default function WeeklyHoursControlPage() {
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* Divider before export */}
-              {step === "results" && results.length > 0 && (
-                <div className="self-stretch w-px bg-border" />
-              )}
+            {!loading && results.length > 0 && viewMode === "employee" && (
+              <div className="flex flex-col items-start gap-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Filter</p>
+                <Button
+                  variant={onlyExceeding ? "destructive" : "outline"}
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={() => setOnlyExceeding(v => !v)}
+                >
+                  <Filter className="h-3.5 w-3.5" />
+                  Only exceeding
+                </Button>
+              </div>
+            )}
 
-              {/* Export — visible when results loaded */}
-              {step === "results" && results.length > 0 && (
-                <div className="flex flex-col items-start gap-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Export as
-                  </p>
-                  <div className="flex gap-1.5">
-                    <Button
-                      size="sm"
-                      className="h-8 gap-1.5"
-                      onClick={() => exportResultsAsImage(displayResults, hoursPerDay, fileName, currentIsDark())}
-                    >
-                      <ImageIcon className="h-3.5 w-3.5" />
-                      Image
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="h-8 gap-1.5"
-                      onClick={() => exportResultsAsPdf(displayResults, hoursPerDay, fileName, currentIsDark())}
-                    >
-                      <FileText className="h-3.5 w-3.5" />
-                      PDF
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Error banner */}
-          {error && (
-            <div className="mb-5 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-              <span className="mt-0.5 shrink-0">⚠</span>
-              {error}
-            </div>
-          )}
-
-          {/* ══════ UPLOAD ══════ */}
-          {step === "upload" && (
-            <div className="mx-auto max-w-lg">
-              <div className="rounded-xl border border-border bg-card/60">
-                <div className="border-b border-border px-5 py-3.5">
-                  <h2 className="font-semibold">Upload QB Time Report</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Export the weekly timesheet from QB Time and drop it here.
-                  </p>
-                </div>
-                <div className="p-5">
-                  <div
-                    onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
+            <div className="flex flex-col items-start gap-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Metric Mode</p>
+              <div className="flex h-8 w-36 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                {([
+                  { fmt: "number", label: "Number" },
+                  { fmt: "time", label: "Hour" },
+                ] as { fmt: HourFormat; label: string }[]).map(({ fmt, label }) => (
+                  <button
+                    key={fmt}
+                    onClick={() => setHourFormat(fmt)}
                     className={cn(
-                      "flex cursor-pointer select-none flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed py-10 text-center transition-colors",
-                      isDragging
-                        ? "border-primary/60 bg-primary/5"
-                        : "border-border/60 hover:border-border hover:bg-muted/30",
+                      "flex h-7 flex-1 items-center justify-center rounded-md px-4 text-xs font-medium transition-colors",
+                      hourFormat === fmt
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    <FileUp className={cn("h-5 w-5", isDragging ? "text-primary" : "text-muted-foreground/40")} />
-                    <p className="text-xs font-medium text-muted-foreground">Drop the CSV here</p>
-                    <p className="text-[11px] text-muted-foreground/60">Drag & drop or click to select</p>
-                    <input ref={fileInputRef} type="file" accept=".csv,text/csv"
-                      className="hidden" onChange={handleFileInput} />
-                  </div>
-                </div>
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {/* ══════ RESULTS — EMPLOYEE VIEW ══════ */}
-          {step === "results" && viewMode === "employee" && (
-            <div className="flex flex-col gap-4">
+            {!loading && results.length > 0 && (
+              <div className="self-stretch w-px bg-border" />
+            )}
 
-              {/* Results table */}
-              <div className="overflow-hidden rounded-xl border border-border bg-card/60">
-                <div className="flex items-center border-b border-border px-4 py-2.5">
-                  <span className="text-sm font-medium">
-                    {results.length} employee{results.length !== 1 ? "s" : ""}
-                  </span>
-                  <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>{fileName}</span>
-                    <span className="text-border">·</span>
-                    <span>{hoursPerDay}h/day</span>
-                  </span>
+            {!loading && results.length > 0 && (
+              <div className="flex flex-col items-start gap-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Export as</p>
+                <div className="flex gap-1.5">
+                  <Button
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => data && exportResultsAsImage(displayResults, data.data.hoursPerDay, data.data.weekStart, currentIsDark())}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    Image
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => data && exportResultsAsPdf(displayResults, data.data.hoursPerDay, data.data.weekStart, currentIsDark())}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    PDF
+                  </Button>
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
 
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
-                      {([
-                        { key: "name"              as SortKey, label: "Employee",          align: "left"   },
-                        { key: "hoursMonWed"       as SortKey, label: "Hours Mon–Wed",     align: "center" },
-                        { key: "surplus"           as SortKey, label: "Surplus",           align: "center" },
-                        { key: "thursFriAvailable" as SortKey, label: "Thu–Fri Available", align: "center" },
-                      ]).map(({ key, label, align }) => (
-                        <TableHead
-                          key={key}
+        {loading && (
+          <div className="flex h-64 items-center justify-center rounded-lg border border-border bg-card/60">
+            <p className="text-muted-foreground">Loading weekly data...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-5 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <span className="mt-0.5 shrink-0">⚠</span>
+            {error}
+          </div>
+        )}
+
+        {!loading && results.length === 0 && !error && (
+          <div className="flex h-64 items-center justify-center rounded-lg border border-border bg-card/60">
+            <p className="text-muted-foreground">No data available for this week</p>
+          </div>
+        )}
+
+        {!loading && viewMode === "employee" && results.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="overflow-hidden rounded-xl border border-border bg-card/60">
+              <div className="flex items-center border-b border-border px-4 py-2.5">
+                <span className="text-sm font-medium">
+                  {displayResults.length} employee{displayResults.length !== 1 ? "s" : ""}
+                </span>
+                <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span>{data?.data.hoursPerDay || 8}h/day</span>
+                </span>
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
+                    {([
+                      { key: "name" as SortKey, label: "Employee", align: "left" },
+                      { key: "hoursMonWed" as SortKey, label: "Hours Mon–Wed", align: "center" },
+                      { key: "surplus" as SortKey, label: "Surplus", align: "center" },
+                      { key: "thursFriAvailable" as SortKey, label: "Thu–Fri Available", align: "center" },
+                    ]).map(({ key, label, align }) => (
+                      <TableHead
+                        key={key}
+                        className={cn(
+                          "whitespace-nowrap text-[11px] font-bold uppercase tracking-wide",
+                          align === "center" && "text-center",
+                        )}
+                      >
+                        <button
+                          onClick={() => handleSort(key)}
                           className={cn(
-                            "whitespace-nowrap text-[11px] font-bold uppercase tracking-wide",
-                            align === "center" && "text-center",
+                            "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+                            align === "center" && "justify-center w-full",
+                            sortKey === key ? "text-foreground" : "text-muted-foreground",
                           )}
                         >
-                          <button
-                            onClick={() => handleSort(key)}
-                            className={cn(
-                              "inline-flex items-center gap-1 transition-colors hover:text-foreground",
-                              align === "center" && "justify-center w-full",
-                              sortKey === key ? "text-foreground" : "text-muted-foreground",
-                            )}
-                          >
-                            {label}
-                            {sortKey === key
-                              ? sortDir === "asc"
-                                ? <ArrowUp className="h-3 w-3" />
-                                : <ArrowDown className="h-3 w-3" />
-                              : <ChevronsUpDown className="h-3 w-3 opacity-40" />
-                            }
-                          </button>
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {displayResults.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
-                          No Mon–Wed entries found with the current filters.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {displayResults.map((r) => (
-                      <TableRow key={r.name} className="border-border/50">
-                        <TableCell className="font-medium">{r.name}</TableCell>
-
-                        <TableCell className="text-center font-mono font-bold tabular-nums">
-                          {fmtH(r.hoursMonWed, hourFormat)}
-                        </TableCell>
-
-                        {/* Positive surplus = over hours = red (bad); negative = under = green (capacity available) */}
-                        <TableCell className="text-center">
-                          <span className={cn(
-                            "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold",
-                            r.surplus > 0 ? "bg-destructive/10 text-destructive"
+                          {label}
+                          {sortKey === key
+                            ? sortDir === "asc"
+                              ? <ArrowUp className="h-3 w-3" />
+                              : <ArrowDown className="h-3 w-3" />
+                            : <ChevronsUpDown className="h-3 w-3 opacity-40" />
+                          }
+                        </button>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {displayResults.map((r) => (
+                    <TableRow key={r.name} className="border-border/50">
+                      <TableCell className="font-medium">{r.name}</TableCell>
+                      <TableCell className="text-center font-mono font-bold tabular-nums">
+                        {fmtH(r.hoursMonWed, hourFormat)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold",
+                          r.surplus > 0 ? "bg-destructive/10 text-destructive"
                             : r.surplus < 0 ? "bg-emerald-500/10 text-emerald-600"
                             : "bg-muted text-muted-foreground",
-                          )}>
-                            {r.surplus > 0 && <ArrowUp className="h-3 w-3" />}
-                            {r.surplus < 0 && <ArrowDown className="h-3 w-3" />}
-                            {r.surplus > 0 ? "+" : ""}{fmtH(Math.abs(r.surplus), hourFormat)}
-                          </span>
-                        </TableCell>
-
-                        <TableCell className={cn(
-                          "text-center font-mono font-bold tabular-nums",
-                          r.thursFriAvailable === 0 && "text-destructive",
                         )}>
-                          {fmtH(r.thursFriAvailable, hourFormat)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          )}
-
-          {/* ══════ RESULTS — JOB COSTING VIEW ══════ */}
-          {step === "results" && viewMode === "job_costing" && (
-            <div className="flex flex-col gap-4">
-
-              {/* Job Costing table */}
-              <div className="overflow-hidden rounded-xl border border-border bg-card/60">
-                <div className="flex items-center border-b border-border px-4 py-2.5">
-                  <span className="text-sm font-medium">
-                    {jobCodeResults.length} job code{jobCodeResults.length !== 1 ? "s" : ""}
-                  </span>
-                  <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>{fileName}</span>
-                    <span className="text-border">·</span>
-                    <span>by Job Code</span>
-                  </span>
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
-                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-left">
-                        Job Code
-                      </TableHead>
-                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
-                        Regular Hours
-                      </TableHead>
-                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
-                        Overtime Hours
-                      </TableHead>
-                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
-                        Total Hours
-                      </TableHead>
+                          {r.surplus > 0 && <ArrowUp className="h-3 w-3" />}
+                          {r.surplus < 0 && <ArrowDown className="h-3 w-3" />}
+                          {r.surplus > 0 ? "+" : ""}{fmtH(Math.abs(r.surplus), hourFormat)}
+                        </span>
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-center font-mono font-bold tabular-nums",
+                        r.thursFriAvailable === 0 && "text-destructive",
+                      )}>
+                        {fmtH(r.thursFriAvailable, hourFormat)}
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {jobCodeResults.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
-                          No job code entries found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {jobCodeResults.map((r) => (
-                      <TableRow key={r.jobCode} className="border-border/50">
-                        <TableCell className="font-medium text-sm">{r.jobCode || "—"}</TableCell>
-                        <TableCell className="text-center font-mono font-bold tabular-nums">
-                          {fmtH(r.regularHours, hourFormat)}
-                        </TableCell>
-                        <TableCell className="text-center font-mono font-bold tabular-nums text-amber-600">
-                          {fmtH(r.overtimeHours, hourFormat)}
-                        </TableCell>
-                        <TableCell className="text-center font-mono font-bold tabular-nums">
-                          {fmtH(r.totalHours, hourFormat)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-          )}
+          </div>
+        )}
 
-        </div>
+        {!loading && viewMode === "job_costing" && jobCodeResults.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="overflow-hidden rounded-xl border border-border bg-card/60">
+              <div className="flex items-center border-b border-border px-4 py-2.5">
+                <span className="text-sm font-medium">
+                  {jobCodeResults.length} job code{jobCodeResults.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-left">
+                      Job Code
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                      Regular Hours
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                      Overtime Hours
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                      Total Hours
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {jobCodeResults.map((r) => (
+                    <TableRow key={r.jobCode} className="border-border/50">
+                      <TableCell className="font-medium text-sm">{r.jobCode || "—"}</TableCell>
+                      <TableCell className="text-center font-mono font-bold tabular-nums">
+                        {fmtH(r.regularHours, hourFormat)}
+                      </TableCell>
+                      <TableCell className="text-center font-mono font-bold tabular-nums text-amber-600">
+                        {fmtH(r.overtimeHours, hourFormat)}
+                      </TableCell>
+                      <TableCell className="text-center font-mono font-bold tabular-nums">
+                        {fmtH(r.totalHours, hourFormat)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
