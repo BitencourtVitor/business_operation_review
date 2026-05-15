@@ -505,7 +505,7 @@ export function DatesViewer({
                               onClick={() => onMetaChange(row.id, { is_ours: !isOurs })}
                               className={cn(
                                 "flex items-center justify-center w-5 h-5 rounded transition-colors",
-                                isOurs ? "text-amber-500 hover:bg-amber-500/10" : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
+                                isOurs ? "bg-gray-300 dark:bg-gray-600 text-foreground hover:opacity-80" : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/80",
                               )}
                             />
                           }
