@@ -1,0 +1,2 @@
+-- Rollback: Would recreate tables from 000034, not typically done
+-- No-op: This consolidation is permanent

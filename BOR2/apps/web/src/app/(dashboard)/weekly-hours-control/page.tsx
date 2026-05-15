@@ -150,6 +150,15 @@ type EmployeeResult = {
   thursFriAvailable: number
 }
 
+type JobCodeResult = {
+  jobCode: string
+  regularHours: number
+  overtimeHours: number
+  totalHours: number
+}
+
+type ViewMode = "employee" | "job_costing"
+
 // ─── Canvas Export ────────────────────────────────────────────────────────────
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -371,6 +380,8 @@ export default function WeeklyHoursControlPage() {
   const [allCategories, setAllCategories] = useState<string[]>([])
   const [excluded, setExcluded]       = useState<Set<string>>(() => loadSavedExcluded() ?? new Set())
   const [results, setResults]         = useState<EmployeeResult[]>([])
+  const [jobCodeResults, setJobCodeResults] = useState<JobCodeResult[]>([])
+  const [viewMode, setViewMode]       = useState<ViewMode>("employee")
   const [onlyExceeding, setOnlyExceeding] = useState(false)
   const [hoursPerDay, setHoursPerDay] = useState(8)
   const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
@@ -405,27 +416,46 @@ export default function WeeklyHoursControlPage() {
     const fnameIdx    = headers.indexOf("fname")
     const lnameIdx    = headers.indexOf("lname")
     const usernameIdx = headers.indexOf("username")
+    const regHoursIdx = headers.indexOf("regular_hours")
+    const ovtHoursIdx = headers.indexOf("overtime_hours")
 
     const expectedMonWed = hoursPerDay * 3
     const fullWeek       = hoursPerDay * 5
-    const map = new Map<string, { name: string; hours: number }>()
+    const employeeMap = new Map<string, { name: string; hours: number }>()
+    const jobCodeMap = new Map<string, { regularHours: number; overtimeHours: number; totalHours: number }>()
 
     for (const row of rows) {
       const day = row[dayIdx]?.trim()
       if (!MON_WED.has(day)) continue
       const cat = buildJobcodeKey(row, headers)
       if (excluded.has(cat)) continue
+
+      // Employee aggregation
       const fname    = row[fnameIdx]?.trim() || ""
       const lname    = row[lnameIdx]?.trim() || ""
       const username = row[usernameIdx]?.trim() || ""
       const key      = username || `${fname} ${lname}`.trim()
       const name     = `${fname} ${lname}`.trim() || username
-      if (!map.has(key)) map.set(key, { name, hours: 0 })
-      map.get(key)!.hours += parseHours(row[hoursIdx] || "0")
+      if (!employeeMap.has(key)) employeeMap.set(key, { name, hours: 0 })
+      employeeMap.get(key)!.hours += parseHours(row[hoursIdx] || "0")
+
+      // Job Code aggregation
+      const jobCode = buildJobcodeKey(row, headers)
+      const regHours = parseHours(row[regHoursIdx] || "0")
+      const ovtHours = parseHours(row[ovtHoursIdx] || "0")
+      const totalHours = parseHours(row[hoursIdx] || "0")
+
+      if (!jobCodeMap.has(jobCode)) {
+        jobCodeMap.set(jobCode, { regularHours: 0, overtimeHours: 0, totalHours: 0 })
+      }
+      const jc = jobCodeMap.get(jobCode)!
+      jc.regularHours += regHours
+      jc.overtimeHours += ovtHours
+      jc.totalHours += totalHours
     }
 
     setResults(
-      [...map.values()].map(({ name, hours }) => {
+      [...employeeMap.values()].map(({ name, hours }) => {
         const h = Math.round(hours * 10) / 10
         return {
           name,
@@ -434,6 +464,15 @@ export default function WeeklyHoursControlPage() {
           thursFriAvailable: Math.max(0, Math.round((fullWeek - h) * 10) / 10),
         }
       }).sort((a, b) => b.surplus - a.surplus),
+    )
+
+    setJobCodeResults(
+      [...jobCodeMap.entries()].map(([jobCode, { regularHours, overtimeHours, totalHours }]) => ({
+        jobCode,
+        regularHours: Math.round(regularHours * 10) / 10,
+        overtimeHours: Math.round(overtimeHours * 10) / 10,
+        totalHours: Math.round(totalHours * 10) / 10,
+      })).sort((a, b) => b.totalHours - a.totalHours),
     )
   }, [rows, headers, excluded, hoursPerDay])
 
@@ -600,8 +639,36 @@ export default function WeeklyHoursControlPage() {
             </div>
 
             <div className="flex shrink-0 items-end gap-3">
-              {/* Only exceeding filter — visible when results loaded */}
-              {step === "results" && results.length > 0 && (
+              {/* View mode tabs — visible when results loaded */}
+              {step === "results" && (results.length > 0 || jobCodeResults.length > 0) && (
+                <div className="flex flex-col items-start gap-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    View
+                  </p>
+                  <div className="flex h-8 w-auto items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                    {([
+                      { mode: "employee" as ViewMode, label: "Agregação Semanal" },
+                      { mode: "job_costing" as ViewMode, label: "Job Costing" },
+                    ]).map(({ mode, label }) => (
+                      <button
+                        key={mode}
+                        onClick={() => setViewMode(mode)}
+                        className={cn(
+                          "flex h-7 items-center rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
+                          viewMode === mode
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Only exceeding filter — visible when results loaded AND viewing employee mode */}
+              {step === "results" && results.length > 0 && viewMode === "employee" && (
                 <div className="flex flex-col items-start gap-1">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                     Filter
@@ -720,8 +787,8 @@ export default function WeeklyHoursControlPage() {
             </div>
           )}
 
-          {/* ══════ RESULTS ══════ */}
-          {step === "results" && (
+          {/* ══════ RESULTS — EMPLOYEE VIEW ══════ */}
+          {step === "results" && viewMode === "employee" && (
             <div className="flex flex-col gap-4">
 
               {/* Results table */}
@@ -808,6 +875,68 @@ export default function WeeklyHoursControlPage() {
                           r.thursFriAvailable === 0 && "text-destructive",
                         )}>
                           {fmtH(r.thursFriAvailable, hourFormat)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {/* ══════ RESULTS — JOB COSTING VIEW ══════ */}
+          {step === "results" && viewMode === "job_costing" && (
+            <div className="flex flex-col gap-4">
+
+              {/* Job Costing table */}
+              <div className="overflow-hidden rounded-xl border border-border bg-card/60">
+                <div className="flex items-center border-b border-border px-4 py-2.5">
+                  <span className="text-sm font-medium">
+                    {jobCodeResults.length} job code{jobCodeResults.length !== 1 ? "s" : ""}
+                  </span>
+                  <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>{fileName}</span>
+                    <span className="text-border">·</span>
+                    <span>by Job Code</span>
+                  </span>
+                </div>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
+                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-left">
+                        Job Code
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                        Regular Hours
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                        Overtime Hours
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-center">
+                        Total Hours
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {jobCodeResults.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
+                          No job code entries found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {jobCodeResults.map((r) => (
+                      <TableRow key={r.jobCode} className="border-border/50">
+                        <TableCell className="font-medium text-sm">{r.jobCode || "—"}</TableCell>
+                        <TableCell className="text-center font-mono font-bold tabular-nums">
+                          {fmtH(r.regularHours, hourFormat)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold tabular-nums text-amber-600">
+                          {fmtH(r.overtimeHours, hourFormat)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold tabular-nums">
+                          {fmtH(r.totalHours, hourFormat)}
                         </TableCell>
                       </TableRow>
                     ))}

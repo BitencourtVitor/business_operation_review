@@ -145,8 +145,6 @@ const bottomGroup: NavGroup = {
       // No direct permKey — visibility driven by children
       children: [
         { title: "Auto Log",             href: "/autolog",              icon: ImageIcon,     permKey: "autolog"           },
-        { title: "Daily Report",         href: "/qbtime/daily-report",  icon: CalendarDays,  permKey: "daily_report"      },
-        { title: "Pay Period Report",    href: "/qbtime/job-costing",   icon: ScrollText,    permKey: "pay_period_report" },
         { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock, permKey: "weekly_hours"      },
         { title: "Who's Working",        href: "/qbtime/whos-working",  icon: UserCheck,     permKey: "whos_working"      },
       ],
