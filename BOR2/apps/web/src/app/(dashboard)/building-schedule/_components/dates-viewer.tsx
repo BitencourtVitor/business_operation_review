@@ -188,6 +188,7 @@ export function DatesViewer({
           <div className="sticky left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Start</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
+          <div className="bg-muted/90 flex-1 self-stretch" />
         </div>
 
         {mergedRows.map((item, i) => {
@@ -283,7 +284,13 @@ export function DatesViewer({
                 ) : <span className="w-4 shrink-0" />}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
                 {isOurs && (
-                  <HardHat className="shrink-0 h-3 w-3 text-gray-500 dark:text-gray-400" aria-hidden />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src="/images/sublogo_framing.png"
+                    alt="Framing"
+                    className="shrink-0 h-3.5 w-3.5 object-contain"
+                    aria-hidden
+                  />
                 )}
                 <span className={cn("text-[11px] ml-1 whitespace-nowrap",
                   isRowActive
@@ -374,6 +381,9 @@ export function DatesViewer({
                   </div>
                 )
               })()}
+
+              {/* Spacer that fills remaining row width so the sticky buttons sit at the far right */}
+              <div className="flex-1 self-stretch" />
 
               {/* Floating action buttons (zero-width sticky anchor) */}
               <div className="sticky right-0 z-20 shrink-0 overflow-visible" style={{ width: 0, alignSelf: "stretch" }}>

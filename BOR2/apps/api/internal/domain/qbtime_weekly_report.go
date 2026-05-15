@@ -1,8 +1,8 @@
 package domain
 
 type WeeklyReportAddress struct {
-	Address string  `json:"address"`
-	Hours   float64 `json:"hours"`
+	Path  []string `json:"path"`  // full hierarchy from root to leaf, e.g. ["Canton, Neponset", "Normal Labor"]
+	Hours float64  `json:"hours"`
 }
 
 type WeeklyReportShift struct {
