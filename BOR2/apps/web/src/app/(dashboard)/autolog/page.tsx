@@ -1,23 +1,22 @@
 "use client"
 
-import { useRef, useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Download, FolderOpen, Loader2, Upload } from "lucide-react"
+import { Download, Loader2, RefreshCw } from "lucide-react"
+import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
+import { cn } from "@/lib/utils"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const COMPANIES = [
+  { value: "framing", label: "Framing", logo: "/images/sublogo_framing.png" },
+  { value: "hvac",    label: "HVAC",    logo: "/images/sublogo_hvac.png"    },
+]
 
 type TimePolicy = {
   expectedStart: string
   expectedEnd: string
   toleranceEarlyMinutes: number
   toleranceLateMinutes: number
-}
-
-type EmployeeDayAggregate = {
-  fname: string
-  lname: string
-  entryMinutes: number
-  exitMinutes: number
 }
 
 type EmployeeResultRow = {
@@ -57,8 +56,6 @@ type WeekendResult = {
   imageDataUrl?: string
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
 function clampNumber(v: number, min: number, max: number) {
   if (Number.isNaN(v)) return min
   return Math.min(max, Math.max(min, v))
@@ -68,85 +65,9 @@ async function yieldToUi() {
   await new Promise<void>((r) => setTimeout(r, 0))
 }
 
-function normalizeHeaderKey(raw: string) {
-  return raw.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").replace(/_+/g, "_")
-}
-
-function normalizeHeaderKeyLoose(raw: string) {
-  return normalizeHeaderKey(raw).replace(/_/g, "")
-}
-
-function guessDelimiter(text: string): "," | ";" | "\t" {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "").slice(0, 5)
-  const sample = lines.join("\n")
-  const counts: Record<string, number> = { ",": 0, ";": 0, "\t": 0 }
-  let inQuotes = false
-  for (let i = 0; i < sample.length; i++) {
-    const ch = sample[i]
-    if (ch === '"') { if (inQuotes && sample[i + 1] === '"') { i++; continue } inQuotes = !inQuotes; continue }
-    if (!inQuotes && ch in counts) counts[ch]++
-  }
-  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
-  return (best?.[0] as "," | ";" | "\t") || ","
-}
-
-function parseCsv(text: string) {
-  const delimiter = guessDelimiter(text)
-  const rows: string[][] = []
-  let row: string[] = []
-  let field = ""
-  let inQuotes = false
-  const pushField = () => { row.push(field); field = "" }
-  const pushRow = () => { rows.push(row); row = [] }
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]
-    if (inQuotes) {
-      if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++ } else { inQuotes = false } }
-      else { field += ch }
-      continue
-    }
-    if (ch === '"') { inQuotes = true; continue }
-    if (ch === delimiter) { pushField(); continue }
-    if (ch === "\n") { pushField(); pushRow(); continue }
-    if (ch === "\r") { if (text[i + 1] === "\n") continue; pushField(); pushRow(); continue }
-    field += ch
-  }
-  pushField()
-  if (row.length > 1 || row[0]?.trim() !== "") pushRow()
-  const headers = (rows[0] || []).map((h) => h.trim())
-  const data = rows.slice(1).filter((r) => r.some((c) => c.trim() !== ""))
-  return { headers, rows: data }
-}
-
-function parseLocalDateToIso(raw: string): string | null {
+function parseTimeToMinutes(raw: string): number | null {
   const v = raw.trim()
   if (!v) return null
-  const s = v.split("T")[0].split(" ")[0].trim()
-  const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s)
-  if (iso) { const [, y, m, d] = iso; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
-  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s)
-  if (slash) { const [, m, d, y] = slash; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
-  const dash = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(s)
-  if (dash) { const [, m, d, y] = dash; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
-  return null
-}
-
-function getWeekdayIndex(iso: string): number | null {
-  const d = new Date(`${iso}T00:00:00`)
-  const day = d.getDay()
-  return Number.isFinite(day) ? day : null
-}
-
-function weekdayLabel(idx: number) {
-  return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][idx] || ""
-}
-
-function parseTimeToMinutes(raw: string): number | null {
-  let v = raw.trim()
-  if (!v) return null
-  const matches = Array.from(v.matchAll(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?\b/gi))
-  const last = matches[matches.length - 1]
-  if (last) v = last[0].trim()
   const ampm = /\s*(am|pm)\s*$/i.exec(v)
   if (ampm) {
     const mer = ampm[1].toLowerCase()
@@ -177,13 +98,35 @@ function formatMinutesToTime(minutes: number) {
   return `${String(h12).padStart(2,"0")}:${String(m).padStart(2,"0")} ${mer}`
 }
 
+function isoToLocalDate(iso: string): string {
+  // "2026-05-13T07:00:00-04:00" -> Date object respecting timezone offset
+  return iso.split("T")[0]
+}
+
+function isoToMinutes(iso: string): number | null {
+  // Parse ISO 8601 timestamp, returning local time as minutes from midnight
+  const match = /T(\d{2}):(\d{2}):(\d{2})/.exec(iso)
+  if (!match) return null
+  const h = Number(match[1]); const m = Number(match[2])
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null
+  return h * 60 + m
+}
+
+function getWeekdayIndex(iso: string): number | null {
+  const d = new Date(`${iso}T00:00:00`)
+  const day = d.getDay()
+  return Number.isFinite(day) ? day : null
+}
+
+function weekdayLabel(idx: number) {
+  return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][idx] || ""
+}
+
 function addDaysIso(iso: string, delta: number) {
   const d = new Date(`${iso}T00:00:00`)
   d.setDate(d.getDate() + delta)
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`
 }
-
-// ─── Canvas rendering ─────────────────────────────────────────────────────────
 
 function getThemeColors() {
   const isDark = document.documentElement.classList.contains("dark")
@@ -347,22 +290,24 @@ function renderWeekendToPngDataUrl(weekend: WeekendResult): string {
   return canvas.toDataURL("image/png")
 }
 
-// ─── Input class ──────────────────────────────────────────────────────────────
-
 const inputCls = "h-8 w-full rounded-lg border border-input bg-transparent px-3 py-0 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+type EmployeeDayAggregate = {
+  name: string
+  entryMinutes: number
+  exitMinutes: number
+}
 
 export default function AutoLogPage() {
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [company, setCompany] = useState("framing")
+  const [data, setData] = useState<WeeklyReport | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState("")
 
-  const [fileName,       setFileName]       = useState("")
-  const [csvText,        setCsvText]        = useState("")
-  const [parseError,     setParseError]     = useState("")
-  const [dayResults,     setDayResults]     = useState<(DayResult | WeekendResult)[]>([])
-  const [isProcessing,   setIsProcessing]   = useState(false)
+  const [dayResults, setDayResults] = useState<(DayResult | WeekendResult)[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
   const [processingStage, setProcessingStage] = useState("")
-  const [isDragging,     setIsDragging]     = useState(false)
+  const [parseError, setParseError] = useState("")
 
   const [weekdayPolicy, setWeekdayPolicy] = useState<TimePolicy>({
     expectedStart: "07:00 AM", expectedEnd: "05:00 PM",
@@ -373,72 +318,58 @@ export default function AutoLogPage() {
     toleranceEarlyMinutes: 0, toleranceLateMinutes: 0,
   })
 
-  const canProcess = useMemo(() => csvText.trim() !== "" && !isProcessing, [csvText, isProcessing])
-
-  async function onPickFile(file: File | null) {
-    setParseError(""); setDayResults([]); setFileName(file?.name || "")
-    if (!file) { setCsvText(""); return }
-    setCsvText(await file.text())
-  }
-
-  function buildMaps(headers: string[]) {
-    const exact = new Map<string, number>()
-    const loose = new Map<string, number>()
-    headers.forEach((h, i) => { exact.set(normalizeHeaderKey(h), i); loose.set(normalizeHeaderKeyLoose(h), i) })
-    return { exact, loose }
-  }
-
-  function getIdx(maps: ReturnType<typeof buildMaps>, candidates: string[]) {
-    for (const c of candidates) {
-      const found = maps.exact.get(normalizeHeaderKey(c)) ?? maps.loose.get(normalizeHeaderKeyLoose(c))
-      if (found !== undefined) return found
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      setFetchError("")
+      setDayResults([])
+      try {
+        const today = new Date().toISOString().split("T")[0]
+        const apiData = await weeklyReportService.get(company, today)
+        setData(apiData)
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "Failed to fetch QB Time data")
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
     }
-    return -1
-  }
+    fetchData()
+  }, [company])
+
+  const canProcess = useMemo(() => !!data && data.employees.length > 0 && !isProcessing && !loading, [data, isProcessing, loading])
 
   async function process() {
-    setIsProcessing(true); setProcessingStage("Starting...")
+    if (!data) return
+    setIsProcessing(true); setProcessingStage("Aggregating per employee/day...")
     try {
       setParseError(""); setDayResults([]); await yieldToUi()
-      setProcessingStage("Parsing CSV...")
-      const parsed = parseCsv(csvText)
-      const maps = buildMaps(parsed.headers)
-      const idxDate  = getIdx(maps, ["local_date","local date","date"])
-      const idxFName = getIdx(maps, ["fname","first_name","first name","first"])
-      const idxLName = getIdx(maps, ["lname","last_name","last name","last"])
-      const idxStart = getIdx(maps, ["local_start_time","local start time","start_time","start time"])
-      const idxEnd   = getIdx(maps, ["local_end_time","local end time","end_time","end time"])
-      const missing: string[] = []
-      if (idxDate < 0) missing.push("local_date")
-      if (idxFName < 0) missing.push("fname")
-      if (idxLName < 0) missing.push("lname")
-      if (idxStart < 0) missing.push("local_start_time")
-      if (idxEnd < 0) missing.push("local_end_time")
-      if (missing.length > 0) { setParseError(`Required columns not found: ${missing.join(", ")}`); return }
 
-      await yieldToUi(); setProcessingStage("Aggregating per employee/day...")
-      const aggregates = new Map<string, EmployeeDayAggregate>()
-      let validDate = 0, validName = 0, validTimes = 0
-      for (const r of parsed.rows) {
-        const dateIso = parseLocalDateToIso(r[idxDate] || ""); if (!dateIso) continue; validDate++
-        const fname = (r[idxFName] || "").trim(), lname = (r[idxLName] || "").trim()
-        if (!fname && !lname) continue; validName++
-        const start = parseTimeToMinutes(r[idxStart] || ""), end = parseTimeToMinutes(r[idxEnd] || "")
-        if (start == null || end == null) continue; validTimes++
-        const key = `${dateIso}__${fname.toLowerCase()}__${lname.toLowerCase()}`
-        const prev = aggregates.get(key)
-        if (!prev) aggregates.set(key, { fname, lname, entryMinutes: start, exitMinutes: end })
-        else aggregates.set(key, { ...prev, entryMinutes: Math.min(prev.entryMinutes, start), exitMinutes: Math.max(prev.exitMinutes, end) })
-      }
-
-      await yieldToUi(); setProcessingStage("Grouping by date...")
+      // Build byDate map from API data: aggregate shifts per employee/date
       const byDate = new Map<string, EmployeeDayAggregate[]>()
-      for (const [key, agg] of aggregates) {
-        const d = key.split("__")[0]
-        const list = byDate.get(d) || []; list.push(agg); byDate.set(d, list)
+      for (const emp of data.employees) {
+        for (const day of emp.days) {
+          if (!day.shifts || day.shifts.length === 0) continue
+
+          let minStart: number | null = null
+          let maxEnd: number | null = null
+          for (const sh of day.shifts) {
+            const s = isoToMinutes(sh.start)
+            const e = sh.end ? isoToMinutes(sh.end) : null
+            if (s != null) minStart = minStart == null ? s : Math.min(minStart, s)
+            if (e != null) maxEnd = maxEnd == null ? e : Math.max(maxEnd, e)
+          }
+          if (minStart == null || maxEnd == null) continue
+
+          const dateIso = day.date
+          const list = byDate.get(dateIso) || []
+          list.push({ name: emp.name, entryMinutes: minStart, exitMinutes: maxEnd })
+          byDate.set(dateIso, list)
+        }
       }
+
       if (byDate.size === 0) {
-        setParseError(`No valid rows found. Total: ${parsed.rows.length}. Valid date: ${validDate}. Valid name: ${validName}. Valid time: ${validTimes}.`)
+        setParseError("No timesheet data found for the current week.")
         return
       }
 
@@ -446,7 +377,10 @@ export default function AutoLogPage() {
       const wdEnd   = parseTimeToMinutes(weekdayPolicy.expectedEnd)
       const weStart = parseTimeToMinutes(weekendPolicy.expectedStart)
       const weEnd   = parseTimeToMinutes(weekendPolicy.expectedEnd)
-      if (wdStart == null || wdEnd == null || weStart == null || weEnd == null) { setParseError("Invalid time parameters"); return }
+      if (wdStart == null || wdEnd == null || weStart == null || weEnd == null) {
+        setParseError("Invalid time parameters")
+        return
+      }
 
       await yieldToUi(); setProcessingStage("Filtering and preparing results...")
       const results: (DayResult | WeekendResult)[] = []
@@ -459,9 +393,9 @@ export default function AutoLogPage() {
           const tolE = clampNumber(weekdayPolicy.toleranceEarlyMinutes, 0, 600)
           const tolL = clampNumber(weekdayPolicy.toleranceLateMinutes, 0, 600)
           const rows = (byDate.get(dateIso) || [])
-            .map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < wdStart! - tolE, late: e.exitMinutes > wdEnd! + tolL }))
+            .map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < wdStart - tolE, late: e.exitMinutes > wdEnd + tolL }))
             .filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: weekdayLabel(idx), isWeekend: false, policy: { expectedStartMinutes: wdStart!, expectedEndMinutes: wdEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: weekdayLabel(idx), isWeekend: false, policy: { expectedStartMinutes: wdStart, expectedEndMinutes: wdEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
           day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
@@ -471,31 +405,25 @@ export default function AutoLogPage() {
           const tolE = clampNumber(weekendPolicy.toleranceEarlyMinutes, 0, 600)
           const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
           if (hasSunday) {
-            const mapRow = (dayLabel: string) => (e: EmployeeDayAggregate): WeekendEmployeeRow => ({ dayLabel, name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })
+            const mapRow = (dayLabel: string) => (e: EmployeeDayAggregate): WeekendEmployeeRow => ({ dayLabel, name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })
             const rows = [...(byDate.get(dateIso) || []).map(mapRow("Saturday")).filter(r => r.early || r.late), ...(byDate.get(sundayIso) || []).map(mapRow("Sunday")).filter(r => r.early || r.late)].sort((a, b) => a.dayLabel === b.dayLabel ? a.name.localeCompare(b.name) : a.dayLabel.localeCompare(b.dayLabel))
-            const weekend: WeekendResult = { type: "weekend", dates: [dateIso, sundayIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+            const weekend: WeekendResult = { type: "weekend", dates: [dateIso, sundayIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
             weekend.imageDataUrl = renderWeekendToPngDataUrl(weekend); results.push(weekend); consumed.add(dateIso); consumed.add(sundayIso); continue
           }
-          const rows = (byDate.get(dateIso) || []).map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          const rows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
           day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
         if (idx === 0 && !consumed.has(dateIso)) {
           const tolE = clampNumber(weekendPolicy.toleranceEarlyMinutes, 0, 600)
           const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
-          const rows = (byDate.get(dateIso) || []).map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
-          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); 
+          const rows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day)
         }
       }
 
-      await yieldToUi(); setProcessingStage("Rendering PNG images...")
-      for (let i = 0; i < results.length; i++) {
-        const r = results[i]
-        r.imageDataUrl = r.type === "weekend" ? renderWeekendToPngDataUrl(r as WeekendResult) : renderDayToPngDataUrl(r as DayResult)
-        if (i % 2 === 1) await yieldToUi()
-      }
       setDayResults(results)
     } catch (err) {
       setDayResults([]); setParseError(err instanceof Error ? err.message : "Unexpected error")
@@ -509,49 +437,58 @@ export default function AutoLogPage() {
     document.body.appendChild(a); a.click(); a.remove()
   }
 
-  function clear() {
-    setCsvText(""); setDayResults([]); setParseError(""); setFileName("")
-    if (fileInputRef.current) fileInputRef.current.value = ""
-  }
-
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Quickbooks Time Auto Log</h1>
-        <p className="text-sm text-muted-foreground">CSV upload → local processing → per-day PNG image</p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Quickbooks Time Auto Log</h1>
+          <p className="text-sm text-muted-foreground">QB Time API → policy check → per-day PNG image</p>
+        </div>
+
+        <div className="flex flex-col items-start gap-1">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
+          <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+            {COMPANIES.map(c => (
+              <button
+                key={c.value}
+                onClick={() => setCompany(c.value)}
+                disabled={loading || isProcessing}
+                className={cn(
+                  "flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
+                  company === c.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Image src={c.logo} alt={c.label} width={14} height={14} className="h-3.5 w-3.5 object-contain" />
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="flex items-start gap-4">
-        {/* ── Left panel ── */}
         <div className="flex w-80 shrink-0 flex-col gap-4">
-
-          {/* CSV upload */}
+          {/* Data status */}
           <div className="rounded-xl border bg-card p-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">CSV</p>
-            <div
-              role="button"
-              tabIndex={0}
-              className={`rounded-lg border-2 border-dashed p-3 transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-border"} ${isProcessing ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
-              onDragEnter={e => { e.preventDefault(); if (!isProcessing) setIsDragging(true) }}
-              onDragOver={e => { e.preventDefault(); if (!isProcessing) setIsDragging(true) }}
-              onDragLeave={e => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setIsDragging(false) }}
-              onDrop={e => { e.preventDefault(); setIsDragging(false); if (!isProcessing) void onPickFile(e.dataTransfer.files?.[0] || null) }}
-              onClick={() => { if (!isProcessing) fileInputRef.current?.click() }}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-sm font-semibold">Drag & drop your CSV here</p>
-                  <p className="text-xs text-muted-foreground">{fileName ? `Selected: ${fileName}` : "No file selected"}</p>
-                </div>
-                <FolderOpen className="h-5 w-5 shrink-0 text-muted-foreground" />
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">or click to browse</p>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">QB Time Data</p>
+              {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
             </div>
-            <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" disabled={isProcessing} onChange={e => void onPickFile(e.target.files?.[0] || null)} />
+            {loading && <p className="text-sm text-muted-foreground">Fetching weekly data...</p>}
+            {!loading && data && (
+              <div className="text-xs space-y-1">
+                <p><span className="text-muted-foreground">Week:</span> {data.weekStart} → {data.weekEnd}</p>
+                <p><span className="text-muted-foreground">Employees:</span> {data.employees.length}</p>
+              </div>
+            )}
+            {fetchError && (
+              <p className="text-xs text-destructive">{fetchError}</p>
+            )}
           </div>
 
-          {/* Monday–Friday policy */}
+          {/* Weekday policy */}
           <div className="rounded-xl border bg-card p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Monday – Friday</p>
             <div className="grid grid-cols-2 gap-2">
@@ -574,7 +511,7 @@ export default function AutoLogPage() {
             </div>
           </div>
 
-          {/* Saturday / Sunday policy */}
+          {/* Weekend policy */}
           <div className="rounded-xl border bg-card p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Saturday / Sunday</p>
             <div className="grid grid-cols-2 gap-2">
@@ -597,13 +534,11 @@ export default function AutoLogPage() {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex flex-col gap-2">
-            <Button disabled={!canProcess} onClick={() => void process()} className="h-10 w-full">
-              {isProcessing ? <><Loader2 className="h-4 w-4 animate-spin" />Processing…</> : <><Upload className="h-4 w-4" />Process and generate images</>}
+            <Button disabled={!canProcess} onClick={() => void process()} className="h-10 w-full gap-2">
+              {isProcessing ? <><Loader2 className="h-4 w-4 animate-spin" />Processing…</> : <><RefreshCw className="h-4 w-4" />Run Auto-Log</>}
             </Button>
             {isProcessing && <p className="text-center text-xs text-muted-foreground">{processingStage}</p>}
-            <Button variant="outline" size="sm" disabled={isProcessing} onClick={clear} className="w-full">Clear</Button>
           </div>
 
           {parseError && (
@@ -613,11 +548,10 @@ export default function AutoLogPage() {
           )}
         </div>
 
-        {/* ── Results ── */}
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          {dayResults.length === 0 && !parseError && !isProcessing && (
+          {dayResults.length === 0 && !parseError && !isProcessing && !loading && (
             <div className="flex h-40 items-center justify-center rounded-xl border border-dashed bg-muted/20">
-              <p className="text-sm text-muted-foreground">Upload a CSV and click "Process and generate images".</p>
+              <p className="text-sm text-muted-foreground">Configure policies and click "Run Auto-Log".</p>
             </div>
           )}
 
