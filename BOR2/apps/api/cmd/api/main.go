@@ -68,7 +68,6 @@ func main() {
 	auditLogRepo         := repository.NewPostgresAuditLogRepository(db)
 	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
-	qbtimeDailyRepo      := repository.NewPostgresQBTimeDailyReportRepository(db)
 	qbtimeTeamRepo       := repository.NewPostgresQBTimeTeamRepository(db)
 	qbtimeExceptionsRepo := repository.NewPostgresQBTimeExceptionsRepository(db)
 
@@ -92,7 +91,6 @@ func main() {
 	notificationService  := service.NewNotificationService(notificationRepo)
 	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
 	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
-	qbtimeDailySvc       := service.NewQBTimeDailyReportService(qbtimeDailyRepo)
 	qbtimeTeamSvc        := service.NewQBTimeTeamService(qbtimeTeamRepo)
 	whosWorkingSvc       := service.NewWhosWorkingService(qbtimeExceptionsRepo, qbtimeTeamRepo)
 
@@ -128,7 +126,6 @@ func main() {
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
-	qbtimeDailyHandler       := handler.NewQBTimeDailyReportHandler(qbtimeDailySvc, auditService)
 	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	weeklyReportSvc          := service.NewWeeklyReportService()
@@ -227,13 +224,6 @@ func main() {
 	fuel := api.Group("/fuel")
 	fuel.Get("/samsara", fuelHandler.ListSamsara)
 	fuel.Get("/wex", fuelHandler.ListWex)
-
-	// QBTime Daily Report
-	qbtimeDaily := api.Group("/qbtime/daily")
-	qbtimeDaily.Get("/", qbtimeDailyHandler.List)
-	qbtimeDaily.Post("/", qbtimeDailyHandler.Create)
-	qbtimeDaily.Get("/:id", qbtimeDailyHandler.Get)
-	qbtimeDaily.Delete("/:id", qbtimeDailyHandler.Delete)
 
 	// QBTime Teams
 	qbtimeTeams := api.Group("/qbtime/teams")
