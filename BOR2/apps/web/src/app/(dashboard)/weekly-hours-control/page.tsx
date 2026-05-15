@@ -1,10 +1,17 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronsUpDown, FileText, Filter, ImageIcon, RotateCcw } from "lucide-react"
+import Image from "next/image"
+import { ArrowDown, ArrowUp, ChevronsUpDown, FileText, Filter, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
+
+const COMPANIES = [
+  { value: "framing", label: "Framing", logo: "/images/sublogo_framing.png" },
+  { value: "hvac",    label: "HVAC",    logo: "/images/sublogo_hvac.png"    },
+]
 
 type HourFormat = "number" | "time"
 type SortKey = "name" | "hoursMonWed" | "surplus" | "thursFriAvailable"
@@ -23,31 +30,6 @@ type JobCodeResult = {
   regularHours: number
   overtimeHours: number
   totalHours: number
-}
-
-type QBTimeWeeklyResponse = {
-  data: {
-    company: string
-    weekStart: string
-    weekEnd: string
-    reportDate: string
-    hoursPerDay: number
-    employees: Array<{
-      name: string
-      weekTotal: number
-      weekExcess: number
-      suggestionHours: number
-      days: Array<{
-        date: string
-        day: string
-        totalHours: number
-        addresses: Array<{
-          address: string
-          hours: number
-        }>
-      }>
-    }>
-  }
 }
 
 const LS_FORMAT_KEY = "whc_hour_format"
@@ -198,9 +180,10 @@ function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, week
 }
 
 export default function WeeklyHoursControlPage() {
+  const [company, setCompany] = useState("framing")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [data, setData] = useState<QBTimeWeeklyResponse | null>(null)
+  const [data, setData] = useState<WeeklyReport | null>(null)
   const [results, setResults] = useState<EmployeeResult[]>([])
   const [jobCodeResults, setJobCodeResults] = useState<JobCodeResult[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>("employee")
@@ -219,19 +202,17 @@ export default function WeeklyHoursControlPage() {
 
   useEffect(() => {
     async function fetchWeeklyData() {
+      setLoading(true)
+      setError("")
       try {
         const today = new Date().toISOString().split("T")[0]
-        const res = await fetch(`/api/v1/qbtime/weekly-report?company=all&date=${today}`)
-        if (!res.ok) throw new Error(`API error: ${res.status}`)
-        const json: QBTimeWeeklyResponse = await res.json()
-        setData(json)
+        const apiData = await weeklyReportService.get(company, today)
+        setData(apiData)
 
-        const apiData = json.data
         const hoursPerDay = apiData.hoursPerDay || 8
         const expectedMonWed = hoursPerDay * 3
         const fullWeek = hoursPerDay * 5
 
-        // Build employee results
         const employeeMap = new Map<string, { name: string; hoursMonWed: number }>()
         const jobCodeMap = new Map<string, { regularHours: number; overtimeHours: number; totalHours: number }>()
 
@@ -244,22 +225,18 @@ export default function WeeklyHoursControlPage() {
           }
 
           const hoursMonWed = Math.round(monWedHours * 10) / 10
-          const surplus = Math.round((hoursMonWed - expectedMonWed) * 10) / 10
-          const thursFriAvailable = Math.max(0, Math.round((fullWeek - hoursMonWed) * 10) / 10)
+          employeeMap.set(emp.name, { name: emp.name, hoursMonWed })
 
-          employeeMap.set(emp.name, {
-            name: emp.name,
-            hoursMonWed,
-          })
-
-          // For now, use employee name as jobCode placeholder (no separate job codes in API response)
-          if (!jobCodeMap.has(emp.name)) {
-            jobCodeMap.set(emp.name, { regularHours: 0, overtimeHours: 0, totalHours: 0 })
+          for (const day of emp.days) {
+            for (const addr of day.addresses) {
+              if (!jobCodeMap.has(addr.address)) {
+                jobCodeMap.set(addr.address, { regularHours: 0, overtimeHours: 0, totalHours: 0 })
+              }
+              const jc = jobCodeMap.get(addr.address)!
+              jc.totalHours += addr.hours
+              jc.regularHours += addr.hours
+            }
           }
-          const jc = jobCodeMap.get(emp.name)!
-          jc.totalHours += emp.weekTotal
-          jc.overtimeHours += emp.weekExcess
-          jc.regularHours += (emp.weekTotal - emp.weekExcess)
         }
 
         setResults(
@@ -279,17 +256,17 @@ export default function WeeklyHoursControlPage() {
             totalHours: Math.round(totalHours * 10) / 10,
           })).sort((a, b) => b.totalHours - a.totalHours),
         )
-
-        setError("")
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch weekly data")
+        setResults([])
+        setJobCodeResults([])
       } finally {
         setLoading(false)
       }
     }
 
     fetchWeeklyData()
-  }, [])
+  }, [company])
 
   function handleSort(key: SortKey) {
     if (key === sortKey) { setSortDir(d => d === "asc" ? "desc" : "asc") }
@@ -320,6 +297,27 @@ export default function WeeklyHoursControlPage() {
           </div>
 
           <div className="flex shrink-0 items-end gap-3">
+            <div className="flex flex-col items-start gap-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
+              <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                {COMPANIES.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => setCompany(c.value)}
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
+                      company === c.value
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <Image src={c.logo} alt={c.label} width={14} height={14} className="h-3.5 w-3.5 object-contain" />
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {!loading && results.length > 0 && (
               <div className="flex flex-col items-start gap-1">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">View</p>
@@ -394,7 +392,7 @@ export default function WeeklyHoursControlPage() {
                   <Button
                     size="sm"
                     className="h-8 gap-1.5"
-                    onClick={() => data && exportResultsAsImage(displayResults, data.data.hoursPerDay, data.data.weekStart, currentIsDark())}
+                    onClick={() => data && exportResultsAsImage(displayResults, data.hoursPerDay, data.weekStart, currentIsDark())}
                   >
                     <ImageIcon className="h-3.5 w-3.5" />
                     Image
@@ -402,7 +400,7 @@ export default function WeeklyHoursControlPage() {
                   <Button
                     size="sm"
                     className="h-8 gap-1.5"
-                    onClick={() => data && exportResultsAsPdf(displayResults, data.data.hoursPerDay, data.data.weekStart, currentIsDark())}
+                    onClick={() => data && exportResultsAsPdf(displayResults, data.hoursPerDay, data.weekStart, currentIsDark())}
                   >
                     <FileText className="h-3.5 w-3.5" />
                     PDF
@@ -440,7 +438,7 @@ export default function WeeklyHoursControlPage() {
                   {displayResults.length} employee{displayResults.length !== 1 ? "s" : ""}
                 </span>
                 <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span>{data?.data.hoursPerDay || 8}h/day</span>
+                  <span>{data?.hoursPerDay || 8}h/day</span>
                 </span>
               </div>
 
