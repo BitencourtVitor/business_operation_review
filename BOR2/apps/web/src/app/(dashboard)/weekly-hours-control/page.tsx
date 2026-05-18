@@ -60,14 +60,11 @@ function loadSelectedDays(): Set<string> {
 }
 
 const LS_FORMAT_KEY = "whc_hour_format"
-const WORKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+const WORKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 function getWeekdaySplit(now: Date): { pastDays: string[]; remainingDays: string[] } {
   const dow = now.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
-  if (dow === 0) return { pastDays: [], remainingDays: WORKDAYS }
-  if (dow === 6) return { pastDays: WORKDAYS, remainingDays: [] }
-  const idx = dow - 1
-  return { pastDays: WORKDAYS.slice(0, idx), remainingDays: WORKDAYS.slice(idx) }
+  return { pastDays: WORKDAYS.slice(0, dow), remainingDays: WORKDAYS.slice(dow) }
 }
 
 function abbreviateDay(d: string): string {
