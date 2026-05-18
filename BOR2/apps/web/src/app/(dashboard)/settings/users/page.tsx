@@ -104,8 +104,9 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Data Management",
     permissions: [
-      { key: "autolog",          label: "Quickbooks Time Auto Log", icon: Activity   },
-      { key: "whos_working",     label: "Who's Working Report",  icon: UserCheck    },
+      { key: "autolog",          label: "Quickbooks Time Auto Log", icon: Activity      },
+      { key: "weekly_hours",     label: "Weekly Hours Control",   icon: CalendarCheck },
+      { key: "whos_working",     label: "Who's Working Report",   icon: UserCheck     },
       { key: "data_control",     label: "Forecast Data Control", icon: ClipboardList },
       { key: "permits",          label: "Permit Control",        icon: FileCheck     },
       { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },

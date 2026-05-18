@@ -294,7 +294,7 @@ export default function WeeklyHoursControlPage() {
     const pastDaysSet = new Set(pastDays)
 
     const employeeMap = new Map<string, JCEmployee>()
-    for (const emp of data.employees) {
+    for (const emp of (data.employees ?? [])) {
       const days: JCDay[] = emp.days.map(day => {
         const addresses = day.addresses
           .map(a => {
