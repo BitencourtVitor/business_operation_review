@@ -337,7 +337,7 @@ export default function AutoLogPage() {
     fetchData()
   }, [company])
 
-  const canProcess = useMemo(() => !!data && data.employees.length > 0 && !isProcessing && !loading, [data, isProcessing, loading])
+  const canProcess = useMemo(() => !!data && (data.employees?.length ?? 0) > 0 && !isProcessing && !loading, [data, isProcessing, loading])
 
   async function process() {
     if (!data) return
@@ -480,7 +480,7 @@ export default function AutoLogPage() {
             {!loading && data && (
               <div className="text-xs space-y-1">
                 <p><span className="text-muted-foreground">Week:</span> {data.weekStart} → {data.weekEnd}</p>
-                <p><span className="text-muted-foreground">Employees:</span> {data.employees.length}</p>
+                <p><span className="text-muted-foreground">Employees:</span> {data.employees?.length ?? 0}</p>
               </div>
             )}
             {fetchError && (

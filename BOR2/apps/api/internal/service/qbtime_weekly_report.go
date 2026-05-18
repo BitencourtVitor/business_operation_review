@@ -265,7 +265,7 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 		}
 	}
 
-	var employees []domain.WeeklyReportEmployee
+	employees := make([]domain.WeeklyReportEmployee, 0)
 
 	for name, dateMap := range empHours {
 		var days []domain.WeeklyReportDay
