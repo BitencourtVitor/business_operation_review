@@ -335,21 +335,25 @@ export default function AutoLogPage() {
   })
 
   useEffect(() => {
+    let cancelled = false
     async function fetchData() {
       setLoading(true)
       setFetchError("")
       setDayResults([])
       try {
         const apiData = await weeklyReportService.get(company, getWeekSaturday(weekOffset))
-        setData(apiData)
+        if (!cancelled) setData(apiData)
       } catch (err) {
-        setFetchError(err instanceof Error ? err.message : "Failed to fetch QB Time data")
-        setData(null)
+        if (!cancelled) {
+          setFetchError(err instanceof Error ? err.message : "Failed to fetch QB Time data")
+          setData(null)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     fetchData()
+    return () => { cancelled = true }
   }, [company, weekOffset])
 
   const canProcess = useMemo(() => !!data && (data.employees?.length ?? 0) > 0 && !isProcessing && !loading, [data, isProcessing, loading])

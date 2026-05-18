@@ -276,20 +276,24 @@ export default function WeeklyHoursControlPage() {
   const selectedDaysLabel = useMemo(() => rangeLabel(WORKDAYS.filter(d => selectedDays.has(d))), [selectedDays])
 
   useEffect(() => {
+    let cancelled = false
     async function fetchWeeklyData() {
       setLoading(true)
       setError("")
       try {
         const apiData = await weeklyReportService.get(company, getWeekSaturday(weekOffset))
-        setData(apiData)
+        if (!cancelled) setData(apiData)
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch weekly data")
-        setData(null)
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to fetch weekly data")
+          setData(null)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     fetchWeeklyData()
+    return () => { cancelled = true }
   }, [company, weekOffset])
 
   useEffect(() => {
