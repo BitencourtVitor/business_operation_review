@@ -198,6 +198,7 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		       false
 		FROM catalog_forecast_fieldwire c, max_id
 		WHERE (LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
+		   OR (LOWER(c.client) = LOWER($2) AND c.type = '')
 		   OR (c.client = '' AND c.type = '')
 	`, p.ID, p.Cliente, p.Type); err != nil {
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
