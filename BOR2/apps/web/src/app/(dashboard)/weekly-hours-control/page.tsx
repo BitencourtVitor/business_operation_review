@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronsDownUp, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, ChevronsDownUp, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -235,8 +235,24 @@ function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, week
   win.document.close()
 }
 
+function getWeekSaturday(offsetWeeks: number): string {
+  const today = new Date()
+  const dow = today.getDay()
+  const daysToSat = (6 - dow + 7) % 7
+  const d = new Date(today)
+  d.setDate(today.getDate() + daysToSat - offsetWeeks * 7)
+  return d.toISOString().split("T")[0]
+}
+
+function fmtWeekDate(iso: string): string {
+  const [, m, day] = iso.split("-")
+  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(m)-1] + " " + parseInt(day)
+}
+
 export default function WeeklyHoursControlPage() {
   const [company, setCompany] = useState("framing")
+  const [weekOffset, setWeekOffset] = useState(0)
+  const isCurrentWeek = weekOffset === 0
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [data, setData] = useState<WeeklyReport | null>(null)
@@ -255,7 +271,10 @@ export default function WeeklyHoursControlPage() {
     try { localStorage.setItem(LS_SELECTED_DAYS_KEY, JSON.stringify([...selectedDays])) } catch { /* */ }
   }, [selectedDays])
 
-  const { pastDays, remainingDays } = useMemo(() => getWeekdaySplit(new Date()), [])
+  const { pastDays, remainingDays } = useMemo(() => {
+    if (weekOffset > 0) return { pastDays: WORKDAYS, remainingDays: [] as string[] }
+    return getWeekdaySplit(new Date())
+  }, [weekOffset])
   const isWeekMode = useMemo(() => WORKDAYS.every(d => selectedDays.has(d)), [selectedDays])
   const selectedDaysLabel = useMemo(() => rangeLabel(WORKDAYS.filter(d => selectedDays.has(d))), [selectedDays])
 
@@ -264,8 +283,7 @@ export default function WeeklyHoursControlPage() {
       setLoading(true)
       setError("")
       try {
-        const today = new Date().toISOString().split("T")[0]
-        const apiData = await weeklyReportService.get(company, today)
+        const apiData = await weeklyReportService.get(company, getWeekSaturday(weekOffset))
         setData(apiData)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch weekly data")
@@ -275,7 +293,7 @@ export default function WeeklyHoursControlPage() {
       }
     }
     fetchWeeklyData()
-  }, [company])
+  }, [company, weekOffset])
 
   useEffect(() => {
     qbtimeTeamService.list(company).then(setTeams).catch(() => setTeams([]))
@@ -441,6 +459,35 @@ export default function WeeklyHoursControlPage() {
                 ))}
               </div>
             </div>
+
+            <div className="self-stretch w-px bg-border" />
+
+            <div className="flex flex-col items-start gap-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Week</p>
+              <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border bg-muted/40 px-1">
+                <button
+                  onClick={() => setWeekOffset(o => o + 1)}
+                  disabled={loading}
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                <span className="min-w-[128px] text-center text-xs font-medium tabular-nums">
+                  {data
+                    ? `${fmtWeekDate(data.weekStart)} – ${fmtWeekDate(data.weekEnd)}`
+                    : loading ? "Loading…" : "—"}
+                </span>
+                <button
+                  onClick={() => setWeekOffset(o => o - 1)}
+                  disabled={loading || isCurrentWeek}
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="self-stretch w-px bg-border" />
 
             <div className="flex flex-col items-start gap-1">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Metric Mode</p>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Download, Loader2, RefreshCw } from "lucide-react"
+import { ChevronLeft, ChevronRight, Download, Loader2, RefreshCw } from "lucide-react"
 import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
 import { cn } from "@/lib/utils"
 
@@ -298,8 +298,24 @@ type EmployeeDayAggregate = {
   exitMinutes: number
 }
 
+function getWeekSaturday(offsetWeeks: number): string {
+  const today = new Date()
+  const dow = today.getDay()
+  const daysToSat = (6 - dow + 7) % 7
+  const d = new Date(today)
+  d.setDate(today.getDate() + daysToSat - offsetWeeks * 7)
+  return d.toISOString().split("T")[0]
+}
+
+function fmtWeekDate(iso: string): string {
+  const [, m, day] = iso.split("-")
+  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(m)-1] + " " + parseInt(day)
+}
+
 export default function AutoLogPage() {
   const [company, setCompany] = useState("framing")
+  const [weekOffset, setWeekOffset] = useState(0)
+  const isCurrentWeek = weekOffset === 0
   const [data, setData] = useState<WeeklyReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState("")
@@ -324,8 +340,7 @@ export default function AutoLogPage() {
       setFetchError("")
       setDayResults([])
       try {
-        const today = new Date().toISOString().split("T")[0]
-        const apiData = await weeklyReportService.get(company, today)
+        const apiData = await weeklyReportService.get(company, getWeekSaturday(weekOffset))
         setData(apiData)
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to fetch QB Time data")
@@ -335,7 +350,7 @@ export default function AutoLogPage() {
       }
     }
     fetchData()
-  }, [company])
+  }, [company, weekOffset])
 
   const canProcess = useMemo(() => !!data && (data.employees?.length ?? 0) > 0 && !isProcessing && !loading, [data, isProcessing, loading])
 
@@ -445,25 +460,54 @@ export default function AutoLogPage() {
           <p className="text-sm text-muted-foreground">QB Time API → policy check → per-day PNG image</p>
         </div>
 
-        <div className="flex flex-col items-start gap-1">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
-          <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5">
-            {COMPANIES.map(c => (
+        <div className="flex shrink-0 items-end gap-3">
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
+            <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+              {COMPANIES.map(c => (
+                <button
+                  key={c.value}
+                  onClick={() => setCompany(c.value)}
+                  disabled={loading || isProcessing}
+                  className={cn(
+                    "flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
+                    company === c.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Image src={c.logo} alt={c.label} width={14} height={14} className="h-3.5 w-3.5 object-contain" />
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="self-stretch w-px bg-border" />
+
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Week</p>
+            <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border bg-muted/40 px-1">
               <button
-                key={c.value}
-                onClick={() => setCompany(c.value)}
+                onClick={() => setWeekOffset(o => o + 1)}
                 disabled={loading || isProcessing}
-                className={cn(
-                  "flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors whitespace-nowrap",
-                  company === c.value
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+                className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               >
-                <Image src={c.logo} alt={c.label} width={14} height={14} className="h-3.5 w-3.5 object-contain" />
-                {c.label}
+                <ChevronLeft className="h-3.5 w-3.5" />
               </button>
-            ))}
+              <span className="min-w-[128px] text-center text-xs font-medium tabular-nums">
+                {data
+                  ? `${fmtWeekDate(data.weekStart)} – ${fmtWeekDate(data.weekEnd)}`
+                  : loading ? "Loading…" : "—"}
+              </span>
+              <button
+                onClick={() => setWeekOffset(o => o - 1)}
+                disabled={loading || isProcessing || isCurrentWeek}
+                className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
