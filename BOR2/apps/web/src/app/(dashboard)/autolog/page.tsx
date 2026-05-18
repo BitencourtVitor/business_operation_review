@@ -301,7 +301,7 @@ type EmployeeDayAggregate = {
 function getWeekSaturday(offsetWeeks: number): string {
   const today = new Date()
   const dow = today.getDay()
-  const daysToSat = (6 - dow + 7) % 7
+  const daysToSat = (6 - dow + 7) % 7 + 1
   const d = new Date(today)
   d.setDate(today.getDate() + daysToSat - offsetWeeks * 7)
   return d.toISOString().split("T")[0]
