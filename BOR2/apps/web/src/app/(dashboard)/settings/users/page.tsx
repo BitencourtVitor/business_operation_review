@@ -695,7 +695,7 @@ export default function UsersPage() {
             </p>
           ) : (
               <Table className="[&_th]:py-2.5 [&_td]:py-2">
-                <TableHeader className="bg-muted/40">
+                <TableHeader className="bg-muted/40 sticky top-0 z-10">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-full border-r border-border">
                       <button onClick={() => toggleSort("name")}
@@ -711,7 +711,7 @@ export default function UsersPage() {
                         {sortKey === "role" ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3 opacity-20" />}
                       </button>
                     </TableHead>
-                    <TableHead className="border-r border-border text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <TableHead className="border-r border-border text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                       Permissions
                     </TableHead>
                     <TableHead className="bg-muted/60 text-center text-muted-foreground">
@@ -733,13 +733,20 @@ export default function UsersPage() {
                         <TableCell className="border-r border-border text-center">
                           <RoleBadge role={u.role} />
                         </TableCell>
-                        <TableCell className="border-r border-border text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="text-xs tabular-nums text-muted-foreground">{granted}/{TOTAL_PERMISSIONS}</span>
-                            <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
-                              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(granted / TOTAL_PERMISSIONS) * 100}%` }} />
+                        <TableCell className="border-r border-border text-center">
+                          {["dev", "owner", "manager"].includes(u.role) ? (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <ShieldCheck className="h-3 w-3" />
+                              Full Access
+                            </span>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="text-xs tabular-nums text-muted-foreground">{granted}/{TOTAL_PERMISSIONS}</span>
+                              <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
+                                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(granted / TOTAL_PERMISSIONS) * 100}%` }} />
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </TableCell>
                         <TableCell className="bg-muted/20">
                           <TooltipProvider>
