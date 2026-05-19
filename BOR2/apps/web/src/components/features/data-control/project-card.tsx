@@ -20,7 +20,7 @@ import { useCatalogTable } from "@/hooks/use-catalog"
 
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
+import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
@@ -176,7 +176,7 @@ function ComboboxField({
   )
 
   return (
-    <div>
+    <div className="min-w-0">
       <FL>{label}</FL>
       <button
         ref={triggerRef}
@@ -392,6 +392,8 @@ function isDispensedUnit(unit: string | null | undefined): boolean {
   return !/^[A-Za-z]{0,3}\d{1,8}$/.test(unit.trim())  // not a unit code
 }
 
+type MachineState = "none" | "yes" | "dispensed"
+
 function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
   const mach       = p.machines ?? []
   const toggle     = useToggleMachine()
@@ -400,30 +402,36 @@ function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v:
   const { data: providerRows = [] } = useCatalogTable("providers")
   const providers = (providerRows as { name?: string }[]).map(r => r.name ?? "").filter(Boolean)
 
-  // Track which machines are in "dispense mode" (justification string instead of unit code)
-  const [dispensed, setDispensed] = useState<Record<number, boolean>>(() =>
-    Object.fromEntries(mach.filter(m => m.id != null).map(m => [m.id!, isDispensedUnit(m.unit)]))
-  )
-  // Reset when project changes
-  useEffect(() => {
-    setDispensed(Object.fromEntries(
-      mach.filter(m => m.id != null).map(m => [m.id!, isDispensedUnit(m.unit)])
-    ))
-  }, [mach.filter]) // eslint-disable-line react-hooks/exhaustive-deps
+  function getMachineState(m: typeof mach[0]): MachineState {
+    if (isDispensedUnit(m.unit) || m.status === "dispensed") return "dispensed"
+    if (m.status && m.status !== "false" && m.status !== "0") return "yes"
+    return "none"
+  }
 
-  const isOn = (m: typeof mach[0]) => !!(m.status && m.status !== "false" && m.status !== "0")
+  function setState(m: typeof mach[0], next: MachineState) {
+    if (m.id == null) return
+    if (next === "yes") {
+      toggle.mutate({ machId: m.id, status: "scheduled" })
+      updateUnit.mutate({ machId: m.id, unit: "" })
+    } else if (next === "dispensed") {
+      toggle.mutate({ machId: m.id, status: "dispensed" })
+      updateUnit.mutate({ machId: m.id, unit: "" })
+    } else {
+      toggle.mutate({ machId: m.id, status: "" })
+      updateUnit.mutate({ machId: m.id, unit: "" })
+    }
+  }
 
-  const totalNonDispensed = mach.filter(m => !dispensed[m.id ?? -1]).length
-  const active            = mach.filter(m => !dispensed[m.id ?? -1] && isOn(m)).length
-  const dispensedCt       = mach.filter(m => dispensed[m.id ?? -1]).length
+  const scheduled   = mach.filter(m => getMachineState(m) === "yes").length
+  const dispensedCt = mach.filter(m => getMachineState(m) === "dispensed").length
 
   return (
-    <div className="flex h-full flex-col gap-1.5 overflow-hidden">
+    <div className="flex h-full flex-col gap-2 overflow-hidden">
 
-      {/* Provider — loose, no container */}
+      {/* Provider row */}
       <div className="flex items-center gap-2 px-1">
         <span className="shrink-0 text-[11px] font-medium text-muted-foreground">Provider</span>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <ComboboxField
             label=""
             value={p.machineProvider || ""}
@@ -432,107 +440,100 @@ function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v:
             placeholder="Select provider…"
           />
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <span className={`text-xs font-semibold ${active === totalNonDispensed && totalNonDispensed > 0 ? "text-green-600" : "text-muted-foreground"}`}>
-            {active} / {totalNonDispensed}
-          </span>
+        <div className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+          <span className={scheduled > 0 ? "text-green-600 dark:text-green-400" : ""}>{scheduled}</span>
+          <span>/</span>
+          <span>{mach.length}</span>
           {dispensedCt > 0 && (
-            <span className="text-[10px] text-amber-500/80" title={`${dispensedCt} dispensed`}>
+            <span className="text-amber-500" title={`${dispensedCt} dispensed`}>
               <Ban className="h-3 w-3" />
             </span>
           )}
         </div>
       </div>
 
-      {/* Machines list */}
-      <div className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
+      {/* Machine cards — flex-1 fills remaining panel height; scrolls when overflow */}
+      <div className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5">
         {mach.length === 0 && (
-          <span className="py-4 text-center text-xs text-muted-foreground">No machines linked</span>
+          <p className="py-6 text-center text-xs text-muted-foreground">No machines linked to this project</p>
         )}
         {mach.map((m, i) => {
-          const on          = isOn(m)
-          const isToggling  = toggle.isPending && toggle.variables?.machId === m.id
-          const isUpdating  = updateUnit.isPending && updateUnit.variables?.machId === m.id
-          const disp        = dispensed[m.id ?? -1] ?? false
-
-          function toggleDispense() {
-            if (m.id == null) return
-            const next = !disp
-            setDispensed(prev => ({ ...prev, [m.id!]: next }))
-            if (next) {
-              // Dispensing: set status to "dispensed", clear unit
-              toggle.mutate({ machId: m.id, status: "dispensed" })
-              updateUnit.mutate({ machId: m.id, unit: "" })
-            } else {
-              // Un-dispensing: set status to "" (absent), clear unit
-              toggle.mutate({ machId: m.id, status: "" })
-              updateUnit.mutate({ machId: m.id, unit: "" })
-            }
-          }
+          const state      = getMachineState(m)
+          const isToggling = toggle.isPending && toggle.variables?.machId === m.id
+          const isUpdating = updateUnit.isPending && updateUnit.variables?.machId === m.id
+          const title      = m.title?.trim() || `Machine #${m.id ?? i + 1}`
+          const unitVal    = /^\d{4}-\d{2}-\d{2}T/.test(m.unit ?? "") ? "" : (m.unit || "")
 
           return (
             <div
               key={m.id ?? i}
-              className={`flex items-center gap-2 rounded px-1 py-1 hover:bg-muted/40 ${disp ? "opacity-60" : ""}`}
+              className={[
+                "rounded border px-2 py-1 transition-colors",
+                state === "yes"       ? "border-primary/30 bg-primary/5"     : "",
+                state === "dispensed" ? "border-amber-500/30 bg-amber-500/5" : "",
+                state === "none"      ? "border-border bg-card"              : "",
+              ].join(" ")}
             >
-              {/* Status toggle / dispensed indicator */}
-              {disp ? (
-                <Ban className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-              ) : isToggling ? (
-                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
-              ) : (
-                <input
-                  type="checkbox"
-                  className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
-                  checked={on}
-                  onChange={e => {
-                    if (m.id != null) toggle.mutate({ machId: m.id, status: e.target.checked ? "scheduled" : "" })
-                  }}
-                />
-              )}
-
-              {/* Title */}
-              <span className={`flex-1 truncate text-xs ${on && !disp ? "text-muted-foreground line-through" : ""}`}>
-                {m.title?.trim() || `Machine #${m.id ?? i + 1}`}
-              </span>
-
-              {/* Dispense toggle button */}
-              <button
-                type="button"
-                title={disp ? "Un-dispense" : "Dispense"}
-                onClick={toggleDispense}
-                className={`shrink-0 rounded p-0.5 transition-colors ${disp ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground/40 hover:text-amber-500"}`}
-              >
-                <Ban className="h-3 w-3" />
-              </button>
-
-              {/* Unit / Justification input */}
-              <div className="relative shrink-0">
-                <input
-                  key={`${m.id}-unit-${disp}`}
-                  type="text"
-                  defaultValue={disp && /^\d{4}-\d{2}-\d{2}T/.test(m.unit ?? "") ? "" : (m.unit || "")}
-                  placeholder={disp ? "Justification…" : "Unit #"}
-                  className={[
-                    "rounded border bg-transparent px-1.5 py-0.5 text-[11px] outline-none transition-colors",
-                    "placeholder:text-muted-foreground/50 focus:bg-background",
-                    disp
-                      ? "w-72 border-amber-500/40 text-left italic focus:border-amber-500"
-                      : "w-20 border-input text-center focus:border-ring",
-                    isUpdating ? "opacity-50" : "",
-                  ].join(" ")}
-                  onBlur={e => {
-                    if (m.id == null) return
-                    const val = e.target.value
-                    // For legacy timestamps being un-set treat empty as "" on blur when dispensed
-                    const current = disp && /^\d{4}-\d{2}-\d{2}T/.test(m.unit ?? "") ? "" : (m.unit || "")
-                    if (val !== current) {
-                      updateUnit.mutate({ machId: m.id, unit: val })
-                    }
-                  }}
-                />
-                {isUpdating && (
-                  <Loader2 className="absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 animate-spin text-muted-foreground" />
+              {/* Single fixed-height row: icon + name (flex-1) + toggle + input (fixed, conditional) */}
+              <div className="flex items-center gap-1.5">
+                <Truck className="h-3 w-3 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate text-[11px] font-medium">{title}</span>
+                <div className="flex shrink-0 overflow-hidden rounded border border-border text-[10px] font-semibold">
+                  {(["none", "yes", "dispensed"] as MachineState[]).map(opt => (
+                    <button
+                      key={opt}
+                      type="button"
+                      disabled={isToggling}
+                      onClick={() => setState(m, opt)}
+                      className={[
+                        "flex items-center gap-1 px-1.5 py-0.5 transition-colors disabled:opacity-50",
+                        state === opt
+                          ? opt === "dispensed"
+                            ? "bg-amber-600 text-white"
+                            : opt === "yes"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {opt === "none"      && "—"}
+                      {opt === "yes"       && <><Check className="h-2.5 w-2.5" />Yes</>}
+                      {opt === "dispensed" && <><Ban   className="h-2.5 w-2.5" />Dispensed</>}
+                    </button>
+                  ))}
+                </div>
+                {/* Input — fixed width, only rendered when a state is active */}
+                {isToggling && <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" />}
+                {!isToggling && (state === "yes" || state === "dispensed") && (
+                  <div className="relative w-28 shrink-0">
+                    <div className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2">
+                      {state === "dispensed"
+                        ? <FileText className="h-2.5 w-2.5 text-amber-500/70" />
+                        : <Hash     className="h-2.5 w-2.5 text-muted-foreground/60" />
+                      }
+                    </div>
+                    <input
+                      key={`${m.id}-${state}`}
+                      type="text"
+                      defaultValue={unitVal}
+                      placeholder={state === "dispensed" ? "Justification…" : "Unit"}
+                      className={[
+                        "w-full rounded border py-0.5 pl-5 pr-2 text-[11px] outline-none transition-colors",
+                        "bg-transparent placeholder:text-muted-foreground/50 focus:bg-background",
+                        state === "dispensed"
+                          ? "border-amber-500/40 italic focus:border-amber-500"
+                          : "border-input focus:border-ring",
+                        isUpdating ? "opacity-50" : "",
+                      ].join(" ")}
+                      onBlur={e => {
+                        if (m.id == null) return
+                        if (e.target.value !== unitVal) updateUnit.mutate({ machId: m.id, unit: e.target.value })
+                      }}
+                    />
+                    {isUpdating && (
+                      <Loader2 className="absolute right-1.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -991,7 +992,7 @@ export function NewProjectCard({
       </div>
 
       {/* Body — top-left rounded, top-right flat (connects to tab bar above) */}
-      <div className="relative z-[1] flex overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
+      <div className="relative z-[1] flex h-[204px] overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
         style={{ borderColor: "#3b82f6" }}>
 
         <LeftPanel
@@ -1109,8 +1110,8 @@ export function ProjectCard({
         </div>
       </div>
 
-      {/* Card body — 1px colored border all around */}
-      <div className="relative z-[1] flex overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
+      {/* Card body — fixed height so right panel flex chain resolves correctly */}
+      <div className="relative z-[1] flex h-[204px] overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
         style={{ borderColor }}>
 
         <LeftPanel
