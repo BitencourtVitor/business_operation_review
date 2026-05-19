@@ -67,13 +67,17 @@ export interface ForecastFilters {
 export function getForecastDisplayStatus(p: ForecastProject): ForecastDisplayStatus {
   if (p.status === "completed" || p.status === "cancelled") return p.status
   if (p.status === "active") return "active"
-  // planned: overdue when the scheduled start date has been reached but work hasn't started
-  if (p.status === "planned" && p.previousStartDate) {
+  // planned → overdue if any scheduled date (start or beams) has already passed
+  if (p.status === "planned") {
     const today = new Date(); today.setHours(0, 0, 0, 0)
-    // Parse as local date to avoid UTC→local shift ("2026-05-20" via new Date() = May 19 local in UTC-4)
-    const [y, m, d] = p.previousStartDate.split("-").map(Number)
-    const start = new Date(y, m - 1, d)
-    if (start <= today) return "overdue"
+    const dates = [p.previousStartDate, p.previousBeamsDate]
+      .filter(Boolean)
+      .map(s => {
+        // Parse as local date to avoid UTC→local shift (ISO strings parse as UTC midnight)
+        const [y, m, d] = s!.split("-").map(Number)
+        return new Date(y, m - 1, d)
+      })
+    if (dates.some(date => date <= today)) return "overdue"
   }
   return p.status
 }
