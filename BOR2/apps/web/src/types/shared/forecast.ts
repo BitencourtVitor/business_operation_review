@@ -70,7 +70,9 @@ export function getForecastDisplayStatus(p: ForecastProject): ForecastDisplaySta
   // planned: overdue when the scheduled start date has been reached but work hasn't started
   if (p.status === "planned" && p.previousStartDate) {
     const today = new Date(); today.setHours(0, 0, 0, 0)
-    const start = new Date(p.previousStartDate); start.setHours(0, 0, 0, 0)
+    // Parse as local date to avoid UTC→local shift ("2026-05-20" via new Date() = May 19 local in UTC-4)
+    const [y, m, d] = p.previousStartDate.split("-").map(Number)
+    const start = new Date(y, m - 1, d)
     if (start <= today) return "overdue"
   }
   return p.status
