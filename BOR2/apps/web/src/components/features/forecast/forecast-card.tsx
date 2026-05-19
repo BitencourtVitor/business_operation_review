@@ -209,10 +209,10 @@ function DateCell({ icon: Icon, value, label }: { icon: React.ElementType; value
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
-export function ForecastCard({ project: p }: { project: ForecastProject }) {
+export function ForecastCard({ project: p, dateMode }: { project: ForecastProject; dateMode?: "start" | "beams" }) {
   const [hovered, setHovered] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const displayStatus = getForecastDisplayStatus(p)
+  const displayStatus = getForecastDisplayStatus(p, dateMode)
   const cfg = STATUS_CONFIG[displayStatus]
   const StatusIcon = cfg.Icon
   const { pct } = getCompletionMetrics(p)
@@ -247,7 +247,7 @@ export function ForecastCard({ project: p }: { project: ForecastProject }) {
 
   return (
     <>
-    <ForecastProjectSheet project={p} open={sheetOpen} onClose={() => setSheetOpen(false)} />
+    <ForecastProjectSheet project={p} open={sheetOpen} onClose={() => setSheetOpen(false)} dateMode={dateMode} />
     <div
       style={{ borderColor: colors.border, transition: "border-color 0.25s ease, box-shadow 0.25s ease" }}
       className="relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-card shadow-sm hover:shadow-md"
