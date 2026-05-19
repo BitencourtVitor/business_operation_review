@@ -425,7 +425,7 @@ export default function ForecastPage() {
       if (year !== "all" && pm.year !== year) return false
       if (month !== "all" && pm.month !== month) return false
 
-      const ds = getForecastDisplayStatus(p)
+      const ds = getForecastDisplayStatus(p, dateMode)
 
       // Status filter
       if (hasOnly) { if (ds !== hasOnly) return false }
@@ -468,7 +468,7 @@ export default function ForecastPage() {
       .map(([key, items]) => {
         const [y, mo] = key.split("-").map(Number)
         const statusCounts = items.reduce((acc, p) => {
-          const ds = getForecastDisplayStatus(p)
+          const ds = getForecastDisplayStatus(p, dateMode)
           acc[ds] = (acc[ds] ?? 0) + 1
           return acc
         }, {} as Partial<Record<ForecastDisplayStatus, number>>)
@@ -637,7 +637,7 @@ export default function ForecastPage() {
                   </div>
                 </div>
                 <div className="grid items-start gap-3 p-3 sm:p-4 [grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr))]">
-                  {items.map(p => <ForecastCard key={p.id} project={p} />)}
+                  {items.map(p => <ForecastCard key={p.id} project={p} dateMode={dateMode} />)}
                 </div>
               </section>
             ))}

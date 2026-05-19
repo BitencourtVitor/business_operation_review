@@ -64,17 +64,26 @@ export interface ForecastFilters {
   month?: number
 }
 
-export function getForecastDisplayStatus(p: ForecastProject): ForecastDisplayStatus {
+export function getForecastDisplayStatus(
+  p: ForecastProject,
+  dateMode?: "start" | "beams",
+): ForecastDisplayStatus {
   if (p.status === "completed" || p.status === "cancelled") return p.status
   if (p.status === "active") return "active"
-  // planned → overdue if any scheduled date (start or beams) has already passed
   if (p.status === "planned") {
     const today = new Date(); today.setHours(0, 0, 0, 0)
-    const dates = [p.previousStartDate, p.previousBeamsDate]
+    // Which date(s) to check depends on the active grouping mode.
+    // If dateMode is provided, only the matching date qualifies a project as overdue.
+    // Without dateMode (e.g. detail panels) both dates are considered.
+    const candidates =
+      dateMode === "start"  ? [p.previousStartDate] :
+      dateMode === "beams"  ? [p.previousBeamsDate]  :
+      [p.previousStartDate, p.previousBeamsDate]
+    const dates = candidates
       .filter(Boolean)
       .map(s => {
         // parseInt stops at "T" in "YYYY-MM-DDTHH:mm:ssZ", avoiding NaN from Number()
-        const [y, m, d] = s!.split("-").map(p => parseInt(p, 10))
+        const [y, m, d] = s!.split("-").map(n => parseInt(n, 10))
         return new Date(y, m - 1, d)
       })
     if (dates.some(date => date <= today)) return "overdue"

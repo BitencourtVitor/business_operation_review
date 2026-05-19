@@ -146,10 +146,11 @@ export interface ForecastProjectSheetProps {
   project: ForecastProject
   open: boolean
   onClose: () => void
+  dateMode?: "start" | "beams"
 }
 
-export function ForecastProjectSheet({ project: p, open, onClose }: ForecastProjectSheetProps) {
-  const ds       = getForecastDisplayStatus(p)
+export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: ForecastProjectSheetProps) {
+  const ds       = getForecastDisplayStatus(p, dateMode)
   const cfg      = STATUS_CFG[ds]
   const pct      = getCompletionPct(p)
   const barColor = getBarColor(ds, pct)
