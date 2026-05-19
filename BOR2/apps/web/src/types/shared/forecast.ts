@@ -73,8 +73,8 @@ export function getForecastDisplayStatus(p: ForecastProject): ForecastDisplaySta
     const dates = [p.previousStartDate, p.previousBeamsDate]
       .filter(Boolean)
       .map(s => {
-        // Parse as local date to avoid UTC→local shift (ISO strings parse as UTC midnight)
-        const [y, m, d] = s!.split("-").map(Number)
+        // parseInt stops at "T" in "YYYY-MM-DDTHH:mm:ssZ", avoiding NaN from Number()
+        const [y, m, d] = s!.split("-").map(p => parseInt(p, 10))
         return new Date(y, m - 1, d)
       })
     if (dates.some(date => date <= today)) return "overdue"
