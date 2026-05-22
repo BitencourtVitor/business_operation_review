@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd \"C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR2\\apps\\web\" && set NODE_OPTIONS=--max-old-space-size=6144 && npm run dev"],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}

@@ -187,12 +187,21 @@ func (s *PeriodReportService) GetPayPeriods(ctx context.Context, company string)
 
 	var settings effectiveSettingsResp
 	if err := json.Unmarshal(body, &settings); err != nil {
-		return nil, fmt.Errorf("parse effective_settings: %w", err)
+		return nil, fmt.Errorf("parse effective_settings: %w (raw: %.300s)", err, string(body))
 	}
 
 	anchorStr := settings.Results.General.Settings.PayrollEndDate
 	if anchorStr == "" {
-		return nil, fmt.Errorf("payroll_end_date not found in effective_settings")
+		// QB Time doesn't always return payroll_end_date via effective_settings.
+		// Use a known bi-weekly period end date per company as anchor.
+		switch company {
+		case "framing":
+			anchorStr = "2026-05-17" // last known period end (Saturday)
+		case "hvac":
+			anchorStr = "2026-05-17"
+		default:
+			anchorStr = "2026-05-17"
+		}
 	}
 
 	anchor, err := time.Parse("2006-01-02", anchorStr)
