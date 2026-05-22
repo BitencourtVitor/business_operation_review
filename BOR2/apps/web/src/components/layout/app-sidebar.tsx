@@ -35,6 +35,7 @@ import {
   ClipboardList,
   CreditCard,
   FileCheck,
+  FileText,
   Fuel,
   Gauge,
   ImageIcon,
@@ -144,9 +145,10 @@ const bottomGroup: NavGroup = {
       image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
       // No direct permKey — visibility driven by children
       children: [
-        { title: "Auto Log",             href: "/autolog",              icon: ImageIcon,     permKey: "autolog"           },
-        { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock, permKey: "weekly_hours"      },
-        { title: "Who's Working",        href: "/qbtime/whos-working",  icon: UserCheck,     permKey: "whos_working"      },
+        { title: "Auto Log",             href: "/autolog",                    icon: ImageIcon,     permKey: "autolog"           },
+        { title: "Weekly Hours Control", href: "/weekly-hours-control",       icon: CalendarClock, permKey: "weekly_hours"      },
+        { title: "Who's Working",        href: "/qbtime/whos-working",        icon: UserCheck,     permKey: "whos_working"      },
+        { title: "Period Reports",       href: "/qbtime/period-reports",      icon: Banknote,      permKey: "period_reports"    },
       ],
     },
     { title: "Settings", href: "/settings", icon: Settings, permKey: "settings" },

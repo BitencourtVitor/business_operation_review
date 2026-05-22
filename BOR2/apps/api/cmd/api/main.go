@@ -130,6 +130,8 @@ func main() {
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	weeklyReportSvc          := service.NewWeeklyReportService()
 	weeklyReportHandler      := handler.NewWeeklyReportHandler(weeklyReportSvc)
+	periodReportSvc          := service.NewPeriodReportService()
+	periodReportHandler      := handler.NewPeriodReportHandler(periodReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
@@ -237,6 +239,11 @@ func main() {
 
 	// QBTime Weekly Report
 	api.Get("/qbtime/weekly-report", weeklyReportHandler.Get)
+
+	// QBTime Period Report
+	api.Get("/qbtime/period-report/periods",    periodReportHandler.GetPeriods)
+	api.Get("/qbtime/period-report/intervals",  periodReportHandler.GetIntervals)
+	api.Get("/qbtime/period-report/accounting", periodReportHandler.GetAccounting)
 
 	// QBTime Exceptions
 	qbtimeExceptions := api.Group("/qbtime/exceptions")
