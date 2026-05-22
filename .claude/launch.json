@@ -4,22 +4,16 @@
     {
       "name": "web",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd BOR2\\apps\\web && set NODE_OPTIONS=--max-old-space-size=6144 && npm run dev"],
+      "runtimeArgs": ["/c", "cd \"C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR2\\apps\\web\" && set NODE_OPTIONS=--max-old-space-size=6144 && npm run dev"],
       "port": 3000,
       "autoPort": false
     },
     {
       "name": "bor1-frontend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd BOR1\\frontend && npm run dev"],
+      "runtimeArgs": ["/c", "cd \"C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR1\\frontend\" && npm run dev"],
       "port": 3001,
       "autoPort": false
-    },
-    {
-      "name": "api",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd BOR2\\apps\\api && go run ./cmd/api/..."],
-      "port": 8080
     }
   ]
 }
