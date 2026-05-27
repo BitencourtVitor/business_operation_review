@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/smtp"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -183,14 +184,13 @@ func sendPasswordEmail(to, name, tempPass string) error {
 		gmailUser, to, subject, htmlBody,
 	)
 
-	// Port 465 (implicit TLS) with explicit timeout — more reliable than
-	// port 587 STARTTLS in cloud/container environments where STARTTLS
-	// handshakes can hang indefinitely.
-	tlsCfg := &tls.Config{ServerName: "smtp.gmail.com"}
-	conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 15 * time.Second}, "tcp", "smtp.gmail.com:465", tlsCfg)
+	// Dial port 587 with explicit timeout, then upgrade with STARTTLS.
+	// smtp.PlainAuth requires c.tls=true which is only set after StartTLS().
+	conn, err := net.DialTimeout("tcp", "smtp.gmail.com:587", 15*time.Second)
 	if err != nil {
 		return fmt.Errorf("smtp dial: %w", err)
 	}
+	conn.SetDeadline(time.Now().Add(30 * time.Second))
 
 	client, err := smtp.NewClient(conn, "smtp.gmail.com")
 	if err != nil {
@@ -198,7 +198,13 @@ func sendPasswordEmail(to, name, tempPass string) error {
 	}
 	defer client.Close()
 
-	if err := client.Auth(smtp.PlainAuth("", gmailUser, gmailPass, "smtp.gmail.com")); err != nil {
+	if err := client.StartTLS(&tls.Config{ServerName: "smtp.gmail.com"}); err != nil {
+		return fmt.Errorf("smtp starttls: %w", err)
+	}
+
+	// Gmail App Passwords work with or without spaces; strip them to be safe.
+	pass := strings.ReplaceAll(gmailPass, " ", "")
+	if err := client.Auth(smtp.PlainAuth("", gmailUser, pass, "smtp.gmail.com")); err != nil {
 		return fmt.Errorf("smtp auth: %w", err)
 	}
 	if err := client.Mail(gmailUser); err != nil {
