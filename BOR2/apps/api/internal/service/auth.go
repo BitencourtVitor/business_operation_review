@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"math/big"
+	"net"
 	"net/smtp"
 	"os"
 	"time"
@@ -150,13 +152,11 @@ func sendPasswordEmail(to, name, tempPass string) error {
   <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
     <tr><td align="center">
       <table width="100%%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-        <!-- Header -->
         <tr>
           <td style="background:#0a0a0a;padding:24px 32px;text-align:center;">
             <span style="color:#ffffff;font-size:16px;font-weight:bold;letter-spacing:1px;">PREMIUM GROUP</span>
           </td>
         </tr>
-        <!-- Body -->
         <tr>
           <td style="padding:32px;">
             <p style="margin:0 0 8px;font-size:15px;color:#111;">Hi <strong>%s</strong>,</p>
@@ -167,7 +167,6 @@ func sendPasswordEmail(to, name, tempPass string) error {
             <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">After signing in, you will be prompted to create a new permanent password.</p>
           </td>
         </tr>
-        <!-- Footer -->
         <tr>
           <td style="background:#f4f4f5;padding:16px 32px;text-align:center;border-top:1px solid #e5e5e5;">
             <p style="margin:0;font-size:12px;color:#aaa;">Business Operations Review &mdash; Premium Group</p>
@@ -179,11 +178,44 @@ func sendPasswordEmail(to, name, tempPass string) error {
 </body>
 </html>`, name, tempPass)
 
-	msg := fmt.Sprintf(
+	raw := fmt.Sprintf(
 		"From: Premium Group <%s>\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
 		gmailUser, to, subject, htmlBody,
 	)
 
-	auth := smtp.PlainAuth("", gmailUser, gmailPass, "smtp.gmail.com")
-	return smtp.SendMail("smtp.gmail.com:587", auth, gmailUser, []string{to}, []byte(msg))
+	// Port 465 (implicit TLS) with explicit timeout — more reliable than
+	// port 587 STARTTLS in cloud/container environments where STARTTLS
+	// handshakes can hang indefinitely.
+	tlsCfg := &tls.Config{ServerName: "smtp.gmail.com"}
+	conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 15 * time.Second}, "tcp", "smtp.gmail.com:465", tlsCfg)
+	if err != nil {
+		return fmt.Errorf("smtp dial: %w", err)
+	}
+
+	client, err := smtp.NewClient(conn, "smtp.gmail.com")
+	if err != nil {
+		return fmt.Errorf("smtp client: %w", err)
+	}
+	defer client.Close()
+
+	if err := client.Auth(smtp.PlainAuth("", gmailUser, gmailPass, "smtp.gmail.com")); err != nil {
+		return fmt.Errorf("smtp auth: %w", err)
+	}
+	if err := client.Mail(gmailUser); err != nil {
+		return fmt.Errorf("smtp from: %w", err)
+	}
+	if err := client.Rcpt(to); err != nil {
+		return fmt.Errorf("smtp rcpt: %w", err)
+	}
+	w, err := client.Data()
+	if err != nil {
+		return fmt.Errorf("smtp data: %w", err)
+	}
+	if _, err := w.Write([]byte(raw)); err != nil {
+		return fmt.Errorf("smtp write: %w", err)
+	}
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("smtp close: %w", err)
+	}
+	return client.Quit()
 }
