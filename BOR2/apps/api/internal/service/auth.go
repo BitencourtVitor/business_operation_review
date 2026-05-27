@@ -1,16 +1,15 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
-	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
-	"net"
-	"net/smtp"
+	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -124,15 +123,6 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID, newPassword st
 	return s.userRepo.UpdatePassword(ctx, userID, string(hash), false)
 }
 
-// smtpPlainAuth is smtp.PlainAuth without the TLS-required check, safe for port 465
-// where TLS is established before the SMTP handshake begins.
-type smtpPlainAuth struct{ username, password string }
-
-func (a *smtpPlainAuth) Start(_ *smtp.ServerInfo) (string, []byte, error) {
-	return "PLAIN", []byte("\x00" + a.username + "\x00" + a.password), nil
-}
-func (a *smtpPlainAuth) Next(_ []byte, _ bool) ([]byte, error) { return nil, nil }
-
 func generateTempPassword(length int) (string, error) {
 	const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$"
 	result := make([]byte, length)
@@ -147,14 +137,15 @@ func generateTempPassword(length int) (string, error) {
 }
 
 func sendPasswordEmail(to, name, tempPass string) error {
-	gmailUser := os.Getenv("GMAIL_USER")
-	gmailPass := os.Getenv("GMAIL_APP_PASSWORD")
-
-	if gmailUser == "" || gmailPass == "" {
-		return fmt.Errorf("GMAIL_USER or GMAIL_APP_PASSWORD not set")
+	apiKey := os.Getenv("BREVO_API_KEY")
+	senderEmail := os.Getenv("GMAIL_USER")
+	if apiKey == "" {
+		return fmt.Errorf("BREVO_API_KEY not set")
+	}
+	if senderEmail == "" {
+		return fmt.Errorf("GMAIL_USER not set")
 	}
 
-	subject := "BOR2 — Temporary Password"
 	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -188,50 +179,32 @@ func sendPasswordEmail(to, name, tempPass string) error {
 </body>
 </html>`, name, tempPass)
 
-	raw := fmt.Sprintf(
-		"From: Premium Group <%s>\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
-		gmailUser, to, subject, htmlBody,
-	)
-
-	// Port 465 = implicit TLS (SMTPS). smtp.PlainAuth refuses to send credentials
-	// unless c.tls=true, which StartTLS() sets — but port 465 has no STARTTLS
-	// handshake. Use a custom auth that skips the check since TLS is already live.
-	tlsConn, err := tls.DialWithDialer(
-		&net.Dialer{Timeout: 15 * time.Second},
-		"tcp", "smtp.gmail.com:465",
-		&tls.Config{ServerName: "smtp.gmail.com"},
-	)
+	payload, err := json.Marshal(map[string]any{
+		"sender":      map[string]string{"name": "Premium Group", "email": senderEmail},
+		"to":          []map[string]string{{"email": to, "name": name}},
+		"subject":     "BOR2 — Temporary Password",
+		"htmlContent": htmlBody,
+	})
 	if err != nil {
-		return fmt.Errorf("smtp dial: %w", err)
+		return fmt.Errorf("marshal payload: %w", err)
 	}
-	tlsConn.SetDeadline(time.Now().Add(30 * time.Second))
 
-	client, err := smtp.NewClient(tlsConn, "smtp.gmail.com")
+	req, err := http.NewRequest(http.MethodPost, "https://api.brevo.com/v3/smtp/email", bytes.NewReader(payload))
 	if err != nil {
-		return fmt.Errorf("smtp client: %w", err)
+		return fmt.Errorf("build request: %w", err)
 	}
-	defer client.Close()
+	req.Header.Set("api-key", apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
-	// Gmail App Passwords work with or without spaces; strip them to be safe.
-	pass := strings.ReplaceAll(gmailPass, " ", "")
-	if err := client.Auth(&smtpPlainAuth{gmailUser, pass}); err != nil {
-		return fmt.Errorf("smtp auth: %w", err)
-	}
-	if err := client.Mail(gmailUser); err != nil {
-		return fmt.Errorf("smtp from: %w", err)
-	}
-	if err := client.Rcpt(to); err != nil {
-		return fmt.Errorf("smtp rcpt: %w", err)
-	}
-	w, err := client.Data()
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("smtp data: %w", err)
+		return fmt.Errorf("brevo request: %w", err)
 	}
-	if _, err := w.Write([]byte(raw)); err != nil {
-		return fmt.Errorf("smtp write: %w", err)
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("brevo returned status %d", resp.StatusCode)
 	}
-	if err := w.Close(); err != nil {
-		return fmt.Errorf("smtp close: %w", err)
-	}
-	return client.Quit()
+	return nil
 }
