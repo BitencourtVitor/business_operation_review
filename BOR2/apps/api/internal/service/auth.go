@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	_ "embed"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -16,6 +18,9 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+//go:embed assets/minilogo.png
+var minilogoBytes []byte
 
 type LoginResult struct {
 	User  *domain.User `json:"user"`
@@ -81,7 +86,7 @@ func (s *AuthService) GetUserByToken(ctx context.Context, token string) (*domain
 func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		// Don't reveal if email exists
+		logger.Info("forgot password: email not found in db", "email", email)
 		return nil
 	}
 
@@ -97,6 +102,8 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		logger.Error("failed to send password reset email", "error", err, "email", user.Email)
 		return fmt.Errorf("send email: %w", err)
 	}
+
+	logger.Info("provisional password email sent", "email", user.Email)
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(tempPass), 12)
 	if err != nil {
@@ -140,19 +147,49 @@ func sendPasswordEmail(to, name, tempPass string) error {
 		return fmt.Errorf("GMAIL_USER or GMAIL_APP_PASSWORD not set")
 	}
 
+	logoB64 := base64.StdEncoding.EncodeToString(minilogoBytes)
+
 	subject := "BOR2 — Senha Provisória"
-	body := fmt.Sprintf(`Olá %s,
+	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;">
+  <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:#0a0a0a;padding:24px 32px;text-align:center;">
+            <img src="data:image/png;base64,%s" alt="Premium Group" height="32" style="display:block;margin:0 auto;">
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px;">
+            <p style="margin:0 0 8px;font-size:15px;color:#111;">Olá <strong>%s</strong>,</p>
+            <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6;">Sua senha foi redefinida. Use a senha provisória abaixo para fazer login:</p>
+            <div style="background:#f4f4f5;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px;">
+              <span style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#111;font-family:monospace;">%s</span>
+            </div>
+            <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">Ao fazer login, você será solicitado a criar uma nova senha permanente.</p>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f4f4f5;padding:16px 32px;text-align:center;border-top:1px solid #e5e5e5;">
+            <p style="margin:0;font-size:12px;color:#aaa;">Business Operations Review &mdash; Premium Group</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`, logoB64, name, tempPass)
 
-Sua senha foi redefinida. Use a senha provisória abaixo para fazer login:
-
-    %s
-
-Ao fazer login, você será solicitado a criar uma nova senha.
-
-— Business Operations Review`, name, tempPass)
-
-	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n%s",
-		gmailUser, to, subject, body)
+	msg := fmt.Sprintf(
+		"From: Premium Group <%s>\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
+		gmailUser, to, subject, htmlBody,
+	)
 
 	auth := smtp.PlainAuth("", gmailUser, gmailPass, "smtp.gmail.com")
 	return smtp.SendMail("smtp.gmail.com:587", auth, gmailUser, []string{to}, []byte(msg))
