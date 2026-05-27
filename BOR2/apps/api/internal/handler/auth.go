@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/bitencourtVitor/bor2-api/internal/service"
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 	"github.com/bitencourtVitor/bor2-api/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 )
@@ -102,7 +103,9 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	}
 
 	// Always return success to not reveal if email exists
-	_ = h.authService.ForgotPassword(c.Context(), req.Email)
+	if err := h.authService.ForgotPassword(c.Context(), req.Email); err != nil {
+		logger.Warn("forgot password flow failed", "error", err)
+	}
 
 	return c.JSON(fiber.Map{"message": "if the email exists, a temporary password has been sent"})
 }
