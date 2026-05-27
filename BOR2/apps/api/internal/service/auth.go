@@ -91,6 +91,13 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 		return fmt.Errorf("generate temp password: %w", err)
 	}
 
+	// Send email BEFORE updating the DB — if delivery fails, the user's
+	// current password remains valid and they can retry.
+	if err := sendPasswordEmail(user.Email, user.Name, tempPass); err != nil {
+		logger.Error("failed to send password reset email", "error", err, "email", user.Email)
+		return fmt.Errorf("send email: %w", err)
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(tempPass), 12)
 	if err != nil {
 		return fmt.Errorf("hash password: %w", err)
@@ -99,13 +106,6 @@ func (s *AuthService) ForgotPassword(ctx context.Context, email string) error {
 	if err := s.userRepo.UpdatePassword(ctx, user.ID, string(hash), true); err != nil {
 		return fmt.Errorf("update password: %w", err)
 	}
-
-	// Send email with temp password
-	go func() {
-		if err := sendPasswordEmail(user.Email, user.Name, tempPass); err != nil {
-			logger.Error("failed to send password reset email", "error", err, "email", user.Email)
-		}
-	}()
 
 	return nil
 }
