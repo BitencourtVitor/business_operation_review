@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	_ "embed"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -21,6 +20,9 @@ import (
 
 //go:embed assets/minilogo.png
 var minilogoBytes []byte
+
+// LogoBytes exposes the embedded logo so the API can serve it as a static asset.
+func LogoBytes() []byte { return minilogoBytes }
 
 type LoginResult struct {
 	User  *domain.User `json:"user"`
@@ -147,11 +149,17 @@ func sendPasswordEmail(to, name, tempPass string) error {
 		return fmt.Errorf("GMAIL_USER or GMAIL_APP_PASSWORD not set")
 	}
 
-	logoB64 := base64.StdEncoding.EncodeToString(minilogoBytes)
+	// Use the API's own base URL so the logo is served over HTTPS — avoids
+	// email clients blocking base64 inline images.
+	apiURL := os.Getenv("BETTER_AUTH_URL")
+	if apiURL == "" {
+		apiURL = "http://localhost:8080"
+	}
+	logoURL := apiURL + "/static/logo.png"
 
-	subject := "BOR2 — Senha Provisória"
+	subject := "BOR2 — Temporary Password"
 	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;">
   <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
@@ -160,18 +168,18 @@ func sendPasswordEmail(to, name, tempPass string) error {
         <!-- Header -->
         <tr>
           <td style="background:#0a0a0a;padding:24px 32px;text-align:center;">
-            <img src="data:image/png;base64,%s" alt="Premium Group" height="32" style="display:block;margin:0 auto;">
+            <img src="%s" alt="Premium Group" height="32" style="display:block;margin:0 auto;">
           </td>
         </tr>
         <!-- Body -->
         <tr>
           <td style="padding:32px;">
-            <p style="margin:0 0 8px;font-size:15px;color:#111;">Olá <strong>%s</strong>,</p>
-            <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6;">Sua senha foi redefinida. Use a senha provisória abaixo para fazer login:</p>
+            <p style="margin:0 0 8px;font-size:15px;color:#111;">Hi <strong>%s</strong>,</p>
+            <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6;">Your password has been reset. Use the temporary password below to sign in:</p>
             <div style="background:#f4f4f5;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px;">
               <span style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#111;font-family:monospace;">%s</span>
             </div>
-            <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">Ao fazer login, você será solicitado a criar uma nova senha permanente.</p>
+            <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">After signing in, you will be prompted to create a new permanent password.</p>
           </td>
         </tr>
         <!-- Footer -->
@@ -184,7 +192,7 @@ func sendPasswordEmail(to, name, tempPass string) error {
     </td></tr>
   </table>
 </body>
-</html>`, logoB64, name, tempPass)
+</html>`, logoURL, name, tempPass)
 
 	msg := fmt.Sprintf(
 		"From: Premium Group <%s>\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
