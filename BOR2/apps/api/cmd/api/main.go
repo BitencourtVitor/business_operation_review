@@ -155,11 +155,6 @@ func main() {
 		return c.JSON(fiber.Map{"status": "ok", "service": "bor2-api", "version": "1.0.0"})
 	})
 	app.Get("/health", healthHandler.Health)
-	app.Get("/static/logo.png", func(c *fiber.Ctx) error {
-		c.Set("Content-Type", "image/png")
-		c.Set("Cache-Control", "public, max-age=86400")
-		return c.Send(service.LogoBytes())
-	})
 
 	v1 := app.Group("/api/v1")
 

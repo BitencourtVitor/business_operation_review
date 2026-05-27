@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"crypto/rand"
-	_ "embed"
 	"errors"
 	"fmt"
 	"math/big"
@@ -17,12 +16,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
-
-//go:embed assets/minilogo.png
-var minilogoBytes []byte
-
-// LogoBytes exposes the embedded logo so the API can serve it as a static asset.
-func LogoBytes() []byte { return minilogoBytes }
 
 type LoginResult struct {
 	User  *domain.User `json:"user"`
@@ -149,14 +142,6 @@ func sendPasswordEmail(to, name, tempPass string) error {
 		return fmt.Errorf("GMAIL_USER or GMAIL_APP_PASSWORD not set")
 	}
 
-	// Use the API's own base URL so the logo is served over HTTPS — avoids
-	// email clients blocking base64 inline images.
-	apiURL := os.Getenv("BETTER_AUTH_URL")
-	if apiURL == "" {
-		apiURL = "http://localhost:8080"
-	}
-	logoURL := apiURL + "/static/logo.png"
-
 	subject := "BOR2 — Temporary Password"
 	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
 <html lang="en">
@@ -168,7 +153,7 @@ func sendPasswordEmail(to, name, tempPass string) error {
         <!-- Header -->
         <tr>
           <td style="background:#0a0a0a;padding:24px 32px;text-align:center;">
-            <img src="%s" alt="Premium Group" height="32" style="display:block;margin:0 auto;">
+            <span style="color:#ffffff;font-size:16px;font-weight:bold;letter-spacing:1px;">PREMIUM GROUP</span>
           </td>
         </tr>
         <!-- Body -->
@@ -192,7 +177,7 @@ func sendPasswordEmail(to, name, tempPass string) error {
     </td></tr>
   </table>
 </body>
-</html>`, logoURL, name, tempPass)
+</html>`, name, tempPass)
 
 	msg := fmt.Sprintf(
 		"From: Premium Group <%s>\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
