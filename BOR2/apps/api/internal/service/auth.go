@@ -124,6 +124,15 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID, newPassword st
 	return s.userRepo.UpdatePassword(ctx, userID, string(hash), false)
 }
 
+// smtpPlainAuth is smtp.PlainAuth without the TLS-required check, safe for port 465
+// where TLS is established before the SMTP handshake begins.
+type smtpPlainAuth struct{ username, password string }
+
+func (a *smtpPlainAuth) Start(_ *smtp.ServerInfo) (string, []byte, error) {
+	return "PLAIN", []byte("\x00" + a.username + "\x00" + a.password), nil
+}
+func (a *smtpPlainAuth) Next(_ []byte, _ bool) ([]byte, error) { return nil, nil }
+
 func generateTempPassword(length int) (string, error) {
 	const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$"
 	result := make([]byte, length)
@@ -184,27 +193,28 @@ func sendPasswordEmail(to, name, tempPass string) error {
 		gmailUser, to, subject, htmlBody,
 	)
 
-	// Dial port 587 with explicit timeout, then upgrade with STARTTLS.
-	// smtp.PlainAuth requires c.tls=true which is only set after StartTLS().
-	conn, err := net.DialTimeout("tcp", "smtp.gmail.com:587", 15*time.Second)
+	// Port 465 = implicit TLS (SMTPS). smtp.PlainAuth refuses to send credentials
+	// unless c.tls=true, which StartTLS() sets — but port 465 has no STARTTLS
+	// handshake. Use a custom auth that skips the check since TLS is already live.
+	tlsConn, err := tls.DialWithDialer(
+		&net.Dialer{Timeout: 15 * time.Second},
+		"tcp", "smtp.gmail.com:465",
+		&tls.Config{ServerName: "smtp.gmail.com"},
+	)
 	if err != nil {
 		return fmt.Errorf("smtp dial: %w", err)
 	}
-	conn.SetDeadline(time.Now().Add(30 * time.Second))
+	tlsConn.SetDeadline(time.Now().Add(30 * time.Second))
 
-	client, err := smtp.NewClient(conn, "smtp.gmail.com")
+	client, err := smtp.NewClient(tlsConn, "smtp.gmail.com")
 	if err != nil {
 		return fmt.Errorf("smtp client: %w", err)
 	}
 	defer client.Close()
 
-	if err := client.StartTLS(&tls.Config{ServerName: "smtp.gmail.com"}); err != nil {
-		return fmt.Errorf("smtp starttls: %w", err)
-	}
-
 	// Gmail App Passwords work with or without spaces; strip them to be safe.
 	pass := strings.ReplaceAll(gmailPass, " ", "")
-	if err := client.Auth(smtp.PlainAuth("", gmailUser, pass, "smtp.gmail.com")); err != nil {
+	if err := client.Auth(&smtpPlainAuth{gmailUser, pass}); err != nil {
 		return fmt.Errorf("smtp auth: %w", err)
 	}
 	if err := client.Mail(gmailUser); err != nil {
