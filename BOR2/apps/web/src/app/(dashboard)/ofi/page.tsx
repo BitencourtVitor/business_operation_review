@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useOfi } from "@/hooks/use-ofi"
+import { useOfi, useOfiLive } from "@/hooks/use-ofi"
 import { useSidebar } from "@/components/ui/sidebar"
 import {
   AreaChart, Area,
@@ -224,7 +224,9 @@ type SortKey =
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function OFIPage() {
-  const currentYear = new Date().getFullYear()
+  const now          = new Date()
+  const currentYear  = now.getFullYear()
+  const currentMonth = now.getMonth() + 1
 
   const [year,      setYear]      = useState(String(currentYear))
   const [month,     setMonth]     = useState("")
@@ -266,6 +268,15 @@ export default function OFIPage() {
     year ? { year: Number(year) } : undefined
   )
 
+  // ── Current month live scoring ────────────────────────────────────────────
+
+  const isCurrentPeriod = month === String(currentMonth) && year === String(currentYear)
+
+  const { data: liveData } = useOfiLive(
+    { month: currentMonth, year: currentYear },
+    isCurrentPeriod,
+  )
+
   // ── Filter options ────────────────────────────────────────────────────────
 
   const years = useMemo(() => {
@@ -277,8 +288,9 @@ export default function OFIPage() {
 
   const availableMonths = useMemo(() => {
     const set = new Set(allData.map(r => r.referenceMonth))
+    if (Number(year) === currentYear) set.add(currentMonth)
     return Array.from(set).sort((a, b) => a - b)
-  }, [allData])
+  }, [allData, year, currentYear, currentMonth])
 
   // ── Client-side month filter ──────────────────────────────────────────────
 
@@ -287,20 +299,26 @@ export default function OFIPage() {
     return allData.filter(r => r.referenceMonth === Number(month))
   }, [allData, month])
 
+  // When viewing the current month, replace frozen DB data with live scores
+  const displayData = useMemo(() => {
+    if (isCurrentPeriod) return liveData ?? filtered
+    return filtered
+  }, [isCurrentPeriod, liveData, filtered])
+
   // ── KPIs ─────────────────────────────────────────────────────────────────
 
   const kpis = useMemo(() => {
-    if (!filtered.length)
+    if (!displayData.length)
       return { total: 0, fieldwire: 0, machines: 0, contract: 0, systems: 0 }
-    const n = filtered.length
+    const n = displayData.length
     return {
-      total:     round2(filtered.reduce((s, r) => s + r.totalScore,     0) / n),
-      fieldwire: round2(filtered.reduce((s, r) => s + r.fieldwireScore, 0) / n),
-      machines:  round2(filtered.reduce((s, r) => s + r.machinesScore,  0) / n),
-      contract:  round2(filtered.reduce((s, r) => s + r.contractScore,  0) / n),
-      systems:   round2(filtered.reduce((s, r) => s + r.systemsScore,   0) / n),
+      total:     round2(displayData.reduce((s, r) => s + r.totalScore,     0) / n),
+      fieldwire: round2(displayData.reduce((s, r) => s + r.fieldwireScore, 0) / n),
+      machines:  round2(displayData.reduce((s, r) => s + r.machinesScore,  0) / n),
+      contract:  round2(displayData.reduce((s, r) => s + r.contractScore,  0) / n),
+      systems:   round2(displayData.reduce((s, r) => s + r.systemsScore,   0) / n),
     }
-  }, [filtered])
+  }, [displayData])
 
   // ── Monthly trend ─────────────────────────────────────────────────────────
 
@@ -375,14 +393,14 @@ export default function OFIPage() {
   // ── Sorted table ──────────────────────────────────────────────────────────
 
   const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
+    return [...displayData].sort((a, b) => {
       const av = a[sortKey as keyof typeof a] as number | string
       const bv = b[sortKey as keyof typeof b] as number | string
       if (av < bv) return sortDir === "asc" ? -1 : 1
       if (av > bv) return sortDir === "asc" ?  1 : -1
       return 0
     })
-  }, [filtered, sortKey, sortDir])
+  }, [displayData, sortKey, sortDir])
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortDir(d => (d === "asc" ? "desc" : "asc"))
@@ -408,11 +426,19 @@ export default function OFIPage() {
 
         {/* ── Header ── */}
         <div className="flex shrink-0 flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">Operational Forecast Index</h1>
-            <p className="text-sm text-muted-foreground">
-              Performance metrics across all forecast projects
-            </p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight">Operational Forecast Index</h1>
+              <p className="text-sm text-muted-foreground">
+                Performance metrics across all forecast projects
+              </p>
+            </div>
+            {isCurrentPeriod && (
+              <span className="flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-500">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
+                Live
+              </span>
+            )}
           </div>
 
           <div className="flex items-end gap-3">
@@ -588,8 +614,8 @@ export default function OFIPage() {
             <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2.5">
               <TableIcon className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm font-semibold">Project Scores</span>
-              {filtered.length > 0 && (
-                <span className="text-xs text-muted-foreground">· {filtered.length} projects</span>
+              {displayData.length > 0 && (
+                <span className="text-xs text-muted-foreground">· {displayData.length} projects</span>
               )}
               <button
                 onClick={closePanel}
