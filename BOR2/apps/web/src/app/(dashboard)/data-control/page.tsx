@@ -3,7 +3,8 @@
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastStatus } from "@bor2/shared"
 import { useMemo, useState } from "react"
-import type { DCSection, SidebarTable } from "./types"
+import type { DCSection, SidebarTable, IntegFilters } from "./types"
+import { DEFAULT_INTEG } from "./types"
 import { DataControlSidebar }   from "./components/data-control-sidebar"
 import { NewProjectSection }     from "./components/new-project-section"
 import { EditProjectSection }    from "./components/edit-project-section"
@@ -21,6 +22,11 @@ export default function DataControlPage() {
   const [clientFilter, setClientFilter]   = useState("all")
   const [jobSiteFilter, setJobSiteFilter] = useState("all")
   const [statusFilter, setStatusFilter]   = useState<ForecastStatus | "all">("all")
+  const [integ, setInteg]                 = useState<IntegFilters>(DEFAULT_INTEG)
+
+  function handleInteg(k: keyof IntegFilters, v: IntegFilters[keyof IntegFilters]) {
+    setInteg(prev => ({ ...prev, [k]: v }))
+  }
 
   const clientOpts = useMemo(
     () => [
@@ -80,6 +86,8 @@ export default function DataControlPage() {
               onClientFilter={handleClientFilter}
               onJobSiteFilter={setJobSiteFilter}
               onStatusFilter={setStatusFilter}
+              integ={integ}
+              onInteg={handleInteg}
             />
           </div>
         )}

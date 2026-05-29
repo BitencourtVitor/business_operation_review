@@ -73,6 +73,23 @@ export const EMPTY_FORM: FormState = {
   previousEndDate: null,
 }
 
+// ─── Integration filter types ─────────────────────────────────────────────────
+export type IntegMode = "all" | "done" | "pendent"
+
+export interface IntegFilters {
+  fieldwire:    IntegMode
+  buildertrend: IntegMode
+  qbTime:       IntegMode
+  machines:     IntegMode
+  storage:      IntegMode
+  contract:     IntegMode
+}
+
+export const DEFAULT_INTEG: IntegFilters = {
+  fieldwire: "all", buildertrend: "all", qbTime: "all",
+  machines: "all", storage: "all", contract: "all",
+}
+
 // ─── Status constants ─────────────────────────────────────────────────────────
 export const STATUSES: ForecastStatus[] = ["planned", "active", "completed", "cancelled"]
 export const PROJECT_TYPES = ["Building", "Lot"]

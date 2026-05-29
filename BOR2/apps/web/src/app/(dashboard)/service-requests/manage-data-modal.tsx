@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import {
   AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, CalendarIcon,
-  CheckCircle2, Edit2, Loader2, Plus, RefreshCw, Search, ShieldCheck, Trash2, X,
+  CheckCircle2, Edit2, HardHat, Loader2, Plus, RefreshCw, Search, ShieldCheck, Trash2, X,
 } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ type Draft = {
   issue:                 string
   tech:                  string
   warranty:              boolean
+  subcontractor:         boolean
   dateReceived:          string   // YYYY-MM-DD
   materialAvailableDate: string
   residentAvailableDate: string
@@ -38,7 +39,7 @@ type Draft = {
 
 const EMPTY_DRAFT: Draft = {
   contractor: '', jobSite: '', city: '', lot: '', address: '',
-  issue: '', tech: '', warranty: false,
+  issue: '', tech: '', warranty: false, subcontractor: false,
   dateReceived: '', materialAvailableDate: '', residentAvailableDate: '',
   dateCompleted: '', closeDate: '', additionalVisits: '',
 }
@@ -73,6 +74,7 @@ function srToDraft(r: ServiceRequest): Draft {
     issue:                 r.issue,
     tech:                  r.tech,
     warranty:              r.warranty,
+    subcontractor:         r.subcontractor,
     dateReceived:          toIso(r.dateReceived),
     materialAvailableDate: toIso(r.materialAvailableDate),
     residentAvailableDate: toIso(r.residentAvailableDate),
@@ -98,6 +100,7 @@ function draftToInput(d: Draft): ServiceRequestInput {
     issue:                 d.issue,
     tech:                  d.tech,
     warranty:              d.warranty,
+    subcontractor:         d.subcontractor,
     dateReceived:          fromIso(d.dateReceived),
     materialAvailableDate: fromIso(d.materialAvailableDate),
     residentAvailableDate: fromIso(d.residentAvailableDate),
@@ -454,6 +457,30 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </EditTd>
+        <EditTd center>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setD(p => ({ ...p, subcontractor: !p.subcontractor }))}
+              className={`inline-flex h-6 w-10 items-center rounded-full border transition-colors ${
+                d.subcontractor
+                  ? 'border-blue-500/50 bg-blue-500/15'
+                  : 'border-border bg-muted/40'
+              }`}
+            >
+              <span
+                style={{
+                  transform: d.subcontractor ? 'translateX(1rem)' : 'translateX(0)',
+                  backgroundColor: d.subcontractor ? 'rgb(59 130 246)' : undefined,
+                  transition: 'transform 0.2s ease, background-color 0.2s ease',
+                }}
+                className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground/30"
+              >
+                {d.subcontractor && <HardHat className="h-2.5 w-2.5 text-white" />}
+              </span>
+            </button>
+          </div>
+        </EditTd>
         <EditTd date first><DatePicker value={d.dateReceived}          onChange={v => setD(p => ({ ...p, dateReceived: v }))}          /></EditTd>
         <EditTd date>      <DatePicker value={d.materialAvailableDate} onChange={v => setD(p => ({ ...p, materialAvailableDate: v }))} /></EditTd>
         <EditTd date>      <DatePicker value={d.residentAvailableDate} onChange={v => setD(p => ({ ...p, residentAvailableDate: v }))} /></EditTd>
@@ -551,6 +578,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
               <col style={{ width: '160px' }} />{/* Issue */}
               <col style={{ width: '100px' }} />{/* Tech */}
               <col style={{ width: '72px'  }} />{/* Warranty */}
+              <col style={{ width: '72px'  }} />{/* Subcontractor */}
               <col style={{ width: '98px'  }} />{/* Received */}
               <col style={{ width: '98px'  }} />{/* Material */}
               <col style={{ width: '98px'  }} />{/* Resident */}
@@ -568,6 +596,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
                 <SH col="issue">Issue</SH>
                 <SH col="tech">Tech</SH>
                 <SH col="warranty" center>Warranty</SH>
+                <SH col="subcontractor" center>Subcontr.</SH>
                 <SH col="dateReceived"          center className="border-l border-border border-r border-border">Received</SH>
                 <SH col="materialAvailableDate" center className="border-r border-border">Material</SH>
                 <SH col="residentAvailableDate" center className="border-r border-border">Resident</SH>
@@ -590,7 +619,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
                 if (deletingId === r.id) return (
                   <tr key={r.id} className="bg-red-500/5">
-                    <td colSpan={13} className="border-b border-border px-3 py-2.5">
+                    <td colSpan={14} className="border-b border-border px-3 py-2.5">
                       <span className="text-xs text-red-500">
                         Delete <strong className="font-semibold">{r.address || r.jobSite || 'this record'}</strong>? This action cannot be undone.
                       </span>
@@ -625,6 +654,12 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
                     <Td center>
                       {r.warranty
                         ? <ShieldCheck className="mx-auto h-3.5 w-3.5 text-orange-500" />
+                        : <span className="text-muted-foreground/30">—</span>
+                      }
+                    </Td>
+                    <Td center>
+                      {r.subcontractor
+                        ? <HardHat className="mx-auto h-3.5 w-3.5 text-blue-500" />
                         : <span className="text-muted-foreground/30">—</span>
                       }
                     </Td>

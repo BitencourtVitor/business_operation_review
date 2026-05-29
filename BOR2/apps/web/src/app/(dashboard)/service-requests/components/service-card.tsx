@@ -6,7 +6,7 @@ import {
 import type { ServiceRequest } from "@/services/service-request.service"
 import {
   CalendarCheck, CalendarDays, CalendarClock,
-  MapPin, ShieldCheck, Clock,
+  MapPin, ShieldCheck, HardHat, Clock,
 } from "lucide-react"
 import { STATUS_CFG } from "../types"
 import { getStatus, getResolutionInfo, fmtMMDD, fmtLot } from "../lib"
@@ -40,18 +40,32 @@ export function ServiceCard({ r, onClick }: ServiceCardProps) {
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
           {label}
         </span>
-        {r.warranty && (
-          <TooltipProvider delay={300}>
-            <Tooltip>
-              <TooltipTrigger render={<span className="inline-flex cursor-default" />}>
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-orange-500" />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[180px] text-center text-xs">
-                Warranty Request
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <div className="flex items-center gap-1.5">
+          {r.warranty && (
+            <TooltipProvider delay={300}>
+              <Tooltip>
+                <TooltipTrigger render={<span className="inline-flex cursor-default" />}>
+                  <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-orange-500" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[180px] text-center text-xs">
+                  Warranty Request
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {r.subcontractor && (
+            <TooltipProvider delay={300}>
+              <Tooltip>
+                <TooltipTrigger render={<span className="inline-flex cursor-default" />}>
+                  <HardHat className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[180px] text-center text-xs">
+                  Subcontractor Request
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </div>
 
       {/* Body */}

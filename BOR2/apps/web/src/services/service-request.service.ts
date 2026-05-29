@@ -20,6 +20,7 @@ export interface ServiceRequest {
   additionalVisits:      string[]
   issue:                 string
   warranty:              boolean
+  subcontractor:         boolean
   tech:                  string
   createdAt:             string
 }
