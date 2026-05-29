@@ -30,7 +30,7 @@ func (r *PostgresServiceRequestRepository) List(ctx context.Context, f domain.Se
 		SELECT id, contractor, job_site, city, lot, address,
 		       close_date, date_received, material_available_date,
 		       resident_available_date, date_completed, additional_visits,
-		       issue, warranty, tech, created_at
+		       issue, warranty, subcontractor, tech, created_at
 		FROM service_requests
 		WHERE ($1 = '' OR contractor ILIKE '%' || $1 || '%')
 		  AND ($2 = '' OR job_site ILIKE '%' || $2 || '%')
@@ -49,7 +49,7 @@ func (r *PostgresServiceRequestRepository) List(ctx context.Context, f domain.Se
 			&rec.ID, &rec.Contractor, &rec.JobSite, &rec.City, &rec.Lot, &rec.Address,
 			&rec.CloseDate, &rec.DateReceived, &rec.MaterialAvailableDate,
 			&rec.ResidentAvailableDate, &rec.DateCompleted, &rec.AdditionalVisits,
-			&rec.Issue, &rec.Warranty, &rec.Tech, &rec.CreatedAt,
+			&rec.Issue, &rec.Warranty, &rec.Subcontractor, &rec.Tech, &rec.CreatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("scan service_requests: %w", err)
 		}
@@ -64,13 +64,13 @@ func (r *PostgresServiceRequestRepository) FindByID(ctx context.Context, id stri
 		SELECT id, contractor, job_site, city, lot, address,
 		       close_date, date_received, material_available_date,
 		       resident_available_date, date_completed, additional_visits,
-		       issue, warranty, tech, created_at
+		       issue, warranty, subcontractor, tech, created_at
 		FROM service_requests WHERE id=$1
 	`, id).Scan(
 		&rec.ID, &rec.Contractor, &rec.JobSite, &rec.City, &rec.Lot, &rec.Address,
 		&rec.CloseDate, &rec.DateReceived, &rec.MaterialAvailableDate,
 		&rec.ResidentAvailableDate, &rec.DateCompleted, &rec.AdditionalVisits,
-		&rec.Issue, &rec.Warranty, &rec.Tech, &rec.CreatedAt,
+		&rec.Issue, &rec.Warranty, &rec.Subcontractor, &rec.Tech, &rec.CreatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("find service_requests: %w", err)
@@ -84,12 +84,12 @@ func (r *PostgresServiceRequestRepository) Create(ctx context.Context, rec *doma
 		  (id, contractor, job_site, city, lot, address,
 		   close_date, date_received, material_available_date,
 		   resident_available_date, date_completed, additional_visits,
-		   issue, warranty, tech, created_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+		   issue, warranty, subcontractor, tech, created_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
 	`, rec.ID, rec.Contractor, rec.JobSite, rec.City, rec.Lot, rec.Address,
 		rec.CloseDate, rec.DateReceived, rec.MaterialAvailableDate,
 		rec.ResidentAvailableDate, rec.DateCompleted, rec.AdditionalVisits,
-		rec.Issue, rec.Warranty, rec.Tech, rec.CreatedAt)
+		rec.Issue, rec.Warranty, rec.Subcontractor, rec.Tech, rec.CreatedAt)
 	return err
 }
 
@@ -99,12 +99,12 @@ func (r *PostgresServiceRequestRepository) Update(ctx context.Context, rec *doma
 		SET contractor=$1, job_site=$2, city=$3, lot=$4, address=$5,
 		    close_date=$6, date_received=$7, material_available_date=$8,
 		    resident_available_date=$9, date_completed=$10, additional_visits=$11,
-		    issue=$12, warranty=$13, tech=$14
-		WHERE id=$15
+		    issue=$12, warranty=$13, subcontractor=$14, tech=$15
+		WHERE id=$16
 	`, rec.Contractor, rec.JobSite, rec.City, rec.Lot, rec.Address,
 		rec.CloseDate, rec.DateReceived, rec.MaterialAvailableDate,
 		rec.ResidentAvailableDate, rec.DateCompleted, rec.AdditionalVisits,
-		rec.Issue, rec.Warranty, rec.Tech, rec.ID)
+		rec.Issue, rec.Warranty, rec.Subcontractor, rec.Tech, rec.ID)
 	return err
 }
 
@@ -132,12 +132,12 @@ func (r *PostgresServiceRequestRepository) ReplaceAll(ctx context.Context, recor
 			  (id, contractor, job_site, city, lot, address,
 			   close_date, date_received, material_available_date,
 			   resident_available_date, date_completed, additional_visits,
-			   issue, warranty, tech, created_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+			   issue, warranty, subcontractor, tech, created_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
 		`, rec.ID, rec.Contractor, rec.JobSite, rec.City, rec.Lot, rec.Address,
 			rec.CloseDate, rec.DateReceived, rec.MaterialAvailableDate,
 			rec.ResidentAvailableDate, rec.DateCompleted, rec.AdditionalVisits,
-			rec.Issue, rec.Warranty, rec.Tech, rec.CreatedAt)
+			rec.Issue, rec.Warranty, rec.Subcontractor, rec.Tech, rec.CreatedAt)
 		if err != nil {
 			return count, fmt.Errorf("insert service_request row: %w", err)
 		}
