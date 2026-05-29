@@ -269,13 +269,26 @@ export default function OFIPage() {
   )
 
   // ── Current month live scoring ────────────────────────────────────────────
+  // Fetch live whenever the current year is selected so sparklines and KPIs
+  // are always consistent — no frozen DB snapshot mixed with real-time values.
 
-  const isCurrentPeriod = month === String(currentMonth) && year === String(currentYear)
+  const isCurrentYear   = year === String(currentYear)
+  const isCurrentPeriod = month === String(currentMonth) && isCurrentYear
 
   const { data: liveData } = useOfiLive(
     { month: currentMonth, year: currentYear },
-    isCurrentPeriod,
+    isCurrentYear,
   )
+
+  // Replace the current month's DB records with live data so every downstream
+  // computation (trend chart, KPIs, table) uses the same source of truth.
+  const mergedData = useMemo(() => {
+    if (!isCurrentYear || !liveData?.length) return allData
+    return [
+      ...allData.filter(r => r.referenceMonth !== currentMonth),
+      ...liveData,
+    ]
+  }, [allData, isCurrentYear, currentMonth, liveData])
 
   // ── Filter options ────────────────────────────────────────────────────────
 
@@ -287,23 +300,19 @@ export default function OFIPage() {
   }, [allData, currentYear])
 
   const availableMonths = useMemo(() => {
-    const set = new Set(allData.map(r => r.referenceMonth))
-    if (Number(year) === currentYear) set.add(currentMonth)
+    const set = new Set(mergedData.map(r => r.referenceMonth))
+    if (isCurrentYear) set.add(currentMonth)
     return Array.from(set).sort((a, b) => a - b)
-  }, [allData, year, currentYear, currentMonth])
+  }, [mergedData, isCurrentYear, currentMonth])
 
   // ── Client-side month filter ──────────────────────────────────────────────
 
   const filtered = useMemo(() => {
-    if (!month) return allData
-    return allData.filter(r => r.referenceMonth === Number(month))
-  }, [allData, month])
+    if (!month) return mergedData
+    return mergedData.filter(r => r.referenceMonth === Number(month))
+  }, [mergedData, month])
 
-  // When viewing the current month, replace frozen DB data with live scores
-  const displayData = useMemo(() => {
-    if (isCurrentPeriod) return liveData ?? filtered
-    return filtered
-  }, [isCurrentPeriod, liveData, filtered])
+  const displayData = filtered
 
   // ── KPIs ─────────────────────────────────────────────────────────────────
 
@@ -327,7 +336,7 @@ export default function OFIPage() {
       number,
       { sum: number; fw: number; mc: number; ct: number; sy: number; n: number }
     > = {}
-    allData.forEach(r => {
+    mergedData.forEach(r => {
       const m = r.referenceMonth
       if (!map[m]) map[m] = { sum: 0, fw: 0, mc: 0, ct: 0, sy: 0, n: 0 }
       map[m].sum += r.totalScore
@@ -347,7 +356,7 @@ export default function OFIPage() {
         contract:  round2(v.ct  / v.n),
         systems:   round2(v.sy  / v.n),
       }))
-  }, [allData])
+  }, [mergedData])
 
   // ── Aspect config ─────────────────────────────────────────────────────────
 
