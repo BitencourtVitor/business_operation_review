@@ -57,6 +57,14 @@ export const ofiService = {
     return await api.get<ExecutionEntry[]>(`/api/v1/ofi/monthly-execution${qs ? `?${qs}` : ""}`, getToken())
   },
 
+  liveScores: async (filters: { month: number; year: number }): Promise<OfiEntry[]> => {
+    const params = new URLSearchParams({
+      month: String(filters.month),
+      year:  String(filters.year),
+    })
+    return await api.get<OfiEntry[]>(`/api/v1/ofi/live?${params}`, getToken())
+  },
+
   updateExecutionReason: (id: string, reason: string) =>
     api.patch<void>(`/api/v1/ofi/monthly-execution/${id}`, { reason }, getToken()),
 }
