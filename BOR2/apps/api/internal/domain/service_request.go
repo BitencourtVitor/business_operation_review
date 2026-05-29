@@ -18,6 +18,7 @@ type ServiceRequestRow struct {
 	AdditionalVisits      []string   `json:"additionalVisits"`
 	Issue                 string     `json:"issue"`
 	Warranty              bool       `json:"warranty"`
+	Subcontractor         bool       `json:"subcontractor"`
 	Tech                  string     `json:"tech"`
 	CreatedAt             time.Time  `json:"createdAt"`
 }

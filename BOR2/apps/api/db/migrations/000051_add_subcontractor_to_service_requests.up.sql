@@ -1,0 +1,2 @@
+ALTER TABLE service_requests
+    ADD COLUMN IF NOT EXISTS subcontractor BOOLEAN NOT NULL DEFAULT FALSE;
