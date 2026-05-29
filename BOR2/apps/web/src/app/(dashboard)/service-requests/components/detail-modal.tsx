@@ -4,7 +4,7 @@ import { createPortal } from "react-dom"
 import type { ServiceRequest } from "@/services/service-request.service"
 import {
   CalendarCheck, CalendarDays, CalendarClock,
-  MapPin, ShieldCheck, Wrench, Database,
+  MapPin, ShieldCheck, HardHat, Wrench, Database,
   CheckCircle2, Circle, Clock, X,
 } from "lucide-react"
 import { STATUS_CFG, NODE_COLORS } from "../types"
@@ -68,6 +68,12 @@ export function DetailModal({ r, onClose }: DetailModalProps) {
               <span className="flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-xs font-medium text-orange-500">
                 <ShieldCheck className="h-3 w-3" />
                 Warranty
+              </span>
+            )}
+            {r.subcontractor && (
+              <span className="flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500">
+                <HardHat className="h-3 w-3" />
+                Subcontractor
               </span>
             )}
             <button

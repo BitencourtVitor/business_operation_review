@@ -17,7 +17,7 @@ import { useInsights } from "@/components/insights/insights-panel"
 import { ManageDataModal } from "./manage-data-modal"
 import type { ServiceRequest } from "@/services/service-request.service"
 import {
-  BarChart2, Building2, Calendar, GalleryHorizontal, Info,
+  BarChart2, Building2, Calendar, GalleryHorizontal, HardHat, Info,
   MapPin, Search, ShieldCheck, Database, Wrench,
 } from "lucide-react"
 import {
@@ -58,7 +58,8 @@ export default function ServiceRequestsPage() {
   const [contractor, setContractor] = useState("All")
   const [jobSite,    setJobSite]    = useState("All")
   const [city,       setCity]       = useState("All")
-  const [warranty,   setWarranty]   = useState<"all" | "warranty" | "non-warranty">("all")
+  const [warranty,      setWarranty]      = useState<"all" | "warranty" | "non-warranty">("all")
+  const [subcontractor, setSubcontractor] = useState<"all" | "yes" | "no">("all")
 
   // Chart state
   const [chartMode, setChartMode] = useState<"received" | "completed">("received")
@@ -148,13 +149,17 @@ export default function ServiceRequestsPage() {
       if (city       !== "All" && r.city       !== city)       return false
       if (warranty === "warranty"     && !r.warranty) return false
       if (warranty === "non-warranty" &&  r.warranty) return false
+      if (subcontractor === "yes" && !r.subcontractor) return false
+      if (subcontractor === "no"  &&  r.subcontractor) return false
       return true
     })
-  }, [allData, year, month, contractor, jobSite, city, warranty])
+  }, [allData, year, month, contractor, jobSite, city, warranty, subcontractor])
 
   // ── Metrics ────────────────────────────────────────────────────────────────
   const metrics = useMemo(() => {
     const total            = filtered.length
+    const subcontractorCnt = filtered.filter(r => r.subcontractor).length
+    const subcontractorPct = total > 0 ? Math.round((subcontractorCnt / total) * 100) : 0
     const materialWait     = filtered.filter(r => !!r.materialAvailableDate).length
     const residentWait     = filtered.filter(r => !!r.residentAvailableDate).length
     const additionalVisits = filtered.filter(r => (r.additionalVisits ?? []).length > 0).length
@@ -176,7 +181,7 @@ export default function ServiceRequestsPage() {
       avgLabel = "Avg/Month"
     }
 
-    return { total, materialWait, residentWait, additionalVisits, avgPerPeriod, avgLabel, avgResolution }
+    return { total, subcontractorCnt, subcontractorPct, materialWait, residentWait, additionalVisits, avgPerPeriod, avgLabel, avgResolution }
   }, [filtered, year, month])
 
   // ── Chart data ─────────────────────────────────────────────────────────────
@@ -369,6 +374,28 @@ export default function ServiceRequestsPage() {
             </div>
           </div>
 
+          {/* Subcontractor toggle */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Subcontractor</span>
+            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+              {(["all", "yes", "no"] as const).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setSubcontractor(v)}
+                  className={`flex h-7 items-center rounded-md px-2.5 text-xs font-medium transition-colors ${
+                    subcontractor === v
+                      ? v === "yes" ? "bg-blue-500 text-white"
+                      : v === "no"  ? "bg-green-600 text-white"
+                      :               "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {v === "all" ? "All" : v === "yes" ? "Yes" : "No"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Changes — Manage Data + Insights */}
           {canManage && (
             <div className="flex flex-col gap-1">
@@ -394,9 +421,10 @@ export default function ServiceRequestsPage() {
         <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
 
           {/* ── Metrics bar ── */}
-          <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-6">
+          <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-7">
             {[
               { label: "Total",           value: metrics.total,               color: undefined,  info: "Total number of service requests matching the current filters." },
+              { label: "Subcontractor",   value: `${metrics.subcontractorCnt} (${metrics.subcontractorPct}%)`, color: "#3b82f6", info: "Requests flagged as subcontractor-originated. Shows count and percentage of total filtered requests." },
               { label: "Material Wait",   value: metrics.materialWait,        color: "#FF8C00",  info: "Requests where material availability was recorded. Indicates procurement dependency before work could begin." },
               { label: "Resident Wait",   value: metrics.residentWait,        color: "#FF8C00",  info: "Requests requiring resident availability confirmation before scheduling. Common in warranty and occupied-unit work." },
               { label: "Add. Visits",     value: metrics.additionalVisits,    color: "#dc3545",  info: "Requests that required more than one visit to be resolved. A signal of incomplete diagnosis or parts unavailability on the first visit." },
@@ -406,7 +434,10 @@ export default function ServiceRequestsPage() {
               <div key={m.label} className="flex flex-col gap-0.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{m.label}</span>
-                  <InfoBtn title={m.label} description={m.info} />
+                  {m.label === "Subcontractor"
+                    ? <HardHat className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-60" />
+                    : <InfoBtn title={m.label} description={m.info} />
+                  }
                 </div>
                 <span className="text-lg font-bold" style={m.color ? { color: m.color } : undefined}>
                   {m.value}
