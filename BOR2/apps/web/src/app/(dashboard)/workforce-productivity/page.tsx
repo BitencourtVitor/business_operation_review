@@ -85,6 +85,80 @@ function fmtAxisY(v: number) {
   return String(v)
 }
 
+// ─── Address deduplication (Jaro-Winkler) ────────────────────────────────────
+
+function normalizeAddressLabel(s: string): string {
+  let v = s.trim()
+  const lo = v.toLowerCase()
+  if (lo.startsWith('job sites - ') || lo.startsWith('job sites – ')) {
+    v = v.slice(v.indexOf(' - ') + 3)
+  }
+  v = v.split(',').map(p => p.trim()).join(', ')
+  return v.replace(/\s{2,}/g, ' ').trim()
+}
+
+function jaroSimilarity(a: string, b: string): number {
+  if (a === b) return 1
+  const la = a.length, lb = b.length
+  if (!la || !lb) return 0
+  const dist = Math.max(Math.floor(Math.max(la, lb) / 2) - 1, 0)
+  const ma = new Array(la).fill(false), mb = new Array(lb).fill(false)
+  let matches = 0
+  for (let i = 0; i < la; i++) {
+    const lo = Math.max(0, i - dist), hi = Math.min(lb - 1, i + dist)
+    for (let j = lo; j <= hi; j++) {
+      if (mb[j] || a[i] !== b[j]) continue
+      ma[i] = mb[j] = true; matches++; break
+    }
+  }
+  if (!matches) return 0
+  let k = 0, t = 0
+  for (let i = 0; i < la; i++) {
+    if (!ma[i]) continue
+    while (!mb[k]) k++
+    if (a[i] !== b[k]) t++
+    k++
+  }
+  return (matches / la + matches / lb + (matches - t / 2) / matches) / 3
+}
+
+function jaroWinkler(s1: string, s2: string): number {
+  const a = s1.toLowerCase(), b = s2.toLowerCase()
+  const jaro = jaroSimilarity(a, b)
+  let prefix = 0
+  for (let i = 0; i < Math.min(4, a.length, b.length); i++) {
+    if (a[i] === b[i]) prefix++; else break
+  }
+  return jaro + prefix * 0.1 * (1 - jaro)
+}
+
+// Maps every raw address label → canonical label (first seen that is similar enough).
+// Threshold 0.93 keeps "Canton, Coppersmith" and "Canton, Coppersmith - Building 1" separate
+// while merging variants that differ only by whitespace/punctuation.
+function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<string, string> {
+  const normCanon: string[] = []
+  const origCanon: string[] = []
+  const map = new Map<string, string>()
+  for (const label of labels) {
+    const norm = normalizeAddressLabel(label)
+    let bestScore = 0, bestIdx = -1
+    for (let j = 0; j < normCanon.length; j++) {
+      const score = norm === normCanon[j] ? 1 : jaroWinkler(norm, normCanon[j])
+      if (score > bestScore) { bestScore = score; bestIdx = j }
+    }
+    if (bestScore >= threshold && bestIdx >= 0) {
+      map.set(label, origCanon[bestIdx])
+    } else {
+      normCanon.push(norm)
+      origCanon.push(label)
+      map.set(label, label)
+    }
+  }
+  return map
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function getJobsiteLabel(r: { jobsite?: string; lotBuilding?: string; client?: string }): string {
   const jobsite = r.jobsite?.trim() ?? ""
   const lot     = r.lotBuilding?.trim() ?? ""
@@ -212,9 +286,16 @@ export default function WorkforceProductivityPage() {
     Array.from(new Set(allRows.map(r => r.client).filter(Boolean))).sort() as string[]
   , [allRows])
 
+  const addressCanonicalMap = useMemo(() => {
+    const labels = Array.from(new Set(allRows.map(r => getJobsiteLabel(r)).filter(Boolean)))
+    return buildAddressCanonicalMap(labels)
+  }, [allRows])
+
+  const canonical = (label: string) => addressCanonicalMap.get(label) ?? label
+
   const jobsiteOptions  = useMemo(() =>
-    Array.from(new Set(allRows.map(r => getJobsiteLabel(r)).filter(Boolean))).sort()
-  , [allRows])
+    Array.from(new Set(allRows.map(r => canonical(getJobsiteLabel(r))).filter(Boolean))).sort()
+  , [allRows, addressCanonicalMap])
 
   const worktypeOptions = useMemo(() =>
     Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).sort() as string[]
@@ -226,7 +307,7 @@ export default function WorkforceProductivityPage() {
     if (year           && !r.referenceMonth.startsWith(year))          return false
     if (month          && r.referenceMonth !== month)                   return false
     if (clientFilter.length   > 0 && !clientFilter.includes(r.client))    return false
-    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(getJobsiteLabel(r)))  return false
+    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(canonical(getJobsiteLabel(r))))  return false
     if (worktypeFilter.length > 0 && !worktypeFilter.includes(r.worktype)) return false
     return true
   }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
@@ -237,7 +318,7 @@ export default function WorkforceProductivityPage() {
 
   const totalHours     = useMemo(() => rows.reduce((s, r) => s + r.regularHours, 0), [rows])
   const totalEmployees = useMemo(() => new Set(rows.map(r => r.employeeName)).size, [rows])
-  const totalJobsites  = useMemo(() => new Set(rows.map(r => getJobsiteLabel(r))).size, [rows])
+  const totalJobsites  = useMemo(() => new Set(rows.map(r => canonical(getJobsiteLabel(r)))).size, [rows, addressCanonicalMap])
   const avgHoursPerEmp = totalEmployees > 0 ? totalHours / totalEmployees : 0
 
   // ── General view chart data ───────────────────────────────────────────────
