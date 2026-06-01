@@ -339,9 +339,12 @@ export default function MonthlyExecutionPage() {
       const started = exe.length ? (exe.filter(e => !isNotStarted(e)).length || null) : null
       // January 2026: no real execution records exist in any DB — hardcoded from BOR1 legacy
       const startedFinal = (m === 1 && started === null) ? 10 : started
+      // Use execution history count when available (matches kanban total);
+      // fall back to OFI count for months with no execution records yet.
+      const plannedCount = exe.length ? exe.length : (ofi.length || null)
       return {
         month:   label,
-        planned: ofi.length || null,
+        planned: plannedCount,
         started: startedFinal,
       }
     }),

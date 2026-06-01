@@ -167,8 +167,8 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 		SELECT e.id, e.obra_id, e.reference_month, e.reference_year,
 		       e.planned_status, e.actual_status, e.reason, e.subcontractor, e.is_cycle_completed,
 		       CASE
-		         WHEN NULLIF(fc.name,'')     IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name     || ' - ' || fc.lote_bld
-		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
+		         WHEN NULLIF(fc.name,'') IS NOT NULL AND fc.name != COALESCE(fc.lote_bld,'') AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name || ' - ' || fc.lote_bld
+		         WHEN NULLIF(fc.name,'') IS NOT NULL AND fc.name != COALESCE(fc.lote_bld,'')                                     THEN fc.name
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.job_site || ' - ' || fc.lote_bld
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
