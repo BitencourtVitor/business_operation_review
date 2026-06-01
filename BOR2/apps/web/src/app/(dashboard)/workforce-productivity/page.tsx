@@ -57,7 +57,7 @@ const WORKTYPE_CANONICAL: Record<string, string> = {
   "unregistered location": "Unregistered Location",
 }
 
-const CLIENT_PREFIXES = ['pulte homes', 'toll brothers', 'callahan', 'job sites']
+const CLIENT_PREFIXES = ['pulte homes', 'toll brothers', 'callahan', 'job sites', 'framing', 'hvac']
 function isClientName(s: string): boolean {
   const lo = s.trim().toLowerCase()
   return CLIENT_PREFIXES.some(c => lo.startsWith(c))
@@ -65,11 +65,11 @@ function isClientName(s: string): boolean {
 
 function normalizeWorktype(raw: string): string {
   const v = raw?.trim()
-  if (!v || isClientName(v)) return "Other"
+  if (!v || isClientName(v)) return "Normal Labor"
   // address-like string: starts with number + space + word (e.g. "33 Scott St")
-  if (/^\d+\s+[a-zA-Z]/.test(v)) return "Other"
+  if (/^\d+\s+[a-zA-Z]/.test(v)) return "Normal Labor"
   // floor ordinals: "1º", "2º", "3º", "4º", "1°", etc.
-  if (/^\d+[º°ª]$/.test(v)) return "Other"
+  if (/^\d+[º°ª]$/.test(v)) return "Normal Labor"
   const key = v.toLowerCase()
   return WORKTYPE_CANONICAL[key] ?? v
 }
@@ -398,7 +398,7 @@ export default function WorkforceProductivityPage() {
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const raw = r.worktype || "Other"
+      const raw = r.worktype || "Normal Labor"
       const wt = normalizeWorktype(raw)
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
@@ -432,7 +432,7 @@ export default function WorkforceProductivityPage() {
 
   const spWorktypes = useMemo(() =>
     isSingleProject
-      ? Array.from(new Set(rows.map(r => normalizeWorktype(r.worktype || "Other"))))
+      ? Array.from(new Set(rows.map(r => normalizeWorktype(r.worktype || "Normal Labor"))))
       : []
   , [rows, isSingleProject])
 
@@ -449,7 +449,7 @@ export default function WorkforceProductivityPage() {
       spWorktypes.forEach(wt => {
         entry[wt] = Math.round(
           mRows
-            .filter(r => normalizeWorktype(r.worktype || "Other") === wt)
+            .filter(r => normalizeWorktype(r.worktype || "Normal Labor") === wt)
             .reduce((s, r) => s + r.regularHours, 0)
         )
       })
@@ -462,7 +462,7 @@ export default function WorkforceProductivityPage() {
     if (!isSingleProject) return []
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = normalizeWorktype(r.worktype || "Other")
+      const wt = normalizeWorktype(r.worktype || "Normal Labor")
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
