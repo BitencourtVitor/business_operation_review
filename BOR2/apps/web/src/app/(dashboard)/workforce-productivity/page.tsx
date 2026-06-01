@@ -322,9 +322,11 @@ export default function WorkforceProductivityPage() {
     Array.from(new Set(allRows.map(r => canonical(getJobsiteLabel(r))).filter(Boolean))).sort()
   , [allRows, addressCanonicalMap])
 
-  const worktypeOptions = useMemo(() =>
-    Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).sort() as string[]
-  , [allRows])
+  const worktypeOptions = useMemo(() => {
+    const clientNames = ['pulte homes', 'toll brothers', 'callahan', 'job sites']
+    const isClient = (w: string) => clientNames.some(c => w.toLowerCase().startsWith(c))
+    return Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClient(w)).sort() as string[]
+  }, [allRows])
 
   // ── Filtered rows ─────────────────────────────────────────────────────────
 
