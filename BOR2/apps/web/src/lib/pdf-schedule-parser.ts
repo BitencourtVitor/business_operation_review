@@ -8,21 +8,28 @@
  * Hierarchy is determined by the x-indentation of the Task Name column items.
  */
 
-import * as pdfjsLib from "pdfjs-dist"
+// pdfjs-dist is loaded lazily on first use so it is never bundled at dev-server
+// startup. This prevents the heavy PDF.js worker from being compiled by
+// Turbopack during next dev, which was causing the machine to freeze.
 
-// ─── Worker initialisation (client-side only) ─────────────────────────────────
+let _pdfjsLib: typeof import("pdfjs-dist") | null = null
 
-if (typeof window !== "undefined") {
-  try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url,
-    ).href
-  } catch {
-    // Fallback to unpkg CDN if import.meta.url resolution fails
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
+async function getPdfjs() {
+  if (_pdfjsLib) return _pdfjsLib
+  const lib = await import("pdfjs-dist")
+  if (typeof window !== "undefined") {
+    try {
+      lib.GlobalWorkerOptions.workerSrc = new URL(
+        "pdfjs-dist/build/pdf.worker.min.mjs",
+        import.meta.url,
+      ).href
+    } catch {
+      lib.GlobalWorkerOptions.workerSrc =
+        `https://unpkg.com/pdfjs-dist@${lib.version}/build/pdf.worker.min.mjs`
+    }
   }
+  _pdfjsLib = lib
+  return lib
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -161,6 +168,7 @@ function parseDuration(s: string): number {
 // ─── Core extraction ──────────────────────────────────────────────────────────
 
 async function extractItems(file: File): Promise<TextItem[]> {
+  const pdfjsLib = await getPdfjs()
   const buf = await file.arrayBuffer()
   const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise
   const all: TextItem[] = []
