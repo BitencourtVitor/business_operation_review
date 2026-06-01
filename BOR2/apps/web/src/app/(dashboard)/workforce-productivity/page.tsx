@@ -322,11 +322,28 @@ export default function WorkforceProductivityPage() {
     Array.from(new Set(allRows.map(r => canonical(getJobsiteLabel(r))).filter(Boolean))).sort()
   , [allRows, addressCanonicalMap])
 
-  const worktypeOptions = useMemo(() => {
+  const worktypeCanonicalMap = useMemo(() => {
     const clientNames = ['pulte homes', 'toll brothers', 'callahan', 'job sites']
     const isClient = (w: string) => clientNames.some(c => w.toLowerCase().startsWith(c))
-    return Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClient(w)).sort() as string[]
+    const raw = Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClient(w)) as string[]
+    // JW dedup: "Normal Labor" / "Normal labor" → single canonical
+    const normCanon: string[] = [], origCanon: string[] = [], map = new Map<string, string>()
+    for (const w of raw) {
+      const norm = w.trim().toLowerCase()
+      let best = 0, bestIdx = -1
+      for (let j = 0; j < normCanon.length; j++) {
+        const s = norm === normCanon[j] ? 1 : jaroWinkler(norm, normCanon[j])
+        if (s > best) { best = s; bestIdx = j }
+      }
+      if (best >= 0.95 && bestIdx >= 0) { map.set(w, origCanon[bestIdx]) }
+      else { normCanon.push(norm); origCanon.push(w); map.set(w, w) }
+    }
+    return map
   }, [allRows])
+
+  const worktypeOptions = useMemo(() => {
+    return Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean).map(w => worktypeCanonicalMap.get(w) ?? w))).sort() as string[]
+  }, [allRows, worktypeCanonicalMap])
 
   // ── Filtered rows ─────────────────────────────────────────────────────────
 
@@ -335,7 +352,7 @@ export default function WorkforceProductivityPage() {
     if (month          && r.referenceMonth !== month)                   return false
     if (clientFilter.length   > 0 && !clientFilter.includes(r.client))    return false
     if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(canonical(getJobsiteLabel(r))))  return false
-    if (worktypeFilter.length > 0 && !worktypeFilter.includes(r.worktype)) return false
+    if (worktypeFilter.length > 0 && !worktypeFilter.includes(worktypeCanonicalMap.get(r.worktype ?? '') ?? r.worktype ?? '')) return false
     return true
   }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
 
