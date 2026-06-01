@@ -433,6 +433,31 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 		}
 	}
 
+	// ── Pipeline 3: Seed planned execution records for target month ──────────────
+	// Insert not_started entries into monthly_execution_history for every obra
+	// that received an OFI score in the target month, so Monthly Execution can
+	// show the planned list immediately without falling back to OFI data.
+
+	if ofiCount > 0 {
+		if _, err = h.db.Exec(ctx, `
+			INSERT INTO monthly_execution_history
+			  (obra_id, reference_month, reference_year,
+			   planned_status, actual_status, reason, subcontractor,
+			   is_cycle_completed, actual_start_date, actual_end_date)
+			SELECT o.obra_id, $1, $2, '', 'not_started', '', '', false, NULL, NULL
+			FROM (SELECT DISTINCT obra_id FROM operational_forecast_index
+			      WHERE reference_month = $1 AND reference_year = $2) o
+			WHERE NOT EXISTS (
+			  SELECT 1 FROM monthly_execution_history
+			  WHERE obra_id = o.obra_id
+			    AND reference_month = $1 AND reference_year = $2
+			)`,
+			targetMonth, targetYear,
+		); err != nil {
+			return ofiInternalErr(c, "seed planned execution records", err)
+		}
+	}
+
 	return c.JSON(fiber.Map{
 		"success":        true,
 		"executionMonth": execMonth,
