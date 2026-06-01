@@ -132,9 +132,10 @@ function jaroWinkler(s1: string, s2: string): number {
   return jaro + prefix * 0.1 * (1 - jaro)
 }
 
-// Maps every raw address label → canonical label (first seen that is similar enough).
-// Threshold 0.93 keeps "Canton, Coppersmith" and "Canton, Coppersmith - Building 1" separate
-// while merging variants that differ only by whitespace/punctuation.
+// Maps every raw address label → canonical label.
+// Pass 1 (JW): merges labels that differ only by whitespace/punctuation (threshold 0.93).
+// Pass 2 (promotion): when a bare base "X" exists alongside exactly ONE variant "X - Building N",
+//   maps "X" → "X - Building N". With multiple buildings, keeps them all separate.
 function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<string, string> {
   const normCanon: string[] = []
   const origCanon: string[] = []
@@ -154,6 +155,30 @@ function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<strin
       map.set(label, label)
     }
   }
+
+  // Pass 2: base promotion
+  // For each canonical "X", count how many canonicals match "X - Building/LOT N"
+  const canonicals = Array.from(new Set(map.values()))
+  const buildingSuffix = /^(.+?)\s+-\s+(Building\s+\d+|LOT\s+\d+|Lot\s+\d+)/i
+  const baseToVariants = new Map<string, string[]>()
+  for (const c of canonicals) {
+    const m = c.match(buildingSuffix)
+    if (m) {
+      const base = m[1]
+      baseToVariants.set(base, [...(baseToVariants.get(base) ?? []), c])
+    }
+  }
+  // Only promote when exactly ONE variant exists for a base
+  const promotion = new Map<string, string>()
+  for (const [base, variants] of baseToVariants) {
+    if (variants.length === 1) promotion.set(base, variants[0])
+  }
+  if (promotion.size > 0) {
+    for (const [raw, canon] of map) {
+      if (promotion.has(canon)) map.set(raw, promotion.get(canon)!)
+    }
+  }
+
   return map
 }
 
