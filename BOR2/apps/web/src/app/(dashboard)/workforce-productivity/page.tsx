@@ -95,10 +95,6 @@ function fmtAxisY(v: number) {
 
 function normalizeAddressLabel(s: string): string {
   let v = s.trim()
-  const lo = v.toLowerCase()
-  if (lo.startsWith('job sites - ') || lo.startsWith('job sites – ')) {
-    v = v.slice(v.indexOf(' - ') + 3)
-  }
   v = v.split(',').map(p => p.trim()).join(', ')
   return v.replace(/\s{2,}/g, ' ').trim()
 }
