@@ -153,10 +153,38 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		}
 	}
 
-	// HistoricoSaldo
+	// Step 1 — Fetch only visible products; build id→name map and visible-ID set.
+	// Archived products (visible=false) must be excluded from all metrics.
+	productNames := map[string]string{} // id-string → nome
+	visibleIDs := map[string]bool{}
+	if body, err := fetch("products", "select=id,nome&visible=eq.true&limit=5000"); err == nil {
+		var rawProducts []map[string]interface{}
+		if json.Unmarshal(body, &rawProducts) == nil {
+			for _, p := range rawProducts {
+				if rawID := p["id"]; rawID != nil {
+					pid := fmt.Sprintf("%v", rawID)
+					visibleIDs[pid] = true
+					if nome, ok := p["nome"].(string); ok && nome != "" {
+						productNames[pid] = nome
+					}
+				}
+			}
+		}
+	}
+
+	// HistoricoSaldo — filter to visible products only
 	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
 		var data []HistoricoSaldo
 		if json.Unmarshal(body, &data) == nil {
+			if len(visibleIDs) > 0 {
+				filtered := data[:0]
+				for _, h := range data {
+					if visibleIDs[string(h.ProductID)] {
+						filtered = append(filtered, h)
+					}
+				}
+				data = filtered
+			}
 			result.HistoricoSaldo = data
 		}
 	}
@@ -174,24 +202,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		var data []GastoUsuario
 		if json.Unmarshal(body, &data) == nil {
 			result.GastosUsuario = data
-		}
-	}
-
-	// Step 1 — Build a product id→name map from the products table (same as BOR1).
-	// This guarantees name-based price lookups work regardless of how product_id
-	// is typed in the view (UUID vs integer).
-	productNames := map[string]string{} // id-string → nome
-	if body, err := fetch("products", "select=id,nome&limit=5000"); err == nil {
-		var rawProducts []map[string]interface{}
-		if json.Unmarshal(body, &rawProducts) == nil {
-			for _, p := range rawProducts {
-				if rawID := p["id"]; rawID != nil {
-					pid := fmt.Sprintf("%v", rawID)
-					if nome, ok := p["nome"].(string); ok && nome != "" {
-						productNames[pid] = nome
-					}
-				}
-			}
 		}
 	}
 
