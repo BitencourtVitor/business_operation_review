@@ -204,6 +204,25 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
 	}
 
+	// Auto-seed machines from catalog based on client (category) + type (subcategory).
+	if _, err := r.db.Exec(ctx, `
+		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_machines)
+		INSERT INTO forecast_machines (id, project_id, category, subcategory, equipment_category, title, unit, status)
+		SELECT max_id.m + ROW_NUMBER() OVER (ORDER BY c.id),
+		       $1,
+		       c.category,
+		       c.subcategory,
+		       c.equipment_category,
+		       c.title,
+		       '',
+		       NULL
+		FROM catalog_forecast_machines c, max_id
+		WHERE LOWER(c.category)    = LOWER($2)
+		  AND LOWER(c.subcategory) = LOWER($3)
+	`, p.ID, p.Cliente, p.Type); err != nil {
+		return fmt.Errorf("seeding machines: %w", err)
+	}
+
 	return nil
 }
 
