@@ -68,7 +68,8 @@ function MonthSelector({
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
         <Select value={year} onValueChange={v => {
-          onYear(v)
+          const y = v ?? year
+          onYear(y)
           if (month && MONTH_NAMES.indexOf(month) + 1 > maxMonth) onMonth('')
         }}>
           <SelectTrigger className="h-9 w-[76px] border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
@@ -79,7 +80,7 @@ function MonthSelector({
           </SelectContent>
         </Select>
         <div className="h-5 w-px shrink-0 bg-border" />
-        <Select value={month || '__placeholder__'} onValueChange={v => onMonth(v === '__placeholder__' ? '' : v)}>
+        <Select value={month || '__placeholder__'} onValueChange={v => onMonth(v === '__placeholder__' ? '' : (v ?? ''))}>
           <SelectTrigger className="h-9 flex-1 border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
             <span className={cn('flex-1 text-left text-sm', !month && 'text-muted-foreground')}>{month || 'Month'}</span>
           </SelectTrigger>
