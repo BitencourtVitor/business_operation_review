@@ -64,9 +64,14 @@ function isClientName(s: string): boolean {
 }
 
 function normalizeWorktype(raw: string): string {
-  if (!raw?.trim() || isClientName(raw)) return "Other"
-  const key = raw.trim().toLowerCase()
-  return WORKTYPE_CANONICAL[key] ?? raw.trim()
+  const v = raw?.trim()
+  if (!v || isClientName(v)) return "Other"
+  // address-like string: starts with number + space + word (e.g. "33 Scott St")
+  if (/^\d+\s+[a-zA-Z]/.test(v)) return "Other"
+  // floor ordinals: "1º", "2º", "3º", "4º", "1°", etc.
+  if (/^\d+[º°ª]$/.test(v)) return "Other"
+  const key = v.toLowerCase()
+  return WORKTYPE_CANONICAL[key] ?? v
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
