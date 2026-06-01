@@ -122,6 +122,8 @@ func main() {
 	workforceRuleRepo        := repository.NewPostgresWorkforceAttributionRuleRepository(db)
 	workforceRuleSvc         := service.NewWorkforceAttributionRuleService(workforceRuleRepo)
 	workforceRuleHandler     := handler.NewWorkforceAttributionRuleHandler(workforceRuleSvc, auditService)
+	qbtWfImportSvc           := service.NewQBTimeWorkforceImportService(workforceUploadRepo)
+	qbtWfImportHandler       := handler.NewQBTimeWorkforceImportHandler(qbtWfImportSvc, auditService)
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
@@ -244,6 +246,9 @@ func main() {
 	api.Get("/qbtime/period-report/periods",    periodReportHandler.GetPeriods)
 	api.Get("/qbtime/period-report/intervals",  periodReportHandler.GetIntervals)
 	api.Get("/qbtime/period-report/accounting", periodReportHandler.GetAccounting)
+
+	// QBTime Workforce Import
+	api.Post("/qbtime/workforce-import", qbtWfImportHandler.Import)
 
 	// QBTime Exceptions
 	qbtimeExceptions := api.Group("/qbtime/exceptions")

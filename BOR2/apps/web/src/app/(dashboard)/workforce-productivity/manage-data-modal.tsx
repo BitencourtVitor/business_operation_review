@@ -6,9 +6,10 @@ import { useWorkforceUploads, useWorkforceUpload, useDeleteWorkforceUpload } fro
 import type { WorkforceUpload } from '@/services/workforce.service'
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { AlertTriangle, Building2, CloudUpload, FileSpreadsheet, GitBranch, Loader2, Trash2, Upload, X } from 'lucide-react'
+import { AlertTriangle, Building2, CloudUpload, FileSpreadsheet, GitBranch, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AttributionRulesModal } from './attribution-rules-modal'
+import { QBTimeImportDialog } from './qbtime-import-dialog'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -247,6 +248,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const deleteUpload = useDeleteWorkforceUpload()
   const [uploadOpen,  setUploadOpen]  = useState(false)
   const [rulesOpen,   setRulesOpen]   = useState(false)
+  const [importOpen,  setImportOpen]  = useState(false)
   const [deletingId,  setDeletingId]  = useState<string | null>(null)
 
   async function handleDelete(id: string) {
@@ -284,6 +286,13 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
           >
             <GitBranch className="h-3.5 w-3.5" />
             Rules
+          </button>
+          <button
+            onClick={() => setImportOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            QB Time Import
           </button>
           <button
             onClick={() => setUploadOpen(true)}
@@ -361,6 +370,9 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
       )}
       {rulesOpen && (
         <AttributionRulesModal onClose={() => setRulesOpen(false)} />
+      )}
+      {importOpen && (
+        <QBTimeImportDialog onClose={() => setImportOpen(false)} />
       )}
     </div>,
     document.body
