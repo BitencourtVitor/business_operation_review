@@ -83,6 +83,23 @@ export const workforceService = {
   deleteUpload: (id: string) =>
     api.delete(`/api/v1/workforce/uploads/${id}`, getToken()),
 
+  qbtimeImport: async (company: string, month: string, overwrite = false) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/api/v1/qbtime/workforce-import`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ company, month, overwrite }),
+      },
+    )
+    const json = await res.json()
+    if (!res.ok) return { ok: false as const, status: res.status, error: json.error ?? "Import failed" }
+    return { ok: true as const, ...json.data }
+  },
+
   // ── Attribution Rules ──────────────────────────────────────────────────────
   listRules: () =>
     api.get<AttributionRule[]>("/api/v1/workforce/rules", getToken()),
