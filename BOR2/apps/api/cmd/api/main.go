@@ -300,7 +300,6 @@ func main() {
 	// OFI — read/write under standard auth; calculate under cron-or-admin guard
 	ofi := api.Group("/ofi")
 	ofi.Get("/",                        ofiHandler.List)
-	ofi.Get("/live",                    ofiHandler.LiveScores)
 	ofi.Get("/monthly-execution",       ofiHandler.ListExecution)
 	ofi.Patch("/monthly-execution/:id", ofiHandler.UpdateExecutionReason)
 	// POST /calculate is outside RequireAuth so the cron binary can call it with X-Cron-Secret
