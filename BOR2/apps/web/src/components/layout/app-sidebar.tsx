@@ -87,12 +87,16 @@ type NavGroup = {
   items: NavItem[]
 }
 
-// Active — ordered to match BOR1 canonical sequence
-// BOR1: OFI → Monthly Execution → Workforce Productivity → Inventory → Permits → Forecast → Service Requests → Accounting → Building Schedule
 const activeGroup: NavGroup = {
   items: [
-    { title: "Operational Forecast Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
-    { title: "Monthly Execution",    href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    { title: "Monthly Execution",          href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    { title: "Operational Forecast Index", href: "/ofi",               icon: BarChart2,     permKey: "ofi"              },
+    {
+      title: "Framing Forecast", href: "/forecast",
+      image: "/images/sublogo_framing.png",
+      permKey: "forecast",
+      metricsHref: "/forecast/metrics",
+    },
     {
       title: "Workforce Productivity", href: "/workforce-productivity", icon: Users,
       permKey: "workforce",
@@ -105,12 +109,6 @@ const activeGroup: NavGroup = {
     },
     { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
     { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
-    {
-      title: "Framing Forecast", href: "/forecast",
-      image: "/images/sublogo_framing.png",
-      permKey: "forecast",
-      metricsHref: "/forecast/metrics",
-    },
     { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
       title: "Accounting", href: "/accounting", icon: Banknote,
