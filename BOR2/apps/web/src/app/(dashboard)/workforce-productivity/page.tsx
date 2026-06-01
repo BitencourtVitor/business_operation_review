@@ -39,7 +39,6 @@ const WORKTYPE_CANONICAL: Record<string, string> = {
   "back charge":         "Back Charge",
   "new installation":    "New Installation",
   "new instalation":     "New Installation",
-  "callahan":            "Callahan",
   "lunch break":         "Lunch Break",
   "lunch break office":  "Lunch Break Office",
   "lunch break es":      "Lunch Break",
@@ -58,7 +57,14 @@ const WORKTYPE_CANONICAL: Record<string, string> = {
   "unregistered location": "Unregistered Location",
 }
 
+const CLIENT_PREFIXES = ['pulte homes', 'toll brothers', 'callahan', 'job sites']
+function isClientName(s: string): boolean {
+  const lo = s.trim().toLowerCase()
+  return CLIENT_PREFIXES.some(c => lo.startsWith(c))
+}
+
 function normalizeWorktype(raw: string): string {
+  if (!raw?.trim() || isClientName(raw)) return "Other"
   const key = raw.trim().toLowerCase()
   return WORKTYPE_CANONICAL[key] ?? raw.trim()
 }
@@ -323,9 +329,7 @@ export default function WorkforceProductivityPage() {
   , [allRows, addressCanonicalMap])
 
   const worktypeCanonicalMap = useMemo(() => {
-    const clientNames = ['pulte homes', 'toll brothers', 'callahan', 'job sites']
-    const isClient = (w: string) => clientNames.some(c => w.toLowerCase().startsWith(c))
-    const raw = Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClient(w)) as string[]
+    const raw = Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClientName(w)) as string[]
     // JW dedup: "Normal Labor" / "Normal labor" → single canonical
     const normCanon: string[] = [], origCanon: string[] = [], map = new Map<string, string>()
     for (const w of raw) {
@@ -393,7 +397,7 @@ export default function WorkforceProductivityPage() {
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const raw = r.worktype || r.client || r.jobsite || "Other"
+      const raw = r.worktype || "Other"
       const wt = normalizeWorktype(raw)
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
@@ -410,7 +414,7 @@ export default function WorkforceProductivityPage() {
   const topJobsites = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const label = getJobsiteLabel(r)
+      const label = canonical(getJobsiteLabel(r))
       map[label] = (map[label] ?? 0) + r.regularHours
     })
     return Object.entries(map)
@@ -427,7 +431,7 @@ export default function WorkforceProductivityPage() {
 
   const spWorktypes = useMemo(() =>
     isSingleProject
-      ? Array.from(new Set(rows.map(r => r.worktype || r.client || r.jobsite || "Other")))
+      ? Array.from(new Set(rows.map(r => normalizeWorktype(r.worktype || "Other"))))
       : []
   , [rows, isSingleProject])
 
@@ -444,7 +448,7 @@ export default function WorkforceProductivityPage() {
       spWorktypes.forEach(wt => {
         entry[wt] = Math.round(
           mRows
-            .filter(r => (r.worktype || r.client || r.jobsite || "Other") === wt)
+            .filter(r => normalizeWorktype(r.worktype || "Other") === wt)
             .reduce((s, r) => s + r.regularHours, 0)
         )
       })
@@ -457,7 +461,7 @@ export default function WorkforceProductivityPage() {
     if (!isSingleProject) return []
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = r.worktype || r.client || r.jobsite || "Other"
+      const wt = normalizeWorktype(r.worktype || "Other")
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
