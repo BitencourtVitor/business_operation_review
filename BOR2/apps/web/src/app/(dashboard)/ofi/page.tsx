@@ -309,7 +309,7 @@ export default function OFIPage() {
       number,
       { sum: number; fw: number; mc: number; ct: number; sy: number; n: number }
     > = {}
-    mergedData.forEach(r => {
+    allData.forEach(r => {
       const m = r.referenceMonth
       if (!map[m]) map[m] = { sum: 0, fw: 0, mc: 0, ct: 0, sy: 0, n: 0 }
       map[m].sum += r.totalScore
