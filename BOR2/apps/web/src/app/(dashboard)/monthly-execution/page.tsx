@@ -337,11 +337,12 @@ export default function MonthlyExecutionPage() {
       const ofi = bor2Ofi.filter(e => e.referenceMonth === m)
       const exe = allYear.filter(e => e.referenceMonth === m)
       const started = exe.length ? (exe.filter(e => !isNotStarted(e)).length || null) : null
-      // January 2026: no real execution records exist in any DB — hardcoded from BOR1 legacy
-      const startedFinal = (m === 1 && started === null) ? 10 : started
+      // January 2026: no execution history exists — hardcoded from BOR1 legacy
+      const startedFinal  = (m === 1 && started === null) ? 10 : started
+      const plannedFinal  = exe.length || (m === 1 ? (ofi.length || null) : null)
       return {
         month:   label,
-        planned: exe.length || null,
+        planned: plannedFinal,
         started: startedFinal,
       }
     }),
