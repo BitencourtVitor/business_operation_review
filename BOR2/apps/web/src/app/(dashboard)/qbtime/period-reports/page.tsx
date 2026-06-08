@@ -3,15 +3,13 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import * as XLSX from "xlsx"
-import { useQueryClient } from "@tanstack/react-query"
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban, RefreshCw, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { usePayPeriods, usePeriodIntervals, usePeriodAccounting } from "@/hooks/use-qbtime-period-report"
-import { periodReportService } from "@/services/qbtime-period-report.service"
 import { UnpaidAddressesModal } from "./unpaid-addresses-modal"
 import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals, IntervalsResponse } from "@/services/qbtime-period-report.service"
 
@@ -428,8 +426,6 @@ export default function PeriodReportsPage() {
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
   const [groupBy,      setGroupBy]      = useState<"name" | "team">("name")
   const [addressesOpen, setAddressesOpen] = useState(false)
-  const [refreshing,   setRefreshing]   = useState(false)
-  const queryClient = useQueryClient()
 
   const { data: periodsData, isLoading: periodsLoading } = usePayPeriods(company)
   const periods = periodsData?.periods ?? []
@@ -511,21 +507,6 @@ export default function PeriodReportsPage() {
   function handleExportPDF() {
     if (activeTab === "accounting" && accounting) doExportPDF(accounting.rows, company, periodLabel)
     else if (activeTab === "intervals" && intervals) doExportIntervalsPDF(intervals, company, periodLabel)
-  }
-
-  // Manual upsert: pull the last ~3 months from QB Time so corrections made
-  // directly in QuickBooks land in our cache and the report right away.
-  async function handleRefresh() {
-    if (refreshing) return
-    setRefreshing(true)
-    try {
-      await periodReportService.refresh(company, 100)
-      await queryClient.invalidateQueries({ queryKey: ["qbtime-period-report"] })
-    } catch {
-      // surfaced by the report's own error states; nothing to do here
-    } finally {
-      setRefreshing(false)
-    }
   }
 
   const canExport =
@@ -662,23 +643,6 @@ export default function PeriodReportsPage() {
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
-              </div>
-            </>
-          )}
-
-          {/* Update — manual cache refresh (applies QuickBooks corrections) */}
-          {period && (
-            <>
-              <div className="self-stretch w-px bg-border" />
-              <div className="pb-0.5">
-                <Button
-                  variant="outline" size="sm" className="h-8 gap-2"
-                  onClick={handleRefresh} disabled={refreshing}
-                  title="Pull the last 3 months from QuickBooks Time and apply any corrections"
-                >
-                  {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  {refreshing ? "Updating…" : "Update"}
-                </Button>
               </div>
             </>
           )}
