@@ -70,6 +70,8 @@ func main() {
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
 	qbtimeTeamRepo       := repository.NewPostgresQBTimeTeamRepository(db)
 	qbtimeExceptionsRepo := repository.NewPostgresQBTimeExceptionsRepository(db)
+	qbtimePeriodCacheRepo := repository.NewPostgresQBTimePeriodCacheRepository(db)
+	qbtimeUnpaidAddrRepo  := repository.NewPostgresQBTimeUnpaidAddressRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -132,7 +134,7 @@ func main() {
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	weeklyReportSvc          := service.NewWeeklyReportService()
 	weeklyReportHandler      := handler.NewWeeklyReportHandler(weeklyReportSvc)
-	periodReportSvc          := service.NewPeriodReportService(qbtimeTeamRepo)
+	periodReportSvc          := service.NewPeriodReportService(qbtimeTeamRepo, qbtimePeriodCacheRepo, qbtimeUnpaidAddrRepo)
 	periodReportHandler      := handler.NewPeriodReportHandler(periodReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
@@ -243,9 +245,14 @@ func main() {
 	api.Get("/qbtime/weekly-report", weeklyReportHandler.Get)
 
 	// QBTime Period Report
-	api.Get("/qbtime/period-report/periods",    periodReportHandler.GetPeriods)
-	api.Get("/qbtime/period-report/intervals",  periodReportHandler.GetIntervals)
-	api.Get("/qbtime/period-report/accounting", periodReportHandler.GetAccounting)
+	api.Get("/qbtime/period-report/periods",            periodReportHandler.GetPeriods)
+	api.Get("/qbtime/period-report/intervals",          periodReportHandler.GetIntervals)
+	api.Get("/qbtime/period-report/accounting",         periodReportHandler.GetAccounting)
+	api.Get("/qbtime/period-report/addresses",          periodReportHandler.ListAddresses)
+	api.Post("/qbtime/period-report/unpaid-addresses",  periodReportHandler.SetUnpaidAddress)
+	api.Post("/qbtime/period-report/refresh",           periodReportHandler.Refresh)
+	// Sync is cron-guarded (outside RequireAuth) so the scheduler can refresh the cache.
+	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
 
 	// QBTime Workforce Import
 	api.Post("/qbtime/workforce-import", qbtWfImportHandler.Import)

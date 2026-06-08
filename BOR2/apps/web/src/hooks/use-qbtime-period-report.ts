@@ -37,3 +37,12 @@ export function usePeriodAccounting(
     staleTime: 0,
   })
 }
+
+export function usePeriodAddresses(company: string, enabled = true) {
+  return useQuery({
+    queryKey: ["qbtime-period-report", "addresses", company],
+    queryFn:  () => periodReportService.listAddresses(company),
+    enabled:  enabled && !!company,
+    staleTime: 60 * 1000,
+  })
+}

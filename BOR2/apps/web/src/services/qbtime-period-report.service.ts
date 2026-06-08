@@ -84,6 +84,13 @@ export interface AccountingResponse {
   totals:    AccountingTotals
 }
 
+// ── Addresses (Pillar 2) ────────────────────────────────────────────────────────
+
+export interface PeriodAddress {
+  address: string
+  unpaid:  boolean
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const periodReportService = {
@@ -102,6 +109,26 @@ export const periodReportService = {
   getAccounting: (company: string, startDate: string, endDate: string) =>
     api.get<AccountingResponse>(
       `/api/v1/qbtime/period-report/accounting?company=${encodeURIComponent(company)}&start_date=${startDate}&end_date=${endDate}`,
+      getToken(),
+    ),
+
+  listAddresses: (company: string) =>
+    api.get<PeriodAddress[]>(
+      `/api/v1/qbtime/period-report/addresses?company=${encodeURIComponent(company)}`,
+      getToken(),
+    ),
+
+  setUnpaidAddress: (company: string, address: string, unpaid: boolean) =>
+    api.post<{ address: string; unpaid: boolean }>(
+      `/api/v1/qbtime/period-report/unpaid-addresses`,
+      { company, address, unpaid },
+      getToken(),
+    ),
+
+  refresh: (company: string, days = 100) =>
+    api.post<{ company: string; days: number; status: string }>(
+      `/api/v1/qbtime/period-report/refresh?company=${encodeURIComponent(company)}&days=${days}`,
+      {},
       getToken(),
     ),
 }
