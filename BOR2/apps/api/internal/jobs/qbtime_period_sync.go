@@ -27,12 +27,12 @@ func NewQBTimePeriodSyncJob(cfg QBTimePeriodSyncConfig) Job {
 		Run: func(ctx context.Context) error {
 			results := cfg.Svc.SyncAll(ctx, days)
 			var failed, succeeded int
-			for _, r := range results {
-				if r.Err != nil {
+			for company, status := range results {
+				if status != "ok" {
 					failed++
 					logger.Error("qbtime period sync: company failed",
-						"company", r.Company,
-						"error", r.Err,
+						"company", company,
+						"status", status,
 					)
 				} else {
 					succeeded++
