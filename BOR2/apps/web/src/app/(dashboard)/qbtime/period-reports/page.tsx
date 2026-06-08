@@ -93,19 +93,53 @@ function isHolidayBlock(block: PeriodBlock): boolean {
   return block.jobcodePath.some(p => p.toLowerCase().includes("holiday"))
 }
 
+// Identity used to color a block by its address: client › jobsite › lot, dropping
+// the work-type leaf so e.g. "Service" and "Install" at the same lot share a color.
+// Returns null for special/non-address blocks, which keep their default styling.
+function addressKey(block: PeriodBlock): string | null {
+  if (!block.isPaid) return null
+  if (isLunchBlock(block) || isSickBlock(block) || isVacationBlock(block) || isHolidayBlock(block)) return null
+  const path = block.jobcodePath
+  if (path.length === 0) return null
+  const ident = path.length > 1 ? path.slice(0, -1) : path
+  return ident.join(" › ")
+}
+
+// Assigns each distinct address an evenly-spaced hue so colors are maximally
+// separated across the addresses currently visible (company + period + day filter).
+function buildAddressColors(keys: string[]): Map<string, string> {
+  const sorted = [...keys].sort()
+  const n = Math.max(sorted.length, 1)
+  const map = new Map<string, string>()
+  sorted.forEach((k, i) => {
+    const hue = Math.round((i / n) * 360)
+    map.set(k, `hsl(${hue} 60% 50%)`)
+  })
+  return map
+}
+
 function TimelineBlock({
-  block, dayStart, dayEnd,
+  block, dayStart, dayEnd, layout, addressColors,
 }: {
   block: PeriodBlock
   dayStart: number
   dayEnd: number
+  layout: BlockLayout
+  addressColors: Map<string, string>
 }) {
   const range = Math.max(dayEnd - dayStart, 1)
   const s     = Math.max(isoToMinutes(block.start), dayStart)
   const e     = Math.min(block.end ? isoToMinutes(block.end) : dayEnd, dayEnd)
-  const left  = ((s - dayStart) / range) * 100
-  const width = Math.max(((e - s) / range) * 100, 0.5)
+  const originalWidth = ((e - s) / range) * 100
+  const isTiny   = block.durationMinutes < 5 // under 5 min → fixed-width pill
+
+  // Use layout-adjusted left and width if available
+  const left = layout.finalLeft
+  const width = layout.finalWidth
+
+  if (width <= 0) return null
   const { bg, text } = blockColor(block)
+  const addrColor = addressColors.get(addressKey(block) ?? "")
   const isLunch    = isLunchBlock(block)
   const isSick     = isSickBlock(block)
   const isVacation = isVacationBlock(block)
@@ -117,16 +151,23 @@ function TimelineBlock({
     <Tooltip>
       <TooltipTrigger
         render={
-          <div
-            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center gap-1 px-1.5 cursor-default select-none ${isLunch ? "justify-center" : ""}`}
-            style={{ left: `${left}%`, width: `calc(${width}% - 3px)` }}
-          />
+          isTiny ? (
+            <div
+              className={`absolute top-0 h-full rounded-sm cursor-default z-10 ${addrColor ? "" : bg}`}
+              style={{ left: `${left}%`, width: `${width}%`, minWidth: "4px", ...(addrColor ? { backgroundColor: addrColor } : {}) }}
+            />
+          ) : (
+            <div
+              className={`absolute top-0 h-full ${addrColor ? "text-white dark:text-black" : `${bg} ${text}`} rounded-sm overflow-hidden flex items-center gap-1 px-1.5 cursor-default select-none ${isLunch ? "justify-center" : ""}`}
+              style={{ left: `${left}%`, width: `${width}%`, ...(addrColor ? { backgroundColor: addrColor } : {}) }}
+            />
+          )
         }
       >
-        {BlockIcon && width > 2 && <BlockIcon className="h-4 w-4 shrink-0 opacity-90" />}
-        {!isLunch && (
+        {!isTiny && BlockIcon && <BlockIcon className="h-4 w-4 shrink-0 opacity-90" />}
+        {!isTiny && !isLunch && (
           <span className="text-[10px] font-medium truncate leading-none">
-            {width > 4 ? label : ""}
+            {originalWidth > 4 ? label : ""}
           </span>
         )}
       </TooltipTrigger>
@@ -170,9 +211,58 @@ function TimeGridHeader({ gridStart, gridEnd }: { gridStart: number; gridEnd: nu
   )
 }
 
+// ── Layout adjustment for tiny blocks ──────────────────────────────────────────
+
+interface BlockLayout {
+  originalLeft: number
+  originalWidth: number
+  finalLeft: number
+  finalWidth: number
+}
+
+function calculateBlockLayouts(blocks: PeriodBlock[], dayStart: number, dayEnd: number): BlockLayout[] {
+  const range = Math.max(dayEnd - dayStart, 1)
+  const MIN_WIDTH_PERCENT = 0.7 // Minimum visible width for tiny blocks (keeps them hoverable)
+  const GAP_PERCENT = 0.35      // Gap enforced between consecutive blocks
+
+  // Step 1: Natural (time-proportional) position for every block
+  const original = blocks.map(b => {
+    const s = Math.max(isoToMinutes(b.start), dayStart)
+    const e = Math.min(b.end ? isoToMinutes(b.end) : dayEnd, dayEnd)
+    const left = ((s - dayStart) / range) * 100
+    const width = ((e - s) / range) * 100
+    const isTiny = b.durationMinutes < 5
+    return { left, width, isTiny }
+  })
+
+  // Step 2: Expand tiny blocks to the minimum width, centered on their midpoint
+  const layouts: BlockLayout[] = original.map(o => {
+    const expand = o.isTiny && o.width < MIN_WIDTH_PERCENT
+    const finalWidth = expand ? MIN_WIDTH_PERCENT : o.width
+    const finalLeft  = expand ? o.left - (finalWidth - o.width) / 2 : o.left
+    return { originalLeft: o.left, originalWidth: o.width, finalLeft, finalWidth }
+  })
+
+  // Step 3: Resolve overlaps left-to-right. A block keeps its natural position
+  // unless it would collide with the previous one — then it's nudged just enough
+  // to clear it plus the gap. Blocks with natural breathing room are untouched.
+  for (let i = 1; i < layouts.length; i++) {
+    const prev = layouts[i - 1]
+    const minLeft = prev.finalLeft + prev.finalWidth + GAP_PERCENT
+    if (layouts[i].finalLeft < minLeft) layouts[i].finalLeft = minLeft
+  }
+
+  return layouts
+}
+
 // ── Day Row ───────────────────────────────────────────────────────────────────
 
-function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number; gridEnd: number }) {
+function DayRow({ day, gridStart, gridEnd, addressColors }: { day: PeriodDay; gridStart: number; gridEnd: number; addressColors: Map<string, string> }) {
+  const blockLayouts = useMemo(
+    () => calculateBlockLayouts(day.blocks, gridStart, gridEnd),
+    [day.blocks, gridStart, gridEnd],
+  )
+
   return (
     <div className="flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-2 py-2 transition-colors hover:border-foreground/30">
       <div className="w-24 shrink-0">
@@ -182,7 +272,7 @@ function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number
       <div className="min-w-0 flex-1">
         <div className="relative h-8 overflow-hidden rounded-md bg-muted/40 ring-1 ring-border/40">
           {day.blocks.map((b, i) => (
-            <TimelineBlock key={i} block={b} dayStart={gridStart} dayEnd={gridEnd} />
+            <TimelineBlock key={i} block={b} dayStart={gridStart} dayEnd={gridEnd} layout={blockLayouts[i]} addressColors={addressColors} />
           ))}
         </div>
       </div>
@@ -193,7 +283,7 @@ function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number
 // ── Employee Card ─────────────────────────────────────────────────────────────
 
 function EmployeeIntervalCard({
-  employee, selectedDay, open, onToggle, gridStart, gridEnd,
+  employee, selectedDay, open, onToggle, gridStart, gridEnd, addressColors,
 }: {
   employee: PeriodEmployee
   selectedDay: string | null
@@ -201,6 +291,7 @@ function EmployeeIntervalCard({
   onToggle: () => void
   gridStart: number
   gridEnd: number
+  addressColors: Map<string, string>
 }) {
   const days = selectedDay ? employee.days.filter(d => d.date === selectedDay) : employee.days
   if (!days.length) return null
@@ -228,7 +319,7 @@ function EmployeeIntervalCard({
       {open && (
         <div className="flex flex-col gap-1.5 px-4 pb-3">
           <TimeGridHeader gridStart={gridStart} gridEnd={gridEnd} />
-          {days.map(day => <DayRow key={day.date} day={day} gridStart={gridStart} gridEnd={gridEnd} />)}
+          {days.map(day => <DayRow key={day.date} day={day} gridStart={gridStart} gridEnd={gridEnd} addressColors={addressColors} />)}
         </div>
       )}
     </div>
@@ -514,6 +605,21 @@ export default function PeriodReportsPage() {
   }, [intervals, allDays, selectedDay])
 
   const allCollapsed = visibleEmployees.length > 0 && visibleEmployees.every(e => collapsed.has(e.name))
+
+  // One distinct color per address across everything visible (company + period + day filter).
+  const addressColors = useMemo(() => {
+    const keys = new Set<string>()
+    for (const emp of visibleEmployees) {
+      for (const d of emp.days) {
+        if (!allDays && d.date !== selectedDay) continue
+        for (const b of d.blocks) {
+          const k = addressKey(b)
+          if (k) keys.add(k)
+        }
+      }
+    }
+    return buildAddressColors([...keys])
+  }, [visibleEmployees, allDays, selectedDay])
 
   // Global time grid shared across all employee cards so every row aligns.
   const { globalGridStart, globalGridEnd } = useMemo(() => {
@@ -816,6 +922,7 @@ export default function PeriodReportsPage() {
                         onToggle={() => toggleEmployee(emp.name)}
                         gridStart={globalGridStart}
                         gridEnd={globalGridEnd}
+                        addressColors={addressColors}
                       />
                     ))}
                   </div>
