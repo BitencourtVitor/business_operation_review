@@ -54,7 +54,7 @@ export function UnpaidAddressesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] max-w-2xl flex-col" showCloseButton>
+      <DialogContent className="flex max-h-[85vh] sm:max-w-3xl flex-col" showCloseButton>
         <DialogHeader>
           <DialogTitle>Paid / Unpaid addresses</DialogTitle>
           <DialogDescription>
