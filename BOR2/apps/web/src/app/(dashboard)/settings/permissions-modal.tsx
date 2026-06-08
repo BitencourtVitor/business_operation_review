@@ -60,9 +60,10 @@ const PERMISSION_GROUPS: PermGroup[] = [
         label: "QBTime Reports",
         image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
         children: [
-          { key: "autolog",      label: "Auto Log",             icon: ImageIcon     },
-          { key: "weekly_hours", label: "Weekly Hours Control", icon: CalendarClock },
-          { key: "whos_working", label: "Who's Working",        icon: UserCheck     },
+          { key: "autolog",        label: "Auto Log",             icon: ImageIcon     },
+          { key: "weekly_hours",  label: "Weekly Hours Control", icon: CalendarClock },
+          { key: "whos_working",  label: "Who's Working",        icon: UserCheck     },
+          { key: "period_reports", label: "Period Reports",      icon: Banknote      },
         ],
       },
     ],

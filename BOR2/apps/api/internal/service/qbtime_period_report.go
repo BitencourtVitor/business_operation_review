@@ -17,6 +17,10 @@ import (
 	"github.com/bitencourtVitor/bor2-api/internal/repository"
 )
 
+// pathSepPR matches the frontend's formatPath join so stored "unpaid address"
+// strings line up with what is displayed.
+const pathSepPR = " › "
+
 // ── QB Time API response shapes (local) ──────────────────────────────────────
 
 type periodTSItem struct {
@@ -82,16 +86,28 @@ type usersResp struct {
 type PeriodReportService struct {
 	httpClient *http.Client
 	teamRepo   repository.QBTimeTeamRepository
+	cacheRepo  repository.QBTimePeriodCacheRepository
+	unpaidRepo repository.QBTimeUnpaidAddressRepository
 }
 
-func NewPeriodReportService(teamRepo repository.QBTimeTeamRepository) *PeriodReportService {
+func NewPeriodReportService(
+	teamRepo repository.QBTimeTeamRepository,
+	cacheRepo repository.QBTimePeriodCacheRepository,
+	unpaidRepo repository.QBTimeUnpaidAddressRepository,
+) *PeriodReportService {
 	return &PeriodReportService{
 		httpClient: &http.Client{Timeout: 60 * time.Second},
 		teamRepo:   teamRepo,
+		cacheRepo:  cacheRepo,
+		unpaidRepo: unpaidRepo,
 	}
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
+
+func joinPathPR(p []string) string {
+	return strings.Join(p, pathSepPR)
+}
 
 func (s *PeriodReportService) fetchJobcodes(ctx context.Context, token string, seed map[int]periodJobcodeItem) (map[int]string, map[int]int) {
 	nameByID := make(map[int]string)
@@ -104,9 +120,8 @@ func (s *PeriodReportService) fetchJobcodes(ctx context.Context, token string, s
 		}
 	}
 
-	// Page through ALL jobcodes (active + inactive). The accounting/payroll report
-	// references archived jobcodes and parents that a single active-only page misses,
-	// which is why unresolved IDs showed up as "Jobcode 12345".
+	// Page through ALL jobcodes (active + inactive) to backfill any names the
+	// timesheet supplemental data did not already include.
 	for page := 1; ; page++ {
 		url := fmt.Sprintf("%s/jobcodes?active=both&per_page=200&page=%d", qbtBaseURL, page)
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -232,75 +247,95 @@ func round2(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
-// ── GetPayPeriods ─────────────────────────────────────────────────────────────
+// ── Pay periods ────────────────────────────────────────────────────────────────
 
-func (s *PeriodReportService) GetPayPeriods(ctx context.Context, company string) (*domain.PayPeriodsResponse, error) {
+type periodRange struct{ start, end string }
+
+func payPeriodAnchorPR(company string) time.Time {
 	// Bi-weekly pay-period anchors (period END date) per company, matching the
-	// schedules configured in QuickBooks Time. The cadence is fixed, so a single
-	// known end date deterministically defines every period. HVAC and Framing are
-	// offset from each other by one week.
-	anchorStr := map[string]string{
+	// schedules configured in QuickBooks Time. The cadence is fixed, so one known
+	// end date deterministically defines every period; HVAC and Framing are offset
+	// from each other by one week.
+	str := map[string]string{
 		"framing": "2026-06-13", // period 05/31 – 06/13
 		"hvac":    "2026-06-20", // period 06/07 – 06/20
 		"pcg":     "2026-06-20",
 	}[strings.ToLower(company)]
-	if anchorStr == "" {
-		anchorStr = "2026-06-20"
+	if str == "" {
+		str = "2026-06-20"
 	}
+	t, _ := time.Parse("2006-01-02", str)
+	return t
+}
 
-	anchor, err := time.Parse("2006-01-02", anchorStr)
-	if err != nil {
-		return nil, fmt.Errorf("parse pay-period anchor %q: %w", anchorStr, err)
-	}
-
-	// currentEnd = end of the period containing today (first boundary on/after
-	// today). Boundaries fall on anchor + 14·k; align via modular arithmetic so it
-	// is correct whether the anchor sits in the past or the future.
+// recentPayPeriods returns the most recent `count` pay periods (newest first),
+// aligned to the company anchor regardless of where "today" sits.
+func recentPayPeriods(company string, count int) []periodRange {
+	anchor := payPeriodAnchorPR(company)
 	today := time.Now().Truncate(24 * time.Hour)
 	offset := ((int(math.Round(today.Sub(anchor).Hours()/24)) % 14) + 14) % 14
 	currentEnd := today
 	if offset != 0 {
 		currentEnd = today.AddDate(0, 0, 14-offset)
 	}
-
-	// Build list of last 12 periods (most recent first)
-	const numPeriods = 12
-	periods := make([]domain.PayPeriod, 0, numPeriods)
-	for i := 0; i < numPeriods; i++ {
+	out := make([]periodRange, 0, count)
+	for i := 0; i < count; i++ {
 		end := currentEnd.AddDate(0, 0, -14*i)
 		start := end.AddDate(0, 0, -13)
-
-		var label string
-		switch {
-		case start.Year() != end.Year():
-			label = fmt.Sprintf("%s – %s", start.Format("Jan 2, 2006"), end.Format("Jan 2, 2006"))
-		case start.Month() == end.Month():
-			// Same month: "May 18–31, 2026"
-			label = fmt.Sprintf("%s–%d, %d", start.Format("Jan 2"), end.Day(), end.Year())
-		default:
-			// Same year, different month: "Apr 26 – May 9, 2026"
-			label = fmt.Sprintf("%s – %s", start.Format("Jan 2"), end.Format("Jan 2, 2006"))
-		}
-
-		periods = append(periods, domain.PayPeriod{
-			Label:     label,
-			StartDate: start.Format("2006-01-02"),
-			EndDate:   end.Format("2006-01-02"),
+		out = append(out, periodRange{
+			start: start.Format("2006-01-02"),
+			end:   end.Format("2006-01-02"),
 		})
 	}
+	return out
+}
 
+func payPeriodsOverlapping(company, startDate, endDate string) []periodRange {
+	var out []periodRange
+	for _, p := range recentPayPeriods(company, 10) {
+		if p.end >= startDate && p.start <= endDate { // YYYY-MM-DD compares lexically
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+func formatPeriodLabelPR(start, end time.Time) string {
+	switch {
+	case start.Year() != end.Year():
+		return fmt.Sprintf("%s – %s", start.Format("Jan 2, 2006"), end.Format("Jan 2, 2006"))
+	case start.Month() == end.Month():
+		return fmt.Sprintf("%s–%d, %d", start.Format("Jan 2"), end.Day(), end.Year())
+	default:
+		return fmt.Sprintf("%s – %s", start.Format("Jan 2"), end.Format("Jan 2, 2006"))
+	}
+}
+
+// ── GetPayPeriods ─────────────────────────────────────────────────────────────
+
+func (s *PeriodReportService) GetPayPeriods(ctx context.Context, company string) (*domain.PayPeriodsResponse, error) {
+	ranges := recentPayPeriods(company, 12)
+	periods := make([]domain.PayPeriod, 0, len(ranges))
+	for _, r := range ranges {
+		start, _ := time.Parse("2006-01-02", r.start)
+		end, _ := time.Parse("2006-01-02", r.end)
+		periods = append(periods, domain.PayPeriod{
+			Label:     formatPeriodLabelPR(start, end),
+			StartDate: r.start,
+			EndDate:   r.end,
+		})
+	}
 	return &domain.PayPeriodsResponse{Company: company, Periods: periods}, nil
 }
 
-// ── GetIntervals ──────────────────────────────────────────────────────────────
+// ── Live timesheet fetch ───────────────────────────────────────────────────────
 
-func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDate, endDate string) (*domain.IntervalsResponse, error) {
+func (s *PeriodReportService) fetchTimesheetsLive(ctx context.Context, company, startDate, endDate string) ([]domain.QBTimesheetRow, error) {
 	token := qbtToken(company)
 	if token == "" {
 		return nil, fmt.Errorf("no QB Time token for company %q", company)
 	}
 
-	// Fetch all timesheets (regular + break) for the period, paginated
 	allTS := make(map[string]periodTSItem)
 	allUsers := make(map[string]periodUserItem)
 	allJCSeed := make(map[int]periodJobcodeItem)
@@ -344,26 +379,20 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 
 	nameByID, parentByID := s.fetchJobcodes(ctx, token, allJCSeed)
 
-	// user lookup: id → "First Last"
 	userByID := make(map[int]string)
 	for _, u := range allUsers {
 		userByID[u.ID] = strings.TrimSpace(u.FirstName + " " + u.LastName)
 	}
 
-	// aggregate: name → date → []blocks
-	type empDateKey struct{ name, date string }
-	blocksMap := make(map[empDateKey][]domain.PeriodBlock)
-
+	rows := make([]domain.QBTimesheetRow, 0, len(allTS))
 	for _, ts := range allTS {
 		name := userByID[ts.UserID]
 		if name == "" {
 			continue
 		}
-
 		path := resolveJobcodePathPR(ts.JobcodeID, nameByID, parentByID)
 		isPaid := ts.Type == "regular"
 		if ts.Type == "break" {
-			// paid break if jobcode name contains "paid" (case-insensitive)
 			for _, p := range path {
 				if strings.Contains(strings.ToLower(p), "paid") {
 					isPaid = true
@@ -371,66 +400,56 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 				}
 			}
 		}
+		rows = append(rows, domain.QBTimesheetRow{
+			Company:     company,
+			QBTID:       int64(ts.ID),
+			UserID:      int64(ts.UserID),
+			UserName:    name,
+			JobcodeID:   int64(ts.JobcodeID),
+			JobcodePath: path,
+			WorkDate:    ts.Date,
+			Start:       ts.Start,
+			End:         ts.End,
+			DurationMin: ts.Duration / 60,
+			Type:        ts.Type,
+			IsPaid:      isPaid,
+		})
+	}
+	return rows, nil
+}
 
-		durationMinutes := ts.Duration / 60
+// ── Assemble intervals from rows (cache or live) ───────────────────────────────
 
-		key := empDateKey{name, ts.Date}
+func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, startDate, endDate string, rows []domain.QBTimesheetRow, unpaid map[string]bool) *domain.IntervalsResponse {
+	type empDateKey struct{ name, date string }
+	blocksMap := make(map[empDateKey][]domain.PeriodBlock)
+
+	for _, r := range rows {
+		if r.UserName == "" {
+			continue
+		}
+		// Operator override (Pillar 2): a flagged address forces unpaid regardless
+		// of the QB Time type.
+		effectivePaid := r.IsPaid && !unpaid[joinPathPR(r.JobcodePath)]
+
+		key := empDateKey{r.UserName, r.WorkDate}
 		blocksMap[key] = append(blocksMap[key], domain.PeriodBlock{
-			Start:           ts.Start,
-			End:             ts.End,
-			DurationMinutes: durationMinutes,
-			JobcodePath:     path,
-			Type:            ts.Type,
-			IsPaid:          isPaid,
+			Start:           r.Start,
+			End:             r.End,
+			DurationMinutes: r.DurationMin,
+			JobcodePath:     r.JobcodePath,
+			Type:            r.Type,
+			IsPaid:          effectivePaid,
 		})
 	}
 
-	// sort blocks within each day by start time
 	for k := range blocksMap {
 		sort.Slice(blocksMap[k], func(i, j int) bool {
 			return blocksMap[k][i].Start < blocksMap[k][j].Start
 		})
 	}
 
-	// collect unique (name, date) pairs
-	type nameDate struct{ name, date string }
-	pairSet := make(map[nameDate]bool)
-	for k := range blocksMap {
-		pairSet[nameDate{k.name, k.date}] = true
-	}
-
-	// build per-employee map: name → []days
-	empDays := make(map[string]map[string]domain.PeriodDay)
-	for nd := range pairSet {
-		key := empDateKey{nd.name, nd.date}
-		blocks := blocksMap[key]
-
-		t, _ := time.Parse("2006-01-02", nd.date)
-		paidMinutes := 0
-		for _, b := range blocks {
-			if b.IsPaid {
-				paidMinutes += b.DurationMinutes
-			}
-		}
-		paidHours := round2(float64(paidMinutes) / 60.0)
-
-		day := domain.PeriodDay{
-			Date:         nd.date,
-			DayName:      t.Weekday().String(),
-			TotalHours:   paidHours,
-			TotalMinutes: paidMinutes,
-			Blocks:       blocks,
-		}
-
-		if empDays[nd.name] == nil {
-			empDays[nd.name] = make(map[string]domain.PeriodDay)
-		}
-		empDays[nd.name][nd.date] = day
-	}
-
-	// Resolve BOR2 team per employee. Members are stored as "First Last" names,
-	// matching the period employee name format. Best-effort: on failure employees
-	// simply come back with an empty team.
+	// BOR2 team per employee (members stored as "First Last"). Best-effort.
 	nameToTeam := make(map[string]string)
 	if s.teamRepo != nil {
 		if teams, err := s.teamRepo.List(ctx, strings.ToLower(company)); err == nil {
@@ -442,7 +461,28 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 		}
 	}
 
-	// build employees slice
+	empDays := make(map[string]map[string]domain.PeriodDay)
+	for key, blocks := range blocksMap {
+		t, _ := time.Parse("2006-01-02", key.date)
+		paidMinutes := 0
+		for _, b := range blocks {
+			if b.IsPaid {
+				paidMinutes += b.DurationMinutes
+			}
+		}
+		day := domain.PeriodDay{
+			Date:         key.date,
+			DayName:      t.Weekday().String(),
+			TotalHours:   round2(float64(paidMinutes) / 60.0),
+			TotalMinutes: paidMinutes,
+			Blocks:       blocks,
+		}
+		if empDays[key.name] == nil {
+			empDays[key.name] = make(map[string]domain.PeriodDay)
+		}
+		empDays[key.name][key.date] = day
+	}
+
 	employees := make([]domain.PeriodEmployee, 0, len(empDays))
 	for name, dayMap := range empDays {
 		var days []domain.PeriodDay
@@ -467,18 +507,39 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 		StartDate: startDate,
 		EndDate:   endDate,
 		Employees: employees,
-	}, nil
+	}
 }
 
-// ── GetAccounting ─────────────────────────────────────────────────────────────
+// ── GetIntervals ──────────────────────────────────────────────────────────────
 
-func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startDate, endDate string) (*domain.AccountingResponse, error) {
+func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDate, endDate string) (*domain.IntervalsResponse, error) {
+	unpaid := s.unpaidSet(ctx, company)
+
+	// Read from the cache when the requested range is fully covered by a sync.
+	if s.cacheRepo != nil {
+		if st, _ := s.cacheRepo.GetSyncState(ctx, company); st != nil && st.MinDate != "" &&
+			startDate >= st.MinDate && endDate <= st.MaxDate {
+			if rows, err := s.cacheRepo.GetTimesheets(ctx, company, startDate, endDate); err == nil {
+				return s.assembleIntervals(ctx, company, startDate, endDate, rows, unpaid), nil
+			}
+		}
+	}
+
+	rows, err := s.fetchTimesheetsLive(ctx, company, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	return s.assembleIntervals(ctx, company, startDate, endDate, rows, unpaid), nil
+}
+
+// ── Live payroll fetch ─────────────────────────────────────────────────────────
+
+func (s *PeriodReportService) fetchPayrollLive(ctx context.Context, company, startDate, endDate string) ([]domain.QBPayrollRow, error) {
 	token := qbtToken(company)
 	if token == "" {
 		return nil, fmt.Errorf("no QB Time token for company %q", company)
 	}
 
-	// Fetch payroll_by_jobcode report and users in parallel
 	type payrollResult struct {
 		data *payrollByJobcodeResp
 		err  error
@@ -491,13 +552,9 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 	payrollCh := make(chan payrollResult, 1)
 	usersCh := make(chan usersResult, 1)
 
-	// Payroll by jobcode
 	go func() {
 		reqBody := map[string]interface{}{
-			"data": map[string]string{
-				"start_date": startDate,
-				"end_date":   endDate,
-			},
+			"data": map[string]string{"start_date": startDate, "end_date": endDate},
 		}
 		bodyBytes, _ := json.Marshal(reqBody)
 		url := fmt.Sprintf("%s/reports/payroll_by_jobcode", qbtBaseURL)
@@ -525,7 +582,6 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		payrollCh <- payrollResult{data: &data}
 	}()
 
-	// Users (for pay_rate)
 	go func() {
 		users := make(map[int]periodUserItem)
 		for page := 1; ; page++ {
@@ -560,22 +616,13 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		usersCh <- usersResult{users: users}
 	}()
 
-	// Collect results
 	payrollRes := <-payrollCh
 	usersRes := <-usersCh
-
 	if payrollRes.err != nil {
 		return nil, payrollRes.err
 	}
-	if usersRes.err != nil {
-		return nil, usersRes.err
-	}
-
 	users := usersRes.users
 
-	// Resolve only the jobcodes the payroll report actually references (plus their
-	// ancestors). The report carries no supplemental jobcode data, so this targeted
-	// lookup is what fills the full hierarchy instead of raw "Jobcode 12345" ids.
 	idSet := make(map[int]bool)
 	for _, userData := range payrollRes.data.Results.PayrollByJobcodeReport.ByUser {
 		for _, jcTotals := range userData.Totals {
@@ -588,51 +635,60 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 	}
 	nameByID, parentByID := s.fetchJobcodesByIDs(ctx, token, ids)
 
-	// Build rows
-	rows := make([]domain.AccountingRow, 0)
-
-	for userIDStr, userData := range payrollRes.data.Results.PayrollByJobcodeReport.ByUser {
-		_ = userIDStr
+	rows := make([]domain.QBPayrollRow, 0)
+	for _, userData := range payrollRes.data.Results.PayrollByJobcodeReport.ByUser {
 		userInfo, ok := users[userData.UserID]
 		if !ok {
 			continue
 		}
 		empName := strings.TrimSpace(userInfo.LastName + ", " + userInfo.FirstName)
-		payRate := userInfo.PayRate
-		otRate := round2(payRate * 1.5)
-
 		for _, jcTotals := range userData.Totals {
-			path := resolveJobcodePathPR(jcTotals.JobcodeID, nameByID, parentByID)
-
-			regularHours := round2(float64(jcTotals.TotalRESeconds) / 3600.0)
-			otHours := round2(float64(jcTotals.TotalOTSeconds) / 3600.0)
-
-			// skip rows with zero hours
-			if regularHours == 0 && otHours == 0 {
+			if jcTotals.TotalRESeconds == 0 && jcTotals.TotalOTSeconds == 0 {
 				continue
 			}
-
-			regularCost := round2(regularHours * payRate)
-			otCost := round2(otHours * otRate)
-			totalHours := round2(regularHours + otHours)
-			totalCost := round2(regularCost + otCost)
-
-			rows = append(rows, domain.AccountingRow{
-				Employee:     empName,
-				JobcodePath:  path,
-				RegularHours: regularHours,
-				RegularRate:  payRate,
-				RegularCost:  regularCost,
-				OTHours:      otHours,
-				OTRate:       otRate,
-				OTCost:       otCost,
-				TotalHours:   totalHours,
-				TotalCost:    totalCost,
+			rows = append(rows, domain.QBPayrollRow{
+				Company:     company,
+				PeriodEnd:   endDate,
+				UserID:      int64(userData.UserID),
+				UserName:    empName,
+				PayRate:     userInfo.PayRate,
+				JobcodeID:   int64(jcTotals.JobcodeID),
+				JobcodePath: resolveJobcodePathPR(jcTotals.JobcodeID, nameByID, parentByID),
+				RegSeconds:  jcTotals.TotalRESeconds,
+				OTSeconds:   jcTotals.TotalOTSeconds,
 			})
 		}
 	}
+	return rows, nil
+}
 
-	// Sort: by employee name, then jobcode path
+// ── Assemble accounting from rows (cache or live) ──────────────────────────────
+
+func assembleAccounting(company, startDate, endDate string, prRows []domain.QBPayrollRow) *domain.AccountingResponse {
+	rows := make([]domain.AccountingRow, 0, len(prRows))
+	for _, pr := range prRows {
+		regularHours := round2(float64(pr.RegSeconds) / 3600.0)
+		otHours := round2(float64(pr.OTSeconds) / 3600.0)
+		if regularHours == 0 && otHours == 0 {
+			continue
+		}
+		otRate := round2(pr.PayRate * 1.5)
+		regularCost := round2(regularHours * pr.PayRate)
+		otCost := round2(otHours * otRate)
+		rows = append(rows, domain.AccountingRow{
+			Employee:     pr.UserName,
+			JobcodePath:  pr.JobcodePath,
+			RegularHours: regularHours,
+			RegularRate:  pr.PayRate,
+			RegularCost:  regularCost,
+			OTHours:      otHours,
+			OTRate:       otRate,
+			OTCost:       otCost,
+			TotalHours:   round2(regularHours + otHours),
+			TotalCost:    round2(regularCost + otCost),
+		})
+	}
+
 	sort.Slice(rows, func(i, j int) bool {
 		if rows[i].Employee != rows[j].Employee {
 			return rows[i].Employee < rows[j].Employee
@@ -640,7 +696,6 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		return strings.Join(rows[i].JobcodePath, "|") < strings.Join(rows[j].JobcodePath, "|")
 	})
 
-	// Compute totals
 	var totals domain.AccountingTotals
 	for _, r := range rows {
 		totals.RegularHours = round2(totals.RegularHours + r.RegularHours)
@@ -657,5 +712,151 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		EndDate:   endDate,
 		Rows:      rows,
 		Totals:    totals,
-	}, nil
+	}
+}
+
+// ── GetAccounting ─────────────────────────────────────────────────────────────
+
+func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startDate, endDate string) (*domain.AccountingResponse, error) {
+	if s.cacheRepo != nil {
+		if rows, err := s.cacheRepo.GetPayroll(ctx, company, endDate); err == nil && len(rows) > 0 {
+			return assembleAccounting(company, startDate, endDate, rows), nil
+		}
+	}
+
+	rows, err := s.fetchPayrollLive(ctx, company, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	return assembleAccounting(company, startDate, endDate, rows), nil
+}
+
+// ── Sync (daily cron) ──────────────────────────────────────────────────────────
+
+// SyncCompany pulls the last `days` of QB Time data for a company and refreshes
+// the cache. The range is replaced wholesale so corrections/deletions land too.
+func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, days int) error {
+	if s.cacheRepo == nil {
+		return fmt.Errorf("cache repository not configured")
+	}
+	if days <= 0 {
+		days = 14
+	}
+
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		loc = time.UTC
+	}
+	today := time.Now().In(loc)
+	endDate := today.Format("2006-01-02")
+	startDate := today.AddDate(0, 0, -days).Format("2006-01-02")
+
+	tsRows, err := s.fetchTimesheetsLive(ctx, company, startDate, endDate)
+	if err != nil {
+		return fmt.Errorf("fetch timesheets: %w", err)
+	}
+	if err := s.cacheRepo.ReplaceTimesheets(ctx, company, startDate, endDate, tsRows); err != nil {
+		return fmt.Errorf("store timesheets: %w", err)
+	}
+
+	for _, p := range payPeriodsOverlapping(company, startDate, endDate) {
+		prRows, err := s.fetchPayrollLive(ctx, company, p.start, p.end)
+		if err != nil {
+			continue // best-effort per period
+		}
+		if err := s.cacheRepo.ReplacePayroll(ctx, company, p.end, prRows); err != nil {
+			return fmt.Errorf("store payroll %s: %w", p.end, err)
+		}
+	}
+
+	if err := s.cacheRepo.RefreshSyncState(ctx, company); err != nil {
+		return fmt.Errorf("refresh sync state: %w", err)
+	}
+	// Retention: keep a little over three months.
+	cutoff := today.AddDate(0, 0, -100).Format("2006-01-02")
+	_ = s.cacheRepo.Prune(ctx, company, cutoff)
+	_ = s.cacheRepo.RefreshSyncState(ctx, company)
+	return nil
+}
+
+// SyncAll syncs every supported company, returning a per-company status.
+func (s *PeriodReportService) SyncAll(ctx context.Context, days int) map[string]string {
+	result := make(map[string]string)
+	for _, c := range []string{"framing", "hvac"} {
+		if err := s.SyncCompany(ctx, c, days); err != nil {
+			result[c] = "error: " + err.Error()
+		} else {
+			result[c] = "ok"
+		}
+	}
+	return result
+}
+
+// ── Unpaid addresses (Pillar 2) ────────────────────────────────────────────────
+
+func (s *PeriodReportService) unpaidSet(ctx context.Context, company string) map[string]bool {
+	set := make(map[string]bool)
+	if s.unpaidRepo != nil {
+		if list, err := s.unpaidRepo.List(ctx, company); err == nil {
+			for _, a := range list {
+				set[a] = true
+			}
+		}
+	}
+	return set
+}
+
+// ListAddresses returns the distinct jobcode-path strings seen for a company
+// (from the cache, falling back to a recent live pull) plus any flagged unpaid
+// address, each marked with its paid/unpaid state.
+func (s *PeriodReportService) ListAddresses(ctx context.Context, company string) ([]domain.PeriodAddress, error) {
+	set := make(map[string]bool)
+
+	if s.cacheRepo != nil {
+		if st, _ := s.cacheRepo.GetSyncState(ctx, company); st != nil && st.MinDate != "" {
+			if rows, err := s.cacheRepo.GetTimesheets(ctx, company, st.MinDate, st.MaxDate); err == nil {
+				for _, r := range rows {
+					set[joinPathPR(r.JobcodePath)] = true
+				}
+			}
+		}
+	}
+
+	// Cache cold: pull the two most recent periods live so the list isn't empty.
+	if len(set) == 0 {
+		ranges := recentPayPeriods(company, 2)
+		if len(ranges) > 0 {
+			if rows, err := s.fetchTimesheetsLive(ctx, company, ranges[len(ranges)-1].start, ranges[0].end); err == nil {
+				for _, r := range rows {
+					set[joinPathPR(r.JobcodePath)] = true
+				}
+			}
+		}
+	}
+
+	unpaid := s.unpaidSet(ctx, company)
+	for a := range unpaid {
+		set[a] = true // keep flagged addresses listed even if absent from current data
+	}
+
+	out := make([]domain.PeriodAddress, 0, len(set))
+	for a := range set {
+		out = append(out, domain.PeriodAddress{Address: a, Unpaid: unpaid[a]})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Address < out[j].Address })
+	return out, nil
+}
+
+func (s *PeriodReportService) SetUnpaid(ctx context.Context, company, address string) error {
+	if s.unpaidRepo == nil {
+		return fmt.Errorf("unpaid address repository not configured")
+	}
+	return s.unpaidRepo.Set(ctx, company, address)
+}
+
+func (s *PeriodReportService) UnsetUnpaid(ctx context.Context, company, address string) error {
+	if s.unpaidRepo == nil {
+		return fmt.Errorf("unpaid address repository not configured")
+	}
+	return s.unpaidRepo.Unset(ctx, company, address)
 }

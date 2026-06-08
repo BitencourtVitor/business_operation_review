@@ -3,13 +3,16 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import * as XLSX from "xlsx"
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban, RefreshCw, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { usePayPeriods, usePeriodIntervals, usePeriodAccounting } from "@/hooks/use-qbtime-period-report"
+import { periodReportService } from "@/services/qbtime-period-report.service"
+import { UnpaidAddressesModal } from "./unpaid-addresses-modal"
 import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals, IntervalsResponse } from "@/services/qbtime-period-report.service"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -424,6 +427,9 @@ export default function PeriodReportsPage() {
   const [activeTab,    setActiveTab]    = useState("intervals")
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
   const [groupBy,      setGroupBy]      = useState<"name" | "team">("name")
+  const [addressesOpen, setAddressesOpen] = useState(false)
+  const [refreshing,   setRefreshing]   = useState(false)
+  const queryClient = useQueryClient()
 
   const { data: periodsData, isLoading: periodsLoading } = usePayPeriods(company)
   const periods = periodsData?.periods ?? []
@@ -505,6 +511,21 @@ export default function PeriodReportsPage() {
   function handleExportPDF() {
     if (activeTab === "accounting" && accounting) doExportPDF(accounting.rows, company, periodLabel)
     else if (activeTab === "intervals" && intervals) doExportIntervalsPDF(intervals, company, periodLabel)
+  }
+
+  // Manual upsert: pull the last ~3 months from QB Time so corrections made
+  // directly in QuickBooks land in our cache and the report right away.
+  async function handleRefresh() {
+    if (refreshing) return
+    setRefreshing(true)
+    try {
+      await periodReportService.refresh(company, 100)
+      await queryClient.invalidateQueries({ queryKey: ["qbtime-period-report"] })
+    } catch {
+      // surfaced by the report's own error states; nothing to do here
+    } finally {
+      setRefreshing(false)
+    }
   }
 
   const canExport =
@@ -645,6 +666,23 @@ export default function PeriodReportsPage() {
             </>
           )}
 
+          {/* Update — manual cache refresh (applies QuickBooks corrections) */}
+          {period && (
+            <>
+              <div className="self-stretch w-px bg-border" />
+              <div className="pb-0.5">
+                <Button
+                  variant="outline" size="sm" className="h-8 gap-2"
+                  onClick={handleRefresh} disabled={refreshing}
+                  title="Pull the last 3 months from QuickBooks Time and apply any corrections"
+                >
+                  {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  {refreshing ? "Updating…" : "Update"}
+                </Button>
+              </div>
+            </>
+          )}
+
           {/* Export — both views */}
           {canExport && (
             <>
@@ -696,6 +734,11 @@ export default function PeriodReportsPage() {
                 {visibleEmployees.length} {visibleEmployees.length === 1 ? "employee" : "employees"}
               </span>
               <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setAddressesOpen(true)}>
+                  <Ban className="h-3.5 w-3.5" />
+                  Addresses
+                </Button>
+                <div className="mx-1 h-4 w-px bg-border" />
                 <DropdownMenu>
                   <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" />}>
                     <ListFilter className="h-3.5 w-3.5" />
@@ -770,6 +813,8 @@ export default function PeriodReportsPage() {
           <AccountingTable rows={accounting.rows} totals={accounting.totals} />
         )
       )}
+
+      <UnpaidAddressesModal company={company} open={addressesOpen} onOpenChange={setAddressesOpen} />
     </div>
   )
 }
