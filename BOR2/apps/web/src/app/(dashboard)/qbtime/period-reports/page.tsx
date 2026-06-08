@@ -344,6 +344,12 @@ function doExportPDF(rows: AccountingRow[], company: string, label: string) {
 
 // ── Export: Intervals ───────────────────────────────────────────────────────────
 
+function isoToExcelTime(iso: string): number {
+  const m = iso.match(/T(\d{2}):(\d{2})/)
+  if (!m) return 0
+  return (parseInt(m[1]) * 60 + parseInt(m[2])) / (24 * 60)
+}
+
 function doExportIntervalsExcel(intervals: IntervalsResponse, company: string, label: string) {
   const headers = ["Employee", "Date", "Day", "Start", "End", "Duration", "Job Code", "Type"]
   const data: (string | number)[][] = []
@@ -354,9 +360,9 @@ function doExportIntervalsExcel(intervals: IntervalsResponse, company: string, l
           emp.name,
           day.date,
           day.dayName,
-          formatTime(b.start),
-          formatTime(b.end),
-          formatDuration(b.durationMinutes),
+          isoToExcelTime(b.start),
+          isoToExcelTime(b.end),
+          b.durationMinutes / (24 * 60),
           b.isPaid ? formatPath(b.jobcodePath) : "Break",
           b.isPaid ? "Paid" : "Break",
         ])
@@ -365,6 +371,18 @@ function doExportIntervalsExcel(intervals: IntervalsResponse, company: string, l
   }
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
+
+  // Apply time formats to Start (col 3), End (col 4), Duration (col 5)
+  const rowCount = data.length
+  for (let r = 1; r <= rowCount; r++) {
+    const startCell = ws[XLSX.utils.encode_cell({ r, c: 3 })]
+    const endCell   = ws[XLSX.utils.encode_cell({ r, c: 4 })]
+    const durCell   = ws[XLSX.utils.encode_cell({ r, c: 5 })]
+    if (startCell) { startCell.t = "n"; startCell.z = "hh:mm" }
+    if (endCell)   { endCell.t   = "n"; endCell.z   = "hh:mm" }
+    if (durCell)   { durCell.t   = "n"; durCell.z   = "[h]:mm" }
+  }
+
   ws["!cols"] = [24, 12, 10, 10, 10, 10, 55, 8].map(w => ({ wch: w }))
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, "Intervals")
@@ -700,7 +718,7 @@ export default function PeriodReportsPage() {
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setAddressesOpen(true)}>
                   <Ban className="h-3.5 w-3.5" />
-                  Addresses
+                  Paid/Unpaid Addresses
                 </Button>
                 <div className="mx-1 h-4 w-px bg-border" />
                 <DropdownMenu>
