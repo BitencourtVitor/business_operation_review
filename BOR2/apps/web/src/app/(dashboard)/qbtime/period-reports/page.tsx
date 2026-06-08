@@ -119,16 +119,11 @@ function TimelineBlock({
 
 // ── Day Row ───────────────────────────────────────────────────────────────────
 
-function DayRow({ day }: { day: PeriodDay }) {
-  const starts   = day.blocks.map(b => isoToMinutes(b.start)).filter(Boolean)
-  const ends     = day.blocks.map(b => b.end ? isoToMinutes(b.end) : 0).filter(Boolean)
-  const dayStart = Math.max(0,    Math.min(...(starts.length ? starts : [420])))
-  let   dayEnd   = Math.min(1440, Math.max(...(ends.length   ? ends   : [1080])))
-  if (dayEnd <= dayStart) dayEnd = dayStart + 60
-  const range    = dayEnd - dayStart
+function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number; gridEnd: number }) {
+  const range = gridEnd - gridStart
 
   const ticks: number[] = []
-  for (let m = Math.ceil(dayStart / 120) * 120; m <= dayEnd; m += 120) ticks.push(m)
+  for (let m = Math.ceil(gridStart / 120) * 120; m <= gridEnd; m += 120) ticks.push(m)
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-2 py-2 transition-colors hover:border-foreground/30">
@@ -139,7 +134,7 @@ function DayRow({ day }: { day: PeriodDay }) {
       <div className="min-w-0 flex-1">
         <div className="relative mb-1 h-3.5">
           {ticks.map(t => {
-            const pct  = ((t - dayStart) / range) * 100
+            const pct  = ((t - gridStart) / range) * 100
             const h    = Math.floor(t / 60)
             const h12  = h % 12 === 0 ? 12 : h % 12
             const ampm = h >= 12 ? "pm" : "am"
@@ -153,7 +148,7 @@ function DayRow({ day }: { day: PeriodDay }) {
         </div>
         <div className="relative h-8 overflow-hidden rounded-md bg-muted/40 ring-1 ring-border/40">
           {day.blocks.map((b, i) => (
-            <TimelineBlock key={i} block={b} dayStart={dayStart} dayEnd={dayEnd} />
+            <TimelineBlock key={i} block={b} dayStart={gridStart} dayEnd={gridEnd} />
           ))}
         </div>
       </div>
@@ -174,6 +169,13 @@ function EmployeeIntervalCard({
   const days = selectedDay ? employee.days.filter(d => d.date === selectedDay) : employee.days
   if (!days.length) return null
   const totalHours = days.reduce((s, d) => s + d.totalHours, 0)
+
+  // Compute a shared grid from all days so every row uses the same time scale
+  const allStarts = employee.days.flatMap(d => d.blocks.map(b => isoToMinutes(b.start))).filter(Boolean)
+  const allEnds   = employee.days.flatMap(d => d.blocks.map(b => b.end ? isoToMinutes(b.end) : 0)).filter(Boolean)
+  let gridStart = Math.max(0,    Math.min(...(allStarts.length ? allStarts : [420])))
+  let gridEnd   = Math.min(1440, Math.max(...(allEnds.length   ? allEnds   : [1080])))
+  if (gridEnd <= gridStart) gridEnd = gridStart + 60
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -196,7 +198,7 @@ function EmployeeIntervalCard({
       </button>
       {open && (
         <div className="flex flex-col gap-1.5 px-4 pb-3 pt-1">
-          {days.map(day => <DayRow key={day.date} day={day} />)}
+          {days.map(day => <DayRow key={day.date} day={day} gridStart={gridStart} gridEnd={gridEnd} />)}
         </div>
       )}
     </div>
