@@ -12,6 +12,8 @@ import (
 
 type QBTimePeriodCacheRepository interface {
 	ReplaceTimesheets(ctx context.Context, company, startDate, endDate string, rows []domain.QBTimesheetRow) error
+	UpsertTimesheets(ctx context.Context, company string, rows []domain.QBTimesheetRow) error
+	DeleteTimesheets(ctx context.Context, company string, qbtIDs []int64) error
 	GetTimesheets(ctx context.Context, company, startDate, endDate string) ([]domain.QBTimesheetRow, error)
 	ReplacePayroll(ctx context.Context, company, periodEnd string, rows []domain.QBPayrollRow) error
 	GetPayroll(ctx context.Context, company, periodEnd string) ([]domain.QBPayrollRow, error)
@@ -79,6 +81,56 @@ func (r *PostgresQBTimePeriodCacheRepository) ReplaceTimesheets(ctx context.Cont
 		}
 	}
 	return tx.Commit(ctx)
+}
+
+// UpsertTimesheets inserts or updates individual timesheet rows without
+// touching the rest of the cache — used by delta sync.
+func (r *PostgresQBTimePeriodCacheRepository) UpsertTimesheets(ctx context.Context, company string, rows []domain.QBTimesheetRow) error {
+	if len(rows) == 0 {
+		return nil
+	}
+	batch := &pgx.Batch{}
+	for _, row := range rows {
+		batch.Queue(`
+			INSERT INTO qbtime_timesheets
+			  (company, qbt_id, user_id, user_name, jobcode_id, jobcode_path, work_date, start_ts, end_ts, duration_min, type, is_paid, synced_at)
+			VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12, now())
+			ON CONFLICT (company, qbt_id) DO UPDATE SET
+			  user_id=EXCLUDED.user_id, user_name=EXCLUDED.user_name,
+			  jobcode_id=EXCLUDED.jobcode_id, jobcode_path=EXCLUDED.jobcode_path,
+			  work_date=EXCLUDED.work_date, start_ts=EXCLUDED.start_ts, end_ts=EXCLUDED.end_ts,
+			  duration_min=EXCLUDED.duration_min, type=EXCLUDED.type, is_paid=EXCLUDED.is_paid, synced_at=now()
+		`, row.Company, row.QBTID, row.UserID, row.UserName, row.JobcodeID, pathToJSON(row.JobcodePath),
+			row.WorkDate, row.Start, row.End, row.DurationMin, row.Type, row.IsPaid)
+	}
+	br := r.db.SendBatch(ctx, batch)
+	defer br.Close()
+	for range rows {
+		if _, err := br.Exec(); err != nil {
+			return fmt.Errorf("upsert timesheet: %w", err)
+		}
+	}
+	return br.Close()
+}
+
+// DeleteTimesheets removes individual timesheet rows by QB Time ID — used
+// to reflect deletions discovered during a delta sync (active=false).
+func (r *PostgresQBTimePeriodCacheRepository) DeleteTimesheets(ctx context.Context, company string, qbtIDs []int64) error {
+	if len(qbtIDs) == 0 {
+		return nil
+	}
+	batch := &pgx.Batch{}
+	for _, id := range qbtIDs {
+		batch.Queue(`DELETE FROM qbtime_timesheets WHERE company = $1 AND qbt_id = $2`, company, id)
+	}
+	br := r.db.SendBatch(ctx, batch)
+	defer br.Close()
+	for range qbtIDs {
+		if _, err := br.Exec(); err != nil {
+			return fmt.Errorf("delete timesheet: %w", err)
+		}
+	}
+	return br.Close()
 }
 
 func (r *PostgresQBTimePeriodCacheRepository) GetTimesheets(ctx context.Context, company, startDate, endDate string) ([]domain.QBTimesheetRow, error) {
