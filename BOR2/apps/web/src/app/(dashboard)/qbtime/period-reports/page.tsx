@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import * as XLSX from "xlsx"
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban, UtensilsCrossed } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban, Sandwich, HeartPulse, Glasses, CalendarX } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -81,6 +81,18 @@ function isLunchBlock(block: PeriodBlock): boolean {
   return block.jobcodePath.some(p => p.toLowerCase().includes("lunch"))
 }
 
+function isSickBlock(block: PeriodBlock): boolean {
+  return block.jobcodePath.some(p => p.toLowerCase().includes("sick"))
+}
+
+function isVacationBlock(block: PeriodBlock): boolean {
+  return block.jobcodePath.some(p => p.toLowerCase().includes("vacation"))
+}
+
+function isHolidayBlock(block: PeriodBlock): boolean {
+  return block.jobcodePath.some(p => p.toLowerCase().includes("holiday"))
+}
+
 function TimelineBlock({
   block, dayStart, dayEnd,
 }: {
@@ -94,27 +106,33 @@ function TimelineBlock({
   const left  = ((s - dayStart) / range) * 100
   const width = Math.max(((e - s) / range) * 100, 0.5)
   const { bg, text } = blockColor(block)
-  const isLunch = isLunchBlock(block)
-  const label = block.isPaid ? formatPath(block.jobcodePath) : "Break"
+  const isLunch    = isLunchBlock(block)
+  const isSick     = isSickBlock(block)
+  const isVacation = isVacationBlock(block)
+  const isHoliday  = isHolidayBlock(block)
+  const label = block.jobcodePath.length > 0 ? formatPath(block.jobcodePath) : "Break"
+  const BlockIcon = isLunch ? Sandwich : isSick ? HeartPulse : isVacation ? Glasses : isHoliday ? CalendarX : null
 
   return (
     <Tooltip>
       <TooltipTrigger
         render={
           <div
-            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center gap-1 px-1.5 cursor-default select-none`}
+            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center gap-1 px-1.5 cursor-default select-none ${isLunch ? "justify-center" : ""}`}
             style={{ left: `${left}%`, width: `calc(${width}% - 3px)` }}
           />
         }
       >
-        {isLunch && width > 2 && <UtensilsCrossed className="h-2.5 w-2.5 shrink-0 opacity-90" />}
-        <span className="text-[10px] font-medium truncate leading-none">
-          {width > 4 ? label : ""}
-        </span>
+        {BlockIcon && width > 2 && <BlockIcon className="h-4 w-4 shrink-0 opacity-90" />}
+        {!isLunch && (
+          <span className="text-[10px] font-medium truncate leading-none">
+            {width > 4 ? label : ""}
+          </span>
+        )}
       </TooltipTrigger>
       <TooltipContent side="top" className="flex flex-col gap-1 max-w-[280px]">
         <div className="flex items-center justify-between gap-4 border-b border-background/15 pb-1">
-          {isLunch && <UtensilsCrossed className="h-3 w-3 shrink-0 opacity-70" />}
+          {BlockIcon && <BlockIcon className="h-4 w-4 shrink-0 opacity-70" />}
           <span className="font-medium flex-1">{formatTime(block.start)} – {formatTime(block.end)}</span>
           <span className="tabular-nums opacity-70">{formatDuration(block.durationMinutes)}</span>
         </div>
@@ -124,14 +142,37 @@ function TimelineBlock({
   )
 }
 
-// ── Day Row ───────────────────────────────────────────────────────────────────
+// ── Shared time-grid header (rendered once per card, above all day rows) ─────
 
-function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number; gridEnd: number }) {
+function TimeGridHeader({ gridStart, gridEnd }: { gridStart: number; gridEnd: number }) {
   const range = gridEnd - gridStart
-
   const ticks: number[] = []
   for (let m = Math.ceil(gridStart / 60) * 60; m <= gridEnd; m += 60) ticks.push(m)
 
+  return (
+    <div className="flex items-center gap-3 px-2 pb-0.5 pt-1">
+      <div className="w-24 shrink-0" />
+      <div className="relative min-w-0 flex-1 h-3.5">
+        {ticks.map(t => {
+          const pct       = ((t - gridStart) / range) * 100
+          const h         = Math.floor(t / 60)
+          const h12       = h % 12 === 0 ? 12 : h % 12
+          const ampm      = h >= 12 ? "pm" : "am"
+          const transform = pct <= 2 ? "translateX(0)" : pct >= 98 ? "translateX(-100%)" : "translateX(-50%)"
+          return (
+            <span key={t} className="absolute text-[9px] text-muted-foreground" style={{ left: `${pct}%`, transform }}>
+              {h12}{ampm}
+            </span>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Day Row ───────────────────────────────────────────────────────────────────
+
+function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number; gridEnd: number }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-2 py-2 transition-colors hover:border-foreground/30">
       <div className="w-24 shrink-0">
@@ -139,20 +180,6 @@ function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number
         <p className="mt-0.5 text-[10px] text-muted-foreground">{day.totalHours.toFixed(2)}h paid</p>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="relative mb-1 h-3.5">
-          {ticks.map(t => {
-            const pct  = ((t - gridStart) / range) * 100
-            const h    = Math.floor(t / 60)
-            const h12  = h % 12 === 0 ? 12 : h % 12
-            const ampm = h >= 12 ? "pm" : "am"
-            const transform = pct <= 2 ? "translateX(0)" : pct >= 98 ? "translateX(-100%)" : "translateX(-50%)"
-            return (
-              <span key={t} className="absolute text-[9px] text-muted-foreground" style={{ left: `${pct}%`, transform }}>
-                {h12}{ampm}
-              </span>
-            )
-          })}
-        </div>
         <div className="relative h-8 overflow-hidden rounded-md bg-muted/40 ring-1 ring-border/40">
           {day.blocks.map((b, i) => (
             <TimelineBlock key={i} block={b} dayStart={gridStart} dayEnd={gridEnd} />
@@ -199,7 +226,8 @@ function EmployeeIntervalCard({
         </div>
       </button>
       {open && (
-        <div className="flex flex-col gap-1.5 px-4 pb-3 pt-1">
+        <div className="flex flex-col gap-1.5 px-4 pb-3">
+          <TimeGridHeader gridStart={gridStart} gridEnd={gridEnd} />
           {days.map(day => <DayRow key={day.date} day={day} gridStart={gridStart} gridEnd={gridEnd} />)}
         </div>
       )}
