@@ -92,7 +92,7 @@ function TimelineBlock({
   const label = block.isPaid ? formatPath(block.jobcodePath) : "Break"
 
   return (
-    <Tooltip delay={120}>
+    <Tooltip>
       <TooltipTrigger
         render={
           <div
