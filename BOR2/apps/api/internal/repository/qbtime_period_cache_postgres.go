@@ -16,7 +16,7 @@ type QBTimePeriodCacheRepository interface {
 	ReplacePayroll(ctx context.Context, company, periodEnd string, rows []domain.QBPayrollRow) error
 	GetPayroll(ctx context.Context, company, periodEnd string) ([]domain.QBPayrollRow, error)
 	GetSyncState(ctx context.Context, company string) (*domain.QBSyncState, error)
-	RefreshSyncState(ctx context.Context, company string) error
+	RefreshSyncState(ctx context.Context, company, syncedThrough string) error
 	Prune(ctx context.Context, company, beforeDate string) error
 }
 
@@ -199,18 +199,23 @@ func (r *PostgresQBTimePeriodCacheRepository) GetSyncState(ctx context.Context, 
 	return &st, nil
 }
 
-// RefreshSyncState recomputes the cached coverage window from the data actually
-// present, so reads can tell whether a requested range is covered.
-func (r *PostgresQBTimePeriodCacheRepository) RefreshSyncState(ctx context.Context, company string) error {
+// RefreshSyncState records the cached coverage window: min_date follows the data
+// actually present (kept in step with pruning), while max_date is the date the
+// sync ran THROUGH (≈ today) — not the last day with a punch. Using the synced-
+// through date lets reads serve in-progress periods whose end is in the future
+// and periods that simply start after the most recent punch.
+func (r *PostgresQBTimePeriodCacheRepository) RefreshSyncState(ctx context.Context, company, syncedThrough string) error {
 	_, err := r.db.Exec(ctx, `
 		INSERT INTO qbtime_sync_state (company, min_date, max_date, last_run_at)
 		VALUES ($1,
 		        (SELECT MIN(work_date) FROM qbtime_timesheets WHERE company = $1),
-		        (SELECT MAX(work_date) FROM qbtime_timesheets WHERE company = $1),
+		        $2::date,
 		        now())
 		ON CONFLICT (company) DO UPDATE SET
-		  min_date = EXCLUDED.min_date, max_date = EXCLUDED.max_date, last_run_at = now()
-	`, company)
+		  min_date    = EXCLUDED.min_date,
+		  max_date    = GREATEST(qbtime_sync_state.max_date, EXCLUDED.max_date),
+		  last_run_at = now()
+	`, company, syncedThrough)
 	if err != nil {
 		return fmt.Errorf("refresh sync state: %w", err)
 	}

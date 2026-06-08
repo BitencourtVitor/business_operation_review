@@ -124,11 +124,4 @@ export const periodReportService = {
       { company, address, unpaid },
       getToken(),
     ),
-
-  refresh: (company: string, days = 100) =>
-    api.post<{ company: string; days: number; status: string }>(
-      `/api/v1/qbtime/period-report/refresh?company=${encodeURIComponent(company)}&days=${days}`,
-      {},
-      getToken(),
-    ),
 }

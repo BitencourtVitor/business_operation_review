@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -88,6 +89,12 @@ type PeriodReportService struct {
 	teamRepo   repository.QBTimeTeamRepository
 	cacheRepo  repository.QBTimePeriodCacheRepository
 	unpaidRepo repository.QBTimeUnpaidAddressRepository
+
+	// Background-refresh guard: viewing the report kicks off a throttled cache
+	// refresh so corrections in QuickBooks land without a manual button.
+	syncMu   sync.Mutex
+	syncing  map[string]bool
+	lastSync map[string]time.Time
 }
 
 func NewPeriodReportService(
@@ -100,7 +107,37 @@ func NewPeriodReportService(
 		teamRepo:   teamRepo,
 		cacheRepo:  cacheRepo,
 		unpaidRepo: unpaidRepo,
+		syncing:    make(map[string]bool),
+		lastSync:   make(map[string]time.Time),
 	}
+}
+
+// backgroundRefresh kicks off a recent-window cache refresh for a company when
+// the report is viewed — throttled (≤ once / 15 min per company) and guarded
+// against concurrent runs, so reads stay fast while the cache self-heals.
+func (s *PeriodReportService) backgroundRefresh(company string) {
+	if s.cacheRepo == nil {
+		return
+	}
+	s.syncMu.Lock()
+	if s.syncing[company] || time.Since(s.lastSync[company]) < 15*time.Minute {
+		s.syncMu.Unlock()
+		return
+	}
+	s.syncing[company] = true
+	s.syncMu.Unlock()
+
+	go func() {
+		defer func() {
+			s.syncMu.Lock()
+			s.syncing[company] = false
+			s.lastSync[company] = time.Now()
+			s.syncMu.Unlock()
+		}()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		_ = s.SyncCompany(ctx, company, 14)
+	}()
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -372,7 +409,10 @@ func (s *PeriodReportService) fetchTimesheetsLive(ctx context.Context, company, 
 			allJCSeed[jc.ID] = jc
 		}
 
-		if !pageResp.More || page >= 20 {
+		// Cap is a runaway backstop, not a data limit — a 3-month backfill for a
+		// busy company runs well past 20 pages, and QB Time returns oldest-first,
+		// so a low cap silently drops the most recent punches.
+		if !pageResp.More || page >= 200 {
 			break
 		}
 	}
@@ -513,12 +553,16 @@ func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, st
 // ── GetIntervals ──────────────────────────────────────────────────────────────
 
 func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDate, endDate string) (*domain.IntervalsResponse, error) {
+	defer s.backgroundRefresh(company)
 	unpaid := s.unpaidSet(ctx, company)
 
 	// Read from the cache when the requested range is fully covered by a sync.
 	if s.cacheRepo != nil {
+		// Covered when the period STARTS within the synced window. max_date is the
+		// synced-through date (≈ today), so in-progress periods whose end is in the
+		// future still read from cache — future days simply have no punches.
 		if st, _ := s.cacheRepo.GetSyncState(ctx, company); st != nil && st.MinDate != "" &&
-			startDate >= st.MinDate && endDate <= st.MaxDate {
+			startDate >= st.MinDate && startDate <= st.MaxDate {
 			if rows, err := s.cacheRepo.GetTimesheets(ctx, company, startDate, endDate); err == nil {
 				return s.assembleIntervals(ctx, company, startDate, endDate, rows, unpaid), nil
 			}
@@ -718,6 +762,7 @@ func assembleAccounting(company, startDate, endDate string, prRows []domain.QBPa
 // ── GetAccounting ─────────────────────────────────────────────────────────────
 
 func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startDate, endDate string) (*domain.AccountingResponse, error) {
+	defer s.backgroundRefresh(company)
 	if s.cacheRepo != nil {
 		if rows, err := s.cacheRepo.GetPayroll(ctx, company, endDate); err == nil && len(rows) > 0 {
 			return assembleAccounting(company, startDate, endDate, rows), nil
@@ -769,13 +814,13 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 		}
 	}
 
-	if err := s.cacheRepo.RefreshSyncState(ctx, company); err != nil {
+	if err := s.cacheRepo.RefreshSyncState(ctx, company, endDate); err != nil {
 		return fmt.Errorf("refresh sync state: %w", err)
 	}
 	// Retention: keep a little over three months.
 	cutoff := today.AddDate(0, 0, -100).Format("2006-01-02")
 	_ = s.cacheRepo.Prune(ctx, company, cutoff)
-	_ = s.cacheRepo.RefreshSyncState(ctx, company)
+	_ = s.cacheRepo.RefreshSyncState(ctx, company, endDate)
 	return nil
 }
 
