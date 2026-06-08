@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,19 +52,6 @@ type periodTSResp struct {
 		Jobcodes map[string]periodJobcodeItem `json:"jobcodes"`
 	} `json:"supplemental_data"`
 	More bool `json:"more"`
-}
-
-type effectiveSettingsResp struct {
-	Results struct {
-		General struct {
-			Settings struct {
-				PayrollType      string `json:"payroll_type"`
-				PayrollEndDate   string `json:"payroll_end_date"`
-				DailyRegularHours float64 `json:"daily_regular_hours"`
-				WeeklyRegularHours string `json:"weekly_regular_hours"`
-			} `json:"settings"`
-		} `json:"general"`
-	} `json:"results"`
 }
 
 type payrollByJobcodeResp struct {
@@ -155,6 +143,72 @@ func (s *PeriodReportService) fetchJobcodes(ctx context.Context, token string, s
 	return nameByID, parentByID
 }
 
+// fetchJobcodesByIDs resolves the given jobcode IDs and their full ancestor
+// chain by querying QB Time for the exact IDs. Unlike paging the whole jobcode
+// list this also resolves archived jobcodes and never truncates, which is what
+// the payroll-by-jobcode report needs (it carries no supplemental jobcode data).
+func (s *PeriodReportService) fetchJobcodesByIDs(ctx context.Context, token string, ids []int) (map[int]string, map[int]int) {
+	nameByID := make(map[int]string)
+	parentByID := make(map[int]int)
+
+	pending := make([]int, 0, len(ids))
+	seen := make(map[int]bool)
+	queue := func(id int) {
+		if id != 0 && !seen[id] {
+			seen[id] = true
+			pending = append(pending, id)
+		}
+	}
+	for _, id := range ids {
+		queue(id)
+	}
+
+	for len(pending) > 0 {
+		n := len(pending)
+		if n > 100 {
+			n = 100
+		}
+		batch := pending[:n]
+		pending = pending[n:]
+
+		strs := make([]string, len(batch))
+		for i, id := range batch {
+			strs[i] = strconv.Itoa(id)
+		}
+		url := fmt.Sprintf("%s/jobcodes?ids=%s&per_page=100", qbtBaseURL, strings.Join(strs, ","))
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			continue
+		}
+		req.Header.Set("Authorization", "Bearer "+token)
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			continue
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		var data struct {
+			Results struct {
+				Jobcodes map[string]periodJobcodeItem `json:"jobcodes"`
+			} `json:"results"`
+		}
+		if json.Unmarshal(body, &data) != nil {
+			continue
+		}
+		for _, jc := range data.Results.Jobcodes {
+			nameByID[jc.ID] = jc.Name
+			if jc.ParentID != 0 {
+				parentByID[jc.ID] = jc.ParentID
+				if _, ok := nameByID[jc.ParentID]; !ok {
+					queue(jc.ParentID) // resolve the parent's name on a later pass
+				}
+			}
+		}
+	}
+	return nameByID, parentByID
+}
+
 func resolveJobcodePathPR(id int, nameByID map[int]string, parentByID map[int]int) []string {
 	var path []string
 	cur := id
@@ -181,55 +235,32 @@ func round2(v float64) float64 {
 // ── GetPayPeriods ─────────────────────────────────────────────────────────────
 
 func (s *PeriodReportService) GetPayPeriods(ctx context.Context, company string) (*domain.PayPeriodsResponse, error) {
-	token := qbtToken(company)
-	if token == "" {
-		return nil, fmt.Errorf("no QB Time token for company %q", company)
-	}
-
-	url := fmt.Sprintf("%s/effective_settings", qbtBaseURL)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("build effective_settings request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("effective_settings request: %w", err)
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-
-	var settings effectiveSettingsResp
-	if err := json.Unmarshal(body, &settings); err != nil {
-		return nil, fmt.Errorf("parse effective_settings: %w (raw: %.300s)", err, string(body))
-	}
-
-	anchorStr := settings.Results.General.Settings.PayrollEndDate
+	// Bi-weekly pay-period anchors (period END date) per company, matching the
+	// schedules configured in QuickBooks Time. The cadence is fixed, so a single
+	// known end date deterministically defines every period. HVAC and Framing are
+	// offset from each other by one week.
+	anchorStr := map[string]string{
+		"framing": "2026-06-13", // period 05/31 – 06/13
+		"hvac":    "2026-06-20", // period 06/07 – 06/20
+		"pcg":     "2026-06-20",
+	}[strings.ToLower(company)]
 	if anchorStr == "" {
-		// QB Time doesn't always return payroll_end_date via effective_settings.
-		// Use a known bi-weekly period end date per company as anchor.
-		switch company {
-		case "framing":
-			anchorStr = "2026-05-17" // last known period end (Saturday)
-		case "hvac":
-			anchorStr = "2026-05-17"
-		default:
-			anchorStr = "2026-05-17"
-		}
+		anchorStr = "2026-06-20"
 	}
 
 	anchor, err := time.Parse("2006-01-02", anchorStr)
 	if err != nil {
-		return nil, fmt.Errorf("parse payroll_end_date %q: %w", anchorStr, err)
+		return nil, fmt.Errorf("parse pay-period anchor %q: %w", anchorStr, err)
 	}
 
-	// Walk forward from anchor in 14-day steps until we're past today.
-	// currentEnd will be the end of the current (or just-completed) pay period.
+	// currentEnd = end of the period containing today (first boundary on/after
+	// today). Boundaries fall on anchor + 14·k; align via modular arithmetic so it
+	// is correct whether the anchor sits in the past or the future.
 	today := time.Now().Truncate(24 * time.Hour)
-	currentEnd := anchor
-	for currentEnd.Before(today) {
-		currentEnd = currentEnd.AddDate(0, 0, 14)
+	offset := ((int(math.Round(today.Sub(anchor).Hours()/24)) % 14) + 14) % 14
+	currentEnd := today
+	if offset != 0 {
+		currentEnd = today.AddDate(0, 0, 14-offset)
 	}
 
 	// Build list of last 12 periods (most recent first)
@@ -456,15 +487,9 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		users map[int]periodUserItem
 		err   error
 	}
-	type jobcodesResult struct {
-		nameByID   map[int]string
-		parentByID map[int]int
-		err        error
-	}
 
 	payrollCh := make(chan payrollResult, 1)
 	usersCh := make(chan usersResult, 1)
-	jobcodesCh := make(chan jobcodesResult, 1)
 
 	// Payroll by jobcode
 	go func() {
@@ -535,16 +560,9 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 		usersCh <- usersResult{users: users}
 	}()
 
-	// Jobcodes
-	go func() {
-		nameByID, parentByID := s.fetchJobcodes(ctx, token, nil)
-		jobcodesCh <- jobcodesResult{nameByID: nameByID, parentByID: parentByID}
-	}()
-
 	// Collect results
 	payrollRes := <-payrollCh
 	usersRes := <-usersCh
-	jobcodesRes := <-jobcodesCh
 
 	if payrollRes.err != nil {
 		return nil, payrollRes.err
@@ -552,13 +570,23 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 	if usersRes.err != nil {
 		return nil, usersRes.err
 	}
-	if jobcodesRes.err != nil {
-		return nil, jobcodesRes.err
-	}
 
 	users := usersRes.users
-	nameByID := jobcodesRes.nameByID
-	parentByID := jobcodesRes.parentByID
+
+	// Resolve only the jobcodes the payroll report actually references (plus their
+	// ancestors). The report carries no supplemental jobcode data, so this targeted
+	// lookup is what fills the full hierarchy instead of raw "Jobcode 12345" ids.
+	idSet := make(map[int]bool)
+	for _, userData := range payrollRes.data.Results.PayrollByJobcodeReport.ByUser {
+		for _, jcTotals := range userData.Totals {
+			idSet[jcTotals.JobcodeID] = true
+		}
+	}
+	ids := make([]int, 0, len(idSet))
+	for id := range idSet {
+		ids = append(ids, id)
+	}
+	nameByID, parentByID := s.fetchJobcodesByIDs(ctx, token, ids)
 
 	// Build rows
 	rows := make([]domain.AccountingRow, 0)
