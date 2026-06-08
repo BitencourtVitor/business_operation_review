@@ -78,7 +78,8 @@ function formatPeriodLabel(startDate: string, endDate: string): string {
 // ── Timeline Block ────────────────────────────────────────────────────────────
 
 function isLunchBlock(block: PeriodBlock): boolean {
-  return block.jobcodePath.some(p => p.toLowerCase().includes("lunch"))
+  // Match both "lunch" and the "lunck" typo present in QB Time data.
+  return block.jobcodePath.some(p => /lunch|lunck/.test(p.toLowerCase()))
 }
 
 function isSickBlock(block: PeriodBlock): boolean {
