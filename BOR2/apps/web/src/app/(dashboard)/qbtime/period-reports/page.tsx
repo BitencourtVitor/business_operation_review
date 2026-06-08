@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import * as XLSX from "xlsx"
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check, Ban, UtensilsCrossed } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -77,6 +77,10 @@ function formatPeriodLabel(startDate: string, endDate: string): string {
 
 // ── Timeline Block ────────────────────────────────────────────────────────────
 
+function isLunchBlock(block: PeriodBlock): boolean {
+  return block.jobcodePath.some(p => p.toLowerCase().includes("lunch"))
+}
+
 function TimelineBlock({
   block, dayStart, dayEnd,
 }: {
@@ -90,6 +94,7 @@ function TimelineBlock({
   const left  = ((s - dayStart) / range) * 100
   const width = Math.max(((e - s) / range) * 100, 0.5)
   const { bg, text } = blockColor(block)
+  const isLunch = isLunchBlock(block)
   const label = block.isPaid ? formatPath(block.jobcodePath) : "Break"
 
   return (
@@ -97,18 +102,20 @@ function TimelineBlock({
       <TooltipTrigger
         render={
           <div
-            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center px-1.5 cursor-default select-none`}
+            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center gap-1 px-1.5 cursor-default select-none`}
             style={{ left: `${left}%`, width: `calc(${width}% - 3px)` }}
           />
         }
       >
+        {isLunch && width > 2 && <UtensilsCrossed className="h-2.5 w-2.5 shrink-0 opacity-90" />}
         <span className="text-[10px] font-medium truncate leading-none">
           {width > 4 ? label : ""}
         </span>
       </TooltipTrigger>
       <TooltipContent side="top" className="flex flex-col gap-1 max-w-[280px]">
         <div className="flex items-center justify-between gap-4 border-b border-background/15 pb-1">
-          <span className="font-medium">{formatTime(block.start)} – {formatTime(block.end)}</span>
+          {isLunch && <UtensilsCrossed className="h-3 w-3 shrink-0 opacity-70" />}
+          <span className="font-medium flex-1">{formatTime(block.start)} – {formatTime(block.end)}</span>
           <span className="tabular-nums opacity-70">{formatDuration(block.durationMinutes)}</span>
         </div>
         <span className="opacity-80">{formatPath(block.jobcodePath)}</span>
@@ -123,7 +130,7 @@ function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number
   const range = gridEnd - gridStart
 
   const ticks: number[] = []
-  for (let m = Math.ceil(gridStart / 120) * 120; m <= gridEnd; m += 120) ticks.push(m)
+  for (let m = Math.ceil(gridStart / 60) * 60; m <= gridEnd; m += 60) ticks.push(m)
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-2 py-2 transition-colors hover:border-foreground/30">
@@ -159,23 +166,18 @@ function DayRow({ day, gridStart, gridEnd }: { day: PeriodDay; gridStart: number
 // ── Employee Card ─────────────────────────────────────────────────────────────
 
 function EmployeeIntervalCard({
-  employee, selectedDay, open, onToggle,
+  employee, selectedDay, open, onToggle, gridStart, gridEnd,
 }: {
   employee: PeriodEmployee
   selectedDay: string | null
   open: boolean
   onToggle: () => void
+  gridStart: number
+  gridEnd: number
 }) {
   const days = selectedDay ? employee.days.filter(d => d.date === selectedDay) : employee.days
   if (!days.length) return null
   const totalHours = days.reduce((s, d) => s + d.totalHours, 0)
-
-  // Compute a shared grid from all days so every row uses the same time scale
-  const allStarts = employee.days.flatMap(d => d.blocks.map(b => isoToMinutes(b.start))).filter(Boolean)
-  const allEnds   = employee.days.flatMap(d => d.blocks.map(b => b.end ? isoToMinutes(b.end) : 0)).filter(Boolean)
-  let gridStart = Math.max(0,    Math.min(...(allStarts.length ? allStarts : [420])))
-  let gridEnd   = Math.min(1440, Math.max(...(allEnds.length   ? allEnds   : [1080])))
-  if (gridEnd <= gridStart) gridEnd = gridStart + 60
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -478,6 +480,16 @@ export default function PeriodReportsPage() {
 
   const allCollapsed = visibleEmployees.length > 0 && visibleEmployees.every(e => collapsed.has(e.name))
 
+  // Global time grid shared across all employee cards so every row aligns.
+  const { globalGridStart, globalGridEnd } = useMemo(() => {
+    const starts = visibleEmployees.flatMap(emp => emp.days.flatMap(d => d.blocks.map(b => isoToMinutes(b.start)))).filter(Boolean)
+    const ends   = visibleEmployees.flatMap(emp => emp.days.flatMap(d => d.blocks.map(b => b.end ? isoToMinutes(b.end) : 0))).filter(Boolean)
+    let s = Math.max(0,    Math.min(...(starts.length ? starts : [420])))
+    let e = Math.min(1440, Math.max(...(ends.length   ? ends   : [1080])))
+    if (e <= s) e = s + 60
+    return { globalGridStart: s, globalGridEnd: e }
+  }, [visibleEmployees])
+
   // Render groups: flat (alphabetical) or grouped by team. Built from visible
   // employees so empty team headers never show under the day filter.
   const employeeGroups = useMemo(() => {
@@ -770,6 +782,8 @@ export default function PeriodReportsPage() {
                         selectedDay={allDays ? null : selectedDay}
                         open={!collapsed.has(emp.name)}
                         onToggle={() => toggleEmployee(emp.name)}
+                        gridStart={globalGridStart}
+                        gridEnd={globalGridEnd}
                       />
                     ))}
                   </div>
