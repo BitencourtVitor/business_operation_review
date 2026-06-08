@@ -363,8 +363,8 @@ function doExportIntervalsExcel(intervals: IntervalsResponse, company: string, l
           isoToExcelTime(b.start),
           isoToExcelTime(b.end),
           b.durationMinutes / (24 * 60),
-          b.isPaid ? formatPath(b.jobcodePath) : "Break",
-          b.isPaid ? "Paid" : "Break",
+          b.type === "break" ? "Break" : formatPath(b.jobcodePath),
+          b.type === "break" ? "Break" : (b.isPaid ? "Paid" : "Unpaid"),
         ])
       }
     }
