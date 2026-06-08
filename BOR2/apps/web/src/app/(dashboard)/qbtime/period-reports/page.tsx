@@ -3,12 +3,14 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import * as XLSX from "xlsx"
-import { ChevronDown, ChevronLeft, ChevronRight, Download, FileText, Clock, DollarSign } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown, Download, FileText, FileSpreadsheet, Clock, DollarSign, ListFilter, ArrowDownAZ, Users, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { usePayPeriods, usePeriodIntervals, usePeriodAccounting } from "@/hooks/use-qbtime-period-report"
-import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals } from "@/services/qbtime-period-report.service"
+import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals, IntervalsResponse } from "@/services/qbtime-period-report.service"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -48,6 +50,30 @@ function formatTime(iso: string): string {
   return `${h12}:${m[2]} ${h >= 12 ? "PM" : "AM"}`
 }
 
+// Minutes → "4h 47m" / "1h" / "45m"
+function formatDuration(minutes: number): string {
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (h && m) return `${h}h ${m}m`
+  if (h)      return `${h}h`
+  return `${m}m`
+}
+
+// "2026-05-18", "2026-05-31" → "May 18–31, 2026"
+function formatPeriodLabel(startDate: string, endDate: string): string {
+  if (!startDate || !endDate) return "—"
+  const s = new Date(startDate + "T12:00:00")
+  const e = new Date(endDate + "T12:00:00")
+  const mon = (d: Date) => d.toLocaleString("en-US", { month: "short" })
+  if (s.getFullYear() !== e.getFullYear()) {
+    return `${mon(s)} ${s.getDate()}, ${s.getFullYear()} – ${mon(e)} ${e.getDate()}, ${e.getFullYear()}`
+  }
+  if (s.getMonth() === e.getMonth()) {
+    return `${mon(s)} ${s.getDate()}–${e.getDate()}, ${e.getFullYear()}`
+  }
+  return `${mon(s)} ${s.getDate()} – ${mon(e)} ${e.getDate()}, ${e.getFullYear()}`
+}
+
 // ── Timeline Block ────────────────────────────────────────────────────────────
 
 function TimelineBlock({
@@ -57,7 +83,7 @@ function TimelineBlock({
   dayStart: number
   dayEnd: number
 }) {
-  const range = dayEnd - dayStart
+  const range = Math.max(dayEnd - dayStart, 1)
   const s     = Math.max(isoToMinutes(block.start), dayStart)
   const e     = Math.min(block.end ? isoToMinutes(block.end) : dayEnd, dayEnd)
   const left  = ((s - dayStart) / range) * 100
@@ -66,15 +92,27 @@ function TimelineBlock({
   const label = block.isPaid ? formatPath(block.jobcodePath) : "Break"
 
   return (
-    <div
-      className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center px-1 cursor-default select-none`}
-      style={{ left: `${left}%`, width: `${width}%` }}
-      title={`${formatTime(block.start)} – ${formatTime(block.end)}\n${formatPath(block.jobcodePath)}\n${block.durationMinutes} min`}
-    >
-      <span className="text-[10px] font-medium truncate leading-none">
-        {width > 4 ? label : ""}
-      </span>
-    </div>
+    <Tooltip delay={120}>
+      <TooltipTrigger
+        render={
+          <div
+            className={`absolute top-0 h-full ${bg} ${text} rounded-sm overflow-hidden flex items-center px-1.5 cursor-default select-none`}
+            style={{ left: `${left}%`, width: `calc(${width}% - 3px)` }}
+          />
+        }
+      >
+        <span className="text-[10px] font-medium truncate leading-none">
+          {width > 4 ? label : ""}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="flex flex-col gap-1 max-w-[280px]">
+        <div className="flex items-center justify-between gap-4 border-b border-background/15 pb-1">
+          <span className="font-medium">{formatTime(block.start)} – {formatTime(block.end)}</span>
+          <span className="tabular-nums opacity-70">{formatDuration(block.durationMinutes)}</span>
+        </div>
+        <span className="opacity-80">{formatPath(block.jobcodePath)}</span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -83,33 +121,36 @@ function TimelineBlock({
 function DayRow({ day }: { day: PeriodDay }) {
   const starts   = day.blocks.map(b => isoToMinutes(b.start)).filter(Boolean)
   const ends     = day.blocks.map(b => b.end ? isoToMinutes(b.end) : 0).filter(Boolean)
-  const dayStart = Math.max(0,    Math.min(...(starts.length ? starts : [420])) - 15)
-  const dayEnd   = Math.min(1440, Math.max(...(ends.length   ? ends   : [1080])) + 15)
+  const dayStart = Math.max(0,    Math.min(...(starts.length ? starts : [420])))
+  let   dayEnd   = Math.min(1440, Math.max(...(ends.length   ? ends   : [1080])))
+  if (dayEnd <= dayStart) dayEnd = dayStart + 60
+  const range    = dayEnd - dayStart
 
   const ticks: number[] = []
   for (let m = Math.ceil(dayStart / 120) * 120; m <= dayEnd; m += 120) ticks.push(m)
 
   return (
-    <div className="flex gap-3 items-start py-1.5 border-b border-border/40 last:border-0">
-      <div className="w-28 shrink-0 pt-5">
-        <p className="text-xs font-medium">{day.dayName.slice(0, 3)} {day.date.slice(5)}</p>
-        <p className="text-[10px] text-muted-foreground">{day.totalHours.toFixed(2)}h paid</p>
+    <div className="flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-2 py-2 transition-colors hover:border-foreground/30">
+      <div className="w-24 shrink-0">
+        <p className="text-xs font-medium leading-tight">{day.dayName.slice(0, 3)} {day.date.slice(5)}</p>
+        <p className="mt-0.5 text-[10px] text-muted-foreground">{day.totalHours.toFixed(2)}h paid</p>
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="relative h-4 mb-0.5">
+      <div className="min-w-0 flex-1">
+        <div className="relative mb-1 h-3.5">
           {ticks.map(t => {
-            const pct  = ((t - dayStart) / (dayEnd - dayStart)) * 100
+            const pct  = ((t - dayStart) / range) * 100
             const h    = Math.floor(t / 60)
             const h12  = h % 12 === 0 ? 12 : h % 12
             const ampm = h >= 12 ? "pm" : "am"
+            const transform = pct <= 2 ? "translateX(0)" : pct >= 98 ? "translateX(-100%)" : "translateX(-50%)"
             return (
-              <span key={t} className="absolute text-[9px] text-muted-foreground -translate-x-1/2" style={{ left: `${pct}%` }}>
+              <span key={t} className="absolute text-[9px] text-muted-foreground" style={{ left: `${pct}%`, transform }}>
                 {h12}{ampm}
               </span>
             )
           })}
         </div>
-        <div className="relative h-7 bg-muted/30 rounded overflow-hidden border border-border/30">
+        <div className="relative h-8 overflow-hidden rounded-md bg-muted/40 ring-1 ring-border/40">
           {day.blocks.map((b, i) => (
             <TimelineBlock key={i} block={b} dayStart={dayStart} dayEnd={dayEnd} />
           ))}
@@ -121,8 +162,14 @@ function DayRow({ day }: { day: PeriodDay }) {
 
 // ── Employee Card ─────────────────────────────────────────────────────────────
 
-function EmployeeIntervalCard({ employee, selectedDay }: { employee: PeriodEmployee; selectedDay: string | null }) {
-  const [open, setOpen] = useState(true)
+function EmployeeIntervalCard({
+  employee, selectedDay, open, onToggle,
+}: {
+  employee: PeriodEmployee
+  selectedDay: string | null
+  open: boolean
+  onToggle: () => void
+}) {
   const days = selectedDay ? employee.days.filter(d => d.date === selectedDay) : employee.days
   if (!days.length) return null
   const totalHours = days.reduce((s, d) => s + d.totalHours, 0)
@@ -130,19 +177,24 @@ function EmployeeIntervalCard({ employee, selectedDay }: { employee: PeriodEmplo
   return (
     <div className="rounded-lg border border-border bg-card">
       <button
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors rounded-t-lg"
-        onClick={() => setOpen(o => !o)}
+        className="flex w-full items-center justify-between gap-3 rounded-t-lg px-4 py-3 transition-colors hover:bg-muted/30"
+        onClick={onToggle}
       >
-        <div className="flex items-center gap-3">
-          <span className="font-medium text-sm">{employee.name}</span>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <span className="truncate text-sm font-medium">{employee.name}</span>
+          {employee.team && (
+            <span className="truncate text-xs text-muted-foreground">{employee.team}</span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {totalHours.toFixed(2)}h paid
           </span>
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         </div>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="px-4 pb-3">
+        <div className="flex flex-col gap-1.5 px-4 pb-3 pt-1">
           {days.map(day => <DayRow key={day.date} day={day} />)}
         </div>
       )}
@@ -218,7 +270,7 @@ function AccountingTable({ rows, totals }: { rows: AccountingRow[]; totals: Acco
   )
 }
 
-// ── Export ────────────────────────────────────────────────────────────────────
+// ── Export: Accounting ──────────────────────────────────────────────────────────
 
 function doExportExcel(rows: AccountingRow[], totals: AccountingTotals, company: string, label: string) {
   const headers = ["Employee", "Job Code", "Reg Hrs", "Reg Rate ($)", "Reg Cost ($)", "OT Hrs", "OT Rate ($)", "OT Cost ($)", "Total Hrs", "Total Cost ($)"]
@@ -289,6 +341,79 @@ function doExportPDF(rows: AccountingRow[], company: string, label: string) {
   setTimeout(() => { win.focus(); win.print(); win.close() }, 300)
 }
 
+// ── Export: Intervals ───────────────────────────────────────────────────────────
+
+function doExportIntervalsExcel(intervals: IntervalsResponse, company: string, label: string) {
+  const headers = ["Employee", "Date", "Day", "Start", "End", "Duration", "Job Code", "Type"]
+  const data: (string | number)[][] = []
+  for (const emp of intervals.employees) {
+    for (const day of emp.days) {
+      for (const b of day.blocks) {
+        data.push([
+          emp.name,
+          day.date,
+          day.dayName,
+          formatTime(b.start),
+          formatTime(b.end),
+          formatDuration(b.durationMinutes),
+          b.isPaid ? formatPath(b.jobcodePath) : "Break",
+          b.isPaid ? "Paid" : "Break",
+        ])
+      }
+    }
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
+  ws["!cols"] = [24, 12, 10, 10, 10, 10, 55, 8].map(w => ({ wch: w }))
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, "Intervals")
+  XLSX.writeFile(wb, `Intervals_${company.toUpperCase()}_${label.replace(/[^a-z0-9]/gi, "_")}.xlsx`)
+}
+
+function doExportIntervalsPDF(intervals: IntervalsResponse, company: string, label: string) {
+  const win = window.open("", "_blank")
+  if (!win) return
+
+  let body = ""
+  for (const emp of intervals.employees) {
+    const empHours = emp.days.reduce((s, d) => s + d.totalHours, 0)
+    body += `<h4 class="emp">${emp.name} — ${empHours.toFixed(2)}h paid</h4>`
+    body += `<table><thead><tr>
+      <th style="text-align:left">Date</th><th style="text-align:left">Start</th>
+      <th style="text-align:left">End</th><th class="r">Duration</th><th style="text-align:left">Job Code</th>
+    </tr></thead><tbody>`
+    for (const day of emp.days) {
+      day.blocks.forEach((b, i) => {
+        body += `<tr>
+          <td>${i === 0 ? `${day.dayName.slice(0, 3)} ${day.date.slice(5)}` : ""}</td>
+          <td>${formatTime(b.start)}</td>
+          <td>${formatTime(b.end)}</td>
+          <td class="r">${formatDuration(b.durationMinutes)}</td>
+          <td>${b.isPaid ? formatPath(b.jobcodePath) : "Break"}</td>
+        </tr>`
+      })
+    }
+    body += `</tbody></table>`
+  }
+
+  win.document.write(`<!DOCTYPE html><html><head>
+    <title>Timesheet Intervals – ${company.toUpperCase()} – ${label}</title>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:11px;margin:20px}
+      h2{font-size:14px;margin-bottom:2px}h3{font-size:11px;color:#666;font-weight:normal;margin-bottom:12px}
+      h4.emp{font-size:12px;margin:16px 0 4px;padding-bottom:3px;border-bottom:2px solid #ddd}
+      table{width:100%;border-collapse:collapse;margin-bottom:6px}
+      th{background:#f0f0f0;padding:4px 7px;text-align:left;font-size:10px;text-transform:uppercase;border-bottom:2px solid #ccc}
+      td{padding:3px 7px;border-bottom:1px solid #eee}
+      td.r,th.r{text-align:right}
+    </style></head><body>
+    <h2>Timesheet Intervals — ${company.toUpperCase()}</h2><h3>${label}</h3>
+    ${body}
+    </body></html>`)
+  win.document.close()
+  setTimeout(() => { win.focus(); win.print(); win.close() }, 300)
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PeriodReportsPage() {
@@ -297,10 +422,13 @@ export default function PeriodReportsPage() {
   const [allDays,      setAllDays]      = useState(true)
   const [selectedDay,  setSelectedDay]  = useState<string | null>(null)
   const [activeTab,    setActiveTab]    = useState("intervals")
+  const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
+  const [groupBy,      setGroupBy]      = useState<"name" | "team">("name")
 
   const { data: periodsData, isLoading: periodsLoading } = usePayPeriods(company)
   const periods = periodsData?.periods ?? []
   const period  = periods[periodIndex] ?? null
+  const periodLabel = period ? formatPeriodLabel(period.startDate, period.endDate) : "—"
 
   const { data: intervals,  isLoading: intervalsLoading  } = usePeriodIntervals(
     company, period?.startDate ?? "", period?.endDate ?? "",
@@ -318,30 +446,70 @@ export default function PeriodReportsPage() {
     return Array.from(set).sort()
   }, [intervals])
 
+  // Employees actually rendered under the current day filter — drives "expand/collapse all".
+  const visibleEmployees = useMemo(() => {
+    if (!intervals) return []
+    return intervals.employees.filter(emp =>
+      allDays ? emp.days.length > 0 : emp.days.some(d => d.date === selectedDay),
+    )
+  }, [intervals, allDays, selectedDay])
+
+  const allCollapsed = visibleEmployees.length > 0 && visibleEmployees.every(e => collapsed.has(e.name))
+
+  // Render groups: flat (alphabetical) or grouped by team. Built from visible
+  // employees so empty team headers never show under the day filter.
+  const employeeGroups = useMemo(() => {
+    const emps = visibleEmployees
+    if (groupBy === "name") return [{ team: null as string | null, employees: emps }]
+    const map = new Map<string, PeriodEmployee[]>()
+    for (const e of emps) {
+      const t = e.team?.trim() || "Unassigned"
+      if (!map.has(t)) map.set(t, [])
+      map.get(t)!.push(e)
+    }
+    const names = [...map.keys()].sort((a, b) =>
+      a === "Unassigned" ? 1 : b === "Unassigned" ? -1 : a.localeCompare(b),
+    )
+    return names.map(t => ({ team: t as string | null, employees: map.get(t)! }))
+  }, [visibleEmployees, groupBy])
+
   const dayIndex = selectedDay ? availableDays.indexOf(selectedDay) : 0
 
   function handleCompanyChange(c: string) {
-    setCompany(c); setPeriodIndex(0); setAllDays(true); setSelectedDay(null)
+    setCompany(c); setPeriodIndex(0); setAllDays(true); setSelectedDay(null); setCollapsed(new Set())
   }
 
   function handleAllDaysToggle() {
     setAllDays(true); setSelectedDay(null)
   }
 
-  function handleSingleDay() {
-    if (allDays) {
-      const first = availableDays[0] ?? null
-      setAllDays(false); setSelectedDay(first)
-    }
+  function toggleEmployee(name: string) {
+    setCollapsed(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
   }
 
-  function prevDay() {
-    if (dayIndex > 0) { setAllDays(false); setSelectedDay(availableDays[dayIndex - 1]) }
+  function toggleAll() {
+    if (allCollapsed) setCollapsed(new Set())
+    else setCollapsed(new Set(visibleEmployees.map(e => e.name)))
   }
 
-  function nextDay() {
-    if (dayIndex < availableDays.length - 1) { setAllDays(false); setSelectedDay(availableDays[dayIndex + 1]) }
+  function handleExportExcel() {
+    if (activeTab === "accounting" && accounting) doExportExcel(accounting.rows, accounting.totals, company, periodLabel)
+    else if (activeTab === "intervals" && intervals) doExportIntervalsExcel(intervals, company, periodLabel)
   }
+
+  function handleExportPDF() {
+    if (activeTab === "accounting" && accounting) doExportPDF(accounting.rows, company, periodLabel)
+    else if (activeTab === "intervals" && intervals) doExportIntervalsPDF(intervals, company, periodLabel)
+  }
+
+  const canExport =
+    (activeTab === "accounting" && !!accounting?.rows.length) ||
+    (activeTab === "intervals"  && !!intervals?.employees.length)
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -415,8 +583,8 @@ export default function PeriodReportsPage() {
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
               </button>
-              <span className="min-w-[180px] text-center text-xs font-medium tabular-nums">
-                {periodsLoading ? <Skeleton className="h-3 w-36 inline-block" /> : (period?.label ?? "—")}
+              <span className="min-w-[150px] text-center text-xs font-medium tabular-nums">
+                {periodsLoading ? <Skeleton className="h-3 w-32 inline-block" /> : periodLabel}
               </span>
               <button
                 onClick={() => setPeriodIndex(i => Math.max(i - 1, 0))}
@@ -444,48 +612,61 @@ export default function PeriodReportsPage() {
                   >
                     All
                   </button>
-                  {!allDays && availableDays.length > 0 && (
-                    <>
-                      <div className="w-px h-4 bg-border mx-0.5" />
-                      <button
-                        onClick={prevDay}
-                        disabled={dayIndex <= 0}
-                        className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-                      >
-                        <ChevronLeft className="h-3.5 w-3.5" />
-                      </button>
-                      <span className="min-w-[96px] text-center text-xs font-medium tabular-nums">
-                        {selectedDay
-                          ? new Date(selectedDay + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
-                          : "—"}
-                      </span>
-                      <button
-                        onClick={nextDay}
-                        disabled={dayIndex >= availableDays.length - 1}
-                        className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-                      >
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </button>
-                    </>
-                  )}
+                  <div className="w-px h-4 bg-border mx-0.5" />
+                  <button
+                    onClick={() => {
+                      const target = dayIndex > 0 ? availableDays[dayIndex - 1] : (availableDays[0] ?? null)
+                      setAllDays(false)
+                      setSelectedDay(target)
+                    }}
+                    disabled={!allDays && dayIndex <= 0}
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="min-w-[48px] text-center text-xs font-medium tabular-nums">
+                    {allDays ? "—" : selectedDay
+                      ? `${new Date(selectedDay + "T12:00:00").getMonth() + 1}/${new Date(selectedDay + "T12:00:00").getDate()}`
+                      : "—"}
+                  </span>
+                  <button
+                    onClick={() => {
+                      const target = dayIndex < availableDays.length - 1 ? availableDays[dayIndex + 1] : (availableDays[availableDays.length - 1] ?? null)
+                      setAllDays(false)
+                      setSelectedDay(target)
+                    }}
+                    disabled={!allDays && dayIndex >= availableDays.length - 1}
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             </>
           )}
 
-          {/* Export — accounting only */}
-          {activeTab === "accounting" && accounting && (
+          {/* Export — both views */}
+          {canExport && (
             <>
               <div className="self-stretch w-px bg-border" />
-              <div className="flex gap-2 pb-0.5">
-                <Button variant="outline" size="sm" className="gap-2"
-                  onClick={() => doExportExcel(accounting.rows, accounting.totals, company, period?.label ?? "")}>
-                  <Download className="h-4 w-4" />Excel
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2"
-                  onClick={() => doExportPDF(accounting.rows, company, period?.label ?? "")}>
-                  <FileText className="h-4 w-4" />PDF
-                </Button>
+              <div className="pb-0.5">
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="h-8 gap-2" />}>
+                    <Download className="h-4 w-4" />
+                    Export
+                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem onClick={handleExportExcel}>
+                      <FileSpreadsheet className="h-4 w-4" />
+                      Excel (.xlsx)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportPDF}>
+                      <FileText className="h-4 w-4" />
+                      PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </>
           )}
@@ -509,10 +690,65 @@ export default function PeriodReportsPage() {
             <p className="text-sm text-muted-foreground">No timesheet data found for this period.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {intervals.employees.map(emp => (
-              <EmployeeIntervalCard key={emp.name} employee={emp} selectedDay={allDays ? null : selectedDay} />
-            ))}
+          <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-card/30">
+            <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+              <span className="text-xs text-muted-foreground">
+                {visibleEmployees.length} {visibleEmployees.length === 1 ? "employee" : "employees"}
+              </span>
+              <div className="flex items-center gap-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" />}>
+                    <ListFilter className="h-3.5 w-3.5" />
+                    {groupBy === "team" ? "By team" : "Alphabetical"}
+                    <ChevronDown className="h-3 w-3 opacity-60" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setGroupBy("name")}>
+                      <ArrowDownAZ className="h-4 w-4" />
+                      Alphabetical
+                      {groupBy === "name" && <Check className="ml-auto h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setGroupBy("team")}>
+                      <Users className="h-4 w-4" />
+                      By team
+                      {groupBy === "team" && <Check className="ml-auto h-4 w-4" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <div className="mx-1 h-4 w-px bg-border" />
+                <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={toggleAll}>
+                  {allCollapsed ? <ChevronsUpDown className="h-3.5 w-3.5" /> : <ChevronsDownUp className="h-3.5 w-3.5" />}
+                  {allCollapsed ? "Expand all" : "Collapse all"}
+                </Button>
+              </div>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+              <div className="flex flex-col gap-3">
+                {employeeGroups.map(group => (
+                  <div key={group.team ?? "all"} className="flex flex-col gap-2">
+                    {group.team && (
+                      <div className="flex items-center gap-2 px-1 pt-1">
+                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {group.team}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground/60">{group.employees.length}</span>
+                        <div className="h-px flex-1 bg-border/60" />
+                      </div>
+                    )}
+                    {group.employees.map(emp => (
+                      <EmployeeIntervalCard
+                        key={emp.name}
+                        employee={emp}
+                        selectedDay={allDays ? null : selectedDay}
+                        open={!collapsed.has(emp.name)}
+                        onToggle={() => toggleEmployee(emp.name)}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )
       )}

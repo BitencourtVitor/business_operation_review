@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
+	"github.com/bitencourtVitor/bor2-api/internal/repository"
 )
 
 // ── QB Time API response shapes (local) ──────────────────────────────────────
@@ -92,10 +93,14 @@ type usersResp struct {
 
 type PeriodReportService struct {
 	httpClient *http.Client
+	teamRepo   repository.QBTimeTeamRepository
 }
 
-func NewPeriodReportService() *PeriodReportService {
-	return &PeriodReportService{httpClient: &http.Client{Timeout: 60 * time.Second}}
+func NewPeriodReportService(teamRepo repository.QBTimeTeamRepository) *PeriodReportService {
+	return &PeriodReportService{
+		httpClient: &http.Client{Timeout: 60 * time.Second},
+		teamRepo:   teamRepo,
+	}
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -111,30 +116,40 @@ func (s *PeriodReportService) fetchJobcodes(ctx context.Context, token string, s
 		}
 	}
 
-	url := fmt.Sprintf("%s/jobcodes?active=yes&per_page=200", qbtBaseURL)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nameByID, parentByID
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return nameByID, parentByID
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	// Page through ALL jobcodes (active + inactive). The accounting/payroll report
+	// references archived jobcodes and parents that a single active-only page misses,
+	// which is why unresolved IDs showed up as "Jobcode 12345".
+	for page := 1; ; page++ {
+		url := fmt.Sprintf("%s/jobcodes?active=both&per_page=200&page=%d", qbtBaseURL, page)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			break
+		}
+		req.Header.Set("Authorization", "Bearer "+token)
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			break
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
 
-	var data struct {
-		Results struct {
-			Jobcodes map[string]periodJobcodeItem `json:"jobcodes"`
-		} `json:"results"`
-	}
-	if json.Unmarshal(body, &data) == nil {
+		var data struct {
+			Results struct {
+				Jobcodes map[string]periodJobcodeItem `json:"jobcodes"`
+			} `json:"results"`
+			More bool `json:"more"`
+		}
+		if json.Unmarshal(body, &data) != nil {
+			break
+		}
 		for _, jc := range data.Results.Jobcodes {
 			nameByID[jc.ID] = jc.Name
 			if jc.ParentID != 0 {
 				parentByID[jc.ID] = jc.ParentID
 			}
+		}
+		if !data.More || page >= 20 {
+			break
 		}
 	}
 	return nameByID, parentByID
@@ -224,15 +239,20 @@ func (s *PeriodReportService) GetPayPeriods(ctx context.Context, company string)
 		end := currentEnd.AddDate(0, 0, -14*i)
 		start := end.AddDate(0, 0, -13)
 
-		startFmt := start.Format("Jan 2")
-		endFmt := end.Format("Jan 2, 2006")
-		// If start and end are in the same month, simplify
-		if start.Month() == end.Month() && start.Year() == end.Year() {
-			endFmt = end.Format("Jan 2–") + end.Format("2, 2006")
+		var label string
+		switch {
+		case start.Year() != end.Year():
+			label = fmt.Sprintf("%s – %s", start.Format("Jan 2, 2006"), end.Format("Jan 2, 2006"))
+		case start.Month() == end.Month():
+			// Same month: "May 18–31, 2026"
+			label = fmt.Sprintf("%s–%d, %d", start.Format("Jan 2"), end.Day(), end.Year())
+		default:
+			// Same year, different month: "Apr 26 – May 9, 2026"
+			label = fmt.Sprintf("%s – %s", start.Format("Jan 2"), end.Format("Jan 2, 2006"))
 		}
 
 		periods = append(periods, domain.PayPeriod{
-			Label:     fmt.Sprintf("%s – %s", startFmt, endFmt),
+			Label:     label,
 			StartDate: start.Format("2006-01-02"),
 			EndDate:   end.Format("2006-01-02"),
 		})
@@ -377,6 +397,20 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 		empDays[nd.name][nd.date] = day
 	}
 
+	// Resolve BOR2 team per employee. Members are stored as "First Last" names,
+	// matching the period employee name format. Best-effort: on failure employees
+	// simply come back with an empty team.
+	nameToTeam := make(map[string]string)
+	if s.teamRepo != nil {
+		if teams, err := s.teamRepo.List(ctx, strings.ToLower(company)); err == nil {
+			for _, t := range teams {
+				for _, m := range t.Members {
+					nameToTeam[strings.ToLower(strings.TrimSpace(m))] = t.Name
+				}
+			}
+		}
+	}
+
 	// build employees slice
 	employees := make([]domain.PeriodEmployee, 0, len(empDays))
 	for name, dayMap := range empDays {
@@ -390,6 +424,7 @@ func (s *PeriodReportService) GetIntervals(ctx context.Context, company, startDa
 
 		employees = append(employees, domain.PeriodEmployee{
 			Name:       name,
+			Team:       nameToTeam[strings.ToLower(name)],
 			TotalHours: round2(totalHours),
 			Days:       days,
 		})

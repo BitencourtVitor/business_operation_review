@@ -132,7 +132,7 @@ func main() {
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	weeklyReportSvc          := service.NewWeeklyReportService()
 	weeklyReportHandler      := handler.NewWeeklyReportHandler(weeklyReportSvc)
-	periodReportSvc          := service.NewPeriodReportService()
+	periodReportSvc          := service.NewPeriodReportService(qbtimeTeamRepo)
 	periodReportHandler      := handler.NewPeriodReportHandler(periodReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
