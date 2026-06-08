@@ -257,10 +257,8 @@ function AccountingTable({ rows, totals }: { rows: AccountingRow[]; totals: Acco
           <tr className="bg-muted/60 text-xs text-muted-foreground uppercase tracking-wide">
             <th className="text-left px-3 py-2.5 font-medium">Job Code</th>
             <th className="text-right px-3 py-2.5 font-medium">Reg Hrs</th>
-            <th className="text-right px-3 py-2.5 font-medium">Reg Rate</th>
             <th className="text-right px-3 py-2.5 font-medium">Reg Cost</th>
             <th className="text-right px-3 py-2.5 font-medium">OT Hrs</th>
-            <th className="text-right px-3 py-2.5 font-medium">OT Rate</th>
             <th className="text-right px-3 py-2.5 font-medium">OT Cost</th>
             <th className="text-right px-3 py-2.5 font-medium">Total</th>
           </tr>
@@ -268,19 +266,30 @@ function AccountingTable({ rows, totals }: { rows: AccountingRow[]; totals: Acco
         <tbody>
           {Array.from(grouped.entries()).map(([employee, empRows]) => {
             const empTotal = empRows.reduce((s, r) => s + r.totalCost, 0)
+            const regRate  = empRows[0]?.regularRate ?? 0
+            const otRate   = empRows[0]?.otRate ?? 0
             return [
               <tr key={`${employee}-hdr`} className="bg-muted/40 border-t border-border">
-                <td colSpan={7} className="px-3 py-2 font-semibold text-sm">{employee}</td>
+                <td colSpan={5} className="px-3 py-2">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-sm">{employee}</span>
+                    {regRate > 0 && (
+                      <>
+                        <span className="w-px h-3.5 bg-border/60 shrink-0" />
+                        <span className="text-xs text-muted-foreground tabular-nums">Reg <span className="text-foreground font-medium">${regRate.toFixed(2)}</span></span>
+                        <span className="text-xs text-muted-foreground tabular-nums">OT <span className="text-foreground font-medium">${otRate.toFixed(2)}</span></span>
+                      </>
+                    )}
+                  </div>
+                </td>
                 <td className="px-3 py-2 text-right font-semibold">${empTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>,
               ...empRows.map((row, i) => (
                 <tr key={`${employee}-${i}`} className="border-t border-border/40 hover:bg-muted/20 transition-colors">
                   <td className="px-3 py-2 text-xs text-muted-foreground pl-5">{formatPath(row.jobcodePath)}</td>
                   <td className="px-3 py-2 text-right tabular-nums">{fmtH(row.regularHours)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{row.regularRate > 0 ? `$${row.regularRate.toFixed(2)}` : "–"}</td>
                   <td className="px-3 py-2 text-right tabular-nums">{row.regularCost > 0 ? `$${fmt(row.regularCost)}` : "–"}</td>
                   <td className="px-3 py-2 text-right tabular-nums">{fmtH(row.otHours)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{row.otRate > 0 ? `$${row.otRate.toFixed(2)}` : "–"}</td>
                   <td className="px-3 py-2 text-right tabular-nums">{row.otCost > 0 ? `$${fmt(row.otCost)}` : "–"}</td>
                   <td className="px-3 py-2 text-right tabular-nums font-medium">${fmt(row.totalCost)}</td>
                 </tr>
@@ -290,10 +299,8 @@ function AccountingTable({ rows, totals }: { rows: AccountingRow[]; totals: Acco
           <tr className="border-t-2 border-border bg-muted/60 font-semibold">
             <td className="px-3 py-2.5 text-sm">Grand Total</td>
             <td className="px-3 py-2.5 text-right tabular-nums">{totals.regularHours.toFixed(2)}</td>
-            <td className="px-3 py-2.5" />
             <td className="px-3 py-2.5 text-right tabular-nums">${totals.regularCost.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
             <td className="px-3 py-2.5 text-right tabular-nums">{totals.otHours.toFixed(2)}</td>
-            <td className="px-3 py-2.5" />
             <td className="px-3 py-2.5 text-right tabular-nums">${totals.otCost.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
             <td className="px-3 py-2.5 text-right tabular-nums">${totals.totalCost.toLocaleString("en-US", { minimumFractionDigits: 2 })}</td>
           </tr>
@@ -610,8 +617,6 @@ export default function PeriodReportsPage() {
             </div>
           </div>
 
-          <div className="self-stretch w-px bg-border" />
-
           {/* Company */}
           <div className="flex flex-col items-start gap-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
@@ -639,7 +644,7 @@ export default function PeriodReportsPage() {
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Period</p>
             <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border bg-muted/40 px-1">
               <button
-                onClick={() => setPeriodIndex(i => Math.min(i + 1, periods.length - 1))}
+                onClick={() => { setPeriodIndex(i => Math.min(i + 1, periods.length - 1)); setAllDays(true) }}
                 disabled={periodsLoading || periodIndex >= periods.length - 1}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               >
@@ -649,7 +654,7 @@ export default function PeriodReportsPage() {
                 {periodsLoading ? <Skeleton className="h-3 w-32 inline-block" /> : periodLabel}
               </span>
               <button
-                onClick={() => setPeriodIndex(i => Math.max(i - 1, 0))}
+                onClick={() => { setPeriodIndex(i => Math.max(i - 1, 0)); setAllDays(true) }}
                 disabled={periodsLoading || periodIndex === 0}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               >
@@ -661,7 +666,6 @@ export default function PeriodReportsPage() {
           {/* Day filter — intervals only */}
           {activeTab === "intervals" && (
             <>
-              <div className="self-stretch w-px bg-border" />
               <div className="flex flex-col items-start gap-1">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Days</p>
                 <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border bg-muted/40 px-1">
