@@ -34,6 +34,7 @@ type PeriodDay struct {
 
 type PeriodEmployee struct {
 	Name        string      `json:"name"`
+	Team        string      `json:"team"`         // BOR2 team name (empty when unassigned)
 	TotalHours  float64     `json:"totalHours"`  // sum of paid hours across all days
 	TotalOTHours float64    `json:"totalOTHours"` // overtime hours (from accounting data)
 	Days        []PeriodDay `json:"days"`

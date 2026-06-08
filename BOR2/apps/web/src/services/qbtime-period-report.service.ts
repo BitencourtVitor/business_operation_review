@@ -39,6 +39,7 @@ export interface PeriodDay {
 
 export interface PeriodEmployee {
   name:        string
+  team:        string // BOR2 team name ("" when unassigned)
   totalHours:  number
   totalOTHours: number
   days:        PeriodDay[]
