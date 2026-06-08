@@ -106,16 +106,90 @@ function addressKey(block: PeriodBlock): string | null {
   return ident.join(" › ")
 }
 
-// Assigns each distinct address an evenly-spaced hue so colors are maximally
-// separated across the addresses currently visible (company + period + day filter).
+// ── Perceptual color generation (max-min in CIELAB) ─────────────────────────────
+// Even hue spacing in HSL looks bad because hue isn't perceptually uniform (greens
+// span a huge hue range yet look alike). Instead we build a candidate grid, convert
+// to CIELAB, and greedily pick the N colors that maximize the minimum perceptual
+// distance between them — so the palette diverges as much as the count allows.
+
+function hslToRgb(h: number, s: number, l: number): number[] {
+  const a = s * Math.min(l, 1 - l)
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+  }
+  return [255 * f(0), 255 * f(8), 255 * f(4)]
+}
+
+function rgbToLab([r, g, b]: number[]): number[] {
+  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  const R = lin(r / 255), G = lin(g / 255), B = lin(b / 255)
+  let x = (R * 0.4124 + G * 0.3576 + B * 0.1805) / 0.95047
+  let y = (R * 0.2126 + G * 0.7152 + B * 0.0722)
+  let z = (R * 0.0193 + G * 0.1192 + B * 0.9505) / 1.08883
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116)
+  x = f(x); y = f(y); z = f(z)
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)]
+}
+
+function labDist(a: number[], b: number[]): number {
+  const dl = a[0] - b[0], da = a[1] - b[1], db = a[2] - b[2]
+  return Math.sqrt(dl * dl + da * da + db * db)
+}
+
+function toHex([r, g, b]: number[]): string {
+  return "#" + [r, g, b].map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("")
+}
+
+// Candidate colors kept in a mid-lightness band so both white (light mode) and
+// black (dark mode) label text stay readable; divergence comes from hue + chroma.
+const COLOR_CANDIDATES: { rgb: number[]; lab: number[] }[] = (() => {
+  const out: { rgb: number[]; lab: number[] }[] = []
+  for (let h = 0; h < 360; h += 9) {
+    for (const s of [0.62, 0.9]) {
+      for (const l of [0.48, 0.6]) {
+        const rgb = hslToRgb(h, s, l)
+        out.push({ rgb, lab: rgbToLab(rgb) })
+      }
+    }
+  }
+  return out
+})()
+
 function buildAddressColors(keys: string[]): Map<string, string> {
   const sorted = [...keys].sort()
-  const n = Math.max(sorted.length, 1)
   const map = new Map<string, string>()
-  sorted.forEach((k, i) => {
-    const hue = Math.round((i / n) * 360)
-    map.set(k, `hsl(${hue} 60% 50%)`)
+  if (sorted.length === 0) return map
+
+  const gray = rgbToLab([128, 128, 128])
+  const used = new Set<number>()
+  const picked: number[] = []
+
+  // Seed with the most colorful candidate (farthest from neutral gray).
+  let seed = 0, seedScore = -1
+  COLOR_CANDIDATES.forEach((c, i) => {
+    const d = labDist(c.lab, gray)
+    if (d > seedScore) { seedScore = d; seed = i }
   })
+  picked.push(seed); used.add(seed)
+
+  // Greedily add the candidate that maximizes the minimum distance to all picked.
+  while (picked.length < sorted.length && used.size < COLOR_CANDIDATES.length) {
+    let best = -1, bestScore = -1
+    COLOR_CANDIDATES.forEach((c, i) => {
+      if (used.has(i)) return
+      let minD = Infinity
+      for (const p of picked) {
+        const d = labDist(c.lab, COLOR_CANDIDATES[p].lab)
+        if (d < minD) minD = d
+      }
+      if (minD > bestScore) { bestScore = minD; best = i }
+    })
+    if (best < 0) break
+    picked.push(best); used.add(best)
+  }
+
+  sorted.forEach((k, i) => map.set(k, toHex(COLOR_CANDIDATES[picked[i % picked.length]].rgb)))
   return map
 }
 
