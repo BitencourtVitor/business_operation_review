@@ -124,4 +124,11 @@ export const periodReportService = {
       { company, address, unpaid },
       getToken(),
     ),
+
+  sync: (days = 14) =>
+    api.post<unknown>(
+      `/api/v1/qbtime/period-report/sync?days=${days}`,
+      {},
+      getToken(),
+    ),
 }

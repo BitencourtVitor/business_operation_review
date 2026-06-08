@@ -483,7 +483,12 @@ func main() {
 		Sandbox:  cfg.App.Env != "production",
 	})
 
-	scheduler := jobs.NewScheduler(alertsJob, qbSyncJob)
+	qbTimePeriodSyncJob := jobs.NewQBTimePeriodSyncJob(jobs.QBTimePeriodSyncConfig{
+		Svc:  periodReportSvc,
+		Days: 14,
+	})
+
+	scheduler := jobs.NewScheduler(alertsJob, qbSyncJob, qbTimePeriodSyncJob)
 	go scheduler.Start(jobCtx)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────

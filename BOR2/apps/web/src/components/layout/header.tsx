@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
 import { permitService } from "@/services/permit.service"
+import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import {
@@ -108,6 +109,9 @@ export function Header() {
     try {
       if (pathname === "/permits") {
         await permitService.syncFromSheet()
+      }
+      if (pathname === "/qbtime/period-reports") {
+        await periodReportService.sync(14)
       }
       await queryClient.invalidateQueries()
     } finally {
