@@ -32,7 +32,8 @@ type periodTSItem struct {
 	End       string `json:"end"`
 	Duration  int    `json:"duration"`
 	Date      string `json:"date"`
-	Type      string `json:"type"` // "regular" | "break"
+	Type      string `json:"type"`   // "regular" | "break"
+	Active    bool   `json:"active"` // false = deleted in QB Time
 }
 
 type periodJobcodeItem struct {
@@ -458,6 +459,107 @@ func (s *PeriodReportService) fetchTimesheetsLive(ctx context.Context, company, 
 	return rows, nil
 }
 
+// ── Delta timesheet fetch (modified_after) ────────────────────────────────────
+
+// fetchTimesheetsDelta returns only timesheets modified since modifiedAfter.
+// Inactive entries (active=false) are deletions in QB Time; the caller handles
+// them separately. Users and jobcodes come from supplemental_data as usual.
+type deltaResult struct {
+	upserts []domain.QBTimesheetRow
+	deletes []int64 // qbt_ids to remove from cache
+}
+
+func (s *PeriodReportService) fetchTimesheetsDelta(ctx context.Context, company string, modifiedAfter time.Time) (*deltaResult, error) {
+	token := qbtToken(company)
+	if token == "" {
+		return nil, fmt.Errorf("no QB Time token for company %q", company)
+	}
+
+	modStr := modifiedAfter.UTC().Format(time.RFC3339)
+	allTS := make(map[string]periodTSItem)
+	allUsers := make(map[string]periodUserItem)
+	allJCSeed := make(map[int]periodJobcodeItem)
+
+	for page := 1; ; page++ {
+		url := fmt.Sprintf(
+			"%s/timesheets?modified_after=%s&active=both&supplemental_data=yes&per_page=200&page=%d",
+			qbtBaseURL, modStr, page,
+		)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("build delta timesheets request: %w", err)
+		}
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("delta timesheets request: %w", err)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		var pageResp periodTSResp
+		if err := json.Unmarshal(body, &pageResp); err != nil {
+			return nil, fmt.Errorf("parse delta timesheets: %w", err)
+		}
+		for k, v := range pageResp.Results.Timesheets {
+			allTS[k] = v
+		}
+		for k, v := range pageResp.SupplementalData.Users {
+			allUsers[k] = v
+		}
+		for _, jc := range pageResp.SupplementalData.Jobcodes {
+			allJCSeed[jc.ID] = jc
+		}
+		if !pageResp.More || page >= 200 {
+			break
+		}
+	}
+
+	nameByID, parentByID := s.fetchJobcodes(ctx, token, allJCSeed)
+	userByID := make(map[int]string)
+	for _, u := range allUsers {
+		userByID[u.ID] = strings.TrimSpace(u.FirstName + " " + u.LastName)
+	}
+
+	result := &deltaResult{}
+	for _, ts := range allTS {
+		if !ts.Active {
+			result.deletes = append(result.deletes, int64(ts.ID))
+			continue
+		}
+		name := userByID[ts.UserID]
+		if name == "" {
+			continue
+		}
+		path := resolveJobcodePathPR(ts.JobcodeID, nameByID, parentByID)
+		isPaid := ts.Type == "regular"
+		if ts.Type == "break" {
+			for _, p := range path {
+				if strings.Contains(strings.ToLower(p), "paid") {
+					isPaid = true
+					break
+				}
+			}
+		}
+		result.upserts = append(result.upserts, domain.QBTimesheetRow{
+			Company:     company,
+			QBTID:       int64(ts.ID),
+			UserID:      int64(ts.UserID),
+			UserName:    name,
+			JobcodeID:   int64(ts.JobcodeID),
+			JobcodePath: path,
+			WorkDate:    ts.Date,
+			Start:       ts.Start,
+			End:         ts.End,
+			DurationMin: ts.Duration / 60,
+			Type:        ts.Type,
+			IsPaid:      isPaid,
+		})
+	}
+	return result, nil
+}
+
 // ── Assemble intervals from rows (cache or live) ───────────────────────────────
 
 func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, startDate, endDate string, rows []domain.QBTimesheetRow, unpaid map[string]bool) *domain.IntervalsResponse {
@@ -778,8 +880,14 @@ func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startD
 
 // ── Sync (daily cron) ──────────────────────────────────────────────────────────
 
-// SyncCompany pulls the last `days` of QB Time data for a company and refreshes
-// the cache. The range is replaced wholesale so corrections/deletions land too.
+// SyncCompany refreshes the QB Time cache for a company.
+//
+// Delta mode (fast): when the cache already has a last_run_at, only records
+// modified since that timestamp are fetched from QB Time — typically a handful
+// of punches. Deletions (active=false) are removed; everything else is upserted.
+//
+// Full mode (cold start / explicit backfill): when there is no prior sync state,
+// or when days > 14 is explicitly requested, the last `days` are replaced wholesale.
 func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, days int) error {
 	if s.cacheRepo == nil {
 		return fmt.Errorf("cache repository not configured")
@@ -796,12 +904,29 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 	endDate := today.Format("2006-01-02")
 	startDate := today.AddDate(0, 0, -days).Format("2006-01-02")
 
-	tsRows, err := s.fetchTimesheetsLive(ctx, company, startDate, endDate)
-	if err != nil {
-		return fmt.Errorf("fetch timesheets: %w", err)
-	}
-	if err := s.cacheRepo.ReplaceTimesheets(ctx, company, startDate, endDate, tsRows); err != nil {
-		return fmt.Errorf("store timesheets: %w", err)
+	// Determine whether we can do a delta sync.
+	state, _ := s.cacheRepo.GetSyncState(ctx, company)
+	useDelta := state != nil && !state.LastRunAt.IsZero() && days <= 14
+
+	if useDelta {
+		delta, err := s.fetchTimesheetsDelta(ctx, company, state.LastRunAt)
+		if err != nil {
+			return fmt.Errorf("fetch timesheet delta: %w", err)
+		}
+		if err := s.cacheRepo.UpsertTimesheets(ctx, company, delta.upserts); err != nil {
+			return fmt.Errorf("upsert timesheets: %w", err)
+		}
+		if err := s.cacheRepo.DeleteTimesheets(ctx, company, delta.deletes); err != nil {
+			return fmt.Errorf("delete timesheets: %w", err)
+		}
+	} else {
+		tsRows, err := s.fetchTimesheetsLive(ctx, company, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("fetch timesheets: %w", err)
+		}
+		if err := s.cacheRepo.ReplaceTimesheets(ctx, company, startDate, endDate, tsRows); err != nil {
+			return fmt.Errorf("store timesheets: %w", err)
+		}
 	}
 
 	for _, p := range payPeriodsOverlapping(company, startDate, endDate) {
@@ -820,7 +945,6 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 	// Retention: keep a little over three months.
 	cutoff := today.AddDate(0, 0, -100).Format("2006-01-02")
 	_ = s.cacheRepo.Prune(ctx, company, cutoff)
-	_ = s.cacheRepo.RefreshSyncState(ctx, company, endDate)
 	return nil
 }
 
