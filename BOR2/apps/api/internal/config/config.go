@@ -15,9 +15,10 @@ type Config struct {
 }
 
 type AIConfig struct {
-	OpenRouterKey   string
-	Model           string
-	ClassifierModel string
+	OpenRouterKey string
+	SQLModel      string // agentic SQL loop (writes/refines queries) — e.g. google/gemini-2.5-flash
+	AnalystModel  string // final analytical answer — e.g. anthropic/claude-sonnet-4.5
+	ReadOnlyDBURL string // DSN for the read-only aria_ro role (falls back to main DB if empty)
 }
 
 type AppConfig struct {
@@ -57,9 +58,10 @@ func Load() (*Config, error) {
 			URL:    getEnv("BETTER_AUTH_URL", "http://localhost:8080"),
 		},
 		AI: AIConfig{
-			OpenRouterKey:   getEnv("OPENROUTER_API_KEY", ""),
-			Model:           getEnv("AI_MODEL", "google/gemini-2.0-flash-001"),
-			ClassifierModel: getEnv("AI_CLASSIFIER_MODEL", "google/gemini-2.0-flash-lite-001"),
+			OpenRouterKey: getEnv("OPENROUTER_API_KEY", ""),
+			SQLModel:      getEnv("AI_SQL_MODEL", "google/gemini-2.5-flash"),
+			AnalystModel:  getEnv("AI_ANALYST_MODEL", "anthropic/claude-sonnet-4.5"),
+			ReadOnlyDBURL: getEnv("ARIA_READONLY_DATABASE_URL", ""),
 		},
 	}
 

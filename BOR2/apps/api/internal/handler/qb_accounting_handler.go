@@ -157,6 +157,7 @@ func (h *QBAccountingHandler) Years(c *fiber.Ctx) error {
 			UNION
 			SELECT txn_date FROM qb_invoices      WHERE company = $1 AND txn_date IS NOT NULL
 		) t
+		WHERE EXTRACT(YEAR FROM txn_date) BETWEEN 2018 AND EXTRACT(YEAR FROM NOW())::int + 1
 		ORDER BY year DESC
 	`, company)
 	if err != nil {

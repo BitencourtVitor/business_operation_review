@@ -405,7 +405,7 @@ function AccountingContent() {
       </div>
 
       {/* ── Chart ── */}
-      <div className="rounded-xl border border-border bg-card/60 p-5 flex flex-col gap-3">
+      <div className="rounded-xl border border-border bg-card/60 p-5 flex min-h-0 flex-1 flex-col gap-3">
         <div className="flex shrink-0 items-center justify-between">
           <span className="text-sm font-medium">
             Cash Flow {month !== "all" ? "Daily" : "Monthly"}{yearParam ? ` · ${yearParam}` : " · All Time"}
@@ -427,17 +427,17 @@ function AccountingContent() {
           </div>
         </div>
         {chartLoading ? (
-          <div className="h-64 flex items-center justify-center">
+          <div className="flex min-h-0 flex-1 items-center justify-center">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
           </div>
         ) : !hasChartData ? (
-          <Empty className="h-64 border">
+          <Empty className="min-h-0 flex-1 border">
             <EmptyMedia><BarChart2 className="h-8 w-8 text-muted-foreground/50" /></EmptyMedia>
             <EmptyTitle>No cash flow data for this period.</EmptyTitle>
           </Empty>
         ) : (
           <div className="min-h-0 flex-1">
-            <ResponsiveContainer width="100%" height={260}>
+            <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={activeChartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gradReceived" x1="0" y1="0" x2="0" y2="1">
@@ -481,7 +481,7 @@ function AccountingContent() {
       </div>
 
       {/* ── Project carousel ── */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
+      <div className="flex shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
 
         {/* Controls bar */}
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
@@ -559,12 +559,12 @@ function AccountingContent() {
 
         {/* Cards */}
         {projectsLoading ? (
-          <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex min-h-[180px] items-center justify-center gap-2 text-sm text-muted-foreground">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-foreground" />
             Loading projects…
           </div>
         ) : !hasProjectData ? (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex min-h-[180px] items-center justify-center">
             <Empty className="border-0">
               <EmptyMedia><FolderOpen className="h-8 w-8 text-muted-foreground/50" /></EmptyMedia>
               <EmptyTitle>No projects found for this period.</EmptyTitle>
@@ -573,7 +573,7 @@ function AccountingContent() {
         ) : (
           <div
             ref={carouselRef}
-            className="flex flex-1 cursor-grab items-start gap-3 overflow-x-auto overflow-y-hidden p-3 select-none active:cursor-grabbing [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border"
+            className="flex cursor-grab items-start gap-3 overflow-x-auto overflow-y-hidden p-3 select-none active:cursor-grabbing [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border"
             onMouseDown={e => { drag.current = { x: e.clientX, scroll: carouselRef.current?.scrollLeft ?? 0, active: true } }}
           >
             {filteredProjects.map(p => (
