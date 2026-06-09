@@ -139,9 +139,34 @@ func main() {
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
-	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
-	aiClassifierLLM         := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.ClassifierModel)
-	aiChatHandler           := handler.NewAIChatHandler(service.NewAIService(db, aiLLM, aiClassifierLLM, cfg.AI.Model), authService)
+	aiSQLLLM                := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
+	aiAnalystLLM            := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.AnalystModel)
+	// Aria must query through the read-only aria_ro role so RLS enforces company
+	// isolation. Falling back to the main (superuser) pool would BYPASS RLS, so we
+	// only allow that in development. In production a missing URL disables querying.
+	var ariaSQL *service.AriaSQL
+	ariaDBURL := cfg.AI.ReadOnlyDBURL
+	if ariaDBURL == "" && cfg.App.Env != "production" {
+		ariaDBURL = cfg.Database.URL
+		logger.Error("ARIA_READONLY_DATABASE_URL not set — dev fallback to main DB")
+	}
+	if ariaDBURL != "" {
+		ariaPool, err := pgxpool.New(context.Background(), ariaDBURL)
+		if err != nil {
+			logger.Error("failed to connect aria read-only pool", "error", err)
+			os.Exit(1)
+		}
+		defer ariaPool.Close()
+		ariaSQL = service.NewAriaSQL(ariaPool)
+	} else {
+		logger.Error("Aria SQL disabled — set ARIA_READONLY_DATABASE_URL to enable (required in production for RLS isolation)")
+	}
+	service.ValidateSchema(context.Background(), db)
+	ariaDict, err := service.BuildDataDictionary(context.Background(), db)
+	if err != nil {
+		logger.Error("failed to build aria data dictionary", "error", err)
+	}
+	aiChatHandler           := handler.NewAIChatHandler(service.NewAIService(db, aiSQLLLM, aiAnalystLLM, ariaSQL, ariaDict), authService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{

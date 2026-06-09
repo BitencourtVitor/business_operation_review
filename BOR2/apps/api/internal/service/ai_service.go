@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 )
 
 const (
@@ -78,23 +79,19 @@ You only discuss financials for {{COMPANY}}. You do not:
 
 You are analyzing data for: {{COMPANY}}`
 
-// AIService orchestrates the full chat pipeline.
+// AIService orchestrates the full chat pipeline: an agentic SQL gathering phase
+// (sqlLLM writes/refines read-only queries via the run_sql tool) followed by an
+// analytical synthesis phase (analyst turns the gathered data into the answer).
 type AIService struct {
 	db      *pgxpool.Pool
-	llm     *OpenRouterClient
-	planner *AIQueryPlanner
-	model   string
+	sqlLLM  *OpenRouterClient // agentic SQL loop — e.g. Gemini Flash
+	analyst *OpenRouterClient // final analytical answer — e.g. Claude Sonnet
+	aria    *AriaSQL          // read-only query executor (validation + RLS scope)
+	dict    string            // data dictionary injected into the SQL agent prompt
 }
 
-// NewAIService wires the service. classifierLLM is a lightweight model used only
-// for intent classification; llm is the full model used to generate responses.
-func NewAIService(db *pgxpool.Pool, llm, classifierLLM *OpenRouterClient, model string) *AIService {
-	return &AIService{
-		db:      db,
-		llm:     llm,
-		planner: NewAIQueryPlanner(db, classifierLLM),
-		model:   model,
-	}
+func NewAIService(db *pgxpool.Pool, sqlLLM, analyst *OpenRouterClient, aria *AriaSQL, dict string) *AIService {
+	return &AIService{db: db, sqlLLM: sqlLLM, analyst: analyst, aria: aria, dict: dict}
 }
 
 // ── Conversation CRUD ─────────────────────────────────────────────────────────
@@ -268,11 +265,8 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	// ── 3. synthesize user message ─────────────────────────────────────────────
 	synthesized := synthesizeInput(req.Message)
 
-	// ── 4. run query planner ──────────────────────────────────────────────────
-	queryResults, err := s.planner.Run(ctx, req.Company, req.Message)
-	if err != nil {
-		return nil, fmt.Errorf("query planner: %w", err)
-	}
+	// ── 4. agentic SQL gathering (Flash writes/refines read-only queries) ──────
+	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message)
 
 	dataJSON, err := json.Marshal(queryResults)
 	if err != nil {
@@ -285,8 +279,8 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 		return nil, fmt.Errorf("build context: %w", err)
 	}
 
-	// ── 6. call LLM ───────────────────────────────────────────────────────────
-	resp, err := s.llm.Chat(ctx, messages)
+	// ── 6. call analyst LLM ───────────────────────────────────────────────────
+	resp, err := s.analyst.Chat(ctx, messages)
 	if err != nil {
 		return nil, fmt.Errorf("llm: %w", err)
 	}
@@ -554,4 +548,105 @@ func (s *AIService) UpsertCompanyContext(ctx context.Context, company, text stri
 		ON CONFLICT (company) DO UPDATE SET context=$2, updated_at=NOW()`,
 		company, text)
 	return err
+}
+
+// ── Agentic SQL gathering ───────────────────────────────────────────────────────
+
+const maxSQLIterations = 5
+
+var runSQLTool = Tool{
+	Type: "function",
+	Function: ToolFunction{
+		Name:        "run_sql",
+		Description: "Run a single read-only PostgreSQL SELECT against the financial database and get the rows back. Call it as many times as needed to gather the exact numbers to answer the user. Results are capped at 150 rows, so prefer aggregation.",
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"sql":{"type":"string","description":"A single read-only SELECT (CTEs allowed). Do not add a company filter — the database scopes it automatically."}},"required":["sql"]}`),
+	},
+}
+
+func sqlAgentPrompt(company, dict string) string {
+	return `You are the data-gathering engine behind Aria, a financial assistant for ` + formatCompanyName(company) + `, a US construction company.
+
+Your job: given the user's question, gather the exact financial data needed to answer it by calling the run_sql tool with read-only SELECT queries. Think about which tables and aggregations answer the question, run the queries, inspect the results, and refine if needed.
+
+When you have gathered everything needed, stop calling the tool and reply with a one-line note like "done". Do NOT write the final answer to the user — another model does that. Your only output that matters is the data you fetch.
+
+Guidelines:
+- Only the run_sql tool. Read-only SELECT/WITH only.
+- Don't add a company filter — the database already isolates the company.
+- Prefer SUM/COUNT/GROUP BY over dumping rows. Round money to 2 decimals.
+- If a query errors, read the error and fix the SQL.
+- For greetings or questions that need no data, just reply "done" without querying.
+
+` + dict
+}
+
+// gatherData runs the agentic loop: the SQL model issues run_sql calls until it
+// has enough data (or hits the iteration cap). Each query is validated, executed
+// read-only with company isolation, and audit-logged. Never returns an error —
+// partial/empty data is acceptable; the analyst handles "no data" gracefully.
+func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question string) []QueryResult {
+	if !s.aria.Enabled() {
+		logger.Error("aria sql disabled — ARIA_READONLY_DATABASE_URL not configured; answering without data")
+		return nil
+	}
+	msgs := []ChatMessage{
+		{Role: "system", Content: sqlAgentPrompt(company, s.dict)},
+		{Role: "user", Content: question},
+	}
+
+	var gathered []QueryResult
+	for i := 0; i < maxSQLIterations; i++ {
+		resp, err := s.sqlLLM.ChatWithTools(ctx, msgs, []Tool{runSQLTool})
+		if err != nil {
+			logger.Error("aria sql agent: llm error", "error", fmt.Sprintf("%v", err))
+			break
+		}
+		if len(resp.ToolCalls) == 0 {
+			break // agent has enough data
+		}
+
+		msgs = append(msgs, ChatMessage{Role: "assistant", Content: resp.Text, ToolCalls: resp.ToolCalls})
+		for _, tc := range resp.ToolCalls {
+			sql := extractSQLArg(tc.Function.Arguments)
+			start := time.Now()
+			res, runErr := s.aria.Run(ctx, company, sql)
+			durMs := int(time.Since(start).Milliseconds())
+
+			var toolContent string
+			if runErr != nil {
+				toolContent = "ERROR: " + runErr.Error()
+				s.logQuery(ctx, userID, convID, company, sql, false, runErr.Error(), 0, durMs)
+			} else {
+				b, _ := json.Marshal(res)
+				toolContent = string(b)
+				gathered = append(gathered, QueryResult{
+					Label: fmt.Sprintf("Query %d", len(gathered)+1),
+					Rows:  res.Rows,
+				})
+				s.logQuery(ctx, userID, convID, company, sql, true, "", res.RowCount, durMs)
+			}
+			msgs = append(msgs, ChatMessage{Role: "tool", ToolCallID: tc.ID, Name: "run_sql", Content: toolContent})
+		}
+	}
+	return gathered
+}
+
+// extractSQLArg pulls the "sql" field out of the tool-call arguments JSON.
+func extractSQLArg(arguments string) string {
+	var a struct {
+		SQL string `json:"sql"`
+	}
+	_ = json.Unmarshal([]byte(arguments), &a)
+	return a.SQL
+}
+
+// logQuery records every executed/blocked query for audit and debugging.
+func (s *AIService) logQuery(ctx context.Context, userID, convID, company, sql string, ok bool, errMsg string, rowCount, durMs int) {
+	_, err := s.db.Exec(ctx, `
+		INSERT INTO ai_query_log (user_id, conversation_id, company, sql, ok, error, row_count, duration_ms)
+		VALUES ($1, $2, $3, $4, $5, NULLIF($6,''), $7, $8)`,
+		userID, convID, company, sql, ok, errMsg, rowCount, durMs)
+	if err != nil {
+		logger.Error("aria: audit log insert failed", "error", fmt.Sprintf("%v", err))
+	}
 }

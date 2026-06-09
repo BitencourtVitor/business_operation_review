@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Menu, Check, Loader2, MessagesSquare } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { type Components } from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,23 @@ const loadingMessages = [
   'Processing metrics…',
   'Generating insights…',
 ]
+
+// Shared markdown rendering for Aria messages — GitHub-flavored (tables, lists,
+// etc.) with compact styling tuned for the narrow chat panel.
+const mdRemarkPlugins = [remarkGfm]
+const mdComponents: Components = {
+  p:      ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+  ul:     ({ children }) => <ul className="mb-1 ml-3 list-disc space-y-0.5">{children}</ul>,
+  ol:     ({ children }) => <ol className="mb-1 ml-3 list-decimal space-y-0.5">{children}</ol>,
+  li:     ({ children }) => <li className="leading-relaxed">{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  code:   ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
+  a:      ({ children, href }) => <a href={href} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">{children}</a>,
+  table:  ({ children }) => <div className="my-1.5 overflow-x-auto"><table className="w-full border-collapse text-[11px]">{children}</table></div>,
+  thead:  ({ children }) => <thead className="bg-foreground/5">{children}</thead>,
+  th:     ({ children }) => <th className="border border-border/50 px-1.5 py-1 text-left font-semibold whitespace-nowrap">{children}</th>,
+  td:     ({ children }) => <td className="border border-border/40 px-1.5 py-1 align-top tabular-nums">{children}</td>,
+}
 
 // ── Inline panel (same mechanism as InsightsPanel) ────────────────────────────
 
@@ -309,7 +327,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         >
           {/* Sheet header */}
           <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5">
-            <span className="text-xs font-semibold text-foreground">Chat</span>
+            <span className="text-xs font-semibold text-foreground">Preview Chats</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleNewChat}
@@ -329,12 +347,12 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           {/* Conversation list */}
           <div className={cn(
             'flex-1 overflow-y-auto no-scrollbar',
-            sortedConversations.length === 0 ? 'flex items-center justify-center' : 'py-1',
+            sortedConversations.length === 0 ? 'flex items-center justify-center' : 'flex flex-col gap-1 p-1.5',
           )}>
             {sortedConversations.length === 0 && (
               <div className="flex flex-col items-center gap-2 text-center">
                 <MessagesSquare className="h-6 w-6 text-muted-foreground/25" />
-                <p className="text-xs text-muted-foreground">No conversations yet</p>
+                <p className="text-xs text-muted-foreground">No preview chats yet</p>
               </div>
             )}
             {sortedConversations.map((conv) => {
@@ -346,8 +364,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 <div
                   key={conv.id}
                   className={cn(
-                    'group mx-1 flex min-h-[32px] cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs transition-colors',
-                    activeConversationId === conv.id ? 'bg-muted' : 'hover:bg-muted',
+                    'group flex min-h-[32px] shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2 py-1.5 text-xs transition-colors',
+                    activeConversationId === conv.id ? 'border-border/60 bg-muted' : 'hover:bg-muted',
                   )}
                   onClick={() => !isEditing && !isDeleting && handleSelectConversation(conv.id)}
                   title={conv.title}
@@ -485,7 +503,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   onClick={() => setSheetOpen(true)}
                   className="flex h-7 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
-                  Conversations
+                  Preview Chats
                 </button>
                 <button
                   onClick={handleStartNew}
@@ -533,16 +551,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                       )}
                     >
                       {isUser ? content : (
-                        <ReactMarkdown
-                          components={{
-                            p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                            ul: ({ children }) => <ul className="mb-1 ml-3 list-disc space-y-0.5">{children}</ul>,
-                            ol: ({ children }) => <ol className="mb-1 ml-3 list-decimal space-y-0.5">{children}</ol>,
-                            li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                            code: ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
-                          }}
-                        >
+                        <ReactMarkdown remarkPlugins={mdRemarkPlugins} components={mdComponents}>
                           {content}
                         </ReactMarkdown>
                       )}
@@ -575,16 +584,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   {streamingText !== null ? (
                     /* Chunk-by-chunk reveal */
                     <div className="max-w-[90%] break-words rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-xs prose prose-xs prose-invert max-w-none">
-                      <ReactMarkdown
-                        components={{
-                          p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                          ul: ({ children }) => <ul className="mb-1 ml-3 list-disc space-y-0.5">{children}</ul>,
-                          ol: ({ children }) => <ol className="mb-1 ml-3 list-decimal space-y-0.5">{children}</ol>,
-                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                          code: ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
-                        }}
-                      >
+                      <ReactMarkdown remarkPlugins={mdRemarkPlugins} components={mdComponents}>
                         {streamingText}
                       </ReactMarkdown>
                     </div>
