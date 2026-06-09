@@ -173,17 +173,18 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     setMessageCountOnSend(messages.length)
     setOptimisticMessage(trimmed)
 
-    const isNewConversation = !activeConversationId
-
     try {
       const reply = await chatMutation.mutateAsync({
         message: trimmed,
         conversationId: activeConversationId ?? undefined,
       })
 
-      if (isNewConversation && reply.conversation_id) {
+      // Adopt whatever conversation id the server used — it may differ from the
+      // one we sent if the backend self-healed a stale/deleted id into a new one.
+      if (reply.conversation_id && reply.conversation_id !== activeConversationId) {
         setActiveConversationId(reply.conversation_id)
         qc.invalidateQueries({ queryKey: ['ai-messages', reply.conversation_id] })
+        qc.invalidateQueries({ queryKey: ['ai-conversations', company] })
       } else if (activeConversationId) {
         refetchMessages()
       }

@@ -69,7 +69,8 @@ You only discuss financials for {{COMPANY}}. You do not:
 - Match the user's language (Portuguese or English) and register (formal or casual) — they may switch mid-conversation
 - Be direct. Skip filler phrases like "Great question!" or "Certainly!"
 - Use numbers with USD formatting ($12,500) and percentages where relevant
-- For complex answers use bullet points or short structured sections — don't write walls of text
+- Format with GitHub-flavored Markdown — the chat renders it (tables, lists, bold). Use a **Markdown table** for top-N lists, multi-row breakdowns, or side-by-side comparisons; bullet points or short sections for the rest. Don't write walls of text.
+- When the user explicitly asks for a table ("cria uma tabela", "em formato de tabela", "as a table", "list the top N"), you MUST answer with a Markdown table containing the relevant columns.
 - When uncertain about data, say so. When data is missing, say so. Never fabricate.
 - If the user is vague or informal, interpret charitably and respond — don't demand perfect phrasing
 - Short conversational messages get short conversational replies
@@ -243,7 +244,20 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 
 	// ── 2. resolve or create conversation ─────────────────────────────────────
 	convID := req.ConversationID
-	if convID == "" {
+	// A provided conversation id that no longer exists or isn't owned by the user
+	// (e.g. deleted in another tab) self-heals into a fresh conversation instead of
+	// failing the send.
+	createNew := convID == ""
+	if !createNew {
+		var ownerID string
+		err := s.db.QueryRow(ctx,
+			`SELECT user_id FROM ai_conversations WHERE id=$1`, convID).Scan(&ownerID)
+		if err != nil || ownerID != userID {
+			createNew = true
+		}
+	}
+	if createNew {
+		convID = ""
 		err := s.db.QueryRow(ctx,
 			`INSERT INTO ai_conversations (user_id, company, title)
 			 VALUES ($1, $2, $3) RETURNING id`,
@@ -251,14 +265,6 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 		).Scan(&convID)
 		if err != nil {
 			return nil, fmt.Errorf("create conversation: %w", err)
-		}
-	} else {
-		// verify ownership
-		var ownerID string
-		err := s.db.QueryRow(ctx,
-			`SELECT user_id FROM ai_conversations WHERE id=$1`, convID).Scan(&ownerID)
-		if err != nil || ownerID != userID {
-			return nil, fmt.Errorf("conversation not found")
 		}
 	}
 
