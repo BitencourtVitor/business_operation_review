@@ -166,7 +166,9 @@ func main() {
 	if err != nil {
 		logger.Error("failed to build aria data dictionary", "error", err)
 	}
-	aiChatHandler           := handler.NewAIChatHandler(service.NewAIService(db, aiSQLLLM, aiAnalystLLM, ariaSQL, ariaDict), authService)
+	aiService               := service.NewAIService(db, aiSQLLLM, aiAnalystLLM, ariaSQL, ariaDict)
+	go aiService.WarmPrimers(context.Background(), "framing", "hvac", "pcg")
+	aiChatHandler           := handler.NewAIChatHandler(aiService, authService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{

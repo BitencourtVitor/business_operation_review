@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -89,10 +90,16 @@ type AIService struct {
 	analyst *OpenRouterClient // final analytical answer — e.g. Claude Sonnet
 	aria    *AriaSQL          // read-only query executor (validation + RLS scope)
 	dict    string            // data dictionary injected into the SQL agent prompt
+
+	primerMu    sync.Mutex
+	primerCache map[string]primerEntry // per-company precomputed grounding facts
 }
 
 func NewAIService(db *pgxpool.Pool, sqlLLM, analyst *OpenRouterClient, aria *AriaSQL, dict string) *AIService {
-	return &AIService{db: db, sqlLLM: sqlLLM, analyst: analyst, aria: aria, dict: dict}
+	return &AIService{
+		db: db, sqlLLM: sqlLLM, analyst: analyst, aria: aria, dict: dict,
+		primerCache: make(map[string]primerEntry),
+	}
 }
 
 // ── Conversation CRUD ─────────────────────────────────────────────────────────
@@ -271,8 +278,12 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	// ── 3. synthesize user message ─────────────────────────────────────────────
 	synthesized := synthesizeInput(req.Message)
 
+	// Precomputed grounding facts (data coverage + annual P&L) shared by both
+	// phases so year-level questions are always answerable and consistent.
+	primer := s.companyPrimer(ctx, req.Company)
+
 	// ── 4. agentic SQL gathering (Flash writes/refines read-only queries) ──────
-	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message)
+	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message, primer)
 
 	dataJSON, err := json.Marshal(queryResults)
 	if err != nil {
@@ -280,7 +291,7 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	}
 
 	// ── 5. build context ──────────────────────────────────────────────────────
-	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults)
+	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults, primer)
 	if err != nil {
 		return nil, fmt.Errorf("build context: %w", err)
 	}
@@ -335,7 +346,7 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 
 // ── Context builder ───────────────────────────────────────────────────────────
 
-func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult) ([]ChatMessage, error) {
+func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult, primer string) ([]ChatMessage, error) {
 	var msgs []ChatMessage
 
 	// system prompt
@@ -348,6 +359,9 @@ func (s *AIService) buildContext(ctx context.Context, convID, company, synthesiz
 	if theoreticalCtx != "" {
 		systemPrompt += "\n\nCOMPANY CONTEXT:\n" + theoreticalCtx
 	}
+
+	// precomputed grounding facts so year-level questions are always answerable
+	systemPrompt += primer
 
 	systemPrompt += fmt.Sprintf("\n\nToday's date: %s.", time.Now().Format("January 2, 2006"))
 	msgs = append(msgs, ChatMessage{Role: "system", Content: systemPrompt})
@@ -569,8 +583,8 @@ var runSQLTool = Tool{
 	},
 }
 
-func sqlAgentPrompt(company, dict string) string {
-	return `You are the data-gathering engine behind Aria, a financial assistant for ` + formatCompanyName(company) + `, a US construction company.
+func sqlAgentPrompt(company, dict, primer string) string {
+	return `You are the data-gathering engine behind Aria, a financial assistant for ` + formatCompanyName(company) + `, a US construction company.` + primer + `
 
 Your job: given the user's question, gather the exact financial data needed to answer it by calling the run_sql tool with read-only SELECT queries. Think about which tables and aggregations answer the question, run the queries, inspect the results, and refine if needed.
 
@@ -590,13 +604,13 @@ Guidelines:
 // has enough data (or hits the iteration cap). Each query is validated, executed
 // read-only with company isolation, and audit-logged. Never returns an error —
 // partial/empty data is acceptable; the analyst handles "no data" gracefully.
-func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question string) []QueryResult {
+func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question, primer string) []QueryResult {
 	if !s.aria.Enabled() {
 		logger.Error("aria sql disabled — ARIA_READONLY_DATABASE_URL not configured; answering without data")
 		return nil
 	}
 	msgs := []ChatMessage{
-		{Role: "system", Content: sqlAgentPrompt(company, s.dict)},
+		{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer)},
 		{Role: "user", Content: question},
 	}
 
@@ -655,4 +669,138 @@ func (s *AIService) logQuery(ctx context.Context, userID, convID, company, sql s
 	if err != nil {
 		logger.Error("aria: audit log insert failed", "error", fmt.Sprintf("%v", err))
 	}
+}
+
+// ── Grounding primer ────────────────────────────────────────────────────────────
+// A small block of precomputed facts (data coverage + annual P&L) injected into
+// every conversation so year-level questions are answered consistently and the
+// model never claims it only has current-year data. Cached per company.
+
+type primerEntry struct {
+	text string
+	at   time.Time
+}
+
+const primerTTL = 15 * time.Minute
+
+// WarmPrimers precomputes primers for the given companies (called at boot so the
+// first user question is already grounded). Safe to call in a goroutine.
+func (s *AIService) WarmPrimers(ctx context.Context, companies ...string) {
+	for _, co := range companies {
+		_ = s.companyPrimer(ctx, co)
+	}
+}
+
+func (s *AIService) companyPrimer(ctx context.Context, company string) string {
+	s.primerMu.Lock()
+	if e, ok := s.primerCache[company]; ok && time.Since(e.at) < primerTTL {
+		s.primerMu.Unlock()
+		return e.text
+	}
+	s.primerMu.Unlock()
+
+	text := s.buildPrimer(ctx, company)
+
+	s.primerMu.Lock()
+	s.primerCache[company] = primerEntry{text: text, at: time.Now()}
+	s.primerMu.Unlock()
+	return text
+}
+
+func (s *AIService) buildPrimer(ctx context.Context, company string) string {
+	var minY, maxY int
+	err := s.db.QueryRow(ctx, `
+		SELECT COALESCE(MIN(EXTRACT(YEAR FROM txn_date))::int, 0),
+		       COALESCE(MAX(EXTRACT(YEAR FROM txn_date))::int, 0)
+		FROM (
+			SELECT txn_date FROM qb_payments      WHERE company=$1 AND txn_date IS NOT NULL
+			UNION ALL SELECT txn_date FROM qb_bill_payments WHERE company=$1 AND txn_date IS NOT NULL
+			UNION ALL SELECT txn_date FROM qb_invoices      WHERE company=$1 AND txn_date IS NOT NULL
+		) t
+		WHERE EXTRACT(YEAR FROM txn_date) BETWEEN 2018 AND EXTRACT(YEAR FROM NOW())::int + 1`,
+		company).Scan(&minY, &maxY)
+	if err != nil || maxY == 0 {
+		return ""
+	}
+
+	rows, err := s.db.Query(ctx, `
+		SELECT EXTRACT(YEAR FROM txn_date)::int AS yr,
+			ROUND(SUM(CASE WHEN k='r' THEN amt ELSE 0 END))::bigint  AS received,
+			ROUND(SUM(CASE WHEN k='p' THEN amt ELSE 0 END))::bigint  AS paid,
+			ROUND(SUM(CASE WHEN k='r' THEN amt ELSE -amt END))::bigint AS net
+		FROM (
+			SELECT txn_date, total_amount AS amt, 'r' AS k FROM qb_payments      WHERE company=$1 AND txn_date IS NOT NULL
+			UNION ALL SELECT txn_date, total_amount, 'p' FROM qb_bill_payments WHERE company=$1 AND txn_date IS NOT NULL
+		) t
+		WHERE EXTRACT(YEAR FROM txn_date) BETWEEN 2018 AND EXTRACT(YEAR FROM NOW())::int + 1
+		GROUP BY 1 ORDER BY 1`, company)
+	if err != nil {
+		return ""
+	}
+	defer rows.Close()
+
+	type yearRow struct {
+		year                 int
+		received, paid, net  int64
+	}
+	var ys []yearRow
+	for rows.Next() {
+		var y yearRow
+		if err := rows.Scan(&y.year, &y.received, &y.paid, &y.net); err != nil {
+			return ""
+		}
+		ys = append(ys, y)
+	}
+	if len(ys) == 0 {
+		return ""
+	}
+
+	cur := time.Now().Year()
+	var best, worst *yearRow // best/worst over COMPLETE years only (exclude partial current year)
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("\n\n━━━ BASELINE FACTS (precomputed for %s) ━━━\n", formatCompanyName(company)))
+	sb.WriteString(fmt.Sprintf("Financial data covers years %d–%d. The current year (%d) is partial (year-to-date) — do not rank it against full years.\n", minY, maxY, cur))
+	sb.WriteString("Annual net cash = customer payments received − vendor bill payments paid (USD, rounded):\n")
+	for i := range ys {
+		y := ys[i]
+		tag := ""
+		if y.year >= cur {
+			tag = " (partial, YTD)"
+		} else {
+			if best == nil || y.net > best.net {
+				best = &ys[i]
+			}
+			if worst == nil || y.net < worst.net {
+				worst = &ys[i]
+			}
+		}
+		sb.WriteString(fmt.Sprintf("- %d: received $%s, paid $%s, net $%s%s\n",
+			y.year, commaInt(y.received), commaInt(y.paid), commaInt(y.net), tag))
+	}
+	if best != nil && worst != nil {
+		sb.WriteString(fmt.Sprintf("Among complete years, by this net-cash measure the strongest is %d ($%s) and the weakest is %d ($%s).\n",
+			best.year, commaInt(best.net), worst.year, commaInt(worst.net)))
+	}
+	sb.WriteString("These year-level figures are authoritative — answer year questions directly from them and NEVER claim you only have current-year data. For other profit definitions or deeper detail, run additional queries.\n")
+	return sb.String()
+}
+
+// commaInt formats an int64 with thousands separators, e.g. -1234567 → "-1,234,567".
+func commaInt(n int64) string {
+	neg := n < 0
+	if neg {
+		n = -n
+	}
+	digits := fmt.Sprintf("%d", n)
+	var out []byte
+	for i := 0; i < len(digits); i++ {
+		if i > 0 && (len(digits)-i)%3 == 0 {
+			out = append(out, ',')
+		}
+		out = append(out, digits[i])
+	}
+	if neg {
+		return "-" + string(out)
+	}
+	return string(out)
 }
