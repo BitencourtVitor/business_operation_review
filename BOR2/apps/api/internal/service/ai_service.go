@@ -72,6 +72,8 @@ You only discuss financials for {{COMPANY}}. You do not:
 - Use numbers with USD formatting ($12,500) and percentages where relevant
 - Format with GitHub-flavored Markdown — the chat renders it (tables, lists, bold). Use a **Markdown table** for top-N lists, multi-row breakdowns, or side-by-side comparisons; bullet points or short sections for the rest. Don't write walls of text.
 - When the user explicitly asks for a table ("cria uma tabela", "em formato de tabela", "as a table", "list the top N"), you MUST answer with a Markdown table containing the relevant columns.
+- A short reply refers to your previous message — "3" / "o terceiro" = the third option you offered, "a segunda" = the second, "esse"/"ele" = the entity just discussed, "e em %?" = redo the last answer as a percentage. Resolve it from context and answer directly; never ask the user to repeat themselves when the meaning is clear.
+- When you need the user to pick between specific options, end your message with ONE line exactly in this form: [[OPTIONS: Label A | Label B | Label C]] — 2 to 4 short labels. The app turns it into clickable buttons and sends the chosen label as the next message. Keep the question text above the line, and use this only for discrete choices.
 - When uncertain about data, say so. When data is missing, say so. Never fabricate.
 - If the user is vague or informal, interpret charitably and respond — don't demand perfect phrasing
 - Short conversational messages get short conversational replies
@@ -282,8 +284,12 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	// phases so year-level questions are always answerable and consistent.
 	primer := s.companyPrimer(ctx, req.Company)
 
+	// Prior conversation turns — shared by both phases so terse follow-ups
+	// ("3", "o terceiro", "e em %?") are understood, not just by the analyst.
+	history := s.loadHistory(ctx, convID)
+
 	// ── 4. agentic SQL gathering (Flash writes/refines read-only queries) ──────
-	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message, primer)
+	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message, primer, history)
 
 	dataJSON, err := json.Marshal(queryResults)
 	if err != nil {
@@ -291,7 +297,7 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	}
 
 	// ── 5. build context ──────────────────────────────────────────────────────
-	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults, primer)
+	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults, primer, history)
 	if err != nil {
 		return nil, fmt.Errorf("build context: %w", err)
 	}
@@ -346,7 +352,56 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 
 // ── Context builder ───────────────────────────────────────────────────────────
 
-func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult, primer string) ([]ChatMessage, error) {
+// loadHistory returns the prior conversation turns (chronological) for use in
+// both the SQL-gathering and analyst phases. Errors degrade to no history.
+func (s *AIService) loadHistory(ctx context.Context, convID string) []ChatMessage {
+	rows, err := s.db.Query(ctx, `
+		SELECT role, content_synthesized, content_response, compressed_summary, is_compressed
+		FROM ai_messages
+		WHERE conversation_id=$1
+		ORDER BY created_at DESC
+		LIMIT $2`, convID, activeMessageCount*2)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	type histRow struct {
+		role, synthesized, response, compressedSummary string
+		isCompressed                                    bool
+	}
+	var hist []histRow
+	for rows.Next() {
+		var r histRow
+		_ = rows.Scan(&r.role, &r.synthesized, &r.response, &r.compressedSummary, &r.isCompressed)
+		hist = append(hist, r)
+	}
+	// reverse to chronological
+	for i, j := 0, len(hist)-1; i < j; i, j = i+1, j-1 {
+		hist[i], hist[j] = hist[j], hist[i]
+	}
+
+	var msgs []ChatMessage
+	for _, h := range hist {
+		switch h.role {
+		case "user":
+			if h.synthesized != "" {
+				msgs = append(msgs, ChatMessage{Role: "user", Content: h.synthesized})
+			}
+		case "assistant":
+			content := h.response
+			if h.isCompressed && h.compressedSummary != "" {
+				content = "[summary] " + h.compressedSummary
+			}
+			if content != "" {
+				msgs = append(msgs, ChatMessage{Role: "assistant", Content: content})
+			}
+		}
+	}
+	return msgs
+}
+
+func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult, primer string, history []ChatMessage) ([]ChatMessage, error) {
 	var msgs []ChatMessage
 
 	// system prompt
@@ -366,48 +421,8 @@ func (s *AIService) buildContext(ctx context.Context, convID, company, synthesiz
 	systemPrompt += fmt.Sprintf("\n\nToday's date: %s.", time.Now().Format("January 2, 2006"))
 	msgs = append(msgs, ChatMessage{Role: "system", Content: systemPrompt})
 
-	// history (last N messages, oldest compressed)
-	history, err := s.db.Query(ctx, `
-		SELECT role, content_synthesized, content_response, compressed_summary, is_compressed
-		FROM ai_messages
-		WHERE conversation_id=$1
-		ORDER BY created_at DESC
-		LIMIT $2`, convID, activeMessageCount*2)
-	if err != nil {
-		return nil, err
-	}
-	defer history.Close()
-
-	type histRow struct {
-		role, synthesized, response, compressedSummary string
-		isCompressed                                    bool
-	}
-	var hist []histRow
-	for history.Next() {
-		var r histRow
-		_ = history.Scan(&r.role, &r.synthesized, &r.response, &r.compressedSummary, &r.isCompressed)
-		hist = append(hist, r)
-	}
-	// reverse to chronological
-	for i, j := 0, len(hist)-1; i < j; i, j = i+1, j-1 {
-		hist[i], hist[j] = hist[j], hist[i]
-	}
-	for _, h := range hist {
-		switch h.role {
-		case "user":
-			if h.synthesized != "" {
-				msgs = append(msgs, ChatMessage{Role: "user", Content: h.synthesized})
-			}
-		case "assistant":
-			content := h.response
-			if h.isCompressed && h.compressedSummary != "" {
-				content = "[summary] " + h.compressedSummary
-			}
-			if content != "" {
-				msgs = append(msgs, ChatMessage{Role: "assistant", Content: content})
-			}
-		}
-	}
+	// prior conversation turns
+	msgs = append(msgs, history...)
 
 	// current turn: synthesized user message + fresh query data
 	dataText := formatQueryResults(queryResults)
@@ -588,6 +603,8 @@ func sqlAgentPrompt(company, dict, primer string) string {
 
 Your job: given the user's question, gather the exact financial data needed to answer it by calling the run_sql tool with read-only SELECT queries. Think about which tables and aggregations answer the question, run the queries, inspect the results, and refine if needed.
 
+The prior conversation is included above the latest message. Use it to resolve short follow-ups before querying: "3" or "o terceiro" means the third option Aria just offered; "e em %?" means recompute the previous answer as a percentage; "e ele?" refers to the entity just discussed. Reconstruct the user's real intent from context, then gather the data for THAT.
+
 When you have gathered everything needed, stop calling the tool and reply with a one-line note like "done". Do NOT write the final answer to the user — another model does that. Your only output that matters is the data you fetch.
 
 Guidelines:
@@ -604,15 +621,14 @@ Guidelines:
 // has enough data (or hits the iteration cap). Each query is validated, executed
 // read-only with company isolation, and audit-logged. Never returns an error —
 // partial/empty data is acceptable; the analyst handles "no data" gracefully.
-func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question, primer string) []QueryResult {
+func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question, primer string, history []ChatMessage) []QueryResult {
 	if !s.aria.Enabled() {
 		logger.Error("aria sql disabled — ARIA_READONLY_DATABASE_URL not configured; answering without data")
 		return nil
 	}
-	msgs := []ChatMessage{
-		{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer)},
-		{Role: "user", Content: question},
-	}
+	msgs := []ChatMessage{{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer)}}
+	msgs = append(msgs, history...)
+	msgs = append(msgs, ChatMessage{Role: "user", Content: question})
 
 	var gathered []QueryResult
 	for i := 0; i < maxSQLIterations; i++ {

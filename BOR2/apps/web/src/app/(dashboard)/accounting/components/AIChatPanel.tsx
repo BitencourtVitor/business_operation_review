@@ -45,6 +45,17 @@ const loadingMessages = [
   'Generating insights…',
 ]
 
+// Aria may end a message with `[[OPTIONS: A | B | C]]` to offer discrete choices.
+// We strip that marker from the rendered text and turn it into clickable buttons;
+// clicking one sends its label as the next message.
+const OPTIONS_RE = /\[\[OPTIONS:([^\]]+)\]\]/i
+function parseOptions(content: string): { text: string; options: string[] } {
+  const m = content.match(OPTIONS_RE)
+  if (!m) return { text: content, options: [] }
+  const options = m[1].split('|').map((s) => s.trim()).filter(Boolean).slice(0, 4)
+  return { text: content.replace(OPTIONS_RE, '').trimEnd(), options }
+}
+
 // Shared markdown rendering for Aria messages — GitHub-flavored (tables, lists,
 // etc.) with compact styling tuned for the narrow chat panel.
 const mdRemarkPlugins = [remarkGfm]
@@ -164,8 +175,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
-  const handleSend = async () => {
-    const trimmed = input.trim()
+  const sendMessage = async (raw: string) => {
+    const trimmed = raw.trim()
     if (!trimmed || chatMutation.isPending || trimmed.length > MAX_CHARS) return
 
     setInput('')
@@ -195,6 +206,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
       // keep optimistic message visible; isError shows the error
     }
   }
+
+  const handleSend = () => sendMessage(input)
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -533,10 +546,12 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 </div>
               )}
 
-              {messages.map((msg) => {
+              {messages.map((msg, i) => {
                 const isUser = msg.role === 'user'
-                const content = getMessageContent(msg)
+                const raw = getMessageContent(msg)
+                const { text: content, options } = isUser ? { text: raw, options: [] as string[] } : parseOptions(raw)
                 const ts = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                const showButtons = !isUser && options.length > 0 && i === messages.length - 1 && !optimisticMessage
 
                 return (
                   <div key={msg.id} className={cn('flex flex-col gap-0.5', isUser ? 'items-end' : 'items-start')}>
@@ -557,6 +572,20 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                         </ReactMarkdown>
                       )}
                     </div>
+                    {showButtons && (
+                      <div className="flex max-w-[90%] flex-wrap gap-1.5 pt-1">
+                        {options.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => sendMessage(opt)}
+                            disabled={chatMutation.isPending}
+                            className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <span className="px-1 text-[10px] text-muted-foreground">{ts}</span>
                   </div>
                 )
@@ -586,7 +615,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                     /* Chunk-by-chunk reveal */
                     <div className="max-w-[90%] break-words rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-xs prose prose-xs prose-invert max-w-none">
                       <ReactMarkdown remarkPlugins={mdRemarkPlugins} components={mdComponents}>
-                        {streamingText}
+                        {streamingText.replace(/\[\[OPTIONS:[\s\S]*$/i, '').trimEnd()}
                       </ReactMarkdown>
                     </div>
                   ) : (
