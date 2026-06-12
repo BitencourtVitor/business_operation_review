@@ -39,6 +39,11 @@ var tableSemantics = map[string]string{
 	"qb_invoice_lines":       "Line items of invoices.",
 	"qb_estimate_lines":      "Line items of estimates.",
 	"qb_deposit_lines":       "Line items of deposits.",
+	"qb_bill_payment_links":  "Links a vendor payment (bill_payment_id → qb_bill_payments.id) to the bill(s) it paid (txn_id = qb_bills.external_id, txn_type='Bill'). amount = applied to that bill.",
+	"qb_payment_links":       "Links a customer payment (payment_id → qb_payments.id) to the invoice(s) it paid (txn_id = qb_invoices.external_id, txn_type='Invoice'). amount = applied to that invoice.",
+	"qb_estimate_links":      "Links an estimate (estimate_id → qb_estimates.id) to the invoice(s) it became (txn_id = qb_invoices.external_id, txn_type='Invoice').",
+	"qb_bill_links":          "Reverse links from a bill (bill_id → qb_bills.id) to related txns such as its payment (txn_id = the linked doc's external_id; txn_type e.g. 'BillPaymentCheck').",
+	"qb_invoice_links":       "Reverse links from an invoice (invoice_id → qb_invoices.id) to related txns (linked_txn_id = external_id; linked_txn_type e.g. 'ReimburseCharge').",
 }
 
 const dictionaryHeader = `━━━ DATABASE YOU CAN QUERY ━━━
@@ -56,6 +61,8 @@ RULES YOU MUST FOLLOW:
 - This is PostgreSQL. Use Postgres functions only: EXTRACT(YEAR FROM col), date_trunc('month', col),
   to_char(col,'YYYY-MM'), CURRENT_DATE, NOW(), and intervals like (CURRENT_DATE - INTERVAL '6 months').
   NEVER use SQLite functions such as date('now', ...) or strftime() — they do not exist and will error.
+  Subtracting two date columns already yields an integer number of days — use (date_a - date_b)
+  directly (e.g. AVG(payment_date - invoice_date)); do NOT wrap it in EXTRACT().
 - Project profit/margin recipe: revenue = SUM(qb_invoices.total_amount) grouped by customer_id;
   cost = bill_lines + purchase_lines − vendor_credit_lines, each SUM(amount) grouped by customer_id;
   margin = revenue − cost.
@@ -66,6 +73,24 @@ RULES YOU MUST FOLLOW:
   CTEs together on customer_id. Add ORDER BY + LIMIT for the top projects.
 - Prefer aggregating (SUM/COUNT/GROUP BY) over raw rows; for potentially large lists add ORDER BY + LIMIT
   for the top relevant rows. Results are capped at 150 rows regardless.
+
+RELATIONSHIPS — how documents link to each other (use these to intersect tables):
+The *_links tables connect two documents. The OWNER document is referenced by its uuid
+(<doc>_id = <doc>.id); the LINKED document is referenced by its EXTERNAL id stored in
+txn_id / linked_txn_id, which equals the other table's external_id column (NOT its uuid).
+The link's "amount" is how much was applied. Key joins:
+- Which bills were paid, by which vendor payment, how much:
+    qb_bill_payments bp JOIN qb_bill_payment_links bpl ON bpl.bill_payment_id = bp.id
+    JOIN qb_bills b ON b.external_id = bpl.txn_id      (bpl.txn_type = 'Bill')
+- Which invoices were paid, by which customer payment, how much:
+    qb_payments p JOIN qb_payment_links pl ON pl.payment_id = p.id
+    JOIN qb_invoices i ON i.external_id = pl.txn_id    (pl.txn_type = 'Invoice')
+- Which invoices an estimate converted into (conversion / win rate):
+    qb_estimates e JOIN qb_estimate_links el ON el.estimate_id = e.id
+    JOIN qb_invoices i ON i.external_id = el.txn_id    (el.txn_type = 'Invoice')
+Always join a *_links table to the target on external_id (= txn_id/linked_txn_id), never on uuid id.
+Use these links for questions about payment timing (invoice date vs payment date), what paid what,
+unpaid vs paid documents, and estimate→invoice conversion.
 
 TABLES AND COLUMNS:
 `

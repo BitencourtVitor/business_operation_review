@@ -43,6 +43,13 @@ var battery = []item{
 	{"top-customers", "Top 10 clientes por valor faturado."},
 	{"aging", "Mostra o aging dos recebíveis em atraso."},
 	{"greeting", "Olá, tudo bem?"},
+	// Relational / multi-table intersection scenarios (the *_links tables).
+	{"rel/bill-paid", "Quais bills foram pagas e por qual pagamento, com o valor aplicado?"},
+	{"rel/invoice-paid", "Quais faturas já foram pagas e por quais pagamentos de clientes?"},
+	{"rel/pay-timing", "Qual o tempo médio em dias entre emitir a fatura e receber o pagamento?"},
+	{"rel/estimate-conv", "Qual a taxa de conversão de orçamentos em faturas?"},
+	{"rel/vendor-paid", "Quanto cada fornecedor recebeu em pagamentos este ano, somando os valores aplicados às bills?"},
+	{"rel/unpaid-invoices", "Quais faturas não têm nenhum pagamento vinculado?"},
 }
 
 var wsRe = regexp.MustCompile(`\s+`)
