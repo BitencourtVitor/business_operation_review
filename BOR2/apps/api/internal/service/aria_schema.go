@@ -53,9 +53,19 @@ RULES YOU MUST FOLLOW:
 - Company isolation is automatic — the database already restricts every query to the current
   company. You do NOT need to add a company filter, and you cannot see other companies' data.
 - All money columns are numeric USD. Dates are date/timestamp columns (txn_date, due_date, accepted_date).
-- To attribute costs to a project/customer, sum the *_lines tables (qb_bill_lines, qb_purchase_lines,
-  qb_vendor_credit_lines) by customer_id. Revenue per project comes from qb_invoices by customer_id.
-- Prefer aggregating (SUM/COUNT/GROUP BY) over returning raw rows. Results are capped at 150 rows.
+- This is PostgreSQL. Use Postgres functions only: EXTRACT(YEAR FROM col), date_trunc('month', col),
+  to_char(col,'YYYY-MM'), CURRENT_DATE, NOW(), and intervals like (CURRENT_DATE - INTERVAL '6 months').
+  NEVER use SQLite functions such as date('now', ...) or strftime() — they do not exist and will error.
+- Project profit/margin recipe: revenue = SUM(qb_invoices.total_amount) grouped by customer_id;
+  cost = bill_lines + purchase_lines − vendor_credit_lines, each SUM(amount) grouped by customer_id;
+  margin = revenue − cost.
+  CRITICAL: NEVER join the raw *_lines tables to each other or to a header — customer_id is NOT unique
+  in them, so joining un-aggregated rows produces a cartesian explosion that fills disk and fails.
+  Instead make ONE CTE per table that is already aggregated to one row per customer_id
+  (SELECT customer_id, SUM(amount) ... GROUP BY customer_id), then LEFT JOIN those one-row-per-customer
+  CTEs together on customer_id. Add ORDER BY + LIMIT for the top projects.
+- Prefer aggregating (SUM/COUNT/GROUP BY) over raw rows; for potentially large lists add ORDER BY + LIMIT
+  for the top relevant rows. Results are capped at 150 rows regardless.
 
 TABLES AND COLUMNS:
 `

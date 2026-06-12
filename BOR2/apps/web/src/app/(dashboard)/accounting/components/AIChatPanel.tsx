@@ -67,7 +67,7 @@ const mdComponents: Components = {
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   code:   ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
   a:      ({ children, href }) => <a href={href} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">{children}</a>,
-  table:  ({ children }) => <div className="my-1.5 overflow-x-auto"><table className="w-full border-collapse text-[11px]">{children}</table></div>,
+  table:  ({ children }) => <div className="my-1.5 max-w-full overflow-x-auto"><table className="w-full border-collapse text-[11px]">{children}</table></div>,
   thead:  ({ children }) => <thead className="bg-foreground/5">{children}</thead>,
   th:     ({ children }) => <th className="border border-border/50 px-1.5 py-1 text-left font-semibold whitespace-nowrap">{children}</th>,
   td:     ({ children }) => <td className="border border-border/40 px-1.5 py-1 align-top tabular-nums">{children}</td>,
@@ -506,7 +506,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         </div>
 
         {/* Messages or lobby */}
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3 no-scrollbar">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden px-3 py-3 no-scrollbar">
           {!isInChat ? (
             /* ── Lobby / empty state ── */
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
@@ -554,7 +554,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 const showButtons = !isUser && options.length > 0 && i === messages.length - 1 && !optimisticMessage
 
                 return (
-                  <div key={msg.id} className={cn('flex flex-col gap-0.5', isUser ? 'items-end' : 'items-start')}>
+                  <div key={msg.id} className={cn('flex w-full min-w-0 flex-col gap-0.5', isUser ? 'items-end' : 'items-start')}>
                     {!isUser && (
                       <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
                     )}
@@ -593,7 +593,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
               {/* Optimistic user message */}
               {optimisticMessage && (
-                <div className="flex flex-col items-end gap-0.5">
+                <div className="flex w-full min-w-0 flex-col items-end gap-0.5">
                   <div className="max-w-[90%] break-words rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-xs whitespace-pre-wrap text-primary-foreground">
                     {optimisticMessage}
                   </div>
@@ -609,7 +609,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
               {/* Aria response — dots while waiting, text reveal while animating */}
               {optimisticMessage !== null && !chatMutation.isError && (
-                <div className="flex flex-col items-start gap-0.5">
+                <div className="flex w-full min-w-0 flex-col items-start gap-0.5">
                   <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
                   {streamingText !== null ? (
                     /* Chunk-by-chunk reveal */
