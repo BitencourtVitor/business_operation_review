@@ -50,6 +50,21 @@ const dictionaryHeader = `━━━ DATABASE YOU CAN QUERY ━━━
 
 All financial data is synced daily from QuickBooks into a PostgreSQL database.
 
+ACCOUNTING MODEL (so your queries mean the right thing):
+This is a construction company. In QuickBooks, accrual documents (what is owed) are distinct
+from cash documents (money that actually moved):
+- qb_invoices  = revenue BILLED to customers (accrual / accounts receivable). balance = unpaid AR.
+- qb_payments  = cash actually RECEIVED from customers.
+- qb_bills     = expenses OWED to vendors (accrual / accounts payable). balance = unpaid AP.
+- qb_bill_payments = cash actually PAID to vendors.
+- qb_estimates = quotes / sales pipeline — NOT revenue yet.
+- qb_purchases = non-bill expenses (credit card / cash). qb_vendor_credits reduce what we owe vendors.
+- qb_deposits  = bank deposits (can group several payments).
+So "revenue/faturamento" usually means invoiced (qb_invoices); "recebido/cash in" means qb_payments;
+"a receber" = invoices.balance>0; "a pagar/devemos" = bills.balance>0; "lucro/caixa" net = received − paid.
+A project/job is identified by customer_id / customer_name (typically the homeowner, jobsite, or
+general contractor). When a question is about "a project", group or filter by customer_id.
+
 TABLE NAMING: flat tables, one row per document. Headers are qb_<entity> (e.g. qb_invoices);
 their detail rows are qb_<entity>_lines and document relations are qb_<entity>_links.
 

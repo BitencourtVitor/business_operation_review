@@ -288,8 +288,13 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	// ("3", "o terceiro", "e em %?") are understood, not just by the analyst.
 	history := s.loadHistory(ctx, convID)
 
+	// Curated business context — what the company does, how projects map to data.
+	// Feed it to BOTH phases so the SQL agent (not just the analyst) builds queries
+	// that make sense for this business.
+	companyCtx, _ := s.GetCompanyContext(ctx, req.Company)
+
 	// ── 4. agentic SQL gathering (Flash writes/refines read-only queries) ──────
-	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message, primer, history)
+	queryResults := s.gatherData(ctx, userID, convID, req.Company, req.Message, primer, companyCtx, history)
 
 	dataJSON, err := json.Marshal(queryResults)
 	if err != nil {
@@ -297,7 +302,7 @@ func (s *AIService) Chat(ctx context.Context, userID string, req ChatRequest) (*
 	}
 
 	// ── 5. build context ──────────────────────────────────────────────────────
-	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults, primer, history)
+	messages, err := s.buildContext(ctx, convID, req.Company, synthesized, queryResults, primer, companyCtx, history)
 	if err != nil {
 		return nil, fmt.Errorf("build context: %w", err)
 	}
@@ -401,18 +406,14 @@ func (s *AIService) loadHistory(ctx context.Context, convID string) []ChatMessag
 	return msgs
 }
 
-func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult, primer string, history []ChatMessage) ([]ChatMessage, error) {
+func (s *AIService) buildContext(ctx context.Context, convID, company, synthesized string, queryResults []QueryResult, primer, companyCtx string, history []ChatMessage) ([]ChatMessage, error) {
 	var msgs []ChatMessage
 
 	// system prompt
 	systemPrompt := strings.ReplaceAll(ariaSystemPrompt, "{{COMPANY}}", formatCompanyName(company))
 
-	// theoretical company context
-	var theoreticalCtx string
-	_ = s.db.QueryRow(ctx,
-		`SELECT context FROM ai_company_context WHERE company=$1`, company).Scan(&theoreticalCtx)
-	if theoreticalCtx != "" {
-		systemPrompt += "\n\nCOMPANY CONTEXT:\n" + theoreticalCtx
+	if companyCtx != "" {
+		systemPrompt += "\n\nCOMPANY CONTEXT:\n" + companyCtx
 	}
 
 	// precomputed grounding facts so year-level questions are always answerable
@@ -598,8 +599,12 @@ var runSQLTool = Tool{
 	},
 }
 
-func sqlAgentPrompt(company, dict, primer string) string {
-	return `You are the data-gathering engine behind Aria, a financial assistant for ` + formatCompanyName(company) + `, a US construction company.` + primer + `
+func sqlAgentPrompt(company, dict, primer, companyCtx string) string {
+	ctxBlock := ""
+	if companyCtx != "" {
+		ctxBlock = "\n\nABOUT THIS COMPANY (use it to interpret what the data means):\n" + companyCtx
+	}
+	return `You are the data-gathering engine behind Aria, a financial assistant for ` + formatCompanyName(company) + `, a US construction company.` + ctxBlock + primer + `
 
 Your job: given the user's question, gather the exact financial data needed to answer it by calling the run_sql tool with read-only SELECT queries. Think about which tables and aggregations answer the question, run the queries, inspect the results, and refine if needed.
 
@@ -622,12 +627,12 @@ Guidelines:
 // has enough data (or hits the iteration cap). Each query is validated, executed
 // read-only with company isolation, and audit-logged. Never returns an error —
 // partial/empty data is acceptable; the analyst handles "no data" gracefully.
-func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question, primer string, history []ChatMessage) []QueryResult {
+func (s *AIService) gatherData(ctx context.Context, userID, convID, company, question, primer, companyCtx string, history []ChatMessage) []QueryResult {
 	if !s.aria.Enabled() {
 		logger.Error("aria sql disabled — ARIA_READONLY_DATABASE_URL not configured; answering without data")
 		return nil
 	}
-	return s.executeGather(ctx, company, question, primer, history, func(sql string, res *SQLRunResult, runErr error, durMs int) {
+	return s.executeGather(ctx, company, question, primer, companyCtx, history, func(sql string, res *SQLRunResult, runErr error, durMs int) {
 		if runErr != nil {
 			s.logQuery(ctx, userID, convID, company, sql, false, runErr.Error(), 0, durMs)
 		} else {
@@ -640,10 +645,10 @@ func (s *AIService) gatherData(ctx context.Context, userID, convID, company, que
 // results. onAttempt is invoked for every run_sql call (success or error) so
 // callers can audit-log (production) or capture the generated SQL (evaluation).
 func (s *AIService) executeGather(
-	ctx context.Context, company, question, primer string, history []ChatMessage,
+	ctx context.Context, company, question, primer, companyCtx string, history []ChatMessage,
 	onAttempt func(sql string, res *SQLRunResult, runErr error, durMs int),
 ) []QueryResult {
-	msgs := []ChatMessage{{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer)}}
+	msgs := []ChatMessage{{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer, companyCtx)}}
 	msgs = append(msgs, history...)
 	msgs = append(msgs, ChatMessage{Role: "user", Content: question})
 
@@ -702,8 +707,9 @@ func (s *AIService) GatherDebug(ctx context.Context, company, question string) [
 		return nil
 	}
 	primer := s.companyPrimer(ctx, company)
+	companyCtx, _ := s.GetCompanyContext(ctx, company)
 	var out []SQLAttempt
-	s.executeGather(ctx, company, question, primer, nil, func(sql string, res *SQLRunResult, runErr error, durMs int) {
+	s.executeGather(ctx, company, question, primer, companyCtx, nil, func(sql string, res *SQLRunResult, runErr error, durMs int) {
 		a := SQLAttempt{SQL: sql, DurationMs: durMs}
 		if runErr != nil {
 			a.Err = runErr.Error()
