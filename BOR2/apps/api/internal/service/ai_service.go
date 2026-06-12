@@ -608,11 +608,12 @@ The prior conversation is included above the latest message. Use it to resolve s
 When you have gathered everything needed, stop calling the tool and reply with a one-line note like "done". Do NOT write the final answer to the user — another model does that. Your only output that matters is the data you fetch.
 
 Guidelines:
-- Only the run_sql tool. Read-only SELECT/WITH only.
+- Only the run_sql tool. Read-only SELECT/WITH only. PostgreSQL syntax (see the date-function rules below).
 - Don't add a company filter — the database already isolates the company.
-- Prefer SUM/COUNT/GROUP BY over dumping rows. Round money to 2 decimals.
+- Prefer SUM/COUNT/GROUP BY over dumping rows. Round money to 2 decimals. For project margin/profit, follow the recipe in the data dictionary (aggregate per customer_id, then join) — one combined query, not many.
+- Once you have the numbers needed, STOP and reply "done". Never re-run a query you already ran.
 - If a query errors, read the error and fix the SQL.
-- For greetings or questions that need no data, just reply "done" without querying.
+- For greetings, the baseline facts above, or anything that needs no new data, just reply "done" without querying.
 
 ` + dict
 }
@@ -626,6 +627,22 @@ func (s *AIService) gatherData(ctx context.Context, userID, convID, company, que
 		logger.Error("aria sql disabled — ARIA_READONLY_DATABASE_URL not configured; answering without data")
 		return nil
 	}
+	return s.executeGather(ctx, company, question, primer, history, func(sql string, res *SQLRunResult, runErr error, durMs int) {
+		if runErr != nil {
+			s.logQuery(ctx, userID, convID, company, sql, false, runErr.Error(), 0, durMs)
+		} else {
+			s.logQuery(ctx, userID, convID, company, sql, true, "", res.RowCount, durMs)
+		}
+	})
+}
+
+// executeGather runs the agentic run_sql loop and returns the successful query
+// results. onAttempt is invoked for every run_sql call (success or error) so
+// callers can audit-log (production) or capture the generated SQL (evaluation).
+func (s *AIService) executeGather(
+	ctx context.Context, company, question, primer string, history []ChatMessage,
+	onAttempt func(sql string, res *SQLRunResult, runErr error, durMs int),
+) []QueryResult {
 	msgs := []ChatMessage{{Role: "system", Content: sqlAgentPrompt(company, s.dict, primer)}}
 	msgs = append(msgs, history...)
 	msgs = append(msgs, ChatMessage{Role: "user", Content: question})
@@ -648,10 +665,13 @@ func (s *AIService) gatherData(ctx context.Context, userID, convID, company, que
 			res, runErr := s.aria.Run(ctx, company, sql)
 			durMs := int(time.Since(start).Milliseconds())
 
+			if onAttempt != nil {
+				onAttempt(sql, res, runErr, durMs)
+			}
+
 			var toolContent string
 			if runErr != nil {
 				toolContent = "ERROR: " + runErr.Error()
-				s.logQuery(ctx, userID, convID, company, sql, false, runErr.Error(), 0, durMs)
 			} else {
 				b, _ := json.Marshal(res)
 				toolContent = string(b)
@@ -659,12 +679,41 @@ func (s *AIService) gatherData(ctx context.Context, userID, convID, company, que
 					Label: fmt.Sprintf("Query %d", len(gathered)+1),
 					Rows:  res.Rows,
 				})
-				s.logQuery(ctx, userID, convID, company, sql, true, "", res.RowCount, durMs)
 			}
 			msgs = append(msgs, ChatMessage{Role: "tool", ToolCallID: tc.ID, Name: "run_sql", Content: toolContent})
 		}
 	}
 	return gathered
+}
+
+// SQLAttempt is one run_sql call the agent made, captured for evaluation.
+type SQLAttempt struct {
+	SQL        string
+	RowCount   int
+	Truncated  bool
+	Err        string
+	DurationMs int
+}
+
+// GatherDebug runs only the SQL-gathering phase for a question and returns every
+// query the agent generated (no analyst, no audit log). For prompt evaluation.
+func (s *AIService) GatherDebug(ctx context.Context, company, question string) []SQLAttempt {
+	if !s.aria.Enabled() {
+		return nil
+	}
+	primer := s.companyPrimer(ctx, company)
+	var out []SQLAttempt
+	s.executeGather(ctx, company, question, primer, nil, func(sql string, res *SQLRunResult, runErr error, durMs int) {
+		a := SQLAttempt{SQL: sql, DurationMs: durMs}
+		if runErr != nil {
+			a.Err = runErr.Error()
+		} else if res != nil {
+			a.RowCount = res.RowCount
+			a.Truncated = res.Truncated
+		}
+		out = append(out, a)
+	})
+	return out
 }
 
 // extractSQLArg pulls the "sql" field out of the tool-call arguments JSON.
