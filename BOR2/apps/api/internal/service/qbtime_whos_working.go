@@ -43,6 +43,9 @@ func qbtToken(company string) string {
 		"framing": "QBT_ACCESS_TOKEN_FRAMING",
 		"hvac":    "QBT_ACCESS_TOKEN_HVAC",
 		"pcg":     "QBT_ACCESS_TOKEN_PCG",
+		// hvacing is the QB Time workspace for the Framing crew under a new account.
+		// Set QBT_ACCESS_TOKEN_HVACING to enable daily sync.
+		"hvacing": "QBT_ACCESS_TOKEN_HVACING",
 	}
 	if k, ok := keys[strings.ToLower(company)]; ok {
 		return os.Getenv(k)

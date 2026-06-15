@@ -261,11 +261,11 @@ func (r *PostgresQBTimePeriodCacheRepository) RefreshSyncState(ctx context.Conte
 		INSERT INTO qbtime_sync_state (company, min_date, max_date, last_run_at)
 		VALUES ($1,
 		        (SELECT MIN(work_date) FROM qbtime_timesheets WHERE company = $1),
-		        $2::date,
+		        COALESCE((SELECT MAX(work_date) FROM qbtime_timesheets WHERE company = $1), $2::date),
 		        now())
 		ON CONFLICT (company) DO UPDATE SET
 		  min_date    = EXCLUDED.min_date,
-		  max_date    = GREATEST(qbtime_sync_state.max_date, EXCLUDED.max_date),
+		  max_date    = EXCLUDED.max_date,
 		  last_run_at = now()
 	`, company, syncedThrough)
 	if err != nil {
