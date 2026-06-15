@@ -296,6 +296,7 @@ func payPeriodAnchorPR(company string) time.Time {
 	// from each other by one week.
 	str := map[string]string{
 		"framing": "2026-06-13", // period 05/31 – 06/13
+		"hvacing": "2026-06-13", // same crew, same pay cycle as framing
 		"hvac":    "2026-06-20", // period 06/07 – 06/20
 		"pcg":     "2026-06-20",
 	}[strings.ToLower(company)]
@@ -924,6 +925,13 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 		if err != nil {
 			return fmt.Errorf("fetch timesheets: %w", err)
 		}
+		// If QB Time returned zero rows for a company that previously had data,
+		// the token likely lost its timesheet read permission (returns HTTP 200
+		// with an empty body instead of a proper 401). Abort rather than wiping
+		// the existing cache.
+		if len(tsRows) == 0 && state != nil && state.MinDate != "" {
+			return fmt.Errorf("QB Time returned 0 timesheets for %s (%s–%s) but cache is non-empty: aborting to prevent data loss (check token permissions)", company, startDate, endDate)
+		}
 		if err := s.cacheRepo.ReplaceTimesheets(ctx, company, startDate, endDate, tsRows); err != nil {
 			return fmt.Errorf("store timesheets: %w", err)
 		}
@@ -949,9 +957,14 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 }
 
 // SyncAll syncs every supported company, returning a per-company status.
+// Companies whose token env var is unset are skipped gracefully.
 func (s *PeriodReportService) SyncAll(ctx context.Context, days int) map[string]string {
 	result := make(map[string]string)
-	for _, c := range []string{"framing", "hvac"} {
+	for _, c := range []string{"framing", "hvac", "pcg", "hvacing"} {
+		if qbtToken(c) == "" {
+			result[c] = "skipped: token not configured"
+			continue
+		}
 		if err := s.SyncCompany(ctx, c, days); err != nil {
 			result[c] = "error: " + err.Error()
 		} else {

@@ -1,0 +1,32 @@
+name: QB Time Daily Sync
+
+on:
+  # Runs at 05:00 UTC every day (≈ midnight US Eastern).
+  schedule:
+    - cron: '0 5 * * *'
+  # Allow manual trigger for backfill / debugging
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Days back to sync (default 14)'
+        required: false
+        default: '14'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync QB Time timesheets
+        run: |
+          DAYS="${{ github.event.inputs.days || '14' }}"
+          echo "Syncing last $DAYS days for all companies..."
+          STATUS=$(curl -s -o /tmp/qbtime_resp.json -w "%{http_code}" \
+            -X POST "${{ secrets.API_URL }}/api/v1/qbtime/period-report/sync?days=$DAYS" \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}")
+          echo "HTTP status: $STATUS"
+          cat /tmp/qbtime_resp.json
+          if [ "$STATUS" != "200" ]; then
+            echo "QB Time sync failed with HTTP $STATUS" >&2
+            exit 1
+          fi
