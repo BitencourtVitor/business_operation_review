@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Trash2, Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -57,17 +58,23 @@ const ALL_ICON_NAMES = Object.keys(Lucide).filter(
   k => /^[A-Z]/.test(k) && !["Icon", "LucideIcon", "createLucideIcon"].includes(k)
 )
 
+const FALLBACK_ICON = "Shapes"
+
 function IconPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState("")
-  const Cur = value ? (Lucide as unknown as Record<string, React.ElementType>)[value] : null
+  const reg = Lucide as unknown as Record<string, React.ElementType>
+  const Cur = reg[value || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
   const names = q.trim()
     ? ALL_ICON_NAMES.filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0, 56)
     : CURATED_ICONS
   return (
     <Popover open={open} onOpenChange={(v) => { setOpen(v); if (v) setQ("") }}>
-      <PopoverTrigger className="flex h-7 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-transparent text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-        {Cur ? <Cur className="h-4 w-4" /> : <span className="text-[9px]">icon</span>}
+      <PopoverTrigger className={cn(
+        "flex h-7 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-transparent transition-colors hover:text-foreground dark:bg-input/30",
+        value ? "text-foreground" : "text-muted-foreground"
+      )}>
+        <Cur className="h-4 w-4" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search icon…"
@@ -109,21 +116,24 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
         <MoneyInput value={newMax} onChange={setNewMax} className="w-36" />
         <button
           disabled={!newName.trim() || create.isPending}
-          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || "Tag", default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon("") } })}
+          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || FALLBACK_ICON, default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon("") } })}
           className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
           {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
         </button>
       </div>
 
-      {/* List */}
-      <div className="flex flex-col divide-y divide-border/40 rounded-lg border border-border/60">
-        {(cats ?? []).map(cat => (
-          <CategoryRow key={cat.id} cat={cat}
-            onSave={(b) => update.mutate({ id: cat.id, body: b })}
-            onDelete={() => remove.mutate(cat.id)} />
-        ))}
-        {(cats ?? []).length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>}
-      </div>
+      {/* Existing categories — accordion */}
+      {(cats ?? []).length === 0 ? (
+        <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
+      ) : (
+        <Accordion className="rounded-lg border border-border/60 px-3">
+          {(cats ?? []).map(cat => (
+            <CategoryRow key={cat.id} cat={cat}
+              onSave={(b) => update.mutate({ id: cat.id, body: b })}
+              onDelete={() => remove.mutate(cat.id)} />
+          ))}
+        </Accordion>
+      )}
     </div>
   )
 }
@@ -134,22 +144,40 @@ function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Par
   const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
   const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
 
+  const reg = Lucide as unknown as Record<string, React.ElementType>
+  const HeadIcon = reg[cat.icon || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
+
   return (
-    <div className="flex items-center gap-2 px-3 py-2">
-      <IconPicker value={icon} onChange={setIcon} />
-      <input value={name} onChange={e => setName(e.target.value)}
-        className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-      <MoneyInput value={max} onChange={setMax} className="w-32" />
-      <button disabled={!dirty}
-        onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
-        <Check className="h-3.5 w-3.5" />
-      </button>
-      <button onClick={onDelete}
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
-        <Trash2 className="h-3.5 w-3.5" />
-      </button>
-    </div>
+    <AccordionItem value={cat.id}>
+      <AccordionTrigger className="px-1">
+        <span className="flex items-center gap-2">
+          <HeadIcon className="h-4 w-4 text-muted-foreground" />
+          <span>{cat.name}</span>
+          {cat.default_max != null && (
+            <span className="text-xs font-normal text-muted-foreground">
+              · max ${cat.default_max.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+            </span>
+          )}
+        </span>
+      </AccordionTrigger>
+      <AccordionContent className="px-1">
+        <div className="flex items-center gap-2">
+          <IconPicker value={icon} onChange={setIcon} />
+          <input value={name} onChange={e => setName(e.target.value)}
+            className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+          <MoneyInput value={max} onChange={setMax} className="w-36" />
+          <button disabled={!dirty}
+            onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
+            <Check className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={onDelete}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
   )
 }
 
