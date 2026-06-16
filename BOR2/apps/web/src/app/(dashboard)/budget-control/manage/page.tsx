@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import * as Lucide from "lucide-react"
-import { ArrowLeft, Plus, Trash2, Tag, Loader2, Check } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
@@ -18,11 +17,6 @@ import type { ProjectType, Category } from "@/services/budget-taxonomy.service"
 const COMPANIES = ["framing", "hvac", "pcg"] as const
 const TABS = ["categories", "accounts", "subcontractors"] as const
 type Tab = (typeof TABS)[number]
-
-function CatIcon({ name, className }: { name: string; className?: string }) {
-  const Ico = (Lucide as unknown as Record<string, React.ElementType>)[name] ?? Tag
-  return <Ico className={className} />
-}
 
 // Money input: $ prefix, thousands/decimal formatting on blur, raw numeric string while editing.
 function MoneyInput({ value, onChange, className, placeholder = "0" }: {
@@ -57,7 +51,7 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
   const { data: cats, isLoading } = useCategories(projectType)
   const { create, update, remove } = useCategoryMutations()
   const [newName, setNewName] = useState("")
-  const [newIcon, setNewIcon] = useState("Tag")
+  const [newMax, setNewMax] = useState("")
 
   if (isLoading) return <Loading />
 
@@ -65,14 +59,12 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
     <div className="flex flex-col gap-3">
       {/* Add new */}
       <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
-        <CatIcon name={newIcon} className="h-4 w-4 text-muted-foreground" />
-        <input value={newIcon} onChange={e => setNewIcon(e.target.value)} placeholder="Icon (lucide name)"
-          className="h-8 w-40 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
         <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
           className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        <MoneyInput value={newMax} onChange={setNewMax} className="w-36" placeholder="Default max" />
         <button
           disabled={!newName.trim() || create.isPending}
-          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon.trim() || "Tag" }, { onSuccess: () => { setNewName(""); setNewIcon("Tag") } })}
+          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax("") } })}
           className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
           {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
         </button>
@@ -93,20 +85,16 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
 
 function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Partial<Category>) => void; onDelete: () => void }) {
   const [name, setName] = useState(cat.name)
-  const [icon, setIcon] = useState(cat.icon)
   const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
-  const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
+  const dirty = name !== cat.name || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
 
   return (
     <div className="flex items-center gap-2 px-3 py-2">
-      <CatIcon name={icon} className="h-4 w-4 shrink-0 text-muted-foreground" />
-      <input value={icon} onChange={e => setIcon(e.target.value)}
-        className="h-7 w-32 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
       <input value={name} onChange={e => setName(e.target.value)}
         className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
       <MoneyInput value={max} onChange={setMax} className="w-32" />
       <button disabled={!dirty}
-        onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
+        onClick={() => onSave({ name, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
         <Check className="h-3.5 w-3.5" />
       </button>

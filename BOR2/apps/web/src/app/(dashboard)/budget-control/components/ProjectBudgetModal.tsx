@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import * as Lucide from "lucide-react"
-import { X, ChevronRight, Loader2, Building2, Home, AlertTriangle, Tag } from "lucide-react"
+import { X, ChevronRight, Loader2, Building2, Home, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail } from "@/hooks/use-budget"
@@ -14,11 +13,6 @@ const fmtDate = (s: string) => {
   if (!s) return "—"
   const [y, m, d] = s.split("-")
   return `${m}/${d}/${y.slice(2)}`
-}
-
-function CatIcon({ name, className }: { name: string; className?: string }) {
-  const Ico = (Lucide as unknown as Record<string, React.ElementType>)[name] ?? Tag
-  return <Ico className={className} />
 }
 
 function alertColor(pct: number, hasMax: boolean): string | undefined {
@@ -35,7 +29,6 @@ function CategoryRow({ c, blur }: { c: CategoryCost; blur: string }) {
   return (
     <div className="flex flex-col gap-1 px-3 py-2">
       <div className="flex items-center gap-2">
-        <CatIcon name={c.icon} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="text-xs font-medium">{c.name}</span>
         {hasMax && c.alert_pct >= 80 && (
           <AlertTriangle className="h-3 w-3" style={{ color: color }} />
@@ -167,7 +160,6 @@ export function ProjectBudgetModal({ company, customerID, onClose }: {
                     {data.categories.map(c => <CategoryRow key={c.name} c={c} blur={blur} />)}
                     {data.uncategorized > 0.5 && (
                       <div className="flex items-center gap-2 px-3 py-2">
-                        <Tag className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
                         <span className="text-xs text-muted-foreground/60">Uncategorized</span>
                         <span className={`ml-auto text-xs font-semibold tabular-nums text-muted-foreground/60 ${blur}`}>{fmt(data.uncategorized)}</span>
                       </div>
