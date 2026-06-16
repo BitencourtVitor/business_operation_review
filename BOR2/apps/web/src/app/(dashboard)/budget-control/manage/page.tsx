@@ -313,7 +313,7 @@ function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
                 <p className="text-[11px] text-muted-foreground/60">All subcontractors are categorized.</p>
               </div>
             ) : (
-              <div className="flex min-h-0 flex-1 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar border-t border-border/60 px-3">
+              <div className="flex min-h-0 flex-1 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar border-t border-border/60 p-3">
                 {uncategorized.map(s => (
                   <SubRow key={s.vendor_id} sub={s} cats={allCats} currentCatId={null} onMove={(t) => move(s.vendor_id, t)} />
                 ))}
