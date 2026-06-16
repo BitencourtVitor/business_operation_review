@@ -5,6 +5,7 @@ import Link from "next/link"
 import * as Lucide from "lucide-react"
 import { ArrowLeft, Plus, Trash2, Tag, Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -93,15 +94,22 @@ function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Par
 
 // ── Mapping tabs (accounts / subcontractors) ─────────────────────────────────
 
+const NONE = "__none__"
+
 function CategorySelect({ cats, value, onChange }: { cats: Category[]; value: string | null; onChange: (v: string | null) => void }) {
+  const current = value ? cats.find(c => c.id === value)?.name : null
   return (
-    <select
-      value={value ?? ""}
-      onChange={e => onChange(e.target.value || null)}
-      className="h-7 w-44 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30">
-      <option value="">— unmapped —</option>
-      {cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-    </select>
+    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)}>
+      <SelectTrigger className="h-7 w-48 text-xs">
+        <span className={cn("flex-1 truncate text-left", !current && "text-muted-foreground")}>
+          {current ?? "Unmapped"}
+        </span>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={NONE}>— unmapped —</SelectItem>
+        {cats.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+      </SelectContent>
+    </Select>
   )
 }
 
