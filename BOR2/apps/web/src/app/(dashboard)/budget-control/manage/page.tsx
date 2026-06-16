@@ -6,7 +6,7 @@ import * as Lucide from "lucide-react"
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 import {
   ArrowLeft, Plus, Trash2, Loader2, Check, Pencil, ChevronDown,
-  Building2, Home, ArrowRightLeft, Users,
+  Building2, Home, ArrowRightLeft, Users, X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -205,7 +205,9 @@ function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
 }
 
 // ── Manager ───────────────────────────────────────────────────────────────────
-function CategoriesManager({ company, projectType }: { company: string; projectType: ProjectType }) {
+function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
+  company: string; projectType: ProjectType; showNew: boolean; onCloseNew: () => void
+}) {
   const { data: cats, isLoading: catsLoading } = useCategories(projectType)
   const { create, update, remove } = useCategoryMutations()
   const { data: vendors, isLoading: vLoading } = useVendorMappings(company, projectType)
@@ -226,19 +228,25 @@ function CategoriesManager({ company, projectType }: { company: string; projectT
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
-      {/* Add new category */}
-      <div className="flex shrink-0 items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
-        <IconPicker value={newIcon} onChange={setNewIcon} />
-        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
-          className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-        <MoneyInput value={newMax} onChange={setNewMax} className="w-36" />
-        <button
-          disabled={!newName.trim() || create.isPending}
-          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || FALLBACK_ICON, default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon("") } })}
-          className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
-          {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
-        </button>
-      </div>
+      {/* Add new category — shown only when "+ New" is clicked */}
+      {showNew && (
+        <div className="flex shrink-0 items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
+          <IconPicker value={newIcon} onChange={setNewIcon} />
+          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name" autoFocus
+            className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+          <MoneyInput value={newMax} onChange={setNewMax} className="w-36" />
+          <button
+            disabled={!newName.trim() || create.isPending}
+            onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || FALLBACK_ICON, default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon(""); onCloseNew() } })}
+            className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
+            {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
+          </button>
+          <button onClick={() => { setNewName(""); setNewMax(""); setNewIcon(""); onCloseNew() }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Scroll area: categories + uncategorized */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto no-scrollbar pb-1">
@@ -293,6 +301,7 @@ export default function BudgetManagePage() {
 
   const [company, setCompany] = useState<string>("framing")
   const [projectType, setProjectType] = useState<ProjectType>("building")
+  const [showNew, setShowNew] = useState(false)
 
   if (!canManage) {
     return <div className="flex h-full items-center justify-center text-sm text-muted-foreground">You don&apos;t have permission to manage budget settings.</div>
@@ -309,12 +318,13 @@ export default function BudgetManagePage() {
           </Link>
           <div className="h-8 w-px bg-border" />
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">Budget Control <span className="font-normal text-muted-foreground">| Categorization</span></h1>
-            <p className="text-sm text-muted-foreground">Define categories per project type and assign subcontractors to them</p>
+            <h1 className="text-xl font-semibold tracking-tight">Budget Control</h1>
+            <p className="text-sm text-muted-foreground">Categorization · define categories per project type and assign subcontractors</p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap items-end justify-end gap-2">
           <Segmented
+            label="Company"
             value={company}
             onChange={setCompany}
             options={COMPANIES.map(c => ({
@@ -325,6 +335,7 @@ export default function BudgetManagePage() {
             }))}
           />
           <Segmented
+            label="Project Type"
             value={projectType}
             onChange={setProjectType}
             options={[
@@ -332,11 +343,15 @@ export default function BudgetManagePage() {
               { value: "house", label: "House", icon: <Home className="h-3.5 w-3.5" /> },
             ]}
           />
+          <button onClick={() => setShowNew(v => !v)}
+            className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+            <Plus className="h-3.5 w-3.5" /> New
+          </button>
         </div>
       </div>
 
       <div className="min-h-0 flex-1">
-        <CategoriesManager company={company} projectType={projectType} />
+        <CategoriesManager company={company} projectType={projectType} showNew={showNew} onCloseNew={() => setShowNew(false)} />
       </div>
     </div>
   )
