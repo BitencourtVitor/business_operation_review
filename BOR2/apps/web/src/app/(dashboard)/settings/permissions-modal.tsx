@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import {
   BarChart2, Banknote, Building2, CalendarCheck, CalendarClock,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, Fuel,
-  Gauge, Gem, GripVertical, ImageIcon, Loader2, Package, Settings,
+  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -41,6 +41,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "forecast",          label: "Framing Forecast",           image: "/images/sublogo_framing.png" },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
+      { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
       { key: "building_schedule", label: "Building Schedule",          icon: Building2     },
     ],
   },

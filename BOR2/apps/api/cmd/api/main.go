@@ -452,10 +452,8 @@ func main() {
 
 	// Budget Control (protected, financial)
 	budget := api.Group("/budget")
-	budget.Get("/projects",          budgetHandler.Projects)
-	budget.Get("/summary",           budgetHandler.Summary)
-	budget.Get("/settings",          budgetHandler.GetSettings)
-	budget.Put("/settings/:company", budgetHandler.UpdateSettings)
+	budget.Get("/projects", budgetHandler.Projects)
+	budget.Get("/summary",  budgetHandler.Summary)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")

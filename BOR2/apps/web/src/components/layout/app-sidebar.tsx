@@ -38,6 +38,7 @@ import {
   FileText,
   Fuel,
   Gauge,
+  HandCoins,
   ImageIcon,
   Package,
   PanelLeftClose,
@@ -117,6 +118,15 @@ const activeGroup: NavGroup = {
         { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
         { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
         { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
+      ],
+    },
+    {
+      title: "Budget Control", href: "/budget-control", icon: HandCoins,
+      permKey: "budget_control",
+      children: [
+        { title: "Framing", href: "/budget-control?company=framing", image: "/images/sublogo_framing.png" },
+        { title: "HVAC",    href: "/budget-control?company=hvac",    image: "/images/sublogo_hvac.png"     },
+        { title: "PCG",     href: "/budget-control?company=pcg",     image: "/images/sublogo_pcg.png"      },
       ],
     },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
