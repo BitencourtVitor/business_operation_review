@@ -24,6 +24,33 @@ function CatIcon({ name, className }: { name: string; className?: string }) {
   return <Ico className={className} />
 }
 
+// Money input: $ prefix, thousands/decimal formatting on blur, raw numeric string while editing.
+function MoneyInput({ value, onChange, className, placeholder = "0" }: {
+  value: string; onChange: (v: string) => void; className?: string; placeholder?: string
+}) {
+  const [focused, setFocused] = useState(false)
+  const display = focused || value === ""
+    ? value
+    : Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  return (
+    <div className={cn("relative", className)}>
+      <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+      <input
+        value={display}
+        inputMode="decimal"
+        placeholder={placeholder}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        onChange={e => {
+          const raw = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")
+          onChange(raw)
+        }}
+        className="h-7 w-full rounded-md border border-input bg-transparent pl-5 pr-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
+      />
+    </div>
+  )
+}
+
 // ── Categories tab ───────────────────────────────────────────────────────────
 
 function CategoriesTab({ projectType }: { projectType: ProjectType }) {
@@ -77,8 +104,7 @@ function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Par
         className="h-7 w-32 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
       <input value={name} onChange={e => setName(e.target.value)}
         className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-      <input value={max} onChange={e => setMax(e.target.value)} type="number" placeholder="Default max"
-        className="h-7 w-28 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+      <MoneyInput value={max} onChange={setMax} className="w-32" />
       <button disabled={!dirty}
         onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
