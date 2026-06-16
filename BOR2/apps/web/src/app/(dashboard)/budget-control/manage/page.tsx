@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import * as Lucide from "lucide-react"
 import { ArrowLeft, Plus, Trash2, Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -18,30 +20,71 @@ const COMPANIES = ["framing", "hvac", "pcg"] as const
 const TABS = ["categories", "accounts", "subcontractors"] as const
 type Tab = (typeof TABS)[number]
 
-// Money input: $ prefix, thousands/decimal formatting on blur, raw numeric string while editing.
-function MoneyInput({ value, onChange, className, placeholder = "0" }: {
+// Money input: right-to-left cents mask. Typing "1000" -> "$ 10.00", "5" -> "$ 0.05".
+// `value` is the stored dollar amount as a string (e.g. "10" or "12500.5").
+function MoneyInput({ value, onChange, className, placeholder = "$ 0.00" }: {
   value: string; onChange: (v: string) => void; className?: string; placeholder?: string
 }) {
-  const [focused, setFocused] = useState(false)
-  const display = focused || value === ""
-    ? value
-    : Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  const cents = value === "" ? 0 : Math.round(Number(value) * 100)
+  const display = value === ""
+    ? ""
+    : `$ ${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   return (
     <div className={cn("relative", className)}>
-      <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
       <input
         value={display}
-        inputMode="decimal"
+        inputMode="numeric"
         placeholder={placeholder}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         onChange={e => {
-          const raw = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1")
-          onChange(raw)
+          const digits = e.target.value.replace(/\D/g, "")
+          if (digits === "") { onChange(""); return }
+          onChange(String(parseInt(digits, 10) / 100))
         }}
-        className="h-7 w-full rounded-md border border-input bg-transparent pl-5 pr-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
+        className="h-7 w-full rounded-md border border-input bg-transparent px-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
       />
     </div>
+  )
+}
+
+// Curated default set; search filters all lucide icons.
+const CURATED_ICONS = [
+  "Frame", "LayoutGrid", "Layers", "PanelTop", "SquareStack", "Ruler", "Columns3",
+  "Hammer", "Wrench", "HardHat", "Home", "Building2", "Building", "Warehouse",
+  "Package", "Boxes", "Truck", "PaintBucket", "Paintbrush", "Grid3x3", "Trees",
+  "Droplets", "Zap", "Wind", "Triangle", "BrickWall", "DoorOpen", "Fence", "Construction",
+]
+const ALL_ICON_NAMES = Object.keys(Lucide).filter(
+  k => /^[A-Z]/.test(k) && !["Icon", "LucideIcon", "createLucideIcon"].includes(k)
+)
+
+function IconPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [q, setQ] = useState("")
+  const Cur = value ? (Lucide as unknown as Record<string, React.ElementType>)[value] : null
+  const names = q.trim()
+    ? ALL_ICON_NAMES.filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0, 56)
+    : CURATED_ICONS
+  return (
+    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (v) setQ("") }}>
+      <PopoverTrigger className="flex h-7 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-transparent text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        {Cur ? <Cur className="h-4 w-4" /> : <span className="text-[9px]">icon</span>}
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-2">
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search icon…"
+          className="mb-2 h-7 w-full rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        <div className="grid max-h-48 grid-cols-7 gap-1 overflow-y-auto no-scrollbar">
+          {names.map(n => {
+            const I = (Lucide as unknown as Record<string, React.ElementType>)[n]
+            return (
+              <button key={n} title={n} onClick={() => { onChange(n); setOpen(false) }}
+                className={cn("flex h-7 w-7 items-center justify-center rounded hover:bg-muted", value === n && "bg-primary/15 text-primary")}>
+                <I className="h-4 w-4" />
+              </button>
+            )
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -52,6 +95,7 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
   const { create, update, remove } = useCategoryMutations()
   const [newName, setNewName] = useState("")
   const [newMax, setNewMax] = useState("")
+  const [newIcon, setNewIcon] = useState("")
 
   if (isLoading) return <Loading />
 
@@ -59,12 +103,13 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
     <div className="flex flex-col gap-3">
       {/* Add new */}
       <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
+        <IconPicker value={newIcon} onChange={setNewIcon} />
         <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
           className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
         <MoneyInput value={newMax} onChange={setNewMax} className="w-36" placeholder="Default max" />
         <button
           disabled={!newName.trim() || create.isPending}
-          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax("") } })}
+          onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || "Tag", default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon("") } })}
           className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
           {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
         </button>
@@ -85,16 +130,18 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
 
 function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Partial<Category>) => void; onDelete: () => void }) {
   const [name, setName] = useState(cat.name)
+  const [icon, setIcon] = useState(cat.icon)
   const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
-  const dirty = name !== cat.name || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
+  const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
 
   return (
     <div className="flex items-center gap-2 px-3 py-2">
+      <IconPicker value={icon} onChange={setIcon} />
       <input value={name} onChange={e => setName(e.target.value)}
         className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
       <MoneyInput value={max} onChange={setMax} className="w-32" />
       <button disabled={!dirty}
-        onClick={() => onSave({ name, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
+        onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
         <Check className="h-3.5 w-3.5" />
       </button>
