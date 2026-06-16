@@ -3,7 +3,6 @@ package quickbooks
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,8 +27,17 @@ func upsertEntity(ctx context.Context, db *pgxpool.Pool, company, entity string,
 		return upsertVendorCredits(ctx, db, company, rows)
 	case "Deposit":
 		return upsertDeposits(ctx, db, company, rows)
+	case "PurchaseOrder":
+		return upsertPurchaseOrders(ctx, db, company, rows)
+	case "Account":
+		return upsertAccounts(ctx, db, company, rows)
+	case "Vendor":
+		return upsertVendors(ctx, db, company, rows)
+	case "Customer":
+		return upsertCustomers(ctx, db, company, rows)
 	default:
-		return 0, fmt.Errorf("unknown entity: %s", entity)
+		// Every other fetched entity is captured generically in qb_raw.
+		return upsertRaw(ctx, db, company, entity, rows)
 	}
 }
 
@@ -67,6 +75,31 @@ func numStr(m map[string]json.RawMessage, key string) *float64 {
 		return nil
 	}
 	return &f
+}
+
+func boolVal(m map[string]json.RawMessage, key string) *bool {
+	v, ok := m[key]
+	if !ok {
+		return nil
+	}
+	var b bool
+	if err := json.Unmarshal(v, &b); err != nil {
+		return nil
+	}
+	return &b
+}
+
+func intVal(m map[string]json.RawMessage, key string) *int {
+	v, ok := m[key]
+	if !ok {
+		return nil
+	}
+	var f float64
+	if err := json.Unmarshal(v, &f); err != nil {
+		return nil
+	}
+	n := int(f)
+	return &n
 }
 
 func dateStr(m map[string]json.RawMessage, key string) *time.Time {
@@ -773,6 +806,295 @@ func upsertDeposits(ctx context.Context, db *pgxpool.Pool, company string, rows 
 			)
 		}
 
+		count++
+	}
+	return count, nil
+}
+
+// ─── Purchase Orders ───────────────────────────────────────────────────────────
+
+func upsertPurchaseOrders(ctx context.Context, db *pgxpool.Pool, company string, rows []json.RawMessage) (int, error) {
+	count := 0
+	for _, raw := range rows {
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+
+		var poID string
+		err := db.QueryRow(ctx, `
+			INSERT INTO qb_purchase_orders
+				(company, external_id, doc_number, txn_date, po_status,
+				 vendor_id, vendor_name, ap_account_id, ap_account_name,
+				 total_amount, private_note, memo, updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+			ON CONFLICT (company, external_id) DO UPDATE SET
+				doc_number      = EXCLUDED.doc_number,
+				txn_date        = EXCLUDED.txn_date,
+				po_status       = EXCLUDED.po_status,
+				vendor_id       = EXCLUDED.vendor_id,
+				vendor_name     = EXCLUDED.vendor_name,
+				ap_account_id   = EXCLUDED.ap_account_id,
+				ap_account_name = EXCLUDED.ap_account_name,
+				total_amount    = EXCLUDED.total_amount,
+				private_note    = EXCLUDED.private_note,
+				memo            = EXCLUDED.memo,
+				updated_at      = EXCLUDED.updated_at
+			RETURNING id
+		`,
+			company, str(m, "Id"),
+			str(m, "DocNumber"),
+			dateStr(m, "TxnDate"),
+			str(m, "POStatus"),
+			strNested(m, "VendorRef", "value"),
+			strNested(m, "VendorRef", "name"),
+			strNested(m, "APAccountRef", "value"),
+			strNested(m, "APAccountRef", "name"),
+			numStr(m, "TotalAmt"),
+			str(m, "PrivateNote"),
+			str(m, "Memo"),
+			metaUpdatedAt(m),
+		).Scan(&poID)
+		if err != nil {
+			continue
+		}
+
+		for _, line := range lines(m) {
+			lineID := str(line, "Id")
+			// PO lines carry either an account-based or item-based expense detail.
+			var detail map[string]json.RawMessage
+			if v, ok := line["AccountBasedExpenseLineDetail"]; ok {
+				_ = json.Unmarshal(v, &detail)
+			} else if v, ok := line["ItemBasedExpenseLineDetail"]; ok {
+				_ = json.Unmarshal(v, &detail)
+			}
+			_, _ = db.Exec(ctx, `
+				INSERT INTO qb_purchase_order_lines
+					(po_id, company, line_id, description, amount, received, detail_type,
+					 account_ref_id, account_ref_name, item_ref_id, item_ref_name,
+					 customer_id, customer_name, class_ref_id, class_ref_name,
+					 project_ref, billable_status, tax_code_ref)
+				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+				ON CONFLICT (company, po_id, line_id) DO UPDATE SET
+					description      = EXCLUDED.description,
+					amount           = EXCLUDED.amount,
+					received         = EXCLUDED.received,
+					detail_type      = EXCLUDED.detail_type,
+					account_ref_id   = EXCLUDED.account_ref_id,
+					account_ref_name = EXCLUDED.account_ref_name,
+					item_ref_id      = EXCLUDED.item_ref_id,
+					item_ref_name    = EXCLUDED.item_ref_name,
+					customer_id      = EXCLUDED.customer_id,
+					customer_name    = EXCLUDED.customer_name,
+					class_ref_id     = EXCLUDED.class_ref_id,
+					class_ref_name   = EXCLUDED.class_ref_name,
+					project_ref      = EXCLUDED.project_ref,
+					billable_status  = EXCLUDED.billable_status,
+					tax_code_ref     = EXCLUDED.tax_code_ref
+			`,
+				poID, company, lineID,
+				str(line, "Description"),
+				numStr(line, "Amount"),
+				numStr(line, "Received"),
+				str(line, "DetailType"),
+				strNested(detail, "AccountRef", "value"),
+				strNested(detail, "AccountRef", "name"),
+				strNested(detail, "ItemRef", "value"),
+				strNested(detail, "ItemRef", "name"),
+				strNested(detail, "CustomerRef", "value"),
+				strNested(detail, "CustomerRef", "name"),
+				strNested(detail, "ClassRef", "value"),
+				strNested(detail, "ClassRef", "name"),
+				strNested(line, "ProjectRef", "value"),
+				str(detail, "BillableStatus"),
+				strNested(detail, "TaxCodeRef", "value"),
+			)
+		}
+
+		for _, txn := range linkedTxns(m) {
+			txnID := str(txn, "TxnId")
+			_, _ = db.Exec(ctx, `
+				INSERT INTO qb_purchase_order_links (po_id, company, txn_id, txn_type)
+				VALUES ($1,$2,$3,$4)
+				ON CONFLICT (company, po_id, txn_id) DO UPDATE SET txn_type = EXCLUDED.txn_type
+			`, poID, company, txnID, str(txn, "TxnType"))
+		}
+
+		count++
+	}
+	return count, nil
+}
+
+// ─── Accounts (chart of accounts) ──────────────────────────────────────────────
+
+func upsertAccounts(ctx context.Context, db *pgxpool.Pool, company string, rows []json.RawMessage) (int, error) {
+	count := 0
+	for _, raw := range rows {
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+		_, err := db.Exec(ctx, `
+			INSERT INTO qb_accounts
+				(company, external_id, name, fully_qualified_name, acct_num,
+				 account_type, account_sub_type, classification, current_balance,
+				 active, sub_account, parent_id, parent_name, description, updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+			ON CONFLICT (company, external_id) DO UPDATE SET
+				name                 = EXCLUDED.name,
+				fully_qualified_name = EXCLUDED.fully_qualified_name,
+				acct_num             = EXCLUDED.acct_num,
+				account_type         = EXCLUDED.account_type,
+				account_sub_type     = EXCLUDED.account_sub_type,
+				classification       = EXCLUDED.classification,
+				current_balance      = EXCLUDED.current_balance,
+				active               = EXCLUDED.active,
+				sub_account          = EXCLUDED.sub_account,
+				parent_id            = EXCLUDED.parent_id,
+				parent_name          = EXCLUDED.parent_name,
+				description          = EXCLUDED.description,
+				updated_at           = EXCLUDED.updated_at
+		`,
+			company, str(m, "Id"),
+			str(m, "Name"),
+			str(m, "FullyQualifiedName"),
+			str(m, "AcctNum"),
+			str(m, "AccountType"),
+			str(m, "AccountSubType"),
+			str(m, "Classification"),
+			numStr(m, "CurrentBalance"),
+			boolVal(m, "Active"),
+			boolVal(m, "SubAccount"),
+			strNested(m, "ParentRef", "value"),
+			strNested(m, "ParentRef", "name"),
+			str(m, "Description"),
+			metaUpdatedAt(m),
+		)
+		if err != nil {
+			continue
+		}
+		count++
+	}
+	return count, nil
+}
+
+// ─── Vendors (subcontractor master) ────────────────────────────────────────────
+
+func upsertVendors(ctx context.Context, db *pgxpool.Pool, company string, rows []json.RawMessage) (int, error) {
+	count := 0
+	for _, raw := range rows {
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+		_, err := db.Exec(ctx, `
+			INSERT INTO qb_vendors
+				(company, external_id, display_name, company_name, active,
+				 vendor_1099, balance, email, phone, updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+			ON CONFLICT (company, external_id) DO UPDATE SET
+				display_name = EXCLUDED.display_name,
+				company_name = EXCLUDED.company_name,
+				active       = EXCLUDED.active,
+				vendor_1099  = EXCLUDED.vendor_1099,
+				balance      = EXCLUDED.balance,
+				email        = EXCLUDED.email,
+				phone        = EXCLUDED.phone,
+				updated_at   = EXCLUDED.updated_at
+		`,
+			company, str(m, "Id"),
+			str(m, "DisplayName"),
+			str(m, "CompanyName"),
+			boolVal(m, "Active"),
+			boolVal(m, "Vendor1099"),
+			numStr(m, "Balance"),
+			strNested(m, "PrimaryEmailAddr", "Address"),
+			strNested(m, "PrimaryPhone", "FreeFormNumber"),
+			metaUpdatedAt(m),
+		)
+		if err != nil {
+			continue
+		}
+		count++
+	}
+	return count, nil
+}
+
+// ─── Customers (project / job master) ──────────────────────────────────────────
+
+func upsertCustomers(ctx context.Context, db *pgxpool.Pool, company string, rows []json.RawMessage) (int, error) {
+	count := 0
+	for _, raw := range rows {
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+		_, err := db.Exec(ctx, `
+			INSERT INTO qb_customers
+				(company, external_id, display_name, fully_qualified_name, company_name,
+				 active, job, parent_id, parent_name, balance, balance_with_jobs,
+				 email, level, updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+			ON CONFLICT (company, external_id) DO UPDATE SET
+				display_name         = EXCLUDED.display_name,
+				fully_qualified_name = EXCLUDED.fully_qualified_name,
+				company_name         = EXCLUDED.company_name,
+				active               = EXCLUDED.active,
+				job                  = EXCLUDED.job,
+				parent_id            = EXCLUDED.parent_id,
+				parent_name          = EXCLUDED.parent_name,
+				balance              = EXCLUDED.balance,
+				balance_with_jobs    = EXCLUDED.balance_with_jobs,
+				email                = EXCLUDED.email,
+				level                = EXCLUDED.level,
+				updated_at           = EXCLUDED.updated_at
+		`,
+			company, str(m, "Id"),
+			str(m, "DisplayName"),
+			str(m, "FullyQualifiedName"),
+			str(m, "CompanyName"),
+			boolVal(m, "Active"),
+			boolVal(m, "Job"),
+			strNested(m, "ParentRef", "value"),
+			strNested(m, "ParentRef", "name"),
+			numStr(m, "Balance"),
+			numStr(m, "BalanceWithJobs"),
+			strNested(m, "PrimaryEmailAddr", "Address"),
+			intVal(m, "Level"),
+			metaUpdatedAt(m),
+		)
+		if err != nil {
+			continue
+		}
+		count++
+	}
+	return count, nil
+}
+
+// ─── Generic raw capture ───────────────────────────────────────────────────────
+// Stores the full QB payload for any entity without a dedicated table, so structured
+// views can be derived later without re-fetching from QuickBooks.
+
+func upsertRaw(ctx context.Context, db *pgxpool.Pool, company, entity string, rows []json.RawMessage) (int, error) {
+	count := 0
+	for _, raw := range rows {
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &m); err != nil {
+			continue
+		}
+		externalID := str(m, "Id")
+		if externalID == "" {
+			continue
+		}
+		_, err := db.Exec(ctx, `
+			INSERT INTO qb_raw (company, entity, external_id, data, synced_at)
+			VALUES ($1,$2,$3,$4::jsonb,now())
+			ON CONFLICT (company, entity, external_id) DO UPDATE SET
+				data = EXCLUDED.data, synced_at = now()
+		`, company, entity, externalID, string(raw))
+		if err != nil {
+			continue
+		}
 		count++
 	}
 	return count, nil

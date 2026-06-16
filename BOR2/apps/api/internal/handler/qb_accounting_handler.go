@@ -128,14 +128,34 @@ type BackchargeDetail struct {
 	Memo        string  `json:"memo"`
 }
 
+type POLineBrief struct {
+	Description    string  `json:"description"`
+	Amount         float64 `json:"amount"`
+	Received       float64 `json:"received"`
+	AccountRefName string  `json:"account_ref_name"`
+}
+
+type PurchaseOrderDetail struct {
+	ExternalID  string        `json:"external_id"`
+	DocNumber   string        `json:"doc_number"`
+	TxnDate     string        `json:"txn_date"`
+	VendorName  string        `json:"vendor_name"`
+	POStatus    string        `json:"po_status"`
+	TotalAmount float64       `json:"total_amount"`
+	Received    float64       `json:"received"`
+	Open        float64       `json:"open"`
+	Lines       []POLineBrief `json:"lines"`
+}
+
 type ProjectDetailResponse struct {
-	CustomerName  string               `json:"customer_name"`
-	Estimate      *EstimateInfo        `json:"estimate"`
-	Bills         []BillDetail         `json:"bills"`
-	Purchases     []PurchaseDetail     `json:"purchases"`
-	VendorCredits []VendorCreditDetail `json:"vendor_credits"`
-	Invoices      []InvoiceDetail      `json:"invoices"`
-	Backcharges   []BackchargeDetail   `json:"backcharges"`
+	CustomerName   string                `json:"customer_name"`
+	Estimate       *EstimateInfo         `json:"estimate"`
+	Bills          []BillDetail          `json:"bills"`
+	Purchases      []PurchaseDetail      `json:"purchases"`
+	VendorCredits  []VendorCreditDetail  `json:"vendor_credits"`
+	Invoices       []InvoiceDetail       `json:"invoices"`
+	Backcharges    []BackchargeDetail    `json:"backcharges"`
+	PurchaseOrders []PurchaseOrderDetail `json:"purchase_orders"`
 }
 
 // GET /api/v1/qb/accounting/years?company=hvac
@@ -789,6 +809,81 @@ func (h *QBAccountingHandler) ProjectDetail(c *fiber.Ctx) error {
 		result.Backcharges = append(result.Backcharges, bc)
 	}
 	bcRows.Close()
+
+	// ── 7. Purchase Orders (lines tagged to this customer) ────────────────────
+	poRows, err := h.db.Query(ctx, `
+		SELECT DISTINCT o.id::text, o.external_id,
+		       COALESCE(o.doc_number,''), to_char(o.txn_date,'YYYY-MM-DD'),
+		       COALESCE(o.vendor_name,''), COALESCE(o.po_status,'')
+		FROM qb_purchase_orders o
+		JOIN qb_purchase_order_lines pol ON pol.po_id = o.id
+		WHERE o.company=$1 AND pol.customer_id=$2
+		ORDER BY o.external_id
+	`, company, customerID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	type poMeta struct {
+		internalID string
+		detail     PurchaseOrderDetail
+	}
+	var pos []poMeta
+	for poRows.Next() {
+		var m poMeta
+		poRows.Scan(
+			&m.internalID, &m.detail.ExternalID,
+			&m.detail.DocNumber, &m.detail.TxnDate,
+			&m.detail.VendorName, &m.detail.POStatus,
+		)
+		m.detail.Lines = []POLineBrief{}
+		pos = append(pos, m)
+	}
+	poRows.Close()
+
+	if len(pos) > 0 {
+		poInternalIDs := make([]string, len(pos))
+		poIdxByInternal := map[string]int{}
+		for i, p := range pos {
+			poInternalIDs[i] = p.internalID
+			poIdxByInternal[p.internalID] = i
+		}
+		polRows, _ := h.db.Query(ctx, `
+			SELECT po_id::text, COALESCE(description,''),
+			       COALESCE(amount,0), COALESCE(received,0), COALESCE(account_ref_name,'')
+			FROM qb_purchase_order_lines
+			WHERE company=$1 AND customer_id=$2 AND po_id::text = ANY($3)
+			ORDER BY po_id
+		`, company, customerID, poInternalIDs)
+		for polRows.Next() {
+			var poID string
+			var l POLineBrief
+			polRows.Scan(&poID, &l.Description, &l.Amount, &l.Received, &l.AccountRefName)
+			if idx, ok := poIdxByInternal[poID]; ok {
+				pos[idx].detail.Lines = append(pos[idx].detail.Lines, l)
+			}
+		}
+		polRows.Close()
+
+		// Totals from this customer's lines only; open = committed-not-yet-billed for Open POs.
+		for i := range pos {
+			var amt, recv float64
+			for _, l := range pos[i].detail.Lines {
+				amt += l.Amount
+				recv += l.Received
+			}
+			pos[i].detail.TotalAmount = amt
+			pos[i].detail.Received = recv
+			if pos[i].detail.POStatus == "Open" && amt > recv {
+				pos[i].detail.Open = amt - recv
+			}
+		}
+	}
+
+	result.PurchaseOrders = make([]PurchaseOrderDetail, len(pos))
+	for i, p := range pos {
+		result.PurchaseOrders[i] = p.detail
+	}
 
 	return c.JSON(fiber.Map{"data": result})
 }
