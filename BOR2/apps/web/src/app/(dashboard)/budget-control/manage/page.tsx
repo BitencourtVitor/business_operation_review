@@ -29,6 +29,11 @@ const COMPANIES: { value: string; label: string; logo: string }[] = [
 const FALLBACK_ICON = "Shapes"
 const reg = Lucide as unknown as Record<string, React.ElementType>
 
+function iconEl(name: string, className = "h-3.5 w-3.5 shrink-0 text-muted-foreground") {
+  const I = reg[name || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
+  return <I className={className} />
+}
+
 type Sub = { vendor_id: string; display_name: string }
 
 // ── Money input: $ fixed prefix, right-to-left cents mask ─────────────────────
@@ -102,18 +107,21 @@ function SubRow({ sub, cats, currentCatId, onMove }: {
   const [open, setOpen] = useState(false)
   const targets = cats.filter(c => c.id !== currentCatId)
   return (
-    <div className="flex items-center gap-2 py-1.5">
+    <div className={cn("flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/30", open && "bg-muted/30")}>
       <span className="flex-1 truncate text-sm" title={sub.display_name}>{sub.display_name}</span>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger className="flex h-7 items-center gap-1 rounded-md border border-input bg-transparent px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
           <ArrowRightLeft className="h-3 w-3" /> Move
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-48 p-1">
+        <PopoverContent align="end" className="w-52 p-1">
           <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Move to</p>
           <div className="flex max-h-48 flex-col overflow-y-auto no-scrollbar">
             {targets.map(c => (
               <button key={c.id} onClick={() => { onMove(c.id); setOpen(false) }}
-                className="rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent">{c.name}</button>
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent">
+                {iconEl(c.icon, "h-3.5 w-3.5 shrink-0 text-muted-foreground")}
+                {c.name}
+              </button>
             ))}
           </div>
           {currentCatId && (
@@ -139,10 +147,14 @@ function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
   const [name, setName] = useState(cat.name)
   const [icon, setIcon] = useState(cat.icon)
   const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
-  const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
   const Head = reg[cat.icon || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
+  const maxDisplay = cat.default_max != null
+    ? `$${cat.default_max.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : "—"
 
+  function reset() { setName(cat.name); setIcon(cat.icon); setMax(cat.default_max != null ? String(cat.default_max) : "") }
   function save() { onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active }); setEditing(false) }
+  function cancel() { reset(); setEditing(false) }
 
   return (
     <AccordionItem value={cat.id}>
@@ -153,32 +165,31 @@ function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
             <IconPicker value={icon} onChange={setIcon} />
             <input value={name} onChange={e => setName(e.target.value)} autoFocus
               className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            <MoneyInput value={max} onChange={setMax} className="w-28 shrink-0" />
+            <button onClick={onDelete} title="Delete"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+            <button onClick={cancel} title="Cancel"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <X className="h-3.5 w-3.5" />
+            </button>
+            <button onClick={save} title="Save"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-emerald-500 transition-colors hover:bg-emerald-500/10">
+              <Check className="h-3.5 w-3.5" />
+            </button>
           </>
         ) : (
           <>
             <Head className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="flex-1 truncate text-sm font-medium">{cat.name}</span>
+            <span className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{maxDisplay}</span>
+            <button onClick={() => setEditing(true)} title="Edit name / icon / max"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
           </>
         )}
-
-        <MoneyInput value={max} onChange={setMax} className="w-28 shrink-0" />
-
-        {dirty && (
-          <button onClick={save} title="Save"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-emerald-500 transition-colors hover:bg-emerald-500/10">
-            <Check className="h-3.5 w-3.5" />
-          </button>
-        )}
-        {editing && (
-          <button onClick={onDelete} title="Delete"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        )}
-        <button onClick={() => setEditing(e => !e)} title={editing ? "Done" : "Edit name / icon"}
-          className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground", editing ? "text-foreground" : "text-muted-foreground")}>
-          <Pencil className="h-3.5 w-3.5" />
-        </button>
         <AccordionPrimitive.Header className="flex shrink-0">
           <AccordionPrimitive.Trigger className="group flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <ChevronDown className="h-4 w-4 transition-transform group-aria-expanded:rotate-180" />
@@ -216,6 +227,7 @@ function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
   const [newName, setNewName] = useState("")
   const [newMax, setNewMax] = useState("")
   const [newIcon, setNewIcon] = useState("")
+  const [uncatOpen, setUncatOpen] = useState(true)
 
   if (catsLoading || vLoading) return <div className="flex h-40 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
 
@@ -248,12 +260,12 @@ function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
         </div>
       )}
 
-      {/* Scroll area: categories + uncategorized */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto no-scrollbar pb-1">
+      {/* Content fills the viewport: categories (capped) + uncategorized (fills, scrolls inside) */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         {allCats.length === 0 ? (
-          <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
+          <p className="shrink-0 px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
         ) : (
-          <Accordion className="shrink-0 overflow-hidden rounded-lg border border-border/60 bg-card/60">
+          <Accordion className="max-h-[45%] shrink-0 overflow-y-auto overflow-x-hidden rounded-lg border border-border/60 bg-card/60 no-scrollbar">
             {allCats.map(cat => (
               <CategoryItem key={cat.id} cat={cat} cats={allCats} subs={subsByCat(cat.id)}
                 onSave={(b) => update.mutate({ id: cat.id, body: b })}
@@ -263,31 +275,29 @@ function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
           </Accordion>
         )}
 
-        <Accordion className="shrink-0 overflow-hidden rounded-lg border border-border/60 bg-card/60">
-          <AccordionItem value="uncategorized">
-            <AccordionPrimitive.Header className="flex">
-              <AccordionPrimitive.Trigger className="group flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm font-medium outline-none transition-colors hover:bg-muted/30">
-                <span className="font-semibold">Subcontractors without category</span>
-                <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
-                <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-aria-expanded:rotate-180" />
-              </AccordionPrimitive.Trigger>
-            </AccordionPrimitive.Header>
-            <AccordionContent className="px-3">
-              {uncategorized.length === 0 ? (
-                <div className="flex min-h-24 flex-col items-center justify-center gap-1.5 text-center">
-                  <Check className="h-6 w-6 text-emerald-500/50" />
-                  <p className="text-[11px] text-muted-foreground/60">All subcontractors are categorized.</p>
-                </div>
-              ) : (
-                <div className="flex max-h-72 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar">
-                  {uncategorized.map(s => (
-                    <SubRow key={s.vendor_id} sub={s} cats={allCats} currentCatId={null} onMove={(t) => move(s.vendor_id, t)} />
-                  ))}
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {/* Subcontractors without category — fills remaining height, scrolls inside */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/60">
+          <button onClick={() => setUncatOpen(o => !o)}
+            className="flex shrink-0 items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/30">
+            <span className="font-semibold">Subcontractors without category</span>
+            <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
+            <ChevronDown className={cn("ml-auto h-4 w-4 text-muted-foreground transition-transform", uncatOpen && "rotate-180")} />
+          </button>
+          {uncatOpen && (
+            uncategorized.length === 0 ? (
+              <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1.5 border-t border-border/60 text-center">
+                <Check className="h-6 w-6 text-emerald-500/50" />
+                <p className="text-[11px] text-muted-foreground/60">All subcontractors are categorized.</p>
+              </div>
+            ) : (
+              <div className="flex min-h-0 flex-1 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar border-t border-border/60 px-3">
+                {uncategorized.map(s => (
+                  <SubRow key={s.vendor_id} sub={s} cats={allCats} currentCatId={null} onMove={(t) => move(s.vendor_id, t)} />
+                ))}
+              </div>
+            )
+          )}
+        </div>
       </div>
     </div>
   )
