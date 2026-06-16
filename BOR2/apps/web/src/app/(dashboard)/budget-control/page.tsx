@@ -2,18 +2,22 @@
 
 import { Suspense, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
+import { useMyPermissions } from "@/hooks/use-settings"
 import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
-  Search, X, Info, HandCoins, Loader2, FolderOpen,
-  ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
+  Search, X, Info, HandCoins, Loader2, Building2, Home, Settings,
+  ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet, AlertTriangle, CheckCircle2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetProjects, useBudgetSummary } from "@/hooks/use-budget"
-import type { BudgetProject } from "@/services/budget.service"
+import type { BudgetProject, BudgetStatus } from "@/services/budget.service"
+import { ProjectBudgetModal } from "./components/ProjectBudgetModal"
 
 const COMPANY_LOGO: Record<string, string> = {
   hvac:    "/images/sublogo_hvac.png",
@@ -23,13 +27,11 @@ const COMPANY_LOGO: Record<string, string> = {
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
-
 const fmtShort = (n: number) => {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(1)}K`
   return fmt(n)
 }
-
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
 
 function InfoBtn({ title, description }: { title: string; description: string }) {
@@ -48,20 +50,14 @@ function InfoBtn({ title, description }: { title: string; description: string })
   )
 }
 
-// ── metric row inside a card section ─────────────────────────────────────────
-
 function MetricRow({ label, value, color, blur, strong }: {
   label: string; value: number; color?: string; blur: string; strong?: boolean
 }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[11px] text-muted-foreground">{label}</span>
-      <span
-        className={cn("tabular-nums", strong ? "text-[13px] font-bold" : "text-[12px] font-semibold", blur)}
-        style={color ? { color } : undefined}
-      >
-        {fmt(value)}
-      </span>
+      <span className={cn("tabular-nums", strong ? "text-[13px] font-bold" : "text-[12px] font-semibold", blur)}
+        style={color ? { color } : undefined}>{fmt(value)}</span>
     </div>
   )
 }
@@ -74,20 +70,41 @@ function Bar({ part, whole, color }: { part: number; whole: number; color: strin
   )
 }
 
-// ── project card (one per obra) ──────────────────────────────────────────────
-
-function ProjectCard({ p, blur }: { p: BudgetProject; blur: string }) {
+function ProjectCard({ p, blur, onOpen }: { p: BudgetProject; blur: string; onOpen: () => void }) {
   const hasLabor = p.labor_committed > 0
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-md">
+    <button onClick={onOpen}
+      className="flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left transition-all hover:border-border hover:shadow-md">
 
       {/* Header */}
       <div className="flex items-start gap-2 border-b border-border/50 px-4 py-3">
-        <FolderOpen className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
-        <p className="line-clamp-2 text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
+        {p.project_type === "building"
+          ? <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
+          : <Home className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />}
+        <p className="line-clamp-2 flex-1 text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
+        {p.potentially_closed && (
+          <TooltipProvider delay={200}>
+            <Tooltip>
+              <TooltipTrigger render={<span className="shrink-0" />}>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              </TooltipTrigger>
+              <TooltipContent>Potentially closed — nothing left to pay or receive</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {p.over_ceiling && (
+          <TooltipProvider delay={200}>
+            <Tooltip>
+              <TooltipTrigger render={<span className="shrink-0" />}>
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+              </TooltipTrigger>
+              <TooltipContent>Cost over the 70% ceiling (margin below 30%)</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
-      {/* Receivables */}
+      {/* Receivable */}
       <div className="flex flex-col gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
           <Wallet className="h-3.5 w-3.5 text-emerald-500" />
@@ -97,12 +114,22 @@ function ProjectCard({ p, blur }: { p: BudgetProject; blur: string }) {
         <Bar part={p.received} whole={p.projected_receive} color="#22c55e" />
         <div className="flex flex-col gap-1">
           <MetricRow label="Estimated" value={p.projected_receive} blur={blur} strong />
-          <MetricRow label="Invoiced" value={p.invoiced} blur={blur} />
           <MetricRow label="Received" value={p.received} color="#22c55e" blur={blur} />
+          <MetricRow label="To receive" value={p.to_receive} blur={blur} />
         </div>
       </div>
 
-      {/* Labor / subcontractor (PO-driven) */}
+      {/* Cost vs ceiling */}
+      <div className="flex flex-col gap-2 border-t border-border/40 px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Cost</span>
+          <span className="ml-auto text-[10px] text-muted-foreground">ceiling {fmtShort(p.cost_ceiling)}</span>
+        </div>
+        <Bar part={p.cost_total} whole={p.cost_ceiling} color={p.over_ceiling ? "#ef4444" : "#f59e0b"} />
+        <MetricRow label="Spent" value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
+      </div>
+
+      {/* Labor (PO) */}
       <div className="flex flex-col gap-2 border-t border-border/40 px-4 py-3">
         <div className="flex items-center gap-1.5">
           <HardHat className="h-3.5 w-3.5 text-amber-500" />
@@ -112,20 +139,17 @@ function ProjectCard({ p, blur }: { p: BudgetProject; blur: string }) {
           <>
             <Bar part={p.labor_billed} whole={p.labor_committed} color="#f59e0b" />
             <div className="flex flex-col gap-1">
-              <MetricRow label="Committed (PO)" value={p.labor_committed} blur={blur} strong />
-              <MetricRow label="Billed" value={p.labor_billed} blur={blur} />
+              <MetricRow label="Committed (PO)" value={p.labor_committed} blur={blur} />
               <MetricRow label="To pay (open PO)" value={p.labor_open} color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
             </div>
           </>
         ) : (
-          <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders for this project.</p>
+          <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
         )}
       </div>
-    </div>
+    </button>
   )
 }
-
-// ── page ─────────────────────────────────────────────────────────────────────
 
 export default function BudgetControlPage() {
   return (
@@ -135,7 +159,7 @@ export default function BudgetControlPage() {
   )
 }
 
-type SortField = "name" | "projected_receive" | "labor_committed" | "labor_open"
+type SortField = "name" | "projected_receive" | "labor_committed" | "cost_total"
 
 function BudgetContent() {
   const searchParams = useSearchParams()
@@ -143,12 +167,18 @@ function BudgetContent() {
   const { showFinancialData } = useFinancialStore()
   const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
 
+  const { user } = useAuth()
+  const { data: myPerms } = useMyPermissions()
+  const canManage = (!!user && ["dev", "owner", "admin"].includes(user.role)) || myPerms?.permissions?.budget_control === "write"
+
+  const [status, setStatus] = useState<BudgetStatus>("in_progress")
   const [search, setSearch] = useState("")
-  const [sortField, setSortField] = useState<SortField>("labor_committed")
+  const [sortField, setSortField] = useState<SortField>("projected_receive")
   const [sortAsc, setSortAsc] = useState(false)
+  const [detailID, setDetailID] = useState<string | null>(null)
 
   const { data: summary, isLoading: sumLoading } = useBudgetSummary({ company })
-  const { data: projects, isLoading: projLoading } = useBudgetProjects({ company })
+  const { data: projects, isLoading: projLoading } = useBudgetProjects({ company, status })
 
   const rows = (projects ?? []).filter(p =>
     !search || p.name.toLowerCase().includes(search.toLowerCase())
@@ -178,7 +208,30 @@ function BudgetContent() {
             )}
             <h1 className="text-xl font-semibold tracking-tight">Budget Control</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Receivables and subcontractor (labor) commitment per project</p>
+          <p className="text-sm text-muted-foreground">Receivables, cost by category and subcontractor (PO) commitment — per project</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Status filter */}
+          <div className="flex h-8 items-center rounded-lg border border-input bg-transparent text-[11px] dark:bg-input/30 overflow-hidden">
+            {([
+              { key: "in_progress", label: "In progress" },
+              { key: "settled", label: "Settled" },
+              { key: "all", label: "All" },
+            ] as const).map(({ key, label }) => (
+              <button key={key} onClick={() => setStatus(key)}
+                className={cn("flex h-full items-center px-3 font-medium transition-colors",
+                  status === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {canManage && (
+            <Link href="/budget-control/manage"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+              <Settings className="h-3.5 w-3.5" /> Manage
+            </Link>
+          )}
         </div>
       </div>
 
@@ -187,9 +240,9 @@ function BudgetContent() {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             { label: "Estimated (receivable)", value: s.projected_receive, color: undefined, info: "Sum of project estimates — projected to receive." },
-            { label: "Received", value: s.received, color: "#22c55e", info: "Customer payments actually received." },
-            { label: "Labor committed (PO)", value: s.labor_committed, color: "#f59e0b", info: "Total of subcontractor purchase orders — projected labor cost." },
-            { label: "Labor to pay (open PO)", value: s.labor_open, color: s.labor_open > 0 ? "#f59e0b" : undefined, info: "Open PO commitment not yet billed — upcoming subcontractor outflow." },
+            { label: "Received", value: s.received, color: "#22c55e", info: "Customer payments received." },
+            { label: "Cost", value: s.cost_total, color: "#ef4444", info: "All recorded expenses (bills, purchases, vendor credits)." },
+            { label: "To pay", value: s.to_pay, color: s.to_pay > 0 ? "#f59e0b" : undefined, info: "Open PO commitment + outstanding vendor bill balances." },
           ].map(({ label, value, color, info }) => (
             <div key={label} className="flex flex-col gap-0.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2">
               <div className="flex items-center justify-between">
@@ -208,8 +261,8 @@ function BudgetContent() {
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
-              className="h-7 w-40 rounded-md border border-input bg-transparent pl-7 pr-6 text-[11px] outline-none placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search project…"
+              className="h-7 w-44 rounded-md border border-input bg-transparent pl-7 pr-6 text-[11px] outline-none placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-ring dark:bg-input/30" />
             {search && (
               <button onClick={() => setSearch("")} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground">
                 <X className="h-3 w-3" />
@@ -218,8 +271,9 @@ function BudgetContent() {
           </div>
           <div className="flex h-7 items-center rounded-md border border-input bg-transparent dark:bg-input/30 overflow-hidden">
             {([
-              { f: "labor_committed", label: "Labor" },
               { f: "projected_receive", label: "Estimate" },
+              { f: "cost_total", label: "Cost" },
+              { f: "labor_committed", label: "Labor" },
               { f: "name", label: "Name" },
             ] as const).map(({ f, label }) => (
               <button key={f} onClick={() => setSortField(f)}
@@ -238,7 +292,7 @@ function BudgetContent() {
         </div>
       </div>
 
-      {/* Project cards */}
+      {/* Cards */}
       {projLoading ? (
         <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading projects…
@@ -247,15 +301,21 @@ function BudgetContent() {
         <div className="flex flex-1 items-center justify-center">
           <Empty className="border-0">
             <EmptyMedia><HandCoins className="h-8 w-8 text-muted-foreground/50" /></EmptyMedia>
-            <EmptyTitle>No projects found for this period.</EmptyTitle>
+            <EmptyTitle>No projects found.</EmptyTitle>
           </Empty>
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar pb-2">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {rows.map(p => <ProjectCard key={p.customer_id || p.name} p={p} blur={blur} />)}
+            {rows.map(p => (
+              <ProjectCard key={p.customer_id || p.name} p={p} blur={blur} onOpen={() => setDetailID(p.customer_id)} />
+            ))}
           </div>
         </div>
+      )}
+
+      {detailID && (
+        <ProjectBudgetModal company={company} customerID={detailID} onClose={() => setDetailID(null)} />
       )}
     </div>
   )

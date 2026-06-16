@@ -1,0 +1,51 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { budgetTaxonomyService as svc, type Category, type ProjectType } from "@/services/budget-taxonomy.service"
+
+export function useCategories(projectType?: ProjectType) {
+  return useQuery({
+    queryKey: ["budget-categories", projectType ?? "all"],
+    queryFn: () => svc.listCategories(projectType),
+  })
+}
+
+export function useCategoryMutations() {
+  const qc = useQueryClient()
+  const inval = () => qc.invalidateQueries({ queryKey: ["budget-categories"] })
+  return {
+    create: useMutation({ mutationFn: (b: Partial<Category>) => svc.createCategory(b), onSuccess: inval }),
+    update: useMutation({ mutationFn: ({ id, body }: { id: string; body: Partial<Category> }) => svc.updateCategory(id, body), onSuccess: inval }),
+    remove: useMutation({ mutationFn: (id: string) => svc.deleteCategory(id), onSuccess: inval }),
+  }
+}
+
+export function useAccountMappings(company: string, projectType: ProjectType) {
+  return useQuery({
+    queryKey: ["budget-account-mappings", company, projectType],
+    queryFn: () => svc.listAccountMappings(company, projectType),
+    enabled: !!company,
+  })
+}
+
+export function useSetAccountMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setAccountMapping,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-account-mappings", v.company, v.project_type] }),
+  })
+}
+
+export function useVendorMappings(company: string, projectType: ProjectType) {
+  return useQuery({
+    queryKey: ["budget-vendor-mappings", company, projectType],
+    queryFn: () => svc.listVendorMappings(company, projectType),
+    enabled: !!company,
+  })
+}
+
+export function useSetVendorMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setVendorMapping,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-vendor-mappings", v.company, v.project_type] }),
+  })
+}
