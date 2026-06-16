@@ -18,6 +18,7 @@ import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetProjects, useBudgetSummary } from "@/hooks/use-budget"
 import type { BudgetProject, BudgetStatus } from "@/services/budget.service"
 import { ProjectBudgetModal } from "./components/ProjectBudgetModal"
+import { Segmented } from "./components/Segmented"
 
 const COMPANY_LOGO: Record<string, string> = {
   hvac:    "/images/sublogo_hvac.png",
@@ -212,20 +213,15 @@ function BudgetContent() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Status filter */}
-          <div className="flex h-8 items-center rounded-lg border border-input bg-transparent text-[11px] dark:bg-input/30 overflow-hidden">
-            {([
-              { key: "in_progress", label: "In progress" },
-              { key: "settled", label: "Settled" },
-              { key: "all", label: "All" },
-            ] as const).map(({ key, label }) => (
-              <button key={key} onClick={() => setStatus(key)}
-                className={cn("flex h-full items-center px-3 font-medium transition-colors",
-                  status === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
-                {label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            value={status}
+            onChange={setStatus}
+            options={[
+              { value: "in_progress", label: "In progress" },
+              { value: "settled", label: "Settled" },
+              { value: "all", label: "All" },
+            ]}
+          />
           {canManage && (
             <Link href="/budget-control/manage"
               className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">

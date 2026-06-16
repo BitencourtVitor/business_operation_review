@@ -3,11 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import * as Lucide from "lucide-react"
-import { ArrowLeft, Plus, Trash2, Loader2, Check } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, Check, Building2, Home, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -15,31 +15,31 @@ import {
   useVendorMappings, useSetVendorMapping,
 } from "@/hooks/use-budget-taxonomy"
 import type { ProjectType, Category } from "@/services/budget-taxonomy.service"
+import { Segmented } from "../components/Segmented"
 
-const COMPANIES = ["framing", "hvac", "pcg"] as const
-const TABS = ["categories", "subcontractors"] as const
-type Tab = (typeof TABS)[number]
+const COMPANIES: { value: string; label: string; logo: string }[] = [
+  { value: "framing", label: "Framing", logo: "/images/sublogo_framing.png" },
+  { value: "hvac", label: "HVAC", logo: "/images/sublogo_hvac.png" },
+  { value: "pcg", label: "PCG", logo: "/images/sublogo_pcg.png" },
+]
 
-// Money input: right-to-left cents mask. Typing "1000" -> "$ 10.00", "5" -> "$ 0.05".
-// `value` is the stored dollar amount as a string (e.g. "10" or "12500.5").
+const FALLBACK_ICON = "Shapes"
+const reg = Lucide as unknown as Record<string, React.ElementType>
+
+// ── Money input: $ fixed prefix, right-to-left cents mask ─────────────────────
 function MoneyInput({ value, onChange, className, placeholder = "0.00" }: {
   value: string; onChange: (v: string) => void; className?: string; placeholder?: string
 }) {
   const cents = value === "" ? 0 : Math.round(Number(value) * 100)
-  const display = value === ""
-    ? ""
-    : (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const display = value === "" ? "" : (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   return (
     <div className={cn("relative", className)}>
       <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
       <input
-        value={display}
-        inputMode="numeric"
-        placeholder={placeholder}
+        value={display} inputMode="numeric" placeholder={placeholder}
         onChange={e => {
           const digits = e.target.value.replace(/\D/g, "")
-          if (digits === "") { onChange(""); return }
-          onChange(String(parseInt(digits, 10) / 100))
+          onChange(digits === "" ? "" : String(parseInt(digits, 10) / 100))
         }}
         className="h-7 w-full rounded-md border border-input bg-transparent pl-5 pr-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
       />
@@ -47,7 +47,7 @@ function MoneyInput({ value, onChange, className, placeholder = "0.00" }: {
   )
 }
 
-// Curated default set; search filters all lucide icons.
+// ── Icon picker ───────────────────────────────────────────────────────────────
 const CURATED_ICONS = [
   "Frame", "LayoutGrid", "Layers", "PanelTop", "SquareStack", "Ruler", "Columns3",
   "Hammer", "Wrench", "HardHat", "Home", "Building2", "Building", "Warehouse",
@@ -58,16 +58,11 @@ const ALL_ICON_NAMES = Object.keys(Lucide).filter(
   k => /^[A-Z]/.test(k) && !["Icon", "LucideIcon", "createLucideIcon"].includes(k)
 )
 
-const FALLBACK_ICON = "Shapes"
-
 function IconPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState("")
-  const reg = Lucide as unknown as Record<string, React.ElementType>
   const Cur = reg[value || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
-  const names = q.trim()
-    ? ALL_ICON_NAMES.filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0, 56)
-    : CURATED_ICONS
+  const names = q.trim() ? ALL_ICON_NAMES.filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0, 56) : CURATED_ICONS
   return (
     <Popover open={open} onOpenChange={(v) => { setOpen(v); if (v) setQ("") }}>
       <PopoverTrigger className={cn(
@@ -81,7 +76,7 @@ function IconPicker({ value, onChange }: { value: string; onChange: (v: string) 
           className="mb-2 h-7 w-full rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
         <div className="grid max-h-48 grid-cols-7 gap-1 overflow-y-auto no-scrollbar">
           {names.map(n => {
-            const I = (Lucide as unknown as Record<string, React.ElementType>)[n]
+            const I = reg[n]
             return (
               <button key={n} title={n} onClick={() => { onChange(n); setOpen(false) }}
                 className={cn("flex h-7 w-7 items-center justify-center rounded hover:bg-muted", value === n && "bg-primary/15 text-primary")}>
@@ -95,20 +90,102 @@ function IconPicker({ value, onChange }: { value: string; onChange: (v: string) 
   )
 }
 
-// ── Categories tab ───────────────────────────────────────────────────────────
+function Loading() {
+  return <div className="flex h-40 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+}
 
-function CategoriesTab({ projectType }: { projectType: ProjectType }) {
-  const { data: cats, isLoading } = useCategories(projectType)
+// ── Category accordion item (edit + its subcontractors) ───────────────────────
+function CategoryItem({ cat, subs, onSave, onDelete, onUnassign }: {
+  cat: Category
+  subs: { vendor_id: string; display_name: string }[]
+  onSave: (b: Partial<Category>) => void
+  onDelete: () => void
+  onUnassign: (vendorId: string) => void
+}) {
+  const [name, setName] = useState(cat.name)
+  const [icon, setIcon] = useState(cat.icon)
+  const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
+  const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
+  const Head = reg[cat.icon || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
+
+  return (
+    <AccordionItem value={cat.id}>
+      <AccordionTrigger className="px-3">
+        <span className="flex items-center gap-2">
+          <Head className="h-4 w-4 text-muted-foreground" />
+          <span>{cat.name}</span>
+          {cat.default_max != null && (
+            <span className="text-xs font-normal text-muted-foreground">· max ${cat.default_max.toLocaleString("en-US", { maximumFractionDigits: 2 })}</span>
+          )}
+          <span className="text-xs font-normal text-muted-foreground/60">· {subs.length} sub{subs.length === 1 ? "" : "s"}</span>
+        </span>
+      </AccordionTrigger>
+      <AccordionContent className="px-3">
+        <div className="flex flex-col gap-3 pb-1">
+          {/* Edit row */}
+          <div className="flex items-center gap-2">
+            <IconPicker value={icon} onChange={setIcon} />
+            <input value={name} onChange={e => setName(e.target.value)}
+              className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            <MoneyInput value={max} onChange={setMax} className="w-36" />
+            <button disabled={!dirty}
+              onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
+              <Check className="h-3.5 w-3.5" />
+            </button>
+            <button onClick={onDelete}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          {/* Subs in this category */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Subcontractors</span>
+            {subs.length === 0 ? (
+              <p className="text-[11px] italic text-muted-foreground/50">None assigned yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {subs.map(s => (
+                  <span key={s.vendor_id} className="flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 py-0.5 pl-2 pr-1 text-[11px]">
+                    {s.display_name}
+                    <button onClick={() => onUnassign(s.vendor_id)} className="text-muted-foreground/60 hover:text-red-500" title="Remove">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  )
+}
+
+// ── Manager (single view) ─────────────────────────────────────────────────────
+function CategoriesManager({ company, projectType }: { company: string; projectType: ProjectType }) {
+  const { data: cats, isLoading: catsLoading } = useCategories(projectType)
   const { create, update, remove } = useCategoryMutations()
+  const { data: vendors, isLoading: vLoading } = useVendorMappings(company, projectType)
+  const setVendor = useSetVendorMapping()
+
   const [newName, setNewName] = useState("")
   const [newMax, setNewMax] = useState("")
   const [newIcon, setNewIcon] = useState("")
 
-  if (isLoading) return <Loading />
+  if (catsLoading || vLoading) return <Loading />
+
+  const allCats = cats ?? []
+  const allVendors = vendors ?? []
+  const subsByCat = (id: string) => allVendors.filter(v => v.category_id === id).map(v => ({ vendor_id: v.vendor_id, display_name: v.display_name }))
+  const uncategorized = allVendors.filter(v => !v.category_id)
+
+  const assign = (vendorId: string, categoryId: string | null) =>
+    setVendor.mutate({ company, vendor_id: vendorId, project_type: projectType, category_id: categoryId })
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Add new */}
+    <div className="flex flex-col gap-4">
+      {/* Add new category */}
       <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
         <IconPicker value={newIcon} onChange={setNewIcon} />
         <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
@@ -122,117 +199,57 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
         </button>
       </div>
 
-      {/* Existing categories — accordion */}
-      {(cats ?? []).length === 0 ? (
+      {/* Categories */}
+      {allCats.length === 0 ? (
         <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
       ) : (
-        <Accordion className="rounded-lg border border-border/60 px-3">
-          {(cats ?? []).map(cat => (
-            <CategoryRow key={cat.id} cat={cat}
+        <Accordion className="rounded-lg border border-border/60">
+          {allCats.map(cat => (
+            <CategoryItem key={cat.id} cat={cat} subs={subsByCat(cat.id)}
               onSave={(b) => update.mutate({ id: cat.id, body: b })}
-              onDelete={() => remove.mutate(cat.id)} />
+              onDelete={() => remove.mutate(cat.id)}
+              onUnassign={(vid) => assign(vid, null)} />
           ))}
         </Accordion>
       )}
-    </div>
-  )
-}
 
-function CategoryRow({ cat, onSave, onDelete }: { cat: Category; onSave: (b: Partial<Category>) => void; onDelete: () => void }) {
-  const [name, setName] = useState(cat.name)
-  const [icon, setIcon] = useState(cat.icon)
-  const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
-  const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
-
-  const reg = Lucide as unknown as Record<string, React.ElementType>
-  const HeadIcon = reg[cat.icon || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
-
-  return (
-    <AccordionItem value={cat.id}>
-      <AccordionTrigger className="px-1">
-        <span className="flex items-center gap-2">
-          <HeadIcon className="h-4 w-4 text-muted-foreground" />
-          <span>{cat.name}</span>
-          {cat.default_max != null && (
-            <span className="text-xs font-normal text-muted-foreground">
-              · max ${cat.default_max.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+      {/* Subcontractors without category */}
+      <Accordion className="rounded-lg border border-border/60">
+        <AccordionItem value="uncategorized">
+          <AccordionTrigger className="px-3">
+            <span className="flex items-center gap-2">
+              <span className="font-semibold">Subcontractors without category</span>
+              <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
             </span>
-          )}
-        </span>
-      </AccordionTrigger>
-      <AccordionContent className="px-1">
-        <div className="flex items-center gap-2">
-          <IconPicker value={icon} onChange={setIcon} />
-          <input value={name} onChange={e => setName(e.target.value)}
-            className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-          <MoneyInput value={max} onChange={setMax} className="w-36" />
-          <button disabled={!dirty}
-            onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
-            <Check className="h-3.5 w-3.5" />
-          </button>
-          <button onClick={onDelete}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  )
-}
-
-// ── Mapping tabs (accounts / subcontractors) ─────────────────────────────────
-
-const NONE = "__none__"
-
-function CategorySelect({ cats, value, onChange }: { cats: Category[]; value: string | null; onChange: (v: string | null) => void }) {
-  const current = value ? cats.find(c => c.id === value)?.name : null
-  return (
-    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)}>
-      <SelectTrigger className="h-7 w-48 text-xs">
-        <span className={cn("flex-1 truncate text-left", !current && "text-muted-foreground")}>
-          {current ?? "Unmapped"}
-        </span>
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={NONE}>— unmapped —</SelectItem>
-        {cats.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-      </SelectContent>
-    </Select>
-  )
-}
-
-function SubcontractorsTab({ company, projectType }: { company: string; projectType: ProjectType }) {
-  const { data: cats } = useCategories(projectType)
-  const { data: rows, isLoading } = useVendorMappings(company, projectType)
-  const setMap = useSetVendorMapping()
-  const [filter, setFilter] = useState("")
-  if (isLoading) return <Loading />
-  const list = (rows ?? []).filter(r => !filter || r.display_name.toLowerCase().includes(filter.toLowerCase()))
-  return (
-    <div className="flex flex-col gap-3">
-      <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter subcontractors…"
-        className="h-8 w-64 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-      <div className="flex flex-col divide-y divide-border/40 rounded-lg border border-border/60">
-        {list.map(r => (
-          <div key={r.vendor_id} className="flex items-center gap-3 px-3 py-1.5">
-            <span className="flex-1 truncate text-sm" title={r.display_name}>{r.display_name}</span>
-            <CategorySelect cats={cats ?? []} value={r.category_id}
-              onChange={(v) => setMap.mutate({ company, vendor_id: r.vendor_id, project_type: projectType, category_id: v })} />
-          </div>
-        ))}
-        {list.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">No subcontractors (vendors on POs).</p>}
-      </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-3">
+            {uncategorized.length === 0 ? (
+              <p className="py-1 text-[11px] italic text-muted-foreground/50">All subcontractors are categorized.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-border/30">
+                {uncategorized.map(v => (
+                  <div key={v.vendor_id} className="flex items-center gap-3 py-1.5">
+                    <span className="flex-1 truncate text-sm" title={v.display_name}>{v.display_name}</span>
+                    <Select onValueChange={(cid) => assign(v.vendor_id, cid as string)}>
+                      <SelectTrigger className="h-7 w-44 text-xs">
+                        <span className="flex-1 truncate text-left text-muted-foreground">Assign category…</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allCats.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
-}
-
-function Loading() {
-  return <div className="flex h-40 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
-
 export default function BudgetManagePage() {
   const { user } = useAuth()
   const { data: myPerms } = useMyPermissions()
@@ -240,7 +257,6 @@ export default function BudgetManagePage() {
 
   const [company, setCompany] = useState<string>("framing")
   const [projectType, setProjectType] = useState<ProjectType>("building")
-  const [tab, setTab] = useState<Tab>("categories")
 
   if (!canManage) {
     return <div className="flex h-full items-center justify-center text-sm text-muted-foreground">You don&apos;t have permission to manage budget settings.</div>
@@ -253,42 +269,34 @@ export default function BudgetManagePage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Budget — Categories &amp; Mapping</h1>
-          <p className="text-sm text-muted-foreground">Define categories per project type and map accounts and subcontractors</p>
+          <h1 className="text-xl font-semibold tracking-tight">Budget — Categories &amp; Subcontractors</h1>
+          <p className="text-sm text-muted-foreground">Define categories per project type and assign subcontractors to them</p>
         </div>
       </div>
 
-      {/* Selectors */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex h-8 items-center rounded-lg border border-input bg-transparent text-xs dark:bg-input/30 overflow-hidden">
-          {COMPANIES.map(co => (
-            <button key={co} onClick={() => setCompany(co)}
-              className={cn("flex h-full items-center px-3 font-medium uppercase transition-colors", company === co ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>{co}</button>
-          ))}
-        </div>
-        <div className="flex h-8 items-center rounded-lg border border-input bg-transparent text-xs dark:bg-input/30 overflow-hidden">
-          {(["building", "house"] as const).map(t => (
-            <button key={t} onClick={() => setProjectType(t)}
-              className={cn("flex h-full items-center px-3 font-medium capitalize transition-colors", projectType === t ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>{t}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-border">
-        {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={cn("relative px-3 py-2 text-sm font-medium capitalize transition-colors",
-              tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>
-            {t}
-            {tab === t && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary" />}
-          </button>
-        ))}
+        <Segmented
+          value={company}
+          onChange={setCompany}
+          options={COMPANIES.map(c => ({
+            value: c.value,
+            label: c.label,
+            // eslint-disable-next-line @next/next/no-img-element
+            icon: <img src={c.logo} alt="" className="h-3.5 w-3.5 object-contain" />,
+          }))}
+        />
+        <Segmented
+          value={projectType}
+          onChange={setProjectType}
+          options={[
+            { value: "building", label: "Building", icon: <Building2 className="h-3.5 w-3.5" /> },
+            { value: "house", label: "House", icon: <Home className="h-3.5 w-3.5" /> },
+          ]}
+        />
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar pb-2">
-        {tab === "categories" && <CategoriesTab projectType={projectType} />}
-        {tab === "subcontractors" && <SubcontractorsTab company={company} projectType={projectType} />}
+        <CategoriesManager company={company} projectType={projectType} />
       </div>
     </div>
   )
