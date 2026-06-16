@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Accordion, AccordionItem, AccordionContent } from "@/components/ui/accordion"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -32,6 +33,18 @@ const reg = Lucide as unknown as Record<string, React.ElementType>
 function iconEl(name: string, className = "h-3.5 w-3.5 shrink-0 text-muted-foreground") {
   const I = reg[name || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
   return <I className={className} />
+}
+
+// ShadcnUI tooltip with no delay, wrapping an existing element as the trigger.
+function Tip({ label, children }: { label: string; children: React.ReactElement }) {
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip>
+        <TooltipTrigger render={children} />
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }
 
 type Sub = { vendor_id: string; display_name: string }
@@ -107,8 +120,10 @@ function SubRow({ sub, cats, currentCatId, onMove }: {
   const [open, setOpen] = useState(false)
   const targets = cats.filter(c => c.id !== currentCatId)
   return (
-    <div className={cn("flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/30", open && "bg-muted/30")}>
-      <span className="flex-1 truncate text-sm" title={sub.display_name}>{sub.display_name}</span>
+    <div className={cn("flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/30", open && "bg-muted/30")}>
+      <Tip label={sub.display_name}>
+        <span className="flex-1 truncate text-sm">{sub.display_name}</span>
+      </Tip>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger className="flex h-7 items-center gap-1 rounded-md border border-input bg-transparent px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
           <ArrowRightLeft className="h-3 w-3" /> Move
@@ -166,28 +181,36 @@ function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
             <input value={name} onChange={e => setName(e.target.value)} autoFocus
               className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
             <MoneyInput value={max} onChange={setMax} className="w-28 shrink-0" />
-            <button onClick={onDelete} title="Delete"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-            <button onClick={cancel} title="Cancel"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-              <X className="h-3.5 w-3.5" />
-            </button>
-            <button onClick={save} title="Save"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-emerald-500 transition-colors hover:bg-emerald-500/10">
-              <Check className="h-3.5 w-3.5" />
-            </button>
+            <Tip label="Delete">
+              <button onClick={onDelete}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </Tip>
+            <Tip label="Cancel">
+              <button onClick={cancel}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </Tip>
+            <Tip label="Save">
+              <button onClick={save}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-emerald-500 transition-colors hover:bg-emerald-500/10">
+                <Check className="h-3.5 w-3.5" />
+              </button>
+            </Tip>
           </>
         ) : (
           <>
             <Head className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="flex-1 truncate text-sm font-medium">{cat.name}</span>
             <span className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{maxDisplay}</span>
-            <button onClick={() => setEditing(true)} title="Edit name / icon / max"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-              <Pencil className="h-3.5 w-3.5" />
-            </button>
+            <Tip label="Edit name / icon / max">
+              <button onClick={() => setEditing(true)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            </Tip>
           </>
         )}
         <AccordionPrimitive.Header className="flex shrink-0">
@@ -275,8 +298,8 @@ function CategoriesManager({ company, projectType, showNew, onCloseNew }: {
           </Accordion>
         )}
 
-        {/* Subcontractors without category — fills remaining height, scrolls inside */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/60">
+        {/* Subcontractors without category — fills remaining height only when open */}
+        <div className={cn("flex flex-col overflow-hidden rounded-lg border border-border/60 bg-card/60", uncatOpen ? "min-h-0 flex-1" : "shrink-0")}>
           <button onClick={() => setUncatOpen(o => !o)}
             className="flex shrink-0 items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/30">
             <span className="font-semibold">Subcontractors without category</span>
