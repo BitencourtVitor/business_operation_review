@@ -29,9 +29,26 @@ const (
 
 var AllCompanies = []Company{CompanyHVAC, CompanyFraming, CompanyPCG}
 
+// AllEntities is every QuickBooks entity we fetch. Entities with a typed upsert
+// (see entities.go) land in dedicated tables; all others are captured generically
+// in qb_raw, so we hold complete contemplation of Premium's QuickBooks data.
+//
+// Deliberately NOT synced:
+//   - Attachable: a file (transaction receipt/proof) attached to a record — not
+//     financial data, and the highest-volume entity (20k+ per company).
+//   - TimeActivity: QB Time is owned by the separate QBT pipeline.
+//   - Empty/config singletons (Class, Department, JournalCode, CompanyCurrency,
+//     Preferences, CompanyInfo): no data or pure configuration.
 var AllEntities = []string{
+	// structured (typed upsert → dedicated tables)
 	"Bill", "BillPayment", "Estimate", "Invoice",
 	"Payment", "Purchase", "VendorCredit", "Deposit",
+	"PurchaseOrder", "Account", "Vendor", "Customer",
+	// raw-only (captured in qb_raw)
+	"JournalEntry", "Transfer", "ReimburseCharge", "CreditMemo",
+	"RefundReceipt", "SalesReceipt", "Item", "Employee",
+	"Term", "PaymentMethod", "TaxCode", "TaxRate", "TaxAgency",
+	"CustomerType", "Budget",
 }
 
 type CompanyConfig struct {

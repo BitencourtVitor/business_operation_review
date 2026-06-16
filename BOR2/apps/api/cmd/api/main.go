@@ -137,6 +137,7 @@ func main() {
 	periodReportSvc          := service.NewPeriodReportService(qbtimeTeamRepo, qbtimePeriodCacheRepo, qbtimeUnpaidAddrRepo)
 	periodReportHandler      := handler.NewPeriodReportHandler(periodReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
+	budgetHandler            := handler.NewBudgetHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM                := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -448,6 +449,13 @@ func main() {
 	qbAccounting.Get("/chart",           qbAccountingHandler.Chart)
 	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
 	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
+
+	// Budget Control (protected, financial)
+	budget := api.Group("/budget")
+	budget.Get("/projects",          budgetHandler.Projects)
+	budget.Get("/summary",           budgetHandler.Summary)
+	budget.Get("/settings",          budgetHandler.GetSettings)
+	budget.Put("/settings/:company", budgetHandler.UpdateSettings)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")
