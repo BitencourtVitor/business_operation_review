@@ -3,11 +3,14 @@
 import { useState } from "react"
 import Link from "next/link"
 import * as Lucide from "lucide-react"
-import { ArrowLeft, Plus, Trash2, Loader2, Check, Building2, Home, X } from "lucide-react"
+import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
+import {
+  ArrowLeft, Plus, Trash2, Loader2, Check, Pencil, ChevronDown,
+  Building2, Home, ArrowRightLeft, Users,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Accordion, AccordionItem, AccordionContent } from "@/components/ui/accordion"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
@@ -25,6 +28,8 @@ const COMPANIES: { value: string; label: string; logo: string }[] = [
 
 const FALLBACK_ICON = "Shapes"
 const reg = Lucide as unknown as Record<string, React.ElementType>
+
+type Sub = { vendor_id: string; display_name: string }
 
 // ── Money input: $ fixed prefix, right-to-left cents mask ─────────────────────
 function MoneyInput({ value, onChange, className, placeholder = "0.00" }: {
@@ -90,79 +95,116 @@ function IconPicker({ value, onChange }: { value: string; onChange: (v: string) 
   )
 }
 
-function Loading() {
-  return <div className="flex h-40 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+// ── Move sub to another category (or remove) ──────────────────────────────────
+function SubRow({ sub, cats, currentCatId, onMove }: {
+  sub: Sub; cats: Category[]; currentCatId: string | null; onMove: (target: string | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const targets = cats.filter(c => c.id !== currentCatId)
+  return (
+    <div className="flex items-center gap-2 py-1.5">
+      <span className="flex-1 truncate text-sm" title={sub.display_name}>{sub.display_name}</span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger className="flex h-7 items-center gap-1 rounded-md border border-input bg-transparent px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+          <ArrowRightLeft className="h-3 w-3" /> Move
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-48 p-1">
+          <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Move to</p>
+          <div className="flex max-h-48 flex-col overflow-y-auto no-scrollbar">
+            {targets.map(c => (
+              <button key={c.id} onClick={() => { onMove(c.id); setOpen(false) }}
+                className="rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent">{c.name}</button>
+            ))}
+          </div>
+          {currentCatId && (
+            <>
+              <div className="my-1 h-px bg-border/60" />
+              <button onClick={() => { onMove(null); setOpen(false) }}
+                className="w-full rounded px-2 py-1.5 text-left text-sm text-muted-foreground transition-colors hover:bg-accent">Remove from category</button>
+            </>
+          )}
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
 }
 
-// ── Category accordion item (edit + its subcontractors) ───────────────────────
-function CategoryItem({ cat, subs, onSave, onDelete, onUnassign }: {
-  cat: Category
-  subs: { vendor_id: string; display_name: string }[]
-  onSave: (b: Partial<Category>) => void
-  onDelete: () => void
-  onUnassign: (vendorId: string) => void
+// ── Category accordion item ───────────────────────────────────────────────────
+function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
+  cat: Category; cats: Category[]; subs: Sub[]
+  onSave: (b: Partial<Category>) => void; onDelete: () => void
+  onMove: (vendorId: string, target: string | null) => void
 }) {
+  const [editing, setEditing] = useState(false)
   const [name, setName] = useState(cat.name)
   const [icon, setIcon] = useState(cat.icon)
   const [max, setMax] = useState(cat.default_max != null ? String(cat.default_max) : "")
   const dirty = name !== cat.name || icon !== cat.icon || (max === "" ? cat.default_max != null : Number(max) !== cat.default_max)
   const Head = reg[cat.icon || FALLBACK_ICON] ?? reg[FALLBACK_ICON]
 
+  function save() { onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active }); setEditing(false) }
+
   return (
     <AccordionItem value={cat.id}>
-      <AccordionTrigger className="px-3">
-        <span className="flex items-center gap-2">
-          <Head className="h-4 w-4 text-muted-foreground" />
-          <span>{cat.name}</span>
-          {cat.default_max != null && (
-            <span className="text-xs font-normal text-muted-foreground">· max ${cat.default_max.toLocaleString("en-US", { maximumFractionDigits: 2 })}</span>
-          )}
-          <span className="text-xs font-normal text-muted-foreground/60">· {subs.length} sub{subs.length === 1 ? "" : "s"}</span>
-        </span>
-      </AccordionTrigger>
-      <AccordionContent className="px-3">
-        <div className="flex flex-col gap-3 pb-1">
-          {/* Edit row */}
-          <div className="flex items-center gap-2">
+      {/* Header — interactive controls live OUTSIDE the chevron trigger */}
+      <div className="flex items-center gap-2 px-3 py-1.5">
+        {editing ? (
+          <>
             <IconPicker value={icon} onChange={setIcon} />
-            <input value={name} onChange={e => setName(e.target.value)}
+            <input value={name} onChange={e => setName(e.target.value)} autoFocus
               className="h-7 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-            <MoneyInput value={max} onChange={setMax} className="w-36" />
-            <button disabled={!dirty}
-              onClick={() => onSave({ name, icon, default_max: max === "" ? null : Number(max), sort_order: cat.sort_order, active: cat.active })}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30">
-              <Check className="h-3.5 w-3.5" />
-            </button>
-            <button onClick={onDelete}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+          </>
+        ) : (
+          <>
+            <Head className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate text-sm font-medium">{cat.name}</span>
+          </>
+        )}
+
+        <MoneyInput value={max} onChange={setMax} className="w-28 shrink-0" />
+
+        {dirty && (
+          <button onClick={save} title="Save"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-emerald-500 transition-colors hover:bg-emerald-500/10">
+            <Check className="h-3.5 w-3.5" />
+          </button>
+        )}
+        {editing && (
+          <button onClick={onDelete} title="Delete"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+        <button onClick={() => setEditing(e => !e)} title={editing ? "Done" : "Edit name / icon"}
+          className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground", editing ? "text-foreground" : "text-muted-foreground")}>
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <AccordionPrimitive.Header className="flex shrink-0">
+          <AccordionPrimitive.Trigger className="group flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <ChevronDown className="h-4 w-4 transition-transform group-aria-expanded:rotate-180" />
+          </AccordionPrimitive.Trigger>
+        </AccordionPrimitive.Header>
+      </div>
+
+      <AccordionContent className="px-3">
+        {subs.length === 0 ? (
+          <div className="flex min-h-24 flex-col items-center justify-center gap-1.5 text-center">
+            <Users className="h-6 w-6 text-muted-foreground/40" />
+            <p className="text-[11px] text-muted-foreground/60">No subcontractors in this category yet.</p>
           </div>
-          {/* Subs in this category */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Subcontractors</span>
-            {subs.length === 0 ? (
-              <p className="text-[11px] italic text-muted-foreground/50">None assigned yet.</p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {subs.map(s => (
-                  <span key={s.vendor_id} className="flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 py-0.5 pl-2 pr-1 text-[11px]">
-                    {s.display_name}
-                    <button onClick={() => onUnassign(s.vendor_id)} className="text-muted-foreground/60 hover:text-red-500" title="Remove">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+        ) : (
+          <div className="flex max-h-64 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar">
+            {subs.map(s => (
+              <SubRow key={s.vendor_id} sub={s} cats={cats} currentCatId={cat.id} onMove={(t) => onMove(s.vendor_id, t)} />
+            ))}
           </div>
-        </div>
+        )}
       </AccordionContent>
     </AccordionItem>
   )
 }
 
-// ── Manager (single view) ─────────────────────────────────────────────────────
+// ── Manager ───────────────────────────────────────────────────────────────────
 function CategoriesManager({ company, projectType }: { company: string; projectType: ProjectType }) {
   const { data: cats, isLoading: catsLoading } = useCategories(projectType)
   const { create, update, remove } = useCategoryMutations()
@@ -173,20 +215,19 @@ function CategoriesManager({ company, projectType }: { company: string; projectT
   const [newMax, setNewMax] = useState("")
   const [newIcon, setNewIcon] = useState("")
 
-  if (catsLoading || vLoading) return <Loading />
+  if (catsLoading || vLoading) return <div className="flex h-40 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
 
   const allCats = cats ?? []
   const allVendors = vendors ?? []
-  const subsByCat = (id: string) => allVendors.filter(v => v.category_id === id).map(v => ({ vendor_id: v.vendor_id, display_name: v.display_name }))
-  const uncategorized = allVendors.filter(v => !v.category_id)
-
-  const assign = (vendorId: string, categoryId: string | null) =>
+  const subsByCat = (id: string): Sub[] => allVendors.filter(v => v.category_id === id).map(v => ({ vendor_id: v.vendor_id, display_name: v.display_name }))
+  const uncategorized: Sub[] = allVendors.filter(v => !v.category_id).map(v => ({ vendor_id: v.vendor_id, display_name: v.display_name }))
+  const move = (vendorId: string, categoryId: string | null) =>
     setVendor.mutate({ company, vendor_id: vendorId, project_type: projectType, category_id: categoryId })
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       {/* Add new category */}
-      <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
+      <div className="flex shrink-0 items-center gap-2 rounded-lg border border-border/60 bg-card/40 p-2">
         <IconPicker value={newIcon} onChange={setNewIcon} />
         <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
           className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
@@ -199,52 +240,47 @@ function CategoriesManager({ company, projectType }: { company: string; projectT
         </button>
       </div>
 
-      {/* Categories */}
-      {allCats.length === 0 ? (
-        <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
-      ) : (
-        <Accordion className="rounded-lg border border-border/60">
-          {allCats.map(cat => (
-            <CategoryItem key={cat.id} cat={cat} subs={subsByCat(cat.id)}
-              onSave={(b) => update.mutate({ id: cat.id, body: b })}
-              onDelete={() => remove.mutate(cat.id)}
-              onUnassign={(vid) => assign(vid, null)} />
-          ))}
-        </Accordion>
-      )}
+      {/* Scroll area: categories + uncategorized */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto no-scrollbar pb-1">
+        {allCats.length === 0 ? (
+          <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
+        ) : (
+          <Accordion className="shrink-0 rounded-lg border border-border/60">
+            {allCats.map(cat => (
+              <CategoryItem key={cat.id} cat={cat} cats={allCats} subs={subsByCat(cat.id)}
+                onSave={(b) => update.mutate({ id: cat.id, body: b })}
+                onDelete={() => remove.mutate(cat.id)}
+                onMove={move} />
+            ))}
+          </Accordion>
+        )}
 
-      {/* Subcontractors without category */}
-      <Accordion className="rounded-lg border border-border/60">
-        <AccordionItem value="uncategorized">
-          <AccordionTrigger className="px-3">
-            <span className="flex items-center gap-2">
-              <span className="font-semibold">Subcontractors without category</span>
-              <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
-            </span>
-          </AccordionTrigger>
-          <AccordionContent className="px-3">
-            {uncategorized.length === 0 ? (
-              <p className="py-1 text-[11px] italic text-muted-foreground/50">All subcontractors are categorized.</p>
-            ) : (
-              <div className="flex flex-col divide-y divide-border/30">
-                {uncategorized.map(v => (
-                  <div key={v.vendor_id} className="flex items-center gap-3 py-1.5">
-                    <span className="flex-1 truncate text-sm" title={v.display_name}>{v.display_name}</span>
-                    <Select onValueChange={(cid) => assign(v.vendor_id, cid as string)}>
-                      <SelectTrigger className="h-7 w-44 text-xs">
-                        <span className="flex-1 truncate text-left text-muted-foreground">Assign category…</span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allCats.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </div>
-            )}
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+        <Accordion className="shrink-0 rounded-lg border border-border/60">
+          <AccordionItem value="uncategorized">
+            <AccordionPrimitive.Header className="flex">
+              <AccordionPrimitive.Trigger className="group flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm font-medium outline-none">
+                <span className="font-semibold">Subcontractors without category</span>
+                <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
+                <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-aria-expanded:rotate-180" />
+              </AccordionPrimitive.Trigger>
+            </AccordionPrimitive.Header>
+            <AccordionContent className="px-3">
+              {uncategorized.length === 0 ? (
+                <div className="flex min-h-24 flex-col items-center justify-center gap-1.5 text-center">
+                  <Check className="h-6 w-6 text-emerald-500/50" />
+                  <p className="text-[11px] text-muted-foreground/60">All subcontractors are categorized.</p>
+                </div>
+              ) : (
+                <div className="flex max-h-72 flex-col divide-y divide-border/30 overflow-y-auto no-scrollbar">
+                  {uncategorized.map(s => (
+                    <SubRow key={s.vendor_id} sub={s} cats={allCats} currentCatId={null} onMove={(t) => move(s.vendor_id, t)} />
+                  ))}
+                </div>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
     </div>
   )
 }
@@ -264,38 +300,42 @@ export default function BudgetManagePage() {
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <Link href="/budget-control" className="flex h-8 w-8 items-center justify-center rounded-lg border border-input text-muted-foreground transition-colors hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Budget — Categories &amp; Subcontractors</h1>
-          <p className="text-sm text-muted-foreground">Define categories per project type and assign subcontractors to them</p>
+      {/* Header — title left, navbars right (settings pattern) */}
+      <div className="flex shrink-0 items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link href="/budget-control"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div className="h-8 w-px bg-border" />
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Budget — Categories &amp; Subcontractors</h1>
+            <p className="text-sm text-muted-foreground">Define categories per project type and assign subcontractors to them</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Segmented
+            value={company}
+            onChange={setCompany}
+            options={COMPANIES.map(c => ({
+              value: c.value,
+              label: c.label,
+              // eslint-disable-next-line @next/next/no-img-element
+              icon: <img src={c.logo} alt="" className="h-3.5 w-3.5 object-contain" />,
+            }))}
+          />
+          <Segmented
+            value={projectType}
+            onChange={setProjectType}
+            options={[
+              { value: "building", label: "Building", icon: <Building2 className="h-3.5 w-3.5" /> },
+              { value: "house", label: "House", icon: <Home className="h-3.5 w-3.5" /> },
+            ]}
+          />
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Segmented
-          value={company}
-          onChange={setCompany}
-          options={COMPANIES.map(c => ({
-            value: c.value,
-            label: c.label,
-            // eslint-disable-next-line @next/next/no-img-element
-            icon: <img src={c.logo} alt="" className="h-3.5 w-3.5 object-contain" />,
-          }))}
-        />
-        <Segmented
-          value={projectType}
-          onChange={setProjectType}
-          options={[
-            { value: "building", label: "Building", icon: <Building2 className="h-3.5 w-3.5" /> },
-            { value: "house", label: "House", icon: <Home className="h-3.5 w-3.5" /> },
-          ]}
-        />
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar pb-2">
+      <div className="min-h-0 flex-1">
         <CategoriesManager company={company} projectType={projectType} />
       </div>
     </div>
