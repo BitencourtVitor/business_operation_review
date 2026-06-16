@@ -139,6 +139,7 @@ func main() {
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	budgetHandler            := handler.NewBudgetHandler(db)
 	budgetTaxonomyHandler    := handler.NewBudgetTaxonomyHandler(db)
+	budgetMappingHandler     := handler.NewBudgetMappingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM                := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -467,6 +468,8 @@ func main() {
 	budget.Put("/vendor-categories",     budgetTaxonomyHandler.SetVendorMapping)
 	budget.Get("/project-limits",        budgetTaxonomyHandler.ListProjectLimits)
 	budget.Put("/project-limits",        budgetTaxonomyHandler.SetProjectLimit)
+	budget.Get("/project-mappings",      budgetMappingHandler.List)
+	budget.Put("/project-mappings",      budgetMappingHandler.Set)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")

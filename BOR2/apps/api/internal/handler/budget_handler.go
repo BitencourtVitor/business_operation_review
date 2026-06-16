@@ -132,7 +132,14 @@ base AS (
 	) z
 	GROUP BY customer_id
 )
-SELECT b.customer_id, b.name,
+SELECT b.customer_id,
+       COALESCE(
+         CASE WHEN qc.fully_qualified_name LIKE '%:%'
+              THEN substring(qc.fully_qualified_name FROM position(':' IN qc.fully_qualified_name) + 1)
+              ELSE NULLIF(qc.fully_qualified_name, '')
+         END,
+         b.name
+       ) AS name,
        COALESCE(e.total, 0)        AS projected_receive,
        COALESCE(i.total, 0)        AS invoiced,
        COALESCE(p.total, 0)        AS received,
@@ -142,6 +149,7 @@ SELECT b.customer_id, b.name,
        COALESCE(pp.billed, 0)      AS labor_billed,
        COALESCE(pp.open_commit, 0) AS labor_open
 FROM base b
+LEFT JOIN qb_customers qc ON qc.company = $1 AND qc.external_id = b.customer_id
 LEFT JOIN est          e  ON e.customer_id  = b.customer_id
 LEFT JOIN inv          i  ON i.customer_id  = b.customer_id
 LEFT JOIN pay          p  ON p.customer_id  = b.customer_id
