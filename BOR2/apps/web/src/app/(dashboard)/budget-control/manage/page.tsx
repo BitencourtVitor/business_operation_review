@@ -121,9 +121,7 @@ function SubRow({ sub, cats, currentCatId, onMove }: {
   const targets = cats.filter(c => c.id !== currentCatId)
   return (
     <div className={cn("flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/30", open && "bg-muted/30")}>
-      <Tip label={sub.display_name}>
-        <span className="flex-1 truncate text-sm">{sub.display_name}</span>
-      </Tip>
+      <span className="flex-1 truncate text-sm">{sub.display_name}</span>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger className="flex h-7 items-center gap-1 rounded-md border border-input bg-transparent px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
           <ArrowRightLeft className="h-3 w-3" /> Move
