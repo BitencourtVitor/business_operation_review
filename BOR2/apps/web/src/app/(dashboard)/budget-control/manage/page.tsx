@@ -147,7 +147,7 @@ function CategoryItem({ cat, cats, subs, onSave, onDelete, onMove }: {
   return (
     <AccordionItem value={cat.id}>
       {/* Header — interactive controls live OUTSIDE the chevron trigger */}
-      <div className="flex items-center gap-2 px-3 py-1.5">
+      <div className="flex items-center gap-2 px-3 py-1.5 transition-colors hover:bg-muted/30">
         {editing ? (
           <>
             <IconPicker value={icon} onChange={setIcon} />
@@ -245,7 +245,7 @@ function CategoriesManager({ company, projectType }: { company: string; projectT
         {allCats.length === 0 ? (
           <p className="px-4 py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
         ) : (
-          <Accordion className="shrink-0 rounded-lg border border-border/60">
+          <Accordion className="shrink-0 overflow-hidden rounded-lg border border-border/60 bg-card/60">
             {allCats.map(cat => (
               <CategoryItem key={cat.id} cat={cat} cats={allCats} subs={subsByCat(cat.id)}
                 onSave={(b) => update.mutate({ id: cat.id, body: b })}
@@ -255,10 +255,10 @@ function CategoriesManager({ company, projectType }: { company: string; projectT
           </Accordion>
         )}
 
-        <Accordion className="shrink-0 rounded-lg border border-border/60">
+        <Accordion className="shrink-0 overflow-hidden rounded-lg border border-border/60 bg-card/60">
           <AccordionItem value="uncategorized">
             <AccordionPrimitive.Header className="flex">
-              <AccordionPrimitive.Trigger className="group flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm font-medium outline-none">
+              <AccordionPrimitive.Trigger className="group flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm font-medium outline-none transition-colors hover:bg-muted/30">
                 <span className="font-semibold">Subcontractors without category</span>
                 <span className="text-xs font-normal text-muted-foreground">· {uncategorized.length}</span>
                 <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-aria-expanded:rotate-180" />
@@ -309,7 +309,7 @@ export default function BudgetManagePage() {
           </Link>
           <div className="h-8 w-px bg-border" />
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">Budget — Categories &amp; Subcontractors</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Budget Control <span className="font-normal text-muted-foreground">| Categorization</span></h1>
             <p className="text-sm text-muted-foreground">Define categories per project type and assign subcontractors to them</p>
           </div>
         </div>
