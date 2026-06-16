@@ -11,13 +11,12 @@ import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import {
   useCategories, useCategoryMutations,
-  useAccountMappings, useSetAccountMapping,
   useVendorMappings, useSetVendorMapping,
 } from "@/hooks/use-budget-taxonomy"
 import type { ProjectType, Category } from "@/services/budget-taxonomy.service"
 
 const COMPANIES = ["framing", "hvac", "pcg"] as const
-const TABS = ["categories", "accounts", "subcontractors"] as const
+const TABS = ["categories", "subcontractors"] as const
 type Tab = (typeof TABS)[number]
 
 // Money input: right-to-left cents mask. Typing "1000" -> "$ 10.00", "5" -> "$ 0.05".
@@ -175,32 +174,6 @@ function CategorySelect({ cats, value, onChange }: { cats: Category[]; value: st
   )
 }
 
-function AccountsTab({ company, projectType }: { company: string; projectType: ProjectType }) {
-  const { data: cats } = useCategories(projectType)
-  const { data: rows, isLoading } = useAccountMappings(company, projectType)
-  const setMap = useSetAccountMapping()
-  const [filter, setFilter] = useState("")
-  if (isLoading) return <Loading />
-  const list = (rows ?? []).filter(r => !filter || r.account_name.toLowerCase().includes(filter.toLowerCase()))
-  return (
-    <div className="flex flex-col gap-3">
-      <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter accounts…"
-        className="h-8 w-64 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-      <div className="flex flex-col divide-y divide-border/40 rounded-lg border border-border/60">
-        {list.map(r => (
-          <div key={r.account_ref_id} className="flex items-center gap-3 px-3 py-1.5">
-            <span className="flex-1 truncate text-sm" title={r.account_name}>{r.account_name}</span>
-            <span className="shrink-0 text-[10px] text-muted-foreground">{r.account_type}</span>
-            <CategorySelect cats={cats ?? []} value={r.category_id}
-              onChange={(v) => setMap.mutate({ company, account_ref_id: r.account_ref_id, project_type: projectType, category_id: v })} />
-          </div>
-        ))}
-        {list.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">No accounts.</p>}
-      </div>
-    </div>
-  )
-}
-
 function SubcontractorsTab({ company, projectType }: { company: string; projectType: ProjectType }) {
   const { data: cats } = useCategories(projectType)
   const { data: rows, isLoading } = useVendorMappings(company, projectType)
@@ -287,7 +260,6 @@ export default function BudgetManagePage() {
 
       <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar pb-2">
         {tab === "categories" && <CategoriesTab projectType={projectType} />}
-        {tab === "accounts" && <AccountsTab company={company} projectType={projectType} />}
         {tab === "subcontractors" && <SubcontractorsTab company={company} projectType={projectType} />}
       </div>
     </div>
