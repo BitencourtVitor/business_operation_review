@@ -22,15 +22,16 @@ type Tab = (typeof TABS)[number]
 
 // Money input: right-to-left cents mask. Typing "1000" -> "$ 10.00", "5" -> "$ 0.05".
 // `value` is the stored dollar amount as a string (e.g. "10" or "12500.5").
-function MoneyInput({ value, onChange, className, placeholder = "$ 0.00" }: {
+function MoneyInput({ value, onChange, className, placeholder = "0.00" }: {
   value: string; onChange: (v: string) => void; className?: string; placeholder?: string
 }) {
   const cents = value === "" ? 0 : Math.round(Number(value) * 100)
   const display = value === ""
     ? ""
-    : `$ ${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   return (
     <div className={cn("relative", className)}>
+      <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
       <input
         value={display}
         inputMode="numeric"
@@ -40,7 +41,7 @@ function MoneyInput({ value, onChange, className, placeholder = "$ 0.00" }: {
           if (digits === "") { onChange(""); return }
           onChange(String(parseInt(digits, 10) / 100))
         }}
-        className="h-7 w-full rounded-md border border-input bg-transparent px-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
+        className="h-7 w-full rounded-md border border-input bg-transparent pl-5 pr-2 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
       />
     </div>
   )
@@ -106,7 +107,7 @@ function CategoriesTab({ projectType }: { projectType: ProjectType }) {
         <IconPicker value={newIcon} onChange={setNewIcon} />
         <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New category name"
           className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-        <MoneyInput value={newMax} onChange={setNewMax} className="w-36" placeholder="Default max" />
+        <MoneyInput value={newMax} onChange={setNewMax} className="w-36" />
         <button
           disabled={!newName.trim() || create.isPending}
           onClick={() => create.mutate({ project_type: projectType, name: newName.trim(), icon: newIcon || "Tag", default_max: newMax === "" ? null : Number(newMax) }, { onSuccess: () => { setNewName(""); setNewMax(""); setNewIcon("") } })}
