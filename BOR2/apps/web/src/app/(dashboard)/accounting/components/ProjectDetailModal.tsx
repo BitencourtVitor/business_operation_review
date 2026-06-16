@@ -4,12 +4,12 @@ import { createContext, useContext, useState } from "react"
 import { useQBProjectDetail } from "@/hooks/use-qb-accounting"
 import type {
   BillDetail, PurchaseDetail, VendorCreditDetail,
-  InvoiceDetail, BackchargeDetail,
+  InvoiceDetail, BackchargeDetail, PurchaseOrderDetail,
 } from "@/services/qb-accounting.service"
 import {
   X, ChevronRight,
   Eye, EyeOff,
-  FileText, Banknote, Loader2,
+  FileText, Banknote, Loader2, ClipboardList,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
@@ -444,6 +444,77 @@ function RevenueColumn({
   )
 }
 
+// ── Purchase Orders section (subcontractor commitment) ────────────────────────
+
+function PurchaseOrdersSection({ pos }: { pos: PurchaseOrderDetail[] }) {
+  const blur = useBlur()
+  if (!pos || pos.length === 0) return null
+
+  const totalCommitted = pos.reduce((s, p) => s + p.total_amount, 0)
+  const totalOpen      = pos.reduce((s, p) => s + p.open, 0)
+
+  return (
+    <div className="flex flex-col rounded-xl border border-border bg-muted/10">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <ClipboardList className="h-3.5 w-3.5 text-amber-500" />
+          <span className="text-xs font-semibold text-amber-500">Purchase Orders</span>
+          <span className="text-[10px] text-muted-foreground">subcontractor commitment</span>
+        </div>
+        <div className="flex items-center gap-4 text-[11px]">
+          <span className="text-muted-foreground">Committed <span className={`font-bold tabular-nums text-foreground ${blur}`}>{fmtUSD(totalCommitted)}</span></span>
+          {totalOpen > 0 && (
+            <span className="text-muted-foreground">Open <span className={`font-bold tabular-nums text-amber-500 ${blur}`}>{fmtUSD(totalOpen)}</span></span>
+          )}
+        </div>
+      </div>
+      <div className="overflow-x-auto p-3">
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr className="border-b border-border/40 text-[9px] uppercase tracking-wider text-muted-foreground/60">
+              <th className="px-2 py-1 text-left font-medium">Vendor</th>
+              <th className="px-2 py-1 text-left font-medium">Status</th>
+              <th className="px-2 py-1 text-right font-medium">Date</th>
+              <th className="px-2 py-1 text-right font-medium">Committed</th>
+              <th className="px-2 py-1 text-right font-medium">Billed</th>
+              <th className="px-2 py-1 text-right font-medium">Open</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pos.map((p) => {
+              const open = p.po_status === "Open"
+              return (
+                <tr key={p.external_id} className="border-b border-border/20">
+                  <td className="max-w-[220px] truncate px-2 py-1 font-medium" title={p.vendor_name}>
+                    {p.vendor_name || "—"}
+                    {p.doc_number && <span className="ml-1 text-muted-foreground/50">#{p.doc_number}</span>}
+                  </td>
+                  <td className="px-2 py-1">
+                    <span
+                      className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase"
+                      style={open
+                        ? { color: "#f59e0b", background: "rgba(245,158,11,0.12)" }
+                        : { color: "#9ca3af", background: "rgba(156,163,175,0.12)" }}
+                    >
+                      {p.po_status || "—"}
+                    </span>
+                  </td>
+                  <td className="px-2 py-1 text-right tabular-nums text-muted-foreground">{fmtDate(p.txn_date)}</td>
+                  <td className={`px-2 py-1 text-right font-semibold tabular-nums ${blur}`}>{fmtUSD(p.total_amount)}</td>
+                  <td className={`px-2 py-1 text-right tabular-nums text-muted-foreground ${blur}`}>{fmtUSD(p.received)}</td>
+                  <td className={`px-2 py-1 text-right tabular-nums ${blur}`} style={p.open > 0 ? { color: "#f59e0b" } : undefined}>
+                    {p.open > 0 ? fmtUSD(p.open) : "—"}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // ── Main modal ────────────────────────────────────────────────────────────────
 
 interface ProjectDetailModalProps {
@@ -611,6 +682,9 @@ export function ProjectDetailModal({ company, customerID, onClose }: ProjectDeta
                     </div>
                   </div>
                 </div>
+
+                {/* Purchase Orders — subcontractor commitment */}
+                <PurchaseOrdersSection pos={data.purchase_orders} />
               </div>
             )}
           </div>

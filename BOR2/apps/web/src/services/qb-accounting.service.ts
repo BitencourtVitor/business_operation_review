@@ -115,6 +115,25 @@ export interface BackchargeDetail {
   memo: string
 }
 
+export interface POLineBrief {
+  description: string
+  amount: number
+  received: number
+  account_ref_name: string
+}
+
+export interface PurchaseOrderDetail {
+  external_id: string
+  doc_number: string
+  txn_date: string
+  vendor_name: string
+  po_status: string
+  total_amount: number
+  received: number
+  open: number
+  lines: POLineBrief[]
+}
+
 export interface ProjectDetailData {
   customer_name: string
   estimate: EstimateInfo | null
@@ -123,6 +142,7 @@ export interface ProjectDetailData {
   vendor_credits: VendorCreditDetail[]
   invoices: InvoiceDetail[]
   backcharges: BackchargeDetail[]
+  purchase_orders: PurchaseOrderDetail[]
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
