@@ -134,7 +134,7 @@ base AS (
 )
 SELECT b.customer_id,
        COALESCE(
-         CASE WHEN qc.fully_qualified_name LIKE '%:%'
+         CASE WHEN qc.fully_qualified_name LIKE '%%:%%'
               THEN substring(qc.fully_qualified_name FROM position(':' IN qc.fully_qualified_name) + 1)
               ELSE NULLIF(qc.fully_qualified_name, '')
          END,
