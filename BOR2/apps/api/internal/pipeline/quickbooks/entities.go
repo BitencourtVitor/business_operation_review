@@ -53,6 +53,15 @@ func str(m map[string]json.RawMessage, key string) string {
 	return s
 }
 
+func coalesce(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
 func strNested(m map[string]json.RawMessage, key, field string) string {
 	v, ok := m[key]
 	if !ok {
@@ -655,8 +664,8 @@ func upsertPurchases(ctx context.Context, db *pgxpool.Pool, company string, rows
 				strNested(detail, "AccountRef", "name"),
 				str(detail, "BillableStatus"),
 				strNested(detail, "TaxCodeRef", "value"),
-				strNested(detail, "CustomerRef", "value"),
-				strNested(detail, "CustomerRef", "name"),
+				coalesce(strNested(detail, "CustomerRef", "value"), strNested(m, "CustomerRef", "value")),
+				coalesce(strNested(detail, "CustomerRef", "name"), strNested(m, "CustomerRef", "name")),
 			)
 		}
 
