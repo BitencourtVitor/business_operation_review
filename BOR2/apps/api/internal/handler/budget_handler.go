@@ -140,14 +140,16 @@ lab_paid AS (
            SUM(bpl.amount * (bc.proj_amt / NULLIF(b.total_amount, 0))) AS total
     FROM bill_cust bc
     JOIN qb_bills b ON b.id = bc.bill_id AND b.company=$1
-    JOIN qb_bill_links blinks
-        ON blinks.bill_id  = b.id
-       AND blinks.txn_type = 'PurchaseOrder'
-       AND blinks.company  = $1
     JOIN qb_bill_payment_links bpl
         ON bpl.txn_id   = b.external_id
        AND bpl.txn_type = 'Bill'
        AND bpl.company  = $1
+    WHERE EXISTS (
+        SELECT 1 FROM qb_bill_links bl2
+        WHERE bl2.bill_id  = b.id
+          AND bl2.txn_type = 'PurchaseOrder'
+          AND bl2.company  = $1
+    )
     GROUP BY bc.pkey
 )
 SELECT p.pkey, p.client, p.pname,
