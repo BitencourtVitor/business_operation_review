@@ -160,18 +160,19 @@ function ProjectCard({ p, blur, onOpen }: {
         </div>
       </div>
 
-      {/* Labor (PO) */}
+      {/* Subcontractors */}
       <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
           <HardHat className="h-3.5 w-3.5 text-amber-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Labor (PO)</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Subcontractors</span>
         </div>
         {hasLabor ? (
           <>
             <Bar part={p.labor_billed} whole={p.labor_committed} color="#f59e0b" />
             <div className="flex flex-col gap-1">
-              <MetricRow label="Committed"       value={p.labor_committed} blur={blur} strong />
-              <MetricRow label="To pay (open)"   value={p.labor_open}
+              <MetricRow label="Committed" value={p.labor_committed} blur={blur} strong />
+              <MetricRow label="Billed"    value={p.labor_billed}    blur={blur} />
+              <MetricRow label="Open (unpaid)" value={p.labor_open}
                 color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
             </div>
           </>
@@ -202,9 +203,9 @@ function BudgetContent() {
   const canManage = (!!user && ["dev", "owner", "admin"].includes(user.role))
     || myPerms?.permissions?.budget_control === "write"
 
-  const [status,    setStatus]    = useState<BudgetStatus>("in_progress")
+  const [status,    setStatus]    = useState<BudgetStatus>("all")
   const [search,    setSearch]    = useState("")
-  const [sortField, setSortField] = useState<SortField>("projected_receive")
+  const [sortField, setSortField] = useState<SortField>("cost_total")
   const [sortAsc,   setSortAsc]   = useState(false)
   const [detailID,  setDetailID]  = useState<string | null>(null)
 

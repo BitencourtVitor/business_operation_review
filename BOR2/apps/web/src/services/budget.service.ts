@@ -66,6 +66,7 @@ export interface PORow {
   external_id: string
   doc_number: string
   txn_date: string
+  vendor_id: string
   vendor_name: string
   category: string
   po_status: string
@@ -73,6 +74,34 @@ export interface PORow {
   billed: number
   open: number
   lines: POLineRow[]
+}
+
+export interface VendorPayment {
+  date: string
+  amount: number
+  ref_number: string
+}
+
+export interface CostVendor {
+  vendor_id: string
+  vendor_name: string
+  committed: number
+  billed: number
+  paid: number
+  open: number
+  payments: VendorPayment[]
+  purchase_orders: PORow[]
+}
+
+export interface CostCategory {
+  category_id: string
+  category_name: string
+  icon: string
+  committed: number
+  billed: number
+  paid: number
+  open: number
+  vendors: CostVendor[]
 }
 
 export interface BudgetProjectDetail {
@@ -103,6 +132,9 @@ export interface BudgetProjectDetail {
   labor_billed: number
   labor_open: number
   purchase_orders: PORow[]
+
+  // Cost grouped by user-defined category (vendor → payments hierarchy)
+  cost_categories: CostCategory[]
 }
 
 export type BudgetStatus = "all" | "in_progress" | "settled"
