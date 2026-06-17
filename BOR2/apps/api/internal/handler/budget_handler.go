@@ -10,12 +10,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// BudgetHandler powers the Budget Control page. A "project" is derived from the
-// QuickBooks customer hierarchy: the fully-qualified name "GC : Development :
-// Building" rolls every building up into its development. Per project it tracks
-// receivables (estimate → invoiced → received), total cost (all expenses) broken
-// down by category, and subcontractor / labor via Purchase Orders. Every project
-// targets a 30% profit margin, so the cost ceiling is 70% of the contract.
+// BudgetHandler powers the Budget Control page. A "project" is one QuickBooks
+// job/customer (e.g. a single building "… : Chauncy Lake 6546 : Building 1") —
+// the leaf entity QB itself lists under "Projects". Parent grouping nodes (the
+// development, the GC) drop out on their own because they carry no direct
+// activity. Per project it tracks receivables (estimate → invoiced → received),
+// total cost (all expenses) broken down by category, and subcontractor / labor
+// via Purchase Orders. Every project targets a 30% profit margin, so the cost
+// ceiling is 70% of the contract.
 type BudgetHandler struct {
 	db *pgxpool.Pool
 }
@@ -39,12 +41,12 @@ func projectType(name string) string {
 	return "house"
 }
 
-// custProjCTE derives, for every QB customer that appears in any budget source,
-// its project key/name/client from the fully-qualified name. The project is the
-// first two hierarchy levels ("GC : Development"); the development is the display
-// name. Single-level customers are their own project. $1 = company.
-// Used verbatim by both the list query and the detail endpoint so the derived
-// project_id is identical on both sides.
+// custProjCTE maps every QB customer that appears in any budget source to a
+// project. A project IS the customer/job itself (pkey = customer_id): pname is
+// the leaf segment of the fully-qualified name (the building/job label) and
+// client is the root segment (the GC). Parent grouping nodes drop out later via
+// the activity filter. $1 = company. Used verbatim by both the list query and the
+// detail endpoint so project_id is identical on both sides.
 const custProjCTE = `
 all_cust AS (
     SELECT DISTINCT customer_id FROM (
@@ -59,22 +61,24 @@ all_cust AS (
 ),
 cust_proj AS (
     SELECT ac.customer_id,
-           COALESCE(NULLIF(qc.fully_qualified_name,''), NULLIF(qc.display_name,''), ac.customer_id) AS fqn
+           COALESCE(NULLIF(qc.fully_qualified_name,''), NULLIF(qc.display_name,''), ac.customer_id) AS fqn,
+           COALESCE(NULLIF(qc.display_name,''), '') AS dname
     FROM all_cust ac
     LEFT JOIN qb_customers qc ON qc.company=$1 AND qc.external_id=ac.customer_id
 ),
 proj_key AS (
     SELECT customer_id, fqn,
-        CASE WHEN trim(split_part(fqn,':',2))='' THEN trim(split_part(fqn,':',1))
-             ELSE trim(split_part(fqn,':',1))||' : '||trim(split_part(fqn,':',2)) END AS pkey,
-        CASE WHEN trim(split_part(fqn,':',2))='' THEN trim(split_part(fqn,':',1))
-             ELSE trim(split_part(fqn,':',2)) END AS pname,
-        CASE WHEN trim(split_part(fqn,':',2))='' THEN ''
-             ELSE trim(split_part(fqn,':',1)) END AS client
+        customer_id AS pkey,
+        COALESCE(
+            NULLIF(trim((string_to_array(fqn, ':'))[array_length(string_to_array(fqn, ':'), 1)]), ''),
+            NULLIF(dname, ''),
+            customer_id
+        ) AS pname,
+        CASE WHEN strpos(fqn, ':') > 0 THEN trim(split_part(fqn, ':', 1)) ELSE '' END AS client
     FROM cust_proj
 )`
 
-// BudgetProject is one project (a QB customer-hierarchy development) for the list.
+// BudgetProject is one project (a single QB job/customer) for the list.
 type BudgetProject struct {
 	ProjectID         string  `json:"project_id"` // derived hierarchy key
 	ClientName        string  `json:"client_name"`
@@ -108,7 +112,7 @@ type BudgetSummary struct {
 	InProgress       int     `json:"in_progress"`
 }
 
-// projectsQuery groups every QB customer into its hierarchy-derived project.
+// projectsQuery returns one row per QB job/customer (project = customer_id).
 // %s is the optional year filter appended to the qb_estimates WHERE clause.
 const projectsQuery = `WITH ` + custProjCTE + `,
 proj AS (
@@ -389,7 +393,7 @@ type BudgetProjectDetail struct {
 	PurchaseOrders          []PORow                 `json:"purchase_orders"`
 }
 
-// GET /api/v1/budget/projects/detail?company=hvac&project_id=<hierarchy key>
+// GET /api/v1/budget/projects/detail?company=hvac&project_id=<customer_id>
 func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	company := c.Query("company")
 	projectID := c.Query("project_id")
