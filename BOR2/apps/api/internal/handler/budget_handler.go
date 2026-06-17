@@ -639,14 +639,16 @@ func (h *BudgetHandler) costCategoryTree(
 	{
 		rows, err := h.db.Query(ctx, `
 			WITH pb AS (
-				SELECT DISTINCT b.id, b.external_id, b.vendor_id
+				SELECT b.id, b.external_id, b.vendor_id, b.total_amount,
+				       SUM(bl.amount) AS proj_amt
 				FROM qb_bills b
 				JOIN qb_bill_lines bl ON bl.bill_id = b.id AND bl.company = $1
 				WHERE b.company = $1 AND bl.customer_id = ANY($2)
+				GROUP BY b.id, b.external_id, b.vendor_id, b.total_amount
 			)
 			SELECT pb.vendor_id,
 			       to_char(bp.txn_date,'YYYY-MM-DD'),
-			       bpl.amount,
+			       bpl.amount * CASE WHEN pb.total_amount = 0 THEN 0 ELSE pb.proj_amt / pb.total_amount END,
 			       COALESCE(NULLIF(bp.doc_number,''), bp.external_id, '')
 			FROM pb
 			JOIN qb_bill_payment_links bpl
