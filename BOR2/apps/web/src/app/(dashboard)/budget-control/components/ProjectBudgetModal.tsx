@@ -3,7 +3,7 @@
 import { useState } from "react"
 import {
   X, ChevronRight, Loader2, Building2, Home, AlertTriangle,
-  Wallet, Coins, LayoutGrid, Tag, ChevronDown, Receipt,
+  Wallet, Coins, HardHat, Tag, ChevronDown, Receipt,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
@@ -119,7 +119,7 @@ function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
           {hasPayments ? (
             <div className="px-8 py-2">
               <p className="mb-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-                Pagamentos ({vendor.payments.length})
+                Payments ({vendor.payments.length})
               </p>
               <div className="flex flex-col gap-0.5">
                 {vendor.payments.map((p, i) => (
@@ -133,7 +133,7 @@ function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
               </div>
             </div>
           ) : (
-            <p className="px-8 py-2 text-[10px] italic text-muted-foreground/40">Sem pagamentos registrados.</p>
+            <p className="px-8 py-2 text-[10px] italic text-muted-foreground/40">No payments recorded.</p>
           )}
 
           {/* PO list (simplified) */}
@@ -168,7 +168,6 @@ function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
 function MetricCell({ label, value, color, blur }: { label: string; value: number; color?: string; blur: string }) {
   return (
     <div className="flex w-24 flex-col items-end px-1">
-      <span className="text-[9px] text-muted-foreground/50">{label}</span>
       <span className={cn("text-[11px] font-semibold tabular-nums", blur)} style={color ? { color } : undefined}>
         {fmt(value)}
       </span>
@@ -178,14 +177,13 @@ function MetricCell({ label, value, color, blur }: { label: string; value: numbe
 
 // ── Category accordion row ────────────────────────────────────────────────────
 
-function CategoryRow({ cat, blur }: { cat: CostCategory; blur: string }) {
-  const [open, setOpen] = useState(false)
+function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur: string; isOpen: boolean; onToggle: () => void }) {
   const isSettled = cat.billed > 0 && cat.open <= 0
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/40">
+    <div className="border-b border-border/40 last:border-b-0">
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={onToggle}
         className="flex w-full items-center gap-3 bg-card/60 px-4 py-3 text-left hover:bg-muted/20"
       >
         {/* Icon */}
@@ -207,10 +205,10 @@ function CategoryRow({ cat, blur }: { cat: CostCategory; blur: string }) {
           <MetricCell label="paid" value={cat.paid} color="#22c55e" blur={blur} />
           <MetricCell label="open" value={cat.open} color={cat.open > 0 ? "#f59e0b" : undefined} blur={blur} />
         </div>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform", isOpen && "rotate-180")} />
       </button>
 
-      {open && (
+      {isOpen && (
         <div className="flex flex-col gap-2 border-t border-border/30 bg-background/30 p-3 pl-5">
           {cat.vendors.map(v => (
             <VendorRow key={v.vendor_id || v.vendor_name} vendor={v} blur={blur} />
@@ -230,11 +228,16 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const { showFinancialData } = useFinancialStore()
   const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
   const [showAccounts, setShowAccounts] = useState(false)
+  const [openCatId, setOpenCatId] = useState<string | null>(null)
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
 
   const incomeAccounts = data?.income_accounts ?? []
-  const costCategories = data?.cost_categories ?? []
+  const costCategories = (data?.cost_categories ?? []).slice().sort((a, b) => {
+    if (!a.category_id) return 1
+    if (!b.category_id) return -1
+    return 0
+  })
   const costAccounts = data?.cost_accounts ?? []
 
   // Totals across all categories for the section header
@@ -290,7 +293,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-semibold text-emerald-500">A Receber · Income</span>
+                    <span className="text-sm font-semibold text-emerald-500">Income</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
                       {pctStr(data.received, data.projected_receive)} received
                     </span>
@@ -310,7 +313,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   </div>
                   {incomeAccounts.length > 0 && (
                     <div className="border-t border-border/30 pt-2">
-                      <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By type</p>
+                      <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">BY TYPE</p>
                       {incomeAccounts.map(ia => (
                         <div key={ia.name} className="flex items-center gap-2 px-1 py-0.5">
                           <span className="truncate text-[11px] text-muted-foreground">{ia.name}</span>
@@ -330,7 +333,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <Coins className={cn("h-4 w-4", overCeiling ? "text-red-500" : "text-amber-500")} />
                     <span className={cn("text-sm font-semibold", overCeiling ? "text-red-500" : "text-amber-500")}>
-                      A Pagar · Cost
+                      Cost
                     </span>
                     <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
                       {pctStr(data.cost_total, data.cost_ceiling)} of ceiling
@@ -358,7 +361,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   )}
                   {/* Cash position */}
                   <div className="border-t border-border/30 pt-2">
-                    <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Cash position</p>
+                    <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">CASH POSITION</p>
                     <Line
                       label="Net cash (received − paid)"
                       value={netCash}
@@ -379,17 +382,20 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
               <div className="flex flex-col gap-0">
                 {/* Section header */}
                 <div className="flex items-center gap-3 rounded-t-xl border border-border/50 bg-muted/20 px-4 py-2.5">
-                  <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold">Cost by Category</span>
+                  <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold leading-tight">Subcontractor Costs</span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50">by category</span>
+                  </div>
                   {costCategories.length === 0 && (
                     <span className="text-[10px] italic text-muted-foreground/50">No categories assigned yet</span>
                   )}
                   {costCategories.length > 0 && (
                     <div className="ml-auto flex items-center gap-4 text-[10px] tabular-nums text-muted-foreground">
-                      <span>committed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
-                      <span>billed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.billed)}</span></span>
-                      <span>paid <span className={cn("font-semibold text-emerald-600", blur)}>{fmt(catTotals.paid)}</span></span>
-                      <span>open <span className={cn("font-semibold", catTotals.open > 0 ? "text-amber-500" : "text-muted-foreground", blur)}>{fmt(catTotals.open)}</span></span>
+                      <span>Committed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
+                      <span>Billed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.billed)}</span></span>
+                      <span>Paid <span className={cn("font-semibold text-emerald-600", blur)}>{fmt(catTotals.paid)}</span></span>
+                      <span>Open <span className={cn("font-semibold", catTotals.open > 0 ? "text-amber-500" : "text-muted-foreground", blur)}>{fmt(catTotals.open)}</span></span>
                     </div>
                   )}
                 </div>
@@ -397,7 +403,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 {/* Column labels row */}
                 {costCategories.length > 0 && (
                   <div className="flex items-center border-x border-border/40 bg-background/20 px-4 py-1">
-                    <div className="flex-1" />
+                    <div className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
                     <div className="flex shrink-0 items-center gap-px">
                       {(["committed", "billed", "paid", "open"] as const).map(lbl => (
                         <div key={lbl} className="w-24 text-right pr-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
@@ -411,7 +417,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
 
                 {/* Category rows */}
                 <div className={cn(
-                  "flex flex-col gap-px rounded-b-xl border border-t-0 border-border/50 bg-border/20 p-1.5",
+                  "flex flex-col overflow-hidden rounded-b-xl border border-t-0 border-border/50",
                   costCategories.length === 0 && "rounded-t-none"
                 )}>
                   {costCategories.length === 0 ? (
@@ -419,9 +425,18 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       Assign categories to subcontractors in Manage → Category Assignment.
                     </div>
                   ) : (
-                    costCategories.map(cat => (
-                      <CategoryRow key={cat.category_id || cat.category_name} cat={cat} blur={blur} />
-                    ))
+                    costCategories.map(cat => {
+                      const id = cat.category_id || cat.category_name
+                      return (
+                        <CategoryRow
+                          key={id}
+                          cat={cat}
+                          blur={blur}
+                          isOpen={openCatId === id}
+                          onToggle={() => setOpenCatId(prev => prev === id ? null : id)}
+                        />
+                      )
+                    })
                   )}
                 </div>
               </div>
