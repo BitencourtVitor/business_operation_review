@@ -54,6 +54,7 @@ export interface CostAccount {
   amount: number
   paid: number
   outstanding: number
+  children?: CostAccount[]
 }
 
 export interface POLineRow {
@@ -83,6 +84,12 @@ export interface VendorPayment {
   ref_number: string
 }
 
+export interface VendorBackCharge {
+  date: string
+  amount: number
+  ref_number: string
+}
+
 export interface CostVendor {
   vendor_id: string
   vendor_name: string
@@ -91,6 +98,7 @@ export interface CostVendor {
   paid: number
   open: number
   payments: VendorPayment[]
+  back_charges: VendorBackCharge[]
   purchase_orders: PORow[]
 }
 
