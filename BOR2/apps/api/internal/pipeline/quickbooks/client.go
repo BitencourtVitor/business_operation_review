@@ -156,6 +156,38 @@ func (c *Client) QueryUpdated(ctx context.Context, entity string, since time.Tim
 	return all, nil
 }
 
+// QueryAllIDs fetches every current Id for an entity (paginated). The bool is
+// false if ANY page failed — callers MUST treat that as "unknown" and never delete
+// based on an incomplete set, otherwise a transient API error could wipe data.
+func (c *Client) QueryAllIDs(ctx context.Context, entity string) ([]string, bool) {
+	var ids []string
+	startPos := 1
+	for {
+		q := fmt.Sprintf("SELECT Id FROM %s STARTPOSITION %d MAXRESULTS %d", entity, startPos, pageSize)
+		body, err := c.query(ctx, q)
+		if err != nil {
+			return nil, false
+		}
+		batch, err := extractRows(body, entity)
+		if err != nil {
+			return nil, false
+		}
+		for _, raw := range batch {
+			var m map[string]json.RawMessage
+			if json.Unmarshal(raw, &m) == nil {
+				if id := str(m, "Id"); id != "" {
+					ids = append(ids, id)
+				}
+			}
+		}
+		if len(batch) < pageSize {
+			break
+		}
+		startPos += pageSize
+	}
+	return ids, true
+}
+
 // ─── internal ────────────────────────────────────────────────────────────────
 
 func (c *Client) query(ctx context.Context, q string) ([]byte, error) {

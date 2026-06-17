@@ -250,7 +250,8 @@ func upsertBills(ctx context.Context, db *pgxpool.Pool, company string, rows []j
 			)
 		}
 
-		// Links
+		// Links — full replace.
+		_, _ = db.Exec(ctx, `DELETE FROM qb_bill_links WHERE company=$1 AND bill_id=$2`, company, billID)
 		for _, txn := range linkedTxns(m) {
 			txnID := str(txn, "TxnId")
 			_, _ = db.Exec(ctx, `
@@ -325,6 +326,7 @@ func upsertBillPayments(ctx context.Context, db *pgxpool.Pool, company string, r
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_bill_payment_links WHERE company=$1 AND bill_payment_id=$2`, company, bpID)
 		for _, line := range lines(m) {
 			for _, txn := range linkedTxns(line) {
 				txnID := str(txn, "TxnId")
@@ -419,6 +421,7 @@ func upsertEstimates(ctx context.Context, db *pgxpool.Pool, company string, rows
 			)
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_estimate_links WHERE company=$1 AND estimate_id=$2`, company, estID)
 		for _, txn := range linkedTxns(m) {
 			txnID := str(txn, "TxnId")
 			_, _ = db.Exec(ctx, `
@@ -501,6 +504,7 @@ func upsertInvoices(ctx context.Context, db *pgxpool.Pool, company string, rows 
 				itemID, itemName)
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_invoice_links WHERE company=$1 AND invoice_id=$2`, company, invID)
 		for _, txn := range linkedTxns(m) {
 			txnID := str(txn, "TxnId")
 			_, _ = db.Exec(ctx, `
@@ -560,6 +564,7 @@ func upsertPayments(ctx context.Context, db *pgxpool.Pool, company string, rows 
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_payment_links WHERE company=$1 AND payment_id=$2`, company, payID)
 		for _, line := range lines(m) {
 			for _, txn := range linkedTxns(line) {
 				txnID := str(txn, "TxnId")
@@ -933,6 +938,7 @@ func upsertPurchaseOrders(ctx context.Context, db *pgxpool.Pool, company string,
 			)
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_purchase_order_links WHERE company=$1 AND po_id=$2`, company, poID)
 		for _, txn := range linkedTxns(m) {
 			txnID := str(txn, "TxnId")
 			_, _ = db.Exec(ctx, `
