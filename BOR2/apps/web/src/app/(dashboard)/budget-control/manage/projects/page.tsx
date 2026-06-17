@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
-import { useBudgetProjects } from "@/hooks/use-budget"
+import { useBudgetCustomers } from "@/hooks/use-budget"
 import { useClients, useJobSites } from "@/hooks/use-clients"
 import { useProjectMappings, useSetProjectMapping } from "@/hooks/use-budget-mapping"
 import type { ClientItem, JobSiteItem } from "@/services/clients.service"
 import type { ProjectMapping } from "@/services/budget-mapping.service"
-import type { BudgetProject } from "@/services/budget.service"
+import type { BudgetCustomer } from "@/services/budget.service"
 import { Segmented } from "../../components/Segmented"
 
 const COMPANIES = [
@@ -150,7 +150,7 @@ function JobSitePicker({ value, clientId, jobSites, onChange }: {
 
 function ProjectRow({ company, project, mapping, autoMatch, clients, jobSites, onSave, isSaving }: {
   company: string
-  project: BudgetProject
+  project: BudgetCustomer
   mapping: ProjectMapping | null
   autoMatch: SiteMatch
   clients: ClientItem[]
@@ -215,7 +215,7 @@ export default function ProjectsPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
   const [onlyUnassigned, setOnlyUnassigned] = useState(false)
 
-  const { data: projects = [], isLoading: projLoading } = useBudgetProjects({ company })
+  const { data: projects = [], isLoading: projLoading } = useBudgetCustomers({ company })
   const { data: mappings = [], isLoading: mapLoading } = useProjectMappings(company)
   const { data: clients = [] } = useClients()
   const { data: jobSites = [] } = useJobSites()

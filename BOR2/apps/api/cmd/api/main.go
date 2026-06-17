@@ -457,6 +457,7 @@ func main() {
 	budget.Get("/projects",        budgetHandler.Projects)
 	budget.Get("/projects/detail", budgetHandler.ProjectDetail)
 	budget.Get("/summary",         budgetHandler.Summary)
+	budget.Get("/customers",       budgetHandler.Customers)
 	// Taxonomy management (categories, mappings, per-project limits)
 	budget.Get("/categories",            budgetTaxonomyHandler.ListCategories)
 	budget.Post("/categories",           budgetTaxonomyHandler.CreateCategory)

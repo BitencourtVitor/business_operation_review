@@ -17,10 +17,18 @@ export function useBudgetSummary(params: { company: string }) {
   })
 }
 
-export function useBudgetDetail(params: { company: string; customer_id: string } | null) {
+export function useBudgetCustomers(params: { company: string }) {
   return useQuery({
-    queryKey: ["budget-detail", params?.company, params?.customer_id],
+    queryKey: ["budget-customers", params.company],
+    queryFn: () => budgetService.getCustomers(params),
+    enabled: !!params.company,
+  })
+}
+
+export function useBudgetDetail(params: { company: string; project_id: string } | null) {
+  return useQuery({
+    queryKey: ["budget-detail", params?.company, params?.project_id],
     queryFn: () => budgetService.getDetail(params!),
-    enabled: !!params?.company && !!params?.customer_id,
+    enabled: !!params?.company && !!params?.project_id,
   })
 }

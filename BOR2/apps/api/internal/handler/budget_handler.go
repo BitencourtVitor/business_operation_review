@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -9,10 +10,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// BudgetHandler powers the Budget Control page. Per project it tracks receivables
-// (estimate → invoiced → received), total cost (all expenses) broken down by
-// category, and subcontractor / labor via Purchase Orders. Every project targets a
-// 30% profit margin, so the cost ceiling is 70% of the contract (estimate).
+// BudgetHandler powers the Budget Control page. A "project" is derived from the
+// QuickBooks customer hierarchy: the fully-qualified name "GC : Development :
+// Building" rolls every building up into its development. Per project it tracks
+// receivables (estimate → invoiced → received), total cost (all expenses) broken
+// down by category, and subcontractor / labor via Purchase Orders. Every project
+// targets a 30% profit margin, so the cost ceiling is 70% of the contract.
 type BudgetHandler struct {
 	db *pgxpool.Pool
 }
@@ -23,7 +26,7 @@ func NewBudgetHandler(db *pgxpool.Pool) *BudgetHandler {
 
 const profitMargin = 0.30 // every project (house & building) targets 30% margin
 
-// projectType is derived from the Project name: "building" → building, "lot" →
+// projectType is derived from the project name: "building" → building, "lot" →
 // house, otherwise house (fallback).
 func projectType(name string) string {
 	n := strings.ToLower(name)
@@ -36,24 +39,60 @@ func projectType(name string) string {
 	return "house"
 }
 
-// BudgetProject is one project (customer) row for the list view.
+// custProjCTE derives, for every QB customer that appears in any budget source,
+// its project key/name/client from the fully-qualified name. The project is the
+// first two hierarchy levels ("GC : Development"); the development is the display
+// name. Single-level customers are their own project. $1 = company.
+// Used verbatim by both the list query and the detail endpoint so the derived
+// project_id is identical on both sides.
+const custProjCTE = `
+all_cust AS (
+    SELECT DISTINCT customer_id FROM (
+        SELECT customer_id FROM qb_estimates           WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_invoices             WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_payments            WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_bill_lines          WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_purchase_lines      WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id<>''
+        UNION SELECT customer_id FROM qb_purchase_order_lines WHERE company=$1 AND customer_id<>''
+    ) z
+),
+cust_proj AS (
+    SELECT ac.customer_id,
+           COALESCE(NULLIF(qc.fully_qualified_name,''), NULLIF(qc.display_name,''), ac.customer_id) AS fqn
+    FROM all_cust ac
+    LEFT JOIN qb_customers qc ON qc.company=$1 AND qc.external_id=ac.customer_id
+),
+proj_key AS (
+    SELECT customer_id, fqn,
+        CASE WHEN trim(split_part(fqn,':',2))='' THEN trim(split_part(fqn,':',1))
+             ELSE trim(split_part(fqn,':',1))||' : '||trim(split_part(fqn,':',2)) END AS pkey,
+        CASE WHEN trim(split_part(fqn,':',2))='' THEN trim(split_part(fqn,':',1))
+             ELSE trim(split_part(fqn,':',2)) END AS pname,
+        CASE WHEN trim(split_part(fqn,':',2))='' THEN ''
+             ELSE trim(split_part(fqn,':',1)) END AS client
+    FROM cust_proj
+)`
+
+// BudgetProject is one project (a QB customer-hierarchy development) for the list.
 type BudgetProject struct {
-	CustomerID       string  `json:"customer_id"`
-	Name             string  `json:"name"`
-	ProjectType      string  `json:"project_type"`
-	ProjectedReceive float64 `json:"projected_receive"` // estimate total (contract)
-	Invoiced         float64 `json:"invoiced"`
-	Received         float64 `json:"received"`
-	ToReceive        float64 `json:"to_receive"` // invoiced - received
-	CostTotal        float64 `json:"cost_total"`
-	CostCeiling      float64 `json:"cost_ceiling"` // estimate * (1 - margin)
-	OverCeiling      bool    `json:"over_ceiling"`
-	LaborCommitted   float64 `json:"labor_committed"`
-	LaborBilled      float64 `json:"labor_billed"`
-	LaborOpen        float64 `json:"labor_open"`
-	ToPay            float64 `json:"to_pay"` // open PO + open bill balance
-	InProgress       bool    `json:"in_progress"`
-	PotentiallyClosed bool   `json:"potentially_closed"`
+	ProjectID         string  `json:"project_id"` // derived hierarchy key
+	ClientName        string  `json:"client_name"`
+	Name              string  `json:"name"`
+	ProjectType       string  `json:"project_type"`
+	ProjectedReceive  float64 `json:"projected_receive"` // estimate total (contract)
+	Invoiced          float64 `json:"invoiced"`
+	Received          float64 `json:"received"`
+	ToReceive         float64 `json:"to_receive"` // invoiced - received
+	CostTotal         float64 `json:"cost_total"`
+	CostCeiling       float64 `json:"cost_ceiling"` // estimate * (1 - margin)
+	OverCeiling       bool    `json:"over_ceiling"`
+	LaborCommitted    float64 `json:"labor_committed"`
+	LaborBilled       float64 `json:"labor_billed"`
+	LaborOpen         float64 `json:"labor_open"`
+	ToPay             float64 `json:"to_pay"` // open PO + open bill balance
+	InProgress        bool    `json:"in_progress"`
+	PotentiallyClosed bool    `json:"potentially_closed"`
 }
 
 type BudgetSummary struct {
@@ -69,95 +108,75 @@ type BudgetSummary struct {
 	InProgress       int     `json:"in_progress"`
 }
 
-const projectsQuery = `
-WITH est AS (
-	SELECT customer_id, MAX(customer_name) AS name, SUM(total_amount) AS total
-	FROM qb_estimates
-	WHERE company = $1 AND customer_id IS NOT NULL AND customer_id <> '' %s
-	GROUP BY customer_id
+// projectsQuery groups every QB customer into its hierarchy-derived project.
+// %s is the optional year filter appended to the qb_estimates WHERE clause.
+const projectsQuery = `WITH ` + custProjCTE + `,
+proj AS (
+    SELECT pkey, MAX(pname) AS pname, MAX(client) AS client FROM proj_key GROUP BY pkey
+),
+est AS (
+    SELECT pk.pkey, SUM(e.total_amount) AS total
+    FROM qb_estimates e JOIN proj_key pk ON pk.customer_id = e.customer_id
+    WHERE e.company=$1 AND e.customer_id<>'' %s
+    GROUP BY pk.pkey
 ),
 inv AS (
-	SELECT customer_id, SUM(total_amount) AS total
-	FROM qb_invoices WHERE company = $1 AND customer_id IS NOT NULL AND customer_id <> ''
-	GROUP BY customer_id
+    SELECT pk.pkey, SUM(i.total_amount) AS total
+    FROM qb_invoices i JOIN proj_key pk ON pk.customer_id = i.customer_id
+    WHERE i.company=$1 AND i.customer_id<>''
+    GROUP BY pk.pkey
 ),
 pay AS (
-	SELECT customer_id, SUM(total_amount) AS total
-	FROM qb_payments WHERE company = $1 AND customer_id IS NOT NULL AND customer_id <> ''
-	GROUP BY customer_id
+    SELECT pk.pkey, SUM(p.total_amount) AS total
+    FROM qb_payments p JOIN proj_key pk ON pk.customer_id = p.customer_id
+    WHERE p.company=$1 AND p.customer_id<>''
+    GROUP BY pk.pkey
 ),
 exp AS (
-	SELECT customer_id, amount FROM qb_bill_lines          WHERE company = $1
-	UNION ALL
-	SELECT customer_id, amount FROM qb_purchase_lines      WHERE company = $1
-	UNION ALL
-	SELECT customer_id, amount FROM qb_vendor_credit_lines WHERE company = $1
+    SELECT pk.pkey, x.amount FROM (
+        SELECT customer_id, amount FROM qb_bill_lines          WHERE company=$1
+        UNION ALL SELECT customer_id, amount FROM qb_purchase_lines      WHERE company=$1
+        UNION ALL SELECT customer_id, amount FROM qb_vendor_credit_lines WHERE company=$1
+    ) x JOIN proj_key pk ON pk.customer_id = x.customer_id
+    WHERE x.customer_id<>''
 ),
-cost AS (
-	SELECT customer_id, SUM(amount) AS total
-	FROM exp WHERE customer_id IS NOT NULL AND customer_id <> ''
-	GROUP BY customer_id
-),
+cost AS (SELECT pkey, SUM(amount) AS total FROM exp GROUP BY pkey),
 bill_cust AS (
-	SELECT bl.bill_id, bl.customer_id, SUM(bl.amount) AS cust_amt
-	FROM qb_bill_lines bl
-	WHERE bl.company = $1 AND bl.customer_id IS NOT NULL AND bl.customer_id <> ''
-	GROUP BY bl.bill_id, bl.customer_id
+    SELECT pk.pkey, bl.bill_id, SUM(bl.amount) AS proj_amt
+    FROM qb_bill_lines bl JOIN proj_key pk ON pk.customer_id = bl.customer_id
+    WHERE bl.company=$1 AND bl.customer_id<>''
+    GROUP BY pk.pkey, bl.bill_id
 ),
 open_payable AS (
-	SELECT bc.customer_id,
-	       SUM(b.balance * (bc.cust_amt / NULLIF(b.total_amount, 0))) AS total
-	FROM bill_cust bc
-	JOIN qb_bills b ON b.id = bc.bill_id
-	WHERE b.balance > 0
-	GROUP BY bc.customer_id
+    SELECT bc.pkey, SUM(b.balance * (bc.proj_amt / NULLIF(b.total_amount,0))) AS total
+    FROM bill_cust bc JOIN qb_bills b ON b.id = bc.bill_id AND b.balance > 0
+    GROUP BY bc.pkey
 ),
 po AS (
-	SELECT pol.customer_id,
-	       MAX(pol.customer_name) AS name,
-	       SUM(pol.amount)                AS committed,
-	       SUM(COALESCE(pol.received, 0)) AS billed,
-	       SUM(CASE WHEN o.po_status = 'Open'
-	                THEN GREATEST(pol.amount - COALESCE(pol.received, 0), 0) ELSE 0 END) AS open_commit
-	FROM qb_purchase_order_lines pol
-	JOIN qb_purchase_orders o ON o.id = pol.po_id
-	WHERE pol.company = $1 AND pol.customer_id IS NOT NULL AND pol.customer_id <> ''
-	GROUP BY pol.customer_id
-),
-base AS (
-	SELECT customer_id, MAX(name) AS name FROM (
-		SELECT customer_id, name FROM est
-		UNION ALL
-		SELECT customer_id, name FROM po
-	) z
-	GROUP BY customer_id
+    SELECT pk.pkey,
+           SUM(pol.amount)                AS committed,
+           SUM(COALESCE(pol.received, 0)) AS billed,
+           SUM(CASE WHEN o.po_status='Open'
+                    THEN GREATEST(pol.amount - COALESCE(pol.received,0), 0) ELSE 0 END) AS open_commit
+    FROM qb_purchase_order_lines pol
+    JOIN qb_purchase_orders o ON o.id = pol.po_id
+    JOIN proj_key pk ON pk.customer_id = pol.customer_id
+    WHERE pol.company=$1 AND pol.customer_id<>''
+    GROUP BY pk.pkey
 )
-SELECT b.customer_id,
-       COALESCE(
-         CASE WHEN qc.fully_qualified_name LIKE '%%:%%'
-              THEN substring(qc.fully_qualified_name FROM position(':' IN qc.fully_qualified_name) + 1)
-              ELSE NULLIF(qc.fully_qualified_name, '')
-         END,
-         b.name
-       ) AS name,
-       COALESCE(e.total, 0)        AS projected_receive,
-       COALESCE(i.total, 0)        AS invoiced,
-       COALESCE(p.total, 0)        AS received,
-       COALESCE(co.total, 0)       AS cost_total,
-       COALESCE(op.total, 0)       AS open_payable,
-       COALESCE(pp.committed, 0)   AS labor_committed,
-       COALESCE(pp.billed, 0)      AS labor_billed,
-       COALESCE(pp.open_commit, 0) AS labor_open
-FROM base b
-LEFT JOIN qb_customers qc ON qc.company = $1 AND qc.external_id = b.customer_id
-LEFT JOIN est          e  ON e.customer_id  = b.customer_id
-LEFT JOIN inv          i  ON i.customer_id  = b.customer_id
-LEFT JOIN pay          p  ON p.customer_id  = b.customer_id
-LEFT JOIN cost         co ON co.customer_id = b.customer_id
-LEFT JOIN open_payable op ON op.customer_id = b.customer_id
-LEFT JOIN po           pp ON pp.customer_id = b.customer_id
-WHERE b.name IS NOT NULL AND b.name <> ''
-ORDER BY projected_receive DESC, labor_committed DESC
+SELECT p.pkey, p.client, p.pname,
+       COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
+       COALESCE(op.total,0), COALESCE(pp.committed,0), COALESCE(pp.billed,0), COALESCE(pp.open_commit,0)
+FROM proj p
+LEFT JOIN est          e  ON e.pkey  = p.pkey
+LEFT JOIN inv          i  ON i.pkey  = p.pkey
+LEFT JOIN pay          pa ON pa.pkey = p.pkey
+LEFT JOIN cost         co ON co.pkey = p.pkey
+LEFT JOIN open_payable op ON op.pkey = p.pkey
+LEFT JOIN po           pp ON pp.pkey = p.pkey
+WHERE COALESCE(e.total,0) <> 0 OR COALESCE(i.total,0) <> 0 OR COALESCE(pa.total,0) <> 0
+   OR COALESCE(co.total,0) <> 0 OR COALESCE(pp.committed,0) <> 0
+ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
 `
 
 func (h *BudgetHandler) queryProjects(c *fiber.Ctx, company string, year int, hasYear bool) ([]BudgetProject, error) {
@@ -181,7 +200,7 @@ func (h *BudgetHandler) queryProjects(c *fiber.Ctx, company string, year int, ha
 		var p BudgetProject
 		var openPayable float64
 		if err := rows.Scan(
-			&p.CustomerID, &p.Name,
+			&p.ProjectID, &p.ClientName, &p.Name,
 			&p.ProjectedReceive, &p.Invoiced, &p.Received, &p.CostTotal, &openPayable,
 			&p.LaborCommitted, &p.LaborBilled, &p.LaborOpen,
 		); err != nil {
@@ -270,6 +289,34 @@ func (h *BudgetHandler) Summary(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": sum})
 }
 
+// ── Raw customers (for the Project Assignment admin page) ─────────────────────
+
+type BudgetCustomer struct {
+	CustomerID string `json:"customer_id"`
+	Name       string `json:"name"`
+}
+
+// GET /api/v1/budget/customers?company=framing
+func (h *BudgetHandler) Customers(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	}
+	rows, err := h.db.Query(c.Context(), `WITH `+custProjCTE+`
+		SELECT customer_id, fqn FROM cust_proj ORDER BY fqn`, company)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []BudgetCustomer{}
+	for rows.Next() {
+		var b BudgetCustomer
+		rows.Scan(&b.CustomerID, &b.Name)
+		out = append(out, b)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // ── Project detail ──────────────────────────────────────────────────────────
 
 type CategoryCost struct {
@@ -300,61 +347,123 @@ type PORow struct {
 	Lines      []POLineRow `json:"lines"`
 }
 
-type BudgetProjectDetail struct {
-	CustomerID       string         `json:"customer_id"`
-	Name             string         `json:"name"`
-	ProjectType      string         `json:"project_type"`
-	ProjectedReceive float64        `json:"projected_receive"`
-	Invoiced         float64        `json:"invoiced"`
-	Received         float64        `json:"received"`
-	CostTotal        float64        `json:"cost_total"`
-	CostCeiling      float64        `json:"cost_ceiling"`
-	MarginTarget     float64        `json:"margin_target"`
-	Categories       []CategoryCost `json:"categories"`
-	Uncategorized    float64        `json:"uncategorized"`
-	PurchaseOrders   []PORow        `json:"purchase_orders"`
+// SubcontractorCategory aggregates Purchase Order commitment by vendor category.
+// committed = total PO amount, billed ≈ incurred, open = still to pay (open POs).
+type SubcontractorCategory struct {
+	Name      string  `json:"name"`
+	Icon      string  `json:"icon"`
+	Committed float64 `json:"committed"`
+	Billed    float64 `json:"billed"`
+	Open      float64 `json:"open"`
 }
 
-// GET /api/v1/budget/projects/detail?company=hvac&customer_id=123
+type BudgetProjectDetail struct {
+	ProjectID    string  `json:"project_id"`
+	ClientName   string  `json:"client_name"`
+	Name         string  `json:"name"`
+	ProjectType  string  `json:"project_type"`
+	MarginTarget float64 `json:"margin_target"`
+
+	// Income (receivable lifecycle)
+	ProjectedReceive float64 `json:"projected_receive"` // contract / estimate
+	Invoiced         float64 `json:"invoiced"`
+	Received         float64 `json:"received"`
+	ToReceive        float64 `json:"to_receive"` // invoiced - received
+
+	// Cost (incurred via bills/purchases/vendor credits)
+	CostTotal   float64 `json:"cost_total"`
+	CostCeiling float64 `json:"cost_ceiling"` // estimate * (1 - margin)
+	Paid        float64 `json:"paid"`         // cost_total - open vendor bill balance
+	OpenPayable float64 `json:"open_payable"` // outstanding vendor bill balance
+	ToPay       float64 `json:"to_pay"`       // open_payable + open PO commitment
+
+	// Forward subcontractor commitment (Purchase Orders)
+	LaborCommitted float64 `json:"labor_committed"`
+	LaborBilled    float64 `json:"labor_billed"`
+	LaborOpen      float64 `json:"labor_open"`
+
+	// Breakdowns
+	Categories              []CategoryCost          `json:"categories"`               // incurred cost by account category (materials/other)
+	SubcontractorCategories []SubcontractorCategory `json:"subcontractor_categories"` // PO commitment by vendor category
+	Uncategorized           float64                 `json:"uncategorized"`
+	PurchaseOrders          []PORow                 `json:"purchase_orders"`
+}
+
+// GET /api/v1/budget/projects/detail?company=hvac&project_id=<hierarchy key>
 func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	company := c.Query("company")
-	customerID := c.Query("customer_id")
-	if company == "" || customerID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company and customer_id are required")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
 	}
 	ctx := c.Context()
 
-	d := BudgetProjectDetail{CustomerID: customerID, MarginTarget: profitMargin}
+	d := BudgetProjectDetail{ProjectID: projectID, MarginTarget: profitMargin}
 
-	// Header figures
-	_ = h.db.QueryRow(ctx, `
-		SELECT COALESCE(MAX(customer_name),''), COALESCE(SUM(total_amount),0)
-		FROM qb_estimates WHERE company=$1 AND customer_id=$2
-	`, company, customerID).Scan(&d.Name, &d.ProjectedReceive)
-	if d.Name == "" {
-		_ = h.db.QueryRow(ctx, `
-			SELECT COALESCE(MAX(customer_name),'') FROM qb_purchase_order_lines
-			WHERE company=$1 AND customer_id=$2
-		`, company, customerID).Scan(&d.Name)
+	// Resolve the project's customer IDs + display name/client from the hierarchy.
+	custRows, err := h.db.Query(ctx, `WITH `+custProjCTE+`
+		SELECT customer_id, pname, client FROM proj_key WHERE pkey=$2`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+	var customerIDs []string
+	for custRows.Next() {
+		var id, pname, client string
+		custRows.Scan(&id, &pname, &client)
+		customerIDs = append(customerIDs, id)
+		if d.Name == "" {
+			d.Name = pname
+		}
+		if d.ClientName == "" {
+			d.ClientName = client
+		}
+	}
+	custRows.Close()
 	d.ProjectType = projectType(d.Name)
-	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_invoices WHERE company=$1 AND customer_id=$2`, company, customerID).Scan(&d.Invoiced)
-	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_payments WHERE company=$1 AND customer_id=$2`, company, customerID).Scan(&d.Received)
+
+	d.Categories = []CategoryCost{}
+	d.SubcontractorCategories = []SubcontractorCategory{}
+	d.PurchaseOrders = []PORow{}
+
+	if len(customerIDs) == 0 {
+		return c.JSON(fiber.Map{"data": d})
+	}
+
+	// Header figures — aggregate across all customers of the project.
+	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_estimates WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.ProjectedReceive)
+	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_invoices  WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.Invoiced)
+	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_payments  WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.Received)
 	_ = h.db.QueryRow(ctx, `
 		SELECT COALESCE(SUM(amount),0) FROM (
-			SELECT amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=$2
-			UNION ALL SELECT amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=$2
-			UNION ALL SELECT amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=$2
+			SELECT amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
 		) x
-	`, company, customerID).Scan(&d.CostTotal)
-	d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
+	`, company, customerIDs).Scan(&d.CostTotal)
 
-	// Cost by category (account → category for this project's type), with per-project limits.
+	// Outstanding vendor bill balance (proportional to this project's share of each bill).
+	_ = h.db.QueryRow(ctx, `
+		WITH bill_cust AS (
+			SELECT bl.bill_id, SUM(bl.amount) AS proj_amt
+			FROM qb_bill_lines bl
+			WHERE bl.company=$1 AND bl.customer_id=ANY($2)
+			GROUP BY bl.bill_id
+		)
+		SELECT COALESCE(SUM(b.balance * (bc.proj_amt / NULLIF(b.total_amount,0))),0)
+		FROM bill_cust bc
+		JOIN qb_bills b ON b.id = bc.bill_id AND b.balance > 0
+	`, company, customerIDs).Scan(&d.OpenPayable)
+
+	d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
+	d.ToReceive = max0(d.Invoiced - d.Received)
+	d.Paid = max0(d.CostTotal - d.OpenPayable)
+
+	// Cost by account category (materials/other), with per-project limit override.
 	catRows, err := h.db.Query(ctx, `
 		WITH exp AS (
-			SELECT account_ref_id, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=$2
-			UNION ALL SELECT account_ref_id, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=$2
-			UNION ALL SELECT account_ref_id, amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=$2
+			SELECT account_ref_id, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT account_ref_id, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT account_ref_id, amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
 		)
 		SELECT cat.id, cat.name, cat.icon, SUM(x.amount) AS actual,
 		       COALESCE(lim.max_value, cat.default_max, 0) AS max
@@ -363,15 +472,14 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		  ON bac.company=$1 AND bac.account_ref_id=x.account_ref_id AND bac.project_type=$3
 		JOIN budget_categories cat ON cat.id=bac.category_id
 		LEFT JOIN budget_project_category_limits lim
-		  ON lim.company=$1 AND lim.customer_id=$2 AND lim.category_id=cat.id
+		  ON lim.company=$1 AND lim.project_id=$4 AND lim.category_id=cat.id
 		GROUP BY cat.id, cat.name, cat.icon, COALESCE(lim.max_value, cat.default_max, 0)
 		ORDER BY actual DESC
-	`, company, customerID, d.ProjectType)
+	`, company, customerIDs, d.ProjectType, projectID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	var categorized float64
-	d.Categories = []CategoryCost{}
 	for catRows.Next() {
 		var id string
 		var cc CategoryCost
@@ -385,31 +493,32 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	catRows.Close()
 	d.Uncategorized = d.CostTotal - categorized
 
-	// Purchase orders (this customer), with lines.
+	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
 		SELECT DISTINCT o.id::text, o.external_id, COALESCE(o.doc_number,''),
 		       to_char(o.txn_date,'YYYY-MM-DD'), COALESCE(o.vendor_name,''), COALESCE(o.po_status,''),
-		       COALESCE(vc_cat.name, '')
+		       COALESCE(vc_cat.name, ''), COALESCE(vc_cat.icon, '')
 		FROM qb_purchase_orders o
 		JOIN qb_purchase_order_lines pol ON pol.po_id = o.id
 		LEFT JOIN budget_vendor_categories bvc
 		  ON bvc.company=$1 AND bvc.vendor_id=o.vendor_id AND bvc.project_type=$3
 		LEFT JOIN budget_categories vc_cat ON vc_cat.id = bvc.category_id
-		WHERE o.company=$1 AND pol.customer_id=$2
+		WHERE o.company=$1 AND pol.customer_id=ANY($2)
 		ORDER BY o.external_id
-	`, company, customerID, d.ProjectType)
+	`, company, customerIDs, d.ProjectType)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	type poMeta struct {
-		internalID string
-		row        PORow
+		internalID   string
+		categoryIcon string
+		row          PORow
 	}
 	var pos []poMeta
 	for poRows.Next() {
 		var m poMeta
 		poRows.Scan(&m.internalID, &m.row.ExternalID, &m.row.DocNumber, &m.row.TxnDate,
-			&m.row.VendorName, &m.row.POStatus, &m.row.Category)
+			&m.row.VendorName, &m.row.POStatus, &m.row.Category, &m.categoryIcon)
 		m.row.Lines = []POLineRow{}
 		pos = append(pos, m)
 	}
@@ -425,9 +534,9 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		lRows, _ := h.db.Query(ctx, `
 			SELECT po_id::text, COALESCE(description,''), COALESCE(amount,0), COALESCE(received,0)
 			FROM qb_purchase_order_lines
-			WHERE company=$1 AND customer_id=$2 AND po_id::text = ANY($3)
+			WHERE company=$1 AND customer_id=ANY($2) AND po_id::text = ANY($3)
 			ORDER BY po_id
-		`, company, customerID, ids)
+		`, company, customerIDs, ids)
 		for lRows.Next() {
 			var poID string
 			var l POLineRow
@@ -450,6 +559,42 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	for i, p := range pos {
 		d.PurchaseOrders[i] = p.row
 	}
+
+	// Subcontractor commitment aggregated by vendor category + labor totals.
+	type scAgg struct {
+		icon                    string
+		committed, billed, open float64
+	}
+	scMap := map[string]*scAgg{}
+	for _, p := range pos {
+		d.LaborCommitted += p.row.Committed
+		d.LaborBilled += p.row.Billed
+		d.LaborOpen += p.row.Open
+		cat := p.row.Category
+		icon := p.categoryIcon
+		if cat == "" {
+			cat = "Uncategorized"
+			icon = "HelpCircle"
+		}
+		a := scMap[cat]
+		if a == nil {
+			a = &scAgg{icon: icon}
+			scMap[cat] = a
+		}
+		a.committed += p.row.Committed
+		a.billed += p.row.Billed
+		a.open += p.row.Open
+	}
+	for name, a := range scMap {
+		d.SubcontractorCategories = append(d.SubcontractorCategories, SubcontractorCategory{
+			Name: name, Icon: a.icon, Committed: a.committed, Billed: a.billed, Open: a.open,
+		})
+	}
+	sort.Slice(d.SubcontractorCategories, func(i, j int) bool {
+		return d.SubcontractorCategories[i].Committed > d.SubcontractorCategories[j].Committed
+	})
+
+	d.ToPay = max0(d.OpenPayable) + max0(d.LaborOpen)
 
 	return c.JSON(fiber.Map{"data": d})
 }

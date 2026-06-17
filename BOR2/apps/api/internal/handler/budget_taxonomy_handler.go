@@ -259,17 +259,17 @@ type ProjectLimit struct {
 	MaxValue   float64 `json:"max_value"`
 }
 
-// GET /budget/project-limits?company=hvac&customer_id=123
+// GET /budget/project-limits?company=hvac&project_id=<hierarchy key>
 func (h *BudgetTaxonomyHandler) ListProjectLimits(c *fiber.Ctx) error {
 	company := c.Query("company")
-	customerID := c.Query("customer_id")
-	if company == "" || customerID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company and customer_id are required")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT category_id::text, max_value FROM budget_project_category_limits
-		WHERE company=$1 AND customer_id=$2
-	`, company, customerID)
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -283,32 +283,32 @@ func (h *BudgetTaxonomyHandler) ListProjectLimits(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": out})
 }
 
-// PUT /budget/project-limits  body {company, customer_id, category_id, max_value}
+// PUT /budget/project-limits  body {company, project_id, category_id, max_value}
 func (h *BudgetTaxonomyHandler) SetProjectLimit(c *fiber.Ctx) error {
 	var b struct {
 		Company    string  `json:"company"`
-		CustomerID string  `json:"customer_id"`
+		ProjectID  string  `json:"project_id"`
 		CategoryID string  `json:"category_id"`
 		MaxValue   float64 `json:"max_value"`
 	}
 	if err := c.BodyParser(&b); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
 	}
-	if b.Company == "" || b.CustomerID == "" || b.CategoryID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company, customer_id, category_id required")
+	if b.Company == "" || b.ProjectID == "" || b.CategoryID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, category_id required")
 	}
 	if b.MaxValue <= 0 {
-		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_project_category_limits WHERE company=$1 AND customer_id=$2 AND category_id=$3`, b.Company, b.CustomerID, b.CategoryID)
+		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_project_category_limits WHERE company=$1 AND project_id=$2 AND category_id=$3`, b.Company, b.ProjectID, b.CategoryID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(fiber.Map{"ok": true})
 	}
 	_, err := h.db.Exec(c.Context(), `
-		INSERT INTO budget_project_category_limits (company, customer_id, category_id, max_value, updated_at)
+		INSERT INTO budget_project_category_limits (company, project_id, category_id, max_value, updated_at)
 		VALUES ($1,$2,$3,$4,now())
-		ON CONFLICT (company, customer_id, category_id) DO UPDATE SET max_value=EXCLUDED.max_value, updated_at=now()
-	`, b.Company, b.CustomerID, b.CategoryID, b.MaxValue)
+		ON CONFLICT (company, project_id, category_id) DO UPDATE SET max_value=EXCLUDED.max_value, updated_at=now()
+	`, b.Company, b.ProjectID, b.CategoryID, b.MaxValue)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

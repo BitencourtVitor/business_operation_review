@@ -17,9 +17,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetProjects, useBudgetSummary } from "@/hooks/use-budget"
-import { useClients, useJobSites } from "@/hooks/use-clients"
 import type { BudgetProject, BudgetStatus } from "@/services/budget.service"
-import type { ClientItem, JobSiteItem } from "@/services/clients.service"
 import { ProjectBudgetModal } from "./components/ProjectBudgetModal"
 import { Segmented } from "./components/Segmented"
 
@@ -41,38 +39,6 @@ const fmtShort = (n: number) => {
   return fmt(n)
 }
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
-
-// ── Job-site matching (token-based) ──────────────────────────────────────────
-
-function normalize(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim()
-}
-
-type SiteMatch = { clientName: string; siteName: string } | null
-
-function bestJobSiteMatch(
-  projectName: string,
-  jobSites: JobSiteItem[],
-  clients: ClientItem[],
-): SiteMatch {
-  const pn = normalize(projectName)
-  let best: { site: JobSiteItem; score: number } | null = null
-  for (const site of jobSites) {
-    // Extract "Coppersmith" from "Coppersmith at Canton, MA"
-    const mainName = site.name.split(/ at /i)[0].trim()
-    const tokens = normalize(mainName).split(" ").filter(t => t.length >= 3)
-    if (!tokens.length) continue
-    const hits = tokens.filter(t => pn.includes(t)).length
-    const score = hits / tokens.length
-    if (!best || score > best.score) best = { site, score }
-  }
-  if (!best || best.score < 0.6) return null
-  const client = clients.find(c => c.id === best!.site.client_id)
-  return {
-    clientName: client?.name ?? "Particular",
-    siteName:   best.site.name,
-  }
-}
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
@@ -118,25 +84,25 @@ function Bar({ part, whole, color }: { part: number; whole: number; color: strin
 
 // ── Project Card ──────────────────────────────────────────────────────────────
 
-function ProjectCard({ p, blur, match, onOpen }: {
-  p: BudgetProject; blur: string; match: SiteMatch; onOpen: () => void
+function ProjectCard({ p, blur, onOpen }: {
+  p: BudgetProject; blur: string; onOpen: () => void
 }) {
   const hasLabor = p.labor_committed > 0
   return (
     <button onClick={onOpen}
-      className="flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left transition-all hover:border-border hover:shadow-md">
+      className="flex w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left transition-all hover:border-border hover:shadow-md md:flex-row md:items-stretch">
 
-      {/* Header */}
-      <div className="flex items-start gap-2 border-b border-border/50 px-4 py-3">
+      {/* Identity */}
+      <div className="flex min-w-0 items-center gap-2.5 border-b border-border/50 px-4 py-3 md:w-[26%] md:border-b-0 md:border-r">
         {p.project_type === "building"
-          ? <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
-          : <Home      className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />}
+          ? <Building2 className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+          : <Home      className="h-4 w-4 shrink-0 text-muted-foreground/60" />}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <p className="line-clamp-2 text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
-          {match && (
+          {p.client_name && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
               <MapPin className="h-2.5 w-2.5 shrink-0" />
-              <span className="truncate">{match.clientName} · {match.siteName.split(/ at /i)[0]}</span>
+              <span className="truncate">{p.client_name}</span>
             </div>
           )}
         </div>
@@ -165,7 +131,7 @@ function ProjectCard({ p, blur, match, onOpen }: {
       </div>
 
       {/* Receivable */}
-      <div className="flex flex-col gap-2 px-4 py-3">
+      <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
         <div className="flex items-center gap-1.5">
           <Wallet className="h-3.5 w-3.5 text-emerald-500" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Receivable</span>
@@ -182,29 +148,30 @@ function ProjectCard({ p, blur, match, onOpen }: {
       </div>
 
       {/* Cost vs ceiling */}
-      <div className="flex flex-col gap-2 border-t border-border/40 px-4 py-3">
+      <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Cost</span>
           <span className="ml-auto text-[10px] text-muted-foreground">ceiling {fmtShort(p.cost_ceiling)}</span>
         </div>
         <Bar part={p.cost_total} whole={p.cost_ceiling} color={p.over_ceiling ? "#ef4444" : "#f59e0b"} />
-        <MetricRow label="Spent" value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
+        <div className="flex flex-col gap-1">
+          <MetricRow label="Spent"   value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} strong />
+          <MetricRow label="To pay"  value={p.to_pay} color={p.to_pay > 0 ? "#f59e0b" : undefined} blur={blur} />
+        </div>
       </div>
 
       {/* Labor (PO) */}
-      <div className="flex flex-col gap-2 border-t border-border/40 px-4 py-3">
+      <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
           <HardHat className="h-3.5 w-3.5 text-amber-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">
-            Labor — Subcontractor (PO)
-          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Labor (PO)</span>
         </div>
         {hasLabor ? (
           <>
             <Bar part={p.labor_billed} whole={p.labor_committed} color="#f59e0b" />
             <div className="flex flex-col gap-1">
-              <MetricRow label="Committed (PO)"   value={p.labor_committed} blur={blur} />
-              <MetricRow label="To pay (open PO)" value={p.labor_open}
+              <MetricRow label="Committed"       value={p.labor_committed} blur={blur} strong />
+              <MetricRow label="To pay (open)"   value={p.labor_open}
                 color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
             </div>
           </>
@@ -243,17 +210,6 @@ function BudgetContent() {
 
   const { data: summary,  isLoading: sumLoading  } = useBudgetSummary({ company })
   const { data: projects, isLoading: projLoading } = useBudgetProjects({ company, status })
-  const { data: clients  = [] } = useClients()
-  const { data: jobSites = [] } = useJobSites()
-
-  // Pre-compute job-site matches for all projects
-  const matchMap = useMemo(() => {
-    const map = new Map<string, SiteMatch>()
-    for (const p of (projects ?? [])) {
-      map.set(p.customer_id || p.name, bestJobSiteMatch(p.name, jobSites, clients))
-    }
-    return map
-  }, [projects, jobSites, clients])
 
   const rows = useMemo(() => (projects ?? [])
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
@@ -427,14 +383,13 @@ function BudgetContent() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto no-scrollbar p-4">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {rows.map(p => (
+            <div className="flex flex-col gap-3">
+              {rows.map((p, i) => (
                 <ProjectCard
-                  key={p.customer_id || p.name}
+                  key={p.project_id ?? i}
                   p={p}
                   blur={blur}
-                  match={matchMap.get(p.customer_id || p.name) ?? null}
-                  onOpen={() => setDetailID(p.customer_id)}
+                  onOpen={() => setDetailID(p.project_id)}
                 />
               ))}
             </div>
@@ -443,7 +398,7 @@ function BudgetContent() {
       </div>
 
       {detailID && (
-        <ProjectBudgetModal company={company} customerID={detailID} onClose={() => setDetailID(null)} />
+        <ProjectBudgetModal company={company} projectID={detailID} onClose={() => setDetailID(null)} />
       )}
     </div>
   )
