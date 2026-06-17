@@ -379,9 +379,11 @@ type CostCategory struct {
 
 // IncomeAccount is one receivable category (mirrors QB P&L by Project income
 // accounts: Sales +, Back Charges −, Extras +, Discounts −). Amount is signed.
+// Outstanding is the unpaid portion: Σ(line_amount × invoice.balance/invoice.total).
 type IncomeAccount struct {
-	Name   string  `json:"name"`
-	Amount float64 `json:"amount"`
+	Name        string  `json:"name"`
+	Amount      float64 `json:"amount"`
+	Outstanding float64 `json:"outstanding"`
 }
 
 // CostAccount is one payable category = a QB GL account (mirrors QB P&L by Project
@@ -504,14 +506,15 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	// account (Sales / Extra / Material Extra …) PLUS back charges (negative deposit
 	// lines), mirroring QB "Profit and Loss by Project" income section.
 	incRows, err := h.db.Query(ctx, `
-		SELECT name, SUM(amount) AS amount FROM (
+		SELECT name, SUM(amount) AS amount, SUM(outstanding) AS outstanding FROM (
 			SELECT COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
-			       il.amount
+			       il.amount,
+			       il.amount * COALESCE(i.balance / NULLIF(i.total_amount, 0), 0) AS outstanding
 			FROM qb_invoice_lines il
 			JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1 AND i.customer_id=ANY($2)
 			LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
 			UNION ALL
-			SELECT 'Back Charges' AS name, dl.amount
+			SELECT 'Back Charges' AS name, dl.amount, 0::float8 AS outstanding
 			FROM qb_deposit_lines dl
 			WHERE dl.company=$1 AND dl.customer_id=ANY($2) AND dl.amount < 0
 		) t
@@ -524,7 +527,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	}
 	for incRows.Next() {
 		var ia IncomeAccount
-		incRows.Scan(&ia.Name, &ia.Amount)
+		incRows.Scan(&ia.Name, &ia.Amount, &ia.Outstanding)
 		d.IncomeAccounts = append(d.IncomeAccounts, ia)
 		d.IncomeActual += ia.Amount
 	}

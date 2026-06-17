@@ -46,6 +46,7 @@ export interface BudgetSummary {
 export interface IncomeAccount {
   name: string
   amount: number
+  outstanding: number
 }
 
 export interface CostAccount {
