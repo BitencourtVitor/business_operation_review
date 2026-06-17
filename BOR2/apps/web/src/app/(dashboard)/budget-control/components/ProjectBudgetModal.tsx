@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail } from "@/hooks/use-budget"
-import type { CostCategory, CostVendor } from "@/services/budget.service"
+import type { CostAccount, CostCategory, CostVendor } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -115,11 +115,50 @@ function ValueCell({ value, color, blur, sm }: { value: number; color?: string; 
   )
 }
 
+// ── Account row (By Account tree with expandable children) ───────────────────
+
+function AccountRow({ ca, blur }: { ca: CostAccount; blur: string }) {
+  const [open, setOpen] = useState(false)
+  const hasChildren = (ca.children?.length ?? 0) > 0
+  return (
+    <>
+      <div
+        className={cn(
+          "flex items-center border-t border-border/10 px-3 py-1",
+          hasChildren && "cursor-pointer hover:bg-muted/10"
+        )}
+        onClick={() => hasChildren && setOpen(o => !o)}
+      >
+        <div className="w-4 shrink-0 mr-0.5">
+          {hasChildren && (
+            <ChevronRight className={cn("h-2.5 w-2.5 text-muted-foreground/30 transition-transform", open && "rotate-90")} />
+          )}
+        </div>
+        <span className="flex-1 truncate text-[11px] font-medium text-foreground/80" title={ca.name}>{ca.name}</span>
+        <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.amount < 0 && "text-emerald-500")}>{fmt(ca.amount)}</span>
+        <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
+        <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>{fmt(ca.outstanding)}</span>
+      </div>
+      {open && ca.children?.map((child, j) => (
+        <div key={j} className="flex items-center border-t border-border/10 bg-muted/5 px-3 py-1 pl-7">
+          <div className="w-4 shrink-0 mr-0.5 flex items-center justify-center">
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/20" />
+          </div>
+          <span className="flex-1 truncate text-[10px] text-muted-foreground/60" title={child.name}>{child.name}</span>
+          <span className={cn("w-28 text-right text-[10px] font-semibold tabular-nums", blur, child.amount < 0 && "text-emerald-500")}>{fmt(child.amount)}</span>
+          <span className={cn("w-28 text-right text-[10px] font-semibold tabular-nums", blur)}>{fmt(child.paid)}</span>
+          <span className={cn("w-28 text-right text-[10px] font-semibold tabular-nums", blur, child.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>{fmt(child.outstanding)}</span>
+        </div>
+      ))}
+    </>
+  )
+}
+
 // ── Vendor row ────────────────────────────────────────────────────────────────
 
 function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
   const [open, setOpen] = useState(false)
-  const hasDetail = vendor.payments.length > 0 || vendor.purchase_orders.length > 0
+  const hasDetail = vendor.payments.length > 0 || (vendor.back_charges?.length ?? 0) > 0 || vendor.purchase_orders.length > 0
   const isSettled = vendor.billed > 0 && vendor.open <= 0
 
   return (
@@ -165,8 +204,23 @@ function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
               ))}
             </div>
           )}
-          {vendor.purchase_orders.length > 0 && (
+          {(vendor.back_charges?.length ?? 0) > 0 && (
             <div className={cn("py-1.5", vendor.payments.length > 0 && "border-t border-border/10")}>
+              <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/40">
+                Back Charges ({vendor.back_charges.length})
+              </p>
+              {vendor.back_charges.map((bc, i) => (
+                <div key={i} className="flex items-center gap-2 py-0.5">
+                  <div className="h-1 w-1 shrink-0 rounded-full bg-emerald-500/50" />
+                  <span className="w-14 shrink-0 text-[10px] tabular-nums text-muted-foreground/50">{fmtDate(bc.date)}</span>
+                  <span className="flex-1 truncate text-[10px] text-muted-foreground/40">{bc.ref_number || "—"}</span>
+                  <span className={cn("text-[10px] font-semibold tabular-nums text-emerald-500", blur)}>-{fmt(bc.amount)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {vendor.purchase_orders.length > 0 && (
+            <div className={cn("py-1.5", (vendor.payments.length > 0 || (vendor.back_charges?.length ?? 0) > 0) && "border-t border-border/10")}>
               <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/40">
                 Purchase orders ({vendor.purchase_orders.length})
               </p>
@@ -461,6 +515,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       {showAccounts && (
                         <div className="border-t border-border/20">
                           <div className="flex items-center bg-muted/10 px-3 py-1">
+                            <div className="w-4 shrink-0 mr-0.5" />
                             <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Account</span>
                             <div className="flex shrink-0">
                               <div className="w-28 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Billed</div>
@@ -469,18 +524,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                             </div>
                           </div>
                           {costAccounts.map((ca, i) => (
-                            <div key={i} className="flex items-center border-t border-border/10 px-3 py-1">
-                              <span className="flex-1 truncate text-[11px] font-medium text-foreground/80" title={ca.name}>{ca.name}</span>
-                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.amount < 0 && "text-emerald-500")}>
-                                {fmt(ca.amount)}
-                              </span>
-                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur)}>
-                                {fmt(ca.paid)}
-                              </span>
-                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>
-                                {fmt(ca.outstanding)}
-                              </span>
-                            </div>
+                            <AccountRow key={i} ca={ca} blur={blur} />
                           ))}
                         </div>
                       )}
