@@ -76,6 +76,26 @@ function CatRow({ name, amount, blur }: { name: string; amount: number; blur: st
   )
 }
 
+// A cost account row with nested sub-accounts (QB rolls children under parents).
+function AccountRow({ node, blur, depth = 0 }: { node: CostAccount; blur: string; depth?: number }) {
+  const neg = node.amount < 0
+  const hasKids = !!node.children?.length
+  return (
+    <>
+      <div className="flex items-center gap-2 py-1" style={{ paddingLeft: 4 + depth * 14 }}>
+        <span className={cn("truncate text-[11px]", depth === 0 ? "text-foreground" : "text-muted-foreground")} title={node.name}>
+          {node.name}
+        </span>
+        <span className={cn("ml-auto shrink-0 text-xs font-semibold tabular-nums", blur)}
+          style={neg ? { color: "#22c55e" } : undefined}>
+          {fmt(node.amount)}
+        </span>
+      </div>
+      {hasKids && node.children!.map(c => <AccountRow key={c.name} node={c} blur={blur} depth={depth + 1} />)}
+    </>
+  )
+}
+
 // ── Purchase Order card ───────────────────────────────────────────────────────
 
 function POCard({ po, blur }: { po: PORow; blur: string }) {
@@ -243,7 +263,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           </span>
                           <span className={`ml-auto text-[11px] font-bold tabular-nums text-muted-foreground ${blur}`}>{fmt(g.subtotal)}</span>
                         </div>
-                        {g.rows.map(r => <CatRow key={r.name} name={r.name} amount={r.amount} blur={blur} />)}
+                        {g.rows.map(r => <AccountRow key={r.name} node={r} blur={blur} />)}
                       </div>
                     ))}
                   </div>
