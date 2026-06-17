@@ -204,16 +204,15 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       {pctStr(data.received, data.projected_receive)} received
                     </span>
                   </div>
-                  <SegBar total={data.projected_receive} segments={[
+                  <SegBar total={Math.max(data.income_actual, data.projected_receive)} segments={[
                     { value: data.received, color: "#22c55e" },
                     { value: data.to_receive, color: "#f59e0b" },
-                    { value: Math.max(data.projected_receive - data.invoiced, 0), color: "#3f3f46" },
                   ]} />
                   <div className="flex flex-col gap-1.5">
-                    <Line label="Estimated (contract)" value={data.projected_receive} blur={blur} strong />
-                    <Line label="Invoiced" value={data.invoiced} blur={blur} pctOf={data.projected_receive} />
-                    <Line label="Received" value={data.received} color="#22c55e" dot="#22c55e" blur={blur} pctOf={data.projected_receive} />
-                    <Line label="To receive (open invoices)" value={data.to_receive} dot="#f59e0b" blur={blur} pctOf={data.projected_receive} />
+                    <Line label="Estimated (contract)" value={data.projected_receive} blur={blur} />
+                    <Line label="Income (actual)" value={data.income_actual} blur={blur} strong pctOf={data.projected_receive} />
+                    <Line label="Received" value={data.received} color="#22c55e" dot="#22c55e" blur={blur} />
+                    <Line label="To receive (open)" value={data.to_receive} dot="#f59e0b" blur={blur} />
                   </div>
                   {/* Income categories */}
                   <div className="mt-1 border-t border-border/40 pt-2">
