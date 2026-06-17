@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -323,14 +322,6 @@ func (h *BudgetHandler) Customers(c *fiber.Ctx) error {
 
 // ── Project detail ──────────────────────────────────────────────────────────
 
-type CategoryCost struct {
-	Name     string  `json:"name"`
-	Icon     string  `json:"icon"`
-	Actual   float64 `json:"actual"`
-	Max      float64 `json:"max"`       // 0 = no limit set
-	AlertPct float64 `json:"alert_pct"` // actual/max*100 (0 if no limit)
-}
-
 type POLineRow struct {
 	Description string  `json:"description"`
 	Amount      float64 `json:"amount"`
@@ -351,14 +342,20 @@ type PORow struct {
 	Lines      []POLineRow `json:"lines"`
 }
 
-// SubcontractorCategory aggregates Purchase Order commitment by vendor category.
-// committed = total PO amount, billed ≈ incurred, open = still to pay (open POs).
-type SubcontractorCategory struct {
-	Name      string  `json:"name"`
-	Icon      string  `json:"icon"`
-	Committed float64 `json:"committed"`
-	Billed    float64 `json:"billed"`
-	Open      float64 `json:"open"`
+// IncomeAccount is one receivable category (mirrors QB P&L by Project income
+// accounts: Sales +, Back Charges −, Extras +, Discounts −). Amount is signed.
+type IncomeAccount struct {
+	Name   string  `json:"name"`
+	Amount float64 `json:"amount"`
+}
+
+// CostAccount is one payable category = a QB GL account (mirrors QB P&L by Project
+// cost accounts), grouped by account type (Cost of Goods Sold / Expense / Other).
+// Amount is signed (vendor credits / refunds are negative).
+type CostAccount struct {
+	Name   string  `json:"name"`
+	Group  string  `json:"group"`
+	Amount float64 `json:"amount"`
 }
 
 type BudgetProjectDetail struct {
@@ -368,29 +365,26 @@ type BudgetProjectDetail struct {
 	ProjectType  string  `json:"project_type"`
 	MarginTarget float64 `json:"margin_target"`
 
-	// Income (receivable lifecycle)
-	ProjectedReceive float64 `json:"projected_receive"` // contract / estimate
-	Invoiced         float64 `json:"invoiced"`
-	Received         float64 `json:"received"`
-	ToReceive        float64 `json:"to_receive"` // invoiced - received
+	// Income (a receber)
+	ProjectedReceive float64         `json:"projected_receive"` // contract / estimate
+	Invoiced         float64         `json:"invoiced"`          // total billed (gross Sales)
+	Received         float64         `json:"received"`
+	ToReceive        float64         `json:"to_receive"` // invoiced - received
+	IncomeAccounts   []IncomeAccount `json:"income_accounts"`
 
-	// Cost (incurred via bills/purchases/vendor credits)
-	CostTotal   float64 `json:"cost_total"`
-	CostCeiling float64 `json:"cost_ceiling"` // estimate * (1 - margin)
-	Paid        float64 `json:"paid"`         // cost_total - open vendor bill balance
-	OpenPayable float64 `json:"open_payable"` // outstanding vendor bill balance
-	ToPay       float64 `json:"to_pay"`       // open_payable + open PO commitment
+	// Cost (a pagar) — incurred via bills/purchases/vendor credits
+	CostTotal    float64       `json:"cost_total"`
+	CostCeiling  float64       `json:"cost_ceiling"` // estimate * (1 - margin)
+	Paid         float64       `json:"paid"`         // cost_total - open vendor bill balance
+	OpenPayable  float64       `json:"open_payable"` // outstanding vendor bill balance
+	ToPay        float64       `json:"to_pay"`       // open_payable + open PO commitment
+	CostAccounts []CostAccount `json:"cost_accounts"`
 
 	// Forward subcontractor commitment (Purchase Orders)
 	LaborCommitted float64 `json:"labor_committed"`
 	LaborBilled    float64 `json:"labor_billed"`
 	LaborOpen      float64 `json:"labor_open"`
-
-	// Breakdowns
-	Categories              []CategoryCost          `json:"categories"`               // incurred cost by account category (materials/other)
-	SubcontractorCategories []SubcontractorCategory `json:"subcontractor_categories"` // PO commitment by vendor category
-	Uncategorized           float64                 `json:"uncategorized"`
-	PurchaseOrders          []PORow                 `json:"purchase_orders"`
+	PurchaseOrders []PORow `json:"purchase_orders"`
 }
 
 // GET /api/v1/budget/projects/detail?company=hvac&project_id=<customer_id>
@@ -425,8 +419,8 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	custRows.Close()
 	d.ProjectType = projectType(d.Name)
 
-	d.Categories = []CategoryCost{}
-	d.SubcontractorCategories = []SubcontractorCategory{}
+	d.IncomeAccounts = []IncomeAccount{}
+	d.CostAccounts = []CostAccount{}
 	d.PurchaseOrders = []PORow{}
 
 	if len(customerIDs) == 0 {
@@ -441,7 +435,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		SELECT COALESCE(SUM(amount),0) FROM (
 			SELECT amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
 			UNION ALL SELECT amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
-			UNION ALL SELECT amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT -amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
 		) x
 	`, company, customerIDs).Scan(&d.CostTotal)
 
@@ -462,46 +456,48 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	d.ToReceive = max0(d.Invoiced - d.Received)
 	d.Paid = max0(d.CostTotal - d.OpenPayable)
 
-	// Cost by account category (materials/other), with per-project limit override.
-	catRows, err := h.db.Query(ctx, `
-		WITH exp AS (
-			SELECT account_ref_id, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
-			UNION ALL SELECT account_ref_id, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
-			UNION ALL SELECT account_ref_id, amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
-		)
-		SELECT cat.id, cat.name, cat.icon, SUM(x.amount) AS actual,
-		       COALESCE(lim.max_value, cat.default_max, 0) AS max
-		FROM exp x
-		JOIN budget_account_categories bac
-		  ON bac.company=$1 AND bac.account_ref_id=x.account_ref_id AND bac.project_type=$3
-		JOIN budget_categories cat ON cat.id=bac.category_id
-		LEFT JOIN budget_project_category_limits lim
-		  ON lim.company=$1 AND lim.project_id=$4 AND lim.category_id=cat.id
-		GROUP BY cat.id, cat.name, cat.icon, COALESCE(lim.max_value, cat.default_max, 0)
-		ORDER BY actual DESC
-	`, company, customerIDs, d.ProjectType, projectID)
+	// Income by category (a receber). QB posts income via item income accounts which
+	// the current sync does not capture, so the only category we can attribute today
+	// is gross Sales (= invoiced). Back charges / extras / discounts await the income-
+	// account sync expansion.
+	if d.Invoiced != 0 {
+		d.IncomeAccounts = append(d.IncomeAccounts, IncomeAccount{Name: "Sales", Amount: d.Invoiced})
+	}
+
+	// Cost by QB account (a pagar), grouped by account type, vendor credits negative.
+	// Falls back to the line's stored account name for deleted/unsynced accounts.
+	costRows, err := h.db.Query(ctx, `
+		SELECT name, grp, amount FROM (
+			WITH exp AS (
+				SELECT account_ref_id, account_ref_name, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
+				UNION ALL SELECT account_ref_id, account_ref_name, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
+				UNION ALL SELECT account_ref_id, account_ref_name, -amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
+			)
+			SELECT COALESCE(NULLIF(a.name,''), NULLIF(x.account_ref_name,''), 'Uncategorized') AS name,
+			       CASE WHEN a.account_type IN ('Cost of Goods Sold','Expense') THEN a.account_type ELSE 'Other' END AS grp,
+			       SUM(x.amount) AS amount
+			FROM exp x
+			LEFT JOIN qb_accounts a ON a.company=$1 AND a.external_id=x.account_ref_id
+			GROUP BY 1, 2
+			HAVING SUM(x.amount) <> 0
+		) t
+		ORDER BY (CASE grp WHEN 'Cost of Goods Sold' THEN 0 WHEN 'Expense' THEN 1 ELSE 2 END), amount DESC
+	`, company, customerIDs)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	var categorized float64
-	for catRows.Next() {
-		var id string
-		var cc CategoryCost
-		catRows.Scan(&id, &cc.Name, &cc.Icon, &cc.Actual, &cc.Max)
-		if cc.Max > 0 {
-			cc.AlertPct = cc.Actual / cc.Max * 100
-		}
-		categorized += cc.Actual
-		d.Categories = append(d.Categories, cc)
+	for costRows.Next() {
+		var ca CostAccount
+		costRows.Scan(&ca.Name, &ca.Group, &ca.Amount)
+		d.CostAccounts = append(d.CostAccounts, ca)
 	}
-	catRows.Close()
-	d.Uncategorized = d.CostTotal - categorized
+	costRows.Close()
 
 	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
 		SELECT DISTINCT o.id::text, o.external_id, COALESCE(o.doc_number,''),
 		       to_char(o.txn_date,'YYYY-MM-DD'), COALESCE(o.vendor_name,''), COALESCE(o.po_status,''),
-		       COALESCE(vc_cat.name, ''), COALESCE(vc_cat.icon, '')
+		       COALESCE(vc_cat.name, '')
 		FROM qb_purchase_orders o
 		JOIN qb_purchase_order_lines pol ON pol.po_id = o.id
 		LEFT JOIN budget_vendor_categories bvc
@@ -514,15 +510,14 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	type poMeta struct {
-		internalID   string
-		categoryIcon string
-		row          PORow
+		internalID string
+		row        PORow
 	}
 	var pos []poMeta
 	for poRows.Next() {
 		var m poMeta
 		poRows.Scan(&m.internalID, &m.row.ExternalID, &m.row.DocNumber, &m.row.TxnDate,
-			&m.row.VendorName, &m.row.POStatus, &m.row.Category, &m.categoryIcon)
+			&m.row.VendorName, &m.row.POStatus, &m.row.Category)
 		m.row.Lines = []POLineRow{}
 		pos = append(pos, m)
 	}
@@ -564,39 +559,12 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		d.PurchaseOrders[i] = p.row
 	}
 
-	// Subcontractor commitment aggregated by vendor category + labor totals.
-	type scAgg struct {
-		icon                    string
-		committed, billed, open float64
-	}
-	scMap := map[string]*scAgg{}
+	// Labor totals across all POs (forward subcontractor commitment).
 	for _, p := range pos {
 		d.LaborCommitted += p.row.Committed
 		d.LaborBilled += p.row.Billed
 		d.LaborOpen += p.row.Open
-		cat := p.row.Category
-		icon := p.categoryIcon
-		if cat == "" {
-			cat = "Uncategorized"
-			icon = "HelpCircle"
-		}
-		a := scMap[cat]
-		if a == nil {
-			a = &scAgg{icon: icon}
-			scMap[cat] = a
-		}
-		a.committed += p.row.Committed
-		a.billed += p.row.Billed
-		a.open += p.row.Open
 	}
-	for name, a := range scMap {
-		d.SubcontractorCategories = append(d.SubcontractorCategories, SubcontractorCategory{
-			Name: name, Icon: a.icon, Committed: a.committed, Billed: a.billed, Open: a.open,
-		})
-	}
-	sort.Slice(d.SubcontractorCategories, func(i, j int) bool {
-		return d.SubcontractorCategories[i].Committed > d.SubcontractorCategories[j].Committed
-	})
 
 	d.ToPay = max0(d.OpenPayable) + max0(d.LaborOpen)
 
