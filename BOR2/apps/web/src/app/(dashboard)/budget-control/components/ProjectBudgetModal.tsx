@@ -3,7 +3,7 @@
 import { useState } from "react"
 import {
   X, ChevronRight, Loader2, Building2, Home, AlertTriangle,
-  Wallet, Coins, HardHat, Tag, ChevronDown, Receipt,
+  Wallet, Coins, HardHat, Tag, ChevronDown, Receipt, Check, Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
@@ -25,13 +25,52 @@ const pctStr = (part: number, whole: number) => `${pct(part, whole).toFixed(0)}%
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
-function SegBar({ total, segments }: { total: number; segments: { value: number; color: string }[] }) {
+type SegDef = { value: number; color: string; label?: string; icon?: React.ComponentType<{ className?: string }> }
+
+function SegBar({ total, segments, remainder }: {
+  total: number
+  segments: SegDef[]
+  remainder?: { label: string; value: number }
+}) {
+  const filledPct = segments.reduce((sum, s) => sum + (total > 0 ? (Math.max(s.value, 0) / total) * 100 : 0), 0)
+  const remainPct = Math.max(100 - filledPct, 0)
+
+  const tooltip = (label: string, value: number, color?: string) => (
+    <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-border/60 bg-popover px-2.5 py-1.5 text-[10px] font-medium text-popover-foreground shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
+      {color && <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ backgroundColor: color }} />}
+      {label}: <span className="font-bold">{fmt(value)}</span>
+    </div>
+  )
+
   return (
-    <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-      {segments.map((s, i) => {
-        const w = total > 0 ? Math.max((Math.max(s.value, 0) / total) * 100, 0) : 0
-        return <div key={i} className="h-full transition-all" style={{ width: `${w}%`, backgroundColor: s.color }} />
-      })}
+    <div className="relative h-6 w-full">
+      {/* Coloured segments — clipped to pill shape */}
+      <div className="absolute inset-0 flex overflow-hidden rounded-full bg-muted/30">
+        {segments.map((s, i) => {
+          const w = total > 0 ? (Math.max(s.value, 0) / total) * 100 : 0
+          return (
+            <div key={i} className="flex h-full items-center justify-center transition-all" style={{ width: `${w}%`, backgroundColor: s.color }}>
+              {s.icon && w > 10 && <s.icon className="h-3 w-3 text-white/80" />}
+            </div>
+          )
+        })}
+      </div>
+      {/* Transparent hover zones — outside overflow-hidden so tooltips aren't clipped */}
+      <div className="absolute inset-0 flex">
+        {segments.map((s, i) => {
+          const w = total > 0 ? (Math.max(s.value, 0) / total) * 100 : 0
+          return (
+            <div key={i} className="group relative h-full" style={{ width: `${w}%` }}>
+              {s.label && tooltip(s.label, s.value, s.color)}
+            </div>
+          )
+        })}
+        {remainder && remainPct > 0 && (
+          <div className="group relative h-full" style={{ width: `${remainPct}%` }}>
+            {tooltip(remainder.label, remainder.value)}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -294,22 +333,33 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-500">Income</span>
-                    <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {pctStr(data.received, data.projected_receive)} received
-                    </span>
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
+                      <span className={cn("text-xs font-semibold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
+                    </div>
                   </div>
                   <SegBar
                     total={Math.max(data.income_actual, data.projected_receive)}
                     segments={[
-                      { value: data.received, color: "#22c55e" },
-                      { value: data.to_receive, color: "#f59e0b" },
+                      { value: data.received, color: "#22c55e", label: "Received", icon: Check },
+                      { value: data.to_receive, color: "#f59e0b", label: "Outstanding", icon: Clock },
                     ]}
+                    remainder={{ label: "Estimated", value: data.projected_receive }}
                   />
-                  <div className="flex flex-col gap-1.5">
-                    <Line label="Estimated (contract)" value={data.projected_receive} blur={blur} />
-                    <Line label="Income (actual)" value={data.income_actual} blur={blur} strong pctOf={data.projected_receive} />
-                    <Line label="Received" value={data.received} color="#22c55e" dot="#22c55e" blur={blur} />
-                    <Line label="To receive (open AR)" value={data.to_receive} dot="#f59e0b" blur={blur} />
+                  {/* 3-column: Received | Outstanding | Estimated */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Received</span>
+                      <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.received)}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Outstanding</span>
+                      <span className={cn("text-lg font-bold tabular-nums text-amber-500", blur)}>{fmt(data.to_receive)}</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Estimated</span>
+                      <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.projected_receive)}</span>
+                    </div>
                   </div>
                   {incomeAccounts.length > 0 && (
                     <div className="border-t border-border/30 pt-2">
@@ -317,10 +367,17 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       {incomeAccounts.map(ia => (
                         <div key={ia.name} className="flex items-center gap-2 px-1 py-0.5">
                           <span className="truncate text-[11px] text-muted-foreground">{ia.name}</span>
-                          <span className={cn("ml-auto text-[11px] font-semibold tabular-nums", blur)}
-                            style={ia.amount < 0 ? { color: "#22c55e" } : undefined}>
-                            {fmt(ia.amount)}
-                          </span>
+                          <div className="ml-auto flex items-center gap-3">
+                            {ia.outstanding > 0 && (
+                              <span className="text-[10px] text-muted-foreground/50">
+                                out. <span className={cn("font-semibold text-amber-500", blur)}>{fmt(ia.outstanding)}</span>
+                              </span>
+                            )}
+                            <span className={cn("text-[11px] font-semibold tabular-nums", blur)}
+                              style={ia.amount < 0 ? { color: "#22c55e" } : undefined}>
+                              {fmt(ia.amount)}
+                            </span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -342,8 +399,8 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <SegBar
                     total={Math.max(data.cost_ceiling, data.cost_total)}
                     segments={[
-                      { value: data.paid, color: overCeiling ? "#ef4444" : "#f59e0b" },
-                      { value: data.open_payable, color: "#fbbf24" },
+                      { value: data.paid, color: overCeiling ? "#ef4444" : "#f59e0b", label: "Paid (bills)", icon: Receipt },
+                      { value: data.open_payable, color: "#fbbf24", label: "Outstanding", icon: Clock },
                     ]}
                   />
                   <div className="flex flex-col gap-1.5">
@@ -392,7 +449,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   )}
                   {costCategories.length > 0 && (
                     <div className="ml-auto flex items-center gap-4 text-[10px] tabular-nums text-muted-foreground">
-                      <span>Committed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
+                      <span>PO Value <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
                       <span>Billed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.billed)}</span></span>
                       <span>Paid <span className={cn("font-semibold text-emerald-600", blur)}>{fmt(catTotals.paid)}</span></span>
                       <span>Open <span className={cn("font-semibold", catTotals.open > 0 ? "text-amber-500" : "text-muted-foreground", blur)}>{fmt(catTotals.open)}</span></span>
@@ -405,7 +462,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center border-x border-border/40 bg-background/20 px-4 py-1">
                     <div className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
                     <div className="flex shrink-0 items-center gap-px">
-                      {(["committed", "billed", "paid", "open"] as const).map(lbl => (
+                      {(["PO value", "billed", "paid", "open"] as const).map(lbl => (
                         <div key={lbl} className="w-24 text-right pr-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
                           {lbl}
                         </div>
