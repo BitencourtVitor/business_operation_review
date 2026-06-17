@@ -50,6 +50,10 @@ func NewQBSyncJob(cfg QBSyncConfig) Job {
 
 			results := cfg.Syncer.SyncAll(ctx, clients)
 
+			// Propagate QB-side deletions: upsert never removes records deleted in
+			// QuickBooks, so reconcile after every sync to keep financials accurate.
+			cfg.Syncer.ReconcileDeletions(ctx, clients, quickbooks.ReconcileEntities)
+
 			var failed, succeeded int
 			for _, r := range results {
 				if r.Err != nil {

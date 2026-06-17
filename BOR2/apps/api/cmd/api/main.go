@@ -309,6 +309,7 @@ func main() {
 			}
 			logger.Info("qb sync trigger: starting", "companies", len(clients))
 			qbTriggerSyncer.SyncAll(ctx, clients)
+			qbTriggerSyncer.ReconcileDeletions(ctx, clients, quickbooks.ReconcileEntities)
 			logger.Info("qb sync trigger: done")
 		}()
 		return c.JSON(fiber.Map{"status": "sync started"})
