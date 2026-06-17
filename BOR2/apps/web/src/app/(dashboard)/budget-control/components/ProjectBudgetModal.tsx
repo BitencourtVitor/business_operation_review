@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail } from "@/hooks/use-budget"
-import type { CostAccount, CostCategory, CostVendor, PODetail } from "@/services/budget.service"
+import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
