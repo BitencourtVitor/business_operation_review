@@ -219,7 +219,8 @@ func upsertBills(ctx context.Context, db *pgxpool.Pool, company string, rows []j
 			continue
 		}
 
-		// Lines
+		// Lines — full replace so QB-side edits/removals don't leave orphan rows.
+		_, _ = db.Exec(ctx, `DELETE FROM qb_bill_lines WHERE company=$1 AND bill_id=$2`, company, billID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			detail, _ := line["AccountBasedExpenseLineDetail"]
@@ -382,6 +383,7 @@ func upsertEstimates(ctx context.Context, db *pgxpool.Pool, company string, rows
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_estimate_lines WHERE company=$1 AND estimate_id=$2`, company, estID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			var detail map[string]json.RawMessage
@@ -472,6 +474,7 @@ func upsertInvoices(ctx context.Context, db *pgxpool.Pool, company string, rows 
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_invoice_lines WHERE company=$1 AND invoice_id=$2`, company, invID)
 		for _, line := range lines(m) {
 			// Only real item lines carry financial detail; skip SubTotal/Group/Discount
 			// summary lines (they repeat the total and double-count otherwise).
@@ -615,6 +618,7 @@ func upsertPurchases(ctx context.Context, db *pgxpool.Pool, company string, rows
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_purchase_lines WHERE company=$1 AND purchase_id=$2`, company, purID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			var detail map[string]json.RawMessage
@@ -699,6 +703,7 @@ func upsertVendorCredits(ctx context.Context, db *pgxpool.Pool, company string, 
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_vendor_credit_lines WHERE company=$1 AND vendor_credit_id=$2`, company, vcID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			var detail map[string]json.RawMessage
@@ -783,6 +788,7 @@ func upsertDeposits(ctx context.Context, db *pgxpool.Pool, company string, rows 
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_deposit_lines WHERE company=$1 AND deposit_id=$2`, company, depID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			var detail map[string]json.RawMessage
@@ -874,6 +880,7 @@ func upsertPurchaseOrders(ctx context.Context, db *pgxpool.Pool, company string,
 			continue
 		}
 
+		_, _ = db.Exec(ctx, `DELETE FROM qb_purchase_order_lines WHERE company=$1 AND po_id=$2`, company, poID)
 		for _, line := range lines(m) {
 			lineID := str(line, "Id")
 			// PO lines carry either an account-based or item-based expense detail.
