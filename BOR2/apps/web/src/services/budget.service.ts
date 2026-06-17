@@ -5,42 +5,9 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
-export interface BudgetProject {
-  project_id: string
-  client_name: string
-  name: string
-  project_type: "house" | "building"
-  projected_receive: number
-  invoiced: number
-  received: number
-  to_receive: number
-  cost_total: number
-  cost_ceiling: number
-  over_ceiling: boolean
-  labor_committed: number
-  labor_billed: number
-  labor_open: number
-  to_pay: number
-  in_progress: boolean
-  potentially_closed: boolean
-}
-
 export interface BudgetCustomer {
   customer_id: string
   name: string
-}
-
-export interface BudgetSummary {
-  projected_receive: number
-  invoiced: number
-  received: number
-  to_receive: number
-  cost_total: number
-  labor_committed: number
-  labor_open: number
-  to_pay: number
-  projects: number
-  in_progress: number
 }
 
 export interface IncomeAccount {
@@ -78,16 +45,28 @@ export interface PORow {
   lines: POLineRow[]
 }
 
-export interface VendorPayment {
+export interface VendorBackCharge {
   date: string
   amount: number
   ref_number: string
 }
 
-export interface VendorBackCharge {
+export interface POPayment {
   date: string
   amount: number
   ref_number: string
+}
+
+export interface PODetail {
+  external_id: string
+  doc_number: string
+  txn_date: string
+  status: "open" | "settled"
+  committed: number
+  billed: number
+  paid: number
+  open: number
+  payments: POPayment[]
 }
 
 export interface CostVendor {
@@ -97,15 +76,15 @@ export interface CostVendor {
   billed: number
   paid: number
   open: number
-  payments: VendorPayment[]
   back_charges: VendorBackCharge[]
-  purchase_orders: PORow[]
+  purchase_orders: PODetail[]
 }
 
 export interface CostCategory {
   category_id: string
   category_name: string
   icon: string
+  budget_limit: number
   committed: number
   billed: number
   paid: number
@@ -131,9 +110,12 @@ export interface BudgetProjectDetail {
   // Cost (a pagar)
   cost_total: number
   cost_ceiling: number
+  over_ceiling: boolean
   paid: number
   open_payable: number
   to_pay: number
+  in_progress: boolean
+  potentially_closed: boolean
   cost_accounts: CostAccount[]
 
   // Forward subcontractor commitment (POs)
@@ -149,15 +131,10 @@ export interface BudgetProjectDetail {
 export type BudgetStatus = "all" | "in_progress" | "settled"
 
 export const budgetService = {
-  async getProjects(params: { company: string; status?: BudgetStatus }): Promise<BudgetProject[]> {
+  async getProjects(params: { company: string; status?: BudgetStatus }): Promise<BudgetProjectDetail[]> {
     const search = new URLSearchParams({ company: params.company })
     if (params.status && params.status !== "all") search.set("status", params.status)
-    return (await api.get<BudgetProject[]>(`/api/v1/budget/projects?${search}`, getToken())) ?? []
-  },
-
-  async getSummary(params: { company: string }): Promise<BudgetSummary | null> {
-    const search = new URLSearchParams({ company: params.company })
-    return api.get<BudgetSummary>(`/api/v1/budget/summary?${search}`, getToken())
+    return (await api.get<BudgetProjectDetail[]>(`/api/v1/budget/projects?${search}`, getToken())) ?? []
   },
 
   async getCustomers(params: { company: string }): Promise<BudgetCustomer[]> {

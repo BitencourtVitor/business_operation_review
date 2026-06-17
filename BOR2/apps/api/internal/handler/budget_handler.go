@@ -79,42 +79,8 @@ proj_key AS (
     FROM cust_proj
 )`
 
-// BudgetProject is one project (a single QB job/customer) for the list.
-type BudgetProject struct {
-	ProjectID         string  `json:"project_id"` // derived hierarchy key
-	ClientName        string  `json:"client_name"`
-	Name              string  `json:"name"`
-	ProjectType       string  `json:"project_type"`
-	ProjectedReceive  float64 `json:"projected_receive"` // estimate total (contract)
-	Invoiced          float64 `json:"invoiced"`
-	Received          float64 `json:"received"`
-	ToReceive         float64 `json:"to_receive"` // invoiced - received
-	CostTotal         float64 `json:"cost_total"`
-	CostCeiling       float64 `json:"cost_ceiling"` // estimate * (1 - margin)
-	OverCeiling       bool    `json:"over_ceiling"`
-	LaborCommitted    float64 `json:"labor_committed"`
-	LaborBilled       float64 `json:"labor_billed"`
-	LaborOpen         float64 `json:"labor_open"`
-	ToPay             float64 `json:"to_pay"` // open PO + open bill balance
-	InProgress        bool    `json:"in_progress"`
-	PotentiallyClosed bool    `json:"potentially_closed"`
-}
-
-type BudgetSummary struct {
-	ProjectedReceive float64 `json:"projected_receive"`
-	Invoiced         float64 `json:"invoiced"`
-	Received         float64 `json:"received"`
-	ToReceive        float64 `json:"to_receive"`
-	CostTotal        float64 `json:"cost_total"`
-	LaborCommitted   float64 `json:"labor_committed"`
-	LaborOpen        float64 `json:"labor_open"`
-	ToPay            float64 `json:"to_pay"`
-	Projects         int     `json:"projects"`
-	InProgress       int     `json:"in_progress"`
-}
-
-// projectsQuery returns one row per QB job/customer (project = customer_id).
-// %s is the optional year filter appended to the qb_estimates WHERE clause.
+// projectsQuery returns one row per QB job/customer for the project list.
+// %s is the optional year filter on qb_estimates.
 const projectsQuery = `WITH ` + custProjCTE + `,
 proj AS (
     SELECT pkey, MAX(pname) AS pname, MAX(client) AS client FROM proj_key GROUP BY pkey
@@ -139,9 +105,9 @@ pay AS (
 ),
 exp AS (
     SELECT pk.pkey, x.amount FROM (
-        SELECT customer_id, amount FROM qb_bill_lines          WHERE company=$1
-        UNION ALL SELECT customer_id, amount FROM qb_purchase_lines      WHERE company=$1
-        UNION ALL SELECT customer_id, amount FROM qb_vendor_credit_lines WHERE company=$1
+        SELECT customer_id,  amount FROM qb_bill_lines          WHERE company=$1
+        UNION ALL SELECT customer_id,  amount FROM qb_purchase_lines      WHERE company=$1
+        UNION ALL SELECT customer_id, -amount FROM qb_vendor_credit_lines WHERE company=$1
     ) x JOIN proj_key pk ON pk.customer_id = x.customer_id
     WHERE x.customer_id<>''
 ),
@@ -185,47 +151,9 @@ WHERE COALESCE(e.total,0) <> 0 OR COALESCE(i.total,0) <> 0 OR COALESCE(pa.total,
 ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
 `
 
-func (h *BudgetHandler) queryProjects(c *fiber.Ctx, company string, year int, hasYear bool) ([]BudgetProject, error) {
-	yearFilter := ""
-	args := []any{company}
-	if hasYear {
-		yearFilter = " AND EXTRACT(YEAR FROM txn_date) = $2"
-		args = append(args, year)
-	}
-	q := fmt.Sprintf(projectsQuery, yearFilter)
-
-	rows, err := h.db.Query(c.Context(), q, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	const eps = 1.0 // dollars tolerance for "settled"
-	var out []BudgetProject
-	for rows.Next() {
-		var p BudgetProject
-		var openPayable, invBalance float64
-		if err := rows.Scan(
-			&p.ProjectID, &p.ClientName, &p.Name,
-			&p.ProjectedReceive, &p.Invoiced, &p.Received, &p.CostTotal, &openPayable,
-			&p.LaborCommitted, &p.LaborBilled, &p.LaborOpen, &invBalance,
-		); err != nil {
-			return nil, err
-		}
-		p.ProjectType = projectType(p.Name)
-		p.ToReceive = max0(invBalance)
-		p.ToPay = max0(p.LaborOpen) + max0(openPayable)
-		p.CostCeiling = p.ProjectedReceive * (1 - profitMargin)
-		p.OverCeiling = p.CostCeiling > 0 && p.CostTotal > p.CostCeiling
-		hasActivity := p.Received > 0 || p.CostTotal > 0 || p.Invoiced > 0
-		p.PotentiallyClosed = hasActivity && p.ToReceive <= eps && p.ToPay <= eps
-		p.InProgress = hasActivity && !p.PotentiallyClosed
-		out = append(out, p)
-	}
-	return out, rows.Err()
-}
-
 // GET /api/v1/budget/projects?company=hvac[&year=2025][&status=in_progress|settled]
+// Returns []BudgetProjectDetail with header fields populated; line-item arrays are empty.
+// Summary KPIs are computed client-side by aggregating the returned slice.
 func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 	company := c.Query("company")
 	if company == "" {
@@ -237,62 +165,66 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 	}
 	statusFilter := c.Query("status")
 
-	projects, qerr := h.queryProjects(c, company, year, hasYear)
-	if qerr != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, qerr.Error())
+	yearFilter := ""
+	args := []any{company}
+	if hasYear {
+		yearFilter = " AND EXTRACT(YEAR FROM txn_date) = $2"
+		args = append(args, year)
 	}
 
-	filtered := projects[:0]
-	for _, p := range projects {
+	rows, err := h.db.Query(c.Context(), fmt.Sprintf(projectsQuery, yearFilter), args...)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	const eps = 1.0
+	var out []BudgetProjectDetail
+	for rows.Next() {
+		var d BudgetProjectDetail
+		var openPayable, invBalance float64
+		if err := rows.Scan(
+			&d.ProjectID, &d.ClientName, &d.Name,
+			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.CostTotal, &openPayable,
+			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &invBalance,
+		); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		d.ProjectType = projectType(d.Name)
+		d.MarginTarget = profitMargin
+		d.ToReceive = max0(invBalance)
+		d.OpenPayable = max0(openPayable)
+		d.Paid = max0(d.CostTotal - d.OpenPayable)
+		d.ToPay = max0(d.LaborOpen) + max0(openPayable)
+		d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
+		d.OverCeiling = d.CostCeiling > 0 && d.CostTotal > d.CostCeiling
+		hasActivity := d.Received > 0 || d.CostTotal > 0 || d.Invoiced > 0
+		d.PotentiallyClosed = hasActivity && d.ToReceive <= eps && d.ToPay <= eps
+		d.InProgress = hasActivity && !d.PotentiallyClosed
+		d.IncomeAccounts = []IncomeAccount{}
+		d.CostAccounts = []CostAccount{}
+		d.PurchaseOrders = []PORow{}
+		d.CostCategories = []CostCategory{}
+
 		switch statusFilter {
 		case "in_progress":
-			if !p.InProgress {
+			if !d.InProgress {
 				continue
 			}
 		case "settled":
-			if !p.PotentiallyClosed {
+			if !d.PotentiallyClosed {
 				continue
 			}
 		}
-		filtered = append(filtered, p)
+		out = append(out, d)
 	}
-	if filtered == nil {
-		filtered = []BudgetProject{}
+	if err := rows.Err(); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(fiber.Map{"data": filtered})
-}
-
-// GET /api/v1/budget/summary?company=hvac[&year=2025]
-func (h *BudgetHandler) Summary(c *fiber.Ctx) error {
-	company := c.Query("company")
-	if company == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	if out == nil {
+		out = []BudgetProjectDetail{}
 	}
-	year, hasYear, err := parseYear(c.Query("year"))
-	if err != nil {
-		return err
-	}
-
-	projects, qerr := h.queryProjects(c, company, year, hasYear)
-	if qerr != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, qerr.Error())
-	}
-
-	sum := BudgetSummary{Projects: len(projects)}
-	for _, p := range projects {
-		sum.ProjectedReceive += p.ProjectedReceive
-		sum.Invoiced += p.Invoiced
-		sum.Received += p.Received
-		sum.ToReceive += p.ToReceive
-		sum.CostTotal += p.CostTotal
-		sum.LaborCommitted += p.LaborCommitted
-		sum.LaborOpen += p.LaborOpen
-		sum.ToPay += p.ToPay
-		if p.InProgress {
-			sum.InProgress++
-		}
-	}
-	return c.JSON(fiber.Map{"data": sum})
+	return c.JSON(fiber.Map{"data": out})
 }
 
 // ── Raw customers (for the Project Assignment admin page) ─────────────────────
@@ -441,12 +373,15 @@ type BudgetProjectDetail struct {
 	IncomeAccounts   []IncomeAccount `json:"income_accounts"`
 
 	// Cost (a pagar) — incurred via bills/purchases/vendor credits
-	CostTotal    float64       `json:"cost_total"`
-	CostCeiling  float64       `json:"cost_ceiling"` // estimate * (1 - margin)
-	Paid         float64       `json:"paid"`         // cost_total - open vendor bill balance
-	OpenPayable  float64       `json:"open_payable"` // outstanding vendor bill balance
-	ToPay        float64       `json:"to_pay"`       // open_payable + open PO commitment
-	CostAccounts []CostAccount `json:"cost_accounts"`
+	CostTotal         float64       `json:"cost_total"`
+	CostCeiling       float64       `json:"cost_ceiling"` // estimate * (1 - margin)
+	OverCeiling       bool          `json:"over_ceiling"`
+	Paid              float64       `json:"paid"`         // cost_total - open vendor bill balance
+	OpenPayable       float64       `json:"open_payable"` // outstanding vendor bill balance
+	ToPay             float64       `json:"to_pay"`       // open_payable + open PO commitment
+	InProgress        bool          `json:"in_progress"`
+	PotentiallyClosed bool          `json:"potentially_closed"`
+	CostAccounts      []CostAccount `json:"cost_accounts"`
 
 	// Forward subcontractor commitment (Purchase Orders)
 	LaborCommitted float64 `json:"labor_committed"`

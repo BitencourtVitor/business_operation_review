@@ -294,13 +294,14 @@ func main() {
 			ctx := context.Background()
 			var clients []*quickbooks.Client
 			for _, company := range quickbooks.AllCompanies {
-				at, realm, err := qbOAuthService.GetAccessToken(ctx, string(company))
+				at, rt, realm, cid, csec, err := qbOAuthService.SyncClientConfig(ctx, string(company))
 				if err != nil {
 					logger.Error("qb sync trigger: token unavailable", "company", company, "error", err)
 					continue
 				}
 				clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
 					RealmID: realm, AccessToken: at,
+					RefreshToken: rt, ClientID: cid, ClientSecret: csec,
 				}, qbTriggerSandbox))
 			}
 			if len(clients) == 0 {
@@ -487,7 +488,6 @@ func main() {
 	budget := api.Group("/budget")
 	budget.Get("/projects",        budgetHandler.Projects)
 	budget.Get("/projects/detail", budgetHandler.ProjectDetail)
-	budget.Get("/summary",         budgetHandler.Summary)
 	budget.Get("/customers",       budgetHandler.Customers)
 	// Taxonomy management (categories, mappings, per-project limits)
 	budget.Get("/categories",            budgetTaxonomyHandler.ListCategories)
