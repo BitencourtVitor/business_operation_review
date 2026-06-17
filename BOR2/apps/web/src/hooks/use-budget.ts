@@ -9,14 +9,6 @@ export function useBudgetProjects(params: { company: string; status?: BudgetStat
   })
 }
 
-export function useBudgetSummary(params: { company: string }) {
-  return useQuery({
-    queryKey: ["budget-summary", params.company],
-    queryFn: () => budgetService.getSummary(params),
-    enabled: !!params.company,
-  })
-}
-
 export function useBudgetCustomers(params: { company: string }) {
   return useQuery({
     queryKey: ["budget-customers", params.company],

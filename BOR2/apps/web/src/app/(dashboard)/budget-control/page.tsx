@@ -16,8 +16,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetProjects, useBudgetSummary } from "@/hooks/use-budget"
-import type { BudgetProject, BudgetStatus } from "@/services/budget.service"
+import { useBudgetProjects } from "@/hooks/use-budget"
+import type { BudgetProjectDetail, BudgetStatus } from "@/services/budget.service"
 import { ProjectBudgetModal } from "./components/ProjectBudgetModal"
 import { Segmented } from "./components/Segmented"
 
@@ -85,9 +85,12 @@ function Bar({ part, whole, color }: { part: number; whole: number; color: strin
 // ── Project Card ──────────────────────────────────────────────────────────────
 
 function ProjectCard({ p, blur, onOpen }: {
-  p: BudgetProject; blur: string; onOpen: () => void
+  p: BudgetProjectDetail; blur: string; onOpen: () => void
 }) {
   const hasLabor = p.labor_committed > 0
+  const marginPct = p.invoiced > 0 ? Math.round(((p.invoiced - p.cost_total) / p.invoiced) * 100) : 0
+  const positiveMargin = p.invoiced >= p.cost_total
+
   return (
     <button onClick={onOpen}
       className="flex w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left transition-all hover:border-border hover:shadow-md md:flex-row md:items-stretch">
@@ -97,7 +100,7 @@ function ProjectCard({ p, blur, onOpen }: {
         {p.project_type === "building"
           ? <Building2 className="h-4 w-4 shrink-0 text-muted-foreground/60" />
           : <Home      className="h-4 w-4 shrink-0 text-muted-foreground/60" />}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <p className="line-clamp-2 text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
           {p.client_name && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
@@ -105,6 +108,12 @@ function ProjectCard({ p, blur, onOpen }: {
               <span className="truncate">{p.client_name}</span>
             </div>
           )}
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50">Profit Margin</span>
+            <span className={cn("text-[11px] font-bold tabular-nums", positiveMargin ? "text-primary" : "text-destructive", blur)}>
+              {marginPct}%
+            </span>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {p.potentially_closed && (
@@ -130,50 +139,80 @@ function ProjectCard({ p, blur, onOpen }: {
         </div>
       </div>
 
-      {/* Receivable */}
+      {/* Income */}
       <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
         <div className="flex items-center gap-1.5">
           <Wallet className="h-3.5 w-3.5 text-emerald-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Receivable</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Income</span>
           <span className="ml-auto text-[10px] text-muted-foreground">
             {pct(p.received, p.projected_receive).toFixed(0)}% received
           </span>
         </div>
-        <Bar part={p.received} whole={p.projected_receive} color="#22c55e" />
+        {/* 3-segment bar: received | outstanding | remaining */}
+        <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+          <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct(p.received, p.projected_receive)}%` }} />
+          <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.to_receive, p.projected_receive)}%` }} />
+        </div>
         <div className="flex flex-col gap-1">
-          <MetricRow label="Estimated"  value={p.projected_receive} blur={blur} strong />
-          <MetricRow label="Received"   value={p.received}          color="#22c55e" blur={blur} />
-          <MetricRow label="To receive" value={p.to_receive}        blur={blur} />
+          <MetricRow label="Estimated" value={p.projected_receive} blur={blur} strong />
+          <MetricRow label="Invoiced"  value={p.invoiced}          blur={blur} />
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Received</span>
+              <span className={cn("text-[11px] font-semibold tabular-nums text-emerald-500", blur)}>{fmt(p.received)}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground/40">|</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Outstanding</span>
+              <span className={cn("text-[11px] font-semibold tabular-nums", p.to_receive > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.to_receive)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Cost vs ceiling */}
+      {/* Cost */}
       <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
         <div className="flex items-center gap-1.5">
+          <HandCoins className="h-3.5 w-3.5 text-red-400" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Cost</span>
-          <span className="ml-auto text-[10px] text-muted-foreground">ceiling {fmtShort(p.cost_ceiling)}</span>
+          <span className="ml-auto text-[10px] text-muted-foreground">
+            {pct(p.cost_total, p.cost_ceiling).toFixed(0)}% of budget
+          </span>
         </div>
-        <Bar part={p.cost_total} whole={p.cost_ceiling} color={p.over_ceiling ? "#ef4444" : "#f59e0b"} />
+        {/* 3-segment bar: paid | outstanding bills | remaining vs budget */}
+        <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+          <div className="h-full transition-all" style={{ width: `${pct(p.paid, p.cost_ceiling)}%`, backgroundColor: p.over_ceiling ? "#ef4444" : "#f59e0b" }} />
+          <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.open_payable, p.cost_ceiling)}%` }} />
+        </div>
         <div className="flex flex-col gap-1">
-          <MetricRow label="Spent"   value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} strong />
-          <MetricRow label="To pay"  value={p.to_pay} color={p.to_pay > 0 ? "#f59e0b" : undefined} blur={blur} />
+          <MetricRow label="Cost Budget" value={p.cost_ceiling} blur={blur} strong />
+          <MetricRow label="Total"       value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Paid</span>
+              <span className={cn("text-[11px] font-semibold tabular-nums", p.over_ceiling ? "text-red-400" : "text-amber-400", blur)}>{fmt(p.paid)}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground/40">|</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Outstanding</span>
+              <span className={cn("text-[11px] font-semibold tabular-nums", p.open_payable > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.open_payable)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Subcontractors */}
+      {/* Contractors */}
       <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
           <HardHat className="h-3.5 w-3.5 text-amber-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Subcontractors</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Contractors</span>
         </div>
         {hasLabor ? (
           <>
             <Bar part={p.labor_billed} whole={p.labor_committed} color="#f59e0b" />
             <div className="flex flex-col gap-1">
-              <MetricRow label="Committed" value={p.labor_committed} blur={blur} strong />
-              <MetricRow label="Billed"    value={p.labor_billed}    blur={blur} />
-              <MetricRow label="Open (unpaid)" value={p.labor_open}
-                color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
+              <MetricRow label="Contracted"  value={p.labor_committed} blur={blur} strong />
+              <MetricRow label="Outstanding" value={p.labor_open} color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
             </div>
           </>
         ) : (
@@ -209,7 +248,6 @@ function BudgetContent() {
   const [sortAsc,   setSortAsc]   = useState(false)
   const [detailID,  setDetailID]  = useState<string | null>(null)
 
-  const { data: summary,  isLoading: sumLoading  } = useBudgetSummary({ company })
   const { data: projects, isLoading: projLoading } = useBudgetProjects({ company, status })
 
   const rows = useMemo(() => (projects ?? [])
@@ -222,9 +260,20 @@ function BudgetContent() {
     }),
   [projects, search, sortField, sortAsc])
 
-  if (sumLoading && projLoading) return <PageSkeleton />
+  const summary = useMemo(() => {
+    const all = projects ?? []
+    return {
+      projected_receive: all.reduce((s, p) => s + p.projected_receive, 0),
+      received:          all.reduce((s, p) => s + p.received, 0),
+      cost_total:        all.reduce((s, p) => s + p.cost_total, 0),
+      to_pay:            all.reduce((s, p) => s + p.to_pay, 0),
+      in_progress:       all.filter(p => p.in_progress).length,
+    }
+  }, [projects])
 
-  const s = summary
+  if (projLoading) return <PageSkeleton />
+
+  const s = projects ? summary : null
   const collectionRate = s && s.projected_receive > 0 ? (s.received / s.projected_receive * 100) : 0
   const grossMargin    = s && s.received > 0          ? ((s.received - s.cost_total) / s.received * 100) : 0
 
