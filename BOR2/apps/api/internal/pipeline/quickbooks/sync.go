@@ -12,8 +12,8 @@ import (
 
 const (
 	// maxConcurrent is the semaphore size — max simultaneous QB API requests.
-	// QB rate limit is 500 req/min per app; 10 concurrent workers is safe.
-	maxConcurrent = 10
+	// QB rate limit is 500 req/min per app; keep at 9 to stay safely below.
+	maxConcurrent = 9
 )
 
 // Syncer orchestrates concurrent QB sync across all companies and entities.
