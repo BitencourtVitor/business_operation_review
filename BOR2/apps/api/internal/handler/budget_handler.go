@@ -336,6 +336,7 @@ type PORow struct {
 	ExternalID string      `json:"external_id"`
 	DocNumber  string      `json:"doc_number"`
 	TxnDate    string      `json:"txn_date"`
+	VendorID   string      `json:"vendor_id"`
 	VendorName string      `json:"vendor_name"`
 	Category   string      `json:"category"`
 	POStatus   string      `json:"po_status"`
@@ -343,6 +344,37 @@ type PORow struct {
 	Billed     float64     `json:"billed"`
 	Open       float64     `json:"open"`
 	Lines      []POLineRow `json:"lines"`
+}
+
+// VendorPayment is one recorded payment against a vendor's bills for a project.
+type VendorPayment struct {
+	Date      string  `json:"date"`
+	Amount    float64 `json:"amount"`
+	RefNumber string  `json:"ref_number"`
+}
+
+// CostVendor aggregates one subcontractor's PO commitments and payment history.
+type CostVendor struct {
+	VendorID       string          `json:"vendor_id"`
+	VendorName     string          `json:"vendor_name"`
+	Committed      float64         `json:"committed"`
+	Billed         float64         `json:"billed"`
+	Paid           float64         `json:"paid"`
+	Open           float64         `json:"open"` // max(committed − paid, 0)
+	Payments       []VendorPayment `json:"payments"`
+	PurchaseOrders []PORow         `json:"purchase_orders"`
+}
+
+// CostCategory groups subcontractors (vendors) by the user-defined budget category.
+type CostCategory struct {
+	CategoryID   string       `json:"category_id"`
+	CategoryName string       `json:"category_name"`
+	Icon         string       `json:"icon"`
+	Committed    float64      `json:"committed"`
+	Billed       float64      `json:"billed"`
+	Paid         float64      `json:"paid"`
+	Open         float64      `json:"open"`
+	Vendors      []CostVendor `json:"vendors"`
 }
 
 // IncomeAccount is one receivable category (mirrors QB P&L by Project income
@@ -392,6 +424,9 @@ type BudgetProjectDetail struct {
 	LaborBilled    float64 `json:"labor_billed"`
 	LaborOpen      float64 `json:"labor_open"`
 	PurchaseOrders []PORow `json:"purchase_orders"`
+
+	// Cost grouped by user-defined category (vendor → payments hierarchy).
+	CostCategories []CostCategory `json:"cost_categories"`
 }
 
 // GET /api/v1/budget/projects/detail?company=hvac&project_id=<customer_id>
@@ -429,6 +464,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	d.IncomeAccounts = []IncomeAccount{}
 	d.CostAccounts = []CostAccount{}
 	d.PurchaseOrders = []PORow{}
+	d.CostCategories = []CostCategory{}
 
 	if len(customerIDs) == 0 {
 		return c.JSON(fiber.Map{"data": d})
@@ -504,8 +540,8 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
 		SELECT DISTINCT o.id::text, o.external_id, COALESCE(o.doc_number,''),
-		       to_char(o.txn_date,'YYYY-MM-DD'), COALESCE(o.vendor_name,''), COALESCE(o.po_status,''),
-		       COALESCE(vc_cat.name, '')
+		       to_char(o.txn_date,'YYYY-MM-DD'), COALESCE(o.vendor_id,''), COALESCE(o.vendor_name,''),
+		       COALESCE(o.po_status,''), COALESCE(vc_cat.name, '')
 		FROM qb_purchase_orders o
 		JOIN qb_purchase_order_lines pol ON pol.po_id = o.id
 		LEFT JOIN budget_vendor_categories bvc
@@ -525,7 +561,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	for poRows.Next() {
 		var m poMeta
 		poRows.Scan(&m.internalID, &m.row.ExternalID, &m.row.DocNumber, &m.row.TxnDate,
-			&m.row.VendorName, &m.row.POStatus, &m.row.Category)
+			&m.row.VendorID, &m.row.VendorName, &m.row.POStatus, &m.row.Category)
 		m.row.Lines = []POLineRow{}
 		pos = append(pos, m)
 	}
@@ -576,7 +612,204 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 
 	d.ToPay = max0(d.OpenPayable) + max0(d.LaborOpen)
 
+	d.CostCategories, _ = h.costCategoryTree(ctx, company, d.ProjectType, customerIDs, d.PurchaseOrders)
+
 	return c.JSON(fiber.Map{"data": d})
+}
+
+// costCategoryTree groups the project's POs by user-defined budget category, adding
+// per-vendor payment history sourced from bills that have lines on this project.
+// open = max(committed − paid, 0) — total uncommitted exposure per vendor.
+func (h *BudgetHandler) costCategoryTree(
+	ctx context.Context, company, projType string,
+	customerIDs []string, pos []PORow,
+) ([]CostCategory, error) {
+	if len(pos) == 0 {
+		return []CostCategory{}, nil
+	}
+
+	// ── 1. Payments per vendor via bills with lines on this project's customers ─
+	type pmt struct {
+		date, ref string
+		amount    float64
+	}
+	vendorPmts := map[string][]pmt{}
+	{
+		rows, err := h.db.Query(ctx, `
+			WITH pb AS (
+				SELECT DISTINCT b.id, b.external_id, b.vendor_id
+				FROM qb_bills b
+				JOIN qb_bill_lines bl ON bl.bill_id = b.id AND bl.company = $1
+				WHERE b.company = $1 AND bl.customer_id = ANY($2)
+			)
+			SELECT pb.vendor_id,
+			       to_char(bp.txn_date,'YYYY-MM-DD'),
+			       bpl.amount,
+			       COALESCE(NULLIF(bp.doc_number,''), bp.external_id, '')
+			FROM pb
+			JOIN qb_bill_payment_links bpl
+			     ON bpl.txn_id = pb.external_id AND bpl.txn_type = 'Bill' AND bpl.company = $1
+			JOIN qb_bill_payments bp ON bp.id = bpl.bill_payment_id AND bp.company = $1
+			ORDER BY pb.vendor_id, bp.txn_date
+		`, company, customerIDs)
+		if err == nil {
+			for rows.Next() {
+				var vendorID, date, ref string
+				var amt float64
+				rows.Scan(&vendorID, &date, &amt, &ref)
+				vendorPmts[vendorID] = append(vendorPmts[vendorID], pmt{date, ref, amt})
+			}
+			rows.Close()
+		}
+	}
+
+	// ── 2. Vendor → category mapping ─────────────────────────────────────────
+	type catDef struct {
+		id, name, icon string
+		sortOrder      int
+	}
+	vendorCat := map[string]catDef{}
+	catsByID := map[string]catDef{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT bvc.vendor_id, bc.id::text, bc.name, COALESCE(NULLIF(bc.icon,''),'Tag'), bc.sort_order
+			FROM budget_vendor_categories bvc
+			JOIN budget_categories bc ON bc.id = bvc.category_id AND bc.active = true
+			WHERE bvc.company = $1 AND bvc.project_type = $2
+		`, company, projType)
+		if err == nil {
+			for rows.Next() {
+				var vendorID, catID, catName, icon string
+				var sortOrder int
+				rows.Scan(&vendorID, &catID, &catName, &icon, &sortOrder)
+				cd := catDef{catID, catName, icon, sortOrder}
+				vendorCat[vendorID] = cd
+				catsByID[catID] = cd
+			}
+			rows.Close()
+		}
+	}
+
+	// ── 3. Aggregate POs per vendor (preserving insertion order) ─────────────
+	type vendorAgg struct {
+		id, name, catID string
+		committed, billed float64
+		pmts []VendorPayment
+		pos  []PORow
+	}
+	vendorOrder := []string{}
+	vendorMap := map[string]*vendorAgg{}
+	for _, po := range pos {
+		vid := po.VendorID
+		if vid == "" {
+			vid = "__" + po.VendorName
+		}
+		if _, ok := vendorMap[vid]; !ok {
+			cat := vendorCat[vid]
+			vendorMap[vid] = &vendorAgg{id: vid, name: po.VendorName, catID: cat.id}
+			vendorOrder = append(vendorOrder, vid)
+		}
+		vd := vendorMap[vid]
+		vd.committed += po.Committed
+		vd.billed += po.Billed
+		vd.pos = append(vd.pos, po)
+	}
+
+	// attach payment records
+	for vid, pmts := range vendorPmts {
+		if vd, ok := vendorMap[vid]; ok {
+			for _, p := range pmts {
+				vd.pmts = append(vd.pmts, VendorPayment{Date: p.date, Amount: p.amount, RefNumber: p.ref})
+			}
+		}
+	}
+
+	// ── 4. Group vendors by category ─────────────────────────────────────────
+	type catGroup struct {
+		def     catDef
+		vendors []*vendorAgg
+	}
+	catOrderSlice := []string{}
+	catMap := map[string]*catGroup{}
+	var uncatVendors []*vendorAgg
+
+	for _, vid := range vendorOrder {
+		vd := vendorMap[vid]
+		if vd.catID == "" {
+			uncatVendors = append(uncatVendors, vd)
+			continue
+		}
+		if _, ok := catMap[vd.catID]; !ok {
+			catMap[vd.catID] = &catGroup{def: catsByID[vd.catID]}
+			catOrderSlice = append(catOrderSlice, vd.catID)
+		}
+		catMap[vd.catID].vendors = append(catMap[vd.catID].vendors, vd)
+	}
+
+	sort.Slice(catOrderSlice, func(i, j int) bool {
+		a, b := catsByID[catOrderSlice[i]], catsByID[catOrderSlice[j]]
+		if a.sortOrder != b.sortOrder {
+			return a.sortOrder < b.sortOrder
+		}
+		return a.name < b.name
+	})
+
+	// ── 5. Assemble output ────────────────────────────────────────────────────
+	mkVendor := func(vd *vendorAgg) CostVendor {
+		var paidTotal float64
+		for _, p := range vd.pmts {
+			paidTotal += p.Amount
+		}
+		pmts := vd.pmts
+		if pmts == nil {
+			pmts = []VendorPayment{}
+		}
+		poSlice := vd.pos
+		if poSlice == nil {
+			poSlice = []PORow{}
+		}
+		return CostVendor{
+			VendorID:       vd.id,
+			VendorName:     vd.name,
+			Committed:      vd.committed,
+			Billed:         vd.billed,
+			Paid:           paidTotal,
+			Open:           max0(vd.committed - paidTotal),
+			Payments:       pmts,
+			PurchaseOrders: poSlice,
+		}
+	}
+
+	mkCat := func(def catDef, vendors []*vendorAgg) CostCategory {
+		cc := CostCategory{
+			CategoryID:   def.id,
+			CategoryName: def.name,
+			Icon:         def.icon,
+			Vendors:      make([]CostVendor, 0, len(vendors)),
+		}
+		for _, vd := range vendors {
+			cv := mkVendor(vd)
+			cc.Vendors = append(cc.Vendors, cv)
+			cc.Committed += cv.Committed
+			cc.Billed += cv.Billed
+			cc.Paid += cv.Paid
+			cc.Open += cv.Open
+		}
+		sort.Slice(cc.Vendors, func(i, j int) bool {
+			return cc.Vendors[i].Committed > cc.Vendors[j].Committed
+		})
+		return cc
+	}
+
+	out := make([]CostCategory, 0, len(catOrderSlice)+1)
+	for _, catID := range catOrderSlice {
+		cg := catMap[catID]
+		out = append(out, mkCat(cg.def, cg.vendors))
+	}
+	if len(uncatVendors) > 0 {
+		out = append(out, mkCat(catDef{name: "Uncategorized", icon: "Tag"}, uncatVendors))
+	}
+	return out, nil
 }
 
 // costAccountTree builds the project's cost broken down by QB GL account, nested
