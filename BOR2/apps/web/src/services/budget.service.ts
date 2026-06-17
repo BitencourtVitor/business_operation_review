@@ -6,7 +6,8 @@ function getToken() {
 }
 
 export interface BudgetProject {
-  customer_id: string
+  project_id: string
+  client_name: string
   name: string
   project_type: "house" | "building"
   projected_receive: number
@@ -22,6 +23,11 @@ export interface BudgetProject {
   to_pay: number
   in_progress: boolean
   potentially_closed: boolean
+}
+
+export interface BudgetCustomer {
+  customer_id: string
+  name: string
 }
 
 export interface BudgetSummary {
@@ -65,17 +71,38 @@ export interface PORow {
   lines: POLineRow[]
 }
 
+export interface SubcontractorCategory {
+  name: string
+  icon: string
+  committed: number
+  billed: number
+  open: number
+}
+
 export interface BudgetProjectDetail {
-  customer_id: string
+  project_id: string
+  client_name: string
   name: string
   project_type: "house" | "building"
+  margin_target: number
+
   projected_receive: number
   invoiced: number
   received: number
+  to_receive: number
+
   cost_total: number
   cost_ceiling: number
-  margin_target: number
+  paid: number
+  open_payable: number
+  to_pay: number
+
+  labor_committed: number
+  labor_billed: number
+  labor_open: number
+
   categories: CategoryCost[]
+  subcontractor_categories: SubcontractorCategory[]
   uncategorized: number
   purchase_orders: PORow[]
 }
@@ -94,8 +121,13 @@ export const budgetService = {
     return api.get<BudgetSummary>(`/api/v1/budget/summary?${search}`, getToken())
   },
 
-  async getDetail(params: { company: string; customer_id: string }): Promise<BudgetProjectDetail | null> {
-    const search = new URLSearchParams({ company: params.company, customer_id: params.customer_id })
+  async getCustomers(params: { company: string }): Promise<BudgetCustomer[]> {
+    const search = new URLSearchParams({ company: params.company })
+    return (await api.get<BudgetCustomer[]>(`/api/v1/budget/customers?${search}`, getToken())) ?? []
+  },
+
+  async getDetail(params: { company: string; project_id: string }): Promise<BudgetProjectDetail | null> {
+    const search = new URLSearchParams({ company: params.company, project_id: params.project_id })
     return api.get<BudgetProjectDetail>(`/api/v1/budget/projects/detail?${search}`, getToken())
   },
 }
