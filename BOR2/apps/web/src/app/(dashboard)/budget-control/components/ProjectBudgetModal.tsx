@@ -3,12 +3,12 @@
 import { useState } from "react"
 import {
   X, ChevronRight, Loader2, Building2, Home, AlertTriangle,
-  Wallet, Coins, HardHat, Tag, ChevronDown, Receipt, Check, Clock,
+  Wallet, Coins, HardHat, Tag, ChevronDown, Check, Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail } from "@/hooks/use-budget"
-import type { CostAccount, CostCategory, CostVendor } from "@/services/budget.service"
+import type { CostCategory, CostVendor } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -103,26 +103,6 @@ function CategoryIcon({ name, className }: { name: string; className?: string })
   return <Icon className={className} />
 }
 
-// ── QB Accounts tree (collapsed secondary) ────────────────────────────────────
-
-function AccountRow({ node, blur, depth = 0 }: { node: CostAccount; blur: string; depth?: number }) {
-  const neg = node.amount < 0
-  const hasKids = !!node.children?.length
-  return (
-    <>
-      <div className="flex items-center gap-2 py-0.5" style={{ paddingLeft: 4 + depth * 12 }}>
-        <span className={cn("truncate text-[11px]", depth === 0 ? "text-foreground/80 font-medium" : "text-muted-foreground")} title={node.name}>
-          {node.name}
-        </span>
-        <span className={cn("ml-auto shrink-0 text-[11px] font-semibold tabular-nums", blur)}
-          style={neg ? { color: "#22c55e" } : undefined}>
-          {fmt(node.amount)}
-        </span>
-      </div>
-      {hasKids && node.children!.map(c => <AccountRow key={c.name} node={c} blur={blur} depth={depth + 1} />)}
-    </>
-  )
-}
 
 // ── Vendor row inside a category ──────────────────────────────────────────────
 
@@ -267,6 +247,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const { showFinancialData } = useFinancialStore()
   const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
   const [showAccounts, setShowAccounts] = useState(false)
+  const [showByType, setShowByType] = useState(false)
   const [openCatId, setOpenCatId] = useState<string | null>(null)
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
@@ -284,10 +265,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
     (acc, c) => ({ committed: acc.committed + c.committed, billed: acc.billed + c.billed, paid: acc.paid + c.paid, open: acc.open + c.open }),
     { committed: 0, billed: 0, paid: 0, open: 0 }
   )
-
-  // Cash position (receivables perspective)
-  const netCash = data ? Math.max(data.received - data.paid, 0) : 0
-  const netExposure = data ? data.to_receive - data.to_pay : 0
 
   return (
     <div
@@ -329,13 +306,13 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
                 {/* INCOME */}
-                <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4">
+                <div className="flex flex-col gap-3 self-start rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-500">Income</span>
-                    <div className="ml-auto flex items-center gap-1.5">
+                    <div className="ml-auto flex items-baseline gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
-                      <span className={cn("text-xs font-semibold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
+                      <span className={cn("text-base font-bold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
                     </div>
                   </div>
                   <SegBar
@@ -362,53 +339,92 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     </div>
                   </div>
                   {incomeAccounts.length > 0 && (
-                    <div className="border-t border-border/30 pt-2">
-                      <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">BY TYPE</p>
-                      {incomeAccounts.map(ia => (
-                        <div key={ia.name} className="flex items-center gap-2 px-1 py-0.5">
-                          <span className="truncate text-[11px] text-muted-foreground">{ia.name}</span>
-                          <div className="ml-auto flex items-center gap-3">
-                            {ia.outstanding > 0 && (
-                              <span className="text-[10px] text-muted-foreground/50">
-                                out. <span className={cn("font-semibold text-amber-500", blur)}>{fmt(ia.outstanding)}</span>
-                              </span>
-                            )}
-                            <span className={cn("text-[11px] font-semibold tabular-nums", blur)}
-                              style={ia.amount < 0 ? { color: "#22c55e" } : undefined}>
-                              {fmt(ia.amount)}
-                            </span>
+                    <div className="overflow-hidden rounded-lg border border-border/30">
+                      <button
+                        onClick={() => setShowByType(o => !o)}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/10"
+                      >
+                        <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Type</span>
+                        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showByType && "rotate-180")} />
+                      </button>
+                      {showByType && (
+                        <div className="border-t border-border/20">
+                          {/* Column headers */}
+                          <div className="flex items-center bg-muted/10 px-3 py-1">
+                            <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Type</span>
+                            <div className="flex shrink-0">
+                              {["Invoiced", "Received", "Outstanding"].map(h => (
+                                <div key={h} className="w-28 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">{h}</div>
+                              ))}
+                            </div>
                           </div>
+                          {incomeAccounts.map(ia => {
+                            const receivedForType = Math.max(ia.amount - ia.outstanding, 0)
+                            const settled = ia.outstanding === 0
+                            const dimText = settled ? "text-muted-foreground/50" : "text-foreground/80"
+                            return (
+                              <div key={ia.name} className="flex items-center border-t border-border/20 px-3 py-1.5">
+                                <div className="flex flex-1 items-center gap-1.5 min-w-0">
+                                  <span className={cn("truncate text-[11px]", settled ? "text-muted-foreground/50" : "text-muted-foreground")}>{ia.name}</span>
+                                  <div className="w-3.5 shrink-0">
+                                    {settled && <Check className="h-3 w-3 text-emerald-500" />}
+                                  </div>
+                                </div>
+                                <div className="flex shrink-0">
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", dimText, blur)}>
+                                    {fmt(ia.amount)}
+                                  </span>
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", dimText, blur)}>
+                                    {fmt(receivedForType)}
+                                  </span>
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/50" : "text-amber-500")}>
+                                    {fmt(ia.outstanding)}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
 
                 {/* COST OVERVIEW */}
-                <div className={cn("flex flex-col gap-3 rounded-xl border p-4",
-                  overCeiling ? "border-red-500/30 bg-red-500/[0.04]" : "border-amber-500/20 bg-amber-500/[0.03]")}>
+                <div className={cn("flex flex-col gap-3 self-start rounded-xl border p-4",
+                  overCeiling ? "border-red-500/30 bg-red-500/[0.04]" : "border-red-500/20 bg-red-500/[0.03]")}>
                   <div className="flex items-center gap-2">
-                    <Coins className={cn("h-4 w-4", overCeiling ? "text-red-500" : "text-amber-500")} />
-                    <span className={cn("text-sm font-semibold", overCeiling ? "text-red-500" : "text-amber-500")}>
-                      Cost
-                    </span>
-                    <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {pctStr(data.cost_total, data.cost_ceiling)} of ceiling
-                    </span>
+                    <Coins className="h-4 w-4 text-red-500" />
+                    <span className="text-sm font-semibold text-red-500">Cost</span>
+                    <div className="ml-auto flex items-baseline gap-1.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
+                      <span className={cn("text-base font-bold tabular-nums text-red-500", blur)}>
+                        {fmt(data.cost_total)}
+                      </span>
+                    </div>
                   </div>
                   <SegBar
                     total={Math.max(data.cost_ceiling, data.cost_total)}
                     segments={[
-                      { value: data.paid, color: overCeiling ? "#ef4444" : "#f59e0b", label: "Paid (bills)", icon: Receipt },
-                      { value: data.open_payable, color: "#fbbf24", label: "Outstanding", icon: Clock },
+                      { value: data.paid, color: "#ef4444", label: "Paid", icon: Check },
+                      { value: data.open_payable, color: "#f59e0b", label: "Outstanding", icon: Clock },
                     ]}
+                    remainder={{ label: "Cost Budget", value: data.cost_ceiling }}
                   />
-                  <div className="flex flex-col gap-1.5">
-                    <Line label="Cost ceiling (70%)" value={data.cost_ceiling} blur={blur} strong />
-                    <Line label="Total incurred" value={data.cost_total}
-                      color={overCeiling ? "#ef4444" : undefined} blur={blur} pctOf={data.cost_ceiling} />
-                    <Line label="Paid (bills)" value={data.paid} dot={overCeiling ? "#ef4444" : "#f59e0b"} blur={blur} />
-                    <Line label="To pay (bills + PO open)" value={data.to_pay} dot="#fbbf24" blur={blur} />
+                  {/* 3-col: Paid | Outstanding | Cost Budget */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Paid</span>
+                      <span className={cn("text-lg font-bold tabular-nums text-red-500", blur)}>{fmt(data.paid)}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Outstanding</span>
+                      <span className={cn("text-lg font-bold tabular-nums text-amber-500", blur)}>{fmt(data.open_payable)}</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Cost Budget</span>
+                      <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.cost_ceiling)}</span>
+                    </div>
                   </div>
                   {overCeiling && (
                     <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/5 px-2.5 py-1.5 text-[11px] text-red-500">
@@ -416,22 +432,44 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       Over the 70% ceiling — projected margin below {Math.round(data.margin_target * 100)}%.
                     </div>
                   )}
-                  {/* Cash position */}
-                  <div className="border-t border-border/30 pt-2">
-                    <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">CASH POSITION</p>
-                    <Line
-                      label="Net cash (received − paid)"
-                      value={netCash}
-                      color={netCash >= 0 ? "#22c55e" : "#ef4444"}
-                      blur={blur}
-                    />
-                    <Line
-                      label="Net exposure (to receive − to pay)"
-                      value={netExposure}
-                      color={netExposure >= 0 ? "#22c55e" : "#ef4444"}
-                      blur={blur}
-                    />
-                  </div>
+                  {/* By Account collapsible */}
+                  {costAccounts.length > 0 && (
+                    <div className="overflow-hidden rounded-lg border border-border/30">
+                      <button
+                        onClick={() => setShowAccounts(o => !o)}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/10"
+                      >
+                        <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Account</span>
+                        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showAccounts && "rotate-180")} />
+                      </button>
+                      {showAccounts && (
+                        <div className="border-t border-border/20">
+                          <div className="flex items-center bg-muted/10 px-3 py-1">
+                            <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Account</span>
+                            <div className="flex shrink-0">
+                              <div className="w-28 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Billed</div>
+                              <div className="w-28 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Paid</div>
+                              <div className="w-28 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Outstanding</div>
+                            </div>
+                          </div>
+                          {costAccounts.map((ca, i) => (
+                            <div key={i} className="flex items-center border-t border-border/10 px-3 py-1">
+                              <span className="flex-1 truncate text-[11px] font-medium text-foreground/80" title={ca.name}>{ca.name}</span>
+                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.amount < 0 && "text-emerald-500")}>
+                                {fmt(ca.amount)}
+                              </span>
+                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur)}>
+                                {fmt(ca.paid)}
+                              </span>
+                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.outstanding > 0 ? "text-amber-500" : "text-muted-foreground/40")}>
+                                {fmt(ca.outstanding)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -498,29 +536,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 </div>
               </div>
 
-              {/* ── QB Accounts (secondary, collapsible) ─────────────────────── */}
-              {costAccounts.length > 0 && (
-                <div className="rounded-xl border border-border/30">
-                  <button
-                    onClick={() => setShowAccounts(o => !o)}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-muted/10"
-                  >
-                    <Receipt className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    <span className="text-[11px] font-medium text-muted-foreground">Cost by QB Account</span>
-                    <ChevronDown className={cn("ml-auto h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showAccounts && "rotate-180")} />
-                  </button>
-                  {showAccounts && (
-                    <div className="border-t border-border/20 px-4 py-3">
-                      {costAccounts.map((ca, i) => (
-                        <div key={i} className="mb-3">
-                          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{ca.group}</p>
-                          <AccountRow node={ca} blur={blur} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
             </div>
           )}
