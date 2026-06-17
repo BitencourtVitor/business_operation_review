@@ -74,14 +74,6 @@ function MetricRow({ label, value, color, blur, strong }: {
   )
 }
 
-function Bar({ part, whole, color }: { part: number; whole: number; color: string }) {
-  return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-      <div className="h-full rounded-full transition-all" style={{ width: `${pct(part, whole)}%`, backgroundColor: color }} />
-    </div>
-  )
-}
-
 // ── Project Card ──────────────────────────────────────────────────────────────
 
 function ProjectCard({ p, blur, onOpen }: {
@@ -204,8 +196,8 @@ function ProjectCard({ p, blur, onOpen }: {
       {/* Contractors */}
       <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
-          <HardHat className="h-3.5 w-3.5 text-amber-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Contractors</span>
+          <HardHat className="h-3.5 w-3.5 text-yellow-500" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-yellow-500">Contractors</span>
           {hasLabor && (
             <span className="ml-auto text-[10px] text-muted-foreground">
               {pct(p.labor_billed, p.labor_committed).toFixed(0)}% billed
@@ -217,7 +209,7 @@ function ProjectCard({ p, blur, onOpen }: {
           return (
             <>
               <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-                <div className="h-full transition-all" style={{ width: `${pct(p.labor_paid, p.labor_committed)}%`, backgroundColor: "#f59e0b" }} />
+                <div className="h-full transition-all" style={{ width: `${pct(p.labor_paid, p.labor_committed)}%`, backgroundColor: "#eab308" }} />
                 <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(laborOutstanding, p.labor_committed)}%` }} />
               </div>
               <div className="flex flex-col gap-1">
@@ -226,7 +218,7 @@ function ProjectCard({ p, blur, onOpen }: {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1">
                     <span className="text-[11px] text-muted-foreground">Paid</span>
-                    <span className={cn("text-[11px] font-semibold tabular-nums text-amber-500", blur)}>{fmt(p.labor_paid)}</span>
+                    <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(p.labor_paid)}</span>
                   </div>
                   <span className="text-[10px] text-muted-foreground/40">|</span>
                   <div className="flex items-center gap-1">
