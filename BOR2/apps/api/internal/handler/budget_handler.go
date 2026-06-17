@@ -346,13 +346,6 @@ type PORow struct {
 	Lines      []POLineRow `json:"lines"`
 }
 
-// VendorPayment is one recorded payment against a vendor's bills for a project.
-type VendorPayment struct {
-	Date      string  `json:"date"`
-	Amount    float64 `json:"amount"`
-	RefNumber string  `json:"ref_number"`
-}
-
 // VendorBackCharge is one vendor credit (back charge) issued to a subcontractor
 // for this project — it reduces the net amount owed to the vendor.
 type VendorBackCharge struct {
@@ -361,25 +354,48 @@ type VendorBackCharge struct {
 	RefNumber string  `json:"ref_number"`
 }
 
-// CostVendor aggregates one subcontractor's PO commitments, payment history,
-// and back charges (vendor credits) for a project.
+// POPayment is one bill payment attributed to a specific purchase order.
+type POPayment struct {
+	Date      string  `json:"date"`
+	Amount    float64 `json:"amount"`
+	RefNumber string  `json:"ref_number"`
+}
+
+// PODetail is a purchase order with its payment history resolved.
+// Status: "settled" when paid >= billed (and billed > 0), "open" otherwise.
+type PODetail struct {
+	ExternalID string      `json:"external_id"`
+	DocNumber  string      `json:"doc_number"`
+	TxnDate    string      `json:"txn_date"`
+	Status     string      `json:"status"`
+	Committed  float64     `json:"committed"`
+	Billed     float64     `json:"billed"`
+	Paid       float64     `json:"paid"`
+	Open       float64     `json:"open"`
+	Payments   []POPayment `json:"payments"`
+}
+
+// CostVendor aggregates one subcontractor's PO commitments, payment history
+// (per PO), and back charges (vendor credits) for a project.
 type CostVendor struct {
 	VendorID       string             `json:"vendor_id"`
 	VendorName     string             `json:"vendor_name"`
 	Committed      float64            `json:"committed"`
 	Billed         float64            `json:"billed"`
 	Paid           float64            `json:"paid"`
-	Open           float64            `json:"open"` // max(committed − paid, 0)
-	Payments       []VendorPayment    `json:"payments"`
+	Open           float64            `json:"open"`
 	BackCharges    []VendorBackCharge `json:"back_charges"`
-	PurchaseOrders []PORow            `json:"purchase_orders"`
+	PurchaseOrders []PODetail         `json:"purchase_orders"`
 }
 
-// CostCategory groups subcontractors (vendors) by the user-defined budget category.
+// CostCategory groups subcontractors (vendors) by the user-defined budget
+// category. BudgetLimit is the effective ceiling (project override or default);
+// 0 means no limit has been defined for this category.
 type CostCategory struct {
 	CategoryID   string       `json:"category_id"`
 	CategoryName string       `json:"category_name"`
 	Icon         string       `json:"icon"`
+	BudgetLimit  float64      `json:"budget_limit"`
 	Committed    float64      `json:"committed"`
 	Billed       float64      `json:"billed"`
 	Paid         float64      `json:"paid"`
@@ -626,32 +642,32 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 
 	d.ToPay = max0(d.OpenPayable) + max0(d.LaborOpen)
 
-	d.CostCategories, _ = h.costCategoryTree(ctx, company, d.ProjectType, customerIDs, d.PurchaseOrders)
+	d.CostCategories, _ = h.costCategoryTree(ctx, company, d.ProjectType, d.ProjectID, customerIDs, d.PurchaseOrders)
 
 	return c.JSON(fiber.Map{"data": d})
 }
 
-// costCategoryTree groups the project's POs by user-defined budget category, adding
-// per-vendor payment history sourced from bills that have lines on this project.
-// open = max(committed − paid, 0) — total uncommitted exposure per vendor.
+// costCategoryTree groups the project's POs by user-defined budget category.
+// Payments are resolved per PO via qb_bill_links (Bill → PurchaseOrder).
+// Back charges stay at vendor level (QB vendor credits carry no PO reference).
 func (h *BudgetHandler) costCategoryTree(
-	ctx context.Context, company, projType string,
+	ctx context.Context, company, projType, projectID string,
 	customerIDs []string, pos []PORow,
 ) ([]CostCategory, error) {
 	if len(pos) == 0 {
 		return []CostCategory{}, nil
 	}
 
-	// ── 1. Payments per vendor via bills with lines on this project's customers ─
-	type pmt struct {
-		date, ref string
-		amount    float64
-	}
-	vendorPmts := map[string][]pmt{}
+	// ── 1. Payments keyed by (vendorID, po_external_id) ──────────────────────
+	// Bills are linked to POs via qb_bill_links (txn_type='PurchaseOrder').
+	// LEFT JOIN captures payments on bills with no PO link → poExtID = "".
+	type pmtKey struct{ vendorID, poExtID string }
+	poPayments := map[pmtKey][]POPayment{}
 	{
 		rows, err := h.db.Query(ctx, `
 			WITH pb AS (
-				SELECT b.id, b.external_id, b.vendor_id, b.total_amount,
+				SELECT b.id AS bill_id, b.external_id AS bill_ext_id,
+				       b.vendor_id, b.total_amount,
 				       SUM(bl.amount) AS proj_amt
 				FROM qb_bills b
 				JOIN qb_bill_lines bl ON bl.bill_id = b.id AND bl.company = $1
@@ -659,27 +675,37 @@ func (h *BudgetHandler) costCategoryTree(
 				GROUP BY b.id, b.external_id, b.vendor_id, b.total_amount
 			)
 			SELECT pb.vendor_id,
+			       COALESCE(blinks.txn_id, '') AS po_ext_id,
 			       to_char(bp.txn_date,'YYYY-MM-DD'),
-			       bpl.amount * CASE WHEN pb.total_amount = 0 THEN 0 ELSE pb.proj_amt / pb.total_amount END,
+			       bpl.amount * CASE WHEN pb.total_amount=0 THEN 0
+			                         ELSE pb.proj_amt / pb.total_amount END,
 			       COALESCE(NULLIF(bp.doc_number,''), bp.external_id, '')
 			FROM pb
+			LEFT JOIN qb_bill_links blinks
+			       ON blinks.bill_id = pb.bill_id
+			      AND blinks.txn_type = 'PurchaseOrder'
+			      AND blinks.company  = $1
 			JOIN qb_bill_payment_links bpl
-			     ON bpl.txn_id = pb.external_id AND bpl.txn_type = 'Bill' AND bpl.company = $1
+			       ON bpl.txn_id    = pb.bill_ext_id
+			      AND bpl.txn_type  = 'Bill'
+			      AND bpl.company   = $1
 			JOIN qb_bill_payments bp ON bp.id = bpl.bill_payment_id AND bp.company = $1
-			ORDER BY pb.vendor_id, bp.txn_date
+			ORDER BY pb.vendor_id, po_ext_id, bp.txn_date
 		`, company, customerIDs)
 		if err == nil {
 			for rows.Next() {
-				var vendorID, date, ref string
+				var vendorID, poExtID, date, ref string
 				var amt float64
-				rows.Scan(&vendorID, &date, &amt, &ref)
-				vendorPmts[vendorID] = append(vendorPmts[vendorID], pmt{date, ref, amt})
+				rows.Scan(&vendorID, &poExtID, &date, &amt, &ref)
+				k := pmtKey{vendorID, poExtID}
+				poPayments[k] = append(poPayments[k], POPayment{Date: date, Amount: amt, RefNumber: ref})
 			}
 			rows.Close()
 		}
 	}
 
-	// ── 2. Back charges (vendor credits) per vendor for this project ─────────
+	// ── 2. Back charges (vendor credits) per vendor ───────────────────────────
+	// qb_vendor_credit_lines has no PO reference in QB, so credits stay vendor-level.
 	vendorCredits := map[string][]VendorBackCharge{}
 	{
 		rows, err := h.db.Query(ctx, `
@@ -704,10 +730,7 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 3. Bill amounts per vendor for this project (actual invoices received) ─
-	// Using bill lines as source for Billed guarantees paid ≤ billed, since paid
-	// is also bill-based (proportioned bill payments). PO.received is unreliable
-	// when bills aren't linked to POs in QB.
+	// ── 3. Bill amounts per vendor (billed = Σ bill lines for this project) ───
 	vendorBilled := map[string]float64{}
 	{
 		rows, err := h.db.Query(ctx, `
@@ -728,7 +751,7 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 3. Vendor → category mapping ─────────────────────────────────────────
+	// ── 4. Vendor → category mapping ─────────────────────────────────────────
 	type catDef struct {
 		id, name, icon string
 		sortOrder      int
@@ -755,13 +778,38 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 4. Aggregate POs per vendor (preserving insertion order) ─────────────
+	// ── 5. Category budget limits (project override → default) ────────────────
+	catLimits := map[string]float64{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT bc.id::text,
+			       COALESCE(
+			           (SELECT amount FROM budget_project_category_limits
+			            WHERE category_id = bc.id AND project_id = $3 AND company = $1),
+			           (SELECT amount FROM budget_category_limits
+			            WHERE category_id = bc.id AND project_type = $2),
+			           0
+			       ) AS effective_limit
+			FROM budget_categories bc
+			WHERE bc.active = true
+		`, company, projType, projectID)
+		if err == nil {
+			for rows.Next() {
+				var catID string
+				var limit float64
+				rows.Scan(&catID, &limit)
+				catLimits[catID] = limit
+			}
+			rows.Close()
+		}
+	}
+
+	// ── 6. Aggregate POs per vendor ───────────────────────────────────────────
 	type vendorAgg struct {
 		id, name, catID string
 		committed, billed float64
-		pmts        []VendorPayment
-		backCharges []VendorBackCharge
-		pos         []PORow
+		backCharges       []VendorBackCharge
+		pos               []PORow
 	}
 	vendorOrder := []string{}
 	vendorMap := map[string]*vendorAgg{}
@@ -779,18 +827,8 @@ func (h *BudgetHandler) costCategoryTree(
 		vd.committed += po.Committed
 		vd.pos = append(vd.pos, po)
 	}
-
-	// Set billed from actual bill lines (not PO.received) and attach payments
 	for _, vid := range vendorOrder {
-		vd := vendorMap[vid]
-		vd.billed = vendorBilled[vd.id]
-	}
-	for vid, pmts := range vendorPmts {
-		if vd, ok := vendorMap[vid]; ok {
-			for _, p := range pmts {
-				vd.pmts = append(vd.pmts, VendorPayment{Date: p.date, Amount: p.amount, RefNumber: p.ref})
-			}
-		}
+		vendorMap[vid].billed = vendorBilled[vendorMap[vid].id]
 	}
 	for vid, credits := range vendorCredits {
 		if vd, ok := vendorMap[vid]; ok {
@@ -798,7 +836,7 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 5. Group vendors by category ─────────────────────────────────────────
+	// ── 7. Group vendors by category ─────────────────────────────────────────
 	type catGroup struct {
 		def     catDef
 		vendors []*vendorAgg
@@ -828,23 +866,48 @@ func (h *BudgetHandler) costCategoryTree(
 		return a.name < b.name
 	})
 
-	// ── 6. Assemble output ────────────────────────────────────────────────────
-	mkVendor := func(vd *vendorAgg) CostVendor {
-		var paidTotal float64
-		for _, p := range vd.pmts {
-			paidTotal += p.Amount
+	// ── 8. Assemble output ────────────────────────────────────────────────────
+	mkPODetail := func(po PORow, vendorID string) PODetail {
+		pmts := poPayments[pmtKey{vendorID, po.ExternalID}]
+		var paid float64
+		for _, p := range pmts {
+			paid += p.Amount
 		}
-		pmts := vd.pmts
 		if pmts == nil {
-			pmts = []VendorPayment{}
+			pmts = []POPayment{}
+		}
+		status := "open"
+		if po.Billed > 0 && paid >= po.Billed {
+			status = "settled"
+		}
+		return PODetail{
+			ExternalID: po.ExternalID,
+			DocNumber:  po.DocNumber,
+			TxnDate:    po.TxnDate,
+			Status:     status,
+			Committed:  po.Committed,
+			Billed:     po.Billed,
+			Paid:       paid,
+			Open:       max0(po.Committed - paid),
+			Payments:   pmts,
+		}
+	}
+
+	mkVendor := func(vd *vendorAgg) CostVendor {
+		details := make([]PODetail, 0, len(vd.pos))
+		var paidTotal float64
+		for _, po := range vd.pos {
+			pod := mkPODetail(po, vd.id)
+			paidTotal += pod.Paid
+			details = append(details, pod)
+		}
+		// Add payments not linked to any PO (po_ext_id = "") to vendor total
+		for _, p := range poPayments[pmtKey{vd.id, ""}] {
+			paidTotal += p.Amount
 		}
 		bcs := vd.backCharges
 		if bcs == nil {
 			bcs = []VendorBackCharge{}
-		}
-		poSlice := vd.pos
-		if poSlice == nil {
-			poSlice = []PORow{}
 		}
 		return CostVendor{
 			VendorID:       vd.id,
@@ -853,9 +916,8 @@ func (h *BudgetHandler) costCategoryTree(
 			Billed:         vd.billed,
 			Paid:           paidTotal,
 			Open:           max0(vd.committed - paidTotal),
-			Payments:       pmts,
 			BackCharges:    bcs,
-			PurchaseOrders: poSlice,
+			PurchaseOrders: details,
 		}
 	}
 
@@ -864,6 +926,7 @@ func (h *BudgetHandler) costCategoryTree(
 			CategoryID:   def.id,
 			CategoryName: def.name,
 			Icon:         def.icon,
+			BudgetLimit:  catLimits[def.id],
 			Vendors:      make([]CostVendor, 0, len(vendors)),
 		}
 		for _, vd := range vendors {
@@ -882,8 +945,7 @@ func (h *BudgetHandler) costCategoryTree(
 
 	out := make([]CostCategory, 0, len(catOrderSlice)+1)
 	for _, catID := range catOrderSlice {
-		cg := catMap[catID]
-		out = append(out, mkCat(cg.def, cg.vendors))
+		out = append(out, mkCat(catMap[catID].def, catMap[catID].vendors))
 	}
 	if len(uncatVendors) > 0 {
 		out = append(out, mkCat(catDef{name: "Uncategorized", icon: "Tag"}, uncatVendors))
