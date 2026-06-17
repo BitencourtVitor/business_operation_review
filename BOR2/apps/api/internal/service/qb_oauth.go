@@ -148,6 +148,26 @@ func (s *QBOAuthService) GetAccessToken(ctx context.Context, company string) (st
 	return accessToken, creds.RealmID, nil
 }
 
+// SyncClientConfig returns everything needed to build a self-refreshing QB sync
+// client: a valid access token (proactively refreshed if stale), the realm id,
+// the decrypted refresh token, and the app client id/secret. With the refresh
+// credentials the client can renew its own access token if it expires mid-sync.
+func (s *QBOAuthService) SyncClientConfig(ctx context.Context, company string) (access, refresh, realm, clientID, clientSecret string, err error) {
+	access, realm, err = s.GetAccessToken(ctx, company)
+	if err != nil {
+		return "", "", "", "", "", err
+	}
+	creds, err := s.repo.Get(ctx, company)
+	if err != nil {
+		return "", "", "", "", "", err
+	}
+	refresh, err = crypto.Decrypt(creds.RefreshToken, s.encryptionKey)
+	if err != nil {
+		return "", "", "", "", "", fmt.Errorf("decrypt refresh token: %w", err)
+	}
+	return access, refresh, realm, s.clientID, s.clientSecret, nil
+}
+
 // SeedTokens saves an existing token pair directly (dev only — skips OAuth flow).
 func (s *QBOAuthService) SeedTokens(ctx context.Context, company, realmID, accessToken, refreshToken string) error {
 	if !validCompanies[company] {

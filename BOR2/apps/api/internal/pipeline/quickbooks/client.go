@@ -8,8 +8,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 )
 
 const (
@@ -17,6 +21,12 @@ const (
 	sandboxURL = "https://sandbox-quickbooks.api.intuit.com"
 	tokenURL   = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
 	pageSize   = 1000 // QB max per request
+
+	// Throttle handling: QB enforces ~500 requests/minute per realm. On 429 we
+	// wait a full minute (so the rolling window fully clears) and retry the same
+	// request — no hurry, the sync runs overnight. A longer Retry-After is honored.
+	maxThrottleRetries = 5
+	throttleWait       = 61 * time.Second
 )
 
 type Company string
@@ -67,6 +77,7 @@ type TokenResponse struct {
 
 type Client struct {
 	httpClient *http.Client
+	mu         sync.Mutex // guards config tokens + serializes refresh
 	config     CompanyConfig
 	company    Company
 	sandbox    bool
@@ -84,8 +95,34 @@ func NewClient(company Company, config CompanyConfig, sandbox bool) *Client {
 func (c *Client) Company() Company { return c.company }
 func (c *Client) RealmID() string  { return c.config.RealmID }
 
-// RefreshToken obtains a new access+refresh token pair and updates the client in place.
+// accessToken returns the current access token under lock.
+func (c *Client) accessToken() string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.config.AccessToken
+}
+
+// RefreshToken obtains a new access+refresh token pair and updates the client in
+// place. Safe for concurrent callers: only the first refresh following a given
+// access token actually runs — the rest observe the already-refreshed token and
+// return immediately, avoiding a refresh storm under a 401 burst.
 func (c *Client) RefreshToken(ctx context.Context) error {
+	return c.refreshIfStale(ctx, c.accessToken())
+}
+
+// refreshIfStale refreshes only if the live access token still equals `used`,
+// i.e. nobody refreshed since the caller's request went out.
+func (c *Client) refreshIfStale(ctx context.Context, used string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.config.AccessToken != used {
+		return nil // another goroutine already refreshed
+	}
+	if c.config.RefreshToken == "" || c.config.ClientID == "" || c.config.ClientSecret == "" {
+		return fmt.Errorf("no refresh credentials configured")
+	}
+
 	data := url.Values{}
 	data.Set("grant_type", "refresh_token")
 	data.Set("refresh_token", c.config.RefreshToken)
@@ -115,6 +152,7 @@ func (c *Client) RefreshToken(ctx context.Context) error {
 
 	c.config.AccessToken = token.AccessToken
 	c.config.RefreshToken = token.RefreshToken
+	logger.Info("qb access token refreshed mid-sync", "company", c.company)
 	return nil
 }
 
@@ -146,6 +184,12 @@ func (c *Client) QueryUpdated(ctx context.Context, entity string, since time.Tim
 		}
 
 		all = append(all, batch...)
+		if len(batch) == pageSize || startPos > 1 {
+			// Only chatter when actually paginating (a full pull), not for the
+			// single small page a typical incremental delta returns.
+			logger.Info("qb fetch page", "company", c.company, "entity", entity,
+				"page", (startPos/pageSize)+1, "fetched", len(all))
+		}
 
 		if len(batch) < pageSize {
 			break
@@ -199,41 +243,87 @@ func (c *Client) query(ctx context.Context, q string) ([]byte, error) {
 	endpoint := fmt.Sprintf("%s/v3/company/%s/query?query=%s&minorversion=65",
 		base, c.config.RealmID, url.QueryEscape(q))
 
+	refreshed := false
+	throttleAttempts := 0
+
+	for {
+		used := c.accessToken()
+		body, status, retryAfter, err := c.doGet(ctx, endpoint, used)
+		if err != nil {
+			return nil, err
+		}
+
+		switch {
+		case status == http.StatusOK:
+			return body, nil
+
+		case status == http.StatusUnauthorized && !refreshed:
+			// Access token expired mid-sync — refresh once and retry.
+			if err := c.refreshIfStale(ctx, used); err != nil {
+				return nil, fmt.Errorf("auto-refresh failed: %w", err)
+			}
+			refreshed = true
+			continue
+
+		case status == http.StatusTooManyRequests || status == http.StatusServiceUnavailable:
+			if throttleAttempts >= maxThrottleRetries {
+				return nil, fmt.Errorf("QB throttled (%d) — gave up after %d retries: %s",
+					status, throttleAttempts, string(body))
+			}
+			delay := backoffDelay(retryAfter)
+			throttleAttempts++
+			logger.Warn("qb throttled — waiting a full minute before retry",
+				"company", c.company, "attempt", throttleAttempts,
+				"max", maxThrottleRetries, "delay", delay.String())
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			case <-time.After(delay):
+			}
+			continue
+
+		default:
+			return nil, fmt.Errorf("QB API error (%d): %s", status, string(body))
+		}
+	}
+}
+
+// doGet performs a single authenticated GET and returns the body, HTTP status,
+// and any Retry-After hint. The token is passed in (not read from config) so the
+// caller can detect whether a concurrent refresh has since superseded it.
+func (c *Client) doGet(ctx context.Context, endpoint, accessToken string) (body []byte, status int, retryAfter time.Duration, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("build request: %w", err)
+		return nil, 0, 0, fmt.Errorf("build request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+c.config.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("QB request: %w", err)
+		return nil, 0, 0, fmt.Errorf("QB request: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Auto-refresh on 401 — rebuild request (original is consumed)
-	if resp.StatusCode == http.StatusUnauthorized {
-		if err := c.RefreshToken(ctx); err != nil {
-			return nil, fmt.Errorf("auto-refresh failed: %w", err)
-		}
-		req2, _ := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
-		req2.Header.Set("Authorization", "Bearer "+c.config.AccessToken)
-		req2.Header.Set("Accept", "application/json")
-		resp2, err := c.httpClient.Do(req2)
-		if err != nil {
-			return nil, fmt.Errorf("retry after refresh: %w", err)
-		}
-		defer resp2.Body.Close()
-		return io.ReadAll(resp2.Body)
+	body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, 0, fmt.Errorf("read QB response: %w", err)
 	}
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("QB API error (%d): %s", resp.StatusCode, string(body))
+	if ra := resp.Header.Get("Retry-After"); ra != "" {
+		if secs, perr := strconv.Atoi(strings.TrimSpace(ra)); perr == nil && secs > 0 {
+			retryAfter = time.Duration(secs) * time.Second
+		}
 	}
+	return body, resp.StatusCode, retryAfter, nil
+}
 
-	return io.ReadAll(resp.Body)
+// backoffDelay returns how long to wait before retrying a throttled request:
+// a full minute (clears QB's per-minute window), unless QB asked for longer.
+func backoffDelay(retryAfter time.Duration) time.Duration {
+	if retryAfter > throttleWait {
+		return retryAfter
+	}
+	return throttleWait
 }
 
 func extractRows(body []byte, entity string) ([]json.RawMessage, error) {

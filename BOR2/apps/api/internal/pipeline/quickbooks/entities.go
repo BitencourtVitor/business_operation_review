@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -38,6 +39,15 @@ func upsertEntity(ctx context.Context, db *pgxpool.Pool, company, entity string,
 	default:
 		// Every other fetched entity is captured generically in qb_raw.
 		return upsertRaw(ctx, db, company, entity, rows)
+	}
+}
+
+// logUpsertProgress emits a heartbeat every 1000 rows during a large write so a
+// full pull (thousands of rows, each a remote DB round-trip) isn't silent in the
+// logs. Stays quiet for small incremental batches.
+func logUpsertProgress(company string, done, total int) {
+	if total >= 1000 && (done%1000 == 0 || done == total) {
+		logger.Info("qb upsert writing", "company", company, "done", done, "total", total)
 	}
 }
 
@@ -271,6 +281,7 @@ func upsertBills(ctx context.Context, db *pgxpool.Pool, company string, rows []j
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -349,6 +360,7 @@ func upsertBillPayments(ctx context.Context, db *pgxpool.Pool, company string, r
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -441,6 +453,7 @@ func upsertEstimates(ctx context.Context, db *pgxpool.Pool, company string, rows
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -524,6 +537,7 @@ func upsertInvoices(ctx context.Context, db *pgxpool.Pool, company string, rows 
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -587,6 +601,7 @@ func upsertPayments(ctx context.Context, db *pgxpool.Pool, company string, rows 
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -670,6 +685,7 @@ func upsertPurchases(ctx context.Context, db *pgxpool.Pool, company string, rows
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -757,6 +773,7 @@ func upsertVendorCredits(ctx context.Context, db *pgxpool.Pool, company string, 
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -842,6 +859,7 @@ func upsertDeposits(ctx context.Context, db *pgxpool.Pool, company string, rows 
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -958,6 +976,7 @@ func upsertPurchaseOrders(ctx context.Context, db *pgxpool.Pool, company string,
 		}
 
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -1011,6 +1030,7 @@ func upsertAccounts(ctx context.Context, db *pgxpool.Pool, company string, rows 
 			continue
 		}
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -1053,6 +1073,7 @@ func upsertVendors(ctx context.Context, db *pgxpool.Pool, company string, rows [
 			continue
 		}
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -1104,6 +1125,7 @@ func upsertCustomers(ctx context.Context, db *pgxpool.Pool, company string, rows
 			continue
 		}
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }
@@ -1133,6 +1155,7 @@ func upsertRaw(ctx context.Context, db *pgxpool.Pool, company, entity string, ro
 			continue
 		}
 		count++
+		logUpsertProgress(company, count, len(rows))
 	}
 	return count, nil
 }

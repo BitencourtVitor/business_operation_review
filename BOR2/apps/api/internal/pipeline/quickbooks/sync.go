@@ -38,19 +38,23 @@ type SyncResult struct {
 	Err      error
 }
 
-// SyncAll runs all company×entity combinations concurrently (bounded by semaphore).
-// Errors are collected and logged — a failing entity never blocks the others.
-// An optional onResult callback is called immediately as each task completes.
+// SyncAll runs every company×entity combination concurrently (bounded by semaphore).
 func (s *Syncer) SyncAll(ctx context.Context, clients []*Client, onResult ...func(SyncResult)) []SyncResult {
+	return s.SyncEntities(ctx, clients, AllEntities, onResult...)
+}
+
+// SyncEntities runs the given entities for every client concurrently (bounded by
+// semaphore). Errors are collected and logged — a failing entity never blocks the
+// others. An optional onResult callback is called immediately as each task completes.
+func (s *Syncer) SyncEntities(ctx context.Context, clients []*Client, entities []string, onResult ...func(SyncResult)) []SyncResult {
 	type task struct {
 		client *Client
 		entity string
 	}
 
-	// Build all 24 tasks (3 companies × 8 entities)
 	var tasks []task
 	for _, client := range clients {
-		for _, entity := range AllEntities {
+		for _, entity := range entities {
 			tasks = append(tasks, task{client: client, entity: entity})
 		}
 	}
