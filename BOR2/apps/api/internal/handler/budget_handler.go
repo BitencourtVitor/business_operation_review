@@ -353,16 +353,26 @@ type VendorPayment struct {
 	RefNumber string  `json:"ref_number"`
 }
 
-// CostVendor aggregates one subcontractor's PO commitments and payment history.
+// VendorBackCharge is one vendor credit (back charge) issued to a subcontractor
+// for this project — it reduces the net amount owed to the vendor.
+type VendorBackCharge struct {
+	Date      string  `json:"date"`
+	Amount    float64 `json:"amount"`
+	RefNumber string  `json:"ref_number"`
+}
+
+// CostVendor aggregates one subcontractor's PO commitments, payment history,
+// and back charges (vendor credits) for a project.
 type CostVendor struct {
-	VendorID       string          `json:"vendor_id"`
-	VendorName     string          `json:"vendor_name"`
-	Committed      float64         `json:"committed"`
-	Billed         float64         `json:"billed"`
-	Paid           float64         `json:"paid"`
-	Open           float64         `json:"open"` // max(committed − paid, 0)
-	Payments       []VendorPayment `json:"payments"`
-	PurchaseOrders []PORow         `json:"purchase_orders"`
+	VendorID       string             `json:"vendor_id"`
+	VendorName     string             `json:"vendor_name"`
+	Committed      float64            `json:"committed"`
+	Billed         float64            `json:"billed"`
+	Paid           float64            `json:"paid"`
+	Open           float64            `json:"open"` // max(committed − paid, 0)
+	Payments       []VendorPayment    `json:"payments"`
+	BackCharges    []VendorBackCharge `json:"back_charges"`
+	PurchaseOrders []PORow            `json:"purchase_orders"`
 }
 
 // CostCategory groups subcontractors (vendors) by the user-defined budget category.
@@ -389,12 +399,14 @@ type IncomeAccount struct {
 // CostAccount is one QB GL account with activity on the project.
 // Amount is signed (vendor credits are negative) and rolled up from sub-accounts.
 // Outstanding is the unpaid bill balance proportionally attributed to this account.
+// Children are direct sub-accounts with their own activity (shown when expanded).
 type CostAccount struct {
-	Name        string  `json:"name"`
-	Group       string  `json:"-"` // internal sort key, not exposed
-	Amount      float64 `json:"amount"`
-	Paid        float64 `json:"paid"`
-	Outstanding float64 `json:"outstanding"`
+	Name        string        `json:"name"`
+	Group       string        `json:"-"` // internal sort key, not exposed
+	Amount      float64       `json:"amount"`
+	Paid        float64       `json:"paid"`
+	Outstanding float64       `json:"outstanding"`
+	Children    []CostAccount `json:"children,omitempty"`
 }
 
 type BudgetProjectDetail struct {
@@ -667,7 +679,32 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 2. Bill amounts per vendor for this project (actual invoices received) ─
+	// ── 2. Back charges (vendor credits) per vendor for this project ─────────
+	vendorCredits := map[string][]VendorBackCharge{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT vc.vendor_id,
+			       to_char(vc.txn_date,'YYYY-MM-DD'),
+			       SUM(vcl.amount),
+			       COALESCE(NULLIF(vc.doc_number,''), vc.external_id, '')
+			FROM qb_vendor_credits vc
+			JOIN qb_vendor_credit_lines vcl ON vcl.vendor_credit_id = vc.id AND vcl.company = $1
+			WHERE vc.company = $1 AND vcl.customer_id = ANY($2) AND vc.vendor_id <> ''
+			GROUP BY vc.vendor_id, vc.txn_date, vc.doc_number, vc.external_id
+			ORDER BY vc.vendor_id, vc.txn_date
+		`, company, customerIDs)
+		if err == nil {
+			for rows.Next() {
+				var vid, date, ref string
+				var amt float64
+				rows.Scan(&vid, &date, &amt, &ref)
+				vendorCredits[vid] = append(vendorCredits[vid], VendorBackCharge{Date: date, Amount: amt, RefNumber: ref})
+			}
+			rows.Close()
+		}
+	}
+
+	// ── 3. Bill amounts per vendor for this project (actual invoices received) ─
 	// Using bill lines as source for Billed guarantees paid ≤ billed, since paid
 	// is also bill-based (proportioned bill payments). PO.received is unreliable
 	// when bills aren't linked to POs in QB.
@@ -722,8 +759,9 @@ func (h *BudgetHandler) costCategoryTree(
 	type vendorAgg struct {
 		id, name, catID string
 		committed, billed float64
-		pmts []VendorPayment
-		pos  []PORow
+		pmts        []VendorPayment
+		backCharges []VendorBackCharge
+		pos         []PORow
 	}
 	vendorOrder := []string{}
 	vendorMap := map[string]*vendorAgg{}
@@ -752,6 +790,11 @@ func (h *BudgetHandler) costCategoryTree(
 			for _, p := range pmts {
 				vd.pmts = append(vd.pmts, VendorPayment{Date: p.date, Amount: p.amount, RefNumber: p.ref})
 			}
+		}
+	}
+	for vid, credits := range vendorCredits {
+		if vd, ok := vendorMap[vid]; ok {
+			vd.backCharges = credits
 		}
 	}
 
@@ -795,6 +838,10 @@ func (h *BudgetHandler) costCategoryTree(
 		if pmts == nil {
 			pmts = []VendorPayment{}
 		}
+		bcs := vd.backCharges
+		if bcs == nil {
+			bcs = []VendorBackCharge{}
+		}
 		poSlice := vd.pos
 		if poSlice == nil {
 			poSlice = []PORow{}
@@ -807,6 +854,7 @@ func (h *BudgetHandler) costCategoryTree(
 			Paid:           paidTotal,
 			Open:           max0(vd.committed - paidTotal),
 			Payments:       pmts,
+			BackCharges:    bcs,
 			PurchaseOrders: poSlice,
 		}
 	}
@@ -1002,7 +1050,18 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 			if amt == 0 {
 				continue
 			}
-			top = append(top, CostAccount{Name: n.name, Group: n.group, Amount: amt, Paid: amt - out, Outstanding: out})
+			ca := CostAccount{Name: n.name, Group: n.group, Amount: amt, Paid: amt - out, Outstanding: out}
+			for _, child := range n.children {
+				cAmt, cOut := sumTree(child)
+				if cAmt == 0 {
+					continue
+				}
+				ca.Children = append(ca.Children, CostAccount{
+					Name: child.name, Group: child.group,
+					Amount: cAmt, Paid: cAmt - cOut, Outstanding: cOut,
+				})
+			}
+			top = append(top, ca)
 		}
 	}
 	groupRank := map[string]int{"Cost of Goods Sold": 0, "Expense": 1, "Other": 2}
