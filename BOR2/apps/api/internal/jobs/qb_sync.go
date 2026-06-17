@@ -22,10 +22,12 @@ func NewQBSyncJob(cfg QBSyncConfig) Job {
 		Name:      "qb-sync",
 		DailyHour: 4, // 04:00 UTC = 01:00 BRT
 		Run: func(ctx context.Context) error {
-			// Build fresh clients — GetAccessToken proactively refreshes if >50 min old.
+			// Build fresh clients — token is proactively refreshed if >50 min old, and
+			// the refresh credentials let the client renew itself if the access token
+			// expires mid-run (a full resync can outlast the 60-min token lifetime).
 			clients := make([]*quickbooks.Client, 0, len(quickbooks.AllCompanies))
 			for _, company := range quickbooks.AllCompanies {
-				accessToken, realmID, err := cfg.OAuthSvc.GetAccessToken(ctx, string(company))
+				accessToken, refreshToken, realmID, clientID, clientSecret, err := cfg.OAuthSvc.SyncClientConfig(ctx, string(company))
 				if err != nil {
 					logger.Error("qb sync: token unavailable, skipping company",
 						"company", company,
@@ -36,8 +38,11 @@ func NewQBSyncJob(cfg QBSyncConfig) Job {
 				clients = append(clients, quickbooks.NewClient(
 					company,
 					quickbooks.CompanyConfig{
-						RealmID:     realmID,
-						AccessToken: accessToken,
+						RealmID:      realmID,
+						AccessToken:  accessToken,
+						RefreshToken: refreshToken,
+						ClientID:     clientID,
+						ClientSecret: clientSecret,
 					},
 					cfg.Sandbox,
 				))

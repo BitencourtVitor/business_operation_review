@@ -326,6 +326,10 @@ func (r *PostgresForecastRepository) AddContractTeam(ctx context.Context, projec
 			(SELECT COALESCE(MAX(id), 0) FROM forecast_contract_steps) + row_number() OVER (),
 			$1, $2, cs.step, false
 		FROM catalog_forecast_contract_steps cs
+		WHERE NOT EXISTS (
+			SELECT 1 FROM forecast_contract_steps fcs
+			WHERE LOWER(fcs.project_id) = LOWER($1) AND fcs.team = $2
+		)
 	`, projectID, team)
 	return err
 }
