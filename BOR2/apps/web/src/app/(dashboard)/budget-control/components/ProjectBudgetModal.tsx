@@ -1,18 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import * as Lucide from "lucide-react"
 import {
-  X, ChevronRight, Loader2, Building2, Home, AlertTriangle, Tag,
-  Wallet, HardHat, Coins, HelpCircle,
+  X, ChevronRight, Loader2, Building2, Home, AlertTriangle,
+  Wallet, Coins, HardHat,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail } from "@/hooks/use-budget"
-import type { CategoryCost, PORow, SubcontractorCategory } from "@/services/budget.service"
+import type { CostAccount, PORow } from "@/services/budget.service"
 
+// Exact money with cents (the modal is the precision view).
 const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 const fmtDate = (s: string) => {
   if (!s) return "—"
   const [y, m, d] = s.split("-")
@@ -21,9 +21,10 @@ const fmtDate = (s: string) => {
 const pct = (part: number, whole: number) => (whole > 0 ? (part / whole) * 100 : 0)
 const pctStr = (part: number, whole: number) => `${pct(part, whole).toFixed(0)}%`
 
-function CatIcon({ name, className }: { name: string; className?: string }) {
-  const Ico = (Lucide as unknown as Record<string, React.ElementType>)[name] ?? Tag
-  return <Ico className={className} />
+const GROUP_LABEL: Record<string, string> = {
+  "Cost of Goods Sold": "Cost of Goods Sold",
+  "Expense": "Expense",
+  "Other": "Other",
 }
 
 // ── Segmented progress bar ────────────────────────────────────────────────────
@@ -61,56 +62,16 @@ function Line({ label, value, color, blur, pctOf, dot, strong }: {
   )
 }
 
-// ── Cost-by-category row (account-based / materials) ──────────────────────────
-
-function alertColor(p: number, hasMax: boolean): string | undefined {
-  if (!hasMax) return undefined
-  if (p >= 100) return "#ef4444"
-  if (p >= 80) return "#f59e0b"
-  return "#22c55e"
-}
-
-function CategoryRow({ c, blur }: { c: CategoryCost; blur: string }) {
-  const hasMax = c.max > 0
-  const color = alertColor(c.alert_pct, hasMax)
-  const barPct = hasMax ? Math.min(c.alert_pct, 100) : 0
+// One category row inside a partition (signed amount).
+function CatRow({ name, amount, blur }: { name: string; amount: number; blur: string }) {
+  const neg = amount < 0
   return (
-    <div className="flex flex-col gap-1 px-3 py-2">
-      <div className="flex items-center gap-2">
-        <CatIcon name={c.icon} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="text-xs font-medium">{c.name}</span>
-        {hasMax && c.alert_pct >= 80 && <AlertTriangle className="h-3 w-3" style={{ color }} />}
-        <span className={`ml-auto text-xs font-semibold tabular-nums ${blur}`}>{fmt(c.actual)}</span>
-        {hasMax && <span className={`text-[10px] text-muted-foreground tabular-nums ${blur}`}>/ {fmt(c.max)}</span>}
-      </div>
-      {hasMax && (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-          <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: color }} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Subcontractor-by-category row (PO commitment) ─────────────────────────────
-
-function SubRow({ s, blur }: { s: SubcontractorCategory; blur: string }) {
-  return (
-    <div className="flex flex-col gap-1 px-3 py-2">
-      <div className="flex items-center gap-2">
-        <CatIcon name={s.icon || "HardHat"} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="text-xs font-medium">{s.name}</span>
-        <span className={`ml-auto text-xs font-semibold tabular-nums ${blur}`}>{fmt(s.committed)}</span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-        <div className="h-full rounded-full bg-amber-500" style={{ width: `${Math.min(pct(s.billed, s.committed), 100)}%` }} />
-      </div>
-      <div className="flex items-center gap-3 text-[10px] tabular-nums text-muted-foreground">
-        <span className={blur}>Billed {fmt(s.billed)}</span>
-        <span className="ml-auto" style={s.open > 0 ? { color: "#f59e0b" } : undefined}>
-          <span className={blur}>Open {fmt(s.open)}</span>
-        </span>
-      </div>
+    <div className="flex items-center gap-2 px-1 py-1">
+      <span className="truncate text-[11px] text-muted-foreground" title={name}>{name}</span>
+      <span className={cn("ml-auto shrink-0 text-xs font-semibold tabular-nums", blur)}
+        style={neg ? { color: "#22c55e" } : undefined}>
+        {fmt(amount)}
+      </span>
     </div>
   )
 }
@@ -133,7 +94,7 @@ function POCard({ po, blur }: { po: PORow; blur: string }) {
           {po.po_status || "—"}
         </span>
         <span className="ml-auto shrink-0 text-[10px] tabular-nums text-muted-foreground">{fmtDate(po.txn_date)}</span>
-        <span className={`w-20 shrink-0 text-right text-[11px] font-semibold tabular-nums ${blur}`}>{fmt(po.committed)}</span>
+        <span className={`w-24 shrink-0 text-right text-[11px] font-semibold tabular-nums ${blur}`}>{fmt(po.committed)}</span>
       </button>
       {open && (
         <div className="divide-y divide-border/20 border-t border-border/30 bg-background/40">
@@ -141,9 +102,9 @@ function POCard({ po, blur }: { po: PORow; blur: string }) {
             <div key={i} className="flex items-start gap-2 px-3 py-1.5 pl-8">
               <span className="flex-1 whitespace-pre-line text-[10px] leading-tight text-muted-foreground">{l.description || "—"}</span>
               <div className="flex shrink-0 items-center gap-3 text-[10px] tabular-nums">
-                <span className={`w-16 text-right font-semibold ${blur}`}>{fmt(l.amount)}</span>
-                <span className={`w-16 text-right text-muted-foreground ${blur}`} title="Billed">{fmt(l.received)}</span>
-                <span className={`w-16 text-right ${blur}`} style={l.open > 0 ? { color: "#f59e0b" } : { color: "var(--muted-foreground)" }} title="Open">
+                <span className={`w-20 text-right font-semibold ${blur}`}>{fmt(l.amount)}</span>
+                <span className={`w-20 text-right text-muted-foreground ${blur}`} title="Billed">{fmt(l.received)}</span>
+                <span className={`w-20 text-right ${blur}`} style={l.open > 0 ? { color: "#f59e0b" } : { color: "var(--muted-foreground)" }} title="Open">
                   {l.open > 0 ? fmt(l.open) : "—"}
                 </span>
               </div>
@@ -151,28 +112,6 @@ function POCard({ po, blur }: { po: PORow; blur: string }) {
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-// ── Section shell ─────────────────────────────────────────────────────────────
-
-function Panel({ title, total, accent, blur, icon: Icon, children, empty }: {
-  title: string; total?: number; accent: string; blur: string
-  icon: React.ElementType; children: React.ReactNode; empty?: boolean
-}) {
-  return (
-    <div className="flex flex-col rounded-xl border border-border bg-muted/10">
-      <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-        <Icon className="h-3.5 w-3.5" style={{ color: accent }} />
-        <span className="text-xs font-semibold">{title}</span>
-        {total !== undefined && (
-          <span className={`ml-auto text-xs font-bold tabular-nums ${blur}`} style={{ color: accent }}>{fmt(total)}</span>
-        )}
-      </div>
-      {empty
-        ? <p className="px-4 py-6 text-center text-[11px] italic text-muted-foreground/50">Nothing here.</p>
-        : <div className="divide-y divide-border/30">{children}</div>}
     </div>
   )
 }
@@ -187,6 +126,17 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const blur = !showFinancialData ? "blur-sm select-none pointer-events-none" : ""
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
+
+  // Group cost accounts by their account-type group, preserving server order.
+  const costGroups: { group: string; rows: CostAccount[]; subtotal: number }[] = []
+  if (data) {
+    for (const ca of data.cost_accounts) {
+      let g = costGroups.find(x => x.group === ca.group)
+      if (!g) { g = { group: ca.group, rows: [], subtotal: 0 }; costGroups.push(g) }
+      g.rows.push(ca)
+      g.subtotal += ca.amount
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -220,14 +170,14 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
           ) : (
             <div className="flex flex-col gap-4">
 
-              {/* ── Income / Cost partitions ─────────────────────────────────── */}
+              {/* ── A Receber / A Pagar ──────────────────────────────────────── */}
               <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
 
-                {/* INCOME */}
+                {/* INCOME — A Receber */}
                 <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-semibold text-emerald-500">Income</span>
+                    <span className="text-sm font-semibold text-emerald-500">A Receber · Income</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
                       {pctStr(data.received, data.projected_receive)} received
                     </span>
@@ -243,14 +193,21 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     <Line label="Received" value={data.received} color="#22c55e" dot="#22c55e" blur={blur} pctOf={data.projected_receive} />
                     <Line label="To receive (open invoices)" value={data.to_receive} dot="#f59e0b" blur={blur} pctOf={data.projected_receive} />
                   </div>
+                  {/* Income categories */}
+                  <div className="mt-1 border-t border-border/40 pt-2">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Categories</p>
+                    {data.income_accounts.length === 0
+                      ? <p className="px-1 py-1 text-[11px] italic text-muted-foreground/50">No income recorded.</p>
+                      : data.income_accounts.map(ia => <CatRow key={ia.name} name={ia.name} amount={ia.amount} blur={blur} />)}
+                  </div>
                 </div>
 
-                {/* COST */}
+                {/* COST — A Pagar */}
                 <div className={cn("flex flex-col gap-3 rounded-xl border p-4",
                   overCeiling ? "border-red-500/30 bg-red-500/[0.04]" : "border-amber-500/20 bg-amber-500/[0.03]")}>
                   <div className="flex items-center gap-2">
                     <Coins className={cn("h-4 w-4", overCeiling ? "text-red-500" : "text-amber-500")} />
-                    <span className={cn("text-sm font-semibold", overCeiling ? "text-red-500" : "text-amber-500")}>Cost</span>
+                    <span className={cn("text-sm font-semibold", overCeiling ? "text-red-500" : "text-amber-500")}>A Pagar · Cost</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
                       {pctStr(data.cost_total, data.cost_ceiling)} of ceiling
                     </span>
@@ -271,42 +228,38 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       Over the 70% ceiling — projected margin below {Math.round(data.margin_target * 100)}%.
                     </div>
                   )}
+                  {/* Cost categories grouped by account type */}
+                  <div className="mt-1 flex flex-col gap-2 border-t border-border/40 pt-2">
+                    {costGroups.length === 0 && (
+                      <p className="px-1 py-1 text-[11px] italic text-muted-foreground/50">No cost recorded.</p>
+                    )}
+                    {costGroups.map(g => (
+                      <div key={g.group} className="flex flex-col">
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                            {GROUP_LABEL[g.group] ?? g.group}
+                          </span>
+                          <span className={`ml-auto text-[11px] font-bold tabular-nums text-muted-foreground ${blur}`}>{fmt(g.subtotal)}</span>
+                        </div>
+                        {g.rows.map(r => <CatRow key={r.name} name={r.name} amount={r.amount} blur={blur} />)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* ── Cost breakdowns ──────────────────────────────────────────── */}
-              <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-
-                {/* Subcontractors by category */}
-                <Panel title="Subcontractors (PO)" total={data.labor_committed} accent="#f59e0b" blur={blur}
-                  icon={HardHat} empty={data.subcontractor_categories.length === 0}>
-                  {data.subcontractor_categories.map(s => <SubRow key={s.name} s={s} blur={blur} />)}
-                  <div className="flex items-center gap-3 px-3 py-2 text-[10px] tabular-nums text-muted-foreground">
-                    <span className={blur}>Billed {fmt(data.labor_billed)}</span>
-                    <span className="ml-auto" style={data.labor_open > 0 ? { color: "#f59e0b" } : undefined}>
-                      <span className={blur}>Open {fmt(data.labor_open)}</span>
-                    </span>
-                  </div>
-                </Panel>
-
-                {/* Other costs by category */}
-                <Panel title="Cost by category" total={data.cost_total} accent="#ef4444" blur={blur}
-                  icon={Coins} empty={data.categories.length === 0 && data.uncategorized <= 0.5}>
-                  {data.categories.map(c => <CategoryRow key={c.name} c={c} blur={blur} />)}
-                  {data.uncategorized > 0.5 && (
-                    <div className="flex items-center gap-2 px-3 py-2">
-                      <HelpCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
-                      <span className="text-xs text-muted-foreground/60">Uncategorized</span>
-                      <span className={`ml-auto text-xs font-semibold tabular-nums text-muted-foreground/60 ${blur}`}>{fmt(data.uncategorized)}</span>
-                    </div>
-                  )}
-                </Panel>
-              </div>
-
-              {/* ── Purchase orders ──────────────────────────────────────────── */}
+              {/* ── Purchase Orders ──────────────────────────────────────────── */}
               <div className="flex flex-col rounded-xl border border-border bg-muted/10">
                 <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-                  <span className="text-xs font-semibold text-amber-500">Purchase Orders ({data.purchase_orders.length})</span>
+                  <div className="flex items-center gap-2">
+                    <HardHat className="h-3.5 w-3.5 text-amber-500" />
+                    <span className="text-xs font-semibold text-amber-500">Purchase Orders ({data.purchase_orders.length})</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[10px] tabular-nums text-muted-foreground">
+                    <span className={blur}>Committed {fmt(data.labor_committed)}</span>
+                    <span className={blur}>Billed {fmt(data.labor_billed)}</span>
+                    <span className={blur} style={data.labor_open > 0 ? { color: "#f59e0b" } : undefined}>Open {fmt(data.labor_open)}</span>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 p-3">
                   {data.purchase_orders.length === 0 ? (

@@ -43,12 +43,15 @@ export interface BudgetSummary {
   in_progress: number
 }
 
-export interface CategoryCost {
+export interface IncomeAccount {
   name: string
-  icon: string
-  actual: number
-  max: number
-  alert_pct: number
+  amount: number
+}
+
+export interface CostAccount {
+  name: string
+  group: string // "Cost of Goods Sold" | "Expense" | "Other"
+  amount: number
 }
 
 export interface POLineRow {
@@ -71,14 +74,6 @@ export interface PORow {
   lines: POLineRow[]
 }
 
-export interface SubcontractorCategory {
-  name: string
-  icon: string
-  committed: number
-  billed: number
-  open: number
-}
-
 export interface BudgetProjectDetail {
   project_id: string
   client_name: string
@@ -86,24 +81,25 @@ export interface BudgetProjectDetail {
   project_type: "house" | "building"
   margin_target: number
 
+  // Income (a receber)
   projected_receive: number
   invoiced: number
   received: number
   to_receive: number
+  income_accounts: IncomeAccount[]
 
+  // Cost (a pagar)
   cost_total: number
   cost_ceiling: number
   paid: number
   open_payable: number
   to_pay: number
+  cost_accounts: CostAccount[]
 
+  // Forward subcontractor commitment (POs)
   labor_committed: number
   labor_billed: number
   labor_open: number
-
-  categories: CategoryCost[]
-  subcontractor_categories: SubcontractorCategory[]
-  uncategorized: number
   purchase_orders: PORow[]
 }
 
