@@ -44,7 +44,6 @@ function SegBar({ total, segments, remainder }: {
 
   return (
     <div className="relative h-6 w-full">
-      {/* Coloured segments — clipped to pill shape */}
       <div className="absolute inset-0 flex overflow-hidden rounded-full bg-muted/30">
         {segments.map((s, i) => {
           const w = total > 0 ? (Math.max(s.value, 0) / total) * 100 : 0
@@ -55,7 +54,6 @@ function SegBar({ total, segments, remainder }: {
           )
         })}
       </div>
-      {/* Transparent hover zones — outside overflow-hidden so tooltips aren't clipped */}
       <div className="absolute inset-0 flex">
         {segments.map((s, i) => {
           const w = total > 0 ? (Math.max(s.value, 0) / total) * 100 : 0
@@ -96,79 +94,90 @@ function Line({ label, value, color, blur, pctOf, dot, strong, dimmed }: {
   )
 }
 
-// Inline icon from a Lucide icon name string (from the category icon field).
 function CategoryIcon({ name, className }: { name: string; className?: string }) {
   const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[name]
   if (!Icon) return <Tag className={className} />
   return <Icon className={className} />
 }
 
+// ── Value cell ────────────────────────────────────────────────────────────────
 
-// ── Vendor row inside a category ──────────────────────────────────────────────
+function ValueCell({ value, color, blur, sm }: { value: number; color?: string; blur: string; sm?: boolean }) {
+  return (
+    <div className="w-24 text-right">
+      <span
+        className={cn("tabular-nums font-semibold", sm ? "text-[10px]" : "text-[11px]", blur)}
+        style={color ? { color } : undefined}
+      >
+        {fmt(value)}
+      </span>
+    </div>
+  )
+}
+
+// ── Vendor row ────────────────────────────────────────────────────────────────
 
 function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
   const [open, setOpen] = useState(false)
-  const hasPayments = vendor.payments.length > 0
+  const hasDetail = vendor.payments.length > 0 || vendor.purchase_orders.length > 0
   const isSettled = vendor.billed > 0 && vendor.open <= 0
+
   return (
-    <div className="overflow-hidden rounded-lg border border-border/30 bg-card/40">
+    <div className="border-t border-border/10 first:border-t-0">
       <button
-        onClick={() => setOpen(o => !o)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/20"
-      >
-        <ChevronRight className={cn("h-3 w-3 shrink-0 text-muted-foreground/50 transition-transform", open && "rotate-90")} />
-        <span className="min-w-0 flex-1 truncate text-[11px] font-medium">{vendor.vendor_name || "—"}</span>
-        {isSettled && (
-          <span className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
-            quitado
-          </span>
+        onClick={() => hasDetail && setOpen(o => !o)}
+        className={cn(
+          "flex w-full items-center gap-2 py-1.5 pr-4 text-left",
+          "pl-[52px]", // aligns name below category name (px-4 + icon-w-6 + gap-3 ≈ 52px)
+          hasDetail ? "cursor-pointer hover:bg-muted/10" : "cursor-default"
         )}
-        {/* 4-column metrics */}
-        <div className="flex shrink-0 items-center gap-px">
-          <MetricCell label="committed" value={vendor.committed} blur={blur} />
-          <MetricCell label="billed" value={vendor.billed} blur={blur} />
-          <MetricCell label="paid" value={vendor.paid} color="#22c55e" blur={blur} />
-          <MetricCell label="open" value={vendor.open} color={vendor.open > 0 ? "#f59e0b" : undefined} blur={blur} />
+      >
+        {hasDetail
+          ? <ChevronRight className={cn("h-2.5 w-2.5 shrink-0 -ml-4 text-muted-foreground/30 transition-transform", open && "rotate-90")} />
+          : <div className="h-2.5 w-2.5 shrink-0 -ml-4" />
+        }
+        <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground/80">{vendor.vendor_name || "—"}</span>
+        {isSettled && <Check className="h-3 w-3 shrink-0 text-emerald-500/60" />}
+        <div className="flex shrink-0 items-center">
+          <ValueCell value={vendor.committed} blur={blur} sm />
+          <ValueCell value={vendor.billed} blur={blur} sm />
+          <ValueCell value={vendor.paid} color="#22c55e" blur={blur} sm />
+          <ValueCell value={vendor.open} color={vendor.open > 0 ? "#f97316" : undefined} blur={blur} sm />
         </div>
+        {/* spacer matching chevron width in CategoryRow */}
+        <div className="w-[22px] shrink-0" />
       </button>
 
       {open && (
-        <div className="border-t border-border/20 bg-background/30">
-          {/* Payment history */}
-          {hasPayments ? (
-            <div className="px-8 py-2">
-              <p className="mb-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+        <div className="ml-[52px] mb-2 border-l border-border/20 pl-3 pr-4">
+          {vendor.payments.length > 0 && (
+            <div className="py-1.5">
+              <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/40">
                 Payments ({vendor.payments.length})
               </p>
-              <div className="flex flex-col gap-0.5">
-                {vendor.payments.map((p, i) => (
-                  <div key={i} className="flex items-center gap-3 py-0.5">
-                    <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/60" />
-                    <span className="w-14 shrink-0 text-[10px] tabular-nums text-muted-foreground">{fmtDate(p.date)}</span>
-                    <span className="flex-1 truncate text-[10px] text-muted-foreground/70">{p.ref_number || "—"}</span>
-                    <span className={cn("text-[11px] font-semibold tabular-nums text-emerald-600", blur)}>{fmt(p.amount)}</span>
-                  </div>
-                ))}
-              </div>
+              {vendor.payments.map((p, i) => (
+                <div key={i} className="flex items-center gap-2 py-0.5">
+                  <div className="h-1 w-1 shrink-0 rounded-full bg-emerald-500/50" />
+                  <span className="w-14 shrink-0 text-[10px] tabular-nums text-muted-foreground/50">{fmtDate(p.date)}</span>
+                  <span className="flex-1 truncate text-[10px] text-muted-foreground/40">{p.ref_number || "—"}</span>
+                  <span className={cn("text-[10px] font-semibold tabular-nums text-emerald-600", blur)}>{fmt(p.amount)}</span>
+                </div>
+              ))}
             </div>
-          ) : (
-            <p className="px-8 py-2 text-[10px] italic text-muted-foreground/40">No payments recorded.</p>
           )}
-
-          {/* PO list (simplified) */}
           {vendor.purchase_orders.length > 0 && (
-            <div className="border-t border-border/10 px-8 py-2">
-              <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            <div className={cn("py-1.5", vendor.payments.length > 0 && "border-t border-border/10")}>
+              <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/40">
                 Purchase orders ({vendor.purchase_orders.length})
               </p>
               {vendor.purchase_orders.map(po => (
                 <div key={po.external_id} className="flex items-center gap-2 py-0.5">
-                  <span className="text-[10px] text-muted-foreground/70">{po.doc_number || po.external_id}</span>
-                  <span className="text-[9px] text-muted-foreground/40">{fmtDate(po.txn_date)}</span>
+                  <span className="text-[10px] text-muted-foreground/50">{po.doc_number || po.external_id}</span>
+                  <span className="text-[9px] text-muted-foreground/30">{fmtDate(po.txn_date)}</span>
                   <span
                     className="shrink-0 rounded-full px-1.5 py-px text-[9px] font-medium"
                     style={po.po_status === "Open"
-                      ? { color: "#f59e0b", background: "rgba(245,158,11,0.1)" }
+                      ? { color: "#f97316", background: "rgba(245,158,11,0.1)" }
                       : { color: "#9ca3af", background: "rgba(156,163,175,0.1)" }}
                   >
                     {po.po_status}
@@ -184,51 +193,63 @@ function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
   )
 }
 
-function MetricCell({ label, value, color, blur }: { label: string; value: number; color?: string; blur: string }) {
-  return (
-    <div className="flex w-24 flex-col items-end px-1">
-      <span className={cn("text-[11px] font-semibold tabular-nums", blur)} style={color ? { color } : undefined}>
-        {fmt(value)}
-      </span>
-    </div>
-  )
-}
-
-// ── Category accordion row ────────────────────────────────────────────────────
+// ── Category row ──────────────────────────────────────────────────────────────
 
 function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur: string; isOpen: boolean; onToggle: () => void }) {
+  const isUncategorized = !cat.category_id
   const isSettled = cat.billed > 0 && cat.open <= 0
+  const isNoPO = cat.committed === 0
+  const isOverbilled = cat.committed > 0 && cat.billed > cat.committed
+
+  const billedPct = cat.committed > 0 ? Math.min((cat.billed / cat.committed) * 100, 100) : 0
+  const paidPct = cat.committed > 0 ? Math.min((cat.paid / cat.committed) * 100, 100) : 0
 
   return (
-    <div className="border-b border-border/40 last:border-b-0">
+    <div className={cn("border-b border-border/30 last:border-b-0", isUncategorized && "opacity-60")}>
       <button
         onClick={onToggle}
-        className="flex w-full items-center gap-3 bg-card/60 px-4 py-3 text-left hover:bg-muted/20"
+        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-muted/10"
       >
         {/* Icon */}
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted/40">
-          <CategoryIcon name={cat.icon} className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted/30">
+          <CategoryIcon name={cat.icon} className="h-3 w-3 text-muted-foreground/70" />
         </div>
-        {/* Name */}
-        <span className="min-w-0 flex-1 text-[12px] font-semibold">{cat.category_name}</span>
-        {/* Settled badge */}
-        {isSettled && (
-          <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-600">
-            quitado
-          </span>
-        )}
-        {/* 4 metrics */}
-        <div className="flex shrink-0 items-center gap-px">
-          <MetricCell label="committed" value={cat.committed} blur={blur} />
-          <MetricCell label="billed" value={cat.billed} blur={blur} />
-          <MetricCell label="paid" value={cat.paid} color="#22c55e" blur={blur} />
-          <MetricCell label="open" value={cat.open} color={cat.open > 0 ? "#f59e0b" : undefined} blur={blur} />
+
+        {/* Name + mini progress bar */}
+        <div className="min-w-0 flex-1">
+          <span className="block truncate text-[11px] font-semibold">{cat.category_name}</span>
+          {!isNoPO && (
+            <div className="relative mt-1 h-1 w-full overflow-hidden rounded-full bg-muted/30">
+              <div className="absolute inset-y-0 left-0 rounded-full bg-red-500/35 transition-all" style={{ width: `${billedPct}%` }} />
+              <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/65 transition-all" style={{ width: `${paidPct}%` }} />
+            </div>
+          )}
         </div>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform", isOpen && "rotate-180")} />
+
+        {/* Status badge — fixed width keeps value columns aligned */}
+        <div className="w-16 shrink-0 text-right">
+          {isSettled ? (
+            <span className="inline-block rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">settled</span>
+          ) : isNoPO ? (
+            <span className="inline-block rounded-full bg-muted/40 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground/50">no PO</span>
+          ) : isOverbilled ? (
+            <span className="inline-block rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-orange-500">overbilled</span>
+          ) : null}
+        </div>
+
+        {/* 4 value columns */}
+        <div className="flex shrink-0 items-center">
+          <ValueCell value={cat.committed} blur={blur} />
+          <ValueCell value={cat.billed} blur={blur} />
+          <ValueCell value={cat.paid} color="#22c55e" blur={blur} />
+          <ValueCell value={cat.open} color={cat.open > 0 ? "#f97316" : undefined} blur={blur} />
+        </div>
+
+        <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition-transform", isOpen && "rotate-180")} />
       </button>
 
       {isOpen && (
-        <div className="flex flex-col gap-2 border-t border-border/30 bg-background/30 p-3 pl-5">
+        <div className="border-t border-border/20 bg-background/20 pb-1">
           {cat.vendors.map(v => (
             <VendorRow key={v.vendor_id || v.vendor_name} vendor={v} blur={blur} />
           ))}
@@ -260,7 +281,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   })
   const costAccounts = data?.cost_accounts ?? []
 
-  // Totals across all categories for the section header
   const catTotals = costCategories.reduce(
     (acc, c) => ({ committed: acc.committed + c.committed, billed: acc.billed + c.billed, paid: acc.paid + c.paid, open: acc.open + c.open }),
     { committed: 0, billed: 0, paid: 0, open: 0 }
@@ -319,11 +339,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     total={Math.max(data.income_actual, data.projected_receive)}
                     segments={[
                       { value: data.received, color: "#22c55e", label: "Received", icon: Check },
-                      { value: data.to_receive, color: "#f59e0b", label: "Outstanding", icon: Clock },
+                      { value: data.to_receive, color: "#f97316", label: "Outstanding", icon: Clock },
                     ]}
                     remainder={{ label: "Estimated", value: data.projected_receive }}
                   />
-                  {/* 3-column: Received | Outstanding | Estimated */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Received</span>
@@ -331,7 +350,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     </div>
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Outstanding</span>
-                      <span className={cn("text-lg font-bold tabular-nums text-amber-500", blur)}>{fmt(data.to_receive)}</span>
+                      <span className={cn("text-lg font-bold tabular-nums text-orange-500", blur)}>{fmt(data.to_receive)}</span>
                     </div>
                     <div className="flex flex-col items-end gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Estimated</span>
@@ -349,7 +368,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       </button>
                       {showByType && (
                         <div className="border-t border-border/20">
-                          {/* Column headers */}
                           <div className="flex items-center bg-muted/10 px-3 py-1">
                             <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Type</span>
                             <div className="flex shrink-0">
@@ -361,7 +379,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           {incomeAccounts.map(ia => {
                             const receivedForType = Math.max(ia.amount - ia.outstanding, 0)
                             const settled = ia.outstanding === 0
-                            const dimText = settled ? "text-muted-foreground/50" : "text-foreground/80"
                             return (
                               <div key={ia.name} className="flex items-center border-t border-border/20 px-3 py-1.5">
                                 <div className="flex flex-1 items-center gap-1.5 min-w-0">
@@ -371,13 +388,13 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                                   </div>
                                 </div>
                                 <div className="flex shrink-0">
-                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", dimText, blur)}>
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", settled ? "text-muted-foreground/50" : "text-foreground/80", blur)}>
                                     {fmt(ia.amount)}
                                   </span>
-                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", dimText, blur)}>
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", settled ? "text-muted-foreground/50" : "text-foreground/80", blur)}>
                                     {fmt(receivedForType)}
                                   </span>
-                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/50" : "text-amber-500")}>
+                                  <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/50" : "text-orange-500")}>
                                     {fmt(ia.outstanding)}
                                   </span>
                                 </div>
@@ -407,11 +424,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     total={Math.max(data.cost_ceiling, data.cost_total)}
                     segments={[
                       { value: data.paid, color: "#ef4444", label: "Paid", icon: Check },
-                      { value: data.open_payable, color: "#f59e0b", label: "Outstanding", icon: Clock },
+                      { value: data.open_payable, color: "#f97316", label: "Outstanding", icon: Clock },
                     ]}
                     remainder={{ label: "Cost Budget", value: data.cost_ceiling }}
                   />
-                  {/* 3-col: Paid | Outstanding | Cost Budget */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Paid</span>
@@ -419,7 +435,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     </div>
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Outstanding</span>
-                      <span className={cn("text-lg font-bold tabular-nums text-amber-500", blur)}>{fmt(data.open_payable)}</span>
+                      <span className={cn("text-lg font-bold tabular-nums text-orange-500", blur)}>{fmt(data.open_payable)}</span>
                     </div>
                     <div className="flex flex-col items-end gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Cost Budget</span>
@@ -461,7 +477,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                               <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur)}>
                                 {fmt(ca.paid)}
                               </span>
-                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.outstanding > 0 ? "text-amber-500" : "text-muted-foreground/40")}>
+                              <span className={cn("w-28 text-right text-[11px] font-semibold tabular-nums", blur, ca.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>
                                 {fmt(ca.outstanding)}
                               </span>
                             </div>
@@ -473,47 +489,61 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 </div>
               </div>
 
-              {/* ── Cost by Category ─────────────────────────────────────────── */}
+              {/* ── Subcontractor Costs ───────────────────────────────────────── */}
               <div className="flex flex-col gap-0">
+
                 {/* Section header */}
-                <div className="flex items-center gap-3 rounded-t-xl border border-border/50 bg-muted/20 px-4 py-2.5">
-                  <HardHat className="h-3.5 w-3.5 text-muted-foreground" />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold leading-tight">Subcontractor Costs</span>
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50">by category</span>
+                <div className="flex flex-col gap-2 rounded-t-xl border border-yellow-500/25 bg-yellow-500/[0.04] px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <HardHat className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs font-semibold text-yellow-500">Subcontractor Costs</span>
+                    {costCategories.length === 0 && (
+                      <span className="text-[10px] italic text-muted-foreground/50">No categories assigned yet</span>
+                    )}
+                    {costCategories.length > 0 && (
+                      <div className="ml-auto flex items-center gap-4 text-[10px] tabular-nums text-muted-foreground">
+                        <span>Committed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
+                        <span>Billed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.billed)}</span></span>
+                        <span>Paid <span className={cn("font-semibold text-emerald-600", blur)}>{fmt(catTotals.paid)}</span></span>
+                        <span>Open <span className={cn("font-semibold", catTotals.open > 0 ? "text-orange-500" : "text-muted-foreground", blur)}>{fmt(catTotals.open)}</span></span>
+                      </div>
+                    )}
                   </div>
-                  {costCategories.length === 0 && (
-                    <span className="text-[10px] italic text-muted-foreground/50">No categories assigned yet</span>
-                  )}
-                  {costCategories.length > 0 && (
-                    <div className="ml-auto flex items-center gap-4 text-[10px] tabular-nums text-muted-foreground">
-                      <span>PO Value <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.committed)}</span></span>
-                      <span>Billed <span className={cn("font-semibold text-foreground", blur)}>{fmt(catTotals.billed)}</span></span>
-                      <span>Paid <span className={cn("font-semibold text-emerald-600", blur)}>{fmt(catTotals.paid)}</span></span>
-                      <span>Open <span className={cn("font-semibold", catTotals.open > 0 ? "text-amber-500" : "text-muted-foreground", blur)}>{fmt(catTotals.open)}</span></span>
+                  {/* Overall billing progress bar */}
+                  {catTotals.committed > 0 && (
+                    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full bg-red-500/30 transition-all"
+                        style={{ width: `${Math.min((catTotals.billed / catTotals.committed) * 100, 100)}%` }}
+                      />
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/60 transition-all"
+                        style={{ width: `${Math.min((catTotals.paid / catTotals.committed) * 100, 100)}%` }}
+                      />
                     </div>
                   )}
                 </div>
 
-                {/* Column labels row */}
+                {/* Column labels */}
                 {costCategories.length > 0 && (
-                  <div className="flex items-center border-x border-border/40 bg-background/20 px-4 py-1">
-                    <div className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
-                    <div className="flex shrink-0 items-center gap-px">
-                      {(["PO value", "billed", "paid", "open"] as const).map(lbl => (
-                        <div key={lbl} className="w-24 text-right pr-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                  <div className="flex items-center border-x border-yellow-500/20 bg-background/20 px-4 py-1">
+                    <div className="h-6 w-6 shrink-0" /> {/* icon placeholder */}
+                    <div className="flex-1 pl-3 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
+                    <div className="w-16 shrink-0" /> {/* badge placeholder */}
+                    <div className="flex shrink-0 items-center">
+                      {(["Committed", "Billed", "Paid", "Open"] as const).map(lbl => (
+                        <div key={lbl} className="w-24 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
                           {lbl}
                         </div>
                       ))}
                     </div>
-                    <div className="w-8" />
+                    <div className="w-[22px] shrink-0" /> {/* chevron placeholder */}
                   </div>
                 )}
 
                 {/* Category rows */}
                 <div className={cn(
-                  "flex flex-col overflow-hidden rounded-b-xl border border-t-0 border-border/50",
-                  costCategories.length === 0 && "rounded-t-none"
+                  "flex flex-col overflow-hidden rounded-b-xl border border-t-0 border-yellow-500/20",
                 )}>
                   {costCategories.length === 0 ? (
                     <div className="flex items-center justify-center py-6 text-[11px] italic text-muted-foreground/40">
@@ -535,7 +565,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   )}
                 </div>
               </div>
-
 
             </div>
           )}
