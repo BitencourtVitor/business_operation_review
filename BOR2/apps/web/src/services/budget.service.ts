@@ -85,6 +85,7 @@ export interface BudgetProjectDetail {
   // Income (a receber)
   projected_receive: number
   invoiced: number
+  income_actual: number
   received: number
   to_receive: number
   income_accounts: IncomeAccount[]

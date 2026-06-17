@@ -126,7 +126,7 @@ est AS (
     GROUP BY pk.pkey
 ),
 inv AS (
-    SELECT pk.pkey, SUM(i.total_amount) AS total
+    SELECT pk.pkey, SUM(i.total_amount) AS total, SUM(COALESCE(i.balance,0)) AS balance
     FROM qb_invoices i JOIN proj_key pk ON pk.customer_id = i.customer_id
     WHERE i.company=$1 AND i.customer_id<>''
     GROUP BY pk.pkey
@@ -171,7 +171,8 @@ po AS (
 )
 SELECT p.pkey, p.client, p.pname,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
-       COALESCE(op.total,0), COALESCE(pp.committed,0), COALESCE(pp.billed,0), COALESCE(pp.open_commit,0)
+       COALESCE(op.total,0), COALESCE(pp.committed,0), COALESCE(pp.billed,0), COALESCE(pp.open_commit,0),
+       COALESCE(i.balance,0)
 FROM proj p
 LEFT JOIN est          e  ON e.pkey  = p.pkey
 LEFT JOIN inv          i  ON i.pkey  = p.pkey
@@ -203,16 +204,16 @@ func (h *BudgetHandler) queryProjects(c *fiber.Ctx, company string, year int, ha
 	var out []BudgetProject
 	for rows.Next() {
 		var p BudgetProject
-		var openPayable float64
+		var openPayable, invBalance float64
 		if err := rows.Scan(
 			&p.ProjectID, &p.ClientName, &p.Name,
 			&p.ProjectedReceive, &p.Invoiced, &p.Received, &p.CostTotal, &openPayable,
-			&p.LaborCommitted, &p.LaborBilled, &p.LaborOpen,
+			&p.LaborCommitted, &p.LaborBilled, &p.LaborOpen, &invBalance,
 		); err != nil {
 			return nil, err
 		}
 		p.ProjectType = projectType(p.Name)
-		p.ToReceive = max0(p.Invoiced - p.Received)
+		p.ToReceive = max0(invBalance)
 		p.ToPay = max0(p.LaborOpen) + max0(openPayable)
 		p.CostCeiling = p.ProjectedReceive * (1 - profitMargin)
 		p.OverCeiling = p.CostCeiling > 0 && p.CostTotal > p.CostCeiling
@@ -372,9 +373,10 @@ type BudgetProjectDetail struct {
 
 	// Income (a receber)
 	ProjectedReceive float64         `json:"projected_receive"` // contract / estimate
-	Invoiced         float64         `json:"invoiced"`          // total billed (gross Sales)
-	Received         float64         `json:"received"`
-	ToReceive        float64         `json:"to_receive"` // invoiced - received
+	Invoiced         float64         `json:"invoiced"`          // total billed (gross)
+	IncomeActual     float64         `json:"income_actual"`     // earned income = Σ categories (QB P&L income)
+	Received         float64         `json:"received"`          // cash received (payments)
+	ToReceive        float64         `json:"to_receive"`        // open invoice balance (AR)
 	IncomeAccounts   []IncomeAccount `json:"income_accounts"`
 
 	// Cost (a pagar) — incurred via bills/purchases/vendor credits
@@ -457,20 +459,28 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		JOIN qb_bills b ON b.id = bc.bill_id AND b.balance > 0
 	`, company, customerIDs).Scan(&d.OpenPayable)
 
+	// To receive = open invoice balance (real AR), matching QB / the Accounting page.
+	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(balance),0) FROM qb_invoices WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.ToReceive)
 	d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
-	d.ToReceive = max0(d.Invoiced - d.Received)
 	d.Paid = max0(d.CostTotal - d.OpenPayable)
 
 	// Income by category (a receber): invoice lines grouped by their item's income
-	// account (Sales / Extra / Material Extra / Back Charges …), mirroring QB P&L.
+	// account (Sales / Extra / Material Extra …) PLUS back charges (negative deposit
+	// lines), mirroring QB "Profit and Loss by Project" income section.
 	incRows, err := h.db.Query(ctx, `
-		SELECT COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
-		       SUM(il.amount) AS amount
-		FROM qb_invoice_lines il
-		JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1 AND i.customer_id=ANY($2)
-		LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
-		GROUP BY 1
-		HAVING SUM(il.amount) <> 0
+		SELECT name, SUM(amount) AS amount FROM (
+			SELECT COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
+			       il.amount
+			FROM qb_invoice_lines il
+			JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1 AND i.customer_id=ANY($2)
+			LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
+			UNION ALL
+			SELECT 'Back Charges' AS name, dl.amount
+			FROM qb_deposit_lines dl
+			WHERE dl.company=$1 AND dl.customer_id=ANY($2) AND dl.amount < 0
+		) t
+		GROUP BY name
+		HAVING SUM(amount) <> 0
 		ORDER BY amount DESC
 	`, company, customerIDs)
 	if err != nil {
@@ -480,6 +490,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		var ia IncomeAccount
 		incRows.Scan(&ia.Name, &ia.Amount)
 		d.IncomeAccounts = append(d.IncomeAccounts, ia)
+		d.IncomeActual += ia.Amount
 	}
 	incRows.Close()
 
