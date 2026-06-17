@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -351,11 +353,14 @@ type IncomeAccount struct {
 
 // CostAccount is one payable category = a QB GL account (mirrors QB P&L by Project
 // cost accounts), grouped by account type (Cost of Goods Sold / Expense / Other).
-// Amount is signed (vendor credits / refunds are negative).
+// Amount is signed (vendor credits / refunds are negative) and, for a parent
+// account, includes its children. Children are the nested sub-accounts (QB rolls
+// e.g. Freight Panels under Panels Premium).
 type CostAccount struct {
-	Name   string  `json:"name"`
-	Group  string  `json:"group"`
-	Amount float64 `json:"amount"`
+	Name     string        `json:"name"`
+	Group    string        `json:"group"`
+	Amount   float64       `json:"amount"`
+	Children []CostAccount `json:"children,omitempty"`
 }
 
 type BudgetProjectDetail struct {
@@ -456,42 +461,34 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	d.ToReceive = max0(d.Invoiced - d.Received)
 	d.Paid = max0(d.CostTotal - d.OpenPayable)
 
-	// Income by category (a receber). QB posts income via item income accounts which
-	// the current sync does not capture, so the only category we can attribute today
-	// is gross Sales (= invoiced). Back charges / extras / discounts await the income-
-	// account sync expansion.
-	if d.Invoiced != 0 {
-		d.IncomeAccounts = append(d.IncomeAccounts, IncomeAccount{Name: "Sales", Amount: d.Invoiced})
-	}
-
-	// Cost by QB account (a pagar), grouped by account type, vendor credits negative.
-	// Falls back to the line's stored account name for deleted/unsynced accounts.
-	costRows, err := h.db.Query(ctx, `
-		SELECT name, grp, amount FROM (
-			WITH exp AS (
-				SELECT account_ref_id, account_ref_name, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
-				UNION ALL SELECT account_ref_id, account_ref_name, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
-				UNION ALL SELECT account_ref_id, account_ref_name, -amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
-			)
-			SELECT COALESCE(NULLIF(a.name,''), NULLIF(x.account_ref_name,''), 'Uncategorized') AS name,
-			       CASE WHEN a.account_type IN ('Cost of Goods Sold','Expense') THEN a.account_type ELSE 'Other' END AS grp,
-			       SUM(x.amount) AS amount
-			FROM exp x
-			LEFT JOIN qb_accounts a ON a.company=$1 AND a.external_id=x.account_ref_id
-			GROUP BY 1, 2
-			HAVING SUM(x.amount) <> 0
-		) t
-		ORDER BY (CASE grp WHEN 'Cost of Goods Sold' THEN 0 WHEN 'Expense' THEN 1 ELSE 2 END), amount DESC
+	// Income by category (a receber): invoice lines grouped by their item's income
+	// account (Sales / Extra / Material Extra / Back Charges …), mirroring QB P&L.
+	incRows, err := h.db.Query(ctx, `
+		SELECT COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
+		       SUM(il.amount) AS amount
+		FROM qb_invoice_lines il
+		JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1 AND i.customer_id=ANY($2)
+		LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
+		GROUP BY 1
+		HAVING SUM(il.amount) <> 0
+		ORDER BY amount DESC
 	`, company, customerIDs)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	for costRows.Next() {
-		var ca CostAccount
-		costRows.Scan(&ca.Name, &ca.Group, &ca.Amount)
-		d.CostAccounts = append(d.CostAccounts, ca)
+	for incRows.Next() {
+		var ia IncomeAccount
+		incRows.Scan(&ia.Name, &ia.Amount)
+		d.IncomeAccounts = append(d.IncomeAccounts, ia)
 	}
-	costRows.Close()
+	incRows.Close()
+
+	// Cost by QB account (a pagar), nested parent→child (mirrors QB P&L), grouped by
+	// account type, vendor credits negative, deleted accounts via stored line name.
+	d.CostAccounts, err = h.costAccountTree(ctx, company, customerIDs)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
 
 	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
@@ -569,6 +566,159 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	d.ToPay = max0(d.OpenPayable) + max0(d.LaborOpen)
 
 	return c.JSON(fiber.Map{"data": d})
+}
+
+// costAccountTree builds the project's cost broken down by QB GL account, nested
+// parent→child via the account hierarchy (sub-accounts roll up into their parent,
+// like QB "Profit and Loss by Project"). Vendor credits are negative. Top-level
+// nodes are grouped by account type (Cost of Goods Sold / Expense / Other) and a
+// parent's amount includes its children.
+func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, customerIDs []string) ([]CostAccount, error) {
+	// Leaf amounts per account that has activity on this project.
+	rows, err := h.db.Query(ctx, `
+		WITH exp AS (
+			SELECT account_ref_id, account_ref_name, amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT account_ref_id, account_ref_name, amount FROM qb_purchase_lines      WHERE company=$1 AND customer_id=ANY($2)
+			UNION ALL SELECT account_ref_id, account_ref_name, -amount FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id=ANY($2)
+		)
+		SELECT COALESCE(NULLIF(x.account_ref_id,''), 'noacct') AS id,
+		       COALESCE(NULLIF(a.name,''), NULLIF(x.account_ref_name,''), 'Uncategorized') AS name,
+		       SUM(x.amount) AS amt
+		FROM exp x
+		LEFT JOIN qb_accounts a ON a.company=$1 AND a.external_id=x.account_ref_id
+		GROUP BY 1, 2
+		HAVING SUM(x.amount) <> 0
+	`, company, customerIDs)
+	if err != nil {
+		return nil, err
+	}
+	type leaf struct {
+		name string
+		amt  float64
+	}
+	leaves := map[string]leaf{}
+	for rows.Next() {
+		var id, name string
+		var amt float64
+		rows.Scan(&id, &name, &amt)
+		leaves[id] = leaf{name: name, amt: amt}
+	}
+	rows.Close()
+	if len(leaves) == 0 {
+		return []CostAccount{}, nil
+	}
+
+	// Account directory: id → name, type, parent. Resolves parents that may have no
+	// direct postings of their own on this project.
+	dir := map[string]struct {
+		name, atype, parent string
+	}{}
+	dRows, err := h.db.Query(ctx, `
+		SELECT external_id, COALESCE(name,''), COALESCE(account_type,'Other'), COALESCE(parent_id,'')
+		FROM qb_accounts WHERE company=$1
+	`, company)
+	if err != nil {
+		return nil, err
+	}
+	for dRows.Next() {
+		var id, name, atype, parent string
+		dRows.Scan(&id, &name, &atype, &parent)
+		dir[id] = struct{ name, atype, parent string }{name, atype, parent}
+	}
+	dRows.Close()
+
+	groupOf := func(atype string) string {
+		switch atype {
+		case "Cost of Goods Sold", "Expense":
+			return atype
+		default:
+			return "Other"
+		}
+	}
+
+	type node struct {
+		id, name, group, parent string
+		direct                  float64
+		children                []*node
+		isChild                 bool
+	}
+	nodes := map[string]*node{}
+	ensure := func(id string) *node {
+		if n, ok := nodes[id]; ok {
+			return n
+		}
+		info := dir[id]
+		name := info.name
+		if name == "" {
+			name = id
+		}
+		n := &node{id: id, name: name, group: groupOf(info.atype), parent: info.parent}
+		nodes[id] = n
+		return n
+	}
+
+	for id, lf := range leaves {
+		n := ensure(id)
+		n.direct += lf.amt
+		if dir[id].name == "" && lf.name != "" { // deleted/unsynced account: use line name
+			n.name = lf.name
+		}
+	}
+
+	// Link children to parents (creating parent nodes as needed), up the chain.
+	for changed := true; changed; {
+		changed = false
+		for _, n := range nodes {
+			if n.isChild || n.parent == "" {
+				continue
+			}
+			if _, ok := dir[n.parent]; !ok {
+				n.parent = "" // parent not a known account → treat as top-level
+				continue
+			}
+			p := ensure(n.parent)
+			p.children = append(p.children, n)
+			n.isChild = true
+			changed = true
+		}
+	}
+
+	var build func(n *node) CostAccount
+	build = func(n *node) CostAccount {
+		ca := CostAccount{Name: n.name, Group: n.group, Amount: n.direct}
+		for _, c := range n.children {
+			child := build(c)
+			ca.Amount += child.Amount
+			ca.Children = append(ca.Children, child)
+		}
+		sort.Slice(ca.Children, func(i, j int) bool { return ca.Children[i].Amount > ca.Children[j].Amount })
+		return ca
+	}
+
+	var top []CostAccount
+	for _, n := range nodes {
+		if !n.isChild {
+			top = append(top, build(n))
+		}
+	}
+	groupRank := map[string]int{"Cost of Goods Sold": 0, "Expense": 1, "Other": 2}
+	sort.Slice(top, func(i, j int) bool {
+		if groupRank[top[i].Group] != groupRank[top[j].Group] {
+			return groupRank[top[i].Group] < groupRank[top[j].Group]
+		}
+		return top[i].Amount > top[j].Amount
+	})
+	// Drop nodes that net to zero after rollup.
+	out := top[:0]
+	for _, ca := range top {
+		if ca.Amount != 0 || len(ca.Children) > 0 {
+			out = append(out, ca)
+		}
+	}
+	if out == nil {
+		out = []CostAccount{}
+	}
+	return out, nil
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────────

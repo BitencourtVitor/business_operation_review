@@ -473,14 +473,29 @@ func upsertInvoices(ctx context.Context, db *pgxpool.Pool, company string, rows 
 		}
 
 		for _, line := range lines(m) {
+			// Only real item lines carry financial detail; skip SubTotal/Group/Discount
+			// summary lines (they repeat the total and double-count otherwise).
+			if str(line, "DetailType") != "SalesItemLineDetail" {
+				continue
+			}
 			lineID := str(line, "Id")
+			var itemID, itemName string
+			if d, ok := line["SalesItemLineDetail"]; ok {
+				var detail map[string]json.RawMessage
+				if json.Unmarshal(d, &detail) == nil {
+					itemID = strNested(detail, "ItemRef", "value")
+					itemName = strNested(detail, "ItemRef", "name")
+				}
+			}
 			_, _ = db.Exec(ctx, `
 				INSERT INTO qb_invoice_lines
-					(invoice_id, company, external_line_id, description, amount)
-				VALUES ($1,$2,$3,$4,$5)
+					(invoice_id, company, external_line_id, description, amount, item_ref_id, item_ref_name)
+				VALUES ($1,$2,$3,$4,$5,$6,$7)
 				ON CONFLICT (company, invoice_id, external_line_id) DO UPDATE SET
-					description = EXCLUDED.description, amount = EXCLUDED.amount
-			`, invID, company, lineID, str(line, "Description"), numStr(line, "Amount"))
+					description = EXCLUDED.description, amount = EXCLUDED.amount,
+					item_ref_id = EXCLUDED.item_ref_id, item_ref_name = EXCLUDED.item_ref_name
+			`, invID, company, lineID, str(line, "Description"), numStr(line, "Amount"),
+				itemID, itemName)
 		}
 
 		for _, txn := range linkedTxns(m) {

@@ -284,6 +284,36 @@ func main() {
 	// Sync is cron-guarded (outside RequireAuth) so the scheduler can refresh the cache.
 	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
 
+	// QuickBooks full sync trigger (admin/cron) — runs in the background using the
+	// DB-stored OAuth tokens. Re-fetches each entity (incremental unless its sync
+	// state was reset). Returns immediately.
+	qbTriggerSyncer := quickbooks.NewSyncer(db)
+	qbTriggerSandbox := cfg.App.Env != "production"
+	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+		go func() {
+			ctx := context.Background()
+			var clients []*quickbooks.Client
+			for _, company := range quickbooks.AllCompanies {
+				at, realm, err := qbOAuthService.GetAccessToken(ctx, string(company))
+				if err != nil {
+					logger.Error("qb sync trigger: token unavailable", "company", company, "error", err)
+					continue
+				}
+				clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
+					RealmID: realm, AccessToken: at,
+				}, qbTriggerSandbox))
+			}
+			if len(clients) == 0 {
+				logger.Error("qb sync trigger: no companies with valid tokens")
+				return
+			}
+			logger.Info("qb sync trigger: starting", "companies", len(clients))
+			qbTriggerSyncer.SyncAll(ctx, clients)
+			logger.Info("qb sync trigger: done")
+		}()
+		return c.JSON(fiber.Map{"status": "sync started"})
+	})
+
 	// QBTime Workforce Import
 	api.Post("/qbtime/workforce-import", qbtWfImportHandler.Import)
 
