@@ -145,7 +145,7 @@ function ProjectCard({ p, blur, onOpen }: {
           <Wallet className="h-3.5 w-3.5 text-emerald-500" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Income</span>
           <span className="ml-auto text-[10px] text-muted-foreground">
-            {pct(p.received, p.projected_receive).toFixed(0)}% received
+            {pct(p.income_actual, p.projected_receive).toFixed(0)}% invoiced
           </span>
         </div>
         {/* 3-segment bar: received | outstanding | remaining */}
@@ -181,7 +181,7 @@ function ProjectCard({ p, blur, onOpen }: {
         </div>
         {/* 3-segment bar: paid | outstanding bills | remaining vs budget */}
         <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-          <div className="h-full transition-all" style={{ width: `${pct(p.paid, p.cost_ceiling)}%`, backgroundColor: p.over_ceiling ? "#ef4444" : "#f59e0b" }} />
+          <div className="h-full transition-all" style={{ width: `${pct(p.paid, p.cost_ceiling)}%`, backgroundColor: "#ef4444" }} />
           <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.open_payable, p.cost_ceiling)}%` }} />
         </div>
         <div className="flex flex-col gap-1">
@@ -190,7 +190,7 @@ function ProjectCard({ p, blur, onOpen }: {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
               <span className="text-[11px] text-muted-foreground">Paid</span>
-              <span className={cn("text-[11px] font-semibold tabular-nums", p.over_ceiling ? "text-red-400" : "text-amber-400", blur)}>{fmt(p.paid)}</span>
+              <span className={cn("text-[11px] font-semibold tabular-nums text-red-400", blur)}>{fmt(p.paid)}</span>
             </div>
             <span className="text-[10px] text-muted-foreground/40">|</span>
             <div className="flex items-center gap-1">
@@ -206,16 +206,38 @@ function ProjectCard({ p, blur, onOpen }: {
         <div className="flex items-center gap-1.5">
           <HardHat className="h-3.5 w-3.5 text-amber-500" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Contractors</span>
+          {hasLabor && (
+            <span className="ml-auto text-[10px] text-muted-foreground">
+              {pct(p.labor_billed, p.labor_committed).toFixed(0)}% billed
+            </span>
+          )}
         </div>
-        {hasLabor ? (
-          <>
-            <Bar part={p.labor_billed} whole={p.labor_committed} color="#f59e0b" />
-            <div className="flex flex-col gap-1">
-              <MetricRow label="Contracted"  value={p.labor_committed} blur={blur} strong />
-              <MetricRow label="Outstanding" value={p.labor_open} color={p.labor_open > 0 ? "#f59e0b" : undefined} blur={blur} />
-            </div>
-          </>
-        ) : (
+        {hasLabor ? (() => {
+          const laborOutstanding = Math.max(p.labor_billed - p.labor_paid, 0)
+          return (
+            <>
+              <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+                <div className="h-full transition-all" style={{ width: `${pct(p.labor_paid, p.labor_committed)}%`, backgroundColor: "#f59e0b" }} />
+                <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(laborOutstanding, p.labor_committed)}%` }} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <MetricRow label="Contracted" value={p.labor_committed} blur={blur} strong />
+                <MetricRow label="Total"       value={p.labor_billed}   blur={blur} />
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-muted-foreground">Paid</span>
+                    <span className={cn("text-[11px] font-semibold tabular-nums text-amber-500", blur)}>{fmt(p.labor_paid)}</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground/40">|</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-muted-foreground">Outstanding</span>
+                    <span className={cn("text-[11px] font-semibold tabular-nums", laborOutstanding > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(laborOutstanding)}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )
+        })() : (
           <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
         )}
       </div>

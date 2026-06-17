@@ -134,11 +134,22 @@ po AS (
     JOIN proj_key pk ON pk.customer_id = pol.customer_id
     WHERE pol.company=$1 AND pol.customer_id<>''
     GROUP BY pk.pkey
+),
+lab_paid AS (
+    SELECT bc.pkey,
+           SUM(bpl.amount * (bc.proj_amt / NULLIF(b.total_amount, 0))) AS total
+    FROM bill_cust bc
+    JOIN qb_bills b ON b.id = bc.bill_id AND b.company=$1
+    JOIN qb_bill_payment_links bpl
+        ON bpl.txn_id   = b.external_id
+       AND bpl.txn_type = 'Bill'
+       AND bpl.company  = $1
+    GROUP BY bc.pkey
 )
 SELECT p.pkey, p.client, p.pname,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
        COALESCE(op.total,0), COALESCE(pp.committed,0), COALESCE(pp.billed,0), COALESCE(pp.open_commit,0),
-       COALESCE(i.balance,0)
+       COALESCE(lp.total,0), COALESCE(i.balance,0)
 FROM proj p
 LEFT JOIN est          e  ON e.pkey  = p.pkey
 LEFT JOIN inv          i  ON i.pkey  = p.pkey
@@ -146,6 +157,7 @@ LEFT JOIN pay          pa ON pa.pkey = p.pkey
 LEFT JOIN cost         co ON co.pkey = p.pkey
 LEFT JOIN open_payable op ON op.pkey = p.pkey
 LEFT JOIN po           pp ON pp.pkey = p.pkey
+LEFT JOIN lab_paid     lp ON lp.pkey = p.pkey
 WHERE COALESCE(e.total,0) <> 0 OR COALESCE(i.total,0) <> 0 OR COALESCE(pa.total,0) <> 0
    OR COALESCE(co.total,0) <> 0 OR COALESCE(pp.committed,0) <> 0
 ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
@@ -186,14 +198,16 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&d.ProjectID, &d.ClientName, &d.Name,
 			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.CostTotal, &openPayable,
-			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &invBalance,
+			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &d.LaborPaid, &invBalance,
 		); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		d.ProjectType = projectType(d.Name)
 		d.MarginTarget = profitMargin
 		d.ToReceive = max0(invBalance)
+		d.IncomeActual = d.Received + d.ToReceive
 		d.OpenPayable = max0(openPayable)
+		d.LaborPaid = max0(d.LaborPaid)
 		d.Paid = max0(d.CostTotal - d.OpenPayable)
 		d.ToPay = max0(d.LaborOpen) + max0(openPayable)
 		d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
@@ -387,6 +401,7 @@ type BudgetProjectDetail struct {
 	LaborCommitted float64 `json:"labor_committed"`
 	LaborBilled    float64 `json:"labor_billed"`
 	LaborOpen      float64 `json:"labor_open"`
+	LaborPaid      float64 `json:"labor_paid"`
 	PurchaseOrders []PORow `json:"purchase_orders"`
 
 	// Cost grouped by user-defined category (vendor → payments hierarchy).

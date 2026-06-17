@@ -122,6 +122,7 @@ export interface BudgetProjectDetail {
   labor_committed: number
   labor_billed: number
   labor_open: number
+  labor_paid: number
   purchase_orders: PORow[]
 
   // Cost grouped by user-defined category (vendor → payments hierarchy)

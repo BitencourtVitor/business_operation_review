@@ -522,9 +522,11 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-500">Income</span>
-                    <div className="ml-auto flex items-baseline gap-1.5">
+                    <div className="ml-auto flex items-center gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                       <span className={cn("text-base font-bold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
+                      <div className="h-3.5 w-px bg-border/50" />
+                      <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(data.income_actual, data.projected_receive)}</span>
                     </div>
                   </div>
                   <SegBar
@@ -605,11 +607,13 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <Coins className="h-4 w-4 text-red-500" />
                     <span className="text-sm font-semibold text-red-500">Cost</span>
-                    <div className="ml-auto flex items-baseline gap-1.5">
+                    <div className="ml-auto flex items-center gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                       <span className={cn("text-base font-bold tabular-nums text-red-500", blur)}>
                         {fmt(data.cost_total)}
                       </span>
+                      <div className="h-3.5 w-px bg-border/50" />
+                      <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(data.cost_total, data.cost_ceiling)}</span>
                     </div>
                   </div>
                   <SegBar
@@ -678,9 +682,11 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 <div className="flex items-center gap-2">
                   <HardHat className="h-4 w-4 text-yellow-500" />
                   <span className="text-sm font-semibold text-yellow-500">Contractors Costs</span>
-                  <div className="ml-auto flex items-baseline gap-1.5">
+                  <div className="ml-auto flex items-center gap-1.5">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                     <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(catNetBilled)}</span>
+                    <div className="h-3.5 w-px bg-border/50" />
+                    <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(catNetBilled, catTotals.committed)}</span>
                   </div>
                 </div>
 
@@ -705,7 +711,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     <span className={cn("text-lg font-bold tabular-nums", (catNetBilled - catNetPaid) > 0 ? "text-orange-500" : "text-muted-foreground/50", blur)}>{fmt(Math.max(catNetBilled - catNetPaid, 0))}</span>
                   </div>
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total Contracted</span>
                     <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(catTotals.committed)}</span>
                   </div>
                 </div>
