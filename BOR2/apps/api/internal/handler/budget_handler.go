@@ -135,27 +135,85 @@ po AS (
     WHERE pol.company=$1 AND pol.customer_id<>''
     GROUP BY pk.pkey
 ),
-lab_paid AS (
-    SELECT bc.pkey,
-           SUM(bpl.amount * (bc.proj_amt / NULLIF(b.total_amount, 0))) AS total
+-- Contractor vendors = vendors with at least one PO in the project.
+lab_vendor AS (
+    SELECT DISTINCT pk.pkey, o.vendor_id
+    FROM qb_purchase_order_lines pol
+    JOIN qb_purchase_orders o ON o.id = pol.po_id
+    JOIN proj_key pk ON pk.customer_id = pol.customer_id
+    WHERE pol.company=$1 AND pol.customer_id<>'' AND o.vendor_id<>''
+),
+-- External IDs of the project's POs, per vendor (for matching bill→PO links).
+lab_po AS (
+    SELECT DISTINCT pk.pkey, o.vendor_id, o.external_id AS po_ext_id
+    FROM qb_purchase_order_lines pol
+    JOIN qb_purchase_orders o ON o.id = pol.po_id
+    JOIN proj_key pk ON pk.customer_id = pol.customer_id
+    WHERE pol.company=$1 AND pol.customer_id<>''
+),
+-- Payment total per project-attributed bill (no link join → no row multiplication).
+lab_bill_pay AS (
+    SELECT bc.pkey, bc.bill_id, b.vendor_id, bc.proj_amt, b.total_amount,
+           SUM(bpl.amount) AS pay_amt
     FROM bill_cust bc
     JOIN qb_bills b ON b.id = bc.bill_id AND b.company=$1
     JOIN qb_bill_payment_links bpl
         ON bpl.txn_id   = b.external_id
        AND bpl.txn_type = 'Bill'
        AND bpl.company  = $1
-    WHERE EXISTS (
-        SELECT 1 FROM qb_bill_links bl2
-        WHERE bl2.bill_id  = b.id
-          AND bl2.txn_type = 'PurchaseOrder'
-          AND bl2.company  = $1
-    )
-    GROUP BY bc.pkey
+    GROUP BY bc.pkey, bc.bill_id, b.vendor_id, bc.proj_amt, b.total_amount
+),
+-- Mirror of the modal: a contractor vendor's payment counts when the bill has
+-- no PO link, or links to one of this project's POs for that vendor.
+lab_paid AS (
+    SELECT lbp.pkey,
+           SUM(lbp.pay_amt * (lbp.proj_amt / NULLIF(lbp.total_amount,0))) AS total
+    FROM lab_bill_pay lbp
+    JOIN lab_vendor lv ON lv.pkey = lbp.pkey AND lv.vendor_id = lbp.vendor_id
+    WHERE NOT EXISTS (
+            SELECT 1 FROM qb_bill_links bl
+            WHERE bl.bill_id  = lbp.bill_id
+              AND bl.txn_type = 'PurchaseOrder'
+              AND bl.company  = $1
+          )
+       OR EXISTS (
+            SELECT 1 FROM qb_bill_links bl
+            JOIN lab_po lpo
+              ON lpo.pkey      = lbp.pkey
+             AND lpo.vendor_id = lbp.vendor_id
+             AND lpo.po_ext_id = bl.txn_id
+            WHERE bl.bill_id  = lbp.bill_id
+              AND bl.txn_type = 'PurchaseOrder'
+              AND bl.company  = $1
+          )
+    GROUP BY lbp.pkey
+),
+-- Billed = bill lines of contractor vendors attributed to the project (mirrors
+-- the modal's vendorBilled), NOT PO line received — those diverge in practice.
+lab_billed AS (
+    SELECT pk.pkey, SUM(bl.amount) AS total
+    FROM qb_bill_lines bl
+    JOIN qb_bills b ON b.id = bl.bill_id AND b.company=$1
+    JOIN proj_key pk ON pk.customer_id = bl.customer_id
+    JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = b.vendor_id
+    WHERE bl.company=$1 AND bl.customer_id<>''
+    GROUP BY pk.pkey
+),
+-- Back charges (vendor credits) for contractor vendors; net out of billed & paid.
+lab_bc AS (
+    SELECT pk.pkey, SUM(vcl.amount) AS total
+    FROM qb_vendor_credit_lines vcl
+    JOIN qb_vendor_credits vc ON vc.id = vcl.vendor_credit_id AND vc.company=$1
+    JOIN proj_key pk ON pk.customer_id = vcl.customer_id
+    JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = vc.vendor_id
+    WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>''
+    GROUP BY pk.pkey
 )
 SELECT p.pkey, p.client, p.pname,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
-       COALESCE(op.total,0), COALESCE(pp.committed,0), COALESCE(pp.billed,0), COALESCE(pp.open_commit,0),
-       COALESCE(lp.total,0), COALESCE(i.balance,0)
+       COALESCE(op.total,0), COALESCE(pp.committed,0),
+       COALESCE(lb.total,0) - COALESCE(lbc.total,0), COALESCE(pp.open_commit,0),
+       COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(i.balance,0)
 FROM proj p
 LEFT JOIN est          e  ON e.pkey  = p.pkey
 LEFT JOIN inv          i  ON i.pkey  = p.pkey
@@ -164,6 +222,8 @@ LEFT JOIN cost         co ON co.pkey = p.pkey
 LEFT JOIN open_payable op ON op.pkey = p.pkey
 LEFT JOIN po           pp ON pp.pkey = p.pkey
 LEFT JOIN lab_paid     lp ON lp.pkey = p.pkey
+LEFT JOIN lab_billed   lb ON lb.pkey = p.pkey
+LEFT JOIN lab_bc       lbc ON lbc.pkey = p.pkey
 WHERE COALESCE(e.total,0) <> 0 OR COALESCE(i.total,0) <> 0 OR COALESCE(pa.total,0) <> 0
    OR COALESCE(co.total,0) <> 0 OR COALESCE(pp.committed,0) <> 0
 ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
