@@ -667,7 +667,31 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 2. Vendor → category mapping ─────────────────────────────────────────
+	// ── 2. Bill amounts per vendor for this project (actual invoices received) ─
+	// Using bill lines as source for Billed guarantees paid ≤ billed, since paid
+	// is also bill-based (proportioned bill payments). PO.received is unreliable
+	// when bills aren't linked to POs in QB.
+	vendorBilled := map[string]float64{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT b.vendor_id, SUM(bl.amount)
+			FROM qb_bill_lines bl
+			JOIN qb_bills b ON b.id = bl.bill_id AND b.company = $1
+			WHERE bl.company = $1 AND bl.customer_id = ANY($2) AND b.vendor_id <> ''
+			GROUP BY b.vendor_id
+		`, company, customerIDs)
+		if err == nil {
+			for rows.Next() {
+				var vid string
+				var amt float64
+				rows.Scan(&vid, &amt)
+				vendorBilled[vid] = amt
+			}
+			rows.Close()
+		}
+	}
+
+	// ── 3. Vendor → category mapping ─────────────────────────────────────────
 	type catDef struct {
 		id, name, icon string
 		sortOrder      int
@@ -694,7 +718,7 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 3. Aggregate POs per vendor (preserving insertion order) ─────────────
+	// ── 4. Aggregate POs per vendor (preserving insertion order) ─────────────
 	type vendorAgg struct {
 		id, name, catID string
 		committed, billed float64
@@ -715,11 +739,14 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 		vd := vendorMap[vid]
 		vd.committed += po.Committed
-		vd.billed += po.Billed
 		vd.pos = append(vd.pos, po)
 	}
 
-	// attach payment records
+	// Set billed from actual bill lines (not PO.received) and attach payments
+	for _, vid := range vendorOrder {
+		vd := vendorMap[vid]
+		vd.billed = vendorBilled[vd.id]
+	}
 	for vid, pmts := range vendorPmts {
 		if vd, ok := vendorMap[vid]; ok {
 			for _, p := range pmts {
@@ -728,7 +755,7 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 4. Group vendors by category ─────────────────────────────────────────
+	// ── 5. Group vendors by category ─────────────────────────────────────────
 	type catGroup struct {
 		def     catDef
 		vendors []*vendorAgg
@@ -758,7 +785,7 @@ func (h *BudgetHandler) costCategoryTree(
 		return a.name < b.name
 	})
 
-	// ── 5. Assemble output ────────────────────────────────────────────────────
+	// ── 6. Assemble output ────────────────────────────────────────────────────
 	mkVendor := func(vd *vendorAgg) CostVendor {
 		var paidTotal float64
 		for _, p := range vd.pmts {
