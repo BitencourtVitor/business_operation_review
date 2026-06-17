@@ -51,9 +51,9 @@ export interface IncomeAccount {
 
 export interface CostAccount {
   name: string
-  group: string // "Cost of Goods Sold" | "Expense" | "Other"
-  amount: number // includes children
-  children?: CostAccount[]
+  amount: number
+  paid: number
+  outstanding: number
 }
 
 export interface POLineRow {

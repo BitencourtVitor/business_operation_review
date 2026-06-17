@@ -386,16 +386,15 @@ type IncomeAccount struct {
 	Outstanding float64 `json:"outstanding"`
 }
 
-// CostAccount is one payable category = a QB GL account (mirrors QB P&L by Project
-// cost accounts), grouped by account type (Cost of Goods Sold / Expense / Other).
-// Amount is signed (vendor credits / refunds are negative) and, for a parent
-// account, includes its children. Children are the nested sub-accounts (QB rolls
-// e.g. Freight Panels under Panels Premium).
+// CostAccount is one QB GL account with activity on the project.
+// Amount is signed (vendor credits are negative) and rolled up from sub-accounts.
+// Outstanding is the unpaid bill balance proportionally attributed to this account.
 type CostAccount struct {
-	Name     string        `json:"name"`
-	Group    string        `json:"group"`
-	Amount   float64       `json:"amount"`
-	Children []CostAccount `json:"children,omitempty"`
+	Name        string  `json:"name"`
+	Group       string  `json:"-"` // internal sort key, not exposed
+	Amount      float64 `json:"amount"`
+	Paid        float64 `json:"paid"`
+	Outstanding float64 `json:"outstanding"`
 }
 
 type BudgetProjectDetail struct {
@@ -840,8 +839,9 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 		return nil, err
 	}
 	type leaf struct {
-		name string
-		amt  float64
+		name        string
+		amt         float64
+		outstanding float64
 	}
 	leaves := map[string]leaf{}
 	for rows.Next() {
@@ -854,6 +854,29 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 	if len(leaves) == 0 {
 		return []CostAccount{}, nil
 	}
+
+	// Outstanding per leaf account: proportional share of unpaid bill balance.
+	oRows, err := h.db.Query(ctx, `
+		SELECT COALESCE(NULLIF(bl.account_ref_id,''), 'noacct') AS id,
+		       SUM(bl.amount * CASE WHEN b.total_amount = 0 THEN 0 ELSE b.balance / b.total_amount END) AS outstanding
+		FROM qb_bill_lines bl
+		JOIN qb_bills b ON b.id = bl.bill_id AND b.company = $1
+		WHERE bl.company=$1 AND bl.customer_id=ANY($2) AND b.balance > 0
+		GROUP BY 1
+	`, company, customerIDs)
+	if err != nil {
+		return nil, err
+	}
+	for oRows.Next() {
+		var id string
+		var outstanding float64
+		oRows.Scan(&id, &outstanding)
+		if lf, ok := leaves[id]; ok {
+			lf.outstanding = outstanding
+			leaves[id] = lf
+		}
+	}
+	oRows.Close()
 
 	// Account directory: id → name, type, parent. Resolves parents that may have no
 	// direct postings of their own on this project.
@@ -886,6 +909,7 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 	type node struct {
 		id, name, group, parent string
 		direct                  float64
+		outstanding             float64
 		children                []*node
 		isChild                 bool
 	}
@@ -907,6 +931,7 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 	for id, lf := range leaves {
 		n := ensure(id)
 		n.direct += lf.amt
+		n.outstanding += lf.outstanding
 		if dir[id].name == "" && lf.name != "" { // deleted/unsynced account: use line name
 			n.name = lf.name
 		}
@@ -930,22 +955,25 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 		}
 	}
 
-	var build func(n *node) CostAccount
-	build = func(n *node) CostAccount {
-		ca := CostAccount{Name: n.name, Group: n.group, Amount: n.direct}
+	var sumTree func(n *node) (float64, float64)
+	sumTree = func(n *node) (float64, float64) {
+		amt, out := n.direct, n.outstanding
 		for _, c := range n.children {
-			child := build(c)
-			ca.Amount += child.Amount
-			ca.Children = append(ca.Children, child)
+			ca, co := sumTree(c)
+			amt += ca
+			out += co
 		}
-		sort.Slice(ca.Children, func(i, j int) bool { return ca.Children[i].Amount > ca.Children[j].Amount })
-		return ca
+		return amt, out
 	}
 
 	var top []CostAccount
 	for _, n := range nodes {
 		if !n.isChild {
-			top = append(top, build(n))
+			amt, out := sumTree(n)
+			if amt == 0 {
+				continue
+			}
+			top = append(top, CostAccount{Name: n.name, Group: n.group, Amount: amt, Paid: amt - out, Outstanding: out})
 		}
 	}
 	groupRank := map[string]int{"Cost of Goods Sold": 0, "Expense": 1, "Other": 2}
@@ -955,17 +983,10 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 		}
 		return top[i].Amount > top[j].Amount
 	})
-	// Drop nodes that net to zero after rollup.
-	out := top[:0]
-	for _, ca := range top {
-		if ca.Amount != 0 || len(ca.Children) > 0 {
-			out = append(out, ca)
-		}
+	if top == nil {
+		top = []CostAccount{}
 	}
-	if out == nil {
-		out = []CostAccount{}
-	}
-	return out, nil
+	return top, nil
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────────
