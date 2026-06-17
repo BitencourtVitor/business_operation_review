@@ -130,13 +130,15 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   // Group cost accounts by their account-type group, preserving server order.
   const costGroups: { group: string; rows: CostAccount[]; subtotal: number }[] = []
   if (data) {
-    for (const ca of data.cost_accounts) {
+    for (const ca of (data.cost_accounts ?? [])) {
       let g = costGroups.find(x => x.group === ca.group)
       if (!g) { g = { group: ca.group, rows: [], subtotal: 0 }; costGroups.push(g) }
       g.rows.push(ca)
       g.subtotal += ca.amount
     }
   }
+  const incomeAccounts = data?.income_accounts ?? []
+  const purchaseOrders = data?.purchase_orders ?? []
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -196,9 +198,9 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   {/* Income categories */}
                   <div className="mt-1 border-t border-border/40 pt-2">
                     <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Categories</p>
-                    {data.income_accounts.length === 0
+                    {incomeAccounts.length === 0
                       ? <p className="px-1 py-1 text-[11px] italic text-muted-foreground/50">No income recorded.</p>
-                      : data.income_accounts.map(ia => <CatRow key={ia.name} name={ia.name} amount={ia.amount} blur={blur} />)}
+                      : incomeAccounts.map(ia => <CatRow key={ia.name} name={ia.name} amount={ia.amount} blur={blur} />)}
                   </div>
                 </div>
 
@@ -253,7 +255,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <HardHat className="h-3.5 w-3.5 text-amber-500" />
-                    <span className="text-xs font-semibold text-amber-500">Purchase Orders ({data.purchase_orders.length})</span>
+                    <span className="text-xs font-semibold text-amber-500">Purchase Orders ({purchaseOrders.length})</span>
                   </div>
                   <div className="flex items-center gap-3 text-[10px] tabular-nums text-muted-foreground">
                     <span className={blur}>Committed {fmt(data.labor_committed)}</span>
@@ -262,10 +264,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 p-3">
-                  {data.purchase_orders.length === 0 ? (
+                  {purchaseOrders.length === 0 ? (
                     <p className="py-4 text-center text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
                   ) : (
-                    data.purchase_orders.map(po => <POCard key={po.external_id} po={po} blur={blur} />)
+                    purchaseOrders.map(po => <POCard key={po.external_id} po={po} blur={blur} />)
                   )}
                 </div>
               </div>
