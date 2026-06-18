@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetDetail, useSetAccountLimit, useAccountHistory } from "@/hooks/use-budget"
+import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory } from "@/hooks/use-budget"
 import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -504,13 +504,12 @@ const fmtMonth = (s: string) => {
   return `${m}/${y.slice(2)}`
 }
 
-function AccountChartPanel({ company, projectID, account }: {
-  company: string; projectID: string; account: CostAccount
+// Shared distribution chart: cumulative (default) vs month-by-month, preference
+// cached. Used for cost accounts (red, with budget line) and income types (green).
+function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, isLoading, color, budget = 0 }: {
+  title: string; subtitle: string; valueLabel: string; emptyLabel: string
+  series: { month: string; value: number }[]; isLoading: boolean; color: string; budget?: number
 }) {
-  const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
-  const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
-
-  // View mode: cumulative burn (default) vs per-month cash flow. Preference cached.
   const [mode, setMode] = useState<"cumulative" | "cashflow">(() => {
     if (typeof window === "undefined") return "cumulative"
     return localStorage.getItem("budget-chart-mode") === "cashflow" ? "cashflow" : "cumulative"
@@ -521,20 +520,19 @@ function AccountChartPanel({ company, projectID, account }: {
   }
 
   let running = 0
-  const series = (history ?? []).map(p => { running += p.paid; return { month: p.month, paid: p.paid, cumulative: running } })
-  const budget = account.budget_limit
-  // Budget ceiling only compares against the cumulative burn, not monthly cash flow.
+  const data = series.map(p => { running += p.value; return { month: p.month, value: p.value, cumulative: running } })
+  // Budget ceiling only compares against the cumulative burn, not monthly flow.
   const showBudget = mode === "cumulative" && budget > 0
-  const maxVal = mode === "cumulative" ? Math.max(running, budget) : Math.max(0, ...series.map(s => s.paid))
+  const maxVal = mode === "cumulative" ? Math.max(running, budget) : Math.max(0, ...data.map(d => d.value))
   const yMax = maxVal * 1.1 || 1
-  const dataKey = mode === "cumulative" ? "cumulative" : "paid"
+  const dataKey = mode === "cumulative" ? "cumulative" : "value"
 
   return (
     <>
       <div className="flex items-center gap-2">
         <div className="min-w-0">
-          <p className="truncate text-xs font-semibold leading-tight" title={account.name}>{account.name}</p>
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Paid over time</p>
+          <p className="truncate text-xs font-semibold leading-tight" title={title}>{title}</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{subtitle}</p>
         </div>
         <div className="ml-auto flex shrink-0 items-center overflow-hidden rounded-md border border-input text-[9px] font-medium">
           {([["cumulative", "Cumulative"], ["cashflow", "Month by month"]] as const).map(([val, label], i) => (
@@ -550,29 +548,54 @@ function AccountChartPanel({ company, projectID, account }: {
       <div className="h-56 w-full">
         {isLoading ? (
           <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : series.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No payments recorded for this account.</div>
+        ) : data.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">{emptyLabel}</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <RLineChart data={series} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+            <RLineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
               <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" />
               <YAxis tickFormatter={fmtShort} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" width={48} domain={[0, yMax]} />
               <RTooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" }}
                 labelFormatter={(l) => fmtMonth(String(l))}
-                formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? "Cumulative paid" : "Paid this month"]}
+                formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? `Cumulative ${valueLabel.toLowerCase()}` : `${valueLabel} this month`]}
               />
               {showBudget && (
                 <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#f59e0b"
                   label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#f59e0b" }} />
               )}
-              <RLine type="monotone" dataKey={dataKey} stroke="#ef4444" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
+              <RLine type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
             </RLineChart>
           </ResponsiveContainer>
         )}
       </div>
     </>
+  )
+}
+
+function AccountChartPanel({ company, projectID, account }: {
+  company: string; projectID: string; account: CostAccount
+}) {
+  const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
+  const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
+  const series = (history ?? []).map(p => ({ month: p.month, value: p.paid }))
+  return (
+    <DistributionChart title={account.name} subtitle="Paid over time" valueLabel="Paid"
+      emptyLabel="No payments recorded for this account." series={series} isLoading={isLoading}
+      color="#ef4444" budget={account.budget_limit} />
+  )
+}
+
+function IncomeChartPanel({ company, projectID, typeName }: {
+  company: string; projectID: string; typeName: string
+}) {
+  const { data: history, isLoading } = useIncomeHistory({ company, project_id: projectID, type: typeName })
+  const series = (history ?? []).map(p => ({ month: p.month, value: p.amount }))
+  return (
+    <DistributionChart title={typeName} subtitle="Invoiced over time" valueLabel="Invoiced"
+      emptyLabel="No invoices recorded for this type." series={series} isLoading={isLoading}
+      color="#22c55e" />
   )
 }
 
@@ -745,6 +768,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                                 <div key={h} className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">{h}</div>
                               ))}
                             </div>
+                            <div className="ml-1 w-5 shrink-0" />
                           </div>
                           {incomeAccounts.map(ia => {
                             const receivedForType = Math.max(ia.amount - ia.outstanding, 0)
@@ -768,6 +792,18 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                                     {fmt(ia.outstanding)}
                                   </span>
                                 </div>
+                                {/* Invoiced-over-time chart popover for this income type */}
+                                <Popover>
+                                  <PopoverTrigger
+                                    title="Distribution over time"
+                                    className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+                                  >
+                                    <LineChartIcon className="h-3 w-3" />
+                                  </PopoverTrigger>
+                                  <PopoverContent align="start" side="right" className="w-[24rem]">
+                                    <IncomeChartPanel company={company} projectID={projectID} typeName={ia.name} />
+                                  </PopoverContent>
+                                </Popover>
                               </div>
                             )
                           })}

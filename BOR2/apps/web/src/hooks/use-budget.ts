@@ -40,3 +40,11 @@ export function useAccountHistory(params: { company: string; project_id: string;
     enabled: !!params?.company && !!params?.project_id && (params?.account_ids.length ?? 0) > 0,
   })
 }
+
+export function useIncomeHistory(params: { company: string; project_id: string; type: string } | null) {
+  return useQuery({
+    queryKey: ["budget-income-history", params?.company, params?.project_id, params?.type],
+    queryFn: () => budgetService.getIncomeHistory(params!),
+    enabled: !!params?.company && !!params?.project_id && !!params?.type,
+  })
+}

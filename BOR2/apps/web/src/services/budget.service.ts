@@ -37,6 +37,11 @@ export interface AccountPaidPoint {
   paid: number
 }
 
+export interface IncomePaidPoint {
+  month: string
+  amount: number
+}
+
 export interface POLineRow {
   description: string
   amount: number
@@ -172,5 +177,10 @@ export const budgetService = {
       account_ids: params.account_ids.join(","),
     })
     return (await api.get<AccountPaidPoint[]>(`/api/v1/budget/projects/account-history?${search}`, getToken())) ?? []
+  },
+
+  async getIncomeHistory(params: { company: string; project_id: string; type: string }): Promise<IncomePaidPoint[]> {
+    const search = new URLSearchParams({ company: params.company, project_id: params.project_id, type: params.type })
+    return (await api.get<IncomePaidPoint[]>(`/api/v1/budget/projects/income-history?${search}`, getToken())) ?? []
   },
 }
