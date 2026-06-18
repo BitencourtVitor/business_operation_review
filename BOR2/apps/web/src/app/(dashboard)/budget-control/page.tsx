@@ -66,7 +66,7 @@ function ProjectCard({ p, blur, onOpen }: {
       className="flex w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left transition-all duration-200 hover:border-foreground/25 hover:shadow-xl hover:shadow-black/40 md:flex-row md:items-stretch">
 
       {/* Identity */}
-      <div className="flex min-w-0 items-center gap-3 border-b border-border/50 px-4 py-3 md:w-[26%] md:border-b-0 md:border-r">
+      <div className="flex min-w-0 items-center gap-3 border-b border-border/50 px-4 py-3 md:w-[26%] md:border-b-0">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
           {p.client_name && (
@@ -124,8 +124,11 @@ function ProjectCard({ p, blur, onOpen }: {
         </div>
       </div>
 
-      {/* Income */}
-      <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
+      {/* Income + Cost containers */}
+      <div className="flex flex-1 flex-col gap-2 p-2 md:flex-row md:items-stretch">
+
+      {/* Income container */}
+      <div className="flex flex-1 flex-col justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.05] px-4 py-3">
         <div className="flex items-center gap-1.5">
           <Wallet className="h-3.5 w-3.5 text-emerald-500" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Income</span>
@@ -155,76 +158,80 @@ function ProjectCard({ p, blur, onOpen }: {
         </div>
       </div>
 
-      {/* Cost */}
-      <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 px-4 py-3 md:border-b-0 md:border-r">
-        <div className="flex items-center gap-1.5">
-          <HandCoins className="h-3.5 w-3.5 text-red-400" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Cost</span>
-          <span className="ml-auto text-[10px] text-muted-foreground">
-            {pct(p.cost_total, p.cost_ceiling).toFixed(0)}% of budget
-          </span>
-        </div>
-        {/* 3-segment bar: paid | outstanding bills | remaining vs budget */}
-        <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-          <div className="h-full transition-all" style={{ width: `${pct(p.paid, p.cost_ceiling)}%`, backgroundColor: "#ef4444" }} />
-          <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.open_payable, p.cost_ceiling)}%` }} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <MetricRow label="Cost Budget" value={p.cost_ceiling} blur={blur} strong />
-          <MetricRow label="Total"       value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-muted-foreground">Paid</span>
-              <span className={cn("text-[11px] font-semibold tabular-nums text-red-400", blur)}>{fmt(p.paid)}</span>
-            </div>
-            <span className="text-[10px] text-muted-foreground/40">|</span>
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-muted-foreground">Outstanding</span>
-              <span className={cn("text-[11px] font-semibold tabular-nums", p.open_payable > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.open_payable)}</span>
+      {/* Cost container — double width, holds Cost + Contractors */}
+      <div className="flex flex-[2] flex-col overflow-hidden rounded-lg border border-red-500/30 md:flex-row md:items-stretch">
+        {/* Cost */}
+        <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 bg-red-500/[0.05] px-4 py-3 md:border-b-0">
+          <div className="flex items-center gap-1.5">
+            <HandCoins className="h-3.5 w-3.5 text-red-400" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Cost</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">
+              {pct(p.cost_total, p.cost_ceiling).toFixed(0)}% of budget
+            </span>
+          </div>
+          {/* 3-segment bar: paid | outstanding bills | remaining vs budget */}
+          <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+            <div className="h-full transition-all" style={{ width: `${pct(p.paid, p.cost_ceiling)}%`, backgroundColor: "#ef4444" }} />
+            <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.open_payable, p.cost_ceiling)}%` }} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <MetricRow label="Cost Budget" value={p.cost_ceiling} blur={blur} strong />
+            <MetricRow label="Total"       value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] text-muted-foreground">Paid</span>
+                <span className={cn("text-[11px] font-semibold tabular-nums text-red-400", blur)}>{fmt(p.paid)}</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground/40">|</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] text-muted-foreground">Outstanding</span>
+                <span className={cn("text-[11px] font-semibold tabular-nums", p.open_payable > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.open_payable)}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Contractors */}
-      <div className="flex flex-1 flex-col justify-center gap-2 px-4 py-3">
-        <div className="flex items-center gap-1.5">
-          <HardHat className="h-3.5 w-3.5 text-yellow-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-yellow-500">Contractors</span>
-          {hasLabor && (
-            <span className="ml-auto text-[10px] text-muted-foreground">
-              {pct(p.labor_billed, p.labor_committed).toFixed(0)}% billed
-            </span>
-          )}
-        </div>
-        {hasLabor ? (() => {
-          const laborOutstanding = Math.max(p.labor_billed - p.labor_paid, 0)
-          return (
-            <>
-              <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-                <div className="h-full transition-all" style={{ width: `${pct(p.labor_paid, p.labor_committed)}%`, backgroundColor: "#eab308" }} />
-                <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(laborOutstanding, p.labor_committed)}%` }} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <MetricRow label="Contracted" value={p.labor_committed} blur={blur} strong />
-                <MetricRow label="Total"       value={p.labor_billed}   blur={blur} />
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[11px] text-muted-foreground">Paid</span>
-                    <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(p.labor_paid)}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground/40">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[11px] text-muted-foreground">Outstanding</span>
-                    <span className={cn("text-[11px] font-semibold tabular-nums", laborOutstanding > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(laborOutstanding)}</span>
+        {/* Contractors — nested breakdown of the Cost block */}
+        <div className="flex flex-1 flex-col justify-center gap-2 border-t border-border/40 bg-yellow-500/[0.03] px-4 py-3 md:border-l md:border-t-0 md:border-yellow-500/20">
+          <div className="flex items-center gap-1.5">
+            <HardHat className="h-3.5 w-3.5 text-yellow-500" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-yellow-500">Contractors</span>
+            {hasLabor && (
+              <span className="ml-auto text-[10px] text-muted-foreground">
+                {pct(p.labor_billed, p.labor_committed).toFixed(0)}% billed
+              </span>
+            )}
+          </div>
+          {hasLabor ? (() => {
+            const laborOutstanding = Math.max(p.labor_billed - p.labor_paid, 0)
+            return (
+              <>
+                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+                  <div className="h-full transition-all" style={{ width: `${pct(p.labor_paid, p.labor_committed)}%`, backgroundColor: "#eab308" }} />
+                  <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(laborOutstanding, p.labor_committed)}%` }} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <MetricRow label="Contracted" value={p.labor_committed} blur={blur} strong />
+                  <MetricRow label="Total"       value={p.labor_billed}   blur={blur} />
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-muted-foreground">Paid</span>
+                      <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(p.labor_paid)}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground/40">|</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-muted-foreground">Outstanding</span>
+                      <span className={cn("text-[11px] font-semibold tabular-nums", laborOutstanding > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(laborOutstanding)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </>
-          )
-        })() : (
-          <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
-        )}
+              </>
+            )
+          })() : (
+            <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
+          )}
+        </div>
+      </div>
       </div>
     </button>
   )

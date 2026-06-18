@@ -3,11 +3,16 @@
 import { useState } from "react"
 import {
   X, ChevronRight, Loader2, Building2, Home,
-  Wallet, Coins, HardHat, Tag, ChevronDown, Check, Clock,
+  Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
+  SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
 } from "lucide-react"
+import {
+  LineChart as RLineChart, Line as RLine, XAxis, YAxis, CartesianGrid,
+  ReferenceLine, ResponsiveContainer, Tooltip as RTooltip,
+} from "recharts"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetDetail } from "@/hooks/use-budget"
+import { useBudgetDetail, useSetAccountLimit, useAccountHistory } from "@/hooks/use-budget"
 import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -120,6 +125,28 @@ function ValueCell({ value, color, blur, sm }: { value: number; color?: string; 
   )
 }
 
+// ── Money input (cost budget editing) ──────────────────────────────────────────
+
+function MoneyInput({ value, onCommit }: { value: number; onCommit: (v: number) => void }) {
+  // draft holds the raw digit string in CENTS (so typing "50000" = $500.00).
+  const [draft, setDraft] = useState(value > 0 ? String(Math.round(value * 100)) : "")
+  const display = draft === "" ? "" : (Number(draft) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return (
+    <div className="relative w-20" onClick={e => e.stopPropagation()}>
+      <span className="pointer-events-none absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/60">$</span>
+      <input
+        value={display}
+        inputMode="numeric"
+        placeholder="0.00"
+        onChange={e => setDraft(e.target.value.replace(/\D/g, ""))}
+        onBlur={() => { const n = draft === "" ? 0 : Number(draft) / 100; if (n !== value) onCommit(n) }}
+        onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+        className="h-6 w-full rounded border border-input bg-transparent pl-4 pr-1.5 text-right text-[10px] tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
+      />
+    </div>
+  )
+}
+
 // ── Mini donut chart ──────────────────────────────────────────────────────────
 
 function MiniDonut({ paidPct, billedPct }: { paidPct: number; billedPct: number }) {
@@ -144,10 +171,16 @@ function MiniDonut({ paidPct, billedPct }: { paidPct: number; billedPct: number 
 
 // ── Account row (By Account tree with expandable children) ───────────────────
 
-function AccountRow({ ca, blur }: { ca: CostAccount; blur: string }) {
+function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onOpenChart }: {
+  ca: CostAccount; blur: string; editing: boolean
+  budgetValue: number
+  onDraftBudget: (accountID: string, amount: number) => void
+  onOpenChart: (ca: CostAccount) => void
+}) {
   const [open, setOpen] = useState(false)
   const hasChildren = (ca.children?.length ?? 0) > 0
   const settled = ca.outstanding === 0 && ca.amount !== 0
+  const overBudget = ca.budget_limit > 0 && ca.amount > ca.budget_limit
   return (
     <>
       <div
@@ -168,9 +201,28 @@ function AccountRow({ ca, blur }: { ca: CostAccount; blur: string }) {
           <span className={cn("truncate text-[11px] font-medium", settled ? "text-muted-foreground" : ca.name === "Contractors" ? "text-yellow-500/80" : "text-foreground/80")} title={ca.name}>{ca.name}</span>
           {settled && <Check className="h-3 w-3 shrink-0 text-red-500/60" />}
         </div>
+        {/* Cost budget ceiling per account — first value column */}
+        {editing && !ca.locked ? (
+          <div className="flex w-20 justify-end">
+            <MoneyInput value={budgetValue} onCommit={v => onDraftBudget(ca.id, v)} />
+          </div>
+        ) : (
+          <span className={cn("flex w-20 items-center justify-end gap-1 text-right text-[11px] font-semibold tabular-nums", blur,
+            ca.locked ? "text-yellow-500/80" : overBudget ? "text-amber-500" : ca.budget_limit > 0 ? "text-foreground/70" : "text-muted-foreground/30")}>
+            {ca.budget_limit > 0 ? fmt(ca.budget_limit) : "—"}
+          </span>
+        )}
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.amount < 0 && "text-emerald-500")}>{fmt(ca.amount)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
+        {/* Paid-over-time chart trigger */}
+        <button
+          onClick={e => { e.stopPropagation(); onOpenChart(ca) }}
+          className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+          title="Paid distribution over time"
+        >
+          <LineChartIcon className="h-3 w-3" />
+        </button>
       </div>
       {open && ca.children?.map((child, j) => {
         const settled = child.outstanding === 0 && child.amount !== 0
@@ -183,9 +235,11 @@ function AccountRow({ ca, blur }: { ca: CostAccount; blur: string }) {
               <span className={cn("truncate text-[10px]", settled ? "text-muted-foreground/40" : "text-muted-foreground/60")} title={child.name}>{child.name}</span>
               {settled && <Check className="h-2.5 w-2.5 shrink-0 text-red-500/60" />}
             </div>
+            <span className="w-20 shrink-0" />
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/40" : "text-foreground/80")}>{fmt(child.amount)}</span>
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/40" : "")}>{fmt(child.paid)}</span>
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, child.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>{fmt(child.outstanding)}</span>
+            <span className="ml-1 w-5 shrink-0" />
           </div>
         )
       })}
@@ -432,6 +486,78 @@ function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur:
   )
 }
 
+// ── Account paid-over-time chart (popup) ────────────────────────────────────────
+
+const fmtShort = (n: number) => {
+  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
+  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
+  return `$${n.toFixed(0)}`
+}
+const fmtMonth = (s: string) => {
+  const [y, m] = s.split("-")
+  return `${["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(m)]} ${y.slice(2)}`
+}
+
+function AccountChartDialog({ company, projectID, account, onClose }: {
+  company: string; projectID: string; account: CostAccount; onClose: () => void
+}) {
+  const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
+  const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
+
+  // Cumulative Paid over time — the burn against the account's budget ceiling.
+  let running = 0
+  const series = (history ?? []).map(p => { running += p.paid; return { month: p.month, paid: p.paid, cumulative: running } })
+  const budget = account.budget_limit
+  // Keep the budget line on-chart even when cumulative paid is well below it.
+  const yMax = Math.max(running, budget) * 1.1 || 1
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="relative flex w-[min(720px,94vw)] flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-2xl">
+        <div className="flex items-center gap-2">
+          <LineChartIcon className="h-4 w-4 text-emerald-500" />
+          <div>
+            <p className="text-sm font-semibold leading-tight">{account.name}</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Paid over time{budget > 0 ? " vs cost budget" : ""}</p>
+          </div>
+          <button onClick={onClose} className="ml-auto rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="h-72 w-full">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : series.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No payments recorded for this account.</div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <RLineChart data={series} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+                <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" />
+                <YAxis tickFormatter={fmtShort} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" width={48} domain={[0, yMax]} />
+                <RTooltip
+                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" }}
+                  labelFormatter={(l) => fmtMonth(String(l))}
+                  formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? "Cumulative paid" : "Paid this month"]}
+                />
+                {budget > 0 && (
+                  <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#ef4444"
+                    label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#ef4444" }} />
+                )}
+                <RLine type="monotone" dataKey="cumulative" stroke="#22c55e" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
+              </RLineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
 export function ProjectBudgetModal({ company, projectID, onClose }: {
@@ -443,6 +569,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const [showAccounts, setShowAccounts] = useState(false)
   const [showByType, setShowByType] = useState(false)
   const [openCatId, setOpenCatId] = useState<string | null>(null)
+  const [editingBudget, setEditingBudget] = useState(false)
+  const [draftBudgets, setDraftBudgets] = useState<Record<string, number>>({})
+  const [chartAccount, setChartAccount] = useState<CostAccount | null>(null)
+  const setAccountLimit = useSetAccountLimit()
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
 
@@ -453,6 +583,34 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
     return 0
   })
   const costAccounts = data?.cost_accounts ?? []
+  const costCeiling = data?.cost_ceiling ?? 0
+
+  // Budget value to show per account: the live draft while editing, else the saved limit.
+  const budgetFor = (a: CostAccount) =>
+    a.locked ? a.budget_limit : editingBudget ? (draftBudgets[a.id] ?? a.budget_limit ?? 0) : a.budget_limit
+  const allocatedBudget = costAccounts.reduce((s, a) => s + (budgetFor(a) || 0), 0)
+
+  const startEditing = () => {
+    const init: Record<string, number> = {}
+    for (const a of costAccounts) if (!a.locked) init[a.id] = a.budget_limit || 0
+    setDraftBudgets(init)
+    setEditingBudget(true)
+    setShowAccounts(true)
+  }
+  const cancelEditing = () => { setEditingBudget(false); setDraftBudgets({}) }
+  const saveEditing = () => {
+    for (const a of costAccounts) {
+      if (a.locked) continue
+      const next = draftBudgets[a.id] ?? a.budget_limit ?? 0
+      if (next !== (a.budget_limit || 0)) {
+        setAccountLimit.mutate({ company, project_id: projectID, account_id: a.id, amount: next })
+      }
+    }
+    setEditingBudget(false)
+    setDraftBudgets({})
+  }
+  const onDraftBudget = (accountID: string, amount: number) =>
+    setDraftBudgets(prev => ({ ...prev, [accountID]: amount }))
 
   const catTotals = costCategories.reduce(
     (acc, c) => {
@@ -470,7 +628,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="relative flex max-h-[92vh] w-[min(1200px,96vw)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+      <div className="relative flex max-h-[92vh] w-[min(1560px,97vw)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
 
         {/* Header */}
         <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3">
@@ -513,7 +671,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
           ) : !data ? (
             <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">No data found</div>
           ) : (
-            <div className="grid gap-4 grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+            <div className="grid gap-4 lg:grid-cols-2">
 
               {/* ── Left col: Income + Cost stacked ────────────────────────── */}
               <div className="flex flex-col gap-4">
@@ -553,10 +711,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     </div>
                   </div>
                   {incomeAccounts.length > 0 && (
-                    <div className="overflow-hidden rounded-lg border border-border/30">
+                    <div className="overflow-hidden rounded-lg border border-input">
                       <button
                         onClick={() => setShowByType(o => !o)}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/10"
+                        className="flex w-full items-center gap-2 bg-transparent px-3 py-2 text-left transition-colors hover:bg-muted/20 dark:bg-input/30"
                       >
                         <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Type</span>
                         <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showByType && "rotate-180")} />
@@ -606,7 +764,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 <div className={cn("flex flex-col gap-3 rounded-xl border p-4",
                   overCeiling ? "border-red-500/30 bg-red-500/[0.04]" : "border-red-500/20 bg-red-500/[0.03]")}>
                   <div className="flex items-center gap-2">
-                    <Coins className="h-4 w-4 text-red-500" />
+                    <HandCoins className="h-4 w-4 text-red-500" />
                     <span className="text-sm font-semibold text-red-500">Cost</span>
                     <div className="ml-auto flex items-center gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
@@ -616,6 +774,32 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       <div className="h-3.5 w-px bg-border/50" />
                       <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(data.cost_total, data.cost_ceiling)}</span>
                     </div>
+                    {(showAccounts || editingBudget) && (editingBudget ? (
+                      <div className="flex h-6 shrink-0 items-center">
+                        <button
+                          onClick={saveEditing}
+                          className="flex h-full items-center gap-1 rounded-l-md border border-red-500/40 bg-red-500/10 px-1.5 text-[10px] font-medium text-red-500 transition-colors hover:bg-red-500/20"
+                          title="Save the cost budget"
+                        >
+                          <Check className="h-3 w-3" /> Done
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="flex h-full w-6 items-center justify-center rounded-r-md border border-l-0 border-input bg-transparent text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30"
+                          title="Discard changes"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={startEditing}
+                        className="flex h-6 shrink-0 items-center gap-1 rounded-md border border-input bg-transparent px-1.5 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30"
+                        title="Map the cost budget across accounts"
+                      >
+                        <SlidersHorizontal className="h-3 w-3" /> Map budget
+                      </button>
+                    ))}
                   </div>
                   <SegBar
                     total={Math.max(data.cost_ceiling, data.cost_total)}
@@ -641,10 +825,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   </div>
                   {/* By Account collapsible */}
                   {costAccounts.length > 0 && (
-                    <div className="overflow-hidden rounded-lg border border-border/30">
+                    <div className="overflow-hidden rounded-lg border border-input">
                       <button
                         onClick={() => setShowAccounts(o => !o)}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/10"
+                        className="flex w-full items-center gap-2 bg-transparent px-3 py-2 text-left transition-colors hover:bg-muted/20 dark:bg-input/30"
                       >
                         <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Account</span>
                         <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showAccounts && "rotate-180")} />
@@ -655,14 +839,32 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                             <div className="w-4 shrink-0 mr-0.5" />
                             <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Account</span>
                             <div className="flex shrink-0">
+                              <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Budget</div>
                               <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Billed</div>
                               <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Paid</div>
                               <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Outstanding</div>
+                              <div className="ml-1 w-5 shrink-0" />
                             </div>
                           </div>
                           {costAccounts.map((ca, i) => (
-                            <AccountRow key={i} ca={ca} blur={blur} />
+                            <AccountRow key={ca.id || i} ca={ca} blur={blur}
+                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget} onOpenChart={setChartAccount} />
                           ))}
+                          {/* Allocation footer (visible while mapping) */}
+                          {editingBudget && (
+                            <div className="flex items-center gap-2.5 border-t border-border/20 bg-muted/10 px-3 py-2.5">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Allocated</span>
+                              <span className={cn("text-sm font-bold tabular-nums", allocatedBudget > costCeiling ? "text-amber-500" : "text-foreground")}>
+                                {fmt(allocatedBudget)}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground/50">of</span>
+                              <span className="text-sm font-bold tabular-nums text-muted-foreground">{fmt(costCeiling)}</span>
+                              <span className={cn("ml-auto rounded-md px-2 py-1 text-[12px] font-bold tabular-nums",
+                                costCeiling - allocatedBudget < 0 ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500")}>
+                                {costCeiling - allocatedBudget >= 0 ? `${fmt(costCeiling - allocatedBudget)} left` : `${fmt(allocatedBudget - costCeiling)} over`}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -676,7 +878,13 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 {/* Title row */}
                 <div className="flex items-center gap-2">
                   <HardHat className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm font-semibold text-yellow-500">Contractors Costs</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold leading-tight text-yellow-500">Contractors Costs</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
+                      <CornerDownRight className="h-3 w-3 shrink-0 text-yellow-500/40" />
+                      Breakdown of the Contractors account in <span className="font-medium text-red-500">Cost</span>
+                    </span>
+                  </div>
                   <div className="ml-auto flex items-center gap-1.5">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                     <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(catNetBilled)}</span>
@@ -747,6 +955,15 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
           )}
         </div>
       </div>
+
+      {chartAccount && (
+        <AccountChartDialog
+          company={company}
+          projectID={projectID}
+          account={chartAccount}
+          onClose={() => setChartAccount(null)}
+        />
+      )}
     </div>
   )
 }
