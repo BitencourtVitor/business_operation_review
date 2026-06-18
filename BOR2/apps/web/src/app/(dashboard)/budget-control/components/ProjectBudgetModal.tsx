@@ -1092,7 +1092,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                               <span className="text-[11px] text-muted-foreground/50">of</span>
                               <span className="text-sm font-bold tabular-nums text-muted-foreground">{fmt(costCeiling)}</span>
                               <span className={cn("ml-auto rounded-md px-2 py-1 text-[12px] font-bold tabular-nums",
-                                costCeiling - allocatedBudget < 0 ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500")}>
+                                costCeiling - allocatedBudget < 0 ? "bg-amber-500/15 text-amber-500" : "bg-muted text-muted-foreground")}>
                                 {costCeiling - allocatedBudget >= 0 ? `${fmt(costCeiling - allocatedBudget)} left` : `${fmt(allocatedBudget - costCeiling)} over`}
                               </span>
                             </div>
