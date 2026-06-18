@@ -798,7 +798,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           {incomeAccounts.map(ia => {
                             const receivedForType = Math.max(ia.amount - ia.outstanding, 0)
                             const settled = ia.outstanding === 0
-                            const receivedOver = receivedForType > ia.amount
+                            const receivedOver = ia.amount > 0 && receivedForType > ia.amount
                             return (
                               <div key={ia.name} className="flex items-center border-t border-border/20 px-3 py-1.5">
                                 <div className="flex flex-1 items-center gap-1.5 min-w-0">
