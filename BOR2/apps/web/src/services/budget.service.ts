@@ -147,6 +147,33 @@ export interface BudgetProjectDetail {
   cost_categories: CostCategory[]
 }
 
+export interface LaborEstimateEmployee {
+  name: string
+  regular_hours: number
+  ot_hours: number
+  total_hours: number
+  pay_rate: number
+  regular_cost: number
+  ot_cost: number
+  total_cost: number
+}
+
+export interface LaborEstimate {
+  company: string
+  project_id: string
+  has_mapping: boolean
+  has_data: boolean
+  period_start: string
+  period_end: string
+  regular_hours: number
+  ot_hours: number
+  total_hours: number
+  regular_cost: number
+  ot_cost: number
+  total_cost: number
+  employees: LaborEstimateEmployee[]
+}
+
 export type BudgetStatus = "all" | "in_progress" | "settled"
 
 export const budgetService = {
@@ -182,5 +209,10 @@ export const budgetService = {
   async getIncomeHistory(params: { company: string; project_id: string; type: string }): Promise<IncomePaidPoint[]> {
     const search = new URLSearchParams({ company: params.company, project_id: params.project_id, type: params.type })
     return (await api.get<IncomePaidPoint[]>(`/api/v1/budget/projects/income-history?${search}`, getToken())) ?? []
+  },
+
+  async getLaborEstimate(params: { company: string; project_id: string }): Promise<LaborEstimate | null> {
+    const search = new URLSearchParams({ company: params.company, project_id: params.project_id })
+    return api.get<LaborEstimate>(`/api/v1/budget/projects/labor-estimate?${search}`, getToken())
   },
 }

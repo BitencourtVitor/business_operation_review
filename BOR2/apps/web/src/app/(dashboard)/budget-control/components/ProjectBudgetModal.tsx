@@ -5,6 +5,7 @@ import {
   X, ChevronRight, Loader2, Building2, Home,
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
+  CalendarClock, Users, Hourglass, Cog,
 } from "lucide-react"
 import {
   LineChart as RLineChart, Line as RLine, XAxis, YAxis, CartesianGrid,
@@ -14,7 +15,7 @@ import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory } from "@/hooks/use-budget"
+import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
 import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -624,6 +625,131 @@ function IncomeChartPanel({ company, projectID, typeName }: {
   )
 }
 
+// ── Cost Forecast (current pay period labor) ───────────────────────────────────
+
+// Labor accruing in the open pay period: hours logged in QB Time but not yet
+// posted as a QB cost. The 4th panel color (blue) sets it apart from
+// Income (green) / Cost (red) / Contractors (yellow).
+function fmtPeriodRange(start: string, end: string) {
+  if (!start || !end) return ""
+  const [, sm, sd] = start.split("-")
+  const [, em, ed] = end.split("-")
+  return `${sm}/${sd} – ${em}/${ed}`
+}
+
+function LaborForecastBlock({ company, projectID, blur }: { company: string; projectID: string; blur: string }) {
+  const { data, isLoading } = useLaborEstimate({ company, project_id: projectID })
+  const [showEmployees, setShowEmployees] = useState(false)
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-blue-500/25 bg-blue-500/[0.04] p-4">
+      {/* Title row */}
+      <div className="flex items-center gap-2">
+        <CalendarClock className="h-4 w-4 text-blue-500" />
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold leading-tight text-blue-500">Cost Forecast</span>
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
+            <CornerDownRight className="h-3 w-3 shrink-0 text-blue-500/40" />
+            Accruing this pay period{data?.period_start ? ` · ${fmtPeriodRange(data.period_start, data.period_end)}` : ""}
+          </span>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Est. Total</span>
+          <span className={cn("text-base font-bold tabular-nums text-blue-500", blur)}>{fmt(data?.total_cost ?? 0)}</span>
+        </div>
+      </div>
+
+      {/* Labor sub-section */}
+      <div className="flex flex-col gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3">
+        <div className="flex items-center gap-2">
+          <Users className="h-3.5 w-3.5 text-blue-500/80" />
+          <span className="text-[12px] font-semibold text-blue-500/90">Labor · QB Time</span>
+          {data?.has_data && (
+            <span className="ml-auto text-[11px] tabular-nums text-muted-foreground/60">{(data.total_hours ?? 0).toFixed(1)} h</span>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="flex h-16 items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+        ) : !data?.has_mapping ? (
+          <div className="flex flex-col items-center gap-1 py-4 text-center">
+            <p className="text-[11px] text-muted-foreground/60">No QB Time addresses linked to this project yet.</p>
+            <a href="/budget-control/manage/labor-mapping" className="text-[11px] font-medium text-blue-500 hover:underline">Open Labor Mapping →</a>
+          </div>
+        ) : !data?.has_data ? (
+          <div className="py-4 text-center text-[11px] italic text-muted-foreground/50">No hours logged for this project yet this pay period.</div>
+        ) : (
+          <>
+            <SegBar
+              total={Math.max(data.total_cost, 1)}
+              segments={[
+                { value: data.regular_cost, color: "#3b82f6", label: "Regular", icon: Clock },
+                { value: data.ot_cost, color: "#f97316", label: "Overtime", icon: Hourglass },
+              ]}
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Regular · {data.regular_hours.toFixed(1)}h</span>
+                <span className={cn("text-lg font-bold tabular-nums text-blue-500", blur)}>{fmt(data.regular_cost)}</span>
+              </div>
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Overtime · {data.ot_hours.toFixed(1)}h</span>
+                <span className={cn("text-lg font-bold tabular-nums", data.ot_cost > 0 ? "text-orange-500" : "text-muted-foreground/50", blur)}>{fmt(data.ot_cost)}</span>
+              </div>
+              <div className="flex flex-col items-end gap-0.5">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Est. Total</span>
+                <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.total_cost)}</span>
+              </div>
+            </div>
+
+            {data.employees.length > 0 && (
+              <div className="overflow-hidden rounded-lg border border-input">
+                <button
+                  onClick={() => setShowEmployees(o => !o)}
+                  className="flex w-full items-center gap-2 bg-transparent px-3 py-2 text-left transition-colors hover:bg-muted/20 dark:bg-input/30"
+                >
+                  <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Employee</span>
+                  <span className="text-[10px] tabular-nums text-muted-foreground/50">{data.employees.length}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showEmployees && "rotate-180")} />
+                </button>
+                {showEmployees && (
+                  <div className="border-t border-border/20">
+                    <div className="flex items-center bg-muted/10 px-3 py-1">
+                      <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Employee</span>
+                      <div className="flex shrink-0">
+                        <div className="w-14 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Reg h</div>
+                        <div className="w-14 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">OT h</div>
+                        <div className="w-24 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Est. Cost</div>
+                      </div>
+                    </div>
+                    {data.employees.map(e => (
+                      <div key={e.name} className="flex items-center border-t border-border/10 px-3 py-1">
+                        <span className="flex-1 min-w-0 truncate text-[11px] font-medium text-foreground/80" title={e.name}>{e.name}</span>
+                        <div className="flex shrink-0">
+                          <span className={cn("w-14 text-right text-[11px] tabular-nums text-muted-foreground", blur)}>{e.regular_hours.toFixed(1)}</span>
+                          <span className={cn("w-14 text-right text-[11px] tabular-nums", e.ot_hours > 0 ? "text-orange-500" : "text-muted-foreground/40", blur)}>{e.ot_hours.toFixed(1)}</span>
+                          <span className={cn("w-24 text-right text-[11px] font-semibold tabular-nums text-blue-500", blur)}>{fmt(e.total_cost)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Machines sub-section — coming soon */}
+      <div className="flex items-center gap-2 rounded-lg border border-dashed border-border/40 bg-muted/10 px-3 py-3">
+        <Cog className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <span className="text-[12px] font-medium text-muted-foreground/60">Machines</span>
+        <span className="ml-auto rounded-full bg-muted/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">Soon</span>
+      </div>
+    </div>
+  )
+}
+
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
 export function ProjectBudgetModal({ company, projectID, onClose }: {
@@ -962,8 +1088,9 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 </div>
               </div>
 
-              {/* ── Right col: Subcontractor Costs ───────────────────────────── */}
-              <div className="self-start flex flex-col gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.04] p-4">
+              {/* ── Right col: Subcontractor Costs + Cost Forecast ───────────── */}
+              <div className="self-start flex flex-col gap-4">
+              <div className="flex flex-col gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.04] p-4">
 
                 {/* Title row */}
                 <div className="flex items-center gap-2">
@@ -1039,6 +1166,9 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     })
                   )}
                 </div>
+              </div>
+
+              <LaborForecastBlock company={company} projectID={projectID} blur={blur} />
               </div>
 
             </div>
