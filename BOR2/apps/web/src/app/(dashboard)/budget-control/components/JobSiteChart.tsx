@@ -23,7 +23,8 @@ const fmtShort = (n: number) => {
 
 const RECEIVE = "#22c55e"
 const PAY     = "#ef4444"
-const MAX_ITEMS = 30
+const MAX_ITEMS = 80    // cap so we don't render thousands of bars
+const PER_ITEM  = 54    // px of horizontal room per job site (drives X scroll)
 
 type Mode = "executed" | "pending"
 
@@ -84,19 +85,23 @@ export function JobSiteChart({ projects, company }: {
       .filter(m => m.job_site_id != null)
       .map(m => [m.customer_id, m.job_site_id as number]))
 
-    const agg = new Map<number, Agg>()
+    // Job sites come from Manage > Project Assignment: a customer assigned to a
+    // catalog job site groups under it; an unassigned customer is its own job
+    // site. Empty mapping → one group per customer until sites are assigned.
+    const agg = new Map<string, Agg>()
     for (const p of projects) {
       const sid = siteOf.get(p.project_id)
-      if (sid == null) continue
-      const row = agg.get(sid) ?? {
-        name: siteName.get(sid) ?? `Site ${sid}`,
+      const key  = sid != null ? `s${sid}` : `p${p.project_id}`
+      const name = sid != null ? (siteName.get(sid) ?? `Site ${sid}`) : p.name
+      const row = agg.get(key) ?? {
+        name,
         invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0,
       }
       row.invoiced        += p.received + p.to_receive   // executed income
       row.billed          += p.paid + p.open_payable     // executed cost
       row.remainingIncome += p.to_receive                // pending income
       row.remainingCost   += p.to_pay                    // pending cost
-      agg.set(sid, row)
+      agg.set(key, row)
     }
     return [...agg.values()]
   }, [projects, mappings, jobSites])
@@ -146,17 +151,28 @@ export function JobSiteChart({ projects, company }: {
           </div>
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 items-center justify-center p-3">
+      <div className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
         ) : data.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 text-center text-muted-foreground/60">
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground/60">
             <MapPin className="h-7 w-7" />
             <p className="text-xs">Assign projects to job sites to see the breakdown.</p>
           </div>
         ) : (
+          <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} barGap={1} barCategoryGap="22%">
+              <defs>
+                <linearGradient id="jsReceivable" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor={RECEIVE} stopOpacity={0.95} />
+                  <stop offset="100%" stopColor={RECEIVE} stopOpacity={0.4} />
+                </linearGradient>
+                <linearGradient id="jsPayable" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor={PAY} stopOpacity={0.95} />
+                  <stop offset="100%" stopColor={PAY} stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
               <XAxis
                 dataKey="name"
@@ -173,10 +189,11 @@ export function JobSiteChart({ projects, company }: {
                 tickFormatter={showFinancialData ? fmtShort : () => ""}
               />
               <RechartsTooltip content={<ChartTooltip labels={labels} />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
-              <Bar dataKey="receivable" name={labels.receivable} fill={RECEIVE} radius={[2, 2, 0, 0]} maxBarSize={26} />
-              <Bar dataKey="payable"    name={labels.payable}    fill={PAY}     radius={[2, 2, 0, 0]} maxBarSize={26} />
+              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={26} />
+              <Bar dataKey="payable"    name={labels.payable}    fill="url(#jsPayable)"    stroke={PAY}     strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={26} />
             </BarChart>
           </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>
