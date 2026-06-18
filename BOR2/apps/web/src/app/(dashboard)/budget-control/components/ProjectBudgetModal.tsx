@@ -676,13 +676,10 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
 
         {isLoading ? (
           <div className="flex h-16 items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
-        ) : !data?.has_mapping ? (
-          <div className="flex flex-col items-center gap-1 py-4 text-center">
-            <p className="text-[11px] text-muted-foreground/60">No QB Time addresses linked to this project yet.</p>
-            <a href="/budget-control/manage/labor-mapping" className="text-[11px] font-medium text-blue-500 hover:underline">Open Labor Mapping →</a>
-          </div>
         ) : !data?.has_data ? (
-          <div className="py-4 text-center text-[11px] italic text-muted-foreground/50">No hours logged for this project yet this pay period.</div>
+          <div className="px-3 py-5 text-center text-[11px] italic leading-relaxed text-muted-foreground/50">
+            No hours logged this pay period for this jobsite. Nothing accruing toward the next payroll close.
+          </div>
         ) : (
           <>
             <SegBar
