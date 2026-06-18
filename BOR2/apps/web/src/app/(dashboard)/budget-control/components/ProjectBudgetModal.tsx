@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import {
-  X, ChevronRight, Loader2, Building2, Home, AlertTriangle,
+  X, ChevronRight, Loader2, Building2, Home,
   Wallet, Coins, HardHat, Tag, ChevronDown, Check, Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -173,13 +173,16 @@ function AccountRow({ ca, blur }: { ca: CostAccount; blur: string }) {
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
       </div>
       {open && ca.children?.map((child, j) => {
-        const settled = child.outstanding === 0
+        const settled = child.outstanding === 0 && child.amount !== 0
         return (
           <div key={j} className="flex items-center border-t border-border/10 bg-muted/5 px-3 py-1 pl-7">
             <div className="w-4 shrink-0 mr-0.5 flex items-center justify-center">
               <div className="h-1 w-1 rounded-full bg-muted-foreground/20" />
             </div>
-            <span className={cn("flex-1 truncate text-[10px]", settled ? "text-muted-foreground/40" : "text-muted-foreground/60")} title={child.name}>{child.name}</span>
+            <div className="flex flex-1 min-w-0 items-center gap-1">
+              <span className={cn("truncate text-[10px]", settled ? "text-muted-foreground/40" : "text-muted-foreground/60")} title={child.name}>{child.name}</span>
+              {settled && <Check className="h-2.5 w-2.5 shrink-0 text-red-500/60" />}
+            </div>
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/40" : "text-foreground/80")}>{fmt(child.amount)}</span>
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/40" : "")}>{fmt(child.paid)}</span>
             <span className={cn("w-20 text-right text-[10px] font-semibold tabular-nums", blur, child.outstanding > 0 ? "text-orange-500" : "text-muted-foreground/40")}>{fmt(child.outstanding)}</span>
@@ -371,7 +374,6 @@ function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur:
   const outstanding = Math.max(netBilled - netPaid, 0)
   const isSettled = cat.committed > 0 && cat.paid >= cat.committed
   const isNoPO = cat.committed === 0
-  const isOverbilled = cat.committed > 0 && netBilled > cat.committed
   const isOverBudget = cat.budget_limit > 0 && cat.committed > cat.budget_limit
 
   const billedPct = cat.committed > 0 ? Math.min((netBilled / cat.committed) * 100, 100) : 0
@@ -394,7 +396,6 @@ function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur:
           {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
           {isNoPO && <span className="shrink-0 rounded-full bg-muted/40 px-1.5 py-px text-[9px] font-medium text-muted-foreground/50">no PO</span>}
           {!isNoPO && isOverBudget && <span className="shrink-0 rounded-full bg-amber-500/10 px-1.5 py-px text-[9px] font-semibold text-amber-500">over bdgt</span>}
-          {!isNoPO && !isOverBudget && isOverbilled && <span className="shrink-0 rounded-full bg-amber-500/10 px-1.5 py-px text-[9px] font-semibold text-orange-500">overbilled</span>}
         </div>
 
         {/* Donut + % label — fixed slot */}
@@ -504,7 +505,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -512,7 +513,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
           ) : !data ? (
             <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">No data found</div>
           ) : (
-            <div className="grid gap-4 grid-cols-[2fr_3fr]">
+            <div className="grid gap-4 grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 
               {/* ── Left col: Income + Cost stacked ────────────────────────── */}
               <div className="flex flex-col gap-4">
@@ -638,12 +639,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                       <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.cost_ceiling)}</span>
                     </div>
                   </div>
-                  {overCeiling && (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/5 px-2.5 py-1.5 text-[11px] text-red-500">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                      Over the 70% ceiling — projected margin below {Math.round(data.margin_target * 100)}%.
-                    </div>
-                  )}
                   {/* By Account collapsible */}
                   {costAccounts.length > 0 && (
                     <div className="overflow-hidden rounded-lg border border-border/30">
