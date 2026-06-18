@@ -774,6 +774,72 @@ func (h *BudgetHandler) AccountPaidHistory(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": out})
 }
 
+// GET /api/v1/budget/projects/income-history?company=&project_id=&type=<income account name>
+// Monthly invoiced amount for one income type (Sales / Extra / Back Charges …) —
+// the distribution behind an income type, for the per-type chart. Mirrors the
+// income-by-type breakdown: invoice item lines by income account + negative
+// deposit lines as "Back Charges", here grouped by month instead of summed.
+func (h *BudgetHandler) IncomeTypeHistory(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	typ := c.Query("type")
+	if company == "" || projectID == "" || typ == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id and type are required")
+	}
+	ctx := c.Context()
+
+	var customerIDs []string
+	custRows, err := h.db.Query(ctx, `WITH `+custProjCTE+`
+		SELECT customer_id FROM proj_key WHERE pkey=$2`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for custRows.Next() {
+		var id string
+		custRows.Scan(&id)
+		customerIDs = append(customerIDs, id)
+	}
+	custRows.Close()
+
+	type point struct {
+		Month  string  `json:"month"`
+		Amount float64 `json:"amount"`
+	}
+	out := []point{}
+	if len(customerIDs) == 0 {
+		return c.JSON(fiber.Map{"data": out})
+	}
+
+	rows, err := h.db.Query(ctx, `
+		SELECT to_char(date_trunc('month', t.d),'YYYY-MM') AS month, SUM(t.amount) AS amount
+		FROM (
+			SELECT COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
+			       il.amount AS amount, i.txn_date AS d
+			FROM qb_invoice_lines il
+			JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1 AND i.customer_id=ANY($2)
+			LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
+			UNION ALL
+			SELECT 'Back Charges' AS name, dl.amount AS amount, d.txn_date AS d
+			FROM qb_deposit_lines dl
+			JOIN qb_deposits d ON d.id = dl.deposit_id AND d.company=$1
+			WHERE dl.company=$1 AND dl.customer_id=ANY($2) AND dl.amount < 0
+		) t
+		WHERE t.name = $3 AND t.d IS NOT NULL
+		GROUP BY 1
+		ORDER BY 1
+	`, company, customerIDs, typ)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p point
+		rows.Scan(&p.Month, &p.Amount)
+		out = append(out, p)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // costCategoryTree groups the project's POs by user-defined budget category.
 // Payments are resolved per PO via qb_bill_links (Bill → PurchaseOrder).
 // Back charges stay at vendor level (QB vendor credits carry no PO reference).
