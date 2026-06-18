@@ -1,16 +1,13 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useQuery } from "@tanstack/react-query"
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip,
 } from "recharts"
-import { Loader2, MapPin } from "lucide-react"
+import { Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
-import { budgetMappingService } from "@/services/budget-mapping.service"
-import { clientsCatalogService } from "@/services/clients.service"
 import type { BudgetProjectDetail } from "@/services/budget.service"
 
 const fmt = (n: number) =>
@@ -24,7 +21,7 @@ const fmtShort = (n: number) => {
 const RECEIVE = "#22c55e"
 const PAY     = "#ef4444"
 const MAX_ITEMS = 80    // cap so we don't render thousands of bars
-const PER_ITEM  = 54    // px of horizontal room per job site (drives X scroll)
+const PER_ITEM  = 54    // px of horizontal room per customer (drives X scroll)
 
 type Mode = "executed" | "pending"
 
@@ -33,7 +30,7 @@ const LABELS: Record<Mode, { receivable: string; payable: string }> = {
   pending:  { receivable: "Remaining Income", payable: "Remaining Cost" },
 }
 
-// Raw per-job-site aggregation; the active mode picks which pair to plot.
+// Raw per-customer aggregation; the active mode picks which pair to plot.
 type Agg = { name: string; invoiced: number; remainingIncome: number; billed: number; remainingCost: number }
 type Row = { name: string; receivable: number; payable: number }
 
@@ -63,37 +60,20 @@ function ChartTooltip({ active, payload, labels }: {
   )
 }
 
-export function JobSiteChart({ projects, company }: {
-  projects: BudgetProjectDetail[]; company: string
+export function JobSiteChart({ projects }: {
+  projects: BudgetProjectDetail[]
 }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("executed")
 
-  const { data: mappings, isLoading: mapLoading } = useQuery({
-    queryKey: ["budget-mappings", company],
-    queryFn: () => budgetMappingService.list(company),
-    enabled: !!company,
-  })
-  const { data: jobSites, isLoading: siteLoading } = useQuery({
-    queryKey: ["job-sites"],
-    queryFn: () => clientsCatalogService.listJobSites(),
-  })
-
   const aggregated = useMemo<Agg[]>(() => {
-    const siteName = new Map((jobSites ?? []).map(j => [j.id, j.name]))
-    const siteOf   = new Map((mappings ?? [])
-      .filter(m => m.job_site_id != null)
-      .map(m => [m.customer_id, m.job_site_id as number]))
-
-    // Job sites come from Manage > Project Assignment: a customer assigned to a
-    // catalog job site groups under it; an unassigned customer is its own job
-    // site. Empty mapping → one group per customer until sites are assigned.
+    // Group by QB "Customer name" (the project's immediate parent in the
+    // hierarchy), mirroring the QuickBooks Project Status report — many
+    // projects roll up under one customer. No catalog mapping needed.
     const agg = new Map<string, Agg>()
     for (const p of projects) {
-      const sid = siteOf.get(p.project_id)
-      const key  = sid != null ? `s${sid}` : `p${p.project_id}`
-      const name = sid != null ? (siteName.get(sid) ?? `Site ${sid}`) : p.name
-      const row = agg.get(key) ?? {
+      const name = p.customer_group || p.name
+      const row = agg.get(name) ?? {
         name,
         invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0,
       }
@@ -101,10 +81,10 @@ export function JobSiteChart({ projects, company }: {
       row.billed          += p.paid + p.open_payable     // executed cost
       row.remainingIncome += p.to_receive                // pending income
       row.remainingCost   += p.to_pay                    // pending cost
-      agg.set(key, row)
+      agg.set(name, row)
     }
     return [...agg.values()]
-  }, [projects, mappings, jobSites])
+  }, [projects])
 
   const data = useMemo<Row[]>(() => aggregated
     .map(a => ({
@@ -118,7 +98,6 @@ export function JobSiteChart({ projects, company }: {
   [aggregated, mode])
 
   const labels = LABELS[mode]
-  const loading = mapLoading || siteLoading
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/70">
@@ -126,7 +105,7 @@ export function JobSiteChart({ projects, company }: {
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">Receivable vs Payable</span>
           <span className="h-3.5 w-px bg-border" />
-          <span className="text-sm font-medium text-muted-foreground">by Job Site</span>
+          <span className="text-sm font-medium text-muted-foreground">by Customer</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
@@ -152,12 +131,10 @@ export function JobSiteChart({ projects, company }: {
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
-        {loading ? (
-          <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : data.length === 0 ? (
+        {data.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground/60">
-            <MapPin className="h-7 w-7" />
-            <p className="text-xs">Assign projects to job sites to see the breakdown.</p>
+            <Users className="h-7 w-7" />
+            <p className="text-xs">No data to display.</p>
           </div>
         ) : (
           <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
