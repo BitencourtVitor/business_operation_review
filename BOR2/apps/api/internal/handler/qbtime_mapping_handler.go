@@ -263,6 +263,211 @@ func builderRoot(root string) bool {
 	return builderRoots[strings.ToLower(strings.TrimSpace(root))]
 }
 
+// ── GET /qbtime/mapping/jobsites?company=hvac ──────────────────────────────────
+// Groups QB Time addresses by (client, job site) and resolves the whole group to
+// the QBO development whose lot numbers overlap most — so the operator confirms a
+// job site once instead of every lot. Client matches modulo "(NEW)"/"Inc.", the
+// job-site name may diverge, the lot number must match exactly.
+
+type LotRow struct {
+	AddressKey string      `json:"address_key"`
+	Lot        string      `json:"lot"`
+	IsPrivate  bool        `json:"is_private"`
+	Suggestion *Suggestion `json:"suggestion"`
+}
+
+type JobsiteGroup struct {
+	Client       string   `json:"client"`
+	Jobsite      string   `json:"jobsite"`
+	SuggestedQBO string   `json:"suggested_qbo"`
+	Matched      int      `json:"matched"`
+	Total        int      `json:"total"`
+	Lots         []LotRow `json:"lots"`
+}
+
+// qboParse splits a QBO FQN "Client : Job site : Lot …" into its parts.
+func qboParse(fqn string) (client, jobsite string, lotNum int) {
+	p := strings.Split(fqn, ":")
+	for i := range p {
+		p[i] = strings.TrimSpace(p[i])
+	}
+	if len(p) >= 1 {
+		client = p[0]
+	}
+	if len(p) >= 3 {
+		jobsite = p[1]
+	}
+	lotNum = -1
+	if len(p) >= 1 {
+		if n, ok := lotNumber(p[len(p)-1]); ok {
+			lotNum = n
+		}
+	}
+	return
+}
+
+func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	}
+	ctx := c.Context()
+
+	done := map[string]bool{}
+	for _, tbl := range []string{"qbtime_project_mappings", "qbtime_mapping_skips"} {
+		if rows, err := h.db.Query(ctx, `SELECT address_key FROM `+tbl+` WHERE company=$1`, company); err == nil {
+			for rows.Next() {
+				var k string
+				rows.Scan(&k)
+				done[k] = true
+			}
+			rows.Close()
+		}
+	}
+
+	// ── QB Time groups ────────────────────────────────────────────────────────
+	type qbtLot struct {
+		addressKey, lot string
+		lotNum          int
+		private         bool
+	}
+	type qbtGroup struct {
+		client, jobsite string
+		lots            []qbtLot
+		lotSet          map[int]bool
+	}
+	groups := map[string]*qbtGroup{}
+
+	rows, err := h.db.Query(ctx, `
+		SELECT jobcode_path::text FROM qbtime_timesheets WHERE company=$1
+		GROUP BY jobcode_path`, company)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	seen := map[string]bool{}
+	for rows.Next() {
+		var pathJSON string
+		if rows.Scan(&pathJSON) != nil {
+			continue
+		}
+		var path []string
+		if json.Unmarshal([]byte(pathJSON), &path) != nil || len(path) == 0 || isOverhead(path) {
+			continue
+		}
+		k := addressKey(path)
+		if k == "" || done[k] || seen[k] {
+			continue
+		}
+		seen[k] = true
+
+		kp := strings.Split(k, " › ")
+		client := kp[0]
+		jobsite := "Individual addresses"
+		if len(kp) >= 3 {
+			jobsite = kp[1]
+		}
+		lotLabel := kp[len(kp)-1]
+		ln, _ := lotNumber(lotLabel)
+		if _, ok := lotNumber(lotLabel); !ok {
+			ln = -1
+		}
+		gk := client + "|" + jobsite
+		g := groups[gk]
+		if g == nil {
+			g = &qbtGroup{client: client, jobsite: jobsite, lotSet: map[int]bool{}}
+			groups[gk] = g
+		}
+		g.lots = append(g.lots, qbtLot{addressKey: k, lot: lotLabel, lotNum: ln, private: !builderRoot(client)})
+		if ln >= 0 {
+			g.lotSet[ln] = true
+		}
+	}
+	rows.Close()
+
+	// ── QBO development index: normClient → list of job sites ─────────────────
+	type qboJS struct {
+		rawClient, rawJobsite string
+		lots                  map[int][]Suggestion
+	}
+	byClient := map[string][]*qboJS{}
+	index := map[string]*qboJS{}
+	for _, cu := range h.loadCustomers(ctx, company) {
+		client, jobsite, lot := qboParse(cu.fqn)
+		nc := normalize(client)
+		jk := nc + "|" + normalize(jobsite)
+		js := index[jk]
+		if js == nil {
+			js = &qboJS{rawClient: client, rawJobsite: jobsite, lots: map[int][]Suggestion{}}
+			index[jk] = js
+			byClient[nc] = append(byClient[nc], js)
+		}
+		if lot >= 0 {
+			js.lots[lot] = append(js.lots[lot], Suggestion{CustomerID: cu.id, Name: cu.fqn})
+		}
+	}
+
+	// ── Resolve each QB Time group to its best QBO development ─────────────────
+	out := []JobsiteGroup{}
+	for _, g := range groups {
+		var best *qboJS
+		var bestScore float64
+		for _, cand := range byClient[normalize(g.client)] {
+			overlap := 0
+			for ln := range g.lotSet {
+				if len(cand.lots[ln]) > 0 {
+					overlap++
+				}
+			}
+			lotRatio := 0.0
+			if len(g.lotSet) > 0 {
+				lotRatio = float64(overlap) / float64(len(g.lotSet))
+			}
+			score := 0.75*lotRatio + 0.25*jaroWinkler(normalize(g.jobsite), normalize(cand.rawJobsite))
+			if score > bestScore {
+				bestScore, best = score, cand
+			}
+		}
+
+		jg := JobsiteGroup{Client: g.client, Jobsite: g.jobsite, Total: len(g.lots)}
+		if best != nil {
+			jg.SuggestedQBO = best.rawClient + " › " + best.rawJobsite
+		}
+		for _, lt := range g.lots {
+			row := LotRow{AddressKey: lt.addressKey, Lot: lt.lot, IsPrivate: lt.private}
+			if best != nil && lt.lotNum >= 0 {
+				if pick := chooseNonDeck(best.lots[lt.lotNum]); pick != nil {
+					s := *pick
+					s.Score = round3(bestScore)
+					row.Suggestion = &s
+					jg.Matched++
+				}
+			}
+			jg.Lots = append(jg.Lots, row)
+		}
+		out = append(out, jg)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Client != out[j].Client {
+			return out[i].Client < out[j].Client
+		}
+		return out[i].Jobsite < out[j].Jobsite
+	})
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// chooseNonDeck prefers a real lot customer over a "(Deck)" sub-scope.
+func chooseNonDeck(cands []Suggestion) *Suggestion {
+	if len(cands) == 0 {
+		return nil
+	}
+	for i := range cands {
+		if !deckRe.MatchString(cands[i].Name) {
+			return &cands[i]
+		}
+	}
+	return &cands[0]
+}
+
 // loadCustomers returns QBO customers that can be a project target (leaf jobs
 // under a parent — i.e. the FQN has at least one ':' separator).
 func (h *QBTimeMappingHandler) loadCustomers(ctx context.Context, company string) []qboCustomer {

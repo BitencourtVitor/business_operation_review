@@ -18,10 +18,31 @@ export interface MappingQueueItem {
   suggestions: MappingSuggestion[]
 }
 
+export interface LotRow {
+  address_key: string
+  lot: string
+  is_private: boolean
+  suggestion: MappingSuggestion | null
+}
+
+export interface JobsiteGroup {
+  client: string
+  jobsite: string
+  suggested_qbo: string
+  matched: number
+  total: number
+  lots: LotRow[]
+}
+
 export const qbtimeMappingService = {
   queue: (company: string) =>
     api
       .get<MappingQueueItem[]>(`/api/v1/budget/qbtime-mapping/queue?company=${company}`, getToken())
+      .then(r => r ?? []),
+
+  jobsites: (company: string) =>
+    api
+      .get<JobsiteGroup[]>(`/api/v1/budget/qbtime-mapping/jobsites?company=${company}`, getToken())
       .then(r => r ?? []),
 
   customers: (company: string, q: string) =>
