@@ -56,3 +56,12 @@ export function useLaborEstimate(params: { company: string; project_id: string }
     enabled: !!params?.company && !!params?.project_id,
   })
 }
+
+export function useLaborSummary(company: string) {
+  return useQuery({
+    queryKey: ["budget-labor-summary", company],
+    queryFn: () => budgetService.getLaborSummary(company),
+    enabled: !!company,
+    staleTime: 3 * 60 * 1000,
+  })
+}

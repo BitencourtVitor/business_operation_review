@@ -1005,6 +1005,72 @@ func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": est})
 }
 
+// LaborSummaryItem is one project's in-progress labor cost for the open period.
+type LaborSummaryItem struct {
+	ProjectID string  `json:"project_id"`
+	TotalCost float64 `json:"total_cost"`
+}
+
+// GET /api/v1/budget/labor-estimate-summary?company=hvac
+// Per-project in-progress labor cost for the open pay period — a lightweight
+// roll-up so the project list can flag which projects have cost accruing. One
+// live QB Time payroll fetch for the whole company is distributed across projects
+// via the address mappings (much cheaper than per-project for a list).
+func (h *BudgetHandler) LaborEstimateSummary(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	}
+	ctx := c.Context()
+	out := []LaborSummaryItem{}
+	if h.periodSvc == nil {
+		return c.JSON(fiber.Map{"data": out})
+	}
+
+	// address_key → project_id (a project's pkey is its customer_id).
+	addrToProj := map[string]string{}
+	rows, err := h.db.Query(ctx, `
+		SELECT address_key, customer_id FROM qbtime_project_mappings WHERE company=$1`, company)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for rows.Next() {
+		var ak, cid string
+		rows.Scan(&ak, &cid)
+		addrToProj[ak] = cid
+	}
+	rows.Close()
+	if len(addrToProj) == 0 {
+		return c.JSON(fiber.Map{"data": out})
+	}
+
+	prRows, _, _, perr := h.periodSvc.CurrentPeriodPayroll(ctx, company)
+	if perr != nil {
+		return c.JSON(fiber.Map{"data": out})
+	}
+
+	costByProj := map[string]float64{}
+	for _, pr := range prRows {
+		if len(pr.JobcodePath) == 0 || isOverhead(pr.JobcodePath) {
+			continue
+		}
+		pkey, ok := addrToProj[addressKey(pr.JobcodePath)]
+		if !ok {
+			continue
+		}
+		regH := float64(pr.RegSeconds) / 3600.0
+		otH := float64(pr.OTSeconds) / 3600.0
+		costByProj[pkey] += regH*pr.PayRate + otH*(pr.PayRate*1.5)
+	}
+	for pkey, cost := range costByProj {
+		if cost <= 0 {
+			continue
+		}
+		out = append(out, LaborSummaryItem{ProjectID: pkey, TotalCost: round2(cost)})
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // costCategoryTree groups the project's POs by user-defined budget category.
 // Payments are resolved per PO via qb_bill_links (Bill → PurchaseOrder).
 // Back charges stay at vendor level (QB vendor credits carry no PO reference).

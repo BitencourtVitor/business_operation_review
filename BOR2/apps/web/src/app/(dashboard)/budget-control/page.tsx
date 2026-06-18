@@ -13,10 +13,11 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
+  CalendarClock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetProjects } from "@/hooks/use-budget"
+import { useBudgetProjects, useLaborSummary } from "@/hooks/use-budget"
 import type { BudgetProjectDetail } from "@/services/budget.service"
 import { ProjectBudgetModal } from "./components/ProjectBudgetModal"
 import { JobSiteChart } from "./components/JobSiteChart"
@@ -53,10 +54,11 @@ function MetricRow({ label, value, color, blur, strong }: {
 
 // ── Project Card ──────────────────────────────────────────────────────────────
 
-function ProjectCard({ p, blur, onOpen }: {
-  p: BudgetProjectDetail; blur: string; onOpen: () => void
+function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
+  p: BudgetProjectDetail; blur: string; onOpen: () => void; inProgressCost?: number
 }) {
   const hasLabor = p.labor_committed > 0
+  const hasInProgress = inProgressCost > 0
   const profit = p.invoiced - p.cost_total
   const marginPct = p.invoiced > 0 ? Math.round((profit / p.invoiced) * 100) : 0
   const positiveMargin = profit >= 0
@@ -91,8 +93,18 @@ function ProjectCard({ p, blur, onOpen }: {
               ? <Building2 className="h-3.5 w-3.5 text-muted-foreground/70" />
               : <Home      className="h-3.5 w-3.5 text-muted-foreground/70" />}
           </div>
-          {(p.potentially_closed || p.over_ceiling) && (
-            <div className="flex h-14 shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-border bg-background px-1.5">
+          {(p.potentially_closed || p.over_ceiling || hasInProgress) && (
+            <div className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-border bg-background px-1.5 py-1.5">
+              {hasInProgress && (
+                <TooltipProvider delay={0}>
+                  <Tooltip>
+                    <TooltipTrigger render={<span className="flex" />}>
+                      <CalendarClock className="h-4 w-4 text-blue-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>In-progress costs accruing this pay period: {fmt(inProgressCost)}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               {p.potentially_closed && (
                 <TooltipProvider delay={0}>
                   <Tooltip>
@@ -267,6 +279,7 @@ function BudgetContent() {
   const [types,     setTypes]     = useState({ building: true, house: true })
 
   const { data: projects, isLoading: projLoading } = useBudgetProjects({ company })
+  const { data: laborSummary } = useLaborSummary(company)
 
   const rows = useMemo(() => (projects ?? [])
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
@@ -467,6 +480,7 @@ function BudgetContent() {
                     p={p}
                     blur={blur}
                     onOpen={() => setDetailID(p.project_id)}
+                    inProgressCost={laborSummary?.[p.project_id] ?? 0}
                   />
                 ))}
               </div>

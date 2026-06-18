@@ -175,6 +175,11 @@ export interface LaborEstimate {
   employees: LaborEstimateEmployee[]
 }
 
+export interface LaborSummaryItem {
+  project_id: string
+  total_cost: number
+}
+
 export type BudgetStatus = "all" | "in_progress" | "settled"
 
 export const budgetService = {
@@ -215,5 +220,12 @@ export const budgetService = {
   async getLaborEstimate(params: { company: string; project_id: string }): Promise<LaborEstimate | null> {
     const search = new URLSearchParams({ company: params.company, project_id: params.project_id })
     return api.get<LaborEstimate>(`/api/v1/budget/projects/labor-estimate?${search}`, getToken())
+  },
+
+  async getLaborSummary(company: string): Promise<Record<string, number>> {
+    const arr = (await api.get<LaborSummaryItem[]>(`/api/v1/budget/projects/labor-estimate-summary?company=${company}`, getToken())) ?? []
+    const m: Record<string, number> = {}
+    for (const it of arr) m[it.project_id] = it.total_cost
+    return m
   },
 }

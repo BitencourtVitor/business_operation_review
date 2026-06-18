@@ -506,6 +506,7 @@ func main() {
 	budget.Get("/projects/account-history", budgetHandler.AccountPaidHistory)
 	budget.Get("/projects/income-history",  budgetHandler.IncomeTypeHistory)
 	budget.Get("/projects/labor-estimate",  budgetHandler.LaborEstimate)
+	budget.Get("/projects/labor-estimate-summary", budgetHandler.LaborEstimateSummary)
 	budget.Get("/project-mappings",      budgetMappingHandler.List)
 	budget.Put("/project-mappings",      budgetMappingHandler.Set)
 
