@@ -507,7 +507,6 @@ func main() {
 	// QB Time → QBO labor mapping (initial mapping page)
 	budget.Get("/qbtime-mapping/queue",     qbtimeMappingHandler.Queue)
 	budget.Get("/qbtime-mapping/jobsites",  qbtimeMappingHandler.Jobsites)
-	budget.Post("/qbtime-mapping/restore",  qbtimeMappingHandler.Restore)
 	budget.Get("/qbtime-mapping/customers", qbtimeMappingHandler.Customers)
 	budget.Post("/qbtime-mapping/accept",   qbtimeMappingHandler.Accept)
 	budget.Post("/qbtime-mapping/skip",     qbtimeMappingHandler.Skip)
