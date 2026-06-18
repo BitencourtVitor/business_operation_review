@@ -403,78 +403,13 @@ func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
 	}
 	rows.Close()
 
-	// ── QBO development index: normClient → list of job sites ─────────────────
-	type qboJS struct {
-		rawClient, rawJobsite string
-		lots                  map[int][]Suggestion
-	}
-	byClient := map[string][]*qboJS{}
-	index := map[string]*qboJS{}
-	qboByNum := map[int][]qboCustomer{} // street number → customers, for private matching
-	for _, cu := range h.loadCustomers(ctx, company) {
-		client, jobsite, lot := qboParse(cu.fqn)
-		nc := normalize(client)
-		jk := nc + "|" + normalize(jobsite)
-		js := index[jk]
-		if js == nil {
-			js = &qboJS{rawClient: client, rawJobsite: jobsite, lots: map[int][]Suggestion{}}
-			index[jk] = js
-			byClient[nc] = append(byClient[nc], js)
-		}
-		if lot >= 0 {
-			js.lots[lot] = append(js.lots[lot], Suggestion{CustomerID: cu.id, Name: cu.fqn})
-		}
-		if n, ok := streetNumber(lastSeg(cu.fqn)); ok {
-			qboByNum[n] = append(qboByNum[n], cu)
-		}
-	}
-
-	// ── Resolve each QB Time group to its best QBO development ─────────────────
+	// No auto-matching: the operator links each address to a QBO project by hand
+	// (the string heuristics didn't reflect the real project assignment).
 	out := []JobsiteGroup{}
 	for _, g := range groups {
-		var best *qboJS
-		var bestScore float64
-		for _, cand := range byClient[normalize(g.client)] {
-			overlap := 0
-			for ln := range g.lotSet {
-				if len(cand.lots[ln]) > 0 {
-					overlap++
-				}
-			}
-			lotRatio := 0.0
-			if len(g.lotSet) > 0 {
-				lotRatio = float64(overlap) / float64(len(g.lotSet))
-			}
-			score := 0.75*lotRatio + 0.25*jaroWinkler(normalize(g.jobsite), normalize(cand.rawJobsite))
-			if score > bestScore {
-				bestScore, best = score, cand
-			}
-		}
-
-		private := !builderRoot(g.client)
 		jg := JobsiteGroup{Client: g.client, Jobsite: g.jobsite, Total: len(g.lots)}
-		if best != nil {
-			jg.SuggestedQBO = best.rawClient + " › " + best.rawJobsite
-		}
 		for _, lt := range g.lots {
-			row := LotRow{AddressKey: lt.addressKey, Lot: lt.lot, IsPrivate: lt.private}
-			switch {
-			case best != nil && lt.lotNum >= 0:
-				// Builder lot: same lot number under the matched development.
-				if pick := chooseNonDeck(best.lots[lt.lotNum]); pick != nil {
-					s := *pick
-					s.Score = round3(bestScore)
-					row.Suggestion = &s
-					jg.Matched++
-				}
-			case private:
-				// Individual address: exact street number, then best similarity.
-				if s := suggestPrivate(lt.lot, qboByNum); s != nil {
-					row.Suggestion = s
-					jg.Matched++
-				}
-			}
-			jg.Lots = append(jg.Lots, row)
+			jg.Lots = append(jg.Lots, LotRow{AddressKey: lt.addressKey, Lot: lt.lot, IsPrivate: lt.private})
 		}
 		out = append(out, jg)
 	}
