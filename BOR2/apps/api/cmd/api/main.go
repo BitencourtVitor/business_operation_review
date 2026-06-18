@@ -137,7 +137,7 @@ func main() {
 	periodReportSvc          := service.NewPeriodReportService(qbtimeTeamRepo, qbtimePeriodCacheRepo, qbtimeUnpaidAddrRepo)
 	periodReportHandler      := handler.NewPeriodReportHandler(periodReportSvc)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
-	budgetHandler            := handler.NewBudgetHandler(db)
+	budgetHandler            := handler.NewBudgetHandler(db, periodReportSvc)
 	budgetTaxonomyHandler    := handler.NewBudgetTaxonomyHandler(db)
 	budgetMappingHandler     := handler.NewBudgetMappingHandler(db)
 	qbtimeMappingHandler     := handler.NewQBTimeMappingHandler(db)

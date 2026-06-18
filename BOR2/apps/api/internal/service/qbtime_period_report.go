@@ -862,6 +862,34 @@ func assembleAccounting(company, startDate, endDate string, prRows []domain.QBPa
 	}
 }
 
+// CurrentPeriodPayroll returns the open (in-progress) pay period's payroll rows
+// for a company, fetched LIVE from QB Time so near-real-time accrual is visible
+// without waiting for the daily cache sync (the budget labor forecast needs the
+// hours logged "right now"). The period is resolved deterministically from the
+// company anchor — not from the cache's MAX(period_end), which can carry stale
+// duplicate rows after an anchor change. Falls back to the cached period on a
+// live error or empty result. Returns the rows plus the resolved start/end.
+func (s *PeriodReportService) CurrentPeriodPayroll(ctx context.Context, company string) ([]domain.QBPayrollRow, string, string, error) {
+	periods := recentPayPeriods(company, 1)
+	if len(periods) == 0 {
+		return nil, "", "", fmt.Errorf("no pay period for company %q", company)
+	}
+	start, end := periods[0].start, periods[0].end
+
+	rows, err := s.fetchPayrollLive(ctx, company, start, end)
+	if err != nil || len(rows) == 0 {
+		if s.cacheRepo != nil {
+			if cached, cerr := s.cacheRepo.GetPayroll(ctx, company, end); cerr == nil && len(cached) > 0 {
+				return cached, start, end, nil
+			}
+		}
+		if err != nil {
+			return nil, start, end, err
+		}
+	}
+	return rows, start, end, nil
+}
+
 // ── GetAccounting ─────────────────────────────────────────────────────────────
 
 func (s *PeriodReportService) GetAccounting(ctx context.Context, company, startDate, endDate string) (*domain.AccountingResponse, error) {
