@@ -428,12 +428,17 @@ type IncomeAccount struct {
 // Amount is signed (vendor credits are negative) and rolled up from sub-accounts.
 // Outstanding is the unpaid bill balance proportionally attributed to this account.
 // Children are direct sub-accounts with their own activity (shown when expanded).
+// BudgetLimit is the per-account spending ceiling (the "cost budget mapping");
+// for the Contractors account it is derived from total contracted and Locked.
 type CostAccount struct {
+	ID          string        `json:"id"`
 	Name        string        `json:"name"`
 	Group       string        `json:"-"` // internal sort key, not exposed
 	Amount      float64       `json:"amount"`
 	Paid        float64       `json:"paid"`
 	Outstanding float64       `json:"outstanding"`
+	BudgetLimit float64       `json:"budget_limit"`
+	Locked      bool          `json:"locked"`
 	Children    []CostAccount `json:"children,omitempty"`
 }
 
@@ -660,7 +665,113 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 
 	d.CostCategories, _ = h.costCategoryTree(ctx, company, d.ProjectType, d.ProjectID, customerIDs, d.PurchaseOrders)
 
+	// Cost budget per account: manual ceiling stored per (company, project, account);
+	// the Contractors account is derived from total contracted (Σ PO committed) and locked.
+	applyAccountBudgets(d.CostAccounts, h.accountLimits(ctx, company, projectID), d.LaborCommitted)
+
 	return c.JSON(fiber.Map{"data": d})
+}
+
+// accountLimits returns the manual per-account ceilings for a project.
+func (h *BudgetHandler) accountLimits(ctx context.Context, company, projectID string) map[string]float64 {
+	out := map[string]float64{}
+	rows, err := h.db.Query(ctx, `
+		SELECT account_id, amount FROM budget_project_account_limits
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		var amt float64
+		rows.Scan(&id, &amt)
+		out[id] = amt
+	}
+	return out
+}
+
+// applyAccountBudgets sets BudgetLimit on each top-level cost account. The
+// Contractors account is locked to total contracted; all others use the stored
+// manual ceiling (0 = not yet defined).
+func applyAccountBudgets(accounts []CostAccount, limits map[string]float64, totalContracted float64) {
+	for i := range accounts {
+		if strings.EqualFold(accounts[i].Name, "Contractors") {
+			accounts[i].BudgetLimit = totalContracted
+			accounts[i].Locked = true
+			continue
+		}
+		accounts[i].BudgetLimit = limits[accounts[i].ID]
+	}
+}
+
+// GET /api/v1/budget/projects/account-history?company=&project_id=&account_ids=id1,id2
+// Monthly Paid total attributed to the given account(s) on this project — the
+// payment series behind a cost account, for the per-account distribution chart.
+// account_ids should include an account plus its sub-accounts to mirror the tree.
+func (h *BudgetHandler) AccountPaidHistory(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	accountParam := c.Query("account_ids")
+	if company == "" || projectID == "" || accountParam == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id and account_ids are required")
+	}
+	accountIDs := strings.Split(accountParam, ",")
+	ctx := c.Context()
+
+	var customerIDs []string
+	custRows, err := h.db.Query(ctx, `WITH `+custProjCTE+`
+		SELECT customer_id FROM proj_key WHERE pkey=$2`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for custRows.Next() {
+		var id string
+		custRows.Scan(&id)
+		customerIDs = append(customerIDs, id)
+	}
+	custRows.Close()
+
+	type point struct {
+		Month string  `json:"month"`
+		Paid  float64 `json:"paid"`
+	}
+	out := []point{}
+	if len(customerIDs) == 0 {
+		return c.JSON(fiber.Map{"data": out})
+	}
+
+	// acct_amt = this project's bill lines posted to the target account(s);
+	// each payment is attributed by that account's share of the whole bill.
+	rows, err := h.db.Query(ctx, `
+		WITH pb AS (
+			SELECT b.id AS bill_id, b.external_id AS bill_ext_id, b.total_amount,
+			       SUM(bl.amount) FILTER (WHERE COALESCE(NULLIF(bl.account_ref_id,''),'noacct') = ANY($3)) AS acct_amt
+			FROM qb_bills b
+			JOIN qb_bill_lines bl ON bl.bill_id = b.id AND bl.company=$1
+			WHERE b.company=$1 AND bl.customer_id = ANY($2)
+			GROUP BY b.id, b.external_id, b.total_amount
+		)
+		SELECT to_char(date_trunc('month', bp.txn_date),'YYYY-MM') AS month,
+		       SUM(bpl.amount * CASE WHEN pb.total_amount=0 THEN 0 ELSE pb.acct_amt/pb.total_amount END) AS paid
+		FROM pb
+		JOIN qb_bill_payment_links bpl ON bpl.txn_id = pb.bill_ext_id AND bpl.txn_type='Bill' AND bpl.company=$1
+		JOIN qb_bill_payments bp ON bp.id = bpl.bill_payment_id AND bp.company=$1
+		WHERE COALESCE(pb.acct_amt,0) <> 0
+		GROUP BY 1
+		ORDER BY 1
+	`, company, customerIDs, accountIDs)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p point
+		rows.Scan(&p.Month, &p.Paid)
+		out = append(out, p)
+	}
+	return c.JSON(fiber.Map{"data": out})
 }
 
 // costCategoryTree groups the project's POs by user-defined budget category.
@@ -1128,14 +1239,14 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 			if amt == 0 {
 				continue
 			}
-			ca := CostAccount{Name: n.name, Group: n.group, Amount: amt, Paid: amt - out, Outstanding: out}
+			ca := CostAccount{ID: n.id, Name: n.name, Group: n.group, Amount: amt, Paid: amt - out, Outstanding: out}
 			for _, child := range n.children {
 				cAmt, cOut := sumTree(child)
 				if cAmt == 0 {
 					continue
 				}
 				ca.Children = append(ca.Children, CostAccount{
-					Name: child.name, Group: child.group,
+					ID: child.id, Name: child.name, Group: child.group,
 					Amount: cAmt, Paid: cAmt - cOut, Outstanding: cOut,
 				})
 			}

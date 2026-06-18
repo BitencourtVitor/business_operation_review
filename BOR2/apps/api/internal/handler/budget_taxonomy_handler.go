@@ -314,3 +314,66 @@ func (h *BudgetTaxonomyHandler) SetProjectLimit(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{"ok": true})
 }
+
+// ── Per-account cost budget ("cost budget mapping") ──────────────────────────
+
+type AccountLimit struct {
+	AccountID string  `json:"account_id"`
+	Amount    float64 `json:"amount"`
+}
+
+// GET /budget/account-limits?company=hvac&project_id=<key>
+func (h *BudgetTaxonomyHandler) ListAccountLimits(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT account_id, amount FROM budget_project_account_limits
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []AccountLimit{}
+	for rows.Next() {
+		var l AccountLimit
+		rows.Scan(&l.AccountID, &l.Amount)
+		out = append(out, l)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// PUT /budget/account-limits  body {company, project_id, account_id, amount}
+func (h *BudgetTaxonomyHandler) SetAccountLimit(c *fiber.Ctx) error {
+	var b struct {
+		Company   string  `json:"company"`
+		ProjectID string  `json:"project_id"`
+		AccountID string  `json:"account_id"`
+		Amount    float64 `json:"amount"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" || b.AccountID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, account_id required")
+	}
+	if b.Amount <= 0 {
+		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_project_account_limits WHERE company=$1 AND project_id=$2 AND account_id=$3`, b.Company, b.ProjectID, b.AccountID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(fiber.Map{"ok": true})
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_project_account_limits (company, project_id, account_id, amount, updated_at)
+		VALUES ($1,$2,$3,$4,now())
+		ON CONFLICT (company, project_id, account_id) DO UPDATE SET amount=EXCLUDED.amount, updated_at=now()
+	`, b.Company, b.ProjectID, b.AccountID, b.Amount)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
