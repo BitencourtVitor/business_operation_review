@@ -11,6 +11,7 @@ import {
   ReferenceLine, ResponsiveContainer, Tooltip as RTooltip,
 } from "recharts"
 import { cn } from "@/lib/utils"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useAccountHistory } from "@/hooks/use-budget"
 import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
@@ -171,11 +172,11 @@ function MiniDonut({ paidPct, billedPct }: { paidPct: number; billedPct: number 
 
 // ── Account row (By Account tree with expandable children) ───────────────────
 
-function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onOpenChart }: {
+function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, projectID }: {
   ca: CostAccount; blur: string; editing: boolean
   budgetValue: number
   onDraftBudget: (accountID: string, amount: number) => void
-  onOpenChart: (ca: CostAccount) => void
+  company: string; projectID: string
 }) {
   const [open, setOpen] = useState(false)
   const hasChildren = (ca.children?.length ?? 0) > 0
@@ -215,14 +216,19 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onOpenChart
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.amount < 0 && "text-emerald-500")}>{fmt(ca.amount)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
-        {/* Paid-over-time chart trigger */}
-        <button
-          onClick={e => { e.stopPropagation(); onOpenChart(ca) }}
-          className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
-          title="Paid distribution over time"
-        >
-          <LineChartIcon className="h-3 w-3" />
-        </button>
+        {/* Paid-over-time chart — floating popover anchored to the icon */}
+        <Popover>
+          <PopoverTrigger
+            onClick={e => e.stopPropagation()}
+            title="Paid distribution over time"
+            className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <LineChartIcon className="h-3 w-3" />
+          </PopoverTrigger>
+          <PopoverContent align="end" side="left" className="w-[24rem]" onClick={e => e.stopPropagation()}>
+            <AccountChartPanel company={company} projectID={projectID} account={ca} />
+          </PopoverContent>
+        </Popover>
       </div>
       {open && ca.children?.map((child, j) => {
         const settled = child.outstanding === 0 && child.amount !== 0
@@ -498,8 +504,8 @@ const fmtMonth = (s: string) => {
   return `${["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(m)]} ${y.slice(2)}`
 }
 
-function AccountChartDialog({ company, projectID, account, onClose }: {
-  company: string; projectID: string; account: CostAccount; onClose: () => void
+function AccountChartPanel({ company, projectID, account }: {
+  company: string; projectID: string; account: CostAccount
 }) {
   const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
   const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
@@ -512,49 +518,41 @@ function AccountChartDialog({ company, projectID, account, onClose }: {
   const yMax = Math.max(running, budget) * 1.1 || 1
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="relative flex w-[min(720px,94vw)] flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-2xl">
-        <div className="flex items-center gap-2">
-          <LineChartIcon className="h-4 w-4 text-emerald-500" />
-          <div>
-            <p className="text-sm font-semibold leading-tight">{account.name}</p>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Paid over time{budget > 0 ? " vs cost budget" : ""}</p>
-          </div>
-          <button onClick={onClose} className="ml-auto rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="h-72 w-full">
-          {isLoading ? (
-            <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : series.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No payments recorded for this account.</div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <RLineChart data={series} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
-                <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" />
-                <YAxis tickFormatter={fmtShort} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" width={48} domain={[0, yMax]} />
-                <RTooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" }}
-                  labelFormatter={(l) => fmtMonth(String(l))}
-                  formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? "Cumulative paid" : "Paid this month"]}
-                />
-                {budget > 0 && (
-                  <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#ef4444"
-                    label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#ef4444" }} />
-                )}
-                <RLine type="monotone" dataKey="cumulative" stroke="#22c55e" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
-              </RLineChart>
-            </ResponsiveContainer>
-          )}
+    <>
+      <div className="flex items-center gap-2">
+        <LineChartIcon className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+        <div className="min-w-0">
+          <p className="truncate text-xs font-semibold leading-tight" title={account.name}>{account.name}</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Paid over time{budget > 0 ? " vs cost budget" : ""}</p>
         </div>
       </div>
-    </div>
+
+      <div className="h-56 w-full">
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+        ) : series.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">No payments recorded for this account.</div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <RLineChart data={series} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+              <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" />
+              <YAxis tickFormatter={fmtShort} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" width={48} domain={[0, yMax]} />
+              <RTooltip
+                contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" }}
+                labelFormatter={(l) => fmtMonth(String(l))}
+                formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? "Cumulative paid" : "Paid this month"]}
+              />
+              {budget > 0 && (
+                <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#ef4444"
+                  label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#ef4444" }} />
+              )}
+              <RLine type="monotone" dataKey="cumulative" stroke="#22c55e" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
+            </RLineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </>
   )
 }
 
@@ -571,7 +569,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const [openCatId, setOpenCatId] = useState<string | null>(null)
   const [editingBudget, setEditingBudget] = useState(false)
   const [draftBudgets, setDraftBudgets] = useState<Record<string, number>>({})
-  const [chartAccount, setChartAccount] = useState<CostAccount | null>(null)
   const setAccountLimit = useSetAccountLimit()
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
@@ -848,7 +845,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           </div>
                           {costAccounts.map((ca, i) => (
                             <AccountRow key={ca.id || i} ca={ca} blur={blur}
-                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget} onOpenChart={setChartAccount} />
+                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget} company={company} projectID={projectID} />
                           ))}
                           {/* Allocation footer (visible while mapping) */}
                           {editingBudget && (
@@ -956,14 +953,6 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
         </div>
       </div>
 
-      {chartAccount && (
-        <AccountChartDialog
-          company={company}
-          projectID={projectID}
-          account={chartAccount}
-          onClose={() => setChartAccount(null)}
-        />
-      )}
     </div>
   )
 }
