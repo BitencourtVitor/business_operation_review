@@ -537,7 +537,7 @@ function AccountChartPanel({ company, projectID, account }: {
           <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Paid over time</p>
         </div>
         <div className="ml-auto flex shrink-0 items-center overflow-hidden rounded-md border border-input text-[9px] font-medium">
-          {([["cumulative", "Accumulated"], ["cashflow", "Cash flow"]] as const).map(([val, label], i) => (
+          {([["cumulative", "Cumulative"], ["cashflow", "Month by month"]] as const).map(([val, label], i) => (
             <button key={val} onClick={() => pickMode(val)}
               className={cn("px-1.5 py-0.5 transition-colors", i > 0 && "border-l border-input",
                 mode === val ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
