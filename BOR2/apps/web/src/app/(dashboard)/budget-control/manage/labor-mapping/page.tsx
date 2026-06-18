@@ -192,7 +192,7 @@ export default function LaborMappingPage() {
         <div className="flex-1">
           <h1 className="text-xl font-semibold tracking-tight">Labor Mapping</h1>
           <p className="text-sm text-muted-foreground">
-            Confirm a whole job site at once — lots auto-match the QBO development by number
+            Link each QB Time address to the QuickBooks Online project that represents it
           </p>
         </div>
         <div className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
@@ -253,7 +253,7 @@ export default function LaborMappingPage() {
                         <span className={cn("ml-auto shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold tabular-nums",
                           liveMatched === g.lots.length ? "bg-emerald-500/10 text-emerald-500"
                           : liveMatched > 0 ? "bg-amber-500/10 text-amber-500" : "bg-muted text-muted-foreground")}>
-                          {liveMatched}/{g.lots.length} matched
+                          {liveMatched}/{g.lots.length} linked
                         </span>
                         <button onClick={() => acceptKeys(g.lots.map(l => l.address_key).filter(k => checked.has(k)))}
                           disabled={busy || !g.lots.some(l => checked.has(l.address_key) && targets[l.address_key])}
@@ -278,19 +278,24 @@ export default function LaborMappingPage() {
                               <span className="w-24 shrink-0 truncate text-[12px] font-medium" title={lot.address_key}>{lot.lot}</span>
                               {lot.is_private && <Lock className="h-3 w-3 shrink-0 text-amber-500/70" />}
                               <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/30" />
-                              {t ? (
-                                <span className="min-w-0 flex-1 truncate text-[12px]" title={t.name}>
-                                  <Highlight text={lastSegment(t.name)} tokens={tokens} />
-                                </span>
-                              ) : (
-                                <span className="min-w-0 flex-1 truncate text-[12px] italic text-muted-foreground/50">pick a project…</span>
-                              )}
-                              {t && scoreBadge(t.score)}
                               <button onClick={() => { setEditing(isEditing ? null : lot.address_key); setEditSearch("") }}
-                                className="shrink-0 rounded p-1 text-muted-foreground/50 transition-colors hover:text-foreground">
-                                <Pencil className="h-3 w-3" />
+                                className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+                                {t ? (
+                                  <span className="min-w-0 flex-1 truncate text-[12px]" title={t.name}>
+                                    <Highlight text={lastSegment(t.name)} tokens={tokens} />
+                                  </span>
+                                ) : (
+                                  <span className="min-w-0 flex-1 truncate text-[12px] italic text-muted-foreground/50">pick a project…</span>
+                                )}
+                                <Pencil className="h-3 w-3 shrink-0 text-muted-foreground/40" />
                               </button>
-                              <button onClick={() => skipRow(lot.address_key)} disabled={busy}
+                              {t && (
+                                <button onClick={() => acceptKeys([lot.address_key])} disabled={busy} title="Accept this mapping"
+                                  className="shrink-0 rounded p-1 text-emerald-500/70 transition-colors hover:text-emerald-500 disabled:opacity-40">
+                                  <Check className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              <button onClick={() => skipRow(lot.address_key)} disabled={busy} title="Skip"
                                 className="shrink-0 rounded p-1 text-muted-foreground/50 transition-colors hover:text-foreground disabled:opacity-40">
                                 <X className="h-3 w-3" />
                               </button>
