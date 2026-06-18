@@ -2,13 +2,12 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
+	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -22,11 +21,12 @@ import (
 // via Purchase Orders. Every project targets a 30% profit margin, so the cost
 // ceiling is 70% of the contract.
 type BudgetHandler struct {
-	db *pgxpool.Pool
+	db        *pgxpool.Pool
+	periodSvc *service.PeriodReportService
 }
 
-func NewBudgetHandler(db *pgxpool.Pool) *BudgetHandler {
-	return &BudgetHandler{db: db}
+func NewBudgetHandler(db *pgxpool.Pool, periodSvc *service.PeriodReportService) *BudgetHandler {
+	return &BudgetHandler{db: db, periodSvc: periodSvc}
 }
 
 const profitMargin = 0.30 // every project (house & building) targets 30% margin
@@ -925,61 +925,41 @@ func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
 	}
 	akRows.Close()
 	est.HasMapping = len(addrKeys) > 0
-	if !est.HasMapping {
+	if !est.HasMapping || h.periodSvc == nil {
 		return c.JSON(fiber.Map{"data": est})
 	}
 
-	// Current (open) pay period = the latest one synced into the payroll cache.
-	var periodEnd string
-	if err := h.db.QueryRow(ctx, `
-		SELECT COALESCE(to_char(MAX(period_end),'YYYY-MM-DD'),'') FROM qbtime_payroll WHERE company=$1
-	`, company).Scan(&periodEnd); err != nil || periodEnd == "" {
+	// Open pay period payroll, fetched live from QB Time so the forecast reflects
+	// hours logged "right now" — not whatever the daily cache last pulled.
+	prRows, start, end, perr := h.periodSvc.CurrentPeriodPayroll(ctx, company)
+	est.PeriodStart, est.PeriodEnd = start, end
+	if perr != nil {
 		return c.JSON(fiber.Map{"data": est})
 	}
-	est.PeriodEnd = periodEnd
-	if t, e := time.Parse("2006-01-02", periodEnd); e == nil {
-		est.PeriodStart = t.AddDate(0, 0, -13).Format("2006-01-02")
-	}
 
-	// Payroll rows for the period; keep only those mapped to this project.
-	rows, err := h.db.Query(ctx, `
-		SELECT user_name, pay_rate, jobcode_path::text, reg_seconds, ot_seconds
-		FROM qbtime_payroll WHERE company=$1 AND period_end=$2
-	`, company, periodEnd)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
 	type agg struct {
 		regSec, otSec int
 		payRate       float64
 	}
 	byEmp := map[string]*agg{}
-	for rows.Next() {
-		var name, pathJSON string
-		var payRate float64
-		var regSec, otSec int
-		if rows.Scan(&name, &payRate, &pathJSON, &regSec, &otSec) != nil {
+	for _, pr := range prRows {
+		if len(pr.JobcodePath) == 0 || isOverhead(pr.JobcodePath) {
 			continue
 		}
-		var path []string
-		if json.Unmarshal([]byte(pathJSON), &path) != nil || len(path) == 0 || isOverhead(path) {
+		if !addrKeys[addressKey(pr.JobcodePath)] {
 			continue
 		}
-		if !addrKeys[addressKey(path)] {
-			continue
-		}
-		a := byEmp[name]
+		a := byEmp[pr.UserName]
 		if a == nil {
-			a = &agg{payRate: payRate}
-			byEmp[name] = a
+			a = &agg{payRate: pr.PayRate}
+			byEmp[pr.UserName] = a
 		}
-		a.regSec += regSec
-		a.otSec += otSec
+		a.regSec += pr.RegSeconds
+		a.otSec += pr.OTSeconds
 		if a.payRate == 0 {
-			a.payRate = payRate
+			a.payRate = pr.PayRate
 		}
 	}
-	rows.Close()
 
 	for name, a := range byEmp {
 		regH := round2(float64(a.regSec) / 3600.0)

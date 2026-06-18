@@ -5,7 +5,7 @@ import {
   X, ChevronRight, Loader2, Building2, Home,
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
-  CalendarClock, Users, Hourglass, Cog,
+  CalendarClock, Users, Hourglass, Forklift,
 } from "lucide-react"
 import {
   LineChart as RLineChart, Line as RLine, XAxis, YAxis, CartesianGrid,
@@ -659,8 +659,9 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
         </div>
       </div>
 
+      <div className="grid grid-cols-3 gap-3">
       {/* Labor sub-section */}
-      <div className="flex flex-col gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3">
+      <div className="col-span-2 flex flex-col gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3">
         <div className="flex items-center gap-2">
           <Users className="h-3.5 w-3.5 text-blue-500/80" />
           <span className="text-[12px] font-semibold text-blue-500/90">Labor · QB Time</span>
@@ -741,10 +742,11 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
       </div>
 
       {/* Machines sub-section — coming soon */}
-      <div className="flex items-center gap-2 rounded-lg border border-dashed border-border/40 bg-muted/10 px-3 py-3">
-        <Cog className="h-3.5 w-3.5 text-muted-foreground/40" />
+      <div className="col-span-1 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/40 bg-muted/10 p-3 text-center">
+        <Forklift className="h-5 w-5 text-muted-foreground/40" />
         <span className="text-[12px] font-medium text-muted-foreground/60">Machines</span>
-        <span className="ml-auto rounded-full bg-muted/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">Soon</span>
+        <span className="rounded-full bg-muted/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50">Soon</span>
+      </div>
       </div>
     </div>
   )
