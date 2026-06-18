@@ -862,6 +862,17 @@ func assembleAccounting(company, startDate, endDate string, prRows []domain.QBPa
 	}
 }
 
+// CurrentPeriod returns the open pay period's start/end for a company without
+// hitting QB Time — used to always surface the observed window, even when a
+// project has no mapping or no hours logged yet.
+func (s *PeriodReportService) CurrentPeriod(company string) (string, string) {
+	periods := recentPayPeriods(company, 1)
+	if len(periods) == 0 {
+		return "", ""
+	}
+	return periods[0].start, periods[0].end
+}
+
 // CurrentPeriodPayroll returns the open (in-progress) pay period's payroll rows
 // for a company, fetched LIVE from QB Time so near-real-time accrual is visible
 // without waiting for the daily cache sync (the budget labor forecast needs the

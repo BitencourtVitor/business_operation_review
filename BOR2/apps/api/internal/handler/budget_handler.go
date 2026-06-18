@@ -893,6 +893,12 @@ func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
 
 	est := LaborEstimate{Company: company, ProjectID: projectID, Employees: []LaborEstimateEmployee{}}
 
+	// Resolve the open pay period up front so the observed window is always shown,
+	// even when the project has no mapping or no hours logged yet.
+	if h.periodSvc != nil {
+		est.PeriodStart, est.PeriodEnd = h.periodSvc.CurrentPeriod(company)
+	}
+
 	// Customer IDs that make up the project.
 	var customerIDs []string
 	custRows, err := h.db.Query(ctx, `WITH `+custProjCTE+`
