@@ -351,8 +351,8 @@ function BudgetContent() {
         )}
       </div>
 
-      {/* ── Job-site receivable / payable chart ──────────────────────────── */}
-      <div className="h-[220px] shrink-0">
+      {/* ── Receivable / payable by customer chart ───────────────────────── */}
+      <div className="h-[300px] shrink-0">
         <JobSiteChart projects={projects ?? []} />
       </div>
 

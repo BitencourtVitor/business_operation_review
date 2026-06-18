@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip,
@@ -21,7 +21,7 @@ const fmtShort = (n: number) => {
 const RECEIVE = "#22c55e"
 const PAY     = "#ef4444"
 const MAX_ITEMS = 80    // cap so we don't render thousands of bars
-const PER_ITEM  = 54    // px of horizontal room per customer (drives X scroll)
+const PER_ITEM  = 132   // px of horizontal room per customer (drives X scroll)
 
 type Mode = "executed" | "pending"
 
@@ -60,11 +60,60 @@ function ChartTooltip({ active, payload, labels }: {
   )
 }
 
+// Wrap a customer name into short lines (by word) so the X-axis label can sit
+// straight and still show the full name across multiple rows.
+function wrapLabel(s: string, max = 20, maxLines = 3): string[] {
+  const words = s.split(" ")
+  const lines: string[] = []
+  let cur = ""
+  for (const w of words) {
+    if (cur && (cur + " " + w).length > max) { lines.push(cur); cur = w }
+    else cur = cur ? `${cur} ${w}` : w
+  }
+  if (cur) lines.push(cur)
+  if (lines.length > maxLines) {
+    const kept = lines.slice(0, maxLines)
+    kept[maxLines - 1] = kept[maxLines - 1].replace(/.{1}$/, "…")
+    return kept
+  }
+  return lines
+}
+
+function XTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: string } }) {
+  const lines = wrapLabel(String(payload?.value ?? ""))
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {lines.map((ln, i) => (
+        <text key={i} x={0} y={0} dy={11 + i * 10} textAnchor="middle" fill="#666" fontSize={9}>
+          {ln}
+        </text>
+      ))}
+    </g>
+  )
+}
+
 export function JobSiteChart({ projects }: {
   projects: BudgetProjectDetail[]
 }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("executed")
+
+  // Click-and-drag to pan the X axis horizontally.
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
+  const onDragStart = (e: React.MouseEvent) => {
+    const el = scrollRef.current
+    if (!el) return
+    drag.current = { active: true, startX: e.pageX, startLeft: el.scrollLeft, moved: false }
+  }
+  const onDragMove = (e: React.MouseEvent) => {
+    const el = scrollRef.current
+    if (!drag.current.active || !el) return
+    const dx = e.pageX - drag.current.startX
+    if (Math.abs(dx) > 3) drag.current.moved = true
+    el.scrollLeft = drag.current.startLeft - dx
+  }
+  const onDragEnd = () => { drag.current.active = false }
 
   const aggregated = useMemo<Agg[]>(() => {
     // Group by QB "Customer name" (the project's immediate parent in the
@@ -130,7 +179,15 @@ export function JobSiteChart({ projects }: {
           </div>
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
+      <div
+        ref={scrollRef}
+        onMouseDown={onDragStart}
+        onMouseMove={onDragMove}
+        onMouseUp={onDragEnd}
+        onMouseLeave={onDragEnd}
+        className={cn("min-h-0 flex-1 overflow-x-auto overflow-y-hidden [&_.recharts-surface]:outline-none",
+          data.length > 0 && "cursor-grab select-none active:cursor-grabbing [&_.recharts-wrapper]:!cursor-grab active:[&_.recharts-wrapper]:!cursor-grabbing")}
+      >
         {data.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground/60">
             <Users className="h-7 w-7" />
@@ -139,26 +196,23 @@ export function JobSiteChart({ projects }: {
         ) : (
           <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} barGap={1} barCategoryGap="22%">
+            <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
               <defs>
                 <linearGradient id="jsReceivable" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={RECEIVE} stopOpacity={0.95} />
-                  <stop offset="100%" stopColor={RECEIVE} stopOpacity={0.4} />
+                  <stop offset="0%"   stopColor={RECEIVE} stopOpacity={1} />
+                  <stop offset="100%" stopColor={RECEIVE} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="jsPayable" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={PAY} stopOpacity={0.95} />
-                  <stop offset="100%" stopColor={PAY} stopOpacity={0.4} />
+                  <stop offset="0%"   stopColor={PAY} stopOpacity={1} />
+                  <stop offset="100%" stopColor={PAY} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
               <XAxis
                 dataKey="name"
                 interval={0}
-                tick={{ fontSize: 9 }}
-                angle={-35}
-                textAnchor="end"
-                height={64}
-                tickFormatter={(v: string) => (v.length > 16 ? v.slice(0, 15) + "…" : v)}
+                tick={<XTick />}
+                height={48}
               />
               <YAxis
                 tick={{ fontSize: 10 }}
@@ -166,8 +220,8 @@ export function JobSiteChart({ projects }: {
                 tickFormatter={showFinancialData ? fmtShort : () => ""}
               />
               <RechartsTooltip content={<ChartTooltip labels={labels} />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
-              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={26} />
-              <Bar dataKey="payable"    name={labels.payable}    fill="url(#jsPayable)"    stroke={PAY}     strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={26} />
+              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="payable"    name={labels.payable}    fill="url(#jsPayable)"    stroke={PAY}     strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
           </div>
