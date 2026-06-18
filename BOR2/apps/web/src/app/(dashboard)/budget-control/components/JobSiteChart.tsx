@@ -1,12 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip,
 } from "recharts"
 import { Loader2, MapPin } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { budgetMappingService } from "@/services/budget-mapping.service"
 import { clientsCatalogService } from "@/services/clients.service"
@@ -21,29 +22,39 @@ const fmtShort = (n: number) => {
 }
 
 const RECEIVE = "#22c55e"
-const PAY     = "#f59e0b"
+const PAY     = "#ef4444"
 const MAX_ITEMS = 30
 
+type Mode = "executed" | "pending"
+
+const LABELS: Record<Mode, { receivable: string; payable: string }> = {
+  executed: { receivable: "Invoiced",         payable: "Billed" },
+  pending:  { receivable: "Remaining Income", payable: "Remaining Cost" },
+}
+
+// Raw per-job-site aggregation; the active mode picks which pair to plot.
+type Agg = { name: string; invoiced: number; remainingIncome: number; billed: number; remainingCost: number }
 type Row = { name: string; receivable: number; payable: number }
 
-function ChartTooltip({ active, payload }: {
+function ChartTooltip({ active, payload, labels }: {
   active?: boolean
   payload?: Array<{ payload: Row }>
+  labels?: { receivable: string; payable: string }
 }) {
-  if (!active || !payload?.length) return null
+  if (!active || !payload?.length || !labels) return null
   const r = payload[0].payload
   return (
     <div className="rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
       <p className="mb-1 font-semibold">{r.name}</p>
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> To receive
+          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
         </span>
         <span className="font-semibold tabular-nums" style={{ color: RECEIVE }}>{fmt(r.receivable)}</span>
       </div>
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> To pay
+          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> {labels.payable}
         </span>
         <span className="font-semibold tabular-nums" style={{ color: PAY }}>{fmt(r.payable)}</span>
       </div>
@@ -55,6 +66,7 @@ export function JobSiteChart({ projects, company }: {
   projects: BudgetProjectDetail[]; company: string
 }) {
   const { showFinancialData } = useFinancialStore()
+  const [mode, setMode] = useState<Mode>("executed")
 
   const { data: mappings, isLoading: mapLoading } = useQuery({
     queryKey: ["budget-mappings", company],
@@ -66,40 +78,72 @@ export function JobSiteChart({ projects, company }: {
     queryFn: () => clientsCatalogService.listJobSites(),
   })
 
-  const data = useMemo<Row[]>(() => {
+  const aggregated = useMemo<Agg[]>(() => {
     const siteName = new Map((jobSites ?? []).map(j => [j.id, j.name]))
     const siteOf   = new Map((mappings ?? [])
       .filter(m => m.job_site_id != null)
       .map(m => [m.customer_id, m.job_site_id as number]))
 
-    const agg = new Map<number, Row>()
+    const agg = new Map<number, Agg>()
     for (const p of projects) {
       const sid = siteOf.get(p.project_id)
       if (sid == null) continue
-      const row = agg.get(sid) ?? { name: siteName.get(sid) ?? `Site ${sid}`, receivable: 0, payable: 0 }
-      row.receivable += p.to_receive
-      row.payable    += p.to_pay
+      const row = agg.get(sid) ?? {
+        name: siteName.get(sid) ?? `Site ${sid}`,
+        invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0,
+      }
+      row.invoiced        += p.received + p.to_receive   // executed income
+      row.billed          += p.paid + p.open_payable     // executed cost
+      row.remainingIncome += p.to_receive                // pending income
+      row.remainingCost   += p.to_pay                    // pending cost
       agg.set(sid, row)
     }
     return [...agg.values()]
-      .filter(r => r.receivable > 0 || r.payable > 0)
-      .sort((a, b) => (b.receivable + b.payable) - (a.receivable + a.payable))
-      .slice(0, MAX_ITEMS)
   }, [projects, mappings, jobSites])
 
+  const data = useMemo<Row[]>(() => aggregated
+    .map(a => ({
+      name: a.name,
+      receivable: mode === "executed" ? a.invoiced : a.remainingIncome,
+      payable:    mode === "executed" ? a.billed   : a.remainingCost,
+    }))
+    .filter(r => r.receivable > 0 || r.payable > 0)
+    .sort((a, b) => (b.receivable + b.payable) - (a.receivable + a.payable))
+    .slice(0, MAX_ITEMS),
+  [aggregated, mode])
+
+  const labels = LABELS[mode]
   const loading = mapLoading || siteLoading
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/70">
       <div className="flex shrink-0 items-center gap-3 border-b border-border/40 px-4 py-2.5">
-        <span className="text-sm font-semibold">Receivable vs Payable by job site</span>
-        <div className="ml-auto flex items-center gap-3 text-[10px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE }} /> To receive
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} /> To pay
-          </span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold">Receivable vs Payable</span>
+          <span className="h-3.5 w-px bg-border" />
+          <span className="text-sm font-medium text-muted-foreground">by Job Site</span>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} /> {labels.payable}
+            </span>
+          </div>
+          <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
+            {([
+              { value: "executed", label: "Executed" },
+              { value: "pending",  label: "Pending" },
+            ] as const).map(({ value, label }) => (
+              <button key={value} onClick={() => setMode(value)}
+                className={cn("flex h-full items-center px-2.5 text-[11px] font-medium transition-colors",
+                  mode === value ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="flex min-h-0 flex-1 items-center justify-center p-3">
@@ -128,9 +172,9 @@ export function JobSiteChart({ projects, company }: {
                 width={showFinancialData ? 52 : 16}
                 tickFormatter={showFinancialData ? fmtShort : () => ""}
               />
-              <RechartsTooltip content={<ChartTooltip />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
-              <Bar dataKey="receivable" name="To receive" fill={RECEIVE} radius={[2, 2, 0, 0]} maxBarSize={26} />
-              <Bar dataKey="payable"    name="To pay"     fill={PAY}     radius={[2, 2, 0, 0]} maxBarSize={26} />
+              <RechartsTooltip content={<ChartTooltip labels={labels} />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
+              <Bar dataKey="receivable" name={labels.receivable} fill={RECEIVE} radius={[2, 2, 0, 0]} maxBarSize={26} />
+              <Bar dataKey="payable"    name={labels.payable}    fill={PAY}     radius={[2, 2, 0, 0]} maxBarSize={26} />
             </BarChart>
           </ResponsiveContainer>
         )}
