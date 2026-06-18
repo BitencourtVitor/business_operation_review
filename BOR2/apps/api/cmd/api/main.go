@@ -140,6 +140,7 @@ func main() {
 	budgetHandler            := handler.NewBudgetHandler(db)
 	budgetTaxonomyHandler    := handler.NewBudgetTaxonomyHandler(db)
 	budgetMappingHandler     := handler.NewBudgetMappingHandler(db)
+	qbtimeMappingHandler     := handler.NewQBTimeMappingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM                := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -502,6 +503,12 @@ func main() {
 	budget.Put("/project-limits",        budgetTaxonomyHandler.SetProjectLimit)
 	budget.Get("/project-mappings",      budgetMappingHandler.List)
 	budget.Put("/project-mappings",      budgetMappingHandler.Set)
+
+	// QB Time → QBO labor mapping (initial mapping page)
+	budget.Get("/qbtime-mapping/queue",     qbtimeMappingHandler.Queue)
+	budget.Get("/qbtime-mapping/customers", qbtimeMappingHandler.Customers)
+	budget.Post("/qbtime-mapping/accept",   qbtimeMappingHandler.Accept)
+	budget.Post("/qbtime-mapping/skip",     qbtimeMappingHandler.Skip)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")
