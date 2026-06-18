@@ -34,11 +34,29 @@ var overheadRoots = map[string]bool{
 // Work-type leaves stripped off the path to obtain the address key.
 var workTypes = map[string]bool{
 	"normal labor": true, "service": true, "new installation": true,
+	"new instalation": true, "maintenance": true,
 	"back charge": true, "extra": true, "warranty": true, "labor": true,
 	"punch": true, "punch list": true,
 }
 
 var lotRe = regexp.MustCompile(`(?i)lot\s*0*(\d+)`)
+var numRe = regexp.MustCompile(`\d+`)
+
+// streetNumber is the first integer in a free-text address ("141 phoebe st" → 141).
+func streetNumber(s string) (int, bool) {
+	m := numRe.FindString(s)
+	if m == "" {
+		return 0, false
+	}
+	n, err := strconv.Atoi(m)
+	return n, err == nil
+}
+
+// lastSeg is the trailing ":"-separated segment of a QBO FQN (the address/lot).
+func lastSeg(fqn string) string {
+	p := strings.Split(fqn, ":")
+	return strings.TrimSpace(p[len(p)-1])
+}
 
 // QBO sub-scope projects (e.g. "Lot 05 Rookery Lane (Deck)") never receive the
 // QB Time labor of the parent lot — demote them hard so the main lot ranks first.
@@ -391,6 +409,7 @@ func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
 	}
 	byClient := map[string][]*qboJS{}
 	index := map[string]*qboJS{}
+	qboByNum := map[int][]qboCustomer{} // street number → customers, for private matching
 	for _, cu := range h.loadCustomers(ctx, company) {
 		client, jobsite, lot := qboParse(cu.fqn)
 		nc := normalize(client)
@@ -403,6 +422,9 @@ func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
 		}
 		if lot >= 0 {
 			js.lots[lot] = append(js.lots[lot], Suggestion{CustomerID: cu.id, Name: cu.fqn})
+		}
+		if n, ok := streetNumber(lastSeg(cu.fqn)); ok {
+			qboByNum[n] = append(qboByNum[n], cu)
 		}
 	}
 
@@ -428,17 +450,26 @@ func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
 			}
 		}
 
+		private := !builderRoot(g.client)
 		jg := JobsiteGroup{Client: g.client, Jobsite: g.jobsite, Total: len(g.lots)}
 		if best != nil {
 			jg.SuggestedQBO = best.rawClient + " › " + best.rawJobsite
 		}
 		for _, lt := range g.lots {
 			row := LotRow{AddressKey: lt.addressKey, Lot: lt.lot, IsPrivate: lt.private}
-			if best != nil && lt.lotNum >= 0 {
+			switch {
+			case best != nil && lt.lotNum >= 0:
+				// Builder lot: same lot number under the matched development.
 				if pick := chooseNonDeck(best.lots[lt.lotNum]); pick != nil {
 					s := *pick
 					s.Score = round3(bestScore)
 					row.Suggestion = &s
+					jg.Matched++
+				}
+			case private:
+				// Individual address: exact street number, then best similarity.
+				if s := suggestPrivate(lt.lot, qboByNum); s != nil {
+					row.Suggestion = s
 					jg.Matched++
 				}
 			}
@@ -453,6 +484,33 @@ func (h *QBTimeMappingHandler) Jobsites(c *fiber.Ctx) error {
 		return out[i].Jobsite < out[j].Jobsite
 	})
 	return c.JSON(fiber.Map{"data": out})
+}
+
+// suggestPrivate matches a private/individual street address to a QBO customer:
+// the street number must match exactly (the strong discriminator — "58 Phoebe"
+// vs "141 Phoebe" are different houses), then rank by similarity on the rest.
+func suggestPrivate(addr string, byNum map[int][]qboCustomer) *Suggestion {
+	num, ok := streetNumber(addr)
+	if !ok {
+		return nil
+	}
+	na := normalize(addr)
+	var best *qboCustomer
+	var bestScore float64
+	for i := range byNum[num] {
+		cu := &byNum[num][i]
+		score := jaroWinkler(na, normalize(lastSeg(cu.fqn)))
+		if deckRe.MatchString(cu.fqn) {
+			score -= 1
+		}
+		if score > bestScore {
+			bestScore, best = score, cu
+		}
+	}
+	if best == nil {
+		return nil
+	}
+	return &Suggestion{CustomerID: best.id, Name: best.fqn, Score: round3(bestScore)}
 }
 
 // chooseNonDeck prefers a real lot customer over a "(Deck)" sub-scope.
