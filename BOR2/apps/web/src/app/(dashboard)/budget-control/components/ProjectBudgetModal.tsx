@@ -12,6 +12,7 @@ import {
 } from "recharts"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory } from "@/hooks/use-budget"
 import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
@@ -213,7 +214,18 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
             {ca.budget_limit > 0 ? fmt(ca.budget_limit) : "—"}
           </span>
         )}
-        <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.amount < 0 && "text-emerald-500")}>{fmt(ca.amount)}</span>
+        {overBudget ? (
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              <TooltipTrigger render={<span className={cn("w-20 cursor-help text-right text-[11px] font-semibold tabular-nums text-red-500", blur)} />}>
+                {fmt(ca.amount)}
+              </TooltipTrigger>
+              <TooltipContent>Billed value exceeds budget</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.amount < 0 && "text-emerald-500")}>{fmt(ca.amount)}</span>
+        )}
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
         {/* Paid-over-time chart — floating popover anchored to the icon */}
@@ -435,6 +447,7 @@ function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur:
   const isSettled = cat.committed > 0 && cat.paid >= cat.committed
   const isNoPO = cat.committed === 0
   const isOverBudget = cat.budget_limit > 0 && cat.committed > cat.budget_limit
+  const billedOver = cat.committed > 0 && netBilled > cat.committed
 
   const billedPct = cat.committed > 0 ? Math.min((netBilled / cat.committed) * 100, 100) : 0
   const paidPct = cat.committed > 0 ? Math.min((netPaid / cat.committed) * 100, 100) : 0
@@ -473,7 +486,18 @@ function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur:
         {/* 4 value columns */}
         <div className="flex shrink-0 items-center">
           <ValueCell value={cat.committed} blur={blur} />
-          <ValueCell value={netBilled} blur={blur} />
+          {billedOver ? (
+            <TooltipProvider delay={0}>
+              <Tooltip>
+                <TooltipTrigger render={<div className="w-20 cursor-help text-right" />}>
+                  <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(netBilled)}</span>
+                </TooltipTrigger>
+                <TooltipContent>Billed value exceeds contracted</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <ValueCell value={netBilled} blur={blur} />
+          )}
           <ValueCell value={netPaid} color={isSettled ? undefined : "#22c55e"} blur={blur} />
           <ValueCell value={outstanding} color={isSettled ? undefined : outstanding > 0 ? "#f97316" : undefined} blur={blur} />
         </div>
@@ -519,8 +543,9 @@ function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, is
     if (typeof window !== "undefined") localStorage.setItem("budget-chart-mode", m)
   }
 
+  // Plot magnitude: back charges are negative but should rise on the Y axis.
   let running = 0
-  const data = series.map(p => { running += p.value; return { month: p.month, value: p.value, cumulative: running } })
+  const data = series.map(p => { const v = Math.abs(p.value); running += v; return { month: p.month, value: v, cumulative: running } })
   // Budget ceiling only compares against the cumulative burn, not monthly flow.
   const showBudget = mode === "cumulative" && budget > 0
   const maxVal = mode === "cumulative" ? Math.max(running, budget) : Math.max(0, ...data.map(d => d.value))
@@ -773,6 +798,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           {incomeAccounts.map(ia => {
                             const receivedForType = Math.max(ia.amount - ia.outstanding, 0)
                             const settled = ia.outstanding === 0
+                            const receivedOver = receivedForType > ia.amount
                             return (
                               <div key={ia.name} className="flex items-center border-t border-border/20 px-3 py-1.5">
                                 <div className="flex flex-1 items-center gap-1.5 min-w-0">
@@ -785,9 +811,20 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                                   <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", settled ? "text-muted-foreground/50" : "text-foreground/80", blur)}>
                                     {fmt(ia.amount)}
                                   </span>
-                                  <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", settled ? "text-muted-foreground/50" : "text-foreground/80", blur)}>
-                                    {fmt(receivedForType)}
-                                  </span>
+                                  {receivedOver ? (
+                                    <TooltipProvider delay={0}>
+                                      <Tooltip>
+                                        <TooltipTrigger render={<span className={cn("w-20 cursor-help text-right text-[11px] font-semibold tabular-nums text-emerald-500", blur)} />}>
+                                          {fmt(receivedForType)}
+                                        </TooltipTrigger>
+                                        <TooltipContent>Received value exceeds invoiced</TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  ) : (
+                                    <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", settled ? "text-muted-foreground/50" : "text-foreground/80", blur)}>
+                                      {fmt(receivedForType)}
+                                    </span>
+                                  )}
                                   <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, settled ? "text-muted-foreground/50" : "text-orange-500")}>
                                     {fmt(ia.outstanding)}
                                   </span>
