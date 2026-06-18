@@ -866,6 +866,7 @@ type LaborEstimate struct {
 	ProjectID    string                  `json:"project_id"`
 	HasMapping   bool                    `json:"has_mapping"`
 	HasData      bool                    `json:"has_data"`
+	Addresses    []string                `json:"addresses"` // QB Time address keys linked to the project
 	PeriodStart  string                  `json:"period_start"`
 	PeriodEnd    string                  `json:"period_end"`
 	RegularHours float64                 `json:"regular_hours"`
@@ -891,7 +892,7 @@ func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
 	}
 	ctx := c.Context()
 
-	est := LaborEstimate{Company: company, ProjectID: projectID, Employees: []LaborEstimateEmployee{}}
+	est := LaborEstimate{Company: company, ProjectID: projectID, Addresses: []string{}, Employees: []LaborEstimateEmployee{}}
 
 	// Resolve the open pay period up front so the observed window is always shown,
 	// even when the project has no mapping or no hours logged yet.
@@ -928,8 +929,10 @@ func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
 		var k string
 		akRows.Scan(&k)
 		addrKeys[k] = true
+		est.Addresses = append(est.Addresses, k)
 	}
 	akRows.Close()
+	sort.Strings(est.Addresses)
 	est.HasMapping = len(addrKeys) > 0
 	if !est.HasMapping || h.periodSvc == nil {
 		return c.JSON(fiber.Map{"data": est})

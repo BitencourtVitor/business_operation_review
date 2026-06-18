@@ -5,7 +5,7 @@ import {
   X, ChevronRight, Loader2, Building2, Home,
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
-  CalendarClock, Users, Hourglass, Forklift,
+  CalendarClock, Users, Hourglass, Forklift, MapPin,
 } from "lucide-react"
 import {
   LineChart as RLineChart, Line as RLine, XAxis, YAxis, CartesianGrid,
@@ -30,6 +30,8 @@ const fmtDate = (s: string) => {
 }
 const pct = (part: number, whole: number) => (whole > 0 ? (part / whole) * 100 : 0)
 const fmtMD = (s: string) => { if (!s) return ""; const [, m, d] = s.split("-"); return `${m}/${d}` }
+// Linked QB Time address key ("Root › … › Address"); drop the root jobcode noise.
+const addrLabel = (k: string) => { const p = k.split(" › "); return p.length > 1 ? p.slice(1).join(" › ") : k }
 // QB Time payroll stores names as "Last, First"; show them as "First Last".
 const flipName = (n: string) => {
   const i = n.indexOf(",")
@@ -650,7 +652,7 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
         <CalendarClock className="h-4 w-4 text-blue-500" />
         <span className="text-sm font-semibold leading-tight text-blue-500">In-Progress Costs</span>
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Est. Total</span>
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
           <span className={cn("text-base font-bold tabular-nums text-blue-500", blur)}>{fmt(data?.total_cost ?? 0)}</span>
         </div>
       </div>
@@ -660,7 +662,7 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
       <div className="col-span-2 flex flex-col gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3">
         <div className="flex items-center gap-2">
           <Users className="h-3.5 w-3.5 text-blue-500/80" />
-          <span className="text-[12px] font-semibold text-blue-500/90">Labor · QB Time</span>
+          <span className="text-[12px] font-semibold text-blue-500/90">Labor · QuickBooks Time</span>
           {data?.period_start && (
             <div className="ml-auto flex items-center gap-1.5 text-[11px] tabular-nums text-muted-foreground/60">
               <span title={`Observed pay period: ${data.period_start} to ${data.period_end}`}>{fmtMD(data.period_start)} – {fmtMD(data.period_end)}</span>
@@ -673,6 +675,17 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
             </div>
           )}
         </div>
+
+        {(data?.addresses?.length ?? 0) > 0 && (
+          <div className="flex flex-col gap-0.5">
+            {data!.addresses.map(a => (
+              <div key={a} className="flex items-center gap-1 text-[10px] text-muted-foreground/55">
+                <MapPin className="h-3 w-3 shrink-0 text-blue-500/40" />
+                <span className="min-w-0 truncate" title={a}>{addrLabel(a)}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex h-16 items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>

@@ -163,6 +163,7 @@ export interface LaborEstimate {
   project_id: string
   has_mapping: boolean
   has_data: boolean
+  addresses: string[]
   period_start: string
   period_end: string
   regular_hours: number
