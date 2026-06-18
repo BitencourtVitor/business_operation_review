@@ -22,6 +22,7 @@ const COMPANIES = [
 ] as const
 
 const STOP = new Set(["at", "the", "of", "and", "new", "inc", "llc", "ms"])
+const AUTO_THRESHOLD = 0.85 // only pre-select high-confidence rows for batch accept
 
 function lastSegment(s: string): string {
   const parts = s.split(":")
@@ -96,7 +97,7 @@ export default function LaborMappingPage() {
     const c = new Set<string>()
     for (const g of data) for (const lot of g.lots) {
       t[lot.address_key] = lot.suggestion ?? undefined
-      if (lot.suggestion) c.add(lot.address_key)
+      if (lot.suggestion && lot.suggestion.score >= AUTO_THRESHOLD) c.add(lot.address_key)
     }
     setTargets(t)
     setChecked(c)

@@ -39,7 +39,8 @@ var workTypes = map[string]bool{
 	"punch": true, "punch list": true,
 }
 
-var lotRe = regexp.MustCompile(`(?i)lot\s*0*(\d+)`)
+// Builders label the unit "Lot 04", "Building 4" or "Bldg 4" — capture the number.
+var lotRe = regexp.MustCompile(`(?i)(?:lot|building|bldg)\s*0*(\d+)`)
 var numRe = regexp.MustCompile(`\d+`)
 
 // streetNumber is the first integer in a free-text address ("141 phoebe st" → 141).
@@ -58,9 +59,9 @@ func lastSeg(fqn string) string {
 	return strings.TrimSpace(p[len(p)-1])
 }
 
-// QBO sub-scope projects (e.g. "Lot 05 Rookery Lane (Deck)") never receive the
-// QB Time labor of the parent lot — demote them hard so the main lot ranks first.
-var deckRe = regexp.MustCompile(`(?i)\bdeck\b`)
+// QBO sub-scope projects (e.g. "Lot 05 … (Deck)", "Building 4 … (Chutes)") never
+// receive the parent unit's QB Time labor — demote them so the main unit wins.
+var deckRe = regexp.MustCompile(`(?i)\b(?:deck|chutes)\b`)
 
 func isOverhead(path []string) bool {
 	if len(path) < 2 {
