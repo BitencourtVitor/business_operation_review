@@ -225,7 +225,7 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
           >
             <LineChartIcon className="h-3 w-3" />
           </PopoverTrigger>
-          <PopoverContent align="end" side="left" className="w-[24rem]" onClick={e => e.stopPropagation()}>
+          <PopoverContent align="start" side="right" className="w-[24rem]" onClick={e => e.stopPropagation()}>
             <AccountChartPanel company={company} projectID={projectID} account={ca} />
           </PopoverContent>
         </Popover>
@@ -501,7 +501,7 @@ const fmtShort = (n: number) => {
 }
 const fmtMonth = (s: string) => {
   const [y, m] = s.split("-")
-  return `${["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(m)]} ${y.slice(2)}`
+  return `${m}/${y.slice(2)}`
 }
 
 function AccountChartPanel({ company, projectID, account }: {
@@ -510,20 +510,40 @@ function AccountChartPanel({ company, projectID, account }: {
   const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
   const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
 
-  // Cumulative Paid over time — the burn against the account's budget ceiling.
+  // View mode: cumulative burn (default) vs per-month cash flow. Preference cached.
+  const [mode, setMode] = useState<"cumulative" | "cashflow">(() => {
+    if (typeof window === "undefined") return "cumulative"
+    return localStorage.getItem("budget-chart-mode") === "cashflow" ? "cashflow" : "cumulative"
+  })
+  const pickMode = (m: "cumulative" | "cashflow") => {
+    setMode(m)
+    if (typeof window !== "undefined") localStorage.setItem("budget-chart-mode", m)
+  }
+
   let running = 0
   const series = (history ?? []).map(p => { running += p.paid; return { month: p.month, paid: p.paid, cumulative: running } })
   const budget = account.budget_limit
-  // Keep the budget line on-chart even when cumulative paid is well below it.
-  const yMax = Math.max(running, budget) * 1.1 || 1
+  // Budget ceiling only compares against the cumulative burn, not monthly cash flow.
+  const showBudget = mode === "cumulative" && budget > 0
+  const maxVal = mode === "cumulative" ? Math.max(running, budget) : Math.max(0, ...series.map(s => s.paid))
+  const yMax = maxVal * 1.1 || 1
+  const dataKey = mode === "cumulative" ? "cumulative" : "paid"
 
   return (
     <>
       <div className="flex items-center gap-2">
-        <LineChartIcon className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
         <div className="min-w-0">
           <p className="truncate text-xs font-semibold leading-tight" title={account.name}>{account.name}</p>
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Paid over time{budget > 0 ? " vs cost budget" : ""}</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Paid over time</p>
+        </div>
+        <div className="ml-auto flex shrink-0 items-center overflow-hidden rounded-md border border-input text-[9px] font-medium">
+          {([["cumulative", "Accumulated"], ["cashflow", "Cash flow"]] as const).map(([val, label], i) => (
+            <button key={val} onClick={() => pickMode(val)}
+              className={cn("px-1.5 py-0.5 transition-colors", i > 0 && "border-l border-input",
+                mode === val ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -535,7 +555,7 @@ function AccountChartPanel({ company, projectID, account }: {
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <RLineChart data={series} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
               <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" />
               <YAxis tickFormatter={fmtShort} tick={{ fontSize: 10 }} stroke="currentColor" className="text-muted-foreground/60" width={48} domain={[0, yMax]} />
               <RTooltip
@@ -543,11 +563,11 @@ function AccountChartPanel({ company, projectID, account }: {
                 labelFormatter={(l) => fmtMonth(String(l))}
                 formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? "Cumulative paid" : "Paid this month"]}
               />
-              {budget > 0 && (
-                <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#ef4444"
-                  label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#ef4444" }} />
+              {showBudget && (
+                <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#f59e0b"
+                  label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#f59e0b" }} />
               )}
-              <RLine type="monotone" dataKey="cumulative" stroke="#22c55e" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
+              <RLine type="monotone" dataKey={dataKey} stroke="#ef4444" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
             </RLineChart>
           </ResponsiveContainer>
         )}
