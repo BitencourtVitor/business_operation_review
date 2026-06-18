@@ -48,3 +48,11 @@ export function useIncomeHistory(params: { company: string; project_id: string; 
     enabled: !!params?.company && !!params?.project_id && !!params?.type,
   })
 }
+
+export function useLaborEstimate(params: { company: string; project_id: string } | null) {
+  return useQuery({
+    queryKey: ["budget-labor-estimate", params?.company, params?.project_id],
+    queryFn: () => budgetService.getLaborEstimate(params!),
+    enabled: !!params?.company && !!params?.project_id,
+  })
+}

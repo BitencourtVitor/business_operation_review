@@ -2,10 +2,12 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -838,6 +840,180 @@ func (h *BudgetHandler) IncomeTypeHistory(c *fiber.Ctx) error {
 		out = append(out, p)
 	}
 	return c.JSON(fiber.Map{"data": out})
+}
+
+// ── Labor estimate (current pay period) ──────────────────────────────────────
+
+// LaborEstimateEmployee is one worker's labor accrued on the project this period.
+type LaborEstimateEmployee struct {
+	Name         string  `json:"name"`
+	RegularHours float64 `json:"regular_hours"`
+	OTHours      float64 `json:"ot_hours"`
+	TotalHours   float64 `json:"total_hours"`
+	PayRate      float64 `json:"pay_rate"`
+	RegularCost  float64 `json:"regular_cost"`
+	OTCost       float64 `json:"ot_cost"`
+	TotalCost    float64 `json:"total_cost"`
+}
+
+// LaborEstimate is the projected payroll cost accruing on a project during the
+// current (open) pay period — labor logged in QB Time that has not yet been
+// posted as a QB cost. HasMapping is false when no QB Time address is linked to
+// the project (Labor Mapping); HasData is false when the open period has no
+// logged hours for it yet.
+type LaborEstimate struct {
+	Company      string                  `json:"company"`
+	ProjectID    string                  `json:"project_id"`
+	HasMapping   bool                    `json:"has_mapping"`
+	HasData      bool                    `json:"has_data"`
+	PeriodStart  string                  `json:"period_start"`
+	PeriodEnd    string                  `json:"period_end"`
+	RegularHours float64                 `json:"regular_hours"`
+	OTHours      float64                 `json:"ot_hours"`
+	TotalHours   float64                 `json:"total_hours"`
+	RegularCost  float64                 `json:"regular_cost"`
+	OTCost       float64                 `json:"ot_cost"`
+	TotalCost    float64                 `json:"total_cost"`
+	Employees    []LaborEstimateEmployee `json:"employees"`
+}
+
+// GET /api/v1/budget/projects/labor-estimate?company=&project_id=
+// Estimated payroll cost accruing on this project during the CURRENT (open) pay
+// period. QB Time addresses are linked to QBO projects in Labor Mapping
+// (qbtime_project_mappings); the latest cached pay period is the in-progress one.
+// Regular and overtime hours come from QB Time's payroll_by_jobcode aggregation,
+// costed at the worker's pay rate (OT = 1.5×) — mirroring the Job Costing report.
+func (h *BudgetHandler) LaborEstimate(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
+	}
+	ctx := c.Context()
+
+	est := LaborEstimate{Company: company, ProjectID: projectID, Employees: []LaborEstimateEmployee{}}
+
+	// Customer IDs that make up the project.
+	var customerIDs []string
+	custRows, err := h.db.Query(ctx, `WITH `+custProjCTE+`
+		SELECT customer_id FROM proj_key WHERE pkey=$2`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for custRows.Next() {
+		var id string
+		custRows.Scan(&id)
+		customerIDs = append(customerIDs, id)
+	}
+	custRows.Close()
+	if len(customerIDs) == 0 {
+		return c.JSON(fiber.Map{"data": est})
+	}
+
+	// QB Time address keys linked to this project.
+	addrKeys := map[string]bool{}
+	akRows, err := h.db.Query(ctx, `
+		SELECT address_key FROM qbtime_project_mappings
+		WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for akRows.Next() {
+		var k string
+		akRows.Scan(&k)
+		addrKeys[k] = true
+	}
+	akRows.Close()
+	est.HasMapping = len(addrKeys) > 0
+	if !est.HasMapping {
+		return c.JSON(fiber.Map{"data": est})
+	}
+
+	// Current (open) pay period = the latest one synced into the payroll cache.
+	var periodEnd string
+	if err := h.db.QueryRow(ctx, `
+		SELECT COALESCE(to_char(MAX(period_end),'YYYY-MM-DD'),'') FROM qbtime_payroll WHERE company=$1
+	`, company).Scan(&periodEnd); err != nil || periodEnd == "" {
+		return c.JSON(fiber.Map{"data": est})
+	}
+	est.PeriodEnd = periodEnd
+	if t, e := time.Parse("2006-01-02", periodEnd); e == nil {
+		est.PeriodStart = t.AddDate(0, 0, -13).Format("2006-01-02")
+	}
+
+	// Payroll rows for the period; keep only those mapped to this project.
+	rows, err := h.db.Query(ctx, `
+		SELECT user_name, pay_rate, jobcode_path::text, reg_seconds, ot_seconds
+		FROM qbtime_payroll WHERE company=$1 AND period_end=$2
+	`, company, periodEnd)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	type agg struct {
+		regSec, otSec int
+		payRate       float64
+	}
+	byEmp := map[string]*agg{}
+	for rows.Next() {
+		var name, pathJSON string
+		var payRate float64
+		var regSec, otSec int
+		if rows.Scan(&name, &payRate, &pathJSON, &regSec, &otSec) != nil {
+			continue
+		}
+		var path []string
+		if json.Unmarshal([]byte(pathJSON), &path) != nil || len(path) == 0 || isOverhead(path) {
+			continue
+		}
+		if !addrKeys[addressKey(path)] {
+			continue
+		}
+		a := byEmp[name]
+		if a == nil {
+			a = &agg{payRate: payRate}
+			byEmp[name] = a
+		}
+		a.regSec += regSec
+		a.otSec += otSec
+		if a.payRate == 0 {
+			a.payRate = payRate
+		}
+	}
+	rows.Close()
+
+	for name, a := range byEmp {
+		regH := round2(float64(a.regSec) / 3600.0)
+		otH := round2(float64(a.otSec) / 3600.0)
+		if regH == 0 && otH == 0 {
+			continue
+		}
+		otRate := round2(a.payRate * 1.5)
+		regCost := round2(regH * a.payRate)
+		otCost := round2(otH * otRate)
+		est.Employees = append(est.Employees, LaborEstimateEmployee{
+			Name:         name,
+			RegularHours: regH,
+			OTHours:      otH,
+			TotalHours:   round2(regH + otH),
+			PayRate:      a.payRate,
+			RegularCost:  regCost,
+			OTCost:       otCost,
+			TotalCost:    round2(regCost + otCost),
+		})
+		est.RegularHours = round2(est.RegularHours + regH)
+		est.OTHours = round2(est.OTHours + otH)
+		est.RegularCost = round2(est.RegularCost + regCost)
+		est.OTCost = round2(est.OTCost + otCost)
+	}
+	est.TotalHours = round2(est.RegularHours + est.OTHours)
+	est.TotalCost = round2(est.RegularCost + est.OTCost)
+	est.HasData = len(est.Employees) > 0
+
+	sort.Slice(est.Employees, func(i, j int) bool {
+		return est.Employees[i].TotalCost > est.Employees[j].TotalCost
+	})
+
+	return c.JSON(fiber.Map{"data": est})
 }
 
 // costCategoryTree groups the project's POs by user-defined budget category.
