@@ -139,7 +139,6 @@ func main() {
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	budgetHandler            := handler.NewBudgetHandler(db, periodReportSvc)
 	budgetTaxonomyHandler    := handler.NewBudgetTaxonomyHandler(db)
-	budgetMappingHandler     := handler.NewBudgetMappingHandler(db)
 	qbtimeMappingHandler     := handler.NewQBTimeMappingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
@@ -507,8 +506,6 @@ func main() {
 	budget.Get("/projects/income-history",  budgetHandler.IncomeTypeHistory)
 	budget.Get("/projects/labor-estimate",  budgetHandler.LaborEstimate)
 	budget.Get("/projects/labor-estimate-summary", budgetHandler.LaborEstimateSummary)
-	budget.Get("/project-mappings",      budgetMappingHandler.List)
-	budget.Put("/project-mappings",      budgetMappingHandler.Set)
 
 	// QB Time → QBO labor mapping (initial mapping page)
 	budget.Get("/qbtime-mapping/queue",     qbtimeMappingHandler.Queue)
