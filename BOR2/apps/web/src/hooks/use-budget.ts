@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { budgetService, type BudgetStatus } from "@/services/budget.service"
 
 export function useBudgetProjects(params: { company: string; status?: BudgetStatus }) {
@@ -22,5 +22,21 @@ export function useBudgetDetail(params: { company: string; project_id: string } 
     queryKey: ["budget-detail", params?.company, params?.project_id],
     queryFn: () => budgetService.getDetail(params!),
     enabled: !!params?.company && !!params?.project_id,
+  })
+}
+
+export function useSetAccountLimit() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: budgetService.setAccountLimit,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}
+
+export function useAccountHistory(params: { company: string; project_id: string; account_ids: string[] } | null) {
+  return useQuery({
+    queryKey: ["budget-account-history", params?.company, params?.project_id, (params?.account_ids ?? []).join(",")],
+    queryFn: () => budgetService.getAccountHistory(params!),
+    enabled: !!params?.company && !!params?.project_id && (params?.account_ids.length ?? 0) > 0,
   })
 }

@@ -17,11 +17,24 @@ export interface IncomeAccount {
 }
 
 export interface CostAccount {
+  id: string
   name: string
   amount: number
   paid: number
   outstanding: number
+  budget_limit: number
+  locked: boolean
   children?: CostAccount[]
+}
+
+export interface AccountLimit {
+  account_id: string
+  amount: number
+}
+
+export interface AccountPaidPoint {
+  month: string
+  paid: number
 }
 
 export interface POLineRow {
@@ -146,5 +159,18 @@ export const budgetService = {
   async getDetail(params: { company: string; project_id: string }): Promise<BudgetProjectDetail | null> {
     const search = new URLSearchParams({ company: params.company, project_id: params.project_id })
     return api.get<BudgetProjectDetail>(`/api/v1/budget/projects/detail?${search}`, getToken())
+  },
+
+  async setAccountLimit(body: { company: string; project_id: string; account_id: string; amount: number }): Promise<void> {
+    await api.put(`/api/v1/budget/account-limits`, body, getToken())
+  },
+
+  async getAccountHistory(params: { company: string; project_id: string; account_ids: string[] }): Promise<AccountPaidPoint[]> {
+    const search = new URLSearchParams({
+      company: params.company,
+      project_id: params.project_id,
+      account_ids: params.account_ids.join(","),
+    })
+    return (await api.get<AccountPaidPoint[]>(`/api/v1/budget/projects/account-history?${search}`, getToken())) ?? []
   },
 }
