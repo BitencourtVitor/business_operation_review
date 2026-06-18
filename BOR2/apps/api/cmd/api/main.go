@@ -501,6 +501,9 @@ func main() {
 	budget.Put("/vendor-categories",     budgetTaxonomyHandler.SetVendorMapping)
 	budget.Get("/project-limits",        budgetTaxonomyHandler.ListProjectLimits)
 	budget.Put("/project-limits",        budgetTaxonomyHandler.SetProjectLimit)
+	budget.Get("/account-limits",        budgetTaxonomyHandler.ListAccountLimits)
+	budget.Put("/account-limits",        budgetTaxonomyHandler.SetAccountLimit)
+	budget.Get("/projects/account-history", budgetHandler.AccountPaidHistory)
 	budget.Get("/project-mappings",      budgetMappingHandler.List)
 	budget.Put("/project-mappings",      budgetMappingHandler.Set)
 
