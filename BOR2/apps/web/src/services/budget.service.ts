@@ -114,6 +114,7 @@ export interface BudgetProjectDetail {
   project_id: string
   client_name: string
   name: string
+  customer_group: string
   project_type: "house" | "building"
   margin_target: number
 

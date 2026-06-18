@@ -77,7 +77,12 @@ proj_key AS (
             NULLIF(dname, ''),
             customer_id
         ) AS pname,
-        CASE WHEN strpos(fqn, ':') > 0 THEN trim(split_part(fqn, ':', 1)) ELSE '' END AS client
+        CASE WHEN strpos(fqn, ':') > 0 THEN trim(split_part(fqn, ':', 1)) ELSE '' END AS client,
+        -- QB "Customer name" = the project's immediate parent (second-to-last FQN
+        -- segment): the development for "Client:Dev:Lot", the client for "Client:Lot".
+        CASE WHEN array_length(string_to_array(fqn, ':'), 1) >= 2
+             THEN trim((string_to_array(fqn, ':'))[array_length(string_to_array(fqn, ':'), 1) - 1])
+             ELSE trim(fqn) END AS customer_group
     FROM cust_proj
 )`
 
@@ -85,7 +90,7 @@ proj_key AS (
 // %s is the optional year filter on qb_estimates.
 const projectsQuery = `WITH ` + custProjCTE + `,
 proj AS (
-    SELECT pkey, MAX(pname) AS pname, MAX(client) AS client FROM proj_key GROUP BY pkey
+    SELECT pkey, MAX(pname) AS pname, MAX(client) AS client, MAX(customer_group) AS customer_group FROM proj_key GROUP BY pkey
 ),
 est AS (
     SELECT pk.pkey, SUM(e.total_amount) AS total
@@ -211,7 +216,7 @@ lab_bc AS (
     WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>''
     GROUP BY pk.pkey
 )
-SELECT p.pkey, p.client, p.pname,
+SELECT p.pkey, p.client, p.pname, p.customer_group,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
        COALESCE(op.total,0), COALESCE(pp.committed,0),
        COALESCE(lb.total,0) - COALESCE(lbc.total,0), COALESCE(pp.open_commit,0),
@@ -264,7 +269,7 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 		var d BudgetProjectDetail
 		var openPayable, invBalance float64
 		if err := rows.Scan(
-			&d.ProjectID, &d.ClientName, &d.Name,
+			&d.ProjectID, &d.ClientName, &d.Name, &d.CustomerGroup,
 			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.CostTotal, &openPayable,
 			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &d.LaborPaid, &invBalance,
 		); err != nil {
@@ -445,11 +450,12 @@ type CostAccount struct {
 }
 
 type BudgetProjectDetail struct {
-	ProjectID    string  `json:"project_id"`
-	ClientName   string  `json:"client_name"`
-	Name         string  `json:"name"`
-	ProjectType  string  `json:"project_type"`
-	MarginTarget float64 `json:"margin_target"`
+	ProjectID     string  `json:"project_id"`
+	ClientName    string  `json:"client_name"`
+	Name          string  `json:"name"`
+	CustomerGroup string  `json:"customer_group"` // QB "Customer name" — the immediate parent
+	ProjectType   string  `json:"project_type"`
+	MarginTarget  float64 `json:"margin_target"`
 
 	// Income (a receber)
 	ProjectedReceive float64         `json:"projected_receive"` // contract / estimate
