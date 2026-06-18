@@ -40,6 +40,10 @@ var workTypes = map[string]bool{
 
 var lotRe = regexp.MustCompile(`(?i)lot\s*0*(\d+)`)
 
+// QBO sub-scope projects (e.g. "Lot 05 Rookery Lane (Deck)") never receive the
+// QB Time labor of the parent lot — demote them hard so the main lot ranks first.
+var deckRe = regexp.MustCompile(`(?i)\bdeck\b`)
+
 func isOverhead(path []string) bool {
 	if len(path) < 2 {
 		return true
@@ -300,6 +304,9 @@ func suggest(key string, customers []qboCustomer) []Suggestion {
 			if cl, ok := lotNumber(cu.fqn); ok && cl == lot {
 				score += 0.5
 			}
+		}
+		if deckRe.MatchString(cu.fqn) {
+			score -= 1.0 // a "(Deck)" candidate is never the labor target
 		}
 		scored = append(scored, Suggestion{CustomerID: cu.id, Name: cu.fqn, Score: round3(score)})
 	}
