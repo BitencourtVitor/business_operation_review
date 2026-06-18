@@ -29,6 +29,15 @@ const fmtDate = (s: string) => {
   return `${m}/${d}/${y.slice(2)}`
 }
 const pct = (part: number, whole: number) => (whole > 0 ? (part / whole) * 100 : 0)
+const fmtMD = (s: string) => { if (!s) return ""; const [, m, d] = s.split("-"); return `${m}/${d}` }
+// QB Time payroll stores names as "Last, First"; show them as "First Last".
+const flipName = (n: string) => {
+  const i = n.indexOf(",")
+  if (i < 0) return n
+  const last = n.slice(0, i).trim()
+  const first = n.slice(i + 1).trim()
+  return first ? `${first} ${last}` : last
+}
 const pctStr = (part: number, whole: number) => `${pct(part, whole).toFixed(0)}%`
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
@@ -630,13 +639,6 @@ function IncomeChartPanel({ company, projectID, typeName }: {
 // Labor accruing in the open pay period: hours logged in QB Time but not yet
 // posted as a QB cost. The 4th panel color (blue) sets it apart from
 // Income (green) / Cost (red) / Contractors (yellow).
-function fmtPeriodRange(start: string, end: string) {
-  if (!start || !end) return ""
-  const [, sm, sd] = start.split("-")
-  const [, em, ed] = end.split("-")
-  return `${sm}/${sd} – ${em}/${ed}`
-}
-
 function LaborForecastBlock({ company, projectID, blur }: { company: string; projectID: string; blur: string }) {
   const { data, isLoading } = useLaborEstimate({ company, project_id: projectID })
   const [showEmployees, setShowEmployees] = useState(false)
@@ -646,13 +648,7 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
       {/* Title row */}
       <div className="flex items-center gap-2">
         <CalendarClock className="h-4 w-4 text-blue-500" />
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold leading-tight text-blue-500">Cost Forecast</span>
-          <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
-            <CornerDownRight className="h-3 w-3 shrink-0 text-blue-500/40" />
-            Accruing this pay period{data?.period_start ? ` · ${fmtPeriodRange(data.period_start, data.period_end)}` : ""}
-          </span>
-        </div>
+        <span className="text-sm font-semibold leading-tight text-blue-500">In-Progress Costs</span>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Est. Total</span>
           <span className={cn("text-base font-bold tabular-nums text-blue-500", blur)}>{fmt(data?.total_cost ?? 0)}</span>
@@ -665,8 +661,16 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
         <div className="flex items-center gap-2">
           <Users className="h-3.5 w-3.5 text-blue-500/80" />
           <span className="text-[12px] font-semibold text-blue-500/90">Labor · QB Time</span>
-          {data?.has_data && (
-            <span className="ml-auto text-[11px] tabular-nums text-muted-foreground/60">{(data.total_hours ?? 0).toFixed(1)} h</span>
+          {data?.period_start && (
+            <div className="ml-auto flex items-center gap-1.5 text-[11px] tabular-nums text-muted-foreground/60">
+              <span title={`Observed pay period: ${data.period_start} to ${data.period_end}`}>{fmtMD(data.period_start)} – {fmtMD(data.period_end)}</span>
+              {data.has_data && (
+                <>
+                  <span className="text-muted-foreground/30">|</span>
+                  <span className="font-medium text-foreground/70">{(data.total_hours ?? 0).toFixed(1)}h</span>
+                </>
+              )}
+            </div>
           )}
         </div>
 
@@ -718,17 +722,17 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
                     <div className="flex items-center bg-muted/10 px-3 py-1">
                       <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Employee</span>
                       <div className="flex shrink-0">
-                        <div className="w-14 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Reg h</div>
-                        <div className="w-14 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">OT h</div>
-                        <div className="w-24 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Est. Cost</div>
+                        <div className="w-16 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Regular</div>
+                        <div className="w-16 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Overtime</div>
+                        <div className="w-24 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Cost</div>
                       </div>
                     </div>
                     {data.employees.map(e => (
                       <div key={e.name} className="flex items-center border-t border-border/10 px-3 py-1">
-                        <span className="flex-1 min-w-0 truncate text-[11px] font-medium text-foreground/80" title={e.name}>{e.name}</span>
+                        <span className="flex-1 min-w-0 truncate text-[11px] font-medium text-foreground/80" title={flipName(e.name)}>{flipName(e.name)}</span>
                         <div className="flex shrink-0">
-                          <span className={cn("w-14 text-right text-[11px] tabular-nums text-muted-foreground", blur)}>{e.regular_hours.toFixed(1)}</span>
-                          <span className={cn("w-14 text-right text-[11px] tabular-nums", e.ot_hours > 0 ? "text-orange-500" : "text-muted-foreground/40", blur)}>{e.ot_hours.toFixed(1)}</span>
+                          <span className={cn("w-16 text-right text-[11px] tabular-nums text-muted-foreground", blur)}>{e.regular_hours.toFixed(1)}</span>
+                          <span className={cn("w-16 text-right text-[11px] tabular-nums", e.ot_hours > 0 ? "text-orange-500" : "text-muted-foreground/40", blur)}>{e.ot_hours.toFixed(1)}</span>
                           <span className={cn("w-24 text-right text-[11px] font-semibold tabular-nums text-blue-500", blur)}>{fmt(e.total_cost)}</span>
                         </div>
                       </div>
