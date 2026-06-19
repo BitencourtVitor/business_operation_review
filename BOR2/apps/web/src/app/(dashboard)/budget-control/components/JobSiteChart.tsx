@@ -326,6 +326,7 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
                 {mode === "all" ? "Pending Income" : "Remaining Income"}
               </span>
             )}
+            {mode === "all" && <span className="h-3 w-px bg-border/60" />}
             {mode !== "pending" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} />
@@ -341,13 +342,13 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
             {mode !== "pending" && showFinancialData && (
               <>
                 <span className="h-3 w-px bg-border/60" />
-                <span className="flex items-center gap-1.5 font-semibold tabular-nums" style={{ color: profitTotals.color }}>
+                <span className="flex items-center gap-1.5">
                   <span className="flex items-center gap-0.5">
                     <span className="h-2 w-2 rounded-full bg-primary" />
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "#f59e0b" }} />
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
                   </span>
-                  Profit {fmtShort(profitTotals.profit)}
+                  Profit
                 </span>
               </>
             )}
