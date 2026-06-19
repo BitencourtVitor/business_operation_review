@@ -323,7 +323,7 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
             {mode !== "executed" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} />
-                {mode === "all" ? "Pending Income" : "Remaining Income"}
+                {mode === "all" ? "Pending Income" : "Income"}
               </span>
             )}
             {mode === "all" && <span className="h-3 w-px bg-border/60" />}
@@ -336,7 +336,7 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
             {mode !== "executed" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY_PEND }} />
-                {mode === "all" ? "Pending Cost" : "Remaining Cost"}
+                {mode === "all" ? "Pending Cost" : "Cost"}
               </span>
             )}
             {mode !== "pending" && showFinancialData && (
