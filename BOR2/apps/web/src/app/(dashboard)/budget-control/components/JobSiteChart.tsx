@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react"
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip as RechartsTooltip,
+  Tooltip as RechartsTooltip, LabelList,
 } from "recharts"
 import { Users } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -20,8 +20,8 @@ const fmtShort = (n: number) => {
 
 const RECEIVE = "#22c55e"
 const PAY     = "#ef4444"
-const MAX_ITEMS = 80    // cap so we don't render thousands of bars
-const PER_ITEM  = 132   // px of horizontal room per customer (drives X scroll)
+const MAX_ITEMS = 80
+const PER_ITEM  = 132
 
 type Mode = "executed" | "pending"
 
@@ -30,7 +30,6 @@ const LABELS: Record<Mode, { receivable: string; payable: string }> = {
   pending:  { receivable: "Remaining Income", payable: "Remaining Cost" },
 }
 
-// Raw per-customer aggregation; the active mode picks which pair to plot.
 type Agg = { name: string; invoiced: number; remainingIncome: number; billed: number; remainingCost: number }
 type Row = { name: string; receivable: number; payable: number }
 
@@ -41,9 +40,12 @@ function ChartTooltip({ active, payload, labels }: {
 }) {
   if (!active || !payload?.length || !labels) return null
   const r = payload[0].payload
+  const profit = r.receivable - r.payable
+  const marginPct = r.receivable > 0 ? (profit / r.receivable) * 100 : 0
+  const profitColor = marginPct >= 30 ? "var(--primary)" : marginPct > 0 ? "#f59e0b" : "#ef4444"
   return (
     <div className="rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
-      <p className="mb-1 font-semibold">{r.name}</p>
+      <p className="mb-1.5 font-semibold">{r.name}</p>
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
@@ -56,12 +58,17 @@ function ChartTooltip({ active, payload, labels }: {
         </span>
         <span className="font-semibold tabular-nums" style={{ color: PAY }}>{fmt(r.payable)}</span>
       </div>
+      <div className="my-1.5 border-t border-border/50" />
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-muted-foreground">Profit</span>
+        <span className="font-bold tabular-nums" style={{ color: profitColor }}>
+          {fmt(profit)} <span className="font-semibold opacity-70">({marginPct.toFixed(0)}%)</span>
+        </span>
+      </div>
     </div>
   )
 }
 
-// Wrap a customer name into short lines (by word) so the X-axis label can sit
-// straight and still show the full name across multiple rows.
 function wrapLabel(s: string, max = 20, maxLines = 3): string[] {
   const words = s.split(" ")
   const lines: string[] = []
@@ -92,13 +99,36 @@ function XTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: s
   )
 }
 
+// Factory returns a LabelList content component that renders the margin %
+// centered between the receivable and payable bars.
+// Both bars have the same width; barGap=4 → midpoint of gap = x + barWidth + 2,
+// which is also the exact midpoint between the two bar centers.
+function makeMarginLabel(data: Row[], show: boolean) {
+  return function MarginLabel(props: any) {
+    if (!show) return <g />
+    const { x, y, width, index } = props
+    const row = data[index]
+    if (!row?.receivable) return <g />
+    const margin = ((row.receivable - row.payable) / row.receivable) * 100
+    const midX = x + width + 2
+    const color = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
+    return (
+      <g>
+        <text x={midX} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
+          style={{ fill: color, stroke: "hsl(var(--background))", strokeWidth: 3, paintOrder: "stroke" }}>
+          {margin.toFixed(0)}%
+        </text>
+      </g>
+    )
+  }
+}
+
 export function JobSiteChart({ projects }: {
   projects: BudgetProjectDetail[]
 }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("executed")
 
-  // Click-and-drag to pan the X axis horizontally.
   const scrollRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
   const onDragStart = (e: React.MouseEvent) => {
@@ -126,10 +156,10 @@ export function JobSiteChart({ projects }: {
         name,
         invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0,
       }
-      row.invoiced        += p.received + p.to_receive   // executed income
-      row.billed          += p.paid + p.open_payable     // executed cost
-      row.remainingIncome += p.to_receive                // pending income
-      row.remainingCost   += p.to_pay                    // pending cost
+      row.invoiced        += p.received + p.to_receive
+      row.billed          += p.paid + p.open_payable
+      row.remainingIncome += p.to_receive
+      row.remainingCost   += p.to_pay
       agg.set(name, row)
     }
     return [...agg.values()]
@@ -147,6 +177,7 @@ export function JobSiteChart({ projects }: {
   [aggregated, mode])
 
   const labels = LABELS[mode]
+  const marginLabel = useMemo(() => makeMarginLabel(data, showFinancialData), [data, showFinancialData])
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/70">
@@ -196,7 +227,7 @@ export function JobSiteChart({ projects }: {
         ) : (
           <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
+            <BarChart data={data} margin={{ top: 16, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
               <defs>
                 <linearGradient id="jsReceivable" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%"   stopColor={RECEIVE} stopOpacity={1} />
@@ -220,8 +251,10 @@ export function JobSiteChart({ projects }: {
                 tickFormatter={showFinancialData ? fmtShort : () => ""}
               />
               <RechartsTooltip content={<ChartTooltip labels={labels} />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
-              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
-              <Bar dataKey="payable"    name={labels.payable}    fill="url(#jsPayable)"    stroke={PAY}     strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40}>
+                <LabelList content={marginLabel} />
+              </Bar>
+              <Bar dataKey="payable" name={labels.payable} fill="url(#jsPayable)" stroke={PAY} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
           </div>
