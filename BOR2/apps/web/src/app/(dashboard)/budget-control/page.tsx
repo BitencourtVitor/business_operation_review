@@ -36,6 +36,8 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
 
+// ── Project Card ──────────────────────────────────────────────────────────────
+
 function MetricRow({ label, value, color, blur, strong }: {
   label: string; value: number; color?: string; blur: string; strong?: boolean
 }) {
