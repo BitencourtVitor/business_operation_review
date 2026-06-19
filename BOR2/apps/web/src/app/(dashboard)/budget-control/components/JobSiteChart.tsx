@@ -5,10 +5,12 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, LabelList,
 } from "recharts"
-import { Users } from "lucide-react"
+import { Users, Layers, CircleCheck, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import type { BudgetProjectDetail } from "@/services/budget.service"
+
+// ── Constants ────────────────────────────────────────────────────────────────
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
@@ -18,56 +20,128 @@ const fmtShort = (n: number) => {
   return `$${n.toFixed(0)}`
 }
 
-const RECEIVE = "#22c55e"
-const PAY     = "#ef4444"
-const MAX_ITEMS = 80
-const PER_ITEM  = 132
+const RECEIVE      = "#22c55e"
+const RECEIVE_PEND = "#86efac"
+const PAY          = "#ef4444"
+const PAY_PEND     = "#fca5a5"
+const MAX_ITEMS    = 80
+const PER_ITEM     = 132
 
-type Mode = "executed" | "pending"
+type Mode = "all" | "executed" | "pending"
 
-const LABELS: Record<Mode, { receivable: string; payable: string }> = {
-  executed: { receivable: "Invoiced",         payable: "Billed" },
-  pending:  { receivable: "Remaining Income", payable: "Remaining Cost" },
+const MODES: { value: Mode; label: string; Icon: React.ElementType }[] = [
+  { value: "all",      label: "All",      Icon: Layers      },
+  { value: "executed", label: "Executed", Icon: CircleCheck },
+  { value: "pending",  label: "Pending",  Icon: Clock       },
+]
+
+// ── Data types ────────────────────────────────────────────────────────────────
+
+type Agg = {
+  name: string
+  invoiced: number
+  remainingIncome: number
+  billed: number
+  remainingCost: number
 }
 
-type Agg = { name: string; invoiced: number; remainingIncome: number; billed: number; remainingCost: number }
-type Row = { name: string; receivable: number; payable: number }
+type Row = {
+  name: string
+  execReceivable: number
+  pendReceivable: number
+  execPayable: number
+  pendPayable: number
+}
 
-function ChartTooltip({ active, payload, labels }: {
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+
+function ChartTooltip({ active, payload, mode }: {
   active?: boolean
   payload?: Array<{ payload: Row }>
-  labels?: { receivable: string; payable: string }
+  mode: Mode
 }) {
-  if (!active || !payload?.length || !labels) return null
+  if (!active || !payload?.length) return null
   const r = payload[0].payload
-  const profit = r.receivable - r.payable
-  const marginPct = r.receivable > 0 ? (profit / r.receivable) * 100 : 0
+
+  const totalRec  = r.execReceivable + r.pendReceivable
+  const totalPay  = r.execPayable    + r.pendPayable
+  const profit    = totalRec - totalPay
+  const marginPct = totalRec > 0 ? (profit / totalRec) * 100 : 0
   const profitColor = marginPct >= 30 ? "var(--primary)" : marginPct > 0 ? "#f59e0b" : "#ef4444"
+
+  const showRec = mode === "executed" ? r.execReceivable : mode === "pending" ? r.pendReceivable : totalRec
+  const showPay = mode === "executed" ? r.execPayable    : mode === "pending" ? r.pendPayable    : totalPay
+  const recLabel = mode === "executed" ? "Invoiced" : mode === "pending" ? "Remaining Income" : "Receivable"
+  const payLabel = mode === "executed" ? "Billed"   : mode === "pending" ? "Remaining Cost"   : "Cost"
+
   return (
     <div className="w-max max-w-[220px] rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
       <p className="mb-1.5 break-words font-semibold leading-snug">{r.name}</p>
+
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
+          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} />
+          {recLabel}
         </span>
-        <span className="font-semibold tabular-nums" style={{ color: RECEIVE }}>{fmt(r.receivable)}</span>
+        <span className="font-semibold tabular-nums" style={{ color: RECEIVE }}>{fmt(showRec)}</span>
       </div>
-      <div className="flex items-center justify-between gap-4">
+      {mode === "all" && (
+        <div className="ml-3 mt-0.5 flex flex-col gap-0.5 text-[10px] text-muted-foreground/80">
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> Executed
+            </span>
+            <span className="tabular-nums">{fmt(r.execReceivable)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} /> Pending
+            </span>
+            <span className="tabular-nums">{fmt(r.pendReceivable)}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-1 flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> {labels.payable}
+          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} />
+          {payLabel}
         </span>
-        <span className="font-semibold tabular-nums" style={{ color: PAY }}>{fmt(r.payable)}</span>
+        <span className="font-semibold tabular-nums" style={{ color: PAY }}>{fmt(showPay)}</span>
       </div>
-      <div className="my-1.5 border-t border-border/50" />
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
-        <span className="text-muted-foreground">Profit</span>
-        <span className="font-bold tabular-nums" style={{ color: profitColor }}>
-          {fmt(profit)} <span className="font-semibold opacity-70">({marginPct.toFixed(0)}%)</span>
-        </span>
-      </div>
+      {mode === "all" && (
+        <div className="ml-3 mt-0.5 flex flex-col gap-0.5 text-[10px] text-muted-foreground/80">
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> Executed
+            </span>
+            <span className="tabular-nums">{fmt(r.execPayable)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY_PEND }} /> Pending
+            </span>
+            <span className="tabular-nums">{fmt(r.pendPayable)}</span>
+          </div>
+        </div>
+      )}
+
+      {mode !== "pending" && (
+        <>
+          <div className="my-1.5 border-t border-border/50" />
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
+            <span className="text-muted-foreground">Profit</span>
+            <span className="font-bold tabular-nums" style={{ color: profitColor }}>
+              {fmt(profit)} <span className="font-semibold opacity-70">({marginPct.toFixed(0)}%)</span>
+            </span>
+          </div>
+        </>
+      )}
     </div>
   )
 }
+
+// ── X-axis tick ───────────────────────────────────────────────────────────────
 
 function wrapLabel(s: string, max = 20, maxLines = 3): string[] {
   const words = s.split(" ")
@@ -99,23 +173,21 @@ function XTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: s
   )
 }
 
-// Factory returns a LabelList content component that renders the margin %
-// centered between the receivable and payable bars.
-// Both bars have the same width; barGap=4 → midpoint of gap = x + barWidth + 2,
-// which is also the exact midpoint between the two bar centers.
-function makeMarginLabel(data: Row[], show: boolean) {
-  return function MarginLabel(props: any) {
-    if (!show) return <g />
+// ── Margin labels ─────────────────────────────────────────────────────────────
+
+// Label on the execReceivable bar — renders only in "executed" mode.
+function makeExecLabel(data: Row[], show: boolean, mode: Mode) {
+  return function ExecLabel(props: any) {
+    if (!show || mode !== "executed") return <g />
     const { x, y, width, index } = props
     const row = data[index]
-    if (!row?.receivable) return <g />
-    const margin = ((row.receivable - row.payable) / row.receivable) * 100
-    const midX = x + width + 2
+    if (!row?.execReceivable) return <g />
+    const margin = ((row.execReceivable - row.execPayable) / row.execReceivable) * 100
     const color = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
     return (
       <g>
-        <text x={midX} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
-          style={{ fill: color, stroke: "hsl(var(--background))", strokeWidth: 3, paintOrder: "stroke" }}>
+        <text x={x + width + 2} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
+          style={{ fill: color, stroke: "var(--background)", strokeWidth: 3, paintOrder: "stroke" }}>
           {margin.toFixed(0)}%
         </text>
       </g>
@@ -123,9 +195,31 @@ function makeMarginLabel(data: Row[], show: boolean) {
   }
 }
 
-export function JobSiteChart({ projects }: {
-  projects: BudgetProjectDetail[]
-}) {
+// Label on the pendReceivable bar (top of stack in "all") — renders only in "all" mode.
+function makeAllLabel(data: Row[], show: boolean, mode: Mode) {
+  return function AllLabel(props: any) {
+    if (!show || mode !== "all") return <g />
+    const { x, y, width, index } = props
+    const row = data[index]
+    const totalRec = row ? row.execReceivable + row.pendReceivable : 0
+    const totalPay = row ? row.execPayable    + row.pendPayable    : 0
+    if (!totalRec) return <g />
+    const margin = ((totalRec - totalPay) / totalRec) * 100
+    const color = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
+    return (
+      <g>
+        <text x={x + width + 2} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
+          style={{ fill: color, stroke: "var(--background)", strokeWidth: 3, paintOrder: "stroke" }}>
+          {margin.toFixed(0)}%
+        </text>
+      </g>
+    )
+  }
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+
+export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("executed")
 
@@ -146,16 +240,10 @@ export function JobSiteChart({ projects }: {
   const onDragEnd = () => { drag.current.active = false }
 
   const aggregated = useMemo<Agg[]>(() => {
-    // Group by QB "Customer name" (the project's immediate parent in the
-    // hierarchy), mirroring the QuickBooks Project Status report — many
-    // projects roll up under one customer. No catalog mapping needed.
     const agg = new Map<string, Agg>()
     for (const p of projects) {
       const name = p.customer_group || p.name
-      const row = agg.get(name) ?? {
-        name,
-        invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0,
-      }
+      const row = agg.get(name) ?? { name, invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0 }
       row.invoiced        += p.received + p.to_receive
       row.billed          += p.paid + p.open_payable
       row.remainingIncome += p.to_receive
@@ -165,22 +253,57 @@ export function JobSiteChart({ projects }: {
     return [...agg.values()]
   }, [projects])
 
+  // Base data — all 4 values always present, sorted by total.
   const data = useMemo<Row[]>(() => aggregated
     .map(a => ({
-      name: a.name,
-      receivable: mode === "executed" ? a.invoiced : a.remainingIncome,
-      payable:    mode === "executed" ? a.billed   : a.remainingCost,
+      name:           a.name,
+      execReceivable: a.invoiced,
+      pendReceivable: a.remainingIncome,
+      execPayable:    a.billed,
+      pendPayable:    a.remainingCost,
     }))
-    .filter(r => r.receivable > 0 || r.payable > 0)
-    .sort((a, b) => (b.receivable + b.payable) - (a.receivable + a.payable))
+    .filter(r => (r.execReceivable + r.pendReceivable) > 0 || (r.execPayable + r.pendPayable) > 0)
+    .sort((a, b) =>
+      (b.execReceivable + b.pendReceivable + b.execPayable + b.pendPayable) -
+      (a.execReceivable + a.pendReceivable + a.execPayable + a.pendPayable),
+    )
     .slice(0, MAX_ITEMS),
-  [aggregated, mode])
+  [aggregated])
 
-  const labels = LABELS[mode]
-  const marginLabel = useMemo(() => makeMarginLabel(data, showFinancialData), [data, showFinancialData])
+  // Display data — zeroes out the portion not relevant to the current mode.
+  // This lets us always render the same 4 Bar components with stackId without
+  // conditional rendering; zero-height bars within a stack take no extra space.
+  const displayData = useMemo<Row[]>(() => data.map(r => ({
+    name:           r.name,
+    execReceivable: mode === "pending"  ? 0 : r.execReceivable,
+    pendReceivable: mode === "executed" ? 0 : r.pendReceivable,
+    execPayable:    mode === "pending"  ? 0 : r.execPayable,
+    pendPayable:    mode === "executed" ? 0 : r.pendPayable,
+  })), [data, mode])
+
+  const execLabel = useMemo(() => makeExecLabel(data, showFinancialData, mode), [data, showFinancialData, mode])
+  const allLabel  = useMemo(() => makeAllLabel(data,  showFinancialData, mode), [data, showFinancialData, mode])
+
+  const profitTotals = useMemo(() => {
+    let rec = 0, pay = 0
+    for (const r of data) {
+      rec += mode === "pending"  ? r.pendReceivable
+           : mode === "executed" ? r.execReceivable
+           : r.execReceivable + r.pendReceivable
+      pay += mode === "pending"  ? r.pendPayable
+           : mode === "executed" ? r.execPayable
+           : r.execPayable + r.pendPayable
+    }
+    const profit = rec - pay
+    const pct    = rec > 0 ? (profit / rec) * 100 : 0
+    const color  = pct >= 30 ? "var(--primary)" : pct > 0 ? "#f59e0b" : "#ef4444"
+    return { profit, pct, color }
+  }, [data, mode])
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/70">
+
+      {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b border-border/40 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">Receivable vs Payable</span>
@@ -188,36 +311,71 @@ export function JobSiteChart({ projects }: {
           <span className="text-sm font-medium text-muted-foreground">by Customer</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
+
+          {/* Legend */}
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} /> {labels.payable}
-            </span>
+            {mode !== "pending" && (
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE }} />
+                Invoiced
+              </span>
+            )}
+            {mode !== "executed" && (
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} />
+                {mode === "all" ? "Pending Income" : "Remaining Income"}
+              </span>
+            )}
+            {mode !== "pending" && (
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} />
+                Billed
+              </span>
+            )}
+            {mode !== "executed" && (
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY_PEND }} />
+                {mode === "all" ? "Pending Cost" : "Remaining Cost"}
+              </span>
+            )}
+            {mode !== "pending" && showFinancialData && (
+              <>
+                <span className="h-3 w-px bg-border/60" />
+                <span className="flex items-center gap-1.5 font-semibold tabular-nums" style={{ color: profitTotals.color }}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: profitTotals.color }} />
+                  Profit {fmtShort(profitTotals.profit)}
+                  <span className="opacity-70">({profitTotals.pct.toFixed(0)}%)</span>
+                </span>
+              </>
+            )}
           </div>
+
+          {/* Mode toggle */}
           <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
-            {([
-              { value: "executed", label: "Executed" },
-              { value: "pending",  label: "Pending" },
-            ] as const).map(({ value, label }) => (
+            {MODES.map(({ value, label, Icon }) => (
               <button key={value} onClick={() => setMode(value)}
-                className={cn("flex h-full items-center px-2.5 text-[11px] font-medium transition-colors",
-                  mode === value ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
-                {label}
+                className={cn(
+                  "flex h-full items-center gap-1.5 px-2.5 text-[11px] font-medium transition-colors",
+                  mode === value ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}>
+                <Icon className="h-3 w-3" /> {label}
               </button>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Chart */}
       <div
         ref={scrollRef}
         onMouseDown={onDragStart}
         onMouseMove={onDragMove}
         onMouseUp={onDragEnd}
         onMouseLeave={onDragEnd}
-        className={cn("min-h-0 flex-1 overflow-x-auto overflow-y-hidden [&_.recharts-surface]:outline-none",
-          data.length > 0 && "cursor-grab select-none active:cursor-grabbing [&_.recharts-wrapper]:!cursor-grab active:[&_.recharts-wrapper]:!cursor-grabbing")}
+        className={cn(
+          "min-h-0 flex-1 overflow-x-auto overflow-y-hidden [&_.recharts-surface]:outline-none",
+          data.length > 0 && "cursor-grab select-none active:cursor-grabbing [&_.recharts-wrapper]:!cursor-grab active:[&_.recharts-wrapper]:!cursor-grabbing",
+        )}
       >
         {data.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground/60">
@@ -226,37 +384,59 @@ export function JobSiteChart({ projects }: {
           </div>
         ) : (
           <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 16, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
-              <defs>
-                <linearGradient id="jsReceivable" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={RECEIVE} stopOpacity={1} />
-                  <stop offset="100%" stopColor={RECEIVE} stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="jsPayable" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor={PAY} stopOpacity={1} />
-                  <stop offset="100%" stopColor={PAY} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
-              <XAxis
-                dataKey="name"
-                interval={0}
-                tick={<XTick />}
-                height={48}
-              />
-              <YAxis
-                tick={{ fontSize: 10 }}
-                width={showFinancialData ? 52 : 16}
-                tickFormatter={showFinancialData ? fmtShort : () => ""}
-              />
-              <RechartsTooltip content={<ChartTooltip labels={labels} />} cursor={{ fill: "currentColor", opacity: 0.06 }} />
-              <Bar dataKey="receivable" name={labels.receivable} fill="url(#jsReceivable)" stroke={RECEIVE} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40}>
-                <LabelList content={marginLabel} />
-              </Bar>
-              <Bar dataKey="payable" name={labels.payable} fill="url(#jsPayable)" stroke={PAY} strokeWidth={1} radius={[3, 3, 0, 0]} maxBarSize={40} />
-            </BarChart>
-          </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={displayData} margin={{ top: 16, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
+                <defs>
+                  <linearGradient id="jsExecRec" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={RECEIVE}      stopOpacity={1}   />
+                    <stop offset="100%" stopColor={RECEIVE}      stopOpacity={0}   />
+                  </linearGradient>
+                  <linearGradient id="jsPendRec" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={RECEIVE_PEND} stopOpacity={0.9} />
+                    <stop offset="100%" stopColor={RECEIVE_PEND} stopOpacity={0.1} />
+                  </linearGradient>
+                  <linearGradient id="jsExecPay" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={PAY}          stopOpacity={1}   />
+                    <stop offset="100%" stopColor={PAY}          stopOpacity={0}   />
+                  </linearGradient>
+                  <linearGradient id="jsPendPay" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={PAY_PEND}     stopOpacity={0.9} />
+                    <stop offset="100%" stopColor={PAY_PEND}     stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                <XAxis dataKey="name" interval={0} tick={<XTick />} height={48} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  width={showFinancialData ? 52 : 16}
+                  tickFormatter={showFinancialData ? fmtShort : () => ""}
+                />
+                <RechartsTooltip
+                  content={<ChartTooltip mode={mode} />}
+                  cursor={{ fill: "currentColor", opacity: 0.06 }}
+                />
+
+                {/* Receivable stack — exec at bottom, pending on top */}
+                <Bar dataKey="execReceivable" stackId="rec"
+                  fill="url(#jsExecRec)" stroke={RECEIVE} strokeWidth={1} maxBarSize={40}
+                  radius={mode === "all" ? [0, 0, 0, 0] : [3, 3, 0, 0]}>
+                  <LabelList content={execLabel} />
+                </Bar>
+                <Bar dataKey="pendReceivable" stackId="rec"
+                  fill="url(#jsPendRec)" stroke={RECEIVE_PEND} strokeWidth={1} maxBarSize={40}
+                  radius={[3, 3, 0, 0]}>
+                  <LabelList content={allLabel} />
+                </Bar>
+
+                {/* Payable stack — exec at bottom, pending on top */}
+                <Bar dataKey="execPayable" stackId="pay"
+                  fill="url(#jsExecPay)" stroke={PAY} strokeWidth={1} maxBarSize={40}
+                  radius={mode === "all" ? [0, 0, 0, 0] : [3, 3, 0, 0]} />
+                <Bar dataKey="pendPayable" stackId="pay"
+                  fill="url(#jsPendPay)" stroke={PAY_PEND} strokeWidth={1} maxBarSize={40}
+                  radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>
