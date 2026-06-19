@@ -342,9 +342,12 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
               <>
                 <span className="h-3 w-px bg-border/60" />
                 <span className="flex items-center gap-1.5 font-semibold tabular-nums" style={{ color: profitTotals.color }}>
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: profitTotals.color }} />
+                  <span className="flex items-center gap-0.5">
+                    <span className="h-2 w-2 rounded-full bg-primary" />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "#f59e0b" }} />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                  </span>
                   Profit {fmtShort(profitTotals.profit)}
-                  <span className="opacity-70">({profitTotals.pct.toFixed(0)}%)</span>
                 </span>
               </>
             )}
@@ -419,22 +422,22 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
                 {/* Receivable stack — exec at bottom, pending on top */}
                 <Bar dataKey="execReceivable" stackId="rec"
                   fill="url(#jsExecRec)" stroke={RECEIVE} strokeWidth={1} maxBarSize={40}
-                  radius={mode === "all" ? [0, 0, 0, 0] : [3, 3, 0, 0]}>
+                  radius={[3, 3, 3, 3]}>
                   <LabelList content={execLabel} />
                 </Bar>
                 <Bar dataKey="pendReceivable" stackId="rec"
                   fill="url(#jsPendRec)" stroke={RECEIVE_PEND} strokeWidth={1} maxBarSize={40}
-                  radius={[3, 3, 0, 0]}>
+                  radius={[3, 3, 3, 3]}>
                   <LabelList content={allLabel} />
                 </Bar>
 
                 {/* Payable stack — exec at bottom, pending on top */}
                 <Bar dataKey="execPayable" stackId="pay"
                   fill="url(#jsExecPay)" stroke={PAY} strokeWidth={1} maxBarSize={40}
-                  radius={mode === "all" ? [0, 0, 0, 0] : [3, 3, 0, 0]} />
+                  radius={[3, 3, 3, 3]} />
                 <Bar dataKey="pendPayable" stackId="pay"
                   fill="url(#jsPendPay)" stroke={PAY_PEND} strokeWidth={1} maxBarSize={40}
-                  radius={[3, 3, 0, 0]} />
+                  radius={[3, 3, 3, 3]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
