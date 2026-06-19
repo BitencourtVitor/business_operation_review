@@ -175,40 +175,39 @@ function XTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: s
 
 // ── Margin labels ─────────────────────────────────────────────────────────────
 
-// Label on the execReceivable bar — renders only in "executed" mode.
-function makeExecLabel(data: Row[], show: boolean, mode: Mode) {
-  return function ExecLabel(props: any) {
-    if (!show || mode !== "executed") return <g />
-    const { x, y, width, index } = props
+// Label always on execReceivable (always has height when customer has income).
+// In "all" mode the pending bar may be zero-height so Recharts skips its LabelList;
+// instead we compute the pending bar's pixel height from the exec bar's scale ratio
+// and offset y upward to land above the full stack.
+function makeMarginLabel(data: Row[], show: boolean, mode: Mode) {
+  return function MarginLabel(props: any) {
+    if (!show || mode === "pending") return <g />
+    const { x, y, width, height, index } = props
     const row = data[index]
-    if (!row?.execReceivable) return <g />
-    const margin = ((row.execReceivable - row.execPayable) / row.execReceivable) * 100
-    const color = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
-    return (
-      <g>
-        <text x={x + width + 2} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
-          style={{ fill: color, stroke: "var(--background)", strokeWidth: 3, paintOrder: "stroke" }}>
-          {margin.toFixed(0)}%
-        </text>
-      </g>
-    )
-  }
-}
+    if (!row) return <g />
 
-// Label on the pendReceivable bar (top of stack in "all") — renders only in "all" mode.
-function makeAllLabel(data: Row[], show: boolean, mode: Mode) {
-  return function AllLabel(props: any) {
-    if (!show || mode !== "all") return <g />
-    const { x, y, width, index } = props
-    const row = data[index]
-    const totalRec = row ? row.execReceivable + row.pendReceivable : 0
-    const totalPay = row ? row.execPayable    + row.pendPayable    : 0
-    if (!totalRec) return <g />
-    const margin = ((totalRec - totalPay) / totalRec) * 100
-    const color = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
+    let rec: number, pay: number, labelY: number
+
+    if (mode === "executed") {
+      rec    = row.execReceivable
+      pay    = row.execPayable
+      labelY = y - 5
+    } else {
+      // "all" mode: offset y by pend bar height (derived from exec scale)
+      const pendH = row.execReceivable > 0
+        ? (row.pendReceivable / row.execReceivable) * height
+        : 0
+      rec    = row.execReceivable + row.pendReceivable
+      pay    = row.execPayable    + row.pendPayable
+      labelY = y - pendH - 5
+    }
+
+    if (!rec) return <g />
+    const margin = ((rec - pay) / rec) * 100
+    const color  = margin >= 30 ? "var(--primary)" : margin > 0 ? "#f59e0b" : "#ef4444"
     return (
       <g>
-        <text x={x + width + 2} y={y - 5} textAnchor="middle" fontSize={10} fontWeight={700}
+        <text x={x + width + 2} y={labelY} textAnchor="middle" fontSize={10} fontWeight={700}
           style={{ fill: color, stroke: "var(--background)", strokeWidth: 3, paintOrder: "stroke" }}>
           {margin.toFixed(0)}%
         </text>
@@ -281,8 +280,7 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
     pendPayable:    mode === "executed" ? 0 : r.pendPayable,
   })), [data, mode])
 
-  const execLabel = useMemo(() => makeExecLabel(data, showFinancialData, mode), [data, showFinancialData, mode])
-  const allLabel  = useMemo(() => makeAllLabel(data,  showFinancialData, mode), [data, showFinancialData, mode])
+  const marginLabel = useMemo(() => makeMarginLabel(data, showFinancialData, mode), [data, showFinancialData, mode])
 
   const profitTotals = useMemo(() => {
     let rec = 0, pay = 0
@@ -424,13 +422,11 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
                 <Bar dataKey="execReceivable" stackId="rec"
                   fill="url(#jsExecRec)" stroke={RECEIVE} strokeWidth={1} maxBarSize={40}
                   radius={[3, 3, 3, 3]}>
-                  <LabelList content={execLabel} />
+                  <LabelList content={marginLabel} />
                 </Bar>
                 <Bar dataKey="pendReceivable" stackId="rec"
                   fill="url(#jsPendRec)" stroke={RECEIVE_PEND} strokeWidth={1} maxBarSize={40}
-                  radius={[3, 3, 3, 3]}>
-                  <LabelList content={allLabel} />
-                </Bar>
+                  radius={[3, 3, 3, 3]} />
 
                 {/* Payable stack — exec at bottom, pending on top */}
                 <Bar dataKey="execPayable" stackId="pay"
