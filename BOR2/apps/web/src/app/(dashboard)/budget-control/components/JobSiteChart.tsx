@@ -44,8 +44,8 @@ function ChartTooltip({ active, payload, labels }: {
   const marginPct = r.receivable > 0 ? (profit / r.receivable) * 100 : 0
   const profitColor = marginPct >= 30 ? "var(--primary)" : marginPct > 0 ? "#f59e0b" : "#ef4444"
   return (
-    <div className="rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
-      <p className="mb-1.5 font-semibold">{r.name}</p>
+    <div className="w-max max-w-[220px] rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
+      <p className="mb-1.5 break-words font-semibold leading-snug">{r.name}</p>
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> {labels.receivable}
@@ -59,7 +59,7 @@ function ChartTooltip({ active, payload, labels }: {
         <span className="font-semibold tabular-nums" style={{ color: PAY }}>{fmt(r.payable)}</span>
       </div>
       <div className="my-1.5 border-t border-border/50" />
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
         <span className="text-muted-foreground">Profit</span>
         <span className="font-bold tabular-nums" style={{ color: profitColor }}>
           {fmt(profit)} <span className="font-semibold opacity-70">({marginPct.toFixed(0)}%)</span>
