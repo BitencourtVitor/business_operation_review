@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronLeft, ChevronRight, Download, Loader2, RefreshCw } from "lucide-react"
 import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ type DayResult = {
   isWeekend: boolean
   policy: { expectedStartMinutes: number; expectedEndMinutes: number; toleranceEarlyMinutes: number; toleranceLateMinutes: number }
   rows: EmployeeResultRow[]
+  violationsCount: number
   imageDataUrl?: string
 }
 
@@ -53,6 +55,7 @@ type WeekendResult = {
   label: string
   policy: { expectedStartMinutes: number; expectedEndMinutes: number; toleranceEarlyMinutes: number; toleranceLateMinutes: number }
   rows: WeekendEmployeeRow[]
+  violationsCount: number
   imageDataUrl?: string
 }
 
@@ -333,6 +336,7 @@ export default function AutoLogPage() {
     expectedStart: "08:00 AM", expectedEnd: "05:00 PM",
     toleranceEarlyMinutes: 0, toleranceLateMinutes: 0,
   })
+  const [violationsOnly, setViolationsOnly] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -411,10 +415,12 @@ export default function AutoLogPage() {
         if (idx >= 1 && idx <= 5) {
           const tolE = clampNumber(weekdayPolicy.toleranceEarlyMinutes, 0, 600)
           const tolL = clampNumber(weekdayPolicy.toleranceLateMinutes, 0, 600)
-          const rows = (byDate.get(dateIso) || [])
+          const allRows = (byDate.get(dateIso) || [])
             .map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < wdStart - tolE, late: e.exitMinutes > wdEnd + tolL }))
-            .filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: weekdayLabel(idx), isWeekend: false, policy: { expectedStartMinutes: wdStart, expectedEndMinutes: wdEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+            .sort((a, b) => a.name.localeCompare(b.name))
+          const violationsCount = allRows.filter(r => r.early || r.late).length
+          const rows = violationsOnly ? allRows.filter(r => r.early || r.late) : allRows
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: weekdayLabel(idx), isWeekend: false, policy: { expectedStartMinutes: wdStart, expectedEndMinutes: wdEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows, violationsCount }
           day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
@@ -425,20 +431,26 @@ export default function AutoLogPage() {
           const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
           if (hasSunday) {
             const mapRow = (dayLabel: string) => (e: EmployeeDayAggregate): WeekendEmployeeRow => ({ dayLabel, name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })
-            const rows = [...(byDate.get(dateIso) || []).map(mapRow("Saturday")).filter(r => r.early || r.late), ...(byDate.get(sundayIso) || []).map(mapRow("Sunday")).filter(r => r.early || r.late)].sort((a, b) => a.dayLabel === b.dayLabel ? a.name.localeCompare(b.name) : a.dayLabel.localeCompare(b.dayLabel))
-            const weekend: WeekendResult = { type: "weekend", dates: [dateIso, sundayIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+            const allRows = [...(byDate.get(dateIso) || []).map(mapRow("Saturday")), ...(byDate.get(sundayIso) || []).map(mapRow("Sunday"))].sort((a, b) => a.dayLabel === b.dayLabel ? a.name.localeCompare(b.name) : a.dayLabel.localeCompare(b.dayLabel))
+            const violationsCount = allRows.filter(r => r.early || r.late).length
+            const rows = violationsOnly ? allRows.filter(r => r.early || r.late) : allRows
+            const weekend: WeekendResult = { type: "weekend", dates: [dateIso, sundayIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows, violationsCount }
             weekend.imageDataUrl = renderWeekendToPngDataUrl(weekend); results.push(weekend); consumed.add(dateIso); consumed.add(sundayIso); continue
           }
-          const rows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          const allSatRows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).sort((a, b) => a.name.localeCompare(b.name))
+          const satViolationsCount = allSatRows.filter(r => r.early || r.late).length
+          const satRows = violationsOnly ? allSatRows.filter(r => r.early || r.late) : allSatRows
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows: satRows, violationsCount: satViolationsCount }
           day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
         if (idx === 0 && !consumed.has(dateIso)) {
           const tolE = clampNumber(weekendPolicy.toleranceEarlyMinutes, 0, 600)
           const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
-          const rows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          const allSunRows = (byDate.get(dateIso) || []).map(e => ({ name: e.name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolE, late: e.exitMinutes > weEnd + tolL })).sort((a, b) => a.name.localeCompare(b.name))
+          const sunViolationsCount = allSunRows.filter(r => r.early || r.late).length
+          const sunRows = violationsOnly ? allSunRows.filter(r => r.early || r.late) : allSunRows
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows: sunRows, violationsCount: sunViolationsCount }
           day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day)
         }
       }
@@ -583,6 +595,14 @@ export default function AutoLogPage() {
           </div>
 
           <div className="flex flex-col gap-2">
+            <label className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5">
+              <Checkbox
+                checked={violationsOnly}
+                onCheckedChange={v => setViolationsOnly(!!v)}
+                disabled={isProcessing}
+              />
+              <span className="text-xs font-medium leading-tight">Show violations only</span>
+            </label>
             <Button disabled={!canProcess} onClick={() => void process()} className="h-10 w-full gap-2">
               {isProcessing ? <><Loader2 className="h-4 w-4 animate-spin" />Processing…</> : <><RefreshCw className="h-4 w-4" />Run Auto-Log</>}
             </Button>
@@ -607,7 +627,7 @@ export default function AutoLogPage() {
             const isWeekend = d.type === "weekend"
             const key = isWeekend ? (d as WeekendResult).dates.join("&") : (d as DayResult).localDate
             const title = isWeekend ? `${(d as WeekendResult).dates[0]} & ${(d as WeekendResult).dates[1]} • Saturday & Sunday` : `${(d as DayResult).localDate} • ${(d as DayResult).weekdayLabel}`
-            const meta = `Out of range: ${d.rows.length} • Window: ${formatMinutesToTime(d.policy.expectedStartMinutes)}–${formatMinutesToTime(d.policy.expectedEndMinutes)} • Tolerance: -${d.policy.toleranceEarlyMinutes}/+${d.policy.toleranceLateMinutes} min`
+            const meta = `Out of range: ${d.violationsCount} • Window: ${formatMinutesToTime(d.policy.expectedStartMinutes)}–${formatMinutesToTime(d.policy.expectedEndMinutes)} • Tolerance: -${d.policy.toleranceEarlyMinutes}/+${d.policy.toleranceLateMinutes} min`
             const imgUrl = d.imageDataUrl
             return (
               <div key={key} className="rounded-xl border bg-card p-4">
