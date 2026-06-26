@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -95,11 +95,19 @@ proj AS (
 est AS (
     SELECT pk.pkey, SUM(e.total_amount) AS total
     FROM qb_estimates e JOIN proj_key pk ON pk.customer_id = e.customer_id
-    WHERE e.company=$1 AND e.customer_id<>'' %s
+    WHERE e.company=$1 AND e.customer_id<>''
     GROUP BY pk.pkey
 ),
+-- inv = invoiced FLOW (periodized by invoice date); ar = open AR balance (baseline,
+-- a current position so it is NOT periodized). $2/$3 = period window (full range = all).
 inv AS (
-    SELECT pk.pkey, SUM(i.total_amount) AS total, SUM(COALESCE(i.balance,0)) AS balance
+    SELECT pk.pkey, SUM(i.total_amount) AS total
+    FROM qb_invoices i JOIN proj_key pk ON pk.customer_id = i.customer_id
+    WHERE i.company=$1 AND i.customer_id<>'' AND i.txn_date >= $2 AND i.txn_date < $3
+    GROUP BY pk.pkey
+),
+ar AS (
+    SELECT pk.pkey, SUM(COALESCE(i.balance,0)) AS balance
     FROM qb_invoices i JOIN proj_key pk ON pk.customer_id = i.customer_id
     WHERE i.company=$1 AND i.customer_id<>''
     GROUP BY pk.pkey
@@ -107,14 +115,14 @@ inv AS (
 pay AS (
     SELECT pk.pkey, SUM(p.total_amount) AS total
     FROM qb_payments p JOIN proj_key pk ON pk.customer_id = p.customer_id
-    WHERE p.company=$1 AND p.customer_id<>''
+    WHERE p.company=$1 AND p.customer_id<>'' AND p.txn_date >= $2 AND p.txn_date < $3
     GROUP BY pk.pkey
 ),
 exp AS (
     SELECT pk.pkey, x.amount FROM (
-        SELECT customer_id,  amount FROM qb_bill_lines          WHERE company=$1
-        UNION ALL SELECT customer_id,  amount FROM qb_purchase_lines      WHERE company=$1
-        UNION ALL SELECT customer_id, -amount FROM qb_vendor_credit_lines WHERE company=$1
+        SELECT bl.customer_id,  bl.amount FROM qb_bill_lines bl          JOIN qb_bills b           ON b.id=bl.bill_id            AND b.company=$1  WHERE bl.company=$1  AND b.txn_date  >= $2 AND b.txn_date  < $3
+        UNION ALL SELECT pl.customer_id,  pl.amount FROM qb_purchase_lines pl       JOIN qb_purchases pu      ON pu.id=pl.purchase_id      AND pu.company=$1 WHERE pl.company=$1  AND pu.txn_date >= $2 AND pu.txn_date < $3
+        UNION ALL SELECT vcl.customer_id, -vcl.amount FROM qb_vendor_credit_lines vcl JOIN qb_vendor_credits vc ON vc.id=vcl.vendor_credit_id AND vc.company=$1 WHERE vcl.company=$1 AND vc.txn_date >= $2 AND vc.txn_date < $3
     ) x JOIN proj_key pk ON pk.customer_id = x.customer_id
     WHERE x.customer_id<>''
 ),
@@ -168,6 +176,8 @@ lab_bill_pay AS (
         ON bpl.txn_id   = b.external_id
        AND bpl.txn_type = 'Bill'
        AND bpl.company  = $1
+    JOIN qb_bill_payments bp ON bp.id = bpl.bill_payment_id AND bp.company=$1
+       AND bp.txn_date >= $2 AND bp.txn_date < $3
     GROUP BY bc.pkey, bc.bill_id, b.vendor_id, bc.proj_amt, b.total_amount
 ),
 -- Mirror of the modal: a contractor vendor's payment counts when the bill has
@@ -203,7 +213,7 @@ lab_billed AS (
     JOIN qb_bills b ON b.id = bl.bill_id AND b.company=$1
     JOIN proj_key pk ON pk.customer_id = bl.customer_id
     JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = b.vendor_id
-    WHERE bl.company=$1 AND bl.customer_id<>''
+    WHERE bl.company=$1 AND bl.customer_id<>'' AND b.txn_date >= $2 AND b.txn_date < $3
     GROUP BY pk.pkey
 ),
 -- Back charges (vendor credits) for contractor vendors; net out of billed & paid.
@@ -213,17 +223,18 @@ lab_bc AS (
     JOIN qb_vendor_credits vc ON vc.id = vcl.vendor_credit_id AND vc.company=$1
     JOIN proj_key pk ON pk.customer_id = vcl.customer_id
     JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = vc.vendor_id
-    WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>''
+    WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>'' AND vc.txn_date >= $2 AND vc.txn_date < $3
     GROUP BY pk.pkey
 )
 SELECT p.pkey, p.client, p.pname, p.customer_group,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
        COALESCE(op.total,0), COALESCE(pp.committed,0),
        COALESCE(lb.total,0) - COALESCE(lbc.total,0), COALESCE(pp.open_commit,0),
-       COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(i.balance,0)
+       COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(ar.balance,0)
 FROM proj p
 LEFT JOIN est          e  ON e.pkey  = p.pkey
 LEFT JOIN inv          i  ON i.pkey  = p.pkey
+LEFT JOIN ar           ar ON ar.pkey = p.pkey
 LEFT JOIN pay          pa ON pa.pkey = p.pkey
 LEFT JOIN cost         co ON co.pkey = p.pkey
 LEFT JOIN open_payable op ON op.pkey = p.pkey
@@ -248,16 +259,15 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	month := parseMonth(c.Query("month"))
 	statusFilter := c.Query("status")
 
-	yearFilter := ""
-	args := []any{company}
-	if hasYear {
-		yearFilter = " AND EXTRACT(YEAR FROM txn_date) = $2"
-		args = append(args, year)
-	}
+	// Only realized FLOWS are periodized (invoiced/received/paid/cost incurred);
+	// estimate, PO commitment and open balances stay the project's current totals.
+	start, end := periodRange(hasYear, year, month)
+	args := []any{company, start, end}
 
-	rows, err := h.db.Query(c.Context(), fmt.Sprintf(projectsQuery, yearFilter), args...)
+	rows, err := h.db.Query(c.Context(), projectsQuery, args...)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -1723,4 +1733,30 @@ func parseYear(s string) (int, bool, error) {
 		return 0, false, fiber.NewError(fiber.StatusBadRequest, "invalid year")
 	}
 	return y, true, nil
+}
+
+func parseMonth(s string) int {
+	if s == "" {
+		return 0
+	}
+	m, err := strconv.Atoi(s)
+	if err != nil || m < 1 || m > 12 {
+		return 0
+	}
+	return m
+}
+
+// periodRange returns the [start, end) date window the flow filters use. With no
+// year it returns a full range (0001 → 9999) so the query is identical to the
+// unfiltered/cumulative behavior. Year-only = that whole year; year+month = that month.
+func periodRange(hasYear bool, year, month int) (time.Time, time.Time) {
+	if !hasYear {
+		return time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC)
+	}
+	if month >= 1 && month <= 12 {
+		start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+		return start, start.AddDate(0, 1, 0)
+	}
+	start := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	return start, start.AddDate(1, 0, 0)
 }

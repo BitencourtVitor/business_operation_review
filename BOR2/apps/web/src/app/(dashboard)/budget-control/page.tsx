@@ -302,6 +302,61 @@ function ClientFilter({ clients, selected, setSelected }: {
   )
 }
 
+// ── Period (year / month) filter ────────────────────────────────────────────────
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+function PeriodFilter({ year, month, onChange }: {
+  year: number | null; month: number | null
+  onChange: (year: number | null, month: number | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [navYear, setNavYear] = useState(() => year ?? new Date().getFullYear())
+  const label = year == null ? "All time" : month == null ? `${year}` : `${MONTHS[month - 1]} ${year}`
+  return (
+    <Popover open={open} onOpenChange={o => { setOpen(o); if (o) setNavYear(year ?? new Date().getFullYear()) }}>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <CalendarClock className="h-3.5 w-3.5" /> {label}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-60 p-2">
+        <div className="mb-2 flex items-center justify-between">
+          <button onClick={() => setNavYear(y => y - 1)}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+          <span className="text-sm font-semibold tabular-nums">{navYear}</span>
+          <button onClick={() => setNavYear(y => y + 1)}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <button onClick={() => { onChange(navYear, null); setOpen(false) }}
+          className={cn("mb-1 w-full rounded px-2 py-1 text-left text-[11px] transition-colors",
+            year === navYear && month == null ? "bg-primary/15 text-primary" : "hover:bg-accent")}>
+          Full year {navYear}
+        </button>
+        <div className="grid grid-cols-3 gap-1">
+          {MONTHS.map((m, i) => {
+            const on = year === navYear && month === i + 1
+            return (
+              <button key={m} onClick={() => { onChange(navYear, i + 1); setOpen(false) }}
+                className={cn("rounded px-1 py-1 text-[11px] transition-colors", on ? "bg-primary text-primary-foreground" : "hover:bg-accent")}>
+                {m}
+              </button>
+            )
+          })}
+        </div>
+        <div className="mt-2 border-t border-border/40 pt-1.5">
+          <button onClick={() => { onChange(null, null); setOpen(false) }}
+            className="w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            All time
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function BudgetControlPage() {
@@ -331,8 +386,13 @@ function BudgetContent() {
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
   const [types,     setTypes]     = useState({ building: true, house: true })
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
+  const [period, setPeriod] = useState<{ year: number | null; month: number | null }>({ year: null, month: null })
 
-  const { data: projects, isLoading: projLoading } = useBudgetProjects({ company })
+  const { data: projects, isLoading: projLoading } = useBudgetProjects({
+    company,
+    year: period.year ?? undefined,
+    month: period.month ?? undefined,
+  })
   const { data: laborSummary } = useLaborSummary(company)
 
   const clientNames = useMemo(
@@ -377,7 +437,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients, period])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -407,6 +467,7 @@ function BudgetContent() {
         </div>
 
         <div className="flex items-center gap-2">
+          <PeriodFilter year={period.year} month={period.month} onChange={(y, m) => setPeriod({ year: y, month: m })} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           {canManage && (
             <Link href="/budget-control/manage"

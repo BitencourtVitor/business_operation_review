@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { budgetService, type BudgetStatus } from "@/services/budget.service"
 
-export function useBudgetProjects(params: { company: string; status?: BudgetStatus }) {
+export function useBudgetProjects(params: { company: string; status?: BudgetStatus; year?: number; month?: number }) {
   return useQuery({
-    queryKey: ["budget-projects", params.company, params.status ?? "all"],
+    queryKey: ["budget-projects", params.company, params.status ?? "all", params.year ?? 0, params.month ?? 0],
     queryFn: () => budgetService.getProjects(params),
     enabled: !!params.company,
   })
