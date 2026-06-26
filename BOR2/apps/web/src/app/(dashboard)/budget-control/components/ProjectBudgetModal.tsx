@@ -845,7 +845,9 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
 function HealthStrip({ data, variability, blur }: {
   data: BudgetProjectDetail; variability: number; blur: string
 }) {
-  const incomeProg = data.projected_receive > 0 ? (data.received / data.projected_receive) * 100 : 0
+  // Must mirror EXACTLY the Income and Cost container headline percentages:
+  // income = income_actual / projected_receive, cost = cost_total / cost_ceiling.
+  const incomeProg = data.projected_receive > 0 ? (data.income_actual / data.projected_receive) * 100 : 0
   const costProg = data.cost_ceiling > 0 ? (data.cost_total / data.cost_ceiling) * 100 : 0
   const delta = costProg - incomeProg
   const status = delta > variability ? "over" : delta < -variability ? "under" : "ok"
@@ -855,7 +857,7 @@ function HealthStrip({ data, variability, blur }: {
     under: { label: "Behind on spend", chip: "border-amber-500/40 text-amber-500" },
   }[status]
   return (
-    <div className="flex flex-col items-end gap-0.5" title={`Income received ${incomeProg.toFixed(0)}% · Budget spent ${costProg.toFixed(0)}% · gap ${delta >= 0 ? "+" : ""}${delta.toFixed(0)} pts · tolerance ±${variability}%`}>
+    <div className="flex flex-col items-end gap-0.5" title={`Income ${incomeProg.toFixed(0)}% of estimate · Cost ${costProg.toFixed(0)}% of budget · gap ${delta >= 0 ? "+" : ""}${delta.toFixed(0)} pts · tolerance ±${variability}%`}>
       <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Spend vs Income</span>
       <div className="flex items-center gap-1.5">
         <span className={cn("text-sm font-bold tabular-nums text-emerald-500", blur)}>{incomeProg.toFixed(0)}%</span>
