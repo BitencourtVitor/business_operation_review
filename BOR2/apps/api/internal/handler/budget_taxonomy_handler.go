@@ -447,6 +447,55 @@ func (h *BudgetTaxonomyHandler) SetVendorLimit(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
+// ── Budget settings (spend-vs-receive health band) ──────────────────────────
+
+type BudgetSettings struct {
+	Company        string  `json:"company"`
+	CostRatio      float64 `json:"cost_ratio"`
+	VariabilityPct float64 `json:"variability_pct"`
+}
+
+// GET /budget/settings?company=
+func (h *BudgetTaxonomyHandler) GetBudgetSettings(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	}
+	s := BudgetSettings{Company: company, CostRatio: 0.70, VariabilityPct: 5}
+	_ = h.db.QueryRow(c.Context(), `SELECT cost_ratio, variability_pct FROM qb_budget_settings WHERE company=$1`, company).Scan(&s.CostRatio, &s.VariabilityPct)
+	return c.JSON(fiber.Map{"data": s})
+}
+
+// PUT /budget/settings  body {company, variability_pct}
+func (h *BudgetTaxonomyHandler) SetBudgetSettings(c *fiber.Ctx) error {
+	var b struct {
+		Company        string  `json:"company"`
+		VariabilityPct float64 `json:"variability_pct"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
+	}
+	v := b.VariabilityPct
+	if v < 0 {
+		v = 0
+	}
+	if v > 100 {
+		v = 100
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO qb_budget_settings (company, variability_pct, updated_at)
+		VALUES ($1,$2,now())
+		ON CONFLICT (company) DO UPDATE SET variability_pct=EXCLUDED.variability_pct, updated_at=now()
+	`, b.Company, v)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
 // ── Payroll supervisor flag (per account payee, per project) ─────────────────
 
 // PUT /budget/payroll-supervisor  body {company, project_id, account_id, vendor_id, is_supervisor}

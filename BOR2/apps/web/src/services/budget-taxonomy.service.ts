@@ -96,4 +96,16 @@ export const budgetTaxonomyService = {
 
   setPayrollSupervisor: (body: { company: string; project_id: string; account_id: string; vendor_id: string; is_supervisor: boolean }) =>
     api.put(`/api/v1/budget/payroll-supervisor`, body, getToken()),
+
+  getSettings: (company: string) =>
+    api.get<BudgetSettings>(`/api/v1/budget/settings?company=${company}`, getToken()),
+
+  setSettings: (body: { company: string; variability_pct: number }) =>
+    api.put(`/api/v1/budget/settings`, body, getToken()),
+}
+
+export interface BudgetSettings {
+  company: string
+  cost_ratio: number
+  variability_pct: number
 }

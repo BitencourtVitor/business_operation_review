@@ -19,8 +19,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
-import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor } from "@/hooks/use-budget-taxonomy"
-import type { CostAccount, CostCategory, CostVendor } from "@/services/budget.service"
+import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings } from "@/hooks/use-budget-taxonomy"
+import type { CostAccount, CostCategory, CostVendor, BudgetProjectDetail } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -840,6 +840,41 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
   )
 }
 
+// ── Health strip: cost progress vs income progress within a tolerance band ─────
+
+function HealthStrip({ data, variability, blur }: {
+  data: BudgetProjectDetail; variability: number; blur: string
+}) {
+  const incomeProg = data.projected_receive > 0 ? (data.received / data.projected_receive) * 100 : 0
+  const costProg = data.cost_ceiling > 0 ? (data.cost_total / data.cost_ceiling) * 100 : 0
+  const delta = costProg - incomeProg
+  const status = delta > variability ? "over" : delta < -variability ? "under" : "ok"
+  const cfg = {
+    ok:    { label: "On track",        box: "border-emerald-500/30 bg-emerald-500/[0.05]", chip: "border-emerald-500/40 text-emerald-500" },
+    over:  { label: "Overspending",     box: "border-red-500/30 bg-red-500/[0.05]",         chip: "border-red-500/40 text-red-500" },
+    under: { label: "Behind on spend",  box: "border-amber-500/30 bg-amber-500/[0.05]",     chip: "border-amber-500/40 text-amber-500" },
+  }[status]
+  return (
+    <div className={cn("flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border p-3 lg:col-span-2", cfg.box)}>
+      <div className="flex items-center gap-2">
+        <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Income received</span>
+        <span className={cn("text-sm font-bold tabular-nums text-emerald-500", blur)}>{incomeProg.toFixed(0)}%</span>
+      </div>
+      <ChevronRight className="h-3 w-3 text-muted-foreground/30" />
+      <div className="flex items-center gap-2">
+        <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget spent</span>
+        <span className={cn("text-sm font-bold tabular-nums text-red-500", blur)}>{costProg.toFixed(0)}%</span>
+      </div>
+      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
+        <span className="tabular-nums">gap {delta >= 0 ? "+" : ""}{delta.toFixed(0)} pts</span>
+        <span className="text-muted-foreground/30">·</span>
+        <span className="tabular-nums">tolerance ±{variability}%</span>
+      </div>
+      <span className={cn("ml-auto rounded-full border px-2.5 py-1 text-[11px] font-bold", cfg.chip)}>{cfg.label}</span>
+    </div>
+  )
+}
+
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
 export function ProjectBudgetModal({ company, projectID, onClose }: {
@@ -858,6 +893,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
 
   const { data: allCats } = useCategories(data?.project_type)
   const categoryOptions = (allCats ?? []).map(c => ({ id: c.id, name: c.name, icon: c.icon }))
+  const { data: settings } = useBudgetSettings(company)
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
 
@@ -957,6 +993,8 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
             <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">No data found</div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
+
+              <HealthStrip data={data} variability={settings?.variability_pct ?? 5} blur={blur} />
 
               {/* ── Left col: Income + Cost stacked ────────────────────────── */}
               <div className="flex flex-col gap-4">
