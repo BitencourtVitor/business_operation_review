@@ -399,6 +399,7 @@ type PODetail struct {
 type CostVendor struct {
 	VendorID       string             `json:"vendor_id"`
 	VendorName     string             `json:"vendor_name"`
+	BudgetLimit    float64            `json:"budget_limit"` // per-sub budget (0 = none set)
 	Committed      float64            `json:"committed"`
 	Billed         float64            `json:"billed"`
 	Paid           float64            `json:"paid"`
@@ -477,7 +478,8 @@ type BudgetProjectDetail struct {
 	CostAccounts      []CostAccount `json:"cost_accounts"`
 
 	// Forward subcontractor commitment (Purchase Orders)
-	LaborCommitted float64 `json:"labor_committed"`
+	LaborCommitted float64 `json:"labor_committed"` // Σ PO committed — the "anchor" (what's been done in practice)
+	LaborBudget    float64 `json:"labor_budget"`    // Σ category budgets — the official Contractors budget
 	LaborBilled    float64 `json:"labor_billed"`
 	LaborOpen      float64 `json:"labor_open"`
 	LaborPaid      float64 `json:"labor_paid"`
@@ -673,9 +675,16 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 
 	d.CostCategories, _ = h.costCategoryTree(ctx, company, d.ProjectType, d.ProjectID, customerIDs, d.PurchaseOrders)
 
+	// Contractors budget = Σ category budgets (the official budget). Σ PO committed
+	// stays in LaborCommitted as the practical "anchor".
+	for _, cc := range d.CostCategories {
+		d.LaborBudget += cc.BudgetLimit
+	}
+
 	// Cost budget per account: manual ceiling stored per (company, project, account);
-	// the Contractors account is derived from total contracted (Σ PO committed) and locked.
-	applyAccountBudgets(d.CostAccounts, h.accountLimits(ctx, company, projectID), d.LaborCommitted)
+	// the Contractors account is derived from the Contractors budget (Σ category
+	// budgets) and locked — change it by editing the category budgets.
+	applyAccountBudgets(d.CostAccounts, h.accountLimits(ctx, company, projectID), d.LaborBudget)
 
 	return c.JSON(fiber.Map{"data": d})
 }
@@ -1084,7 +1093,59 @@ func (h *BudgetHandler) costCategoryTree(
 	ctx context.Context, company, projType, projectID string,
 	customerIDs []string, pos []PORow,
 ) ([]CostCategory, error) {
-	if len(pos) == 0 {
+	// ── Category catalog: every active category for this project type ─────────
+	type catDef struct {
+		id, name, icon string
+		sortOrder      int
+	}
+	catsByID := map[string]catDef{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT id::text, name, COALESCE(NULLIF(icon,''),'Tag'), sort_order
+			FROM budget_categories WHERE active = true AND project_type = $1
+		`, projType)
+		if err == nil {
+			for rows.Next() {
+				var cd catDef
+				rows.Scan(&cd.id, &cd.name, &cd.icon, &cd.sortOrder)
+				catsByID[cd.id] = cd
+			}
+			rows.Close()
+		}
+	}
+
+	// ── Effective category budget: per-project override (max_value) → category
+	//    default_max → 0. The INDEPENDENT category budget, decoupled from POs. ──
+	catLimits := map[string]float64{}
+	budgetedCats := map[string]bool{}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT bc.id::text,
+			       COALESCE(
+			           (SELECT max_value FROM budget_project_category_limits
+			            WHERE category_id = bc.id AND project_id = $2 AND company = $1),
+			           bc.default_max,
+			           0
+			       ) AS effective_limit
+			FROM budget_categories bc
+			WHERE bc.active = true AND bc.project_type = $3
+		`, company, projectID, projType)
+		if err == nil {
+			for rows.Next() {
+				var catID string
+				var limit float64
+				rows.Scan(&catID, &limit)
+				catLimits[catID] = limit
+				if limit > 0 {
+					budgetedCats[catID] = true
+				}
+			}
+			rows.Close()
+		}
+	}
+
+	// Nothing to show: no POs and no budgeted categories.
+	if len(pos) == 0 && len(budgetedCats) == 0 {
 		return []CostCategory{}, nil
 	}
 
@@ -1181,54 +1242,56 @@ func (h *BudgetHandler) costCategoryTree(
 		}
 	}
 
-	// ── 4. Vendor → category mapping ─────────────────────────────────────────
-	type catDef struct {
-		id, name, icon string
-		sortOrder      int
-	}
-	vendorCat := map[string]catDef{}
-	catsByID := map[string]catDef{}
+	// ── 4. Vendor → category: per-project override wins over the global map. ──
+	vendorCat := map[string]string{} // vendor_id → category_id
 	{
 		rows, err := h.db.Query(ctx, `
-			SELECT bvc.vendor_id, bc.id::text, bc.name, COALESCE(NULLIF(bc.icon,''),'Tag'), bc.sort_order
+			SELECT bvc.vendor_id, bvc.category_id::text
 			FROM budget_vendor_categories bvc
 			JOIN budget_categories bc ON bc.id = bvc.category_id AND bc.active = true
 			WHERE bvc.company = $1 AND bvc.project_type = $2
 		`, company, projType)
 		if err == nil {
 			for rows.Next() {
-				var vendorID, catID, catName, icon string
-				var sortOrder int
-				rows.Scan(&vendorID, &catID, &catName, &icon, &sortOrder)
-				cd := catDef{catID, catName, icon, sortOrder}
-				vendorCat[vendorID] = cd
-				catsByID[catID] = cd
+				var vid, cid string
+				rows.Scan(&vid, &cid)
+				vendorCat[vid] = cid
+			}
+			rows.Close()
+		}
+	}
+	{
+		rows, err := h.db.Query(ctx, `
+			SELECT pvc.vendor_id, pvc.category_id::text
+			FROM budget_project_vendor_categories pvc
+			JOIN budget_categories bc ON bc.id = pvc.category_id AND bc.active = true
+			WHERE pvc.company = $1 AND pvc.project_id = $2
+		`, company, projectID)
+		if err == nil {
+			for rows.Next() {
+				var vid, cid string
+				rows.Scan(&vid, &cid)
+				vendorCat[vid] = cid // override
 			}
 			rows.Close()
 		}
 	}
 
-	// ── 5. Category budget limits (project override → default) ────────────────
-	catLimits := map[string]float64{}
+	// ── 5. Per-sub budget: (category_id, vendor_id) → amount. ─────────────────
+	type subKey struct{ catID, vendorID string }
+	vendorLimits := map[subKey]float64{}
 	{
 		rows, err := h.db.Query(ctx, `
-			SELECT bc.id::text,
-			       COALESCE(
-			           (SELECT amount FROM budget_project_category_limits
-			            WHERE category_id = bc.id AND project_id = $3 AND company = $1),
-			           (SELECT amount FROM budget_category_limits
-			            WHERE category_id = bc.id AND project_type = $2),
-			           0
-			       ) AS effective_limit
-			FROM budget_categories bc
-			WHERE bc.active = true
-		`, company, projType, projectID)
+			SELECT category_id::text, vendor_id, amount
+			FROM budget_project_vendor_limits
+			WHERE company = $1 AND project_id = $2
+		`, company, projectID)
 		if err == nil {
 			for rows.Next() {
-				var catID string
-				var limit float64
-				rows.Scan(&catID, &limit)
-				catLimits[catID] = limit
+				var cid, vid string
+				var amt float64
+				rows.Scan(&cid, &vid, &amt)
+				vendorLimits[subKey{cid, vid}] = amt
 			}
 			rows.Close()
 		}
@@ -1249,8 +1312,7 @@ func (h *BudgetHandler) costCategoryTree(
 			vid = "__" + po.VendorName
 		}
 		if _, ok := vendorMap[vid]; !ok {
-			cat := vendorCat[vid]
-			vendorMap[vid] = &vendorAgg{id: vid, name: po.VendorName, catID: cat.id}
+			vendorMap[vid] = &vendorAgg{id: vid, name: po.VendorName, catID: vendorCat[po.VendorID]}
 			vendorOrder = append(vendorOrder, vid)
 		}
 		vd := vendorMap[vid]
@@ -1275,17 +1337,31 @@ func (h *BudgetHandler) costCategoryTree(
 	catMap := map[string]*catGroup{}
 	var uncatVendors []*vendorAgg
 
+	ensureCat := func(catID string) {
+		if _, ok := catMap[catID]; ok {
+			return
+		}
+		def := catsByID[catID]
+		if def.id == "" {
+			def.id = catID
+		}
+		catMap[catID] = &catGroup{def: def}
+		catOrderSlice = append(catOrderSlice, catID)
+	}
+
 	for _, vid := range vendorOrder {
 		vd := vendorMap[vid]
 		if vd.catID == "" {
 			uncatVendors = append(uncatVendors, vd)
 			continue
 		}
-		if _, ok := catMap[vd.catID]; !ok {
-			catMap[vd.catID] = &catGroup{def: catsByID[vd.catID]}
-			catOrderSlice = append(catOrderSlice, vd.catID)
-		}
+		ensureCat(vd.catID)
 		catMap[vd.catID].vendors = append(catMap[vd.catID].vendors, vd)
+	}
+
+	// Surface budgeted categories with no PO/spend so they can be seen and edited.
+	for catID := range budgetedCats {
+		ensureCat(catID)
 	}
 
 	sort.Slice(catOrderSlice, func(i, j int) bool {
@@ -1342,6 +1418,7 @@ func (h *BudgetHandler) costCategoryTree(
 		return CostVendor{
 			VendorID:       vd.id,
 			VendorName:     vd.name,
+			BudgetLimit:    vendorLimits[subKey{vd.catID, vd.id}],
 			Committed:      vd.committed,
 			Billed:         vd.billed,
 			Paid:           paidTotal,

@@ -58,4 +58,7 @@ export const qbtimeMappingService = {
 
   skip: (body: { company: string; address_key: string }) =>
     api.post(`/api/v1/budget/qbtime-mapping/skip`, body, getToken()),
+
+  unlink: (body: { company: string; address_key: string }) =>
+    api.post(`/api/v1/budget/qbtime-mapping/unlink`, body, getToken()),
 }

@@ -13,8 +13,9 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
-  CalendarClock,
+  CalendarClock, Users, Check,
 } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetProjects, useLaborSummary } from "@/hooks/use-budget"
@@ -251,6 +252,56 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
   )
 }
 
+// ── Client multi-select ────────────────────────────────────────────────────────
+
+function ClientFilter({ clients, selected, setSelected }: {
+  clients: string[]; selected: Set<string>; setSelected: (s: Set<string>) => void
+}) {
+  const [q, setQ] = useState("")
+  const filtered = q ? clients.filter(c => c.toLowerCase().includes(q.toLowerCase())) : clients
+  const toggle = (c: string) => {
+    const next = new Set(selected)
+    next.has(c) ? next.delete(c) : next.add(c)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Users className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All clients" : `${selected.size} client${selected.size > 1 ? "s" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <div className="relative mb-2">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter clients…"
+            className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        </div>
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex max-h-64 flex-col overflow-y-auto no-scrollbar">
+          {filtered.map(c => {
+            const on = selected.has(c)
+            return (
+              <button key={c} onClick={() => toggle(c)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate" title={c}>{c}</span>
+              </button>
+            )
+          })}
+          {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No clients.</p>}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function BudgetControlPage() {
@@ -279,11 +330,21 @@ function BudgetContent() {
   const [page,      setPage]      = useState(1)
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
   const [types,     setTypes]     = useState({ building: true, house: true })
+  const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
 
   const { data: projects, isLoading: projLoading } = useBudgetProjects({ company })
   const { data: laborSummary } = useLaborSummary(company)
 
-  const rows = useMemo(() => (projects ?? [])
+  const clientNames = useMemo(
+    () => [...new Set((projects ?? []).map(p => p.client_name).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [projects])
+
+  // Client multi-select narrows BOTH the chart and the project list.
+  const clientFiltered = useMemo(
+    () => (projects ?? []).filter(p => selectedClients.size === 0 || selectedClients.has(p.client_name)),
+    [projects, selectedClients])
+
+  const rows = useMemo(() => clientFiltered
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
     .filter(p => {
       if (p.project_type === "building" && !types.building) return false
@@ -306,7 +367,7 @@ function BudgetContent() {
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * ((a[sortField] as number) - (b[sortField] as number))
     }),
-  [projects, search, sortField, sortAsc, alerts, types])
+  [clientFiltered, search, sortField, sortAsc, alerts, types])
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
@@ -316,7 +377,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -345,17 +406,20 @@ function BudgetContent() {
           </p>
         </div>
 
-        {canManage && (
-          <Link href="/budget-control/manage"
-            className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-            <Settings className="h-3.5 w-3.5" /> Manage
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
+          {canManage && (
+            <Link href="/budget-control/manage"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+              <Settings className="h-3.5 w-3.5" /> Manage
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* ── Receivable / payable by customer chart ───────────────────────── */}
       <div className="h-[300px] shrink-0">
-        <JobSiteChart projects={projects ?? []} />
+        <JobSiteChart projects={clientFiltered} />
       </div>
 
       {/* ── Projects container ────────────────────────────────────────────── */}

@@ -500,6 +500,10 @@ func main() {
 	budget.Put("/vendor-categories",     budgetTaxonomyHandler.SetVendorMapping)
 	budget.Get("/project-limits",        budgetTaxonomyHandler.ListProjectLimits)
 	budget.Put("/project-limits",        budgetTaxonomyHandler.SetProjectLimit)
+	budget.Get("/project-vendor-categories", budgetTaxonomyHandler.ListProjectVendorCategories)
+	budget.Put("/project-vendor-categories", budgetTaxonomyHandler.SetProjectVendorCategory)
+	budget.Get("/vendor-limits",         budgetTaxonomyHandler.ListVendorLimits)
+	budget.Put("/vendor-limits",         budgetTaxonomyHandler.SetVendorLimit)
 	budget.Get("/account-limits",        budgetTaxonomyHandler.ListAccountLimits)
 	budget.Put("/account-limits",        budgetTaxonomyHandler.SetAccountLimit)
 	budget.Get("/projects/account-history", budgetHandler.AccountPaidHistory)
@@ -513,6 +517,7 @@ func main() {
 	budget.Get("/qbtime-mapping/customers", qbtimeMappingHandler.Customers)
 	budget.Post("/qbtime-mapping/accept",   qbtimeMappingHandler.Accept)
 	budget.Post("/qbtime-mapping/skip",     qbtimeMappingHandler.Skip)
+	budget.Post("/qbtime-mapping/unlink",   qbtimeMappingHandler.Unlink)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")
