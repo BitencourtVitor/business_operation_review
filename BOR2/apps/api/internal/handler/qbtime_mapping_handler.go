@@ -595,3 +595,24 @@ func (h *QBTimeMappingHandler) Skip(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{"ok": true})
 }
+
+// POST /budget/qbtime-mapping/unlink  body {company, address_key}
+// Removes an address↔project link so its hours stop accruing to the project.
+func (h *QBTimeMappingHandler) Unlink(c *fiber.Ctx) error {
+	var b struct {
+		Company    string `json:"company"`
+		AddressKey string `json:"address_key"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.AddressKey == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and address_key are required")
+	}
+	if _, err := h.db.Exec(c.Context(),
+		`DELETE FROM qbtime_project_mappings WHERE company=$1 AND address_key=$2`,
+		b.Company, b.AddressKey); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}

@@ -90,6 +90,7 @@ export interface PODetail {
 export interface CostVendor {
   vendor_id: string
   vendor_name: string
+  budget_limit: number
   committed: number
   billed: number
   paid: number
@@ -139,6 +140,7 @@ export interface BudgetProjectDetail {
 
   // Forward subcontractor commitment (POs)
   labor_committed: number
+  labor_budget: number
   labor_billed: number
   labor_open: number
   labor_paid: number

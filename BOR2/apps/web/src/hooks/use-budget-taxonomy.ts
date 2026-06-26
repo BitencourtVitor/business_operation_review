@@ -49,3 +49,29 @@ export function useSetVendorMapping() {
     onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-vendor-mappings", v.company, v.project_type] }),
   })
 }
+
+// ── Per-project budget editing (modal) — invalidates the project detail ───────
+
+export function useSetCategoryBudget() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setProjectLimit,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}
+
+export function useSetVendorBudget() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setVendorLimit,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}
+
+export function useSetProjectVendorCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setProjectVendorCategory,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}

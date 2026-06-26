@@ -315,6 +315,138 @@ func (h *BudgetTaxonomyHandler) SetProjectLimit(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
+// ── Per-project vendor → category override ───────────────────────────────────
+// Overrides the global budget_vendor_categories for one project ("cada sub pode
+// ir pra outra categoria em determinada obra"). No row → use the global mapping.
+
+type ProjectVendorCategory struct {
+	VendorID   string `json:"vendor_id"`
+	CategoryID string `json:"category_id"`
+}
+
+// GET /budget/project-vendor-categories?company=&project_id=
+func (h *BudgetTaxonomyHandler) ListProjectVendorCategories(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT vendor_id, category_id::text FROM budget_project_vendor_categories
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []ProjectVendorCategory{}
+	for rows.Next() {
+		var m ProjectVendorCategory
+		rows.Scan(&m.VendorID, &m.CategoryID)
+		out = append(out, m)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// PUT /budget/project-vendor-categories  body {company, project_id, vendor_id, category_id|null}
+// category_id null/empty deletes the override (revert to the global mapping).
+func (h *BudgetTaxonomyHandler) SetProjectVendorCategory(c *fiber.Ctx) error {
+	var b struct {
+		Company    string  `json:"company"`
+		ProjectID  string  `json:"project_id"`
+		VendorID   string  `json:"vendor_id"`
+		CategoryID *string `json:"category_id"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" || b.VendorID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, vendor_id required")
+	}
+	if b.CategoryID == nil || *b.CategoryID == "" {
+		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_project_vendor_categories WHERE company=$1 AND project_id=$2 AND vendor_id=$3`, b.Company, b.ProjectID, b.VendorID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(fiber.Map{"ok": true})
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_project_vendor_categories (company, project_id, vendor_id, category_id, updated_at)
+		VALUES ($1,$2,$3,$4,now())
+		ON CONFLICT (company, project_id, vendor_id) DO UPDATE SET category_id=EXCLUDED.category_id, updated_at=now()
+	`, b.Company, b.ProjectID, b.VendorID, *b.CategoryID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+// ── Per-sub (vendor within a category) budget ────────────────────────────────
+
+type VendorLimit struct {
+	CategoryID string  `json:"category_id"`
+	VendorID   string  `json:"vendor_id"`
+	Amount     float64 `json:"amount"`
+}
+
+// GET /budget/vendor-limits?company=&project_id=
+func (h *BudgetTaxonomyHandler) ListVendorLimits(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT category_id::text, vendor_id, amount FROM budget_project_vendor_limits
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []VendorLimit{}
+	for rows.Next() {
+		var l VendorLimit
+		rows.Scan(&l.CategoryID, &l.VendorID, &l.Amount)
+		out = append(out, l)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// PUT /budget/vendor-limits  body {company, project_id, category_id, vendor_id, amount}
+// amount <= 0 deletes the sub budget.
+func (h *BudgetTaxonomyHandler) SetVendorLimit(c *fiber.Ctx) error {
+	var b struct {
+		Company    string  `json:"company"`
+		ProjectID  string  `json:"project_id"`
+		CategoryID string  `json:"category_id"`
+		VendorID   string  `json:"vendor_id"`
+		Amount     float64 `json:"amount"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" || b.CategoryID == "" || b.VendorID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, category_id, vendor_id required")
+	}
+	if b.Amount <= 0 {
+		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_project_vendor_limits WHERE company=$1 AND project_id=$2 AND category_id=$3 AND vendor_id=$4`, b.Company, b.ProjectID, b.CategoryID, b.VendorID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(fiber.Map{"ok": true})
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_project_vendor_limits (company, project_id, category_id, vendor_id, amount, updated_at)
+		VALUES ($1,$2,$3,$4,$5,now())
+		ON CONFLICT (company, project_id, category_id, vendor_id) DO UPDATE SET amount=EXCLUDED.amount, updated_at=now()
+	`, b.Company, b.ProjectID, b.CategoryID, b.VendorID, b.Amount)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
 // ── Per-account cost budget ("cost budget mapping") ──────────────────────────
 
 type AccountLimit struct {

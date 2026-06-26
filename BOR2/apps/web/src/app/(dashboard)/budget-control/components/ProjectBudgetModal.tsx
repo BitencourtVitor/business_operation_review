@@ -5,8 +5,11 @@ import {
   X, ChevronRight, Loader2, Building2, Home,
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
-  CalendarClock, Users, Hourglass, Forklift, MapPin,
+  CalendarClock, Users, Hourglass, Forklift, MapPin, ArrowRightLeft,
+  Pencil, Plus, Search,
 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { qbtimeMappingService } from "@/services/qbtime-mapping.service"
 import {
   LineChart as RLineChart, Line as RLine, XAxis, YAxis, CartesianGrid,
   ReferenceLine, ResponsiveContainer, Tooltip as RTooltip,
@@ -16,7 +19,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
-import type { CostAccount, CostCategory, CostVendor, PODetail, VendorBackCharge } from "@/services/budget.service"
+import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory } from "@/hooks/use-budget-taxonomy"
+import type { CostAccount, CostCategory, CostVendor } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -277,251 +281,175 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
   )
 }
 
-// ── Back charge row (inside vendor expansion) ─────────────────────────────────
+// ── Move-to-category popover (per-project subcontractor reassignment) ─────────
 
-function BackChargeRow({ backCharges, blur }: { backCharges: VendorBackCharge[]; blur: string }) {
+function MoveCategoryPopover({ currentCatId, categories, onMove }: {
+  currentCatId: string
+  categories: { id: string; name: string; icon: string }[]
+  onMove: (target: string | null) => void
+}) {
   const [open, setOpen] = useState(false)
-  const total = backCharges.reduce((s, bc) => s + bc.amount, 0)
-
+  const targets = categories.filter(c => c.id !== currentCatId)
   return (
-    <div className="border-t border-border/10 first:border-t-0">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="flex w-full items-center gap-2 py-1 pr-4 text-left pl-[68px] cursor-pointer hover:bg-muted/10"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        onClick={e => e.stopPropagation()}
+        title="Move to another category for this project"
+        className="flex h-5 shrink-0 items-center justify-center rounded border border-input bg-transparent px-1 text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30"
       >
-        <ChevronRight className={cn("h-2 w-2 shrink-0 -ml-4 text-muted-foreground/40 transition-transform", open && "rotate-90")} />
-        <div className="flex flex-1 min-w-0 items-center gap-1">
-          <span className="shrink-0 text-[10px] text-muted-foreground/70">Back charges</span>
-        </div>
-        <div className="flex shrink-0 items-center">
-          <div className="w-20 shrink-0" />
-          <div className="w-20 shrink-0" />
-          <div className="w-20 text-right">
-            <span className={cn("text-[10px] font-semibold tabular-nums text-red-500", blur)}>
-              -{fmt(total)}
-            </span>
-          </div>
-          <div className="w-20 shrink-0" />
-        </div>
-        <div className="w-[22px] shrink-0" />
-      </button>
-
-      {open && (
-        <div className="mb-1.5 ml-[68px] border-l border-border/20 pl-3 pr-4">
-          {backCharges.map((bc, i) => (
-            <div key={i} className="flex items-center gap-2 py-0.5 border-t border-border/10 first:border-t-0">
-              <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500/70" />
-              <span className="w-14 shrink-0 text-[9px] tabular-nums text-muted-foreground/80">{fmtDate(bc.date)}</span>
-              <span className="flex-1 min-w-0 truncate text-[9px] text-muted-foreground/75">
-                {bc.ref_number || "—"}
-              </span>
-              <div className="flex shrink-0 items-center">
-                <div className="w-20 shrink-0" />
-                <div className="w-20 shrink-0" />
-                <div className="w-20 text-right">
-                  <span className={cn("text-[9px] font-semibold tabular-nums text-red-500", blur)}>
-                    -{fmt(bc.amount)}
-                  </span>
-                </div>
-                <div className="w-20 shrink-0" />
-              </div>
-              <div className="w-[22px] shrink-0" />
-            </div>
+        <ArrowRightLeft className="h-2.5 w-2.5" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-52 p-1" onClick={e => e.stopPropagation()}>
+        <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Move to</p>
+        <div className="flex max-h-52 flex-col overflow-y-auto no-scrollbar">
+          {targets.map(c => (
+            <button key={c.id} onClick={() => { onMove(c.id); setOpen(false) }}
+              className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-accent">
+              <CategoryIcon name={c.icon} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              {c.name}
+            </button>
           ))}
+          {currentCatId && (
+            <>
+              <div className="my-1 h-px bg-border/60" />
+              <button onClick={() => { onMove(null); setOpen(false) }}
+                className="rounded px-2 py-1.5 text-left text-[12px] text-muted-foreground transition-colors hover:bg-accent">
+                Reset to default mapping
+              </button>
+            </>
+          )}
         </div>
-      )}
-    </div>
-  )
-}
-
-// ── PO row (inside vendor expansion) ─────────────────────────────────────────
-
-function SubPORow({ po, blur }: { po: PODetail; blur: string }) {
-  const [open, setOpen] = useState(false)
-  const outstanding = Math.max(po.billed - po.paid, 0)
-  const settled = po.committed > 0 && po.paid >= po.committed
-
-  return (
-    <div className="border-t border-border/10 first:border-t-0">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className={cn(
-          "flex w-full items-center gap-2 py-1 pr-4 text-left pl-[68px] cursor-pointer hover:bg-muted/10",
-          settled && "text-muted-foreground"
-        )}
-      >
-        <ChevronRight className={cn("h-2 w-2 shrink-0 -ml-4 text-muted-foreground/40 transition-transform", open && "rotate-90")} />
-        <div className="flex flex-1 min-w-0 items-center gap-1">
-          <span className="shrink-0 text-[10px] text-muted-foreground/70">Purchase Order</span>
-          <span className={cn("truncate text-[10px] font-medium", settled ? "text-muted-foreground" : "text-foreground")}>
-            {po.doc_number || po.external_id}
-          </span>
-          {settled && <Check className="h-2.5 w-2.5 shrink-0 text-yellow-500/70" />}
-        </div>
-        <span className="mr-2 shrink-0 text-[9px] tabular-nums text-muted-foreground/75">{fmtDate(po.txn_date)}</span>
-        <div className="flex shrink-0 items-center">
-          <ValueCell value={po.committed} blur={blur} sm />
-          <ValueCell value={po.billed} blur={blur} sm />
-          <ValueCell value={po.paid} color={settled ? undefined : po.paid > 0 ? "#22c55e" : undefined} blur={blur} sm />
-          <ValueCell value={outstanding} color={settled ? undefined : outstanding > 0 ? "#f97316" : undefined} blur={blur} sm />
-        </div>
-        <div className="w-[22px] shrink-0" />
-      </button>
-
-      {open && (
-        <div className="mb-1.5 ml-[68px] border-l border-border/20 pl-3 pr-4">
-          {po.payments.length === 0 ? (
-            <div className="py-1.5 text-[10px] text-muted-foreground/60 italic">No payments recorded yet.</div>
-          ) : po.payments.map((p, i) => (
-            <div key={i} className="flex items-center gap-2 py-0.5 border-t border-border/10 first:border-t-0">
-              <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/70" />
-              <span className="w-14 shrink-0 text-[9px] tabular-nums text-muted-foreground/80">{fmtDate(p.date)}</span>
-              <span className="flex-1 min-w-0 truncate text-[9px] text-muted-foreground/75">
-                {p.ref_number ? `Payment ${p.ref_number}` : "—"}
-              </span>
-              <div className="flex shrink-0 items-center">
-                <div className="w-20 shrink-0" />
-                <div className="w-20 shrink-0" />
-                <div className="w-20 text-right">
-                  <span className={cn("text-[9px] font-semibold tabular-nums text-emerald-500", blur)}>{fmt(p.amount)}</span>
-                </div>
-                <div className="w-20 shrink-0" />
-              </div>
-              <div className="w-[22px] shrink-0" />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
 // ── Vendor row ────────────────────────────────────────────────────────────────
 
-function VendorRow({ vendor, blur }: { vendor: CostVendor; blur: string }) {
-  const [open, setOpen] = useState(false)
-  const hasDetail = vendor.purchase_orders.length > 0 || (vendor.back_charges?.length ?? 0) > 0
+function VendorRow({ vendor, blur, editing, catId, company, projectID, categories }: {
+  vendor: CostVendor; blur: string; editing: boolean; catId: string
+  company: string; projectID: string
+  categories: { id: string; name: string; icon: string }[]
+}) {
+  const setVendorBudget = useSetVendorBudget()
+  const setMove = useSetProjectVendorCategory()
+  // Synthetic vendors (PO with no QB vendor) carry a "__name" id → can't be budgeted/moved.
+  const editable = !!vendor.vendor_id && !vendor.vendor_id.startsWith("__")
   const bcTotal = vendor.back_charges?.reduce((s, bc) => s + bc.amount, 0) ?? 0
   const netPaid = vendor.paid - bcTotal
   const netBilled = vendor.billed - bcTotal
   const outstanding = Math.max(netBilled - netPaid, 0)
   const isSettled = vendor.committed > 0 && vendor.paid >= vendor.committed
+  const over = vendor.budget_limit > 0 && vendor.committed > vendor.budget_limit
 
   return (
-    <div className="border-t border-border/10 first:border-t-0">
-      <button
-        onClick={() => hasDetail && setOpen(o => !o)}
-        className={cn(
-          "flex w-full items-center gap-2 py-1.5 pr-4 text-left pl-[52px]",
-          hasDetail ? "cursor-pointer hover:bg-muted/10" : "cursor-default",
-          isSettled && "text-muted-foreground"
+    <div className={cn("flex items-center gap-2 border-t border-border/10 py-1.5 pl-[52px] pr-4", isSettled && "text-muted-foreground")}>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <span className={cn("truncate text-[11px]", isSettled ? "text-muted-foreground" : "text-muted-foreground/80")} title={vendor.vendor_name}>{vendor.vendor_name || "—"}</span>
+        {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
+        {editing && editable && catId && (
+          <MoveCategoryPopover currentCatId={catId} categories={categories}
+            onMove={target => setMove.mutate({ company, project_id: projectID, vendor_id: vendor.vendor_id, category_id: target })} />
         )}
-      >
-        {hasDetail
-          ? <ChevronRight className={cn("h-2.5 w-2.5 shrink-0 -ml-4 text-muted-foreground/30 transition-transform", open && "rotate-90")} />
-          : <div className="h-2.5 w-2.5 shrink-0 -ml-4" />
-        }
-        <div className="flex flex-1 min-w-0 items-center gap-1">
-          <span className={cn("truncate text-[11px]", isSettled ? "text-muted-foreground" : "text-muted-foreground/80")}>{vendor.vendor_name || "—"}</span>
-          {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
-        </div>
-        <div className="flex shrink-0 items-center">
-          <ValueCell value={vendor.committed} blur={blur} sm />
-          <ValueCell value={netBilled} blur={blur} sm />
-          <ValueCell value={netPaid} color={isSettled ? undefined : "#22c55e"} blur={blur} sm />
-          <ValueCell value={outstanding} color={isSettled ? undefined : outstanding > 0 ? "#f97316" : undefined} blur={blur} sm />
-        </div>
-        <div className="w-[22px] shrink-0" />
-      </button>
-
-      {open && (
-        <div className="border-t border-border/20 bg-background/20 pb-1">
-          {(vendor.back_charges?.length ?? 0) > 0 && (
-            <BackChargeRow backCharges={vendor.back_charges} blur={blur} />
-          )}
-          {vendor.purchase_orders.map(po => (
-            <SubPORow key={po.external_id || po.doc_number} po={po} blur={blur} />
-          ))}
-        </div>
-      )}
+      </div>
+      <div className="flex shrink-0 items-center">
+        {editing && editable && catId ? (
+          <MoneyInput value={vendor.budget_limit} onCommit={v => setVendorBudget.mutate({ company, project_id: projectID, category_id: catId, vendor_id: vendor.vendor_id, amount: v })} />
+        ) : (
+          <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, over ? "text-amber-500" : vendor.budget_limit > 0 ? "text-foreground/70" : "text-muted-foreground/30")}>
+            {vendor.budget_limit > 0 ? fmt(vendor.budget_limit) : "—"}
+          </span>
+        )}
+        <ValueCell value={vendor.committed} blur={blur} sm />
+        <ValueCell value={netBilled} blur={blur} sm />
+        <ValueCell value={netPaid} color={isSettled ? undefined : "#22c55e"} blur={blur} sm />
+        <ValueCell value={outstanding} color={isSettled ? undefined : outstanding > 0 ? "#f97316" : undefined} blur={blur} sm />
+      </div>
     </div>
   )
 }
 
 // ── Category row ──────────────────────────────────────────────────────────────
 
-function CategoryRow({ cat, blur, isOpen, onToggle }: { cat: CostCategory; blur: string; isOpen: boolean; onToggle: () => void }) {
+function CategoryRow({ cat, blur, isOpen, onToggle, editing, company, projectID, categories }: {
+  cat: CostCategory; blur: string; isOpen: boolean; onToggle: () => void
+  editing: boolean; company: string; projectID: string
+  categories: { id: string; name: string; icon: string }[]
+}) {
+  const setCatBudget = useSetCategoryBudget()
   const isUncategorized = !cat.category_id
   const bcTotal = cat.vendors.reduce((s, v) => s + (v.back_charges?.reduce((s2, bc) => s2 + bc.amount, 0) ?? 0), 0)
   const netPaid = cat.paid - bcTotal
   const netBilled = cat.billed - bcTotal
   const outstanding = Math.max(netBilled - netPaid, 0)
+  const budget = cat.budget_limit
   const isSettled = cat.committed > 0 && cat.paid >= cat.committed
-  const isNoPO = cat.committed === 0
-  const isOverBudget = cat.budget_limit > 0 && cat.committed > cat.budget_limit
-  const billedOver = cat.committed > 0 && netBilled > cat.committed
+  const over = budget > 0 && cat.committed > budget
+  const subBudgetSum = cat.vendors.reduce((s, v) => s + (v.budget_limit || 0), 0)
 
-  const billedPct = cat.committed > 0 ? Math.min((netBilled / cat.committed) * 100, 100) : 0
-  const paidPct = cat.committed > 0 ? Math.min((netPaid / cat.committed) * 100, 100) : 0
+  // Donut/percentage now reflect budget fill: Σ PO committed vs the category budget.
+  const fillPct = budget > 0 ? Math.min((cat.committed / budget) * 100, 100) : 0
+  const paidPct = budget > 0 ? Math.min((netPaid / budget) * 100, 100) : 0
 
   return (
     <div className={cn("border-b border-border/30 last:border-b-0", isUncategorized && "opacity-60")}>
-      <button
-        onClick={onToggle}
-        className={cn("flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-muted/10", isSettled && "text-muted-foreground")}
-      >
-        {/* Icon */}
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted/30">
-          <CategoryIcon name={cat.icon} className="h-3 w-3 text-muted-foreground/70" />
-        </div>
+      <div className={cn("flex items-center gap-3 px-4 py-1.5 hover:bg-muted/10", isSettled && "text-muted-foreground")}>
+        <button onClick={onToggle} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted/30">
+            <CategoryIcon name={cat.icon} className="h-3 w-3 text-muted-foreground/70" />
+          </div>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5">
+            <span className={cn("min-w-0 truncate text-[11px] font-semibold", isSettled && "text-muted-foreground")}>{cat.category_name}</span>
+            {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
+            {over && <span className="shrink-0 rounded-full bg-amber-500/10 px-1.5 py-px text-[9px] font-semibold text-amber-500">over bdgt</span>}
+          </div>
+        </button>
 
-        {/* Name + badges */}
-        <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <span className={cn("min-w-0 truncate text-[11px] font-semibold", isSettled && "text-muted-foreground")}>{cat.category_name}</span>
-          {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
-          {isNoPO && <span className="shrink-0 rounded-full bg-muted/40 px-1.5 py-px text-[9px] font-medium text-muted-foreground/50">no PO</span>}
-          {!isNoPO && isOverBudget && <span className="shrink-0 rounded-full bg-amber-500/10 px-1.5 py-px text-[9px] font-semibold text-amber-500">over bdgt</span>}
-        </div>
-
-        {/* Donut + % label — fixed slot */}
-        <div className="flex w-20 shrink-0 items-center justify-end gap-1.5 pr-2">
-          {!isNoPO && (
+        {/* Donut + % vs budget */}
+        <div className="flex w-16 shrink-0 items-center justify-end gap-1.5">
+          {budget > 0 && (
             <>
-              <span className={cn("text-[9px] tabular-nums", !isSettled && "text-muted-foreground/60")}>
-                {Math.round(paidPct)}%
-              </span>
-              <MiniDonut paidPct={paidPct} billedPct={billedPct} />
+              <span className="text-[9px] tabular-nums text-muted-foreground/60">{Math.round(fillPct)}%</span>
+              <MiniDonut paidPct={paidPct} billedPct={fillPct} />
             </>
           )}
         </div>
 
-        {/* 4 value columns */}
+        {/* Budget (editable) + 4 value columns */}
         <div className="flex shrink-0 items-center">
-          <ValueCell value={cat.committed} blur={blur} />
-          {billedOver ? (
-            <TooltipProvider delay={0}>
-              <Tooltip>
-                <TooltipTrigger render={<div className="w-20 cursor-help text-right" />}>
-                  <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(netBilled)}</span>
-                </TooltipTrigger>
-                <TooltipContent>Billed value exceeds contracted</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          {editing && cat.category_id ? (
+            <MoneyInput value={budget} onCommit={v => setCatBudget.mutate({ company, project_id: projectID, category_id: cat.category_id, max_value: v })} />
           ) : (
-            <ValueCell value={netBilled} blur={blur} />
+            <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, over ? "text-amber-500" : budget > 0 ? "text-foreground/80" : "text-muted-foreground/30")}>
+              {budget > 0 ? fmt(budget) : "—"}
+            </span>
           )}
+          <ValueCell value={cat.committed} blur={blur} />
+          <ValueCell value={netBilled} blur={blur} />
           <ValueCell value={netPaid} color={isSettled ? undefined : "#22c55e"} blur={blur} />
           <ValueCell value={outstanding} color={isSettled ? undefined : outstanding > 0 ? "#f97316" : undefined} blur={blur} />
         </div>
 
-        <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition-transform", isOpen && "rotate-180")} />
-      </button>
+        <button onClick={onToggle} className="shrink-0">
+          <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", isOpen && "rotate-180")} />
+        </button>
+      </div>
 
       {isOpen && (
         <div className="border-t border-border/20 bg-background/20 pb-1">
-          {cat.vendors.map(v => (
-            <VendorRow key={v.vendor_id || v.vendor_name} vendor={v} blur={blur} />
+          {cat.vendors.length === 0 ? (
+            <p className="py-2 pl-[52px] text-[10px] italic text-muted-foreground/40">No subcontractors with spend yet.</p>
+          ) : cat.vendors.map(v => (
+            <VendorRow key={v.vendor_id || v.vendor_name} vendor={v} blur={blur} editing={editing} catId={cat.category_id}
+              company={company} projectID={projectID} categories={categories} />
           ))}
+          {editing && cat.category_id && subBudgetSum > 0 && (
+            <div className="flex items-center gap-2 border-t border-border/20 px-4 py-1 pl-[52px]">
+              <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50">Σ subs</span>
+              <span className={cn("text-[10px] font-semibold tabular-nums", subBudgetSum > budget && budget > 0 ? "text-amber-500" : "text-muted-foreground")}>{fmt(subBudgetSum)}</span>
+              <span className="text-[9px] text-muted-foreground/40">of {budget > 0 ? fmt(budget) : "category"}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -636,6 +564,99 @@ function IncomeChartPanel({ company, projectID, typeName }: {
   )
 }
 
+// ── Labor address mapping (inline link/replace/unlink in the modal) ────────────
+
+function LaborAddressManager({ company, projectID, addresses }: {
+  company: string; projectID: string; addresses: string[]
+}) {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["budget-labor-estimate", company, projectID] })
+    qc.invalidateQueries({ queryKey: ["budget-labor-summary", company] })
+  }
+  const accept = useMutation({ mutationFn: qbtimeMappingService.accept, onSuccess: invalidate })
+  const unlink = useMutation({ mutationFn: qbtimeMappingService.unlink, onSuccess: invalidate })
+  const { data: queue } = useQuery({
+    queryKey: ["qbtime-mapping-queue", company],
+    queryFn: () => qbtimeMappingService.queue(company),
+    staleTime: 60_000,
+  })
+
+  const [confirmDel, setConfirmDel] = useState<string | null>(null)
+  const [addOpen, setAddOpen] = useState(false)
+  const [replaceKey, setReplaceKey] = useState<string | null>(null)
+  const [q, setQ] = useState("")
+
+  const linked = new Set(addresses)
+  const available = (queue ?? []).filter(it =>
+    !linked.has(it.address_key) && (!q || it.address_key.toLowerCase().includes(q.toLowerCase())))
+
+  const pick = (addressKey: string, replace?: string) => {
+    if (replace) unlink.mutate({ company, address_key: replace })
+    accept.mutate({ company, address_key: addressKey, customer_id: projectID })
+    setAddOpen(false); setReplaceKey(null); setQ("")
+  }
+
+  const picker = (onPick: (addr: string) => void) => (
+    <>
+      <div className="relative mb-2">
+        <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+        <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search QB Time address…"
+          className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-[11px] outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+      </div>
+      <div className="flex max-h-60 flex-col overflow-y-auto no-scrollbar">
+        {available.length === 0 ? (
+          <p className="px-1 py-1.5 text-[11px] italic text-muted-foreground/50">No unmapped addresses.</p>
+        ) : available.slice(0, 60).map(it => (
+          <button key={it.address_key} onClick={() => onPick(it.address_key)}
+            className="flex items-center gap-1.5 rounded px-2 py-1.5 text-left text-[11px] transition-colors hover:bg-accent">
+            <MapPin className="h-3 w-3 shrink-0 text-blue-500/50" />
+            <span className="min-w-0 flex-1 truncate" title={it.address_key}>{addrLabel(it.address_key)}</span>
+          </button>
+        ))}
+      </div>
+    </>
+  )
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      {addresses.map(a => (
+        <div key={a} className="group flex items-center gap-1.5 text-[10px] text-muted-foreground/55">
+          <MapPin className="h-3 w-3 shrink-0 text-blue-500/40" />
+          <span className="min-w-0 flex-1 truncate" title={a}>{addrLabel(a)}</span>
+          {confirmDel === a ? (
+            <span className="flex shrink-0 items-center gap-1">
+              <span className="text-[9px] text-muted-foreground">Sure?</span>
+              <button onClick={() => { unlink.mutate({ company, address_key: a }); setConfirmDel(null) }}
+                className="rounded px-1 text-[9px] font-semibold text-red-500 transition-colors hover:bg-red-500/10">Yes</button>
+              <button onClick={() => setConfirmDel(null)}
+                className="rounded px-1 text-[9px] text-muted-foreground transition-colors hover:bg-muted">No</button>
+            </span>
+          ) : (
+            <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+              <Popover open={replaceKey === a} onOpenChange={o => { setReplaceKey(o ? a : null); setQ("") }}>
+                <PopoverTrigger title="Replace this address" className="rounded p-0.5 text-muted-foreground/60 transition-colors hover:text-foreground">
+                  <Pencil className="h-2.5 w-2.5" />
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-72 p-2">{picker(addr => pick(addr, a))}</PopoverContent>
+              </Popover>
+              <button onClick={() => setConfirmDel(a)} title="Remove" className="rounded p-0.5 text-muted-foreground/60 transition-colors hover:text-red-500">
+                <X className="h-2.5 w-2.5" />
+              </button>
+            </span>
+          )}
+        </div>
+      ))}
+      <Popover open={addOpen} onOpenChange={o => { setAddOpen(o); setQ("") }}>
+        <PopoverTrigger className="mt-0.5 flex w-fit items-center gap-1 rounded text-[10px] text-blue-500/70 transition-colors hover:text-blue-500">
+          <Plus className="h-3 w-3" /> Link address
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-72 p-2">{picker(addr => pick(addr))}</PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
 // ── Cost Forecast (current pay period labor) ───────────────────────────────────
 
 // Labor accruing in the open pay period: hours logged in QB Time but not yet
@@ -676,16 +697,7 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
           )}
         </div>
 
-        {(data?.addresses?.length ?? 0) > 0 && (
-          <div className="flex flex-col gap-0.5">
-            {data!.addresses.map(a => (
-              <div key={a} className="flex items-center gap-1 text-[10px] text-muted-foreground/55">
-                <MapPin className="h-3 w-3 shrink-0 text-blue-500/40" />
-                <span className="min-w-0 truncate" title={a}>{addrLabel(a)}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <LaborAddressManager company={company} projectID={projectID} addresses={data?.addresses ?? []} />
 
         {isLoading ? (
           <div className="flex h-16 items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
@@ -779,7 +791,11 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const [openCatId, setOpenCatId] = useState<string | null>(null)
   const [editingBudget, setEditingBudget] = useState(false)
   const [draftBudgets, setDraftBudgets] = useState<Record<string, number>>({})
+  const [editingContractors, setEditingContractors] = useState(false)
   const setAccountLimit = useSetAccountLimit()
+
+  const { data: allCats } = useCategories(data?.project_type)
+  const categoryOptions = (allCats ?? []).map(c => ({ id: c.id, name: c.name, icon: c.icon }))
 
   const overCeiling = !!data && data.cost_ceiling > 0 && data.cost_total > data.cost_ceiling
 
@@ -1111,61 +1127,70 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 {/* Title row */}
                 <div className="flex items-center gap-2">
                   <HardHat className="h-4 w-4 text-yellow-500" />
-                  <div className="flex flex-col">
+                  <div className="flex min-w-0 flex-col">
                     <span className="text-sm font-semibold leading-tight text-yellow-500">Contractors Costs</span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
                       <CornerDownRight className="h-3 w-3 shrink-0 text-yellow-500/40" />
-                      Breakdown of the Contractors account in <span className="font-medium text-red-500">Cost</span>
+                      Budget by category · PO commitment is the fill
                     </span>
                   </div>
                   <div className="ml-auto flex items-center gap-1.5">
-                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
-                    <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(catNetBilled)}</span>
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
+                    <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(data.labor_budget)}</span>
                     <div className="h-3.5 w-px bg-border/50" />
-                    <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(catNetBilled, catTotals.committed)}</span>
+                    <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(catTotals.committed, data.labor_budget)}</span>
                   </div>
+                  <button
+                    onClick={() => setEditingContractors(v => !v)}
+                    className={cn("flex h-6 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-medium transition-colors",
+                      editingContractors ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-500" : "border-input bg-transparent text-muted-foreground hover:text-foreground dark:bg-input/30")}
+                    title="Edit category and subcontractor budgets"
+                  >
+                    {editingContractors ? <><Check className="h-3 w-3" /> Done</> : <><SlidersHorizontal className="h-3 w-3" /> Budgets</>}
+                  </button>
                 </div>
 
-                {/* SegBar */}
+                {/* SegBar — committed (paid/outstanding) vs budget */}
                 <SegBar
-                  total={Math.max(catTotals.committed, 1)}
+                  total={Math.max(data.labor_budget, catTotals.committed, 1)}
                   segments={[
                     { value: catNetPaid, color: "#eab308", label: "Paid", icon: Check },
                     { value: Math.max(catNetBilled - catNetPaid, 0), color: "#f97316", label: "Outstanding", icon: Clock },
                   ]}
-                  remainder={{ label: "Remaining", value: Math.max(catTotals.committed - catNetBilled, 0) }}
+                  remainder={{ label: "Remaining vs budget", value: Math.max(data.labor_budget - catTotals.committed, 0) }}
                 />
 
                 {/* KPI grid */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Paid</span>
-                    <span className={cn("text-lg font-bold tabular-nums text-yellow-500", blur)}>{fmt(catNetPaid)}</span>
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
+                    <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.labor_budget)}</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Outstanding</span>
-                    <span className={cn("text-lg font-bold tabular-nums", (catNetBilled - catNetPaid) > 0 ? "text-orange-500" : "text-muted-foreground/50", blur)}>{fmt(Math.max(catNetBilled - catNetPaid, 0))}</span>
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Committed · PO</span>
+                    <span className={cn("text-lg font-bold tabular-nums text-yellow-500", blur)}>{fmt(catTotals.committed)}</span>
                   </div>
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total Contracted</span>
-                    <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(catTotals.committed)}</span>
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Paid</span>
+                    <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(catNetPaid)}</span>
                   </div>
                 </div>
 
                 {/* Category list — always visible */}
                 <div className="overflow-hidden rounded-lg border border-yellow-500/20">
                   {/* Column header */}
-                  <div className="flex items-center border-b border-yellow-500/20 bg-muted/10 px-4 py-1">
+                  <div className="flex items-center gap-3 border-b border-yellow-500/20 bg-muted/10 px-4 py-1">
                     <div className="h-6 w-6 shrink-0" />
-                    <div className="min-w-0 flex-1 pl-3 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
-                    {(["Contracted", "Billed", "Paid", "Outstanding"] as const).map(lbl => (
+                    <div className="min-w-0 flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
+                    <div className="w-16 shrink-0" />
+                    {(["Budget", "Committed", "Billed", "Paid", "Outstanding"] as const).map(lbl => (
                       <div key={lbl} className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{lbl}</div>
                     ))}
-                    <div className="w-[22px] shrink-0" />
+                    <div className="w-3.5 shrink-0" />
                   </div>
                   {costCategories.length === 0 ? (
                     <div className="flex items-center justify-center py-6 text-[11px] italic text-muted-foreground/40">
-                      No categories assigned yet.
+                      No categories with budget or spend yet.
                     </div>
                   ) : (
                     costCategories.map(cat => {
@@ -1177,6 +1202,10 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                           blur={blur}
                           isOpen={openCatId === id}
                           onToggle={() => setOpenCatId(prev => prev === id ? null : id)}
+                          editing={editingContractors}
+                          company={company}
+                          projectID={projectID}
+                          categories={categoryOptions}
                         />
                       )
                     })

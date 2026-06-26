@@ -37,6 +37,17 @@ export interface ProjectLimit {
   max_value: number
 }
 
+export interface ProjectVendorCategory {
+  vendor_id: string
+  category_id: string
+}
+
+export interface VendorLimit {
+  category_id: string
+  vendor_id: string
+  amount: number
+}
+
 export const budgetTaxonomyService = {
   listCategories: (projectType?: ProjectType) =>
     api.get<Category[]>(`/api/v1/budget/categories${projectType ? `?project_type=${projectType}` : ""}`, getToken()).then(r => r ?? []),
@@ -62,9 +73,24 @@ export const budgetTaxonomyService = {
   setVendorMapping: (body: { company: string; vendor_id: string; project_type: ProjectType; category_id: string | null }) =>
     api.put(`/api/v1/budget/vendor-categories`, body, getToken()),
 
-  listProjectLimits: (company: string, customerId: string) =>
-    api.get<ProjectLimit[]>(`/api/v1/budget/project-limits?company=${company}&customer_id=${customerId}`, getToken()).then(r => r ?? []),
+  listProjectLimits: (company: string, projectId: string) =>
+    api.get<ProjectLimit[]>(`/api/v1/budget/project-limits?company=${company}&project_id=${encodeURIComponent(projectId)}`, getToken()).then(r => r ?? []),
 
-  setProjectLimit: (body: { company: string; customer_id: string; category_id: string; max_value: number }) =>
+  setProjectLimit: (body: { company: string; project_id: string; category_id: string; max_value: number }) =>
     api.put(`/api/v1/budget/project-limits`, body, getToken()),
+
+  // Per-project vendor→category override ("cada sub pode ir pra outra categoria
+  // em determinada obra"). category_id null reverts to the global mapping.
+  listProjectVendorCategories: (company: string, projectId: string) =>
+    api.get<ProjectVendorCategory[]>(`/api/v1/budget/project-vendor-categories?company=${company}&project_id=${encodeURIComponent(projectId)}`, getToken()).then(r => r ?? []),
+
+  setProjectVendorCategory: (body: { company: string; project_id: string; vendor_id: string; category_id: string | null }) =>
+    api.put(`/api/v1/budget/project-vendor-categories`, body, getToken()),
+
+  // Per-sub budget within a category, per project.
+  listVendorLimits: (company: string, projectId: string) =>
+    api.get<VendorLimit[]>(`/api/v1/budget/vendor-limits?company=${company}&project_id=${encodeURIComponent(projectId)}`, getToken()).then(r => r ?? []),
+
+  setVendorLimit: (body: { company: string; project_id: string; category_id: string; vendor_id: string; amount: number }) =>
+    api.put(`/api/v1/budget/vendor-limits`, body, getToken()),
 }
