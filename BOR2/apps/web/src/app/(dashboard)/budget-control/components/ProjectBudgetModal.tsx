@@ -18,8 +18,8 @@ import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
-import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory } from "@/hooks/use-budget-taxonomy"
+import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
+import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor } from "@/hooks/use-budget-taxonomy"
 import type { CostAccount, CostCategory, CostVendor } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -244,12 +244,25 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
         )}
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
+        {/* Payee breakdown — flag the supervisor, split supervisor vs normal labor */}
+        <Popover>
+          <PopoverTrigger
+            onClick={e => e.stopPropagation()}
+            title="Payees · flag supervisor"
+            className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <Users className="h-3 w-3" />
+          </PopoverTrigger>
+          <PopoverContent align="start" side="right" className="w-[26rem]" onClick={e => e.stopPropagation()}>
+            <AccountPayeesPanel company={company} projectID={projectID} account={ca} />
+          </PopoverContent>
+        </Popover>
         {/* Paid-over-time chart — floating popover anchored to the icon */}
         <Popover>
           <PopoverTrigger
             onClick={e => e.stopPropagation()}
             title="Paid distribution over time"
-            className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
           >
             <LineChartIcon className="h-3 w-3" />
           </PopoverTrigger>
@@ -536,6 +549,55 @@ function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, is
         )}
       </div>
     </>
+  )
+}
+
+// Payee breakdown of a cost account (Payroll-COGS being the main case): list the
+// vendors/employees whose bills compose it and let the user flag the supervisor,
+// splitting the account into supervisor vs normal labor.
+function AccountPayeesPanel({ company, projectID, account }: {
+  company: string; projectID: string; account: CostAccount
+}) {
+  const { data: payees, isLoading } = useAccountPayees({ company, project_id: projectID, account_id: account.id })
+  const setSup = useSetPayrollSupervisor()
+  const list = payees ?? []
+  const supTotal = list.filter(p => p.is_supervisor).reduce((s, p) => s + p.amount, 0)
+  const normalTotal = list.filter(p => !p.is_supervisor).reduce((s, p) => s + p.amount, 0)
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div>
+        <p className="truncate text-xs font-semibold leading-tight" title={account.name}>{account.name}</p>
+        <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Click a person to flag the supervisor</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-blue-500/25 bg-blue-500/[0.05] px-2.5 py-1.5">
+          <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Supervisor</p>
+          <p className="text-sm font-bold tabular-nums text-blue-500">{fmt(supTotal)}</p>
+        </div>
+        <div className="rounded-lg border border-border/60 bg-muted/20 px-2.5 py-1.5">
+          <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Normal labor</p>
+          <p className="text-sm font-bold tabular-nums">{fmt(normalTotal)}</p>
+        </div>
+      </div>
+      <div className="flex max-h-56 flex-col overflow-y-auto no-scrollbar rounded-lg border border-input">
+        {isLoading ? (
+          <div className="flex h-16 items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+        ) : list.length === 0 ? (
+          <p className="px-3 py-4 text-center text-[11px] italic text-muted-foreground/50">No vendor bills on this account.</p>
+        ) : list.map(p => (
+          <button key={p.vendor_id}
+            onClick={() => setSup.mutate({ company, project_id: projectID, account_id: account.id, vendor_id: p.vendor_id, is_supervisor: !p.is_supervisor })}
+            className="flex items-center gap-2 border-t border-border/10 px-3 py-1.5 text-left transition-colors first:border-t-0 hover:bg-muted/20">
+            <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors", p.is_supervisor ? "border-blue-500 bg-blue-500 text-white" : "border-border")}>
+              {p.is_supervisor && <Check className="h-2.5 w-2.5" />}
+            </span>
+            <span className={cn("min-w-0 flex-1 truncate text-[11px]", p.is_supervisor ? "font-medium text-blue-500" : "text-foreground/80")} title={p.vendor_name}>{flipName(p.vendor_name)}</span>
+            <span className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">{fmt(p.amount)}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -93,4 +93,7 @@ export const budgetTaxonomyService = {
 
   setVendorLimit: (body: { company: string; project_id: string; category_id: string; vendor_id: string; amount: number }) =>
     api.put(`/api/v1/budget/vendor-limits`, body, getToken()),
+
+  setPayrollSupervisor: (body: { company: string; project_id: string; account_id: string; vendor_id: string; is_supervisor: boolean }) =>
+    api.put(`/api/v1/budget/payroll-supervisor`, body, getToken()),
 }

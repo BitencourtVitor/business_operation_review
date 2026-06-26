@@ -75,3 +75,11 @@ export function useSetProjectVendorCategory() {
     onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
   })
 }
+
+export function useSetPayrollSupervisor() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setPayrollSupervisor,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-account-payees", v.company, v.project_id, v.account_id] }),
+  })
+}

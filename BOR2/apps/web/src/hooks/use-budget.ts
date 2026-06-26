@@ -33,6 +33,14 @@ export function useSetAccountLimit() {
   })
 }
 
+export function useAccountPayees(params: { company: string; project_id: string; account_id: string } | null) {
+  return useQuery({
+    queryKey: ["budget-account-payees", params?.company, params?.project_id, params?.account_id],
+    queryFn: () => budgetService.getAccountPayees(params!),
+    enabled: !!params?.company && !!params?.project_id && !!params?.account_id,
+  })
+}
+
 export function useAccountHistory(params: { company: string; project_id: string; account_ids: string[] } | null) {
   return useQuery({
     queryKey: ["budget-account-history", params?.company, params?.project_id, (params?.account_ids ?? []).join(",")],

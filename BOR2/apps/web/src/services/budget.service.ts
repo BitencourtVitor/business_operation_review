@@ -37,6 +37,13 @@ export interface AccountPaidPoint {
   paid: number
 }
 
+export interface AccountPayee {
+  vendor_id: string
+  vendor_name: string
+  amount: number
+  is_supervisor: boolean
+}
+
 export interface IncomePaidPoint {
   month: string
   amount: number
@@ -204,6 +211,11 @@ export const budgetService = {
 
   async setAccountLimit(body: { company: string; project_id: string; account_id: string; amount: number }): Promise<void> {
     await api.put(`/api/v1/budget/account-limits`, body, getToken())
+  },
+
+  async getAccountPayees(params: { company: string; project_id: string; account_id: string }): Promise<AccountPayee[]> {
+    const search = new URLSearchParams(params)
+    return (await api.get<AccountPayee[]>(`/api/v1/budget/projects/account-payees?${search}`, getToken())) ?? []
   },
 
   async getAccountHistory(params: { company: string; project_id: string; account_ids: string[] }): Promise<AccountPaidPoint[]> {
