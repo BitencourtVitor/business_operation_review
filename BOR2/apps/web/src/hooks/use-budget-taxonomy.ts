@@ -83,3 +83,19 @@ export function useSetPayrollSupervisor() {
     onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-account-payees", v.company, v.project_id, v.account_id] }),
   })
 }
+
+export function useBudgetSettings(company: string) {
+  return useQuery({
+    queryKey: ["budget-settings", company],
+    queryFn: () => svc.getSettings(company),
+    enabled: !!company,
+  })
+}
+
+export function useSetBudgetSettings() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setSettings,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-settings", v.company] }),
+  })
+}

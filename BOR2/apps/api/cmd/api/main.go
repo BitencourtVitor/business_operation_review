@@ -506,6 +506,8 @@ func main() {
 	budget.Put("/vendor-limits",         budgetTaxonomyHandler.SetVendorLimit)
 	budget.Get("/account-limits",        budgetTaxonomyHandler.ListAccountLimits)
 	budget.Put("/account-limits",        budgetTaxonomyHandler.SetAccountLimit)
+	budget.Get("/settings",                 budgetTaxonomyHandler.GetBudgetSettings)
+	budget.Put("/settings",                 budgetTaxonomyHandler.SetBudgetSettings)
 	budget.Get("/projects/account-payees",  budgetHandler.AccountPayees)
 	budget.Put("/payroll-supervisor",       budgetTaxonomyHandler.SetPayrollSupervisor)
 	budget.Get("/projects/account-history", budgetHandler.AccountPaidHistory)
