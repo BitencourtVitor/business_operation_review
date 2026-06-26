@@ -7,6 +7,12 @@ import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useBudgetSettings, useSetBudgetSettings } from "@/hooks/use-budget-taxonomy"
 
+const COMPANY_LOGO: Record<string, string> = {
+  framing: "/images/sublogo_framing.png",
+  pcg: "/images/sublogo_pcg.png",
+  hvac: "/images/sublogo_hvac.png",
+}
+
 function ToleranceRow({ company, label }: { company: string; label: string }) {
   const { data: settings } = useBudgetSettings(company)
   const setSettings = useSetBudgetSettings()
@@ -14,19 +20,25 @@ function ToleranceRow({ company, label }: { company: string; label: string }) {
   useEffect(() => { if (settings) setDraft(String(settings.variability_pct)) }, [settings])
   return (
     <div className="flex items-center gap-3 border-b border-border/30 px-4 py-2.5 last:border-b-0">
+      {COMPANY_LOGO[company] && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={COMPANY_LOGO[company]} alt={label} className="h-4 w-4 shrink-0 object-contain" />
+      )}
       <span className="flex-1 text-sm">{label}</span>
-      <span className="text-sm text-muted-foreground/60">±</span>
-      <input
-        value={draft}
-        inputMode="decimal"
-        onChange={e => setDraft(e.target.value.replace(/[^0-9.]/g, ""))}
-        onBlur={() => {
-          const v = draft === "" ? 0 : Number(draft)
-          if (settings && v !== settings.variability_pct) setSettings.mutate({ company, variability_pct: v })
-        }}
-        className="h-8 w-16 rounded-md border border-input bg-transparent px-2 text-right text-sm tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
-      />
-      <span className="text-sm text-muted-foreground">%</span>
+      <div className="relative w-24">
+        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground/60">±</span>
+        <input
+          value={draft}
+          inputMode="decimal"
+          onChange={e => setDraft(e.target.value.replace(/[^0-9.]/g, ""))}
+          onBlur={() => {
+            const v = draft === "" ? 0 : Number(draft)
+            if (settings && v !== settings.variability_pct) setSettings.mutate({ company, variability_pct: v })
+          }}
+          className="h-8 w-full rounded-md border border-input bg-transparent pl-7 pr-7 text-right text-sm tabular-nums outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
+        />
+        <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground/60">%</span>
+      </div>
     </div>
   )
 }
