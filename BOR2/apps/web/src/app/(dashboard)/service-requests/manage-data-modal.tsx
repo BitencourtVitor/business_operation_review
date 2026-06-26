@@ -332,6 +332,8 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const [saving,       setSaving]       = useState(false)
   const [syncingSheet, setSyncingSheet] = useState(false)
   const [notice,       setNotice]       = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null)
+  const [page,         setPage]         = useState(1)
+  const PAGE_SIZE = 50
 
   function toggleSort(col: string) {
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
@@ -362,6 +364,11 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
       return sortDir === 'asc' ? cmp : -cmp
     })
   }, [records, search, sortCol, sortDir])
+
+  useEffect(() => { setPage(1) }, [search, sortCol, sortDir])
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const paginated  = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function SH({ col, children, center, className = '' }: {
     col: string; children: React.ReactNode; center?: boolean; className?: string
@@ -615,7 +622,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
               )}
 
               {/* Data rows */}
-              {sorted.map(r => {
+              {paginated.map(r => {
 
                 if (deletingId === r.id) return (
                   <tr key={r.id} className="bg-red-500/5">
@@ -714,6 +721,29 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
             ? `Showing ${sorted.length} of ${records.length} records`
             : `${records.length} records total`}
         </span>
+
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+            >
+              ← Prev
+            </button>
+            <span className="text-xs text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="rounded border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+            >
+              Next →
+            </button>
+          </div>
+        )}
+
         <button
           onClick={onClose}
           className="rounded-lg border border-border bg-muted px-4 py-1.5 text-sm font-medium transition-colors hover:bg-muted/70"
