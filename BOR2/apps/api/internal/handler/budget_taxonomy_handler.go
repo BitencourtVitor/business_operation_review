@@ -447,6 +447,41 @@ func (h *BudgetTaxonomyHandler) SetVendorLimit(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
+// ── Payroll supervisor flag (per account payee, per project) ─────────────────
+
+// PUT /budget/payroll-supervisor  body {company, project_id, account_id, vendor_id, is_supervisor}
+func (h *BudgetTaxonomyHandler) SetPayrollSupervisor(c *fiber.Ctx) error {
+	var b struct {
+		Company      string `json:"company"`
+		ProjectID    string `json:"project_id"`
+		AccountID    string `json:"account_id"`
+		VendorID     string `json:"vendor_id"`
+		IsSupervisor bool   `json:"is_supervisor"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" || b.AccountID == "" || b.VendorID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, account_id, vendor_id required")
+	}
+	if !b.IsSupervisor {
+		_, err := h.db.Exec(c.Context(), `DELETE FROM budget_payroll_supervisors WHERE company=$1 AND project_id=$2 AND account_id=$3 AND vendor_id=$4`, b.Company, b.ProjectID, b.AccountID, b.VendorID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(fiber.Map{"ok": true})
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_payroll_supervisors (company, project_id, account_id, vendor_id, updated_at)
+		VALUES ($1,$2,$3,$4,now())
+		ON CONFLICT (company, project_id, account_id, vendor_id) DO UPDATE SET updated_at=now()
+	`, b.Company, b.ProjectID, b.AccountID, b.VendorID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
 // ── Per-account cost budget ("cost budget mapping") ──────────────────────────
 
 type AccountLimit struct {

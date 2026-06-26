@@ -723,6 +723,65 @@ func applyAccountBudgets(accounts []CostAccount, limits map[string]float64, tota
 	}
 }
 
+// AccountPayee is one vendor/employee whose bills compose a cost account on a
+// project, with a user-set flag marking whether they were the supervisor.
+type AccountPayee struct {
+	VendorID     string  `json:"vendor_id"`
+	VendorName   string  `json:"vendor_name"`
+	Amount       float64 `json:"amount"`
+	IsSupervisor bool    `json:"is_supervisor"`
+}
+
+// GET /api/v1/budget/projects/account-payees?company=&project_id=&account_id=
+// Vendors whose bill lines post to the given account on this project (Payroll-COGS
+// being the main case), with the supervisor flag — feeds the supervisor/normal split.
+func (h *BudgetHandler) AccountPayees(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	accountID := c.Query("account_id")
+	if company == "" || projectID == "" || accountID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id and account_id are required")
+	}
+	ctx := c.Context()
+	rows, err := h.db.Query(ctx, `WITH `+custProjCTE+`,
+		cust AS (SELECT customer_id FROM proj_key WHERE pkey=$2)
+		SELECT b.vendor_id,
+		       COALESCE(NULLIF(v.display_name,''), b.vendor_id) AS name,
+		       SUM(bl.amount) AS amount
+		FROM qb_bill_lines bl
+		JOIN qb_bills b ON b.id = bl.bill_id AND b.company=$1
+		LEFT JOIN qb_vendors v ON v.company=$1 AND v.external_id=b.vendor_id
+		WHERE bl.company=$1 AND bl.customer_id IN (SELECT customer_id FROM cust)
+		  AND bl.account_ref_id=$3 AND COALESCE(b.vendor_id,'')<>''
+		GROUP BY b.vendor_id, v.display_name
+		HAVING SUM(bl.amount) <> 0
+		ORDER BY amount DESC`, company, projectID, accountID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []AccountPayee{}
+	for rows.Next() {
+		var p AccountPayee
+		rows.Scan(&p.VendorID, &p.VendorName, &p.Amount)
+		out = append(out, p)
+	}
+
+	sup := map[string]bool{}
+	if sRows, err := h.db.Query(ctx, `SELECT vendor_id FROM budget_payroll_supervisors WHERE company=$1 AND project_id=$2 AND account_id=$3`, company, projectID, accountID); err == nil {
+		for sRows.Next() {
+			var vid string
+			sRows.Scan(&vid)
+			sup[vid] = true
+		}
+		sRows.Close()
+	}
+	for i := range out {
+		out[i].IsSupervisor = sup[out[i].VendorID]
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // GET /api/v1/budget/projects/account-history?company=&project_id=&account_ids=id1,id2
 // Monthly Paid total attributed to the given account(s) on this project — the
 // payment series behind a cost account, for the per-account distribution chart.
