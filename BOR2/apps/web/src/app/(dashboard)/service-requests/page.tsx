@@ -139,9 +139,12 @@ export default function ServiceRequestsPage() {
   const cities      = useMemo(() => [...new Set(allData.map(r => r.city).filter(Boolean))].sort(),      [allData])
 
   // ── Filtered data ───────────────────────────────────────────────────────────
+  // When chartMode is "completed", year/month filter applies to dateCompleted so
+  // requests received in a prior period but completed in the selected period are included.
   const filtered = useMemo(() => {
+    const dateField = chartMode === "completed" ? "dateCompleted" : "dateReceived"
     return allData.filter(r => {
-      const d = parseDate(r.dateReceived)
+      const d = parseDate(r[dateField])
       if (year !== "All" && (!d || String(d.getUTCFullYear()) !== year)) return false
       if (month !== "All" && (!d || String(d.getUTCMonth() + 1).padStart(2, "0") !== month)) return false
       if (contractor !== "All" && r.contractor !== contractor) return false
@@ -153,7 +156,7 @@ export default function ServiceRequestsPage() {
       if (subcontractor === "no"  &&  r.subcontractor) return false
       return true
     })
-  }, [allData, year, month, contractor, jobSite, city, warranty, subcontractor])
+  }, [allData, year, month, chartMode, contractor, jobSite, city, warranty, subcontractor])
 
   // ── Metrics ────────────────────────────────────────────────────────────────
   const metrics = useMemo(() => {
