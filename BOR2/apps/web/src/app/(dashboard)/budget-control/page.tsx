@@ -102,8 +102,8 @@ function MetricRow({ label, value, color, blur, strong }: {
 
 // ── Project Card ──────────────────────────────────────────────────────────────
 
-function ProjectCard({ p, blur, onOpen, inProgressCost = 0, groupCount = 0 }: {
-  p: BudgetProjectDetail; blur: string; onOpen: () => void; inProgressCost?: number; groupCount?: number
+function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
+  p: BudgetProjectDetail; blur: string; onOpen: () => void; inProgressCost?: number
 }) {
   const hasLabor = p.labor_committed > 0
   const hasInProgress = inProgressCost > 0
@@ -118,14 +118,7 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0, groupCount = 0 }: {
       {/* Identity */}
       <div className="flex min-w-0 items-center gap-3 border-b border-border/50 px-4 py-3 md:w-[26%] md:border-b-0">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
-            {groupCount > 1 && (
-              <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                {groupCount} lots
-              </span>
-            )}
-          </div>
+          <p className="text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
           {p.client_name && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
               <MapPin className="h-2.5 w-2.5 shrink-0" />
@@ -415,16 +408,27 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 function monthKey(year: number, month: number) { return `${year}-${String(month).padStart(2, "0")}` }
 
+// Returns the year string when `sorted` is exactly Jan–Dec of a single year, else null.
+function fullYearLabel(sorted: string[]): string | null {
+  if (sorted.length !== 12) return null
+  const year = Number(sorted[0].split("-")[0])
+  const expected = Array.from({ length: 12 }, (_, i) => monthKey(year, i + 1))
+  return sorted.every((k, i) => k === expected[i]) ? String(year) : null
+}
+
 function PeriodFilter({ selected, setSelected }: {
   selected: Set<string>; setSelected: (s: Set<string>) => void
 }) {
   const [navYear, setNavYear] = useState(() => new Date().getFullYear())
   const sorted = [...selected].sort()
+  const fullYearOf = fullYearLabel(sorted)
   const label = sorted.length === 0
     ? "All time"
-    : sorted.length === 1
-      ? formatMonthKey(sorted[0])
-      : `${formatMonthKey(sorted[0])}—${formatMonthKey(sorted[sorted.length - 1])}`
+    : fullYearOf
+      ? fullYearOf
+      : sorted.length === 1
+        ? formatMonthKey(sorted[0])
+        : `${formatMonthKey(sorted[0])}—${formatMonthKey(sorted[sorted.length - 1])}`
   const yearKeys = Array.from({ length: 12 }, (_, i) => monthKey(navYear, i + 1))
   const fullYearSelected = yearKeys.every(k => selected.has(k))
   const toggleMonth = (k: string) => {
@@ -813,7 +817,6 @@ function BudgetContent() {
                       blur={blur}
                       onOpen={isGroup ? () => {} : () => setDetailID(p.project_id)}
                       inProgressCost={laborSummary?.[p.project_id] ?? 0}
-                      groupCount={p.__count ?? 0}
                     />
                   )
                 })}
