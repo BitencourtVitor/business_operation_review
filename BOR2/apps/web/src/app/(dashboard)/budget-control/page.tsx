@@ -690,7 +690,7 @@ function BudgetContent() {
       <div className={cn("flex min-h-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40", projectsCollapsed ? "shrink-0" : "flex-1")}>
 
         {/* Container header */}
-        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+        <div className={cn("flex shrink-0 items-center gap-3 px-4 py-3", !projectsCollapsed && "border-b border-border/50")}>
           <button onClick={() => setProjectsCollapsed(v => !v)} className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             {projectsCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
