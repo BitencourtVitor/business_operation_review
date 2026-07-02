@@ -704,7 +704,7 @@ function BudgetContent() {
     const base: (BudgetProjectDetail & { __count?: number })[] =
       groupByJobsite ? groupProjectsByJobsite(filtered) : filtered
     const sortValue = (p: BudgetProjectDetail) =>
-      sortField === "margin" ? p.income_actual - p.cost_total : (p[sortField] as number)
+      sortField === "margin" ? (p.income_actual > 0 ? (p.income_actual - p.cost_total) / p.income_actual : 0) : (p[sortField] as number)
     return base.slice().sort((a, b) => {
       const dir = sortAsc ? 1 : -1
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
@@ -887,7 +887,7 @@ function BudgetContent() {
                 Order by
               </span>
               {([
-                { f: "margin",          label: "Margin" },
+                { f: "margin",          label: "Margin %" },
                 { f: "income_actual",   label: "Income" },
                 { f: "cost_total",      label: "Cost" },
                 { f: "labor_committed", label: "Labor" },
