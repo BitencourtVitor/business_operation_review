@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -315,6 +318,60 @@ func (h *BudgetTaxonomyHandler) SetProjectLimit(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
+// ── Per-project start date ────────────────────────────────────────────────────
+// Manual "ground broken" date, paired with a per-category deadline (above) to
+// draw a progressive budget-adherence line instead of a flat ceiling.
+
+// GET /budget/project-dates?company=hvac&project_id=<hierarchy key>
+func (h *BudgetTaxonomyHandler) GetProjectStartDate(c *fiber.Ctx) error {
+	company := c.Query("company")
+	projectID := c.Query("project_id")
+	if company == "" || projectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
+	}
+	var startDate *string
+	err := h.db.QueryRow(c.Context(), `
+		SELECT to_char(start_date, 'YYYY-MM-DD') FROM budget_project_dates
+		WHERE company=$1 AND project_id=$2
+	`, company, projectID).Scan(&startDate)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	if startDate != nil && *startDate == "" {
+		startDate = nil
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"start_date": startDate}})
+}
+
+// PUT /budget/project-dates  body {company, project_id, start_date}
+// start_date is "YYYY-MM-DD", or "" to clear it.
+func (h *BudgetTaxonomyHandler) SetProjectStartDate(c *fiber.Ctx) error {
+	var b struct {
+		Company   string `json:"company"`
+		ProjectID string `json:"project_id"`
+		StartDate string `json:"start_date"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company and project_id required")
+	}
+	var startDate any
+	if b.StartDate != "" {
+		startDate = b.StartDate
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_project_dates (company, project_id, start_date, updated_at)
+		VALUES ($1,$2,$3,now())
+		ON CONFLICT (company, project_id) DO UPDATE SET start_date=EXCLUDED.start_date, updated_at=now()
+	`, b.Company, b.ProjectID, startDate)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
 // ── Per-project vendor → category override ───────────────────────────────────
 // Overrides the global budget_vendor_categories for one project ("cada sub pode
 // ir pra outra categoria em determinada obra"). No row → use the global mapping.
@@ -536,6 +593,7 @@ func (h *BudgetTaxonomyHandler) SetPayrollSupervisor(c *fiber.Ctx) error {
 type AccountLimit struct {
 	AccountID string  `json:"account_id"`
 	Amount    float64 `json:"amount"`
+	Deadline  *string `json:"deadline"`
 }
 
 // GET /budget/account-limits?company=hvac&project_id=<key>
@@ -546,7 +604,7 @@ func (h *BudgetTaxonomyHandler) ListAccountLimits(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "company and project_id are required")
 	}
 	rows, err := h.db.Query(c.Context(), `
-		SELECT account_id, amount FROM budget_project_account_limits
+		SELECT account_id, amount, to_char(deadline, 'YYYY-MM-DD') FROM budget_project_account_limits
 		WHERE company=$1 AND project_id=$2
 	`, company, projectID)
 	if err != nil {
@@ -556,10 +614,44 @@ func (h *BudgetTaxonomyHandler) ListAccountLimits(c *fiber.Ctx) error {
 	out := []AccountLimit{}
 	for rows.Next() {
 		var l AccountLimit
-		rows.Scan(&l.AccountID, &l.Amount)
+		var deadline *string
+		rows.Scan(&l.AccountID, &l.Amount, &deadline)
+		if deadline != nil && *deadline != "" {
+			l.Deadline = deadline
+		}
 		out = append(out, l)
 	}
 	return c.JSON(fiber.Map{"data": out})
+}
+
+// PUT /budget/account-limits/deadline  body {company, project_id, account_id, deadline}
+// deadline is "YYYY-MM-DD", or "" to clear it. Does not touch amount.
+func (h *BudgetTaxonomyHandler) SetAccountDeadline(c *fiber.Ctx) error {
+	var b struct {
+		Company   string `json:"company"`
+		ProjectID string `json:"project_id"`
+		AccountID string `json:"account_id"`
+		Deadline  string `json:"deadline"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if b.Company == "" || b.ProjectID == "" || b.AccountID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, project_id, account_id required")
+	}
+	var deadline any
+	if b.Deadline != "" {
+		deadline = b.Deadline
+	}
+	_, err := h.db.Exec(c.Context(), `
+		INSERT INTO budget_project_account_limits (company, project_id, account_id, amount, deadline, updated_at)
+		VALUES ($1,$2,$3,0,$4,now())
+		ON CONFLICT (company, project_id, account_id) DO UPDATE SET deadline=EXCLUDED.deadline, updated_at=now()
+	`, b.Company, b.ProjectID, b.AccountID, deadline)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
 }
 
 // PUT /budget/account-limits  body {company, project_id, account_id, amount}

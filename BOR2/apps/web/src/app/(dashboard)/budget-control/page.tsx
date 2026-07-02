@@ -13,7 +13,7 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
-  CalendarClock, Users, Check,
+  CalendarClock, Users, Check, Layers,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
@@ -302,6 +302,56 @@ function ClientFilter({ clients, selected, setSelected }: {
   )
 }
 
+// ── Customer multi-select ───────────────────────────────────────────────────────
+
+function CustomerFilter({ customers, selected, setSelected }: {
+  customers: string[]; selected: Set<string>; setSelected: (s: Set<string>) => void
+}) {
+  const [q, setQ] = useState("")
+  const filtered = q ? customers.filter(c => c.toLowerCase().includes(q.toLowerCase())) : customers
+  const toggle = (c: string) => {
+    const next = new Set(selected)
+    next.has(c) ? next.delete(c) : next.add(c)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Layers className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All customers" : `${selected.size} customer${selected.size > 1 ? "s" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <div className="relative mb-2">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter customers…"
+            className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        </div>
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex max-h-64 flex-col overflow-y-auto no-scrollbar">
+          {filtered.map(c => {
+            const on = selected.has(c)
+            return (
+              <button key={c} onClick={() => toggle(c)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate" title={c}>{c}</span>
+              </button>
+            )
+          })}
+          {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No customers.</p>}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Period (year / month) filter ────────────────────────────────────────────────
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -386,7 +436,9 @@ function BudgetContent() {
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
   const [types,     setTypes]     = useState({ building: true, house: true })
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
-  const [period, setPeriod] = useState<{ year: number | null; month: number | null }>({ year: null, month: null })
+  const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
+  const [period, setPeriod] = useState<{ year: number | null; month: number | null }>(
+    () => ({ year: new Date().getFullYear(), month: null }))
 
   const { data: projects, isLoading: projLoading } = useBudgetProjects({
     company,
@@ -404,7 +456,26 @@ function BudgetContent() {
     () => (projects ?? []).filter(p => selectedClients.size === 0 || selectedClients.has(p.client_name)),
     [projects, selectedClients])
 
-  const rows = useMemo(() => clientFiltered
+  // Customer multi-select narrows BOTH the chart (which also "explodes" into
+  // per-project bars once a customer is picked) and the project list below.
+  const customerNames = useMemo(
+    () => [...new Set(clientFiltered.map(p => p.customer_group || p.name).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [clientFiltered])
+
+  // A selected customer may not exist under a newly picked client — drop it.
+  useEffect(() => {
+    setSelectedCustomers(prev => {
+      if (prev.size === 0) return prev
+      const next = new Set([...prev].filter(c => customerNames.includes(c)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [customerNames])
+
+  const customerFiltered = useMemo(
+    () => clientFiltered.filter(p => selectedCustomers.size === 0 || selectedCustomers.has(p.customer_group || p.name)),
+    [clientFiltered, selectedCustomers])
+
+  const rows = useMemo(() => customerFiltered
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
     .filter(p => {
       if (p.project_type === "building" && !types.building) return false
@@ -427,7 +498,7 @@ function BudgetContent() {
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * ((a[sortField] as number) - (b[sortField] as number))
     }),
-  [clientFiltered, search, sortField, sortAsc, alerts, types])
+  [customerFiltered, search, sortField, sortAsc, alerts, types])
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
@@ -469,6 +540,7 @@ function BudgetContent() {
         <div className="flex items-center gap-2">
           <PeriodFilter year={period.year} month={period.month} onChange={(y, m) => setPeriod({ year: y, month: m })} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
+          <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
           {canManage && (
             <Link href="/budget-control/manage"
               className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
@@ -480,7 +552,7 @@ function BudgetContent() {
 
       {/* ── Receivable / payable by customer chart ───────────────────────── */}
       <div className="h-[300px] shrink-0">
-        <JobSiteChart projects={clientFiltered} />
+        <JobSiteChart projects={clientFiltered} selectedCustomers={selectedCustomers} />
       </div>
 
       {/* ── Projects container ────────────────────────────────────────────── */}
