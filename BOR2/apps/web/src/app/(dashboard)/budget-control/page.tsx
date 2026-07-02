@@ -10,10 +10,10 @@ import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
-  Search, X, HandCoins, Loader2, Building2, Home, Settings,
+  Search, X, HandCoins, Loader2, Building2, Home, LandPlot, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
-  CalendarClock, Users, Check, Layers, LayoutGrid,
+  CalendarClock, Users, Check, Layers,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
@@ -129,6 +129,8 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0, groupCount = 0 }: {
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/30">
             {p.project_type === "building"
               ? <Building2 className="h-3.5 w-3.5 text-muted-foreground/70" />
+              : p.project_type === "lot"
+              ? <LandPlot  className="h-3.5 w-3.5 text-muted-foreground/70" />
               : <Home      className="h-3.5 w-3.5 text-muted-foreground/70" />}
           </div>
           {(p.potentially_closed || p.over_ceiling || hasInProgress) && (
@@ -405,7 +407,7 @@ function PeriodFilter({ selected, setSelected }: {
     ? "All time"
     : sorted.length === 1
       ? formatMonthKey(sorted[0])
-      : `${formatMonthKey(sorted[0])} – ${formatMonthKey(sorted[sorted.length - 1])}`
+      : `${formatMonthKey(sorted[0])}—${formatMonthKey(sorted[sorted.length - 1])}`
   const yearKeys = Array.from({ length: 12 }, (_, i) => monthKey(navYear, i + 1))
   const fullYearSelected = yearKeys.every(k => selected.has(k))
   const toggleMonth = (k: string) => {
@@ -468,7 +470,7 @@ function PeriodFilter({ selected, setSelected }: {
 
 function formatMonthKey(k: string) {
   const [y, m] = k.split("-")
-  return `${MONTHS[Number(m) - 1]} ${y}`
+  return `${m}/${y}`
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -498,7 +500,7 @@ function BudgetContent() {
   const [detailID,  setDetailID]  = useState<string | null>(null)
   const [page,      setPage]      = useState(1)
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
-  const [types,     setTypes]     = useState({ building: true, house: true })
+  const [types,     setTypes]     = useState({ building: true, lot: true, private: true })
   const [groupByJobsite, setGroupByJobsite] = useState(true)
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
@@ -549,7 +551,8 @@ function BudgetContent() {
       .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
       .filter(p => {
         if (p.project_type === "building" && !types.building) return false
-        if (p.project_type === "house"    && !types.house)    return false
+        if (p.project_type === "lot"      && !types.lot)      return false
+        if (p.project_type === "private"  && !types.private)  return false
         return true
       })
       .filter(p => {
@@ -604,7 +607,7 @@ function BudgetContent() {
             <h1 className="text-xl font-semibold tracking-tight">Budget Control</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Receivables, cost by category and subcontractor (PO) commitment — per project
+            Cost and income tracking, per project
           </p>
         </div>
 
@@ -620,12 +623,15 @@ function BudgetContent() {
                     onClick={() => setGroupByJobsite(v => !v)}
                     className={cn(
                       "flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors dark:bg-input/30",
-                      groupByJobsite ? "text-foreground" : "text-muted-foreground/50 hover:text-muted-foreground",
+                      groupByJobsite ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                     )}
                   />
                 }
               >
-                <LayoutGrid className="h-3.5 w-3.5" /> Group by jobsite
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", groupByJobsite ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {groupByJobsite && <Check className="h-3 w-3" />}
+                </span>
+                Group by jobsite
               </TooltipTrigger>
               <TooltipContent>
                 {groupByJobsite ? "Grouped — cards roll up all lots per jobsite" : "Exploded — one card per lot/project"}
@@ -683,7 +689,8 @@ function BudgetContent() {
             <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
               {([
                 { key: "building", Icon: Building2, label: "Buildings" },
-                { key: "house",    Icon: Home,      label: "Houses" },
+                { key: "lot",      Icon: LandPlot,   label: "Lots" },
+                { key: "private",  Icon: Home,       label: "Private" },
               ] as const).map(({ key, Icon, label }) => (
                 <TooltipProvider key={key} delay={0}>
                   <Tooltip>

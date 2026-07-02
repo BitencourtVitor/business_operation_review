@@ -6,7 +6,7 @@ import * as Lucide from "lucide-react"
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 import {
   ArrowLeft, Plus, Trash2, Loader2, Check, Pencil, ChevronDown,
-  Building2, Home, ArrowRightLeft, Users, X, Search,
+  Building2, Home, LandPlot, ArrowRightLeft, Users, X, Search,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -426,7 +426,8 @@ export default function CategoriesPage() {
             onChange={setProjectType}
             options={[
               { value: "building", label: "Building", icon: <Building2 className="h-3.5 w-3.5" /> },
-              { value: "house", label: "House", icon: <Home className="h-3.5 w-3.5" /> },
+              { value: "lot", label: "Lot", icon: <LandPlot className="h-3.5 w-3.5" /> },
+              { value: "private", label: "Private", icon: <Home className="h-3.5 w-3.5" /> },
             ]}
           />
           <button onClick={() => setShowNew(v => !v)}

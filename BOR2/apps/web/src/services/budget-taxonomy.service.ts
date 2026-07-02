@@ -5,7 +5,7 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
-export type ProjectType = "house" | "building"
+export type ProjectType = "building" | "lot" | "private"
 
 export interface Category {
   id: string

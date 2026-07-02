@@ -30,17 +30,17 @@ func NewBudgetHandler(db *pgxpool.Pool, periodSvc *service.PeriodReportService) 
 
 const profitMargin = 0.30 // every project (house & building) targets 30% margin
 
-// projectType is derived from the project name: "building" → building, "lot" →
-// house, otherwise house (fallback).
+// projectType is derived from the project name's prefix: "Building ..." →
+// building, "Lot ..." → lot, otherwise private (fallback — was "house").
 func projectType(name string) string {
-	n := strings.ToLower(name)
-	if strings.Contains(n, "building") {
+	n := strings.ToLower(strings.TrimSpace(name))
+	if strings.HasPrefix(n, "building") {
 		return "building"
 	}
-	if strings.Contains(n, "lot") {
-		return "house"
+	if strings.HasPrefix(n, "lot") {
+		return "lot"
 	}
-	return "house"
+	return "private"
 }
 
 // custProjCTE maps every QB customer that appears in any budget source to a
