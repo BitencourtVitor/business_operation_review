@@ -60,6 +60,22 @@ function toISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
+// Per-document urgency (mirrors the backend's contractor-level bands) — lets a
+// single doc cell flag itself as the one driving the card's "Expired"/"Due
+// soon" badge, instead of leaving the user to guess which of the 7 it is.
+function docUrgency(record: SubDocRecord, hasExpiry: boolean): Urgency {
+  if (!hasExpiry || record.status !== "received" || !record.expiry_date) return "none"
+  const [y, m, d] = record.expiry_date.split("-").map(Number)
+  const target = new Date(y, m - 1, d)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.round((target.getTime() - today.getTime()) / 86_400_000)
+  if (days < 0) return "expired"
+  if (days <= 30) return "urgent"
+  if (days <= 90) return "soon"
+  return "ok"
+}
+
 // US phone mask, applied as the user types: (555) 555-5555
 function formatPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 10)
@@ -131,15 +147,22 @@ function DocCell({ contractorId, typeInfo, record }: {
   const dateLabel = typeInfo.has_expiry
     ? (record.status === "received" ? fmtDate(record.expiry_date) : meta.label)
     : (record.status === "requested" && record.requested_date ? `req. ${fmtDate(record.requested_date)}` : meta.label)
+  const urgency = docUrgency(record, typeInfo.has_expiry)
+  const flagged = urgency === "expired" || urgency === "urgent"
+  const urgMeta = URGENCY_META[urgency]
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         onClick={e => e.stopPropagation()}
-        className="flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-left shadow-sm transition-colors hover:border-ring hover:bg-muted/40 dark:bg-input/30"
+        title={flagged ? `${urgMeta.label} — this document needs attention` : undefined}
+        className="flex min-w-0 items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-left shadow-sm transition-colors hover:border-ring hover:bg-muted/40 dark:bg-input/30"
       >
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{typeInfo.label}</span>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex min-w-0 items-center gap-1 truncate text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
+            {flagged && <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", urgMeta.dot)} />}
+            <span className="truncate">{typeInfo.label}</span>
+          </span>
           <span className={cn("flex items-center gap-1 text-[11px] font-semibold", meta.color)}>
             <Icon className="h-3 w-3 shrink-0" />
             {dateLabel}
