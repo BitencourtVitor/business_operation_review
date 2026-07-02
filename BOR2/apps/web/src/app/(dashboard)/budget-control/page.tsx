@@ -13,7 +13,7 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
-  CalendarClock, Users, Check, Layers,
+  CalendarClock, Users, Check, Layers, LayoutGrid,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
@@ -37,6 +37,34 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
 
+// ── Group-by-jobsite aggregation ─────────────────────────────────────────────
+// Rolls up every project sharing a customer_group (jobsite) into one summed
+// card. Not expandable — turn "group by jobsite" off to see individual lots.
+
+const SUM_FIELDS = [
+  "projected_receive", "invoiced", "income_actual", "received", "to_receive",
+  "cost_total", "cost_ceiling", "paid", "open_payable", "to_pay",
+  "labor_committed", "labor_budget", "labor_billed", "labor_open", "labor_paid",
+] as const satisfies readonly (keyof BudgetProjectDetail)[]
+
+function groupProjectsByJobsite(list: BudgetProjectDetail[]): (BudgetProjectDetail & { __count: number })[] {
+  const groups = new Map<string, BudgetProjectDetail & { __count: number }>()
+  for (const p of list) {
+    const key = p.customer_group || p.name
+    const existing = groups.get(key)
+    if (!existing) {
+      groups.set(key, { ...p, project_id: `group:${key}`, name: key, __count: 1 })
+      continue
+    }
+    for (const f of SUM_FIELDS) (existing[f] as number) += p[f] as number
+    existing.over_ceiling = existing.over_ceiling || p.over_ceiling
+    existing.in_progress = existing.in_progress || p.in_progress
+    existing.potentially_closed = existing.potentially_closed && p.potentially_closed
+    existing.__count += 1
+  }
+  return [...groups.values()]
+}
+
 // ── Project Card ──────────────────────────────────────────────────────────────
 
 function MetricRow({ label, value, color, blur, strong }: {
@@ -57,8 +85,8 @@ function MetricRow({ label, value, color, blur, strong }: {
 
 // ── Project Card ──────────────────────────────────────────────────────────────
 
-function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
-  p: BudgetProjectDetail; blur: string; onOpen: () => void; inProgressCost?: number
+function ProjectCard({ p, blur, onOpen, inProgressCost = 0, groupCount = 0 }: {
+  p: BudgetProjectDetail; blur: string; onOpen: () => void; inProgressCost?: number; groupCount?: number
 }) {
   const hasLabor = p.labor_committed > 0
   const hasInProgress = inProgressCost > 0
@@ -73,7 +101,14 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
       {/* Identity */}
       <div className="flex min-w-0 items-center gap-3 border-b border-border/50 px-4 py-3 md:w-[26%] md:border-b-0">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <p className="text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-semibold leading-tight" title={p.name}>{p.name}</p>
+            {groupCount > 1 && (
+              <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                {groupCount} lots
+              </span>
+            )}
+          </div>
           {p.client_name && (
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
               <MapPin className="h-2.5 w-2.5 shrink-0" />
@@ -464,6 +499,7 @@ function BudgetContent() {
   const [page,      setPage]      = useState(1)
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
   const [types,     setTypes]     = useState({ building: true, house: true })
+  const [groupByJobsite, setGroupByJobsite] = useState(true)
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
   const [periodSet, setPeriodSet] = useState<Set<string>>(
@@ -508,30 +544,32 @@ function BudgetContent() {
     () => clientFiltered.filter(p => selectedCustomers.size === 0 || selectedCustomers.has(p.customer_group || p.name)),
     [clientFiltered, selectedCustomers])
 
-  const rows = useMemo(() => customerFiltered
-    .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
-    .filter(p => {
-      if (p.project_type === "building" && !types.building) return false
-      if (p.project_type === "house"    && !types.house)    return false
-      return true
-    })
-    .filter(p => {
-      const loss      = (p.invoiced - p.cost_total) < 0
-      const hasGreen  = p.potentially_closed
-      const hasRed    = p.over_ceiling && loss
-      const hasYellow = p.over_ceiling && !loss
-      if (hasGreen  && !alerts.green)  return false
-      if (hasRed    && !alerts.red)    return false
-      if (hasYellow && !alerts.yellow) return false
-      return true
-    })
-    .slice()
-    .sort((a, b) => {
+  const rows = useMemo(() => {
+    const filtered = customerFiltered
+      .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
+      .filter(p => {
+        if (p.project_type === "building" && !types.building) return false
+        if (p.project_type === "house"    && !types.house)    return false
+        return true
+      })
+      .filter(p => {
+        const loss      = (p.invoiced - p.cost_total) < 0
+        const hasGreen  = p.potentially_closed
+        const hasRed    = p.over_ceiling && loss
+        const hasYellow = p.over_ceiling && !loss
+        if (hasGreen  && !alerts.green)  return false
+        if (hasRed    && !alerts.red)    return false
+        if (hasYellow && !alerts.yellow) return false
+        return true
+      })
+    const base: (BudgetProjectDetail & { __count?: number })[] =
+      groupByJobsite ? groupProjectsByJobsite(filtered) : filtered
+    return base.slice().sort((a, b) => {
       const dir = sortAsc ? 1 : -1
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * ((a[sortField] as number) - (b[sortField] as number))
-    }),
-  [customerFiltered, search, sortField, sortAsc, alerts, types])
+    })
+  }, [customerFiltered, search, sortField, sortAsc, alerts, types, groupByJobsite])
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
@@ -541,7 +579,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients, periodStart, periodEnd])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, groupByJobsite, selectedClients, periodStart, periodEnd])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -574,6 +612,26 @@ function BudgetContent() {
           <PeriodFilter selected={periodSet} setSelected={setPeriodSet} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    onClick={() => setGroupByJobsite(v => !v)}
+                    className={cn(
+                      "flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors dark:bg-input/30",
+                      groupByJobsite ? "text-foreground" : "text-muted-foreground/50 hover:text-muted-foreground",
+                    )}
+                  />
+                }
+              >
+                <LayoutGrid className="h-3.5 w-3.5" /> Group by jobsite
+              </TooltipTrigger>
+              <TooltipContent>
+                {groupByJobsite ? "Grouped — cards roll up all lots per jobsite" : "Exploded — one card per lot/project"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {canManage && (
             <Link href="/budget-control/manage"
               className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
@@ -585,7 +643,16 @@ function BudgetContent() {
 
       {/* ── Receivable / payable by customer chart ───────────────────────── */}
       <div className="h-[300px] shrink-0">
-        <JobSiteChart projects={clientFiltered} selectedCustomers={selectedCustomers} />
+        <JobSiteChart
+          projects={clientFiltered}
+          selectedCustomers={selectedCustomers}
+          forceExploded={!groupByJobsite}
+          onSelectCustomer={name => setSelectedCustomers(new Set([name]))}
+          onOpenProject={name => {
+            const match = clientFiltered.find(p => p.name === name)
+            if (match) setDetailID(match.project_id)
+          }}
+        />
       </div>
 
       {/* ── Projects container ────────────────────────────────────────────── */}
@@ -706,15 +773,19 @@ function BudgetContent() {
           <>
             <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar p-4">
               <div className="flex flex-col gap-3">
-                {pageRows.map((p, i) => (
-                  <ProjectCard
-                    key={p.project_id ?? i}
-                    p={p}
-                    blur={blur}
-                    onOpen={() => setDetailID(p.project_id)}
-                    inProgressCost={laborSummary?.[p.project_id] ?? 0}
-                  />
-                ))}
+                {pageRows.map((p, i) => {
+                  const isGroup = p.project_id.startsWith("group:")
+                  return (
+                    <ProjectCard
+                      key={p.project_id ?? i}
+                      p={p}
+                      blur={blur}
+                      onOpen={isGroup ? () => {} : () => setDetailID(p.project_id)}
+                      inProgressCost={laborSummary?.[p.project_id] ?? 0}
+                      groupCount={p.__count ?? 0}
+                    />
+                  )
+                })}
               </div>
             </div>
             {pageCount > 1 && (
