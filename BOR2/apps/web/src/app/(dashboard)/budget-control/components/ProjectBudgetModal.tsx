@@ -1323,7 +1323,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   </div>
                   <button
                     onClick={() => setEditingContractors(v => !v)}
-                    className={cn("flex h-6 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] font-medium transition-colors",
+                    className={cn("flex h-6 shrink-0 items-center gap-1 self-start rounded-md border px-1.5 text-[10px] font-medium transition-colors",
                       editingContractors ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-500" : "border-input bg-transparent text-muted-foreground hover:text-foreground dark:bg-input/30")}
                     title="Edit category and subcontractor budgets"
                   >
