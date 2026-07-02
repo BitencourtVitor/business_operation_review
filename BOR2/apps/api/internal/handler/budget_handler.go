@@ -153,9 +153,12 @@ inc_by_type AS (
     FROM inc_lines GROUP BY pkey, name
 ),
 inc AS (
+    -- Clamped at the project total, NOT per type: a type like Back Charges is a
+    -- negative-amount deduction from income, and clamping it to 0 individually
+    -- would inflate received by the deduction's value instead of letting it net out.
     SELECT pkey,
            SUM(amount) AS income_actual,
-           SUM(GREATEST(amount - outstanding, 0)) AS received
+           GREATEST(SUM(amount - outstanding), 0) AS received
     FROM inc_by_type
     GROUP BY pkey
 ),
@@ -646,11 +649,13 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		d.IncomeActual += ia.Amount
 		// Received mirrors the by-type breakdown (invoice.balance-derived) rather than
 		// qb_payments, which under-counts balance paid off via credit memos/journal
-		// entries that never sync as a Payment object. max0 per row matches the
-		// frontend's per-type clamp so the header total ties to the visible breakdown.
-		d.Received += max0(ia.Amount - ia.Outstanding)
+		// entries that never sync as a Payment object. Clamped once at the total below,
+		// NOT per row — a type like Back Charges is a negative-amount deduction from
+		// income, and clamping it individually would inflate Received instead of netting.
+		d.Received += ia.Amount - ia.Outstanding
 	}
 	incRows.Close()
+	d.Received = max0(d.Received)
 
 	// Cost by QB account (a pagar), nested parent→child (mirrors QB P&L), grouped by
 	// account type, vendor credits negative, deleted accounts via stored line name.
