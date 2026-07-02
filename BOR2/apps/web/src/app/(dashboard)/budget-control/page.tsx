@@ -738,6 +738,9 @@ function BudgetContent() {
     })
   }, [projectFiltered, search, sortField, sortAsc, alertFilter, types, groupByJobsite])
 
+  // Sum across every displayed row, not just the current page.
+  const amberBacklogTotal = useMemo(() => rows.reduce((s, p) => s + contractorsBacklog(p), 0), [rows])
+
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
     () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -895,13 +898,16 @@ function BudgetContent() {
                         <button
                           onClick={() => setAlertFilter(f => (f === key ? "all" : key))}
                           className={cn(
-                            "flex h-full items-center px-2 transition-colors",
+                            "flex h-full items-center gap-1 px-2 transition-colors",
                             alertFilter === "all" || alertFilter === key ? on : "text-muted-foreground/25 hover:text-muted-foreground/60",
                           )}
                         />
                       }
                     >
                       <Icon className="h-3.5 w-3.5" />
+                      {key === "amber" && alertFilter === "amber" && (
+                        <span className="text-[11px] font-semibold tabular-nums">{fmt(amberBacklogTotal)}</span>
+                      )}
                     </TooltipTrigger>
                     <TooltipContent>{alertFilter === key ? `Showing only: ${label}` : `Show only: ${label}`}</TooltipContent>
                   </Tooltip>
