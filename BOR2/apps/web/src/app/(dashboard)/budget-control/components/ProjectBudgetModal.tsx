@@ -387,14 +387,20 @@ function VendorRow({ vendor, blur, editing, catId, company, projectID, categorie
   const over = vendor.budget_limit > 0 && vendor.committed > vendor.budget_limit
 
   return (
-    <div className={cn("flex items-center gap-2 border-t border-border/10 py-1.5 pl-[52px] pr-4", isSettled && "text-muted-foreground")}>
-      <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <span className={cn("truncate text-[11px]", isSettled ? "text-muted-foreground" : "text-muted-foreground/80")} title={vendor.vendor_name}>{vendor.vendor_name || "—"}</span>
-        {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
-        {editing && editable && catId && (
-          <MoveCategoryPopover currentCatId={catId} categories={categories}
-            onMove={target => setMove.mutate({ company, project_id: projectID, vendor_id: vendor.vendor_id, category_id: target })} />
-        )}
+    <div className={cn("flex items-center gap-2 border-t border-border/10 py-1.5 pl-4 pr-4", isSettled && "text-muted-foreground")}>
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        {/* Reserved column matching the category icon above, so the move
+            button lines up in the same rail whether or not it's shown. */}
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+          {editing && editable && (
+            <MoveCategoryPopover currentCatId={catId} categories={categories}
+              onMove={target => setMove.mutate({ company, project_id: projectID, vendor_id: vendor.vendor_id, category_id: target })} />
+          )}
+        </div>
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
+          <span className={cn("truncate text-[11px]", isSettled ? "text-muted-foreground" : "text-muted-foreground/80")} title={vendor.vendor_name}>{vendor.vendor_name || "—"}</span>
+          {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
+        </div>
       </div>
       <div className="flex shrink-0 items-center">
         {editing && editable && catId ? (
