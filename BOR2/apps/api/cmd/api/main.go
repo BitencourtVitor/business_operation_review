@@ -139,6 +139,7 @@ func main() {
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	budgetHandler            := handler.NewBudgetHandler(db, periodReportSvc)
 	budgetTaxonomyHandler    := handler.NewBudgetTaxonomyHandler(db)
+	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db)
 	qbtimeMappingHandler     := handler.NewQBTimeMappingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler         := handler.NewBuildingsHandler(db, auditService)
@@ -525,6 +526,15 @@ func main() {
 	budget.Post("/qbtime-mapping/accept",   qbtimeMappingHandler.Accept)
 	budget.Post("/qbtime-mapping/skip",     qbtimeMappingHandler.Skip)
 	budget.Post("/qbtime-mapping/unlink",   qbtimeMappingHandler.Unlink)
+
+	// Subcontractor Docs (compliance document tracking per subcontractor)
+	subDocs := api.Group("/subcontractor-docs")
+	subDocs.Get("/types",              subcontractorDocsHandler.ListTypes)
+	subDocs.Get("/contractors",        subcontractorDocsHandler.ListContractors)
+	subDocs.Post("/contractors",       subcontractorDocsHandler.CreateContractor)
+	subDocs.Put("/contractors/:id",    subcontractorDocsHandler.UpdateContractor)
+	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)
+	subDocs.Put("/records",            subcontractorDocsHandler.SetRecord)
 
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")

@@ -130,6 +130,7 @@ const activeGroup: NavGroup = {
       ],
     },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
+    { title: "Subcontractor Docs", href: "/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
   ],
 }
 

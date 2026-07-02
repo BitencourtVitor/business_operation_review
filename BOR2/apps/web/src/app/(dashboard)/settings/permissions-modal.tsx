@@ -43,6 +43,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
       { key: "building_schedule", label: "Building Schedule",          icon: Building2     },
+      { key: "subcontractor_docs", label: "Subcontractor Docs",        icon: FileCheck     },
     ],
   },
   {
