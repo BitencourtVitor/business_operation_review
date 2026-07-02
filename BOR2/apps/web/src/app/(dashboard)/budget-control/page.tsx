@@ -37,6 +37,21 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
 
+const EPS = 1
+
+// Income fully wrapped up (100% invoiced, nothing outstanding) but the
+// subcontractor side isn't settled yet — either unbilled PO work or billed
+// work still owed. Worth a flag independent of "Potentially closed" (BC-14),
+// which only tracks unbilled PO commitment, not billed-but-unpaid.
+function contractorsBacklog(p: BudgetProjectDetail): number {
+  const incomeDone = p.income_actual >= p.projected_receive - EPS && p.to_receive <= EPS
+  if (!incomeDone || p.labor_committed <= 0) return 0
+  return Math.max(p.labor_committed - p.labor_paid, 0)
+}
+function contractorsNotSettled(p: BudgetProjectDetail): boolean {
+  return contractorsBacklog(p) > EPS
+}
+
 // ── Persisted collapse state ─────────────────────────────────────────────────
 
 function usePersistedCollapse(key: string): [boolean, (v: boolean | ((prev: boolean) => boolean)) => void] {
@@ -107,6 +122,8 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
 }) {
   const hasLabor = p.labor_committed > 0
   const hasInProgress = inProgressCost > 0
+  const amberBacklog = contractorsBacklog(p)
+  const hasAmber = amberBacklog > EPS
   const profit = p.income_actual - p.cost_total
   const marginPct = p.income_actual > 0 ? Math.round((profit / p.income_actual) * 100) : 0
   const positiveMargin = profit >= 0
@@ -143,7 +160,7 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
               ? <LandPlot  className="h-3.5 w-3.5 text-muted-foreground/70" />
               : <Home      className="h-3.5 w-3.5 text-muted-foreground/70" />}
           </div>
-          {(p.potentially_closed || p.over_ceiling || hasInProgress) && (
+          {(p.potentially_closed || p.over_ceiling || hasAmber || hasInProgress) && (
             <div className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-border bg-background px-1.5 py-1.5">
               {hasInProgress && (
                 <TooltipProvider delay={0}>
@@ -178,6 +195,16 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
                         ? "Loss, margin below 0%"
                         : "Margin below the 30% target"}
                     </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {hasAmber && (
+                <TooltipProvider delay={0}>
+                  <Tooltip>
+                    <TooltipTrigger render={<span className="flex" />}>
+                      <HardHat className="h-4 w-4 text-amber-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>Contractors Backlog: {fmt(amberBacklog)} still owed to contractors — income is fully invoiced and collected</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -613,7 +640,7 @@ function BudgetContent() {
   const [sortAsc,   setSortAsc]   = useState(false)
   const [detailID,  setDetailID]  = useState<string | null>(null)
   const [page,      setPage]      = useState(1)
-  const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
+  const [alertFilter, setAlertFilter] = useState<"all" | "green" | "yellow" | "amber" | "red">("all")
   const [types,     setTypes]     = useState({ building: true, lot: true, private: true })
   const [groupByJobsite, setGroupByJobsite] = useState(true)
   const [chartCollapsed, setChartCollapsed] = usePersistedCollapse("budget-control:chart-collapsed")
@@ -692,13 +719,12 @@ function BudgetContent() {
         return true
       })
       .filter(p => {
+        if (alertFilter === "all") return true
         const loss      = (p.income_actual - p.cost_total) < 0
-        const hasGreen  = p.potentially_closed
-        const hasRed    = p.over_ceiling && loss
-        const hasYellow = p.over_ceiling && !loss
-        if (hasGreen  && !alerts.green)  return false
-        if (hasRed    && !alerts.red)    return false
-        if (hasYellow && !alerts.yellow) return false
+        if (alertFilter === "green")  return p.potentially_closed
+        if (alertFilter === "red")    return p.over_ceiling && loss
+        if (alertFilter === "yellow") return p.over_ceiling && !loss
+        if (alertFilter === "amber")  return contractorsNotSettled(p)
         return true
       })
     const base: (BudgetProjectDetail & { __count?: number })[] =
@@ -710,7 +736,7 @@ function BudgetContent() {
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * (sortValue(a) - sortValue(b))
     })
-  }, [projectFiltered, search, sortField, sortAsc, alerts, types, groupByJobsite])
+  }, [projectFiltered, search, sortField, sortAsc, alertFilter, types, groupByJobsite])
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
@@ -720,7 +746,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, groupByJobsite, selectedClients, selectedProjects, periodStart, periodEnd])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alertFilter, types, groupByJobsite, selectedClients, selectedProjects, periodStart, periodEnd])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -859,6 +885,7 @@ function BudgetContent() {
               {([
                 { key: "green",  Icon: CheckCircle2,  on: "text-emerald-500", label: "Potentially closed" },
                 { key: "yellow", Icon: AlertTriangle, on: "text-yellow-500",  label: "Margin below target" },
+                { key: "amber",  Icon: HardHat,       on: "text-amber-500",   label: "Contractors Backlog" },
                 { key: "red",    Icon: OctagonAlert,  on: "text-red-500",     label: "Loss" },
               ] as const).map(({ key, Icon, on, label }) => (
                 <TooltipProvider key={key} delay={0}>
@@ -866,17 +893,17 @@ function BudgetContent() {
                     <TooltipTrigger
                       render={
                         <button
-                          onClick={() => setAlerts(a => ({ ...a, [key]: !a[key] }))}
+                          onClick={() => setAlertFilter(f => (f === key ? "all" : key))}
                           className={cn(
                             "flex h-full items-center px-2 transition-colors",
-                            alerts[key] ? on : "text-muted-foreground/25 hover:text-muted-foreground/60",
+                            alertFilter === "all" || alertFilter === key ? on : "text-muted-foreground/25 hover:text-muted-foreground/60",
                           )}
                         />
                       }
                     >
                       <Icon className="h-3.5 w-3.5" />
                     </TooltipTrigger>
-                    <TooltipContent>{alerts[key] ? `Showing: ${label}` : `Hidden: ${label}`}</TooltipContent>
+                    <TooltipContent>{alertFilter === key ? `Showing only: ${label}` : `Show only: ${label}`}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               ))}
