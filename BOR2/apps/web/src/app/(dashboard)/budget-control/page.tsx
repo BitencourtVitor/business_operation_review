@@ -399,6 +399,60 @@ function CustomerFilter({ customers, selected, setSelected }: {
   )
 }
 
+// ── Project multi-select ──────────────────────────────────────────────────────
+// Unlike Client/Customer (which group by client name / jobsite), this lists
+// every individual project/lot leaf, keyed by project_id (names can repeat).
+
+type ProjectOption = { id: string; label: string }
+
+function ProjectFilter({ options, selected, setSelected }: {
+  options: ProjectOption[]; selected: Set<string>; setSelected: (s: Set<string>) => void
+}) {
+  const [q, setQ] = useState("")
+  const filtered = q ? options.filter(o => o.label.toLowerCase().includes(q.toLowerCase())) : options
+  const toggle = (id: string) => {
+    const next = new Set(selected)
+    next.has(id) ? next.delete(id) : next.add(id)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Building2 className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All projects" : `${selected.size} project${selected.size > 1 ? "s" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <div className="relative mb-2">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter projects…"
+            className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        </div>
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex max-h-64 flex-col overflow-y-auto no-scrollbar">
+          {filtered.map(o => {
+            const on = selected.has(o.id)
+            return (
+              <button key={o.id} onClick={() => toggle(o.id)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate" title={o.label}>{o.label}</span>
+              </button>
+            )
+          })}
+          {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No projects.</p>}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Period (range) filter ────────────────────────────────────────────────────
 // A range is two "YYYY-MM" endpoints (inclusive). Clicking a month sets the
 // start anchor; the next click sets the end anchor and everything between is
@@ -566,6 +620,7 @@ function BudgetContent() {
   const [projectsCollapsed, setProjectsCollapsed] = usePersistedCollapse("budget-control:projects-collapsed")
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
+  const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set())
   // Applied (not draft) period — only changes when the user clicks "Apply" in
   // PeriodFilter, so toggling checkboxes doesn't refetch on every click.
   const [periodStart, setPeriodStart] = useState<string | null>(() => monthKey(new Date().getFullYear(), 1))
@@ -606,8 +661,29 @@ function BudgetContent() {
     () => clientFiltered.filter(p => selectedCustomers.size === 0 || selectedCustomers.has(p.customer_group || p.name)),
     [clientFiltered, selectedCustomers])
 
+  // Project multi-select narrows BOTH the chart and the project list further,
+  // down to individual leaf projects (keyed by project_id — names can repeat).
+  const projectOptions = useMemo(
+    () => customerFiltered
+      .map(p => ({ id: p.project_id, label: p.name }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+    [customerFiltered])
+
+  useEffect(() => {
+    setSelectedProjects(prev => {
+      if (prev.size === 0) return prev
+      const validIds = new Set(projectOptions.map(o => o.id))
+      const next = new Set([...prev].filter(id => validIds.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [projectOptions])
+
+  const projectFiltered = useMemo(
+    () => customerFiltered.filter(p => selectedProjects.size === 0 || selectedProjects.has(p.project_id)),
+    [customerFiltered, selectedProjects])
+
   const rows = useMemo(() => {
-    const filtered = customerFiltered
+    const filtered = projectFiltered
       .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))
       .filter(p => {
         if (p.project_type === "building" && !types.building) return false
@@ -632,7 +708,7 @@ function BudgetContent() {
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * ((a[sortField] as number) - (b[sortField] as number))
     })
-  }, [customerFiltered, search, sortField, sortAsc, alerts, types, groupByJobsite])
+  }, [projectFiltered, search, sortField, sortAsc, alerts, types, groupByJobsite])
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
@@ -642,7 +718,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, groupByJobsite, selectedClients, periodStart, periodEnd])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, groupByJobsite, selectedClients, selectedProjects, periodStart, periodEnd])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -675,6 +751,7 @@ function BudgetContent() {
           <PeriodFilter start={periodStart} end={periodEnd} onApply={(s, e) => { setPeriodStart(s); setPeriodEnd(e) }} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
+          <ProjectFilter options={projectOptions} selected={selectedProjects} setSelected={setSelectedProjects} />
           <TooltipProvider delay={0}>
             <Tooltip>
               <TooltipTrigger
@@ -710,12 +787,12 @@ function BudgetContent() {
       {/* ── Receivable / payable by customer chart ───────────────────────── */}
       <div className={cn("shrink-0", chartCollapsed ? "h-11" : "h-[300px]")}>
         <JobSiteChart
-          projects={clientFiltered}
+          projects={projectFiltered}
           selectedCustomers={selectedCustomers}
           forceExploded={!groupByJobsite}
           onSelectCustomer={name => setSelectedCustomers(new Set([name]))}
           onOpenProject={name => {
-            const match = clientFiltered.find(p => p.name === name)
+            const match = projectFiltered.find(p => p.name === name)
             if (match) setDetailID(match.project_id)
           }}
           collapsed={chartCollapsed}
