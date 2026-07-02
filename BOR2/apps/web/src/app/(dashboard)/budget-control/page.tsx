@@ -107,8 +107,8 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
 }) {
   const hasLabor = p.labor_committed > 0
   const hasInProgress = inProgressCost > 0
-  const profit = p.invoiced - p.cost_total
-  const marginPct = p.invoiced > 0 ? Math.round((profit / p.invoiced) * 100) : 0
+  const profit = p.income_actual - p.cost_total
+  const marginPct = p.income_actual > 0 ? Math.round((profit / p.income_actual) * 100) : 0
   const positiveMargin = profit >= 0
 
   return (
@@ -205,7 +205,7 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
         </div>
         <div className="flex flex-col gap-1">
           <MetricRow label="Estimated" value={p.projected_receive} blur={blur} strong />
-          <MetricRow label="Invoiced"  value={p.invoiced}          blur={blur} />
+          <MetricRow label="Total"     value={p.income_actual}     blur={blur} />
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
               <span className="text-[11px] text-muted-foreground">Received</span>
@@ -616,7 +616,7 @@ function BudgetContent() {
         return true
       })
       .filter(p => {
-        const loss      = (p.invoiced - p.cost_total) < 0
+        const loss      = (p.income_actual - p.cost_total) < 0
         const hasGreen  = p.potentially_closed
         const hasRed    = p.over_ceiling && loss
         const hasYellow = p.over_ceiling && !loss
