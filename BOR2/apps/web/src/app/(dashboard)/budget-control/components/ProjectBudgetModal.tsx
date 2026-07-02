@@ -275,19 +275,24 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
         )}
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
-        {/* Payee breakdown — flag the supervisor, split supervisor vs normal labor */}
-        <Popover>
-          <PopoverTrigger
-            onClick={e => e.stopPropagation()}
-            title="Payees · flag supervisor"
-            className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <Users className="h-3 w-3" />
-          </PopoverTrigger>
-          <PopoverContent align="start" side="right" className="w-[26rem]" onClick={e => e.stopPropagation()}>
-            <AccountPayeesPanel company={company} projectID={projectID} account={ca} />
-          </PopoverContent>
-        </Popover>
+        {/* Payee breakdown — flag the supervisor, split supervisor vs normal labor.
+            Only Payroll - COGS has a supervisor to segregate from normal labor. */}
+        {ca.name === "Payroll - COGS" ? (
+          <Popover>
+            <PopoverTrigger
+              onClick={e => e.stopPropagation()}
+              title="Payees · flag supervisor"
+              className="ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Users className="h-3 w-3" />
+            </PopoverTrigger>
+            <PopoverContent align="start" side="right" className="w-[26rem]" onClick={e => e.stopPropagation()}>
+              <AccountPayeesPanel company={company} projectID={projectID} account={ca} />
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <span className="ml-1 h-5 w-5 shrink-0" />
+        )}
         {/* Paid-over-time chart — floating popover anchored to the icon */}
         <Popover>
           <PopoverTrigger
