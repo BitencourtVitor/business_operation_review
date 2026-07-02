@@ -23,6 +23,7 @@ export interface CostAccount {
   paid: number
   outstanding: number
   budget_limit: number
+  deadline: string | null // "YYYY-MM-DD" — paired with the project's start_date
   locked: boolean
   children?: CostAccount[]
 }
@@ -125,6 +126,7 @@ export interface BudgetProjectDetail {
   customer_group: string
   project_type: "house" | "building"
   margin_target: number
+  start_date: string | null // "YYYY-MM-DD", manual — paired with each account's deadline
 
   // Income (a receber)
   projected_receive: number
@@ -213,6 +215,14 @@ export const budgetService = {
 
   async setAccountLimit(body: { company: string; project_id: string; account_id: string; amount: number }): Promise<void> {
     await api.put(`/api/v1/budget/account-limits`, body, getToken())
+  },
+
+  async setAccountDeadline(body: { company: string; project_id: string; account_id: string; deadline: string }): Promise<void> {
+    await api.put(`/api/v1/budget/account-limits/deadline`, body, getToken())
+  },
+
+  async setProjectStartDate(body: { company: string; project_id: string; start_date: string }): Promise<void> {
+    await api.put(`/api/v1/budget/project-dates`, body, getToken())
   },
 
   async getAccountPayees(params: { company: string; project_id: string; account_id: string }): Promise<AccountPayee[]> {

@@ -456,6 +456,7 @@ type CostAccount struct {
 	Paid        float64       `json:"paid"`
 	Outstanding float64       `json:"outstanding"`
 	BudgetLimit float64       `json:"budget_limit"`
+	Deadline    *string       `json:"deadline"` // "YYYY-MM-DD" ceiling date, paired with the project's start_date
 	Locked      bool          `json:"locked"`
 	Children    []CostAccount `json:"children,omitempty"`
 }
@@ -467,6 +468,7 @@ type BudgetProjectDetail struct {
 	CustomerGroup string  `json:"customer_group"` // QB "Customer name" — the immediate parent
 	ProjectType   string  `json:"project_type"`
 	MarginTarget  float64 `json:"margin_target"`
+	StartDate     *string `json:"start_date"` // "YYYY-MM-DD", manual — paired with each account's Deadline
 
 	// Income (a receber)
 	ProjectedReceive float64         `json:"projected_receive"` // contract / estimate
@@ -543,7 +545,10 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	// Header figures — aggregate across all customers of the project.
 	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_estimates WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.ProjectedReceive)
 	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_invoices  WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.Invoiced)
-	_ = h.db.QueryRow(ctx, `SELECT COALESCE(SUM(total_amount),0) FROM qb_payments  WHERE company=$1 AND customer_id=ANY($2)`, company, customerIDs).Scan(&d.Received)
+	var startDate *string
+	if err := h.db.QueryRow(ctx, `SELECT to_char(start_date, 'YYYY-MM-DD') FROM budget_project_dates WHERE company=$1 AND project_id=$2`, company, d.ProjectID).Scan(&startDate); err == nil && startDate != nil && *startDate != "" {
+		d.StartDate = startDate
+	}
 	_ = h.db.QueryRow(ctx, `
 		SELECT COALESCE(SUM(amount),0) FROM (
 			SELECT amount FROM qb_bill_lines          WHERE company=$1 AND customer_id=ANY($2)
@@ -598,6 +603,11 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		incRows.Scan(&ia.Name, &ia.Amount, &ia.Outstanding)
 		d.IncomeAccounts = append(d.IncomeAccounts, ia)
 		d.IncomeActual += ia.Amount
+		// Received mirrors the by-type breakdown (invoice.balance-derived) rather than
+		// qb_payments, which under-counts balance paid off via credit memos/journal
+		// entries that never sync as a Payment object. max0 per row matches the
+		// frontend's per-type clamp so the header total ties to the visible breakdown.
+		d.Received += max0(ia.Amount - ia.Outstanding)
 	}
 	incRows.Close()
 
@@ -699,11 +709,18 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": d})
 }
 
+// accountLimit is the manual per-account ceiling plus the optional deadline
+// date used to draw a progressive budget-adherence line.
+type accountLimit struct {
+	Amount   float64
+	Deadline *string
+}
+
 // accountLimits returns the manual per-account ceilings for a project.
-func (h *BudgetHandler) accountLimits(ctx context.Context, company, projectID string) map[string]float64 {
-	out := map[string]float64{}
+func (h *BudgetHandler) accountLimits(ctx context.Context, company, projectID string) map[string]accountLimit {
+	out := map[string]accountLimit{}
 	rows, err := h.db.Query(ctx, `
-		SELECT account_id, amount FROM budget_project_account_limits
+		SELECT account_id, amount, to_char(deadline, 'YYYY-MM-DD') FROM budget_project_account_limits
 		WHERE company=$1 AND project_id=$2
 	`, company, projectID)
 	if err != nil {
@@ -712,24 +729,30 @@ func (h *BudgetHandler) accountLimits(ctx context.Context, company, projectID st
 	defer rows.Close()
 	for rows.Next() {
 		var id string
-		var amt float64
-		rows.Scan(&id, &amt)
-		out[id] = amt
+		var l accountLimit
+		var deadline *string
+		rows.Scan(&id, &l.Amount, &deadline)
+		if deadline != nil && *deadline != "" {
+			l.Deadline = deadline
+		}
+		out[id] = l
 	}
 	return out
 }
 
-// applyAccountBudgets sets BudgetLimit on each top-level cost account. The
-// Contractors account is locked to total contracted; all others use the stored
-// manual ceiling (0 = not yet defined).
-func applyAccountBudgets(accounts []CostAccount, limits map[string]float64, totalContracted float64) {
+// applyAccountBudgets sets BudgetLimit/Deadline on each top-level cost account.
+// The Contractors account is locked to total contracted; all others use the
+// stored manual ceiling (0 = not yet defined).
+func applyAccountBudgets(accounts []CostAccount, limits map[string]accountLimit, totalContracted float64) {
 	for i := range accounts {
 		if strings.EqualFold(accounts[i].Name, "Contractors") {
 			accounts[i].BudgetLimit = totalContracted
 			accounts[i].Locked = true
 			continue
 		}
-		accounts[i].BudgetLimit = limits[accounts[i].ID]
+		l := limits[accounts[i].ID]
+		accounts[i].BudgetLimit = l.Amount
+		accounts[i].Deadline = l.Deadline
 	}
 }
 

@@ -6,7 +6,7 @@ import {
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
   CalendarClock, Users, Hourglass, Forklift, MapPin, ArrowRightLeft,
-  Pencil, Plus, Search,
+  Pencil, Plus, Search, CalendarIcon, X as XIcon,
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { qbtimeMappingService } from "@/services/qbtime-mapping.service"
@@ -17,8 +17,9 @@ import {
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Calendar } from "@/components/ui/calendar"
 import { useFinancialStore } from "@/store/financial.store"
-import { useBudgetDetail, useSetAccountLimit, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
+import { useBudgetDetail, useSetAccountLimit, useSetAccountDeadline, useSetProjectStartDate, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
 import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings } from "@/hooks/use-budget-taxonomy"
 import type { CostAccount, CostCategory, CostVendor, BudgetProjectDetail } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
@@ -165,35 +166,55 @@ function MoneyInput({ value, onCommit }: { value: number; onCommit: (v: number) 
   )
 }
 
-// ── Mini donut chart ──────────────────────────────────────────────────────────
+// ── Date picker (compact, click-to-edit — ShadcnUI Calendar + Popover) ────────
 
-function MiniDonut({ paidPct, billedPct }: { paidPct: number; billedPct: number }) {
-  const r = 5.5
-  const circ = 2 * Math.PI * r
+function toDate(iso: string): Date {
+  const [y, m, d] = iso.split("-").map(Number)
+  return new Date(y, m - 1, d)
+}
+function toISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+function DatePickerBadge({ value, onSelect, placeholder, className }: {
+  value: string | null; onSelect: (iso: string | null) => void
+  placeholder: string; className?: string
+}) {
+  const [open, setOpen] = useState(false)
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0 -rotate-90">
-      <circle cx="8" cy="8" r={r} fill="none" strokeWidth="2.5" stroke="currentColor" className="text-muted-foreground/15" />
-      {billedPct > 0 && (
-        <circle cx="8" cy="8" r={r} fill="none" strokeWidth="2.5" stroke="currentColor"
-          className="text-orange-400/40"
-          strokeDasharray={`${(billedPct / 100) * circ} ${circ}`} />
-      )}
-      {paidPct > 0 && (
-        <circle cx="8" cy="8" r={r} fill="none" strokeWidth="2.5" stroke="currentColor"
-          className="text-emerald-500/80"
-          strokeDasharray={`${(paidPct / 100) * circ} ${circ}`} />
-      )}
-    </svg>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        onClick={e => e.stopPropagation()}
+        className={cn("flex items-center gap-1 rounded transition-colors hover:text-foreground", className)}
+      >
+        <CalendarIcon className="h-3 w-3 shrink-0" />
+        {value ? fmtDate(value) : placeholder}
+      </PopoverTrigger>
+      <PopoverContent align="start" side="bottom" sideOffset={4} className="w-auto p-0" onClick={e => e.stopPropagation()}>
+        <Calendar mode="single" selected={value ? toDate(value) : undefined}
+          onSelect={d => { if (d) { onSelect(toISO(d)); setOpen(false) } }}
+          defaultMonth={value ? toDate(value) : undefined} />
+        {value && (
+          <button
+            onClick={() => { onSelect(null); setOpen(false) }}
+            className="flex w-full items-center justify-center gap-1 border-t border-border/40 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <XIcon className="h-3 w-3" /> Clear
+          </button>
+        )}
+      </PopoverContent>
+    </Popover>
   )
 }
 
 // ── Account row (By Account tree with expandable children) ───────────────────
 
-function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, projectID }: {
+function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadline, company, projectID, startDate }: {
   ca: CostAccount; blur: string; editing: boolean
   budgetValue: number
   onDraftBudget: (accountID: string, amount: number) => void
-  company: string; projectID: string
+  onSetDeadline: (accountID: string, deadline: string | null) => void
+  company: string; projectID: string; startDate?: string | null
 }) {
   const [open, setOpen] = useState(false)
   const hasChildren = (ca.children?.length ?? 0) > 0
@@ -214,10 +235,20 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
             <ChevronRight className={cn("h-2.5 w-2.5 text-muted-foreground/30 transition-transform", open && "rotate-90")} />
           )}
         </div>
-        <div className="flex flex-1 min-w-0 items-center gap-1">
+        <div className="flex flex-1 min-w-0 items-center gap-1.5">
           {ca.name === "Contractors" && <HardHat className={cn("h-3 w-3 shrink-0", settled ? "text-muted-foreground/60" : "text-yellow-500/70")} />}
           <span className={cn("truncate text-[11px] font-medium", settled ? "text-muted-foreground" : ca.name === "Contractors" ? "text-yellow-500/80" : "text-foreground/80")} title={ca.name}>{ca.name}</span>
           {settled && <Check className="h-3 w-3 shrink-0 text-red-500/60" />}
+          {/* Budget deadline — pairs with the project start date to draw a
+              progressive adherence line instead of a flat ceiling. */}
+          {editing && !ca.locked ? (
+            <DatePickerBadge value={ca.deadline} onSelect={d => onSetDeadline(ca.id, d)} placeholder="Deadline"
+              className="shrink-0 text-[9px] text-muted-foreground/50" />
+          ) : ca.deadline ? (
+            <span className="flex shrink-0 items-center gap-1 text-[9px] text-muted-foreground/40" title={`Budget deadline: ${fmtDate(ca.deadline)}`}>
+              <CalendarIcon className="h-2.5 w-2.5" /> {fmtDate(ca.deadline)}
+            </span>
+          ) : null}
         </div>
         {/* Cost budget ceiling per account — first value column */}
         {editing && !ca.locked ? (
@@ -267,7 +298,7 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, company, pr
             <LineChartIcon className="h-3 w-3" />
           </PopoverTrigger>
           <PopoverContent align="start" side="right" className="w-[24rem]" onClick={e => e.stopPropagation()}>
-            <AccountChartPanel company={company} projectID={projectID} account={ca} />
+            <AccountChartPanel company={company} projectID={projectID} account={ca} startDate={startDate} />
           </PopoverContent>
         </Popover>
       </div>
@@ -400,10 +431,6 @@ function CategoryRow({ cat, blur, isOpen, onToggle, editing, company, projectID,
   const over = budget > 0 && cat.committed > budget
   const subBudgetSum = cat.vendors.reduce((s, v) => s + (v.budget_limit || 0), 0)
 
-  // Donut/percentage now reflect budget fill: Σ PO committed vs the category budget.
-  const fillPct = budget > 0 ? Math.min((cat.committed / budget) * 100, 100) : 0
-  const paidPct = budget > 0 ? Math.min((netPaid / budget) * 100, 100) : 0
-
   return (
     <div className={cn("border-b border-border/30 last:border-b-0", isUncategorized && "opacity-60")}>
       <div className={cn("flex items-center gap-3 px-4 py-1.5 hover:bg-muted/10", isSettled && "text-muted-foreground")}>
@@ -414,19 +441,8 @@ function CategoryRow({ cat, blur, isOpen, onToggle, editing, company, projectID,
           <div className="flex min-w-0 flex-1 items-center gap-1.5">
             <span className={cn("min-w-0 truncate text-[11px] font-semibold", isSettled && "text-muted-foreground")}>{cat.category_name}</span>
             {isSettled && <Check className="h-3 w-3 shrink-0 text-yellow-500/70" />}
-            {over && <span className="shrink-0 rounded-full bg-amber-500/10 px-1.5 py-px text-[9px] font-semibold text-amber-500">over bdgt</span>}
           </div>
         </button>
-
-        {/* Donut + % vs budget */}
-        <div className="flex w-16 shrink-0 items-center justify-end gap-1.5">
-          {budget > 0 && (
-            <>
-              <span className="text-[9px] tabular-nums text-muted-foreground/60">{Math.round(fillPct)}%</span>
-              <MiniDonut paidPct={paidPct} billedPct={fillPct} />
-            </>
-          )}
-        </div>
 
         {/* Budget (editable) + 4 value columns */}
         <div className="flex shrink-0 items-center">
@@ -483,9 +499,20 @@ const fmtMonth = (s: string) => {
 
 // Shared distribution chart: cumulative (default) vs month-by-month, preference
 // cached. Used for cost accounts (red, with budget line) and income types (green).
-function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, isLoading, color, budget = 0 }: {
+// "YYYY-MM" → absolute month index, for interval math (elapsed/total months).
+function ymIndex(ym: string): number {
+  const [y, m] = ym.slice(0, 7).split("-").map(Number)
+  return y * 12 + (m - 1)
+}
+function ymFromIndex(idx: number): string {
+  const y = Math.floor(idx / 12), m = (idx % 12) + 1
+  return `${y}-${String(m).padStart(2, "0")}`
+}
+
+function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, isLoading, color, budget = 0, startDate, deadline }: {
   title: string; subtitle: string; valueLabel: string; emptyLabel: string
   series: { month: string; value: number }[]; isLoading: boolean; color: string; budget?: number
+  startDate?: string | null; deadline?: string | null
 }) {
   const [mode, setMode] = useState<"cumulative" | "cashflow">(() => {
     if (typeof window === "undefined") return "cumulative"
@@ -496,12 +523,49 @@ function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, is
     if (typeof window !== "undefined") localStorage.setItem("budget-chart-mode", m)
   }
 
+  // Progressive budget line: the ceiling accrues proportionally across the
+  // start_date → deadline window (e.g. a 3-month, $60k budget accrues $20k/mo),
+  // so overspend early and catch-up later both show against the real pace
+  // instead of a flat end-of-project cap. Falls back to the flat ceiling when
+  // either date is missing.
+  const hasProgressive = !!startDate && !!deadline && budget > 0
+  const startIdx = hasProgressive ? ymIndex(startDate!) : 0
+  const endIdx = hasProgressive ? Math.max(startIdx, ymIndex(deadline!)) : 0
+  const totalMonths = hasProgressive ? endIdx - startIdx + 1 : 0
+  const monthlyTarget = hasProgressive ? budget / totalMonths : 0
+
   // Plot magnitude: back charges are negative but should rise on the Y axis.
-  let running = 0
-  const data = series.map(p => { const v = Math.abs(p.value); running += v; return { month: p.month, value: v, cumulative: running } })
-  // Budget ceiling only compares against the cumulative burn, not monthly flow.
-  const showBudget = mode === "cumulative" && budget > 0
-  const maxVal = mode === "cumulative" ? Math.max(running, budget) : Math.max(0, ...data.map(d => d.value))
+  let data: { month: string; value: number; cumulative: number; budgetTarget?: number }[]
+  if (hasProgressive) {
+    // Merge the actual-activity months with the full budget window, so the
+    // target line spans the whole interval even past the last paid month.
+    const byMonth = new Map(series.map(p => [p.month.slice(0, 7), Math.abs(p.value)]))
+    const seriesIdx = series.map(p => ymIndex(p.month))
+    const minIdx = Math.min(startIdx, ...(seriesIdx.length ? seriesIdx : [startIdx]))
+    const maxIdx = Math.max(endIdx, ...(seriesIdx.length ? seriesIdx : [endIdx]))
+    let running = 0
+    data = []
+    for (let idx = minIdx; idx <= maxIdx; idx++) {
+      const month = ymFromIndex(idx)
+      const value = byMonth.get(month) ?? 0
+      running += value
+      const elapsed = Math.min(Math.max(idx - startIdx + 1, 0), totalMonths)
+      data.push({
+        month, value, cumulative: running,
+        budgetTarget: mode === "cumulative" ? elapsed * monthlyTarget : (idx >= startIdx && idx <= endIdx ? monthlyTarget : 0),
+      })
+    }
+  } else {
+    let running = 0
+    data = series.map(p => { const v = Math.abs(p.value); running += v; return { month: p.month, value: v, cumulative: running } })
+  }
+  // Flat ceiling fallback only applies to the cumulative view, and only when
+  // there isn't enough data (start/deadline) to draw the progressive line.
+  const showFlatBudget = mode === "cumulative" && budget > 0 && !hasProgressive
+  const targetVals = hasProgressive ? data.map(d => d.budgetTarget ?? 0) : []
+  const maxVal = mode === "cumulative"
+    ? Math.max(data.at(-1)?.cumulative ?? 0, budget, ...targetVals)
+    : Math.max(0, ...data.map(d => d.value), ...targetVals)
   const yMax = maxVal * 1.1 || 1
   const dataKey = mode === "cumulative" ? "cumulative" : "value"
 
@@ -537,11 +601,16 @@ function DistributionChart({ title, subtitle, valueLabel, emptyLabel, series, is
               <RTooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" }}
                 labelFormatter={(l) => fmtMonth(String(l))}
-                formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? `Cumulative ${valueLabel.toLowerCase()}` : `${valueLabel} this month`]}
+                formatter={(v, name) => [fmt(Number(v)), name === "cumulative" ? `Cumulative ${valueLabel.toLowerCase()}`
+                  : name === "budgetTarget" ? "Budget target" : `${valueLabel} this month`]}
               />
-              {showBudget && (
+              {showFlatBudget && (
                 <ReferenceLine y={budget} strokeDasharray="6 4" stroke="#f59e0b"
                   label={{ value: `Budget ${fmtShort(budget)}`, position: "insideTopRight", fontSize: 10, fill: "#f59e0b" }} />
+              )}
+              {hasProgressive && (
+                <RLine type="monotone" dataKey="budgetTarget" stroke="#f59e0b" strokeWidth={1.5}
+                  strokeDasharray="6 4" dot={false} activeDot={{ r: 3 }} />
               )}
               <RLine type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
             </RLineChart>
@@ -601,8 +670,8 @@ function AccountPayeesPanel({ company, projectID, account }: {
   )
 }
 
-function AccountChartPanel({ company, projectID, account }: {
-  company: string; projectID: string; account: CostAccount
+function AccountChartPanel({ company, projectID, account, startDate }: {
+  company: string; projectID: string; account: CostAccount; startDate?: string | null
 }) {
   const accountIDs = [account.id, ...(account.children?.map(c => c.id) ?? [])]
   const { data: history, isLoading } = useAccountHistory({ company, project_id: projectID, account_ids: accountIDs })
@@ -610,7 +679,7 @@ function AccountChartPanel({ company, projectID, account }: {
   return (
     <DistributionChart title={account.name} subtitle="Paid over time" valueLabel="Paid"
       emptyLabel="No payments recorded for this account." series={series} isLoading={isLoading}
-      color="#ef4444" budget={account.budget_limit} />
+      color="#ef4444" budget={account.budget_limit} startDate={startDate} deadline={account.deadline} />
   )
 }
 
@@ -884,6 +953,8 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const [draftBudgets, setDraftBudgets] = useState<Record<string, number>>({})
   const [editingContractors, setEditingContractors] = useState(false)
   const setAccountLimit = useSetAccountLimit()
+  const setAccountDeadline = useSetAccountDeadline()
+  const setProjectStartDate = useSetProjectStartDate()
 
   const { data: allCats } = useCategories(data?.project_type)
   const categoryOptions = (allCats ?? []).map(c => ({ id: c.id, name: c.name, icon: c.icon }))
@@ -956,6 +1027,11 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 {data?.client_name ? `${data.client_name} · ` : ""}{data?.project_type ?? ""} · target margin {data ? Math.round(data.margin_target * 100) : 30}%
               </p>
+              {/* Manual ground-broken date — paired with each account's deadline to
+                  draw a progressive budget-adherence line instead of a flat ceiling. */}
+              <DatePickerBadge value={data?.start_date ?? null}
+                onSelect={d => setProjectStartDate.mutate({ company, project_id: projectID, start_date: d ?? "" })}
+                placeholder="Set start date" className="mt-0.5 text-[10px] text-muted-foreground/60" />
             </div>
           </div>
           {data && (() => {
@@ -1188,11 +1264,14 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                               <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Paid</div>
                               <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Outstanding</div>
                               <div className="ml-1 w-5 shrink-0" />
+                              <div className="w-5 shrink-0" />
                             </div>
                           </div>
                           {costAccounts.map((ca, i) => (
                             <AccountRow key={ca.id || i} ca={ca} blur={blur}
-                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget} company={company} projectID={projectID} />
+                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget}
+                              onSetDeadline={(accountID, deadline) => setAccountDeadline.mutate({ company, project_id: projectID, account_id: accountID, deadline: deadline ?? "" })}
+                              company={company} projectID={projectID} startDate={data?.start_date} />
                           ))}
                           {/* Allocation footer (visible while mapping) */}
                           {editingBudget && (
@@ -1225,12 +1304,12 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <HardHat className="h-4 w-4 text-yellow-500" />
                   <div className="flex min-w-0 flex-col">
                     <span className="text-sm font-semibold leading-tight text-yellow-500">Contractors Costs</span>
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
-                      <CornerDownRight className="h-3 w-3 shrink-0 text-yellow-500/40" />
-                      Budget by category · PO commitment is the fill
+                    <span className="flex items-start gap-1 text-[11px] text-muted-foreground/60">
+                      <CornerDownRight className="mt-px h-3 w-3 shrink-0 text-yellow-500/40" />
+                      <span>Budget by category ·<br />PO commitment is the fill</span>
                     </span>
                   </div>
-                  <div className="ml-auto flex items-center gap-1.5">
+                  <div className="ml-auto flex items-center gap-1.5 self-start">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
                     <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(data.labor_budget)}</span>
                     <div className="h-3.5 w-px bg-border/50" />
@@ -1278,10 +1357,11 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-3 border-b border-yellow-500/20 bg-muted/10 px-4 py-1">
                     <div className="h-6 w-6 shrink-0" />
                     <div className="min-w-0 flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">Category</div>
-                    <div className="w-16 shrink-0" />
-                    {(["Budget", "Committed", "Billed", "Paid", "Outstanding"] as const).map(lbl => (
-                      <div key={lbl} className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{lbl}</div>
-                    ))}
+                    <div className="flex shrink-0 items-center">
+                      {(["Budget", "Committed", "Billed", "Paid", "Outstanding"] as const).map(lbl => (
+                        <div key={lbl} className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{lbl}</div>
+                      ))}
+                    </div>
                     <div className="w-3.5 shrink-0" />
                   </div>
                   {costCategories.length === 0 ? (

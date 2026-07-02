@@ -218,9 +218,12 @@ function makeMarginLabel(data: Row[], show: boolean, mode: Mode) {
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
 
-export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) {
+export function JobSiteChart({ projects, selectedCustomers }: {
+  projects: BudgetProjectDetail[]; selectedCustomers?: Set<string>
+}) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("executed")
+  const exploded = (selectedCustomers?.size ?? 0) > 0
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
@@ -238,10 +241,16 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
   }
   const onDragEnd = () => { drag.current.active = false }
 
+  // Selecting one or more customers "explodes" the chart: instead of one bar per
+  // customer, it scopes to just their projects and keys each bar by project name.
+  const scoped = useMemo(
+    () => exploded ? projects.filter(p => selectedCustomers!.has(p.customer_group || p.name)) : projects,
+    [projects, exploded, selectedCustomers])
+
   const aggregated = useMemo<Agg[]>(() => {
     const agg = new Map<string, Agg>()
-    for (const p of projects) {
-      const name = p.customer_group || p.name
+    for (const p of scoped) {
+      const name = exploded ? p.name : (p.customer_group || p.name)
       const row = agg.get(name) ?? { name, invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0 }
       row.invoiced        += p.received + p.to_receive
       row.billed          += p.paid + p.open_payable
@@ -250,7 +259,7 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
       agg.set(name, row)
     }
     return [...agg.values()]
-  }, [projects])
+  }, [scoped, exploded])
 
   // Base data — all 4 values always present, sorted by total.
   const data = useMemo<Row[]>(() => aggregated
@@ -306,7 +315,9 @@ export function JobSiteChart({ projects }: { projects: BudgetProjectDetail[] }) 
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">Receivable vs Payable</span>
           <span className="h-3.5 w-px bg-border" />
-          <span className="text-sm font-medium text-muted-foreground">by Customer</span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {exploded ? "by Project" : "by Customer"}
+          </span>
         </div>
         <div className="ml-auto flex items-center gap-3">
 

@@ -33,6 +33,22 @@ export function useSetAccountLimit() {
   })
 }
 
+export function useSetAccountDeadline() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: budgetService.setAccountDeadline,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}
+
+export function useSetProjectStartDate() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: budgetService.setProjectStartDate,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-detail", v.company, v.project_id] }),
+  })
+}
+
 export function useAccountPayees(params: { company: string; project_id: string; account_id: string } | null) {
   return useQuery({
     queryKey: ["budget-account-payees", params?.company, params?.project_id, params?.account_id],
