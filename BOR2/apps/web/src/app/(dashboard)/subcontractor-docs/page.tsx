@@ -1,10 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import * as XLSX from "xlsx"
+import { toast } from "sonner"
 import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
-  Clock, CircleCheck, HelpCircle, Loader2, FileText,
-  ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01,
+  Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
+  ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
+  Download, Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -55,6 +58,21 @@ function toDate(iso: string): Date {
 }
 function toISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+// US phone mask, applied as the user types: (555) 555-5555
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 10)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
+function docSummary(record: SubDocRecord | undefined, hasExpiry: boolean): string {
+  if (!record || record.status === "missing") return "Missing"
+  if (record.status === "not_applicable") return "N/A"
+  if (record.status === "received") return hasExpiry ? `Received (exp ${fmtDate(record.expiry_date)})` : "Received"
+  return record.requested_date ? `Requested (${fmtDate(record.requested_date)})` : "Requested"
 }
 
 // ── Mini date picker (Calendar + Popover) ──────────────────────────────────────
@@ -118,13 +136,16 @@ function DocCell({ contractorId, typeInfo, record }: {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         onClick={e => e.stopPropagation()}
-        className="flex flex-col items-start gap-0.5 rounded-lg border border-border/50 bg-muted/10 px-2.5 py-1.5 text-left transition-colors hover:border-border hover:bg-muted/20"
+        className="flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-left shadow-sm transition-colors hover:border-ring hover:bg-muted/40 dark:bg-input/30"
       >
-        <span className="truncate text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{typeInfo.label}</span>
-        <span className={cn("flex items-center gap-1 text-[11px] font-semibold", meta.color)}>
-          <Icon className="h-3 w-3 shrink-0" />
-          {dateLabel}
-        </span>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">{typeInfo.label}</span>
+          <span className={cn("flex items-center gap-1 text-[11px] font-semibold", meta.color)}>
+            <Icon className="h-3 w-3 shrink-0" />
+            {dateLabel}
+          </span>
+        </div>
+        <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground/40" />
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={6} className="w-72 p-3" onClick={e => e.stopPropagation()}>
         <p className="mb-2 text-xs font-semibold">{typeInfo.label}</p>
@@ -193,14 +214,14 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
   const recordsByType = Object.fromEntries(ctr.records.map(r => [r.doc_type, r]))
 
   return (
-    <div className={cn("shrink-0 overflow-hidden rounded-xl border", meta.border, meta.bg)}>
+    <div className="shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40">
       <div className="flex items-center gap-3 px-4 py-2.5">
-        <span className={cn("h-2 w-2 shrink-0 rounded-full", meta.dot)} />
+        <span className={cn("h-2 w-2 shrink-0 rounded-full", meta.dot)} title={meta.label} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold leading-tight">{ctr.name}</p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
-            {ctr.email && <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email}</span>}
-            {ctr.phone && <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{ctr.phone}</span>}
+            <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email || "—"}</span>
+            <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{ctr.phone || "—"}</span>
           </div>
         </div>
         <span className={cn("shrink-0 text-[11px] font-semibold", meta.text)}>
@@ -220,9 +241,6 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
           <DocCell key={t.key} contractorId={ctr.id} typeInfo={t} record={recordsByType[t.key] ?? EMPTY_RECORD(t.key)} />
         ))}
       </div>
-      {ctr.notes && (
-        <p className="border-t border-border/20 px-4 py-2 text-[10px] italic text-muted-foreground/60">{ctr.notes}</p>
-      )}
     </div>
   )
 }
@@ -271,19 +289,28 @@ function ContractorFormDialog({ open, onClose, initial }: {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Company name</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elite Stone Works"
-              className="h-8 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            <div className="relative">
+              <Building2 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elite Stone Works"
+                className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Email</label>
-              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@company.com"
-                className="h-8 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@company.com"
+                  className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+              </div>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Phone</label>
-              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(555) 555-5555"
-                className="h-8 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <input value={phone} onChange={e => setPhone(formatPhone(e.target.value))} placeholder="(555) 555-5555"
+                  className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-1">
@@ -339,6 +366,122 @@ function DeleteContractorDialog({ contractor, onClose }: {
   )
 }
 
+// ── Urgency multiselect dropdown ────────────────────────────────────────────────
+
+function UrgencyFilter({ contractors, selected, setSelected }: {
+  contractors: SubDocContractor[]; selected: Set<Urgency>; setSelected: (s: Set<Urgency>) => void
+}) {
+  const toggle = (u: Urgency) => {
+    const next = new Set(selected)
+    next.has(u) ? next.delete(u) : next.add(u)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Filter className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All statuses" : `${selected.size} status${selected.size > 1 ? "es" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-60 p-2">
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex flex-col">
+          {(Object.keys(URGENCY_META) as Urgency[]).map(u => {
+            const meta = URGENCY_META[u]
+            const on = selected.has(u)
+            const count = contractors.filter(c => c.urgency === u).length
+            return (
+              <button key={u} onClick={() => toggle(u)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", meta.dot)} />
+                <span className="min-w-0 flex-1 truncate">{meta.label}</span>
+                <span className="shrink-0 text-muted-foreground/60">{count}</span>
+              </button>
+            )
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+// ── Export menu (XLSX / PDF) ────────────────────────────────────────────────────
+
+function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocType[] }) {
+  const [open, setOpen] = useState(false)
+
+  const exportExcel = () => {
+    const header = ["Name", "Email", "Phone", "Status", ...types.map(t => t.label)]
+    const data = [header, ...rows.map(c => {
+      const byType = Object.fromEntries(c.records.map(r => [r.doc_type, r]))
+      return [c.name, c.email, c.phone, URGENCY_META[c.urgency].label,
+        ...types.map(t => docSummary(byType[t.key], t.has_expiry))]
+    })]
+    const ws = XLSX.utils.aoa_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Subcontractor Docs")
+    XLSX.writeFile(wb, `subcontractor_docs_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    setOpen(false)
+  }
+
+  const exportPdf = () => {
+    const rowsHtml = rows.map(c => {
+      const byType = Object.fromEntries(c.records.map(r => [r.doc_type, r]))
+      return `<tr>
+        <td>${c.name}</td><td>${c.email || "—"}</td><td>${c.phone || "—"}</td>
+        <td>${URGENCY_META[c.urgency].label}</td>
+        ${types.map(t => `<td>${docSummary(byType[t.key], t.has_expiry)}</td>`).join("")}
+      </tr>`
+    }).join("")
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Subcontractor Docs</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,Arial,sans-serif;font-size:10px;color:#111;padding:24px}
+h1{font-size:18px;font-weight:700;margin-bottom:4px}
+.sub{color:#666;font-size:11px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:9px}
+thead tr{background:#f3f4f6}
+th{padding:6px 8px;text-align:left;font-weight:700;border:1px solid #e5e7eb;text-transform:uppercase;font-size:8px;color:#555}
+td{padding:5px 8px;border:1px solid #e5e7eb}
+@media print{body{padding:0}@page{margin:1cm;size:landscape}}
+</style></head><body>
+<h1>Subcontractor Docs</h1>
+<div class="sub">Generated ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} — ${rows.length} subcontractors</div>
+<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th>${types.map(t => `<th>${t.label}</th>`).join("")}</tr></thead>
+<tbody>${rowsHtml}</tbody></table>
+</body></html>`
+    const win = window.open("", "_blank", "width=1100,height=800")
+    if (!win) { toast.error("Popup blocked — allow popups to export PDF."); return }
+    win.document.write(html)
+    win.document.close()
+    win.onload = () => win.print()
+    setOpen(false)
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Download className="h-3.5 w-3.5" /> Export
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-44 p-1">
+        <button onClick={exportExcel} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+          <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" /> Export as XLSX
+        </button>
+        <button onClick={exportPdf} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+          <FileText className="h-3.5 w-3.5 text-red-500" /> Export as PDF
+        </button>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 type SortField = "urgency" | "name"
@@ -356,14 +499,6 @@ export default function SubcontractorDocsPage() {
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<SubDocContractor | null>(null)
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
-
-  const toggleUrgency = (u: Urgency) => {
-    setUrgencyFilter(prev => {
-      const next = new Set(prev)
-      next.has(u) ? next.delete(u) : next.add(u)
-      return next
-    })
-  }
 
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
@@ -386,7 +521,7 @@ export default function SubcontractorDocsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Subcontractor Docs</h1>
-          <p className="text-sm text-muted-foreground">Subcontractor compliance document status</p>
+          <p className="text-sm text-muted-foreground">Compliance document status</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -401,19 +536,8 @@ export default function SubcontractorDocsPage() {
             )}
           </div>
 
-          {(Object.keys(URGENCY_META) as Urgency[]).map(u => {
-            const meta = URGENCY_META[u]
-            const on = urgencyFilter.has(u)
-            const count = (contractors ?? []).filter(c => c.urgency === u).length
-            return (
-              <button key={u} onClick={() => toggleUrgency(u)}
-                className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                  on ? cn(meta.border, meta.bg, meta.text) : "border-border/50 text-muted-foreground hover:text-foreground")}>
-                <span className={cn("h-1.5 w-1.5 rounded-full", meta.dot)} />
-                {meta.label} <span className="opacity-60">{count}</span>
-              </button>
-            )
-          })}
+          <UrgencyFilter contractors={contractors ?? []} selected={urgencyFilter} setSelected={setUrgencyFilter} />
+          <ExportMenu rows={rows} types={types ?? []} />
 
           <button onClick={() => setAddOpen(true)}
             className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80">
@@ -422,19 +546,19 @@ export default function SubcontractorDocsPage() {
         </div>
       </div>
 
-      {/* ── Subcontractors container ─────────────────────────────────────── */}
+      {/* ── List container ───────────────────────────────────────────────── */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
         <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
-          <span className="text-sm font-semibold">Subcontractors</span>
-          <span className="text-xs text-muted-foreground">{rows.length}</span>
+          <span className="flex items-center text-sm font-semibold leading-none">List</span>
+          <span className="flex items-center text-xs leading-none text-muted-foreground">{rows.length}</span>
           <div className="ml-auto flex items-center gap-2">
             <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
-              <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
                 Order by
               </span>
               {([["urgency", "Urgency"], ["name", "Name"]] as const).map(([f, label]) => (
                 <button key={f} onClick={() => setSortField(f)}
-                  className={cn("flex h-full items-center px-2 text-[11px] font-medium transition-colors",
+                  className={cn("flex h-full items-center px-2 text-[11px] font-medium leading-none transition-colors",
                     sortField === f ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
                   {label}
                 </button>
