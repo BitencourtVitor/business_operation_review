@@ -160,10 +160,9 @@ function DocCell({ contractorId, typeInfo, record }: {
       >
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex min-w-0 items-center gap-1 truncate text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
-            {flagged && <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", urgMeta.dot)} />}
             <span className="truncate">{typeInfo.label}</span>
           </span>
-          <span className={cn("flex items-center gap-1 text-[11px] font-semibold", meta.color)}>
+          <span className={cn("flex items-center gap-1 text-[11px] font-semibold", flagged ? urgMeta.text : meta.color)}>
             <Icon className="h-3 w-3 shrink-0" />
             {dateLabel}
           </span>
