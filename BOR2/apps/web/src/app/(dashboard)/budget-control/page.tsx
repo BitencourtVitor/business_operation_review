@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   Search, X, HandCoins, Loader2, Building2, Home, LandPlot, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
-  AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight,
+  AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight, ChevronDown,
   CalendarClock, Users, Check, Layers,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -36,6 +36,23 @@ const COMPANY_LOGO: Record<string, string> = {
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 const pct = (part: number, whole: number) => (whole > 0 ? Math.min((part / whole) * 100, 100) : 0)
+
+// ── Persisted collapse state ─────────────────────────────────────────────────
+
+function usePersistedCollapse(key: string): [boolean, (v: boolean | ((prev: boolean) => boolean)) => void] {
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false
+    return localStorage.getItem(key) === "1"
+  })
+  const set = (v: boolean | ((prev: boolean) => boolean)) => {
+    setCollapsed(prev => {
+      const next = typeof v === "function" ? v(prev) : v
+      if (typeof window !== "undefined") localStorage.setItem(key, next ? "1" : "0")
+      return next
+    })
+  }
+  return [collapsed, set]
+}
 
 // ── Group-by-jobsite aggregation ─────────────────────────────────────────────
 // Rolls up every project sharing a customer_group (jobsite) into one summed
@@ -502,6 +519,8 @@ function BudgetContent() {
   const [alerts,    setAlerts]    = useState({ green: true, yellow: true, red: true })
   const [types,     setTypes]     = useState({ building: true, lot: true, private: true })
   const [groupByJobsite, setGroupByJobsite] = useState(true)
+  const [chartCollapsed, setChartCollapsed] = usePersistedCollapse("budget-control:chart-collapsed")
+  const [projectsCollapsed, setProjectsCollapsed] = usePersistedCollapse("budget-control:projects-collapsed")
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
   const [periodSet, setPeriodSet] = useState<Set<string>>(
@@ -648,7 +667,7 @@ function BudgetContent() {
       </div>
 
       {/* ── Receivable / payable by customer chart ───────────────────────── */}
-      <div className="h-[300px] shrink-0">
+      <div className={cn("shrink-0", chartCollapsed ? "h-11" : "h-[300px]")}>
         <JobSiteChart
           projects={clientFiltered}
           selectedCustomers={selectedCustomers}
@@ -658,17 +677,22 @@ function BudgetContent() {
             const match = clientFiltered.find(p => p.name === name)
             if (match) setDetailID(match.project_id)
           }}
+          collapsed={chartCollapsed}
+          onToggleCollapsed={() => setChartCollapsed(v => !v)}
         />
       </div>
 
       {/* ── Projects container ────────────────────────────────────────────── */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
+      <div className={cn("flex min-h-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40", projectsCollapsed ? "shrink-0" : "flex-1")}>
 
         {/* Container header */}
         <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+          <button onClick={() => setProjectsCollapsed(v => !v)} className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            {projectsCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
           <span className="text-sm font-semibold">Projects</span>
           <span className="text-xs text-muted-foreground">{rows.length}</span>
-          <div className="ml-auto flex items-center gap-2">
+          {!projectsCollapsed && <div className="ml-auto flex items-center gap-2">
             {/* Search */}
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
@@ -761,11 +785,11 @@ function BudgetContent() {
                   : (sortAsc ? <ArrowDown01 className="h-3.5 w-3.5" /> : <ArrowUp01 className="h-3.5 w-3.5" />)}
               </button>
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Content */}
-        {projLoading ? (
+        {projectsCollapsed ? null : projLoading ? (
           <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading projects…
           </div>

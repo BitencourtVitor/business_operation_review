@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, LabelList,
 } from "recharts"
-import { Users, Layers, CircleCheck, Clock } from "lucide-react"
+import { Users, Layers, CircleCheck, Clock, ChevronDown, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useFinancialStore } from "@/store/financial.store"
 import type { BudgetProjectDetail } from "@/services/budget.service"
@@ -218,7 +218,7 @@ function makeMarginLabel(data: Row[], show: boolean, mode: Mode) {
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
 
-export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSelectCustomer, onOpenProject }: {
+export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSelectCustomer, onOpenProject, collapsed, onToggleCollapsed }: {
   projects: BudgetProjectDetail[]
   selectedCustomers?: Set<string>
   /** true when "group by jobsite" is off — always show per-project bars, even with no customer selected. */
@@ -227,6 +227,8 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
   onSelectCustomer?: (name: string) => void
   /** Bar click in exploded mode: user picked a project bar — open its detail. */
   onOpenProject?: (name: string) => void
+  collapsed?: boolean
+  onToggleCollapsed?: () => void
 }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("actual")
@@ -321,13 +323,18 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b border-border/40 px-4 py-2.5">
         <div className="flex items-center gap-2">
+          {onToggleCollapsed && (
+            <button onClick={onToggleCollapsed} className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            </button>
+          )}
           <span className="text-sm font-semibold">Receivable vs Payable</span>
           <span className="h-3.5 w-px bg-border" />
           <span className="text-sm font-medium text-muted-foreground">
             {exploded ? "by Project" : "by Customer"}
           </span>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        {!collapsed && <div className="ml-auto flex items-center gap-3">
 
           {/* Legend */}
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
@@ -383,11 +390,11 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
               </button>
             ))}
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Chart */}
-      <div
+      {!collapsed && <div
         ref={scrollRef}
         onMouseDown={onDragStart}
         onMouseMove={onDragMove}
@@ -471,7 +478,7 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
             </ResponsiveContainer>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   )
 }
