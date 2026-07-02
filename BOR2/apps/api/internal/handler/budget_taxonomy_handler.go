@@ -59,8 +59,8 @@ func (h *BudgetTaxonomyHandler) CreateCategory(c *fiber.Ctx) error {
 	if err := c.BodyParser(&b); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
 	}
-	if b.ProjectType != "house" && b.ProjectType != "building" {
-		return fiber.NewError(fiber.StatusBadRequest, "project_type must be house or building")
+	if b.ProjectType != "building" && b.ProjectType != "lot" && b.ProjectType != "private" {
+		return fiber.NewError(fiber.StatusBadRequest, "project_type must be building, lot or private")
 	}
 	if b.Name == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "name is required")

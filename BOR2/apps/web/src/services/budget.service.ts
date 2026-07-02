@@ -124,7 +124,7 @@ export interface BudgetProjectDetail {
   client_name: string
   name: string
   customer_group: string
-  project_type: "house" | "building"
+  project_type: "building" | "lot" | "private"
   margin_target: number
   start_date: string | null // "YYYY-MM-DD", manual — paired with each account's deadline
 
