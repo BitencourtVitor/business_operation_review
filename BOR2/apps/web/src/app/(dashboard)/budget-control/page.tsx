@@ -399,52 +399,84 @@ function CustomerFilter({ customers, selected, setSelected }: {
   )
 }
 
-// ── Period (multi-month) filter ─────────────────────────────────────────────────
-// Selection is a Set of "YYYY-MM" keys. Selecting Jan + Mar implicitly includes
-// Feb — the backend only understands a single contiguous [min, max] range, so any
-// gaps between the earliest and latest selected month are always filled in.
+// ── Period (range) filter ────────────────────────────────────────────────────
+// A range is two "YYYY-MM" endpoints (inclusive). Clicking a month sets the
+// start anchor; the next click sets the end anchor and everything between is
+// implicitly included (e.g. Jan + Mar → Feb is part of the range too). A
+// third click starts a new range. Nothing refetches until "Apply" is clicked
+// — toggling months only updates a local draft.
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 function monthKey(year: number, month: number) { return `${year}-${String(month).padStart(2, "0")}` }
 
-// Returns the year string when `sorted` is exactly Jan–Dec of a single year, else null.
-function fullYearLabel(sorted: string[]): string | null {
-  if (sorted.length !== 12) return null
-  const year = Number(sorted[0].split("-")[0])
-  const expected = Array.from({ length: 12 }, (_, i) => monthKey(year, i + 1))
-  return sorted.every((k, i) => k === expected[i]) ? String(year) : null
+// Returns the year string when [start, end] spans exactly Jan–Dec of one year, else null.
+function fullYearBounds(start: string | null, end: string | null): string | null {
+  if (!start || !end) return null
+  return start.endsWith("-01") && end.endsWith("-12") && start.slice(0, 4) === end.slice(0, 4)
+    ? start.slice(0, 4)
+    : null
 }
 
-function PeriodFilter({ selected, setSelected }: {
-  selected: Set<string>; setSelected: (s: Set<string>) => void
+function periodLabel(start: string | null, end: string | null): string {
+  if (!start || !end) return "All time"
+  const fy = fullYearBounds(start, end)
+  if (fy) return fy
+  return start === end ? formatMonthKey(start) : `${formatMonthKey(start)}—${formatMonthKey(end)}`
+}
+
+// Months after the current one have no data yet — not selectable.
+function isFutureMonth(key: string): boolean {
+  const now = new Date()
+  return key > monthKey(now.getFullYear(), now.getMonth() + 1)
+}
+
+function PeriodFilter({ start, end, onApply }: {
+  start: string | null; end: string | null
+  onApply: (start: string | null, end: string | null) => void
 }) {
-  const [navYear, setNavYear] = useState(() => new Date().getFullYear())
-  const sorted = [...selected].sort()
-  const fullYearOf = fullYearLabel(sorted)
-  const label = sorted.length === 0
-    ? "All time"
-    : fullYearOf
-      ? fullYearOf
-      : sorted.length === 1
-        ? formatMonthKey(sorted[0])
-        : `${formatMonthKey(sorted[0])}—${formatMonthKey(sorted[sorted.length - 1])}`
+  const [open, setOpen] = useState(false)
+  const [navYear, setNavYear] = useState(() => Number((start ?? String(new Date().getFullYear())).slice(0, 4)))
+  const [draftStart, setDraftStart] = useState(start)
+  const [draftEnd, setDraftEnd] = useState(end)
+
+  const onOpenChange = (o: boolean) => {
+    setOpen(o)
+    if (o) {
+      setDraftStart(start)
+      setDraftEnd(end)
+      setNavYear(Number((start ?? String(new Date().getFullYear())).slice(0, 4)))
+    }
+  }
+
+  const draftMin = draftStart && draftEnd ? (draftStart < draftEnd ? draftStart : draftEnd) : draftStart
+  const draftMax = draftStart && draftEnd ? (draftStart < draftEnd ? draftEnd : draftStart) : draftStart
+
+  const clickMonth = (k: string) => {
+    if (draftStart && draftEnd) { setDraftStart(k); setDraftEnd(null) }
+    else if (draftStart) { setDraftEnd(k) }
+    else { setDraftStart(k) }
+  }
+
   const yearKeys = Array.from({ length: 12 }, (_, i) => monthKey(navYear, i + 1))
-  const fullYearSelected = yearKeys.every(k => selected.has(k))
-  const toggleMonth = (k: string) => {
-    const next = new Set(selected)
-    next.has(k) ? next.delete(k) : next.add(k)
-    setSelected(next)
-  }
+  // "Full year" always selects every AVAILABLE month of navYear — Jan through
+  // the current month when navYear is still in progress, not the disabled rest.
+  const availableYearKeys = yearKeys.filter(k => !isFutureMonth(k))
+  const fullYearStart = availableYearKeys[0]
+  const fullYearEnd = availableYearKeys[availableYearKeys.length - 1]
+  const draftIsFullYear = availableYearKeys.length > 0 && draftMin === fullYearStart && draftMax === fullYearEnd
   const toggleFullYear = () => {
-    const next = new Set(selected)
-    yearKeys.forEach(k => fullYearSelected ? next.delete(k) : next.add(k))
-    setSelected(next)
+    if (availableYearKeys.length === 0) return
+    if (draftIsFullYear) { setDraftStart(null); setDraftEnd(null) }
+    else { setDraftStart(fullYearStart); setDraftEnd(fullYearEnd) }
   }
+
+  const apply = () => { onApply(draftMin, draftMax); setOpen(false) }
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-        <CalendarClock className="h-3.5 w-3.5" /> {label}
+        <CalendarClock className="h-3.5 w-3.5" /> {periodLabel(start, end)}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-60 p-2">
         <div className="mb-2 flex items-center justify-between">
@@ -458,30 +490,37 @@ function PeriodFilter({ selected, setSelected }: {
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
-        <button onClick={toggleFullYear}
+        <button onClick={toggleFullYear} disabled={availableYearKeys.length === 0}
           className={cn("mb-1 flex w-full items-center gap-2 rounded px-2 py-1 text-left text-[11px] transition-colors",
-            fullYearSelected ? "bg-primary/15 text-primary" : "hover:bg-accent")}>
-          <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", fullYearSelected ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
-            {fullYearSelected && <Check className="h-3 w-3" />}
+            availableYearKeys.length === 0 ? "cursor-not-allowed opacity-40" : draftIsFullYear ? "bg-primary/15 text-primary" : "hover:bg-accent")}>
+          <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", draftIsFullYear ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+            {draftIsFullYear && <Check className="h-3 w-3" />}
           </span>
           Full year {navYear}
         </button>
         <div className="grid grid-cols-3 gap-1">
           {MONTHS.map((m, i) => {
             const k = monthKey(navYear, i + 1)
-            const on = selected.has(k)
+            const future = isFutureMonth(k)
+            // Highlight the whole implied range, not just the two clicked anchors.
+            const on = draftMin != null && k >= draftMin && k <= (draftMax ?? draftMin)
             return (
-              <button key={m} onClick={() => toggleMonth(k)}
-                className={cn("rounded px-1 py-1 text-[11px] transition-colors", on ? "bg-primary text-primary-foreground" : "hover:bg-accent")}>
+              <button key={m} onClick={() => clickMonth(k)} disabled={future}
+                className={cn("rounded px-1 py-1 text-[11px] transition-colors",
+                  future ? "cursor-not-allowed text-muted-foreground/30" : on ? "bg-primary text-primary-foreground" : "hover:bg-accent")}>
                 {m}
               </button>
             )
           })}
         </div>
-        <div className="mt-2 border-t border-border/40 pt-1.5">
-          <button onClick={() => setSelected(new Set())}
-            className="w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
-            Clear selection (All time)
+        <div className="mt-2 flex items-center justify-between border-t border-border/40 pt-1.5">
+          <button onClick={() => { setDraftStart(null); setDraftEnd(null) }}
+            className="rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear
+          </button>
+          <button onClick={apply}
+            className="rounded-md bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+            Apply
           </button>
         </div>
       </PopoverContent>
@@ -527,17 +566,15 @@ function BudgetContent() {
   const [projectsCollapsed, setProjectsCollapsed] = usePersistedCollapse("budget-control:projects-collapsed")
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
-  const [periodSet, setPeriodSet] = useState<Set<string>>(
-    () => new Set(Array.from({ length: 12 }, (_, i) => monthKey(new Date().getFullYear(), i + 1))))
-
-  const sortedPeriods = [...periodSet].sort()
-  const periodStart = sortedPeriods[0]
-  const periodEnd = sortedPeriods[sortedPeriods.length - 1]
+  // Applied (not draft) period — only changes when the user clicks "Apply" in
+  // PeriodFilter, so toggling checkboxes doesn't refetch on every click.
+  const [periodStart, setPeriodStart] = useState<string | null>(() => monthKey(new Date().getFullYear(), 1))
+  const [periodEnd,   setPeriodEnd]   = useState<string | null>(() => monthKey(new Date().getFullYear(), 12))
 
   const { data: projects, isLoading: projLoading } = useBudgetProjects({
     company,
-    periodStart,
-    periodEnd,
+    periodStart: periodStart ?? undefined,
+    periodEnd: periodEnd ?? undefined,
   })
   const { data: laborSummary } = useLaborSummary(company)
 
@@ -635,7 +672,7 @@ function BudgetContent() {
         </div>
 
         <div className="flex items-center gap-2">
-          <PeriodFilter selected={periodSet} setSelected={setPeriodSet} />
+          <PeriodFilter start={periodStart} end={periodEnd} onApply={(s, e) => { setPeriodStart(s); setPeriodEnd(e) }} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
           <TooltipProvider delay={0}>
