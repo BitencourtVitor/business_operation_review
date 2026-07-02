@@ -321,7 +321,7 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card/70">
 
       {/* Header */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-border/40 px-4 py-2.5">
+      <div className={cn("flex shrink-0 items-center gap-3 px-4 py-2.5", !collapsed && "border-b border-border/40")}>
         <div className="flex items-center gap-2">
           {onToggleCollapsed && (
             <button onClick={onToggleCollapsed} className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
