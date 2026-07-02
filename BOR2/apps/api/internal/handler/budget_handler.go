@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -87,10 +86,28 @@ proj_key AS (
 )`
 
 // projectsQuery returns one row per QB job/customer for the project list.
-// %s is the optional year filter on qb_estimates.
+// All displayed figures are LIFETIME totals (identical definitions to
+// ProjectDetail) — a project's numbers never change with the period filter.
+// $2/$3 (period window, full range = all time) are used ONLY by period_activity,
+// which decides whether a project is included in the result at all (it must have
+// had at least one dated transaction inside the window) — visibility, not value.
 const projectsQuery = `WITH ` + custProjCTE + `,
 proj AS (
     SELECT pkey, MAX(pname) AS pname, MAX(client) AS client, MAX(customer_group) AS customer_group FROM proj_key GROUP BY pkey
+),
+period_activity AS (
+    SELECT DISTINCT pk.pkey
+    FROM (
+        SELECT customer_id, txn_date FROM qb_estimates WHERE company=$1 AND customer_id<>''
+        UNION ALL SELECT customer_id, txn_date FROM qb_invoices WHERE company=$1 AND customer_id<>''
+        UNION ALL SELECT customer_id, txn_date FROM qb_payments WHERE company=$1 AND customer_id<>''
+        UNION ALL SELECT bl.customer_id, b.txn_date  FROM qb_bill_lines bl          JOIN qb_bills b           ON b.id=bl.bill_id            AND b.company=$1 WHERE bl.company=$1  AND bl.customer_id<>''
+        UNION ALL SELECT pl.customer_id, pu.txn_date FROM qb_purchase_lines pl       JOIN qb_purchases pu      ON pu.id=pl.purchase_id      AND pu.company=$1 WHERE pl.company=$1  AND pl.customer_id<>''
+        UNION ALL SELECT vcl.customer_id, vc.txn_date FROM qb_vendor_credit_lines vcl JOIN qb_vendor_credits vc ON vc.id=vcl.vendor_credit_id AND vc.company=$1 WHERE vcl.company=$1 AND vcl.customer_id<>''
+        UNION ALL SELECT pol.customer_id, o.txn_date  FROM qb_purchase_order_lines pol JOIN qb_purchase_orders o ON o.id=pol.po_id            AND o.company=$1 WHERE pol.company=$1 AND pol.customer_id<>''
+    ) x(customer_id, txn_date)
+    JOIN proj_key pk ON pk.customer_id = x.customer_id
+    WHERE x.txn_date >= $2 AND x.txn_date < $3
 ),
 est AS (
     SELECT pk.pkey, SUM(e.total_amount) AS total
@@ -98,12 +115,11 @@ est AS (
     WHERE e.company=$1 AND e.customer_id<>''
     GROUP BY pk.pkey
 ),
--- inv = invoiced FLOW (periodized by invoice date); ar = open AR balance (baseline,
--- a current position so it is NOT periodized). $2/$3 = period window (full range = all).
+-- inv = invoiced (header total, lifetime); ar = open AR balance (lifetime, current position).
 inv AS (
     SELECT pk.pkey, SUM(i.total_amount) AS total
     FROM qb_invoices i JOIN proj_key pk ON pk.customer_id = i.customer_id
-    WHERE i.company=$1 AND i.customer_id<>'' AND i.txn_date >= $2 AND i.txn_date < $3
+    WHERE i.company=$1 AND i.customer_id<>''
     GROUP BY pk.pkey
 ),
 ar AS (
@@ -112,17 +128,42 @@ ar AS (
     WHERE i.company=$1 AND i.customer_id<>''
     GROUP BY pk.pkey
 ),
-pay AS (
-    SELECT pk.pkey, SUM(p.total_amount) AS total
-    FROM qb_payments p JOIN proj_key pk ON pk.customer_id = p.customer_id
-    WHERE p.company=$1 AND p.customer_id<>'' AND p.txn_date >= $2 AND p.txn_date < $3
-    GROUP BY pk.pkey
+-- inc = income by account (mirrors ProjectDetail's incRows), grouped by pkey+name
+-- then clamped per row and summed — this is the corrected Received calc (invoice
+-- balance-derived), NOT a qb_payments sum (which loses credit-memo/journal-entry
+-- balance write-offs). Lifetime, matching the modal exactly.
+inc_lines AS (
+    SELECT pk.pkey,
+           COALESCE(NULLIF(item.data->'IncomeAccountRef'->>'name',''), NULLIF(il.item_ref_name,''), 'Uncategorized') AS name,
+           il.amount AS amount,
+           il.amount * COALESCE(i.balance / NULLIF(i.total_amount, 0), 0) AS outstanding
+    FROM qb_invoice_lines il
+    JOIN qb_invoices i ON i.id = il.invoice_id AND i.company=$1
+    JOIN proj_key pk ON pk.customer_id = i.customer_id
+    LEFT JOIN qb_raw item ON item.company=$1 AND item.entity='Item' AND item.external_id = il.item_ref_id
+    WHERE i.customer_id<>''
+    UNION ALL
+    SELECT pk.pkey, 'Back Charges' AS name, dl.amount, 0::float8 AS outstanding
+    FROM qb_deposit_lines dl
+    JOIN proj_key pk ON pk.customer_id = dl.customer_id
+    WHERE dl.company=$1 AND dl.customer_id<>'' AND dl.amount < 0
+),
+inc_by_type AS (
+    SELECT pkey, name, SUM(amount) AS amount, SUM(outstanding) AS outstanding
+    FROM inc_lines GROUP BY pkey, name
+),
+inc AS (
+    SELECT pkey,
+           SUM(amount) AS income_actual,
+           SUM(GREATEST(amount - outstanding, 0)) AS received
+    FROM inc_by_type
+    GROUP BY pkey
 ),
 exp AS (
     SELECT pk.pkey, x.amount FROM (
-        SELECT bl.customer_id,  bl.amount FROM qb_bill_lines bl          JOIN qb_bills b           ON b.id=bl.bill_id            AND b.company=$1  WHERE bl.company=$1  AND b.txn_date  >= $2 AND b.txn_date  < $3
-        UNION ALL SELECT pl.customer_id,  pl.amount FROM qb_purchase_lines pl       JOIN qb_purchases pu      ON pu.id=pl.purchase_id      AND pu.company=$1 WHERE pl.company=$1  AND pu.txn_date >= $2 AND pu.txn_date < $3
-        UNION ALL SELECT vcl.customer_id, -vcl.amount FROM qb_vendor_credit_lines vcl JOIN qb_vendor_credits vc ON vc.id=vcl.vendor_credit_id AND vc.company=$1 WHERE vcl.company=$1 AND vc.txn_date >= $2 AND vc.txn_date < $3
+        SELECT bl.customer_id,  bl.amount FROM qb_bill_lines bl          JOIN qb_bills b           ON b.id=bl.bill_id            AND b.company=$1  WHERE bl.company=$1
+        UNION ALL SELECT pl.customer_id,  pl.amount FROM qb_purchase_lines pl       JOIN qb_purchases pu      ON pu.id=pl.purchase_id      AND pu.company=$1 WHERE pl.company=$1
+        UNION ALL SELECT vcl.customer_id, -vcl.amount FROM qb_vendor_credit_lines vcl JOIN qb_vendor_credits vc ON vc.id=vcl.vendor_credit_id AND vc.company=$1 WHERE vcl.company=$1
     ) x JOIN proj_key pk ON pk.customer_id = x.customer_id
     WHERE x.customer_id<>''
 ),
@@ -177,7 +218,6 @@ lab_bill_pay AS (
        AND bpl.txn_type = 'Bill'
        AND bpl.company  = $1
     JOIN qb_bill_payments bp ON bp.id = bpl.bill_payment_id AND bp.company=$1
-       AND bp.txn_date >= $2 AND bp.txn_date < $3
     GROUP BY bc.pkey, bc.bill_id, b.vendor_id, bc.proj_amt, b.total_amount
 ),
 -- Mirror of the modal: a contractor vendor's payment counts when the bill has
@@ -213,7 +253,7 @@ lab_billed AS (
     JOIN qb_bills b ON b.id = bl.bill_id AND b.company=$1
     JOIN proj_key pk ON pk.customer_id = bl.customer_id
     JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = b.vendor_id
-    WHERE bl.company=$1 AND bl.customer_id<>'' AND b.txn_date >= $2 AND b.txn_date < $3
+    WHERE bl.company=$1 AND bl.customer_id<>''
     GROUP BY pk.pkey
 ),
 -- Back charges (vendor credits) for contractor vendors; net out of billed & paid.
@@ -223,27 +263,26 @@ lab_bc AS (
     JOIN qb_vendor_credits vc ON vc.id = vcl.vendor_credit_id AND vc.company=$1
     JOIN proj_key pk ON pk.customer_id = vcl.customer_id
     JOIN lab_vendor lv ON lv.pkey = pk.pkey AND lv.vendor_id = vc.vendor_id
-    WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>'' AND vc.txn_date >= $2 AND vc.txn_date < $3
+    WHERE vcl.company=$1 AND vcl.customer_id<>'' AND vc.vendor_id<>''
     GROUP BY pk.pkey
 )
 SELECT p.pkey, p.client, p.pname, p.customer_group,
-       COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(pa.total,0), COALESCE(co.total,0),
+       COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(inc.received,0), COALESCE(inc.income_actual,0), COALESCE(co.total,0),
        COALESCE(op.total,0), COALESCE(pp.committed,0),
        COALESCE(lb.total,0) - COALESCE(lbc.total,0), COALESCE(pp.open_commit,0),
        COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(ar.balance,0)
 FROM proj p
+JOIN period_activity pa ON pa.pkey = p.pkey
 LEFT JOIN est          e  ON e.pkey  = p.pkey
 LEFT JOIN inv          i  ON i.pkey  = p.pkey
 LEFT JOIN ar           ar ON ar.pkey = p.pkey
-LEFT JOIN pay          pa ON pa.pkey = p.pkey
+LEFT JOIN inc          inc ON inc.pkey = p.pkey
 LEFT JOIN cost         co ON co.pkey = p.pkey
 LEFT JOIN open_payable op ON op.pkey = p.pkey
 LEFT JOIN po           pp ON pp.pkey = p.pkey
 LEFT JOIN lab_paid     lp ON lp.pkey = p.pkey
 LEFT JOIN lab_billed   lb ON lb.pkey = p.pkey
 LEFT JOIN lab_bc       lbc ON lbc.pkey = p.pkey
-WHERE COALESCE(e.total,0) <> 0 OR COALESCE(i.total,0) <> 0 OR COALESCE(pa.total,0) <> 0
-   OR COALESCE(co.total,0) <> 0 OR COALESCE(pp.committed,0) <> 0
 ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
 `
 
@@ -255,16 +294,16 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 	if company == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "company is required")
 	}
-	year, hasYear, err := parseYear(c.Query("year"))
+	statusFilter := c.Query("status")
+
+	// All figures returned are lifetime (identical to ProjectDetail). The period
+	// window (period_start/period_end, "YYYY-MM", inclusive) only decides which
+	// projects are visible (had activity in the window) — a multi-month selection
+	// on the frontend collapses to this single contiguous [start, end] span.
+	start, end, err := periodRange(c.Query("period_start"), c.Query("period_end"))
 	if err != nil {
 		return err
 	}
-	month := parseMonth(c.Query("month"))
-	statusFilter := c.Query("status")
-
-	// Only realized FLOWS are periodized (invoiced/received/paid/cost incurred);
-	// estimate, PO commitment and open balances stay the project's current totals.
-	start, end := periodRange(hasYear, year, month)
 	args := []any{company, start, end}
 
 	rows, err := h.db.Query(c.Context(), projectsQuery, args...)
@@ -280,7 +319,7 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 		var openPayable, invBalance float64
 		if err := rows.Scan(
 			&d.ProjectID, &d.ClientName, &d.Name, &d.CustomerGroup,
-			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.CostTotal, &openPayable,
+			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.IncomeActual, &d.CostTotal, &openPayable,
 			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &d.LaborPaid, &invBalance,
 		); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -288,7 +327,6 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 		d.ProjectType = projectType(d.Name)
 		d.MarginTarget = profitMargin
 		d.ToReceive = max0(invBalance)
-		d.IncomeActual = d.Received + d.ToReceive
 		d.OpenPayable = max0(openPayable)
 		d.LaborPaid = max0(d.LaborPaid)
 		d.Paid = max0(d.CostTotal - d.OpenPayable)
@@ -296,7 +334,10 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 		d.CostCeiling = d.ProjectedReceive * (1 - profitMargin)
 		d.OverCeiling = d.CostCeiling > 0 && d.CostTotal > d.CostCeiling
 		hasActivity := d.Received > 0 || d.CostTotal > 0 || d.Invoiced > 0
-		d.PotentiallyClosed = hasActivity && d.ToReceive <= eps && d.ToPay <= eps
+		// Potentially closed = subcontractor POs settled and no income pending —
+		// open general bills (openPayable) do NOT block this flag, since those can
+		// be legitimate future payables unrelated to the sub-contract lifecycle.
+		d.PotentiallyClosed = hasActivity && d.ToReceive <= eps && max0(d.LaborOpen) <= eps
 		d.InProgress = hasActivity && !d.PotentiallyClosed
 		d.IncomeAccounts = []IncomeAccount{}
 		d.CostAccounts = []CostAccount{}
@@ -1747,39 +1788,41 @@ func max0(v float64) float64 {
 	return v
 }
 
-func parseYear(s string) (int, bool, error) {
+// parsePeriodMonth parses a "YYYY-MM" query param. Empty string = unbounded (ok=false).
+func parsePeriodMonth(s string) (time.Time, bool, error) {
 	if s == "" {
-		return 0, false, nil
+		return time.Time{}, false, nil
 	}
-	y, err := strconv.Atoi(s)
+	t, err := time.Parse("2006-01", s)
 	if err != nil {
-		return 0, false, fiber.NewError(fiber.StatusBadRequest, "invalid year")
+		return time.Time{}, false, fiber.NewError(fiber.StatusBadRequest, "invalid period (expected YYYY-MM)")
 	}
-	return y, true, nil
+	return t, true, nil
 }
 
-func parseMonth(s string) int {
-	if s == "" {
-		return 0
+// periodRange returns the [start, end) date window used ONLY by period_activity
+// to decide which projects are visible — never to periodize displayed values.
+// Neither bound given => full range (all time, i.e. no visibility restriction).
+// Only one bound given => treated as a single-month window. periodEnd is
+// inclusive (the whole "YYYY-MM" month); a frontend multi-month selection
+// collapses to [min selected, max selected] before reaching this handler.
+func periodRange(periodStart, periodEnd string) (time.Time, time.Time, error) {
+	start, hasStart, err := parsePeriodMonth(periodStart)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
 	}
-	m, err := strconv.Atoi(s)
-	if err != nil || m < 1 || m > 12 {
-		return 0
+	end, hasEnd, err := parsePeriodMonth(periodEnd)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
 	}
-	return m
-}
-
-// periodRange returns the [start, end) date window the flow filters use. With no
-// year it returns a full range (0001 → 9999) so the query is identical to the
-// unfiltered/cumulative behavior. Year-only = that whole year; year+month = that month.
-func periodRange(hasYear bool, year, month int) (time.Time, time.Time) {
-	if !hasYear {
-		return time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC)
+	if !hasStart && !hasEnd {
+		return time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(9999, 12, 31, 0, 0, 0, 0, time.UTC), nil
 	}
-	if month >= 1 && month <= 12 {
-		start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
-		return start, start.AddDate(0, 1, 0)
+	if !hasStart {
+		start = end
 	}
-	start := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	return start, start.AddDate(1, 0, 0)
+	if !hasEnd {
+		end = start
+	}
+	return start, end.AddDate(0, 1, 0), nil
 }

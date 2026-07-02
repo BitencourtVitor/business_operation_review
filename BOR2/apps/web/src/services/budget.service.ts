@@ -195,11 +195,11 @@ export interface LaborSummaryItem {
 export type BudgetStatus = "all" | "in_progress" | "settled"
 
 export const budgetService = {
-  async getProjects(params: { company: string; status?: BudgetStatus; year?: number; month?: number }): Promise<BudgetProjectDetail[]> {
+  async getProjects(params: { company: string; status?: BudgetStatus; periodStart?: string; periodEnd?: string }): Promise<BudgetProjectDetail[]> {
     const search = new URLSearchParams({ company: params.company })
     if (params.status && params.status !== "all") search.set("status", params.status)
-    if (params.year) search.set("year", String(params.year))
-    if (params.month) search.set("month", String(params.month))
+    if (params.periodStart) search.set("period_start", params.periodStart)
+    if (params.periodEnd) search.set("period_end", params.periodEnd)
     return (await api.get<BudgetProjectDetail[]>(`/api/v1/budget/projects?${search}`, getToken())) ?? []
   },
 
