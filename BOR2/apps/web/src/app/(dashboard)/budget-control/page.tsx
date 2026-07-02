@@ -114,7 +114,7 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
                     <TooltipTrigger render={<span className="flex" />}>
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     </TooltipTrigger>
-                    <TooltipContent>Potentially closed, nothing left to pay or receive</TooltipContent>
+                    <TooltipContent>Potentially closed — subcontractor POs settled and no income pending (bills may still be open)</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -352,19 +352,39 @@ function CustomerFilter({ customers, selected, setSelected }: {
   )
 }
 
-// ── Period (year / month) filter ────────────────────────────────────────────────
+// ── Period (multi-month) filter ─────────────────────────────────────────────────
+// Selection is a Set of "YYYY-MM" keys. Selecting Jan + Mar implicitly includes
+// Feb — the backend only understands a single contiguous [min, max] range, so any
+// gaps between the earliest and latest selected month are always filled in.
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-function PeriodFilter({ year, month, onChange }: {
-  year: number | null; month: number | null
-  onChange: (year: number | null, month: number | null) => void
+function monthKey(year: number, month: number) { return `${year}-${String(month).padStart(2, "0")}` }
+
+function PeriodFilter({ selected, setSelected }: {
+  selected: Set<string>; setSelected: (s: Set<string>) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [navYear, setNavYear] = useState(() => year ?? new Date().getFullYear())
-  const label = year == null ? "All time" : month == null ? `${year}` : `${MONTHS[month - 1]} ${year}`
+  const [navYear, setNavYear] = useState(() => new Date().getFullYear())
+  const sorted = [...selected].sort()
+  const label = sorted.length === 0
+    ? "All time"
+    : sorted.length === 1
+      ? formatMonthKey(sorted[0])
+      : `${formatMonthKey(sorted[0])} – ${formatMonthKey(sorted[sorted.length - 1])}`
+  const yearKeys = Array.from({ length: 12 }, (_, i) => monthKey(navYear, i + 1))
+  const fullYearSelected = yearKeys.every(k => selected.has(k))
+  const toggleMonth = (k: string) => {
+    const next = new Set(selected)
+    next.has(k) ? next.delete(k) : next.add(k)
+    setSelected(next)
+  }
+  const toggleFullYear = () => {
+    const next = new Set(selected)
+    yearKeys.forEach(k => fullYearSelected ? next.delete(k) : next.add(k))
+    setSelected(next)
+  }
   return (
-    <Popover open={open} onOpenChange={o => { setOpen(o); if (o) setNavYear(year ?? new Date().getFullYear()) }}>
+    <Popover>
       <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
         <CalendarClock className="h-3.5 w-3.5" /> {label}
       </PopoverTrigger>
@@ -380,16 +400,20 @@ function PeriodFilter({ year, month, onChange }: {
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
-        <button onClick={() => { onChange(navYear, null); setOpen(false) }}
-          className={cn("mb-1 w-full rounded px-2 py-1 text-left text-[11px] transition-colors",
-            year === navYear && month == null ? "bg-primary/15 text-primary" : "hover:bg-accent")}>
+        <button onClick={toggleFullYear}
+          className={cn("mb-1 flex w-full items-center gap-2 rounded px-2 py-1 text-left text-[11px] transition-colors",
+            fullYearSelected ? "bg-primary/15 text-primary" : "hover:bg-accent")}>
+          <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", fullYearSelected ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+            {fullYearSelected && <Check className="h-3 w-3" />}
+          </span>
           Full year {navYear}
         </button>
         <div className="grid grid-cols-3 gap-1">
           {MONTHS.map((m, i) => {
-            const on = year === navYear && month === i + 1
+            const k = monthKey(navYear, i + 1)
+            const on = selected.has(k)
             return (
-              <button key={m} onClick={() => { onChange(navYear, i + 1); setOpen(false) }}
+              <button key={m} onClick={() => toggleMonth(k)}
                 className={cn("rounded px-1 py-1 text-[11px] transition-colors", on ? "bg-primary text-primary-foreground" : "hover:bg-accent")}>
                 {m}
               </button>
@@ -397,14 +421,19 @@ function PeriodFilter({ year, month, onChange }: {
           })}
         </div>
         <div className="mt-2 border-t border-border/40 pt-1.5">
-          <button onClick={() => { onChange(null, null); setOpen(false) }}
+          <button onClick={() => setSelected(new Set())}
             className="w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
-            All time
+            Clear selection (All time)
           </button>
         </div>
       </PopoverContent>
     </Popover>
   )
+}
+
+function formatMonthKey(k: string) {
+  const [y, m] = k.split("-")
+  return `${MONTHS[Number(m) - 1]} ${y}`
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -437,13 +466,17 @@ function BudgetContent() {
   const [types,     setTypes]     = useState({ building: true, house: true })
   const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
-  const [period, setPeriod] = useState<{ year: number | null; month: number | null }>(
-    () => ({ year: new Date().getFullYear(), month: null }))
+  const [periodSet, setPeriodSet] = useState<Set<string>>(
+    () => new Set(Array.from({ length: 12 }, (_, i) => monthKey(new Date().getFullYear(), i + 1))))
+
+  const sortedPeriods = [...periodSet].sort()
+  const periodStart = sortedPeriods[0]
+  const periodEnd = sortedPeriods[sortedPeriods.length - 1]
 
   const { data: projects, isLoading: projLoading } = useBudgetProjects({
     company,
-    year: period.year ?? undefined,
-    month: period.month ?? undefined,
+    periodStart,
+    periodEnd,
   })
   const { data: laborSummary } = useLaborSummary(company)
 
@@ -508,7 +541,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients, period])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alerts, types, selectedClients, periodStart, periodEnd])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -538,7 +571,7 @@ function BudgetContent() {
         </div>
 
         <div className="flex items-center gap-2">
-          <PeriodFilter year={period.year} month={period.month} onChange={(y, m) => setPeriod({ year: y, month: m })} />
+          <PeriodFilter selected={periodSet} setSelected={setPeriodSet} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
           {canManage && (
