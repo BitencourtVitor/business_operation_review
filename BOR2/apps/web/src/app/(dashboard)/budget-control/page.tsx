@@ -593,7 +593,7 @@ export default function BudgetControlPage() {
   return <Suspense><BudgetContent /></Suspense>
 }
 
-type SortField = "name" | "projected_receive" | "labor_committed" | "cost_total"
+type SortField = "name" | "margin" | "income_actual" | "cost_total" | "labor_committed"
 
 const PAGE_SIZE = 20
 
@@ -609,7 +609,7 @@ function BudgetContent() {
     || myPerms?.permissions?.budget_control === "write"
 
   const [search,    setSearch]    = useState("")
-  const [sortField, setSortField] = useState<SortField>("projected_receive")
+  const [sortField, setSortField] = useState<SortField>("income_actual")
   const [sortAsc,   setSortAsc]   = useState(false)
   const [detailID,  setDetailID]  = useState<string | null>(null)
   const [page,      setPage]      = useState(1)
@@ -703,10 +703,12 @@ function BudgetContent() {
       })
     const base: (BudgetProjectDetail & { __count?: number })[] =
       groupByJobsite ? groupProjectsByJobsite(filtered) : filtered
+    const sortValue = (p: BudgetProjectDetail) =>
+      sortField === "margin" ? p.income_actual - p.cost_total : (p[sortField] as number)
     return base.slice().sort((a, b) => {
       const dir = sortAsc ? 1 : -1
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
-      return dir * ((a[sortField] as number) - (b[sortField] as number))
+      return dir * (sortValue(a) - sortValue(b))
     })
   }, [projectFiltered, search, sortField, sortAsc, alerts, types, groupByJobsite])
 
@@ -885,10 +887,11 @@ function BudgetContent() {
                 Order by
               </span>
               {([
-                { f: "projected_receive", label: "Estimate" },
-                { f: "cost_total",        label: "Cost" },
-                { f: "labor_committed",   label: "Labor" },
-                { f: "name",              label: "Name" },
+                { f: "margin",          label: "Margin" },
+                { f: "income_actual",   label: "Income" },
+                { f: "cost_total",      label: "Cost" },
+                { f: "labor_committed", label: "Labor" },
+                { f: "name",            label: "Project" },
               ] as const).map(({ f, label }) => (
                 <button key={f} onClick={() => setSortField(f)}
                   className={cn("flex h-full items-center px-2.5 text-[11px] font-medium transition-colors",
