@@ -209,12 +209,12 @@ function DatePickerBadge({ value, onSelect, placeholder, className }: {
 
 // ── Account row (By Account tree with expandable children) ───────────────────
 
-function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadline, company, projectID, startDate }: {
+function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadline, company, projectID, startDate, projectType }: {
   ca: CostAccount; blur: string; editing: boolean
   budgetValue: number
   onDraftBudget: (accountID: string, amount: number) => void
   onSetDeadline: (accountID: string, deadline: string | null) => void
-  company: string; projectID: string; startDate?: string | null
+  company: string; projectID: string; startDate?: string | null; projectType?: string
 }) {
   const [open, setOpen] = useState(false)
   const hasChildren = (ca.children?.length ?? 0) > 0
@@ -276,8 +276,8 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur)}>{fmt(ca.paid)}</span>
         <span className={cn("w-20 text-right text-[11px] font-semibold tabular-nums", blur, !settled && ca.outstanding > 0 ? "text-orange-500" : !settled ? "text-muted-foreground/40" : "")}>{fmt(ca.outstanding)}</span>
         {/* Payee breakdown — flag the supervisor, split supervisor vs normal labor.
-            Only Payroll - COGS has a supervisor to segregate from normal labor. */}
-        {ca.name === "Payroll - COGS" ? (
+            Only Building's Payroll - COGS has a supervisor to segregate from normal labor. */}
+        {ca.name === "Payroll - COGS" && projectType === "building" ? (
           <Popover>
             <PopoverTrigger
               onClick={e => e.stopPropagation()}
@@ -1282,7 +1282,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                             <AccountRow key={ca.id || i} ca={ca} blur={blur}
                               editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget}
                               onSetDeadline={(accountID, deadline) => setAccountDeadline.mutate({ company, project_id: projectID, account_id: accountID, deadline: deadline ?? "" })}
-                              company={company} projectID={projectID} startDate={data?.start_date} />
+                              company={company} projectID={projectID} startDate={data?.start_date} projectType={data?.project_type} />
                           ))}
                           {/* Allocation footer (visible while mapping) */}
                           {editingBudget && (
