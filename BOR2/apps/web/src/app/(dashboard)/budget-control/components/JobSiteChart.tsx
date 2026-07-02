@@ -27,12 +27,12 @@ const PAY_PEND     = "#fca5a5"
 const MAX_ITEMS    = 80
 const PER_ITEM     = 132
 
-type Mode = "all" | "executed" | "pending"
+type Mode = "all" | "actual" | "outstanding"
 
 const MODES: { value: Mode; label: string; Icon: React.ElementType }[] = [
-  { value: "all",      label: "All",      Icon: Layers      },
-  { value: "executed", label: "Executed", Icon: CircleCheck },
-  { value: "pending",  label: "Pending",  Icon: Clock       },
+  { value: "all",         label: "All",         Icon: Layers      },
+  { value: "actual",      label: "Actual",      Icon: CircleCheck },
+  { value: "outstanding", label: "Outstanding", Icon: Clock       },
 ]
 
 // ── Data types ────────────────────────────────────────────────────────────────
@@ -69,10 +69,10 @@ function ChartTooltip({ active, payload, mode }: {
   const marginPct = totalRec > 0 ? (profit / totalRec) * 100 : 0
   const profitColor = marginPct >= 30 ? "var(--primary)" : marginPct > 0 ? "#f59e0b" : "#ef4444"
 
-  const showRec = mode === "executed" ? r.execReceivable : mode === "pending" ? r.pendReceivable : totalRec
-  const showPay = mode === "executed" ? r.execPayable    : mode === "pending" ? r.pendPayable    : totalPay
-  const recLabel = mode === "executed" ? "Invoiced" : mode === "pending" ? "Remaining Income" : "Receivable"
-  const payLabel = mode === "executed" ? "Billed"   : mode === "pending" ? "Remaining Cost"   : "Cost"
+  const showRec = mode === "actual" ? r.execReceivable : mode === "outstanding" ? r.pendReceivable : totalRec
+  const showPay = mode === "actual" ? r.execPayable    : mode === "outstanding" ? r.pendPayable    : totalPay
+  const recLabel = mode === "actual" ? "Received" : mode === "outstanding" ? "Outstanding" : "Income"
+  const payLabel = mode === "actual" ? "Paid"     : mode === "outstanding" ? "Outstanding" : "Cost"
 
   return (
     <div className="w-max max-w-[220px] rounded-lg border border-border/60 bg-popover px-3 py-2 text-xs shadow-lg">
@@ -89,13 +89,13 @@ function ChartTooltip({ active, payload, mode }: {
         <div className="ml-3 mt-0.5 flex flex-col gap-0.5 text-[10px] text-muted-foreground/80">
           <div className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> Executed
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE }} /> Received
             </span>
             <span className="tabular-nums">{fmt(r.execReceivable)}</span>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} /> Pending
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} /> Outstanding
             </span>
             <span className="tabular-nums">{fmt(r.pendReceivable)}</span>
           </div>
@@ -113,20 +113,20 @@ function ChartTooltip({ active, payload, mode }: {
         <div className="ml-3 mt-0.5 flex flex-col gap-0.5 text-[10px] text-muted-foreground/80">
           <div className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> Executed
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY }} /> Paid
             </span>
             <span className="tabular-nums">{fmt(r.execPayable)}</span>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY_PEND }} /> Pending
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: PAY_PEND }} /> Outstanding
             </span>
             <span className="tabular-nums">{fmt(r.pendPayable)}</span>
           </div>
         </div>
       )}
 
-      {mode !== "pending" && (
+      {mode !== "outstanding" && (
         <>
           <div className="my-1.5 border-t border-border/50" />
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
@@ -181,14 +181,14 @@ function XTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: s
 // and offset y upward to land above the full stack.
 function makeMarginLabel(data: Row[], show: boolean, mode: Mode) {
   return function MarginLabel(props: any) {
-    if (!show || mode === "pending") return <g />
+    if (!show || mode === "outstanding") return <g />
     const { x, y, width, height, index } = props
     const row = data[index]
     if (!row) return <g />
 
     let rec: number, pay: number, labelY: number
 
-    if (mode === "executed") {
+    if (mode === "actual") {
       rec    = row.execReceivable
       pay    = row.execPayable
       labelY = y - 5
@@ -222,7 +222,7 @@ export function JobSiteChart({ projects, selectedCustomers }: {
   projects: BudgetProjectDetail[]; selectedCustomers?: Set<string>
 }) {
   const { showFinancialData } = useFinancialStore()
-  const [mode, setMode] = useState<Mode>("executed")
+  const [mode, setMode] = useState<Mode>("actual")
   const exploded = (selectedCustomers?.size ?? 0) > 0
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -283,10 +283,10 @@ export function JobSiteChart({ projects, selectedCustomers }: {
   // conditional rendering; zero-height bars within a stack take no extra space.
   const displayData = useMemo<Row[]>(() => data.map(r => ({
     name:           r.name,
-    execReceivable: mode === "pending"  ? 0 : r.execReceivable,
-    pendReceivable: mode === "executed" ? 0 : r.pendReceivable,
-    execPayable:    mode === "pending"  ? 0 : r.execPayable,
-    pendPayable:    mode === "executed" ? 0 : r.pendPayable,
+    execReceivable: mode === "outstanding"  ? 0 : r.execReceivable,
+    pendReceivable: mode === "actual" ? 0 : r.pendReceivable,
+    execPayable:    mode === "outstanding"  ? 0 : r.execPayable,
+    pendPayable:    mode === "actual" ? 0 : r.pendPayable,
   })), [data, mode])
 
   const marginLabel = useMemo(() => makeMarginLabel(data, showFinancialData, mode), [data, showFinancialData, mode])
@@ -294,11 +294,11 @@ export function JobSiteChart({ projects, selectedCustomers }: {
   const profitTotals = useMemo(() => {
     let rec = 0, pay = 0
     for (const r of data) {
-      rec += mode === "pending"  ? r.pendReceivable
-           : mode === "executed" ? r.execReceivable
+      rec += mode === "outstanding"  ? r.pendReceivable
+           : mode === "actual" ? r.execReceivable
            : r.execReceivable + r.pendReceivable
-      pay += mode === "pending"  ? r.pendPayable
-           : mode === "executed" ? r.execPayable
+      pay += mode === "outstanding"  ? r.pendPayable
+           : mode === "actual" ? r.execPayable
            : r.execPayable + r.pendPayable
     }
     const profit = rec - pay
@@ -323,32 +323,32 @@ export function JobSiteChart({ projects, selectedCustomers }: {
 
           {/* Legend */}
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-            {mode !== "pending" && (
+            {mode !== "outstanding" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE }} />
-                Invoiced
+                Received
               </span>
             )}
-            {mode !== "executed" && (
+            {mode !== "actual" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: RECEIVE_PEND }} />
-                {mode === "all" ? "Pending Income" : "Income"}
+                {mode === "all" ? "Outstanding Income" : "Outstanding"}
               </span>
             )}
             {mode === "all" && <span className="h-3 w-px bg-border/60" />}
-            {mode !== "pending" && (
+            {mode !== "outstanding" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY }} />
-                Billed
+                Paid
               </span>
             )}
-            {mode !== "executed" && (
+            {mode !== "actual" && (
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PAY_PEND }} />
-                {mode === "all" ? "Pending Cost" : "Cost"}
+                {mode === "all" ? "Outstanding Cost" : "Outstanding"}
               </span>
             )}
-            {mode !== "pending" && showFinancialData && (
+            {mode !== "outstanding" && showFinancialData && (
               <>
                 <span className="h-3 w-px bg-border/60" />
                 <span className="flex items-center gap-1.5">
