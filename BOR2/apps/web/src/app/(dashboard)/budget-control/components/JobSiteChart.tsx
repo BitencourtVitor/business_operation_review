@@ -218,12 +218,20 @@ function makeMarginLabel(data: Row[], show: boolean, mode: Mode) {
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
 
-export function JobSiteChart({ projects, selectedCustomers }: {
-  projects: BudgetProjectDetail[]; selectedCustomers?: Set<string>
+export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSelectCustomer, onOpenProject }: {
+  projects: BudgetProjectDetail[]
+  selectedCustomers?: Set<string>
+  /** true when "group by jobsite" is off — always show per-project bars, even with no customer selected. */
+  forceExploded?: boolean
+  /** Bar click in grouped mode: user picked a jobsite bar — select that customer. */
+  onSelectCustomer?: (name: string) => void
+  /** Bar click in exploded mode: user picked a project bar — open its detail. */
+  onOpenProject?: (name: string) => void
 }) {
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("actual")
-  const exploded = (selectedCustomers?.size ?? 0) > 0
+  const hasCustomerSelection = (selectedCustomers?.size ?? 0) > 0
+  const exploded = !!forceExploded || hasCustomerSelection
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
@@ -241,11 +249,11 @@ export function JobSiteChart({ projects, selectedCustomers }: {
   }
   const onDragEnd = () => { drag.current.active = false }
 
-  // Selecting one or more customers "explodes" the chart: instead of one bar per
-  // customer, it scopes to just their projects and keys each bar by project name.
+  // Selecting one or more customers scopes the chart to just their projects
+  // (independent of forceExploded, which only changes the grouping key below).
   const scoped = useMemo(
-    () => exploded ? projects.filter(p => selectedCustomers!.has(p.customer_group || p.name)) : projects,
-    [projects, exploded, selectedCustomers])
+    () => hasCustomerSelection ? projects.filter(p => selectedCustomers!.has(p.customer_group || p.name)) : projects,
+    [projects, hasCustomerSelection, selectedCustomers])
 
   const aggregated = useMemo<Agg[]>(() => {
     const agg = new Map<string, Agg>()
@@ -398,7 +406,20 @@ export function JobSiteChart({ projects, selectedCustomers }: {
         ) : (
           <div className="h-full p-3" style={{ width: data.length * PER_ITEM, minWidth: "100%" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={displayData} margin={{ top: 16, right: 12, left: 0, bottom: 0 }} barGap={4} barCategoryGap="22%">
+              <BarChart
+                data={displayData}
+                margin={{ top: 16, right: 12, left: 0, bottom: 0 }}
+                barGap={4}
+                barCategoryGap="22%"
+                className={cn((onSelectCustomer || onOpenProject) && "[&_.recharts-bar-rectangle]:cursor-pointer")}
+                onClick={(state: any) => {
+                  if (drag.current.moved) return
+                  const name = state?.activeLabel
+                  if (!name) return
+                  if (exploded) onOpenProject?.(name)
+                  else onSelectCustomer?.(name)
+                }}
+              >
                 <defs>
                   <linearGradient id="jsExecRec" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%"   stopColor={RECEIVE}      stopOpacity={1}   />
