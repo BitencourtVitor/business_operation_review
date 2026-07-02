@@ -233,7 +233,7 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
   const { showFinancialData } = useFinancialStore()
   const [mode, setMode] = useState<Mode>("actual")
   const hasCustomerSelection = (selectedCustomers?.size ?? 0) > 0
-  const exploded = !!forceExploded || hasCustomerSelection
+  const exploded = !!forceExploded
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
@@ -262,10 +262,10 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
     for (const p of scoped) {
       const name = exploded ? p.name : (p.customer_group || p.name)
       const row = agg.get(name) ?? { name, invoiced: 0, remainingIncome: 0, billed: 0, remainingCost: 0 }
-      row.invoiced        += p.received + p.to_receive
-      row.billed          += p.paid + p.open_payable
+      row.invoiced        += p.received
+      row.billed          += p.paid
       row.remainingIncome += p.to_receive
-      row.remainingCost   += p.to_pay
+      row.remainingCost   += p.open_payable
       agg.set(name, row)
     }
     return [...agg.values()]
