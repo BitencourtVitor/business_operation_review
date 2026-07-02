@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText,
+  ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -340,12 +341,18 @@ function DeleteContractorDialog({ contractor, onClose }: {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+type SortField = "urgency" | "name"
+
+const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, ok: 3, none: 4 }
+
 export default function SubcontractorDocsPage() {
   const { data: types, isLoading: typesLoading } = useSubDocTypes()
   const { data: contractors, isLoading } = useSubDocContractors()
 
   const [search, setSearch] = useState("")
   const [urgencyFilter, setUrgencyFilter] = useState<Set<Urgency>>(new Set())
+  const [sortField, setSortField] = useState<SortField>("urgency")
+  const [sortAsc, setSortAsc] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<SubDocContractor | null>(null)
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
@@ -358,9 +365,18 @@ export default function SubcontractorDocsPage() {
     })
   }
 
-  const rows = (contractors ?? []).filter(c =>
-    (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
-    (urgencyFilter.size === 0 || urgencyFilter.has(c.urgency)))
+  const rows = (contractors ?? [])
+    .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
+      (urgencyFilter.size === 0 || urgencyFilter.has(c.urgency)))
+    .slice()
+    .sort((a, b) => {
+      const dir = sortAsc ? 1 : -1
+      if (sortField === "name") return dir * a.name.localeCompare(b.name)
+      const rankDiff = URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency]
+      if (rankDiff !== 0) return dir * rankDiff
+      if (a.next_expiry && b.next_expiry) return dir * a.next_expiry.localeCompare(b.next_expiry)
+      return 0
+    })
 
   if (isLoading || typesLoading) return <PageSkeleton />
 
@@ -370,12 +386,10 @@ export default function SubcontractorDocsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Subcontractor Docs</h1>
-          <p className="text-sm text-muted-foreground">
-            Insurance certificates, W-9, master contract, ID and policy status — sorted by what needs attention first
-          </p>
+          <p className="text-sm text-muted-foreground">Subcontractor compliance document status</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search subcontractor…"
@@ -386,6 +400,21 @@ export default function SubcontractorDocsPage() {
               </button>
             )}
           </div>
+
+          {(Object.keys(URGENCY_META) as Urgency[]).map(u => {
+            const meta = URGENCY_META[u]
+            const on = urgencyFilter.has(u)
+            const count = (contractors ?? []).filter(c => c.urgency === u).length
+            return (
+              <button key={u} onClick={() => toggleUrgency(u)}
+                className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  on ? cn(meta.border, meta.bg, meta.text) : "border-border/50 text-muted-foreground hover:text-foreground")}>
+                <span className={cn("h-1.5 w-1.5 rounded-full", meta.dot)} />
+                {meta.label} <span className="opacity-60">{count}</span>
+              </button>
+            )
+          })}
+
           <button onClick={() => setAddOpen(true)}
             className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80">
             <Plus className="h-3.5 w-3.5" /> Add
@@ -393,38 +422,48 @@ export default function SubcontractorDocsPage() {
         </div>
       </div>
 
-      {/* ── Urgency filter chips ─────────────────────────────────────────── */}
-      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-        {(Object.keys(URGENCY_META) as Urgency[]).map(u => {
-          const meta = URGENCY_META[u]
-          const on = urgencyFilter.has(u)
-          const count = (contractors ?? []).filter(c => c.urgency === u).length
-          return (
-            <button key={u} onClick={() => toggleUrgency(u)}
-              className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                on ? cn(meta.border, meta.bg, meta.text) : "border-border/50 text-muted-foreground hover:text-foreground")}>
-              <span className={cn("h-1.5 w-1.5 rounded-full", meta.dot)} />
-              {meta.label} <span className="opacity-60">{count}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* ── Contractor list ──────────────────────────────────────────────── */}
-      <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar">
-        {rows.length === 0 ? (
-          <Empty className="border-0">
-            <EmptyMedia><FileText className="h-8 w-8 text-muted-foreground/50" /></EmptyMedia>
-            <EmptyTitle>No subcontractors found.</EmptyTitle>
-          </Empty>
-        ) : (
-          <div className="flex flex-col gap-3 pb-2">
-            {rows.map(ctr => (
-              <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []}
-                onEdit={() => setEditing(ctr)} onDelete={() => setDeleting(ctr)} />
-            ))}
+      {/* ── Subcontractors container ─────────────────────────────────────── */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
+        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+          <span className="text-sm font-semibold">Subcontractors</span>
+          <span className="text-xs text-muted-foreground">{rows.length}</span>
+          <div className="ml-auto flex items-center gap-2">
+            <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
+              <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                Order by
+              </span>
+              {([["urgency", "Urgency"], ["name", "Name"]] as const).map(([f, label]) => (
+                <button key={f} onClick={() => setSortField(f)}
+                  className={cn("flex h-full items-center px-2 text-[11px] font-medium transition-colors",
+                    sortField === f ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground")}>
+                  {label}
+                </button>
+              ))}
+              <button onClick={() => setSortAsc(v => !v)}
+                className="flex h-full items-center border-l border-input px-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                {sortField === "name"
+                  ? (sortAsc ? <ArrowDownAZ className="h-3.5 w-3.5" /> : <ArrowUpZA className="h-3.5 w-3.5" />)
+                  : (sortAsc ? <ArrowDown01 className="h-3.5 w-3.5" /> : <ArrowUp01 className="h-3.5 w-3.5" />)}
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto no-scrollbar p-4">
+          {rows.length === 0 ? (
+            <Empty className="border-0">
+              <EmptyMedia><FileText className="h-8 w-8 text-muted-foreground/50" /></EmptyMedia>
+              <EmptyTitle>No subcontractors found.</EmptyTitle>
+            </Empty>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {rows.map(ctr => (
+                <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []}
+                  onEdit={() => setEditing(ctr)} onDelete={() => setDeleting(ctr)} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <ContractorFormDialog open={addOpen} onClose={() => setAddOpen(false)} initial={null} />
