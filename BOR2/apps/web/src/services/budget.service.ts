@@ -25,7 +25,7 @@ export interface CostAccount {
   budget_limit: number
   deadline: string | null // "YYYY-MM-DD" — paired with the project's start_date
   locked: boolean
-  is_ghost: boolean // true when injected from the ghost-accounts catalog, no real activity yet
+  is_preset: boolean // true when injected from a budgeted preset, no real activity yet
   children?: CostAccount[]
 }
 

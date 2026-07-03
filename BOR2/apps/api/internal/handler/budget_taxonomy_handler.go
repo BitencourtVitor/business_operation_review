@@ -181,76 +181,77 @@ func (h *BudgetTaxonomyHandler) SetAccountMapping(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
-// ── Ghost cost accounts (BC-20) ───────────────────────────────────────────────
-// A curated catalog of QB GL accounts that should always show up (budget-
-// editable) on a project of the given type, even with zero real activity yet.
+// ── Preset accounts (BC-20/BC-22, formerly "ghost accounts") ──────────────────
+// A curated, company-wide catalog (not scoped per project_type) of QB GL
+// accounts that have precedent elsewhere — surfaced in the add-account picker
+// on a project's By Account and in the Manage grid. Catalog membership alone
+// does NOT make an account show up on a given project; that only happens once
+// a budget is actually set for it there (see injectGhostCostAccounts).
 
-type GhostAccountOption struct {
+type PresetAccountOption struct {
 	AccountRefID string `json:"account_ref_id"`
 	AccountName  string `json:"account_name"`
-	Active       bool   `json:"active"` // true if currently in the ghost catalog
+	Cataloged    bool   `json:"cataloged"` // true if already in the preset catalog
 }
 
-// GET /budget/ghost-accounts?company=hvac&project_type=building
+// GET /budget/ghost-accounts?company=hvac
 func (h *BudgetTaxonomyHandler) ListGhostAccounts(c *fiber.Ctx) error {
 	company := c.Query("company")
-	pt := c.Query("project_type")
-	if company == "" || pt == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company and project_type are required")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company is required")
 	}
 	// Top-level only (no parent_id) — matches injectGhostCostAccounts, which only
 	// ever adds top-level nodes. A child account here would never actually show
-	// up as a ghost row, so it has no business being toggleable in this list.
+	// up as a preset row, so it has no business being pickable in this list.
 	rows, err := h.db.Query(c.Context(), `
 		SELECT a.external_id, COALESCE(a.name,''), (g.id IS NOT NULL AND g.active)
 		FROM qb_accounts a
 		LEFT JOIN budget_ghost_accounts g
-		  ON g.company=a.company AND g.account_ref_id=a.external_id AND g.project_type=$2
+		  ON g.company=a.company AND g.account_ref_id=a.external_id
 		WHERE a.company=$1 AND a.account_type IN ('Cost of Goods Sold','Expense')
 		  AND COALESCE(a.parent_id,'') = ''
 		ORDER BY a.name
-	`, company, pt)
+	`, company)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
-	out := []GhostAccountOption{}
+	out := []PresetAccountOption{}
 	for rows.Next() {
-		var o GhostAccountOption
-		rows.Scan(&o.AccountRefID, &o.AccountName, &o.Active)
+		var o PresetAccountOption
+		rows.Scan(&o.AccountRefID, &o.AccountName, &o.Cataloged)
 		out = append(out, o)
 	}
 	return c.JSON(fiber.Map{"data": out})
 }
 
-// PUT /budget/ghost-accounts  body {company, project_type, account_ref_id, active}
+// PUT /budget/ghost-accounts  body {company, account_ref_id, active}
 func (h *BudgetTaxonomyHandler) SetGhostAccount(c *fiber.Ctx) error {
 	var b struct {
 		Company      string `json:"company"`
-		ProjectType  string `json:"project_type"`
 		AccountRefID string `json:"account_ref_id"`
 		Active       bool   `json:"active"`
 	}
 	if err := c.BodyParser(&b); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
 	}
-	if b.Company == "" || b.ProjectType == "" || b.AccountRefID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "company, project_type, account_ref_id required")
+	if b.Company == "" || b.AccountRefID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, account_ref_id required")
 	}
 	if !b.Active {
 		_, err := h.db.Exec(c.Context(), `
-			DELETE FROM budget_ghost_accounts WHERE company=$1 AND project_type=$2 AND account_ref_id=$3
-		`, b.Company, b.ProjectType, b.AccountRefID)
+			DELETE FROM budget_ghost_accounts WHERE company=$1 AND account_ref_id=$2
+		`, b.Company, b.AccountRefID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(fiber.Map{"ok": true})
 	}
 	_, err := h.db.Exec(c.Context(), `
-		INSERT INTO budget_ghost_accounts (company, project_type, account_ref_id)
-		VALUES ($1,$2,$3)
-		ON CONFLICT (company, project_type, account_ref_id) DO UPDATE SET active=true, updated_at=now()
-	`, b.Company, b.ProjectType, b.AccountRefID)
+		INSERT INTO budget_ghost_accounts (company, account_ref_id)
+		VALUES ($1,$2)
+		ON CONFLICT (company, account_ref_id) DO UPDATE SET active=true, updated_at=now()
+	`, b.Company, b.AccountRefID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

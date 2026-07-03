@@ -6,7 +6,7 @@ import {
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
   CalendarClock, Users, Hourglass, Forklift, MapPin, ArrowRightLeft,
-  Pencil, Plus, Search, CalendarIcon, X as XIcon, CircleDashed,
+  Pencil, Plus, Search, CalendarIcon, X as XIcon, Bookmark,
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { qbtimeMappingService } from "@/services/qbtime-mapping.service"
@@ -20,8 +20,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar } from "@/components/ui/calendar"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useSetAccountDeadline, useSetProjectStartDate, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
-import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings, useGhostAccounts, useSetGhostAccount } from "@/hooks/use-budget-taxonomy"
-import type { ProjectType } from "@/services/budget-taxonomy.service"
+import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings, usePresetAccounts, useSetPresetAccount } from "@/hooks/use-budget-taxonomy"
 import type { CostAccount, CostCategory, CostVendor, BudgetProjectDetail } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -239,13 +238,13 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
         <div className="flex flex-1 min-w-0 items-center gap-1.5">
           {ca.name === "Contractors" && <HardHat className={cn("h-3 w-3 shrink-0", settled ? "text-muted-foreground/60" : "text-yellow-500/70")} />}
           <span className={cn("truncate text-[11px] font-medium", settled ? "text-muted-foreground" : ca.name === "Contractors" ? "text-yellow-500/80" : "text-foreground/80")} title={ca.name}>{ca.name}</span>
-          {ca.is_ghost && (
+          {ca.is_preset && (
             <TooltipProvider delay={0}>
               <Tooltip>
                 <TooltipTrigger render={<span className="flex shrink-0" />}>
-                  <CircleDashed className="h-2.5 w-2.5 text-muted-foreground/40" />
+                  <Bookmark className="h-2.5 w-2.5 text-muted-foreground/40" />
                 </TooltipTrigger>
-                <TooltipContent>Not posted in QuickBooks yet — budget set in advance</TooltipContent>
+                <TooltipContent>Preset — not posted in QuickBooks yet, budget set in advance</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -341,36 +340,49 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
   )
 }
 
-// ── Add ghost account (By Account) ────────────────────────────────────────────
+// ── Add preset account (By Account) ───────────────────────────────────────────
 // Lets the user pull in a company account that hasn't posted any activity to
-// this project yet, so its budget can be set in advance — same catalog as the
-// Manage > Ghost Accounts admin page.
-function AddGhostAccountButton({ company, projectType, projectID, existingIDs, variant = "row" }: {
-  company: string; projectType?: string; projectID: string; existingIDs: Set<string>
+// this project yet. Picking a name and setting its budget is one action — a
+// preset only actually shows up once a budget is set, so there's no separate
+// "add empty, edit later" step. Same catalog as the Manage > Preset Accounts
+// admin page; picking one here also registers it there for future reuse.
+function AddPresetAccountButton({ company, projectID, existingIDs, variant = "row" }: {
+  company: string; projectID: string; existingIDs: Set<string>
   variant?: "row" | "empty"
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
-  const pt = (projectType ?? "building") as ProjectType
-  const { data: options } = useGhostAccounts(company, pt)
-  const setGhost = useSetGhostAccount()
+  const [selected, setSelected] = useState<{ id: string; name: string } | null>(null)
+  const [amount, setAmount] = useState("")
+  const { data: options } = usePresetAccounts(company)
+  const setPreset = useSetPresetAccount()
+  const setAccountLimit = useSetAccountLimit()
   const qc = useQueryClient()
 
   const available = (options ?? [])
     .filter(o => !existingIDs.has(o.account_ref_id))
     .filter(o => !search || o.account_name.toLowerCase().includes(search.toLowerCase()))
 
-  function add(accountRefID: string) {
-    setGhost.mutate({ company, project_type: pt, account_ref_id: accountRefID, active: true }, {
+  function reset() {
+    setOpen(false); setSearch(""); setSelected(null); setAmount("")
+  }
+
+  function confirmAdd() {
+    if (!selected) return
+    const amt = Number(amount)
+    if (!(amt > 0)) return
+    setAccountLimit.mutate({ company, project_id: projectID, account_id: selected.id, amount: amt }, {
       onSuccess: () => {
+        if (!selected.name) return
+        setPreset.mutate({ company, account_ref_id: selected.id, active: true })
         qc.invalidateQueries({ queryKey: ["budget-detail", company, projectID] })
-        setOpen(false); setSearch("")
+        reset()
       },
     })
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={v => { setOpen(v); if (!v) reset() }}>
       {variant === "row" ? (
         <PopoverTrigger className="flex w-full items-center justify-center gap-1.5 border-t border-border/20 py-2 text-[11px] text-muted-foreground transition-colors hover:bg-muted/20 hover:text-foreground">
           <Plus className="h-3 w-3" /> Add account
@@ -381,23 +393,48 @@ function AddGhostAccountButton({ company, projectType, projectID, existingIDs, v
         </PopoverTrigger>
       )}
       <PopoverContent align="center" side="bottom" className="w-64 p-0">
-        <div className="border-b border-border/20 p-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search accounts…" autoFocus
-              className="h-7 w-full rounded-md border border-input bg-transparent pl-6 pr-2 text-xs outline-none placeholder:text-muted-foreground/50 dark:bg-input/30" />
+        {!selected ? (
+          <>
+            <div className="border-b border-border/20 p-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search accounts…" autoFocus
+                  className="h-7 w-full rounded-md border border-input bg-transparent pl-6 pr-2 text-xs outline-none placeholder:text-muted-foreground/50 dark:bg-input/30" />
+              </div>
+            </div>
+            <div className="max-h-56 overflow-y-auto p-1">
+              {available.length === 0 ? (
+                <p className="px-2 py-3 text-center text-[11px] text-muted-foreground">No matching accounts</p>
+              ) : available.map(o => (
+                <button key={o.account_ref_id} onClick={() => setSelected({ id: o.account_ref_id, name: o.account_name })}
+                  className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted">
+                  {o.account_name}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-2 p-3">
+            <p className="truncate text-xs font-medium" title={selected.name}>{selected.name}</p>
+            <div className="relative">
+              <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/60">$</span>
+              <input value={amount} inputMode="decimal" autoFocus placeholder="Budget amount"
+                onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                onKeyDown={e => { if (e.key === "Enter") confirmAdd() }}
+                className="h-8 w-full rounded-md border border-input bg-transparent pl-5 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setSelected(null)} className="rounded-md px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                Back
+              </button>
+              <button onClick={confirmAdd} disabled={!(Number(amount) > 0) || setAccountLimit.isPending}
+                className="flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50">
+                {setAccountLimit.isPending && <Loader2 className="h-3 w-3 animate-spin" />}
+                Add
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="max-h-56 overflow-y-auto p-1">
-          {available.length === 0 ? (
-            <p className="px-2 py-3 text-center text-[11px] text-muted-foreground">No matching accounts</p>
-          ) : available.map(o => (
-            <button key={o.account_ref_id} onClick={() => add(o.account_ref_id)} disabled={setGhost.isPending}
-              className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted disabled:opacity-50">
-              {o.account_name}
-            </button>
-          ))}
-        </div>
+        )}
       </PopoverContent>
     </Popover>
   )
@@ -1341,7 +1378,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                         {costAccounts.length === 0 ? (
                           <div className="flex flex-col items-center gap-2 px-3 py-6">
                             <p className="text-[11px] text-muted-foreground">No accounts yet for this project</p>
-                            <AddGhostAccountButton company={company} projectType={data?.project_type} projectID={projectID}
+                            <AddPresetAccountButton company={company} projectID={projectID}
                               existingIDs={new Set()} variant="empty" />
                           </div>
                         ) : (
@@ -1365,7 +1402,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                                 company={company} projectID={projectID} startDate={data?.start_date} projectType={data?.project_type} />
                             ))}
                             {editingBudget && (
-                              <AddGhostAccountButton company={company} projectType={data?.project_type} projectID={projectID}
+                              <AddPresetAccountButton company={company} projectID={projectID}
                                 existingIDs={new Set(costAccounts.map(ca => ca.id))} />
                             )}
                             {/* Allocation footer (visible while mapping) */}
