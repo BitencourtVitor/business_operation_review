@@ -663,6 +663,11 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+	d.CostAccounts, err = h.injectGhostCostAccounts(ctx, company, d.ProjectType, d.CostAccounts)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	d.IncomeAccounts = injectGhostIncomeAccounts(d.IncomeAccounts)
 
 	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
@@ -1782,6 +1787,58 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 		top = []CostAccount{}
 	}
 	return top, nil
+}
+
+// injectGhostCostAccounts adds a zero-amount top-level entry for every active
+// "ghost" account (budget_ghost_accounts) of this company+project_type that
+// has no real activity on this project yet — same treatment as budgetedCats
+// for Contractors Costs, letting a budget be set before anything posts to QB.
+func (h *BudgetHandler) injectGhostCostAccounts(ctx context.Context, company, projType string, accounts []CostAccount) ([]CostAccount, error) {
+	present := map[string]bool{}
+	for _, a := range accounts {
+		present[a.ID] = true
+	}
+	rows, err := h.db.Query(ctx, `
+		SELECT a.external_id, COALESCE(a.name,''), COALESCE(a.account_type,'Other')
+		FROM budget_ghost_accounts g
+		JOIN qb_accounts a ON a.company = g.company AND a.external_id = g.account_ref_id
+		WHERE g.active = true AND g.company = $1 AND g.project_type = $2
+	`, company, projType)
+	if err != nil {
+		return accounts, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, name, atype string
+		rows.Scan(&id, &name, &atype)
+		if present[id] || name == "" {
+			continue
+		}
+		group := "Other"
+		if atype == "Cost of Goods Sold" || atype == "Expense" {
+			group = atype
+		}
+		accounts = append(accounts, CostAccount{ID: id, Name: name, Group: group})
+	}
+	return accounts, nil
+}
+
+// Income account types are a fixed, known set (unlike cost accounts, which
+// span the company's whole chart of accounts) — no admin-managed catalog
+// needed, just always surface these so income budget/notes can be set early.
+var ghostIncomeTypes = []string{"Sales", "Extra", "Back Charges"}
+
+func injectGhostIncomeAccounts(accounts []IncomeAccount) []IncomeAccount {
+	present := map[string]bool{}
+	for _, a := range accounts {
+		present[a.Name] = true
+	}
+	for _, name := range ghostIncomeTypes {
+		if !present[name] {
+			accounts = append(accounts, IncomeAccount{Name: name})
+		}
+	}
+	return accounts
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────────

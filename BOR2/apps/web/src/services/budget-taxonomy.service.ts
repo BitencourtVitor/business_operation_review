@@ -48,6 +48,12 @@ export interface VendorLimit {
   amount: number
 }
 
+export interface GhostAccountOption {
+  account_ref_id: string
+  account_name: string
+  active: boolean
+}
+
 export const budgetTaxonomyService = {
   listCategories: (projectType?: ProjectType) =>
     api.get<Category[]>(`/api/v1/budget/categories${projectType ? `?project_type=${projectType}` : ""}`, getToken()).then(r => r ?? []),
@@ -66,6 +72,12 @@ export const budgetTaxonomyService = {
 
   setAccountMapping: (body: { company: string; account_ref_id: string; project_type: ProjectType; category_id: string | null }) =>
     api.put(`/api/v1/budget/account-categories`, body, getToken()),
+
+  listGhostAccounts: (company: string, projectType: ProjectType) =>
+    api.get<GhostAccountOption[]>(`/api/v1/budget/ghost-accounts?company=${company}&project_type=${projectType}`, getToken()).then(r => r ?? []),
+
+  setGhostAccount: (body: { company: string; project_type: ProjectType; account_ref_id: string; active: boolean }) =>
+    api.put(`/api/v1/budget/ghost-accounts`, body, getToken()),
 
   listVendorMappings: (company: string, projectType: ProjectType) =>
     api.get<VendorMapping[]>(`/api/v1/budget/vendor-categories?company=${company}&project_type=${projectType}`, getToken()).then(r => r ?? []),

@@ -497,6 +497,8 @@ func main() {
 	budget.Delete("/categories/:id",     budgetTaxonomyHandler.DeleteCategory)
 	budget.Get("/account-categories",    budgetTaxonomyHandler.ListAccountMappings)
 	budget.Put("/account-categories",    budgetTaxonomyHandler.SetAccountMapping)
+	budget.Get("/ghost-accounts",        budgetTaxonomyHandler.ListGhostAccounts)
+	budget.Put("/ghost-accounts",        budgetTaxonomyHandler.SetGhostAccount)
 	budget.Get("/vendor-categories",     budgetTaxonomyHandler.ListVendorMappings)
 	budget.Put("/vendor-categories",     budgetTaxonomyHandler.SetVendorMapping)
 	budget.Get("/project-limits",        budgetTaxonomyHandler.ListProjectLimits)
