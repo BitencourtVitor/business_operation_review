@@ -34,19 +34,19 @@ export function useSetAccountMapping() {
   })
 }
 
-export function useGhostAccounts(company: string, projectType: ProjectType) {
+export function usePresetAccounts(company: string) {
   return useQuery({
-    queryKey: ["budget-ghost-accounts", company, projectType],
-    queryFn: () => svc.listGhostAccounts(company, projectType),
+    queryKey: ["preset-accounts", company],
+    queryFn: () => svc.listPresetAccounts(company),
     enabled: !!company,
   })
 }
 
-export function useSetGhostAccount() {
+export function useSetPresetAccount() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: svc.setGhostAccount,
-    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-ghost-accounts", v.company, v.project_type] }),
+    mutationFn: svc.setPresetAccount,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["preset-accounts", v.company] }),
   })
 }
 

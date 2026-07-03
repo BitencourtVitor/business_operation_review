@@ -502,7 +502,7 @@ type CostAccount struct {
 	BudgetLimit float64       `json:"budget_limit"`
 	Deadline    *string       `json:"deadline"` // "YYYY-MM-DD" ceiling date, paired with the project's start_date
 	Locked      bool          `json:"locked"`
-	IsGhost     bool          `json:"is_ghost"` // true when injected from budget_ghost_accounts, no real activity yet
+	IsPreset    bool          `json:"is_preset"` // true when injected from a preset (budgeted, no real activity yet)
 	Children    []CostAccount `json:"children,omitempty"`
 }
 
@@ -664,11 +664,12 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	d.CostAccounts, err = h.injectGhostCostAccounts(ctx, company, d.ProjectType, d.CostAccounts)
+	acctLimits := h.accountLimits(ctx, company, projectID)
+	d.CostAccounts, err = h.injectPresetCostAccounts(ctx, company, d.CostAccounts, acctLimits)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	d.IncomeAccounts = injectGhostIncomeAccounts(d.IncomeAccounts)
+	d.IncomeAccounts = injectPresetIncomeAccounts(d.IncomeAccounts)
 
 	// Purchase orders for all customers of the project, with lines.
 	poRows, err := h.db.Query(ctx, `
@@ -756,7 +757,7 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	// Cost budget per account: manual ceiling stored per (company, project, account);
 	// the Contractors account is derived from the Contractors budget (Σ category
 	// budgets) and locked — change it by editing the category budgets.
-	applyAccountBudgets(d.CostAccounts, h.accountLimits(ctx, company, projectID), d.LaborBudget)
+	applyAccountBudgets(d.CostAccounts, acctLimits, d.LaborBudget)
 
 	return c.JSON(fiber.Map{"data": d})
 }
@@ -1790,21 +1791,32 @@ func (h *BudgetHandler) costAccountTree(ctx context.Context, company string, cus
 	return top, nil
 }
 
-// injectGhostCostAccounts adds a zero-amount top-level entry for every active
-// "ghost" account (budget_ghost_accounts) of this company+project_type that
-// has no real activity on this project yet — same treatment as budgetedCats
-// for Contractors Costs, letting a budget be set before anything posts to QB.
-func (h *BudgetHandler) injectGhostCostAccounts(ctx context.Context, company, projType string, accounts []CostAccount) ([]CostAccount, error) {
+// injectPresetCostAccounts adds a zero-amount top-level entry for an account
+// with no real activity on THIS project yet, but that already has a manual
+// budget set for it here (budget_project_account_limits) — i.e. someone
+// deliberately pre-budgeted it via the add-account picker. Unlike the
+// company-wide preset catalog (budget_ghost_accounts), this is per-project:
+// merely being in the catalog does not surface an account on every project of
+// a type, only an actual budget does. Same end result as budgetedCats for
+// Contractors Costs, just keyed by project instead of project_type.
+func (h *BudgetHandler) injectPresetCostAccounts(ctx context.Context, company string, accounts []CostAccount, limits map[string]accountLimit) ([]CostAccount, error) {
 	present := map[string]bool{}
 	for _, a := range accounts {
 		present[a.ID] = true
 	}
+	var toFetch []string
+	for id, l := range limits {
+		if l.Amount > 0 && !present[id] {
+			toFetch = append(toFetch, id)
+		}
+	}
+	if len(toFetch) == 0 {
+		return accounts, nil
+	}
 	rows, err := h.db.Query(ctx, `
-		SELECT a.external_id, COALESCE(a.name,''), COALESCE(a.account_type,'Other')
-		FROM budget_ghost_accounts g
-		JOIN qb_accounts a ON a.company = g.company AND a.external_id = g.account_ref_id
-		WHERE g.active = true AND g.company = $1 AND g.project_type = $2
-	`, company, projType)
+		SELECT external_id, COALESCE(name,''), COALESCE(account_type,'Other')
+		FROM qb_accounts WHERE company=$1 AND external_id = ANY($2)
+	`, company, toFetch)
 	if err != nil {
 		return accounts, err
 	}
@@ -1819,7 +1831,7 @@ func (h *BudgetHandler) injectGhostCostAccounts(ctx context.Context, company, pr
 		if atype == "Cost of Goods Sold" || atype == "Expense" {
 			group = atype
 		}
-		accounts = append(accounts, CostAccount{ID: id, Name: name, Group: group, IsGhost: true})
+		accounts = append(accounts, CostAccount{ID: id, Name: name, Group: group, IsPreset: true})
 	}
 	return accounts, nil
 }
@@ -1827,14 +1839,14 @@ func (h *BudgetHandler) injectGhostCostAccounts(ctx context.Context, company, pr
 // Income account types are a fixed, known set (unlike cost accounts, which
 // span the company's whole chart of accounts) — no admin-managed catalog
 // needed, just always surface these so income budget/notes can be set early.
-var ghostIncomeTypes = []string{"Sales", "Extra", "Back Charges"}
+var presetIncomeTypes = []string{"Sales", "Extra", "Back Charges"}
 
-func injectGhostIncomeAccounts(accounts []IncomeAccount) []IncomeAccount {
+func injectPresetIncomeAccounts(accounts []IncomeAccount) []IncomeAccount {
 	present := map[string]bool{}
 	for _, a := range accounts {
 		present[a.Name] = true
 	}
-	for _, name := range ghostIncomeTypes {
+	for _, name := range presetIncomeTypes {
 		if !present[name] {
 			accounts = append(accounts, IncomeAccount{Name: name})
 		}

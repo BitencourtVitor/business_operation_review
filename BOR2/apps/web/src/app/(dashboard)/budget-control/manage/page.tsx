@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ChevronRight, Tag, Clock, Gauge, Ghost } from "lucide-react"
+import { ArrowLeft, ChevronRight, Tag, Clock, Gauge, Bookmark } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useBudgetSettings, useSetBudgetSettings } from "@/hooks/use-budget-taxonomy"
@@ -108,16 +108,16 @@ export default function BudgetManagePage() {
         </Link>
 
         <Link
-          href="/budget-control/manage/ghost-accounts"
+          href="/budget-control/manage/preset-accounts"
           className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/70"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-transparent text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary">
-            <Ghost className="h-5 w-5" />
+            <Bookmark className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Ghost Accounts</p>
+            <p className="text-sm font-medium">Preset Accounts</p>
             <p className="text-xs text-muted-foreground">
-              Cost accounts that always show up per project type, even with zero activity yet
+              Accounts with precedent elsewhere, pickable to pre-budget a project before anything posts to QuickBooks
             </p>
           </div>
           <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />

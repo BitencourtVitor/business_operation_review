@@ -1,7 +1,8 @@
-// One-off backfill for BC-20 (ghost cost accounts): seeds budget_ghost_accounts
-// with every top-level COGS/Expense account that has EVER posted activity on
-// ANY project of a given company+project_type, so the admin's starting
-// catalog reflects real history instead of an empty list.
+// One-off backfill for BC-20/BC-22 (preset accounts): seeds
+// budget_ghost_accounts with every top-level COGS/Expense account that has
+// EVER posted activity on ANY project of a company (any project type — the
+// catalog isn't scoped per type), so the admin's starting list reflects real
+// history instead of an empty one. Safe to re-run (ON CONFLICT DO NOTHING).
 package main
 
 import (
@@ -9,24 +10,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
-
-// projectType mirrors internal/handler/budget_handler.go's projectType() —
-// duplicated here since it's unexported and this is a standalone script.
-func projectType(name string) string {
-	n := strings.ToLower(strings.TrimSpace(name))
-	if strings.HasPrefix(n, "building") {
-		return "building"
-	}
-	if strings.HasPrefix(n, "lot") {
-		return "lot"
-	}
-	return "private"
-}
 
 func main() {
 	_ = godotenv.Load()
@@ -45,38 +32,14 @@ func main() {
 	for _, company := range companies {
 		fmt.Printf("=== %s ===\n", company)
 
-		// customer_id → project name (leaf FQN segment), same derivation as custProjCTE.
-		custRows, err := conn.Query(context.Background(), `
-			SELECT external_id,
-			       COALESCE(
-			           NULLIF(trim((string_to_array(COALESCE(NULLIF(fully_qualified_name,''), NULLIF(display_name,''), external_id), ':'))[
-			               array_length(string_to_array(COALESCE(NULLIF(fully_qualified_name,''), NULLIF(display_name,''), external_id), ':'), 1)
-			           ]), ''),
-			           NULLIF(display_name, ''),
-			           external_id
-			       ) AS pname
-			FROM qb_customers WHERE company=$1
-		`, company)
-		if err != nil {
-			log.Fatalf("%s: customer query error: %v", company, err)
-		}
-		pname := map[string]string{}
-		for custRows.Next() {
-			var custID, pn string
-			custRows.Scan(&custID, &pn)
-			pname[custID] = pn
-		}
-		custRows.Close()
-
-		// (customer_id, account_ref_id) pairs with real activity, restricted to
-		// top-level (no parent) COGS/Expense accounts — mirrors costAccountTree's
-		// "top" node set, which is what ghost rows are injected alongside.
-		actRows, err := conn.Query(context.Background(), `
-			SELECT DISTINCT x.customer_id, a.external_id
+		// Distinct top-level COGS/Expense accounts with real activity on ANY
+		// project, regardless of project type.
+		rows, err := conn.Query(context.Background(), `
+			SELECT DISTINCT a.external_id
 			FROM (
-				SELECT customer_id, account_ref_id FROM qb_bill_lines          WHERE company=$1 AND customer_id<>''
-				UNION SELECT customer_id, account_ref_id FROM qb_purchase_lines      WHERE company=$1 AND customer_id<>''
-				UNION SELECT customer_id, account_ref_id FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id<>''
+				SELECT account_ref_id FROM qb_bill_lines          WHERE company=$1 AND customer_id<>''
+				UNION SELECT account_ref_id FROM qb_purchase_lines      WHERE company=$1 AND customer_id<>''
+				UNION SELECT account_ref_id FROM qb_vendor_credit_lines WHERE company=$1 AND customer_id<>''
 			) x
 			JOIN qb_accounts a ON a.company=$1 AND a.external_id=x.account_ref_id
 			WHERE a.account_type IN ('Cost of Goods Sold','Expense')
@@ -85,28 +48,30 @@ func main() {
 		if err != nil {
 			log.Fatalf("%s: activity query error: %v", company, err)
 		}
-		type key struct{ projType, accountID string }
-		seen := map[key]bool{}
-		for actRows.Next() {
-			var custID, accountID string
-			actRows.Scan(&custID, &accountID)
-			pt := projectType(pname[custID])
-			seen[key{pt, accountID}] = true
+		var accountIDs []string
+		for rows.Next() {
+			var id string
+			rows.Scan(&id)
+			accountIDs = append(accountIDs, id)
 		}
-		actRows.Close()
+		rows.Close()
 
-		for k := range seen {
-			_, err := conn.Exec(context.Background(), `
-				INSERT INTO budget_ghost_accounts (company, project_type, account_ref_id)
-				VALUES ($1,$2,$3)
-				ON CONFLICT (company, project_type, account_ref_id) DO NOTHING
-			`, company, k.projType, k.accountID)
+		seeded := 0
+		for _, id := range accountIDs {
+			tag, err := conn.Exec(context.Background(), `
+				INSERT INTO budget_ghost_accounts (company, account_ref_id)
+				VALUES ($1,$2)
+				ON CONFLICT (company, account_ref_id) DO NOTHING
+			`, company, id)
 			if err != nil {
 				log.Fatalf("%s: insert error: %v", company, err)
 			}
+			if tag.RowsAffected() > 0 {
+				seeded++
+			}
 			total++
 		}
-		fmt.Printf("  %d (company, project_type, account) combos seeded\n", len(seen))
+		fmt.Printf("  %d accounts seen, %d newly added\n", len(accountIDs), seeded)
 	}
-	fmt.Printf("\n✓ Done — %d rows upserted (ON CONFLICT DO NOTHING, safe to re-run)\n", total)
+	fmt.Printf("\n✓ Done — %d accounts checked (ON CONFLICT DO NOTHING, safe to re-run)\n", total)
 }
