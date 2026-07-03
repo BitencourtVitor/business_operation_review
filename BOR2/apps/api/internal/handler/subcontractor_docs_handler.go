@@ -84,6 +84,7 @@ type SubDocContractor struct {
 	Email      string         `json:"email"`
 	Phone      string         `json:"phone"`
 	Notes      string         `json:"notes"`
+	Archived   bool           `json:"archived"`
 	Records    []SubDocRecord `json:"records"`
 	NextExpiry *string        `json:"next_expiry"`
 	Urgency    string         `json:"urgency"`
@@ -98,10 +99,13 @@ const subDocsCompany = "framing"
 // Sorted soonest-expiry-first (Amanda's core ask): whoever needs attention
 // next surfaces at the top instead of being buried in a flat spreadsheet.
 func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
-	rows, err := h.db.Query(c.Context(), `
-		SELECT id, company, name, email, phone, notes
-		FROM sub_doc_contractors ORDER BY name
-	`)
+	includeArchived := c.Query("include_archived") == "true"
+	query := `SELECT id, company, name, email, phone, notes, archived FROM sub_doc_contractors`
+	if !includeArchived {
+		query += ` WHERE archived = false`
+	}
+	query += ` ORDER BY name`
+	rows, err := h.db.Query(c.Context(), query)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -109,7 +113,7 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	byID := map[int]*SubDocContractor{}
 	for rows.Next() {
 		ctr := &SubDocContractor{Records: []SubDocRecord{}}
-		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.Email, &ctr.Phone, &ctr.Notes)
+		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.Email, &ctr.Phone, &ctr.Notes, &ctr.Archived)
 		out = append(out, ctr)
 		byID[ctr.ID] = ctr
 	}
@@ -245,6 +249,24 @@ func (h *SubcontractorDocsHandler) UpdateContractor(c *fiber.Ctx) error {
 func (h *SubcontractorDocsHandler) DeleteContractor(c *fiber.Ctx) error {
 	id := c.Params("id")
 	_, err := h.db.Exec(c.Context(), `DELETE FROM sub_doc_contractors WHERE id=$1`, id)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+// PATCH /subcontractor-docs/contractors/:id/archive
+// body {archived: bool} — archiving keeps the contractor and its document
+// history, just hides it from the default list (unlike Delete).
+func (h *SubcontractorDocsHandler) ArchiveContractor(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var b struct {
+		Archived bool `json:"archived"`
+	}
+	if err := c.BodyParser(&b); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	_, err := h.db.Exec(c.Context(), `UPDATE sub_doc_contractors SET archived=$1, updated_at=now() WHERE id=$2`, b.Archived, id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

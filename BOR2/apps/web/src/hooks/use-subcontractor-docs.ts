@@ -9,10 +9,10 @@ export function useSubDocTypes() {
   })
 }
 
-export function useSubDocContractors() {
+export function useSubDocContractors(includeArchived?: boolean) {
   return useQuery({
-    queryKey: ["sub-doc-contractors"],
-    queryFn: () => subcontractorDocsService.listContractors(),
+    queryKey: ["sub-doc-contractors", includeArchived ?? false],
+    queryFn: () => subcontractorDocsService.listContractors(includeArchived),
   })
 }
 
@@ -37,6 +37,15 @@ export function useDeleteSubDocContractor() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => subcontractorDocsService.deleteContractor(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-contractors"] }),
+  })
+}
+
+export function useArchiveSubDocContractor() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, archived }: { id: number; archived: boolean }) =>
+      subcontractorDocsService.archiveContractor(id, archived),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-contractors"] }),
   })
 }

@@ -29,6 +29,7 @@ export interface SubDocContractor {
   email: string
   phone: string
   notes: string
+  archived: boolean
   records: SubDocRecord[]
   next_expiry: string | null
   urgency: Urgency
@@ -38,8 +39,11 @@ export const subcontractorDocsService = {
   listTypes: () =>
     api.get<SubDocType[]>(`/api/v1/subcontractor-docs/types`, getToken()).then(r => r ?? []),
 
-  listContractors: () =>
-    api.get<SubDocContractor[]>(`/api/v1/subcontractor-docs/contractors`, getToken()).then(r => r ?? []),
+  listContractors: (includeArchived?: boolean) =>
+    api.get<SubDocContractor[]>(
+      `/api/v1/subcontractor-docs/contractors${includeArchived ? "?include_archived=true" : ""}`,
+      getToken(),
+    ).then(r => r ?? []),
 
   createContractor: (body: { name: string; email: string; phone: string; notes: string }) =>
     api.post<{ id: number }>(`/api/v1/subcontractor-docs/contractors`, body, getToken()),
@@ -49,6 +53,9 @@ export const subcontractorDocsService = {
 
   deleteContractor: (id: number) =>
     api.delete(`/api/v1/subcontractor-docs/contractors/${id}`, getToken()),
+
+  archiveContractor: (id: number, archived: boolean) =>
+    api.patch(`/api/v1/subcontractor-docs/contractors/${id}/archive`, { archived }, getToken()),
 
   setRecord: (body: {
     contractor_id: number; doc_type: string; status: DocStatus
