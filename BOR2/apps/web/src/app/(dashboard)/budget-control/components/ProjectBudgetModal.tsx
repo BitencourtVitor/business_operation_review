@@ -176,19 +176,20 @@ function toISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
-function DatePickerBadge({ value, onSelect, placeholder, className }: {
+function DatePickerBadge({ value, onSelect, placeholder, className, iconOnly }: {
   value: string | null; onSelect: (iso: string | null) => void
-  placeholder: string; className?: string
+  placeholder: string; className?: string; iconOnly?: boolean
 }) {
   const [open, setOpen] = useState(false)
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         onClick={e => e.stopPropagation()}
+        title={iconOnly && !value ? placeholder : undefined}
         className={cn("flex items-center gap-1 rounded transition-colors hover:text-foreground", className)}
       >
         <CalendarIcon className="h-3 w-3 shrink-0" />
-        {value ? fmtDate(value) : placeholder}
+        {value ? fmtDate(value) : (iconOnly ? null : placeholder)}
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={4} className="w-auto p-0" onClick={e => e.stopPropagation()}>
         <Calendar mode="single" selected={value ? toDate(value) : undefined}
@@ -252,7 +253,7 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
           {/* Budget deadline — pairs with the project start date to draw a
               progressive adherence line instead of a flat ceiling. */}
           {editing && !ca.locked ? (
-            <DatePickerBadge value={ca.deadline} onSelect={d => onSetDeadline(ca.id, d)} placeholder="Deadline"
+            <DatePickerBadge value={ca.deadline} onSelect={d => onSetDeadline(ca.id, d)} placeholder="Deadline" iconOnly
               className="shrink-0 text-[9px] text-muted-foreground/50" />
           ) : ca.deadline ? (
             <span className="flex shrink-0 items-center gap-1 text-[9px] text-muted-foreground/40" title={`Budget deadline: ${fmtDate(ca.deadline)}`}>
