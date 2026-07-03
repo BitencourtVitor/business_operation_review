@@ -34,6 +34,22 @@ export function useSetAccountMapping() {
   })
 }
 
+export function useGhostAccounts(company: string, projectType: ProjectType) {
+  return useQuery({
+    queryKey: ["budget-ghost-accounts", company, projectType],
+    queryFn: () => svc.listGhostAccounts(company, projectType),
+    enabled: !!company,
+  })
+}
+
+export function useSetGhostAccount() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: svc.setGhostAccount,
+    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["budget-ghost-accounts", v.company, v.project_type] }),
+  })
+}
+
 export function useVendorMappings(company: string, projectType: ProjectType) {
   return useQuery({
     queryKey: ["budget-vendor-mappings", company, projectType],
