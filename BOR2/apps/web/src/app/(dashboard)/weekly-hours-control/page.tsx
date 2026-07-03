@@ -23,6 +23,7 @@ type EmployeeResult = {
   hoursLogged: number
   surplus: number
   available: number
+  days: JCDay[]
 }
 
 type QBTeam = { id: string; name: string; members: string[] }
@@ -101,11 +102,27 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
+// Per-employee block: the summary line (name + hours/surplus/available) plus,
+// for each day that has job-site activity, a day header and one line per
+// address — mirrors the on-screen expanded breakdown instead of flattening it.
+const ROW_BASE = 34, DAY_HEADER_H = 20, ADDR_H = 30, BLOCK_GAP = 6
+
+function blockHeight(days: JCDay[]): number {
+  let h = ROW_BASE
+  for (const d of days) {
+    if (d.addresses.length === 0) continue
+    h += DAY_HEADER_H + d.addresses.length * ADDR_H
+  }
+  return h + BLOCK_GAP
+}
+
 // dayLabel: when provided → day mode (2 cols: name + hours for that day). Undefined → week mode (4 cols).
 function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  const W = 860, padX = 40, padY = 36, rowH = 42, thH = 40, titleH = 72, statsH = 72, footerH = 32
-  const H = padY + titleH + statsH + thH + results.length * rowH + padY + footerH
+  const W = 860, padX = 40, padY = 36, thH = 40, titleH = 72, statsH = 72, footerH = 32
+  const blockHeights = results.map(r => blockHeight(r.days))
+  const rowsH = blockHeights.reduce((s, h) => s + h, 0)
+  const H = padY + titleH + statsH + thH + rowsH + padY + footerH
 
   const canvas = document.createElement("canvas")
   canvas.width = W * dpr; canvas.height = H * dpr
@@ -179,12 +196,14 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   ctx.strokeStyle = BORDER; ctx.lineWidth = 1
   ctx.beginPath(); ctx.moveTo(padX - 16, ty + thH); ctx.lineTo(W - padX + 16, ty + thH); ctx.stroke()
 
+  let ry = ty + thH
   results.forEach((r, i) => {
-    const ry = ty + thH + i * rowH
-    if (i % 2 === 1) { ctx.fillStyle = ROWODD; ctx.fillRect(padX - 16, ry, W - (padX - 16) * 2, rowH) }
+    const bh = blockHeights[i]
+    if (i % 2 === 1) { ctx.fillStyle = ROWODD; ctx.fillRect(padX - 16, ry, W - (padX - 16) * 2, bh) }
     ctx.strokeStyle = BORDER; ctx.lineWidth = 0.5
-    ctx.beginPath(); ctx.moveTo(padX - 16, ry + rowH); ctx.lineTo(W - padX + 16, ry + rowH); ctx.stroke()
-    const cy = ry + rowH / 2 + 5
+    ctx.beginPath(); ctx.moveTo(padX - 16, ry + bh); ctx.lineTo(W - padX + 16, ry + bh); ctx.stroke()
+
+    const cy = ry + ROW_BASE / 2 + 5
     ctx.fillStyle = T1; ctx.font = `500 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
     ctx.textAlign = "left"; ctx.fillText(r.name, cols[0].x, cy)
     ctx.fillStyle = T1; ctx.font = `700 14px monospace`; ctx.textAlign = "center"
@@ -197,6 +216,29 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
       ctx.fillText(`${r.available}h`, cols[3].x + cols[3].w / 2, cy)
     }
     ctx.textAlign = "left"
+
+    // Day → job site breakdown, indented under the employee line.
+    let dy = ry + ROW_BASE
+    for (const day of r.days) {
+      if (day.addresses.length === 0) continue
+      ctx.fillStyle = T2; ctx.font = `700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+      ctx.fillText(`${day.day.toUpperCase()} ${day.date}  ·  ${day.totalHours}h`, padX + 16, dy + 13)
+      dy += DAY_HEADER_H
+      for (const addr of day.addresses) {
+        ctx.fillStyle = T1; ctx.font = `500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+        ctx.textAlign = "left"; ctx.fillText(addr.path[0], padX + 28, dy + 12)
+        if (addr.path.length > 1) {
+          ctx.fillStyle = T2; ctx.font = `10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+          ctx.fillText(addr.path.slice(1).join(" › "), padX + 28, dy + 24)
+        }
+        ctx.fillStyle = T1; ctx.font = `700 11px monospace`; ctx.textAlign = "right"
+        ctx.fillText(`${addr.hours}h`, W - padX + 16, dy + 12)
+        ctx.textAlign = "left"
+        dy += ADDR_H
+      }
+    }
+
+    ry += bh
   })
 
   ctx.fillStyle = T2; ctx.font = `11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
@@ -414,16 +456,19 @@ export default function WeeklyHoursControlPage() {
     return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   }
 
-  // Flat results for export — adapts to current mode
+  // Flat results for export — adapts to current mode. `days` carries the same
+  // per-day/per-jobsite breakdown shown on screen so the export isn't flattened.
   const exportRows = useMemo(() => {
     return jobCostingTeams.flatMap(g => g.employees.map(e => {
       if (isWeekMode) {
-        return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available }
+        const days = e.days.filter(d => pastDays.includes(d.day))
+        return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
       }
-      const filtered = Math.round(e.days.filter(d => selectedDays.has(d.day)).reduce((s, d) => s + d.totalHours, 0) * 10) / 10
-      return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0 }
+      const days = e.days.filter(d => selectedDays.has(d.day))
+      const filtered = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
+      return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
     }))
-  }, [jobCostingTeams, isWeekMode, selectedDays])
+  }, [jobCostingTeams, isWeekMode, selectedDays, pastDays])
 
   return (
     <div className="flex h-full flex-col">
@@ -666,9 +711,13 @@ export default function WeeklyHoursControlPage() {
                           onClick={() => {
                             if (!data) return
                             const rows = group.employees.map(e => {
-                              if (isWeekMode) return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available }
-                              const filtered = Math.round(e.days.filter(d => selectedDays.has(d.day)).reduce((s, d) => s + d.totalHours, 0) * 10) / 10
-                              return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0 }
+                              if (isWeekMode) {
+                                const days = e.days.filter(d => pastDays.includes(d.day))
+                                return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
+                              }
+                              const days = e.days.filter(d => selectedDays.has(d.day))
+                              const filtered = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
+                              return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
                             })
                             exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)
                           }}
