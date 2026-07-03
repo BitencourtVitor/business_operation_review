@@ -45,6 +45,7 @@ export interface ForecastProject {
   hvac: boolean
   buildertrend: boolean
   storage: boolean
+  hasOrders: boolean
   machineProvider: string
   previousBeamsDate?: string | null
   previousStartDate?: string | null

@@ -67,6 +67,7 @@ export const EMPTY_FORM: FormState = {
   hvac: false,
   buildertrend: false,
   storage: false,
+  hasOrders: false,
   machineProvider: "",
   previousBeamsDate: null,
   previousStartDate: null,

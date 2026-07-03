@@ -219,6 +219,12 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const colors = hovered ? cfg.vivid : cfg.muted
   const barColor = getBarColor(displayStatus, pct, hovered)
 
+  // Toll Brothers only: Orders page doesn't have this project's dates yet.
+  const showNoOrders = p.cliente?.toLowerCase().startsWith("toll brothers") && !p.hasOrders
+  const noOrdersColors = hovered
+    ? { border: "#eab308", bg: "rgba(234,179,8,0.12)", text: "#eab308" }
+    : { border: "rgba(234,179,8,0.22)", bg: "rgba(234,179,8,0.06)", text: "rgba(234,179,8,0.6)" }
+
   // Fieldwire progress
   const fwTotal    = p.fieldwire?.length ?? 0
   const fwDone     = p.fieldwire?.filter((f) => isTruthy(f.status)).length ?? 0
@@ -290,6 +296,22 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
               <StatusIcon className="h-2.5 w-2.5" />
               {cfg.label}
             </div>
+
+            {/* Has Orders badge — Toll Brothers only */}
+            {showNoOrders && (
+              <div
+                className="flex w-fit items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                style={{
+                  color: noOrdersColors.text,
+                  background: noOrdersColors.bg,
+                  borderColor: noOrdersColors.border,
+                  transition: "color 0.25s ease, background 0.25s ease, border-color 0.25s ease",
+                }}
+              >
+                <AlertTriangle className="h-2.5 w-2.5" />
+                Hasn&apos;t Orders Yet
+              </div>
+            )}
 
             {/* Address */}
             {p.address && (

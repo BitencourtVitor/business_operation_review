@@ -55,7 +55,7 @@ const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3 w-3" /> },
 ]
 
-const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hvac"; label: string; desc: string; icon: React.ReactNode }[] = [
+const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders" | "hvac"; label: string; desc: string; icon: React.ReactNode }[] = [
   {
     key: "buildertrend", label: "Buildertrend", desc: "Project tracked in Buildertrend",
     icon: (
@@ -77,6 +77,10 @@ const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hvac"; label: str
         <img src="/images/icon_qbtime_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" />
       </>
     ),
+  },
+  {
+    key: "hasOrders", label: "Has Orders", desc: "Orders page has this project's dates",
+    icon: <FileText className="h-4 w-4 text-muted-foreground" />,
   },
   {
     key: "hvac", label: "HVAC", desc: "HVAC work included",
@@ -939,13 +943,13 @@ export type NewFormState = {
   cliente: string; jobSite: string; type: string; loteBld: string
   address: string; status: ForecastStatus; obs: string
   previousBeamsDate: string; previousStartDate: string
-  previousEndDate: string; hvac: boolean; buildertrend: boolean; storage: boolean; qbTime: boolean
+  previousEndDate: string; hvac: boolean; buildertrend: boolean; storage: boolean; qbTime: boolean; hasOrders: boolean
 }
 
 const EMPTY_NEW_FORM: NewFormState = {
   cliente: "", jobSite: "", type: "", loteBld: "", address: "", status: "planned",
   obs: "", previousBeamsDate: "", previousStartDate: "",
-  previousEndDate: "", hvac: false, buildertrend: false, storage: false, qbTime: false,
+  previousEndDate: "", hvac: false, buildertrend: false, storage: false, qbTime: false, hasOrders: false,
 }
 
 // Fields that survive a partial reset (persist across consecutive creates)

@@ -52,6 +52,7 @@ type ForecastProject struct {
 	Hvac              bool           `json:"hvac"`
 	Buildertrend      bool           `json:"buildertrend"`
 	Storage           bool           `json:"storage"`
+	HasOrders         bool           `json:"hasOrders"`
 	MachineProvider   string         `json:"machineProvider"`
 	PreviousBeamsDate *time.Time     `json:"previousBeamsDate,omitempty"`
 	PreviousStartDate *time.Time     `json:"previousStartDate,omitempty"`
