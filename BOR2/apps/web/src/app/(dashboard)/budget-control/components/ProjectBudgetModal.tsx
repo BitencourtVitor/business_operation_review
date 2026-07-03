@@ -6,7 +6,7 @@ import {
   Wallet, HandCoins, HardHat, Tag, ChevronDown, Check, Clock,
   SlidersHorizontal, CornerDownRight, LineChart as LineChartIcon,
   CalendarClock, Users, Hourglass, Forklift, MapPin, ArrowRightLeft,
-  Pencil, Plus, Search, CalendarIcon, X as XIcon,
+  Pencil, Plus, Search, CalendarIcon, X as XIcon, CircleDashed,
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { qbtimeMappingService } from "@/services/qbtime-mapping.service"
@@ -20,7 +20,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar } from "@/components/ui/calendar"
 import { useFinancialStore } from "@/store/financial.store"
 import { useBudgetDetail, useSetAccountLimit, useSetAccountDeadline, useSetProjectStartDate, useAccountHistory, useAccountPayees, useIncomeHistory, useLaborEstimate } from "@/hooks/use-budget"
-import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings } from "@/hooks/use-budget-taxonomy"
+import { useCategories, useSetCategoryBudget, useSetVendorBudget, useSetProjectVendorCategory, useSetPayrollSupervisor, useBudgetSettings, useGhostAccounts, useSetGhostAccount } from "@/hooks/use-budget-taxonomy"
+import type { ProjectType } from "@/services/budget-taxonomy.service"
 import type { CostAccount, CostCategory, CostVendor, BudgetProjectDetail } from "@/services/budget.service"
 import * as LucideIcons from "lucide-react"
 
@@ -238,6 +239,16 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
         <div className="flex flex-1 min-w-0 items-center gap-1.5">
           {ca.name === "Contractors" && <HardHat className={cn("h-3 w-3 shrink-0", settled ? "text-muted-foreground/60" : "text-yellow-500/70")} />}
           <span className={cn("truncate text-[11px] font-medium", settled ? "text-muted-foreground" : ca.name === "Contractors" ? "text-yellow-500/80" : "text-foreground/80")} title={ca.name}>{ca.name}</span>
+          {ca.is_ghost && (
+            <TooltipProvider delay={0}>
+              <Tooltip>
+                <TooltipTrigger render={<span className="flex shrink-0" />}>
+                  <CircleDashed className="h-2.5 w-2.5 text-muted-foreground/40" />
+                </TooltipTrigger>
+                <TooltipContent>Not posted in QuickBooks yet — budget set in advance</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           {settled && <Check className="h-3 w-3 shrink-0 text-red-500/60" />}
           {/* Budget deadline — pairs with the project start date to draw a
               progressive adherence line instead of a flat ceiling. */}
@@ -327,6 +338,68 @@ function AccountRow({ ca, blur, editing, budgetValue, onDraftBudget, onSetDeadli
         )
       })}
     </>
+  )
+}
+
+// ── Add ghost account (By Account) ────────────────────────────────────────────
+// Lets the user pull in a company account that hasn't posted any activity to
+// this project yet, so its budget can be set in advance — same catalog as the
+// Manage > Ghost Accounts admin page.
+function AddGhostAccountButton({ company, projectType, projectID, existingIDs, variant = "row" }: {
+  company: string; projectType?: string; projectID: string; existingIDs: Set<string>
+  variant?: "row" | "empty"
+}) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState("")
+  const pt = (projectType ?? "building") as ProjectType
+  const { data: options } = useGhostAccounts(company, pt)
+  const setGhost = useSetGhostAccount()
+  const qc = useQueryClient()
+
+  const available = (options ?? [])
+    .filter(o => !existingIDs.has(o.account_ref_id))
+    .filter(o => !search || o.account_name.toLowerCase().includes(search.toLowerCase()))
+
+  function add(accountRefID: string) {
+    setGhost.mutate({ company, project_type: pt, account_ref_id: accountRefID, active: true }, {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ["budget-detail", company, projectID] })
+        setOpen(false); setSearch("")
+      },
+    })
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      {variant === "row" ? (
+        <PopoverTrigger className="flex w-full items-center justify-center gap-1.5 border-t border-border/20 py-2 text-[11px] text-muted-foreground transition-colors hover:bg-muted/20 hover:text-foreground">
+          <Plus className="h-3 w-3" /> Add account
+        </PopoverTrigger>
+      ) : (
+        <PopoverTrigger className="flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-ring hover:text-foreground dark:bg-input/30">
+          <Plus className="h-3 w-3" /> Add account
+        </PopoverTrigger>
+      )}
+      <PopoverContent align="center" side="bottom" className="w-64 p-0">
+        <div className="border-b border-border/20 p-2">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search accounts…" autoFocus
+              className="h-7 w-full rounded-md border border-input bg-transparent pl-6 pr-2 text-xs outline-none placeholder:text-muted-foreground/50 dark:bg-input/30" />
+          </div>
+        </div>
+        <div className="max-h-56 overflow-y-auto p-1">
+          {available.length === 0 ? (
+            <p className="px-2 py-3 text-center text-[11px] text-muted-foreground">No matching accounts</p>
+          ) : available.map(o => (
+            <button key={o.account_ref_id} onClick={() => add(o.account_ref_id)} disabled={setGhost.isPending}
+              className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted disabled:opacity-50">
+              {o.account_name}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -1255,54 +1328,66 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     </div>
                   </div>
                   {/* By Account collapsible */}
-                  {costAccounts.length > 0 && (
-                    <div className="overflow-hidden rounded-lg border border-input">
-                      <button
-                        onClick={() => setShowAccounts(o => !o)}
-                        className="flex w-full items-center gap-2 bg-transparent px-3 py-2 text-left transition-colors hover:bg-muted/20 dark:bg-input/30"
-                      >
-                        <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Account</span>
-                        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showAccounts && "rotate-180")} />
-                      </button>
-                      {showAccounts && (
-                        <div className="border-t border-border/20">
-                          <div className="flex items-center bg-muted/10 px-3 py-1">
-                            <div className="w-4 shrink-0 mr-0.5" />
-                            <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Account</span>
-                            <div className="flex shrink-0">
-                              <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Budget</div>
-                              <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Billed</div>
-                              <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Paid</div>
-                              <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Outstanding</div>
-                              <div className="ml-1 w-5 shrink-0" />
-                              <div className="w-5 shrink-0" />
-                            </div>
+                  <div className="overflow-hidden rounded-lg border border-input">
+                    <button
+                      onClick={() => setShowAccounts(o => !o)}
+                      className="flex w-full items-center gap-2 bg-transparent px-3 py-2 text-left transition-colors hover:bg-muted/20 dark:bg-input/30"
+                    >
+                      <span className="flex-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">By Account</span>
+                      <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/40 transition-transform", showAccounts && "rotate-180")} />
+                    </button>
+                    {showAccounts && (
+                      <div className="border-t border-border/20">
+                        {costAccounts.length === 0 ? (
+                          <div className="flex flex-col items-center gap-2 px-3 py-6">
+                            <p className="text-[11px] text-muted-foreground">No accounts yet for this project</p>
+                            <AddGhostAccountButton company={company} projectType={data?.project_type} projectID={projectID}
+                              existingIDs={new Set()} variant="empty" />
                           </div>
-                          {costAccounts.map((ca, i) => (
-                            <AccountRow key={ca.id || i} ca={ca} blur={blur}
-                              editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget}
-                              onSetDeadline={(accountID, deadline) => setAccountDeadline.mutate({ company, project_id: projectID, account_id: accountID, deadline: deadline ?? "" })}
-                              company={company} projectID={projectID} startDate={data?.start_date} projectType={data?.project_type} />
-                          ))}
-                          {/* Allocation footer (visible while mapping) */}
-                          {editingBudget && (
-                            <div className="flex items-center gap-2.5 border-t border-border/20 bg-muted/10 px-3 py-2.5">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Allocated</span>
-                              <span className={cn("text-sm font-bold tabular-nums", allocatedBudget > costCeiling ? "text-amber-500" : "text-foreground")}>
-                                {fmt(allocatedBudget)}
-                              </span>
-                              <span className="text-[11px] text-muted-foreground/50">of</span>
-                              <span className="text-sm font-bold tabular-nums text-muted-foreground">{fmt(costCeiling)}</span>
-                              <span className={cn("ml-auto rounded-md px-2 py-1 text-[12px] font-bold tabular-nums",
-                                costCeiling - allocatedBudget < 0 ? "bg-amber-500/15 text-amber-500" : "bg-muted text-muted-foreground")}>
-                                {costCeiling - allocatedBudget >= 0 ? `${fmt(costCeiling - allocatedBudget)} left` : `${fmt(allocatedBudget - costCeiling)} over`}
-                              </span>
+                        ) : (
+                          <>
+                            <div className="flex items-center bg-muted/10 px-3 py-1">
+                              <div className="w-4 shrink-0 mr-0.5" />
+                              <span className="flex-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Account</span>
+                              <div className="flex shrink-0">
+                                <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Budget</div>
+                                <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Billed</div>
+                                <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Paid</div>
+                                <div className="w-20 text-right text-[9px] font-medium uppercase tracking-wider text-muted-foreground/40">Outstanding</div>
+                                <div className="ml-1 w-5 shrink-0" />
+                                <div className="w-5 shrink-0" />
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                            {costAccounts.map((ca, i) => (
+                              <AccountRow key={ca.id || i} ca={ca} blur={blur}
+                                editing={editingBudget} budgetValue={budgetFor(ca)} onDraftBudget={onDraftBudget}
+                                onSetDeadline={(accountID, deadline) => setAccountDeadline.mutate({ company, project_id: projectID, account_id: accountID, deadline: deadline ?? "" })}
+                                company={company} projectID={projectID} startDate={data?.start_date} projectType={data?.project_type} />
+                            ))}
+                            {editingBudget && (
+                              <AddGhostAccountButton company={company} projectType={data?.project_type} projectID={projectID}
+                                existingIDs={new Set(costAccounts.map(ca => ca.id))} />
+                            )}
+                            {/* Allocation footer (visible while mapping) */}
+                            {editingBudget && (
+                              <div className="flex items-center gap-2.5 border-t border-border/20 bg-muted/10 px-3 py-2.5">
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Allocated</span>
+                                <span className={cn("text-sm font-bold tabular-nums", allocatedBudget > costCeiling ? "text-amber-500" : "text-foreground")}>
+                                  {fmt(allocatedBudget)}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground/50">of</span>
+                                <span className="text-sm font-bold tabular-nums text-muted-foreground">{fmt(costCeiling)}</span>
+                                <span className={cn("ml-auto rounded-md px-2 py-1 text-[12px] font-bold tabular-nums",
+                                  costCeiling - allocatedBudget < 0 ? "bg-amber-500/15 text-amber-500" : "bg-muted text-muted-foreground")}>
+                                  {costCeiling - allocatedBudget >= 0 ? `${fmt(costCeiling - allocatedBudget)} left` : `${fmt(allocatedBudget - costCeiling)} over`}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

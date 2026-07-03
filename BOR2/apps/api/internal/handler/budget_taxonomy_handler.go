@@ -198,12 +198,16 @@ func (h *BudgetTaxonomyHandler) ListGhostAccounts(c *fiber.Ctx) error {
 	if company == "" || pt == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "company and project_type are required")
 	}
+	// Top-level only (no parent_id) — matches injectGhostCostAccounts, which only
+	// ever adds top-level nodes. A child account here would never actually show
+	// up as a ghost row, so it has no business being toggleable in this list.
 	rows, err := h.db.Query(c.Context(), `
 		SELECT a.external_id, COALESCE(a.name,''), (g.id IS NOT NULL AND g.active)
 		FROM qb_accounts a
 		LEFT JOIN budget_ghost_accounts g
 		  ON g.company=a.company AND g.account_ref_id=a.external_id AND g.project_type=$2
 		WHERE a.company=$1 AND a.account_type IN ('Cost of Goods Sold','Expense')
+		  AND COALESCE(a.parent_id,'') = ''
 		ORDER BY a.name
 	`, company, pt)
 	if err != nil {

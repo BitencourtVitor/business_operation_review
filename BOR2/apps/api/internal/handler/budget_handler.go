@@ -502,6 +502,7 @@ type CostAccount struct {
 	BudgetLimit float64       `json:"budget_limit"`
 	Deadline    *string       `json:"deadline"` // "YYYY-MM-DD" ceiling date, paired with the project's start_date
 	Locked      bool          `json:"locked"`
+	IsGhost     bool          `json:"is_ghost"` // true when injected from budget_ghost_accounts, no real activity yet
 	Children    []CostAccount `json:"children,omitempty"`
 }
 
@@ -1818,7 +1819,7 @@ func (h *BudgetHandler) injectGhostCostAccounts(ctx context.Context, company, pr
 		if atype == "Cost of Goods Sold" || atype == "Expense" {
 			group = atype
 		}
-		accounts = append(accounts, CostAccount{ID: id, Name: name, Group: group})
+		accounts = append(accounts, CostAccount{ID: id, Name: name, Group: group, IsGhost: true})
 	}
 	return accounts, nil
 }
