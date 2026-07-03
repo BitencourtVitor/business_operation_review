@@ -7,7 +7,7 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2,
+  Download, Building2, Archive, ArchiveRestore,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -20,6 +20,7 @@ import { PageSkeleton } from "@/components/common/page-skeleton"
 import {
   useSubDocTypes, useSubDocContractors, useCreateSubDocContractor,
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
+  useArchiveSubDocContractor,
 } from "@/hooks/use-subcontractor-docs"
 import type { SubDocContractor, SubDocRecord, SubDocType, DocStatus, Urgency } from "@/services/subcontractor-docs.service"
 
@@ -234,13 +235,17 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
 }) {
   const meta = URGENCY_META[ctr.urgency]
   const recordsByType = Object.fromEntries(ctr.records.map(r => [r.doc_type, r]))
+  const archive = useArchiveSubDocContractor()
 
   return (
-    <div className="shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40">
+    <div className={cn("shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40", ctr.archived && "opacity-50")}>
       <div className="flex items-center gap-3 px-4 py-2.5">
         <span className={cn("h-2 w-2 shrink-0 rounded-full", meta.dot)} title={meta.label} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold leading-tight">{ctr.name}</p>
+          <p className="truncate text-sm font-semibold leading-tight">
+            {ctr.name}
+            {ctr.archived && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">· Archived</span>}
+          </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email || "—"}</span>
             <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{ctr.phone || "—"}</span>
@@ -252,6 +257,11 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
         <button onClick={onEdit} title="Edit subcontractor"
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground">
           <Pencil className="h-3 w-3" />
+        </button>
+        <button onClick={() => archive.mutate({ id: ctr.id, archived: !ctr.archived })} disabled={archive.isPending}
+          title={ctr.archived ? "Unarchive subcontractor" : "Archive subcontractor"}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50">
+          {ctr.archived ? <ArchiveRestore className="h-3 w-3" /> : <Archive className="h-3 w-3" />}
         </button>
         <button onClick={onDelete} title="Delete subcontractor"
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive">
@@ -512,7 +522,8 @@ const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, 
 
 export default function SubcontractorDocsPage() {
   const { data: types, isLoading: typesLoading } = useSubDocTypes()
-  const { data: contractors, isLoading } = useSubDocContractors()
+  const [showArchived, setShowArchived] = useState(false)
+  const { data: contractors, isLoading } = useSubDocContractors(showArchived)
 
   const [search, setSearch] = useState("")
   const [urgencyFilter, setUrgencyFilter] = useState<Set<Urgency>>(new Set())
@@ -574,6 +585,14 @@ export default function SubcontractorDocsPage() {
           <span className="flex items-center text-sm font-semibold leading-none">List</span>
           <span className="flex items-center text-xs leading-none text-muted-foreground">{rows.length}</span>
           <div className="ml-auto flex items-center gap-2">
+            <button onClick={() => setShowArchived(v => !v)}
+              className={cn("flex h-7 items-center gap-1.5 rounded-md border border-input px-2.5 text-[11px] font-medium transition-colors dark:bg-input/30",
+                showArchived ? "bg-muted text-foreground" : "bg-transparent text-muted-foreground hover:text-foreground")}>
+              <span className={cn("flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border", showArchived ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                {showArchived && <Check className="h-2.5 w-2.5" />}
+              </span>
+              Show archived
+            </button>
             <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
               <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
                 Order by

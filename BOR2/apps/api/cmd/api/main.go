@@ -534,6 +534,7 @@ func main() {
 	subDocs.Post("/contractors",       subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id",    subcontractorDocsHandler.UpdateContractor)
 	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)
+	subDocs.Patch("/contractors/:id/archive", subcontractorDocsHandler.ArchiveContractor)
 	subDocs.Put("/records",            subcontractorDocsHandler.SetRecord)
 
 	// Construction Buildings & Schedules
