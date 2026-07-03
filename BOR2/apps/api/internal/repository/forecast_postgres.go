@@ -64,6 +64,7 @@ WITH mapped AS (
 		COALESCE(hvac,          false)    AS hvac,
 		COALESCE(buildertrend,  false)    AS buildertrend,
 		COALESCE(storage,       false)    AS storage,
+		COALESCE(has_orders,    false)    AS has_orders,
 		COALESCE(machine_provider, '')    AS machine_provider,
 		previous_beams_date,
 		previous_start_date,
@@ -79,7 +80,7 @@ SELECT
 	m.id, m.company, m.name, m.status,
 	m.start_date, m.end_date, m.contract_value, m.team, m.qb_time,
 	m.cliente, m.job_site, m.type, m.lote_bld, m.address, m.obs,
-	m.hvac, m.buildertrend, m.storage, m.machine_provider,
+	m.hvac, m.buildertrend, m.storage, m.has_orders, m.machine_provider,
 	m.previous_beams_date, m.previous_start_date, m.previous_end_date,
 	m.created_at, m.updated_at,
 	COALESCE(
@@ -116,7 +117,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.ID, &p.Company, &p.Name, &p.Status,
 		&p.StartDate, &p.EndDate, &p.ContractValue, &p.Team, &p.QBTime,
 		&p.Cliente, &p.JobSite, &p.Type, &p.LoteBld, &p.Address, &p.Obs,
-		&p.Hvac, &p.Buildertrend, &p.Storage, &p.MachineProvider,
+		&p.Hvac, &p.Buildertrend, &p.Storage, &p.HasOrders, &p.MachineProvider,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
 		&fieldwireJSON, &machinesJSON, &contractStepsJSON,
@@ -171,15 +172,15 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		   previous_beams_date, previous_start_date, previous_end_date,
 		   contract_value, team, qb_time,
 		   cliente, job_site, type, lote_bld, address, obs,
-		   hvac, buildertrend, storage, machine_provider,
+		   hvac, buildertrend, storage, has_orders, machine_provider,
 		   create_datetime, lastupdate_datetimez)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$21)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$22)
 	`,
 		p.ID, p.Name, p.Company, statusToBOR1(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
-		p.Hvac, p.Buildertrend, p.Storage, p.MachineProvider,
+		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		now,
 	); err != nil {
 		return err
@@ -234,16 +235,16 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		  contract_value=$6, team=$7, qb_time=$8,
 		  cliente=$9, job_site=$10, type=$11, lote_bld=$12,
 		  address=$13, obs=$14,
-		  hvac=$15, buildertrend=$16, storage=$17, machine_provider=$18,
+		  hvac=$15, buildertrend=$16, storage=$17, has_orders=$18, machine_provider=$19,
 		  lastupdate_datetimez=NOW()
-		WHERE id=$19
+		WHERE id=$20
 	`,
 		p.Name, statusToBOR1(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld,
 		p.Address, p.Obs,
-		p.Hvac, p.Buildertrend, p.Storage, p.MachineProvider,
+		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		p.ID,
 	)
 	return err
