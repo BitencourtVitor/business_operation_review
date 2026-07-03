@@ -754,6 +754,26 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 		d.LaborBudget += cc.BudgetLimit
 	}
 
+	// Contractors' budget is derived from category budgets, not real QB
+	// postings — surface it in By Account even with zero PO/bill activity, same
+	// as the Contractors Costs panel already does, instead of only showing up
+	// once something's been billed.
+	if d.LaborBudget > 0 {
+		hasContractors := false
+		for _, a := range d.CostAccounts {
+			if strings.EqualFold(a.Name, "Contractors") {
+				hasContractors = true
+				break
+			}
+		}
+		if !hasContractors {
+			// Prepended, not appended — Contractors leads the list when it's a
+			// real account too (highest-amount row in its group), and it's the
+			// one row users expect to see first regardless.
+			d.CostAccounts = append([]CostAccount{{ID: "contractors", Name: "Contractors", Group: "Cost of Goods Sold", IsPreset: true}}, d.CostAccounts...)
+		}
+	}
+
 	// Cost budget per account: manual ceiling stored per (company, project, account);
 	// the Contractors account is derived from the Contractors budget (Σ category
 	// budgets) and locked — change it by editing the category budgets.
