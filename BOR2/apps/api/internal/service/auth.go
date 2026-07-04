@@ -1,14 +1,12 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
-	"net/http"
+	"net/smtp"
 	"os"
 	"time"
 
@@ -137,13 +135,13 @@ func generateTempPassword(length int) (string, error) {
 }
 
 func sendPasswordEmail(to, name, tempPass string) error {
-	apiKey := os.Getenv("BREVO_API_KEY")
-	senderEmail := os.Getenv("GMAIL_USER")
-	if apiKey == "" {
-		return fmt.Errorf("BREVO_API_KEY not set")
-	}
-	if senderEmail == "" {
+	gmailUser := os.Getenv("GMAIL_USER")
+	gmailPass := os.Getenv("GMAIL_APP_PASSWORD")
+	if gmailUser == "" {
 		return fmt.Errorf("GMAIL_USER not set")
+	}
+	if gmailPass == "" {
+		return fmt.Errorf("GMAIL_APP_PASSWORD not set")
 	}
 
 	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
@@ -179,32 +177,12 @@ func sendPasswordEmail(to, name, tempPass string) error {
 </body>
 </html>`, name, tempPass)
 
-	payload, err := json.Marshal(map[string]any{
-		"sender":      map[string]string{"name": "Premium Group", "email": senderEmail},
-		"to":          []map[string]string{{"email": to, "name": name}},
-		"subject":     "BOR2 — Temporary Password",
-		"htmlContent": htmlBody,
-	})
-	if err != nil {
-		return fmt.Errorf("marshal payload: %w", err)
-	}
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: BOR2 - Temporary Password\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
+		gmailUser, to, htmlBody)
 
-	req, err := http.NewRequest(http.MethodPost, "https://api.brevo.com/v3/smtp/email", bytes.NewReader(payload))
-	if err != nil {
-		return fmt.Errorf("build request: %w", err)
-	}
-	req.Header.Set("api-key", apiKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("brevo request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 300 {
-		return fmt.Errorf("brevo returned status %d", resp.StatusCode)
+	auth := smtp.PlainAuth("", gmailUser, gmailPass, "smtp.gmail.com")
+	if err := smtp.SendMail("smtp.gmail.com:587", auth, gmailUser, []string{to}, []byte(msg)); err != nil {
+		return fmt.Errorf("gmail smtp send: %w", err)
 	}
 	return nil
 }
