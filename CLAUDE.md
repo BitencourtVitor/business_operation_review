@@ -70,12 +70,12 @@ railway connect postgres
 ```
 
 ### Railway CLI — Token de acesso
-Token salvo em `BOR2/.env` como `RAILWAY_TOKEN=900e5ce2-7fa3-4d54-b3fb-9c8965e79c5d`
+Token salvo em `BOR2/.env` como `RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` (token de projeto, também replicado nas Shared Variables do projeto no Railway pelo usuário — evita ter que recriar)
 Para autenticar o CLI sem login interativo:
 ```bash
-RAILWAY_TOKEN=900e5ce2-7fa3-4d54-b3fb-9c8965e79c5d railway <comando>
+RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX railway <comando>
 ```
-Ou exportar antes de usar: `export RAILWAY_TOKEN=900e5ce2-7fa3-4d54-b3fb-9c8965e79c5d`
+Ou exportar antes de usar: `export RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
 
 ### Decisões de produto BOR2
 - Routing: App Router do Next.js (NÃO SPA)
