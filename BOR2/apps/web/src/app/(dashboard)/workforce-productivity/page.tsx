@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useInsights } from "@/components/insights/insights-panel"
 import { ManageDataModal as WorkforceManageDataModal } from "./manage-data-modal"
-import { Building2, Calendar, Clock, Database, Loader2, MapPin, TrendingUp, Users, Wrench } from "lucide-react"
+import { Building2, Calendar, Clock, Database, Layers, Loader2, MapPin, TrendingUp, Users, Wrench } from "lucide-react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
@@ -255,9 +255,10 @@ export default function WorkforceProductivityPage() {
   const [manageOpen,     setManageOpen]     = useState(false)
   const [year,           setYear]           = useState(String(new Date().getFullYear()))
   const [month,          setMonth]          = useState("")
-  const [clientFilter,   setClientFilter]   = useState<string[]>([])
-  const [jobsiteFilter,  setJobsiteFilter]  = useState<string[]>([])
-  const [worktypeFilter, setWorktypeFilter] = useState<string[]>([])
+  const [clientFilter,      setClientFilter]      = useState<string[]>([])
+  const [jobsiteFilter,     setJobsiteFilter]     = useState<string[]>([])
+  const [lotBuildingFilter, setLotBuildingFilter] = useState<string[]>([])
+  const [worktypeFilter,    setWorktypeFilter]    = useState<string[]>([])
   const [topN,           setTopN]           = useState(10)
 
   // Reactive CSS-var colors (light/dark)
@@ -289,6 +290,7 @@ export default function WorkforceProductivityPage() {
     setMonth("")
     setClientFilter([])
     setJobsiteFilter([])
+    setLotBuildingFilter([])
     setWorktypeFilter([])
   }, [])
 
@@ -325,9 +327,29 @@ export default function WorkforceProductivityPage() {
 
   const canonical = (label: string) => addressCanonicalMap.get(label) ?? label
 
-  const jobsiteOptions  = useMemo(() =>
-    Array.from(new Set(allRows.map(r => canonical(getJobsiteLabel(r))).filter(Boolean))).sort()
-  , [allRows, addressCanonicalMap])
+  // Jobsite (address) and Building/Lot are separate filter dimensions —
+  // "Building 1" means nothing on its own across dozens of different
+  // jobsites, so it's a second, independent dropdown rather than baked into
+  // one combined "Address" label.
+  const jobsiteCanonicalMap = useMemo(() => {
+    const labels = Array.from(new Set(allRows.map(r => r.jobsite?.trim() ?? "").filter(Boolean)))
+    return buildAddressCanonicalMap(labels)
+  }, [allRows])
+
+  const jobsiteCanonical = (label: string) => jobsiteCanonicalMap.get(label) ?? label
+
+  const jobsiteOptions = useMemo(() =>
+    Array.from(new Set(allRows.map(r => jobsiteCanonical(r.jobsite?.trim() ?? "")).filter(Boolean))).sort()
+  , [allRows, jobsiteCanonicalMap])
+
+  // Building/Lot options cascade off the selected jobsite(s) — otherwise
+  // "Building 1" from a dozen unrelated addresses would show as one option.
+  const lotBuildingOptions = useMemo(() => {
+    const source = jobsiteFilter.length > 0
+      ? allRows.filter(r => jobsiteFilter.includes(jobsiteCanonical(r.jobsite?.trim() ?? "")))
+      : allRows
+    return Array.from(new Set(source.map(r => r.lotBuilding?.trim() ?? "").filter(Boolean))).sort()
+  }, [allRows, jobsiteFilter, jobsiteCanonicalMap])
 
   const worktypeCanonicalMap = useMemo(() => {
     const raw = Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).filter(w => !isClientName(w)) as string[]
@@ -353,13 +375,20 @@ export default function WorkforceProductivityPage() {
   // ── Filtered rows ─────────────────────────────────────────────────────────
 
   const rows = useMemo(() => allRows.filter(r => {
-    if (year           && !r.referenceMonth.startsWith(year))          return false
-    if (month          && r.referenceMonth !== month)                   return false
-    if (clientFilter.length   > 0 && !clientFilter.includes(r.client))    return false
-    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(canonical(getJobsiteLabel(r))))  return false
+    if (year              && !r.referenceMonth.startsWith(year))          return false
+    if (month             && r.referenceMonth !== month)                   return false
+    if (clientFilter.length      > 0 && !clientFilter.includes(r.client))    return false
+    if (jobsiteFilter.length     > 0 && !jobsiteFilter.includes(jobsiteCanonical(r.jobsite?.trim() ?? "")))  return false
+    if (lotBuildingFilter.length > 0 && !lotBuildingFilter.includes(r.lotBuilding?.trim() ?? "")) return false
     if (worktypeFilter.length > 0 && !worktypeFilter.includes(worktypeCanonicalMap.get(r.worktype ?? '') ?? r.worktype ?? '')) return false
     return true
-  }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
+  }), [allRows, year, month, clientFilter, jobsiteFilter, lotBuildingFilter, worktypeFilter])
+
+  // Resets the Building/Lot filter whenever the Jobsite selection narrows,
+  // so it can't silently keep referencing a building outside the new scope.
+  useEffect(() => {
+    setLotBuildingFilter(prev => prev.filter(l => lotBuildingOptions.includes(l)))
+  }, [jobsiteFilter, lotBuildingOptions])
 
   const isSingleProject = jobsiteFilter.length === 1
 
@@ -367,7 +396,7 @@ export default function WorkforceProductivityPage() {
 
   const totalHours     = useMemo(() => rows.reduce((s, r) => s + r.regularHours, 0), [rows])
   const totalEmployees = useMemo(() => new Set(rows.map(r => r.employeeName)).size, [rows])
-  const totalJobsites  = useMemo(() => new Set(rows.map(r => canonical(getJobsiteLabel(r)))).size, [rows, addressCanonicalMap])
+  const totalJobsites  = useMemo(() => new Set(rows.map(r => jobsiteCanonical(r.jobsite?.trim() ?? ""))).size, [rows, jobsiteCanonicalMap])
   const avgHoursPerEmp = totalEmployees > 0 ? totalHours / totalEmployees : 0
 
   // ── General view chart data ───────────────────────────────────────────────
@@ -580,6 +609,13 @@ export default function WorkforceProductivityPage() {
               options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} fitContent />
           </div>
 
+          {/* Building / Lot */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Building / Lot</span>
+            <MultiSelect label="Building / Lot" icon={<Layers className="h-3.5 w-3.5 shrink-0" />}
+              options={lotBuildingOptions} selected={lotBuildingFilter} onChange={setLotBuildingFilter} fitContent />
+          </div>
+
           {/* Worktype */}
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Worktype</span>
@@ -643,7 +679,7 @@ export default function WorkforceProductivityPage() {
                   {/* Chart #4 — Hours: Total vs Worktype */}
                   <div className="col-span-2 flex flex-col rounded-xl border border-border bg-card/60 p-4">
                     <span className="mb-2 shrink-0 text-sm font-semibold">
-                      Hours by Month — {jobsiteFilter[0]}
+                      Hours by Month — {jobsiteFilter[0]}{lotBuildingFilter.length === 1 ? ` - ${lotBuildingFilter[0]}` : ""}
                     </span>
                     <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                       <ResponsiveContainer width="100%" height="100%">
