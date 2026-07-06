@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/service"
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -112,9 +113,11 @@ func (h *PeriodReportHandler) SetUnpaidAddress(c *fiber.Ctx) error {
 // backfill is not cut short if the caller's connection drops.
 func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
 	days := c.QueryInt("days", 14)
+	logger.Info("qbtime period-report sync: request received", "days", days, "request_id", c.Locals("requestid"))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	result := h.svc.SyncAll(ctx, days)
+	logger.Info("qbtime period-report sync: completed", "result", result, "request_id", c.Locals("requestid"))
 	return c.JSON(fiber.Map{"data": result})
 }
 
