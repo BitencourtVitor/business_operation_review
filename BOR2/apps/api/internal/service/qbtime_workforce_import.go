@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 	"github.com/bitencourtVitor/bor2-api/internal/repository"
@@ -36,11 +37,18 @@ func isKnownClient(name string) bool {
 }
 
 var multiSpace = regexp.MustCompile(`\s{2,}`)
+var trailingStateCode = regexp.MustCompile(`,\s*[A-Za-z]{2}$`)
 
-// normalizeAddress cleans up common QB Time address inconsistencies:
-// - trims whitespace
-// - ensures exactly one space after each comma
-// - collapses multiple internal spaces
+// normalizeAddress cleans up common QB Time address inconsistencies so the
+// same physical jobsite always collapses to one string, regardless of how
+// it happened to be typed into QB Time over time (WF-2: "Riverview at
+// Providence, RI" vs "Riverview At Providence, Ri" vs no state at all were
+// splitting one jobsite's hours into separate, individually-invisible
+// buckets):
+//   - trims whitespace, ensures exactly one space after each comma
+//   - strips a trailing ", XX" state abbreviation — redundant (the city is
+//     already in the string) and inconsistently present across entries
+//   - normalizes casing to Title Case
 func normalizeAddress(s string) string {
 	s = strings.TrimSpace(s)
 	parts := strings.Split(s, ",")
@@ -49,7 +57,20 @@ func normalizeAddress(s string) string {
 	}
 	s = strings.Join(parts, ", ")
 	s = multiSpace.ReplaceAllString(s, " ")
-	return strings.TrimSpace(s)
+	s = trailingStateCode.ReplaceAllString(s, "")
+	return titleCase(strings.TrimSpace(s))
+}
+
+func titleCase(s string) string {
+	words := strings.Fields(strings.ToLower(s))
+	for i, w := range words {
+		r := []rune(w)
+		if len(r) > 0 {
+			r[0] = unicode.ToUpper(r[0])
+		}
+		words[i] = string(r)
+	}
+	return strings.Join(words, " ")
 }
 
 // parseJobcodePath converts a QB Time jobcode hierarchy path into the
