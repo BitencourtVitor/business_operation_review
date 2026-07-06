@@ -127,7 +127,6 @@ func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
 		logger.Info("qbtime period-report sync: completed", "result", result, "request_id", requestID)
 	}()
 
-	time.Sleep(800 * time.Millisecond) // DIAGNOSTIC (QBT-1): test whether response latency affects the edge status
 	return c.JSON(fiber.Map{"data": fiber.Map{"status": "sync started"}})
 }
 

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/config"
 	"github.com/bitencourtVitor/bor2-api/internal/handler"
@@ -291,7 +290,7 @@ func main() {
 	// state was reset). Returns immediately.
 	qbTriggerSyncer := quickbooks.NewSyncer(db)
 	qbTriggerSandbox := cfg.App.Env != "production"
-	v1.Post("/qb/sync-diag-test-qbt1", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
 		go func() {
 			ctx := context.Background()
 			var clients []*quickbooks.Client
@@ -316,19 +315,6 @@ func main() {
 			logger.Info("qb sync trigger: done")
 		}()
 		return c.JSON(fiber.Map{"status": "sync started"})
-	})
-
-	// QBT-1 DIAGNOSTIC — isolating whether goroutine-spawning is the differentiator
-	v1.Post("/qbt1-diag-no-goroutine", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "no goroutine, instant"})
-	})
-	v1.Post("/qbt1-diag-slow-3s", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
-		time.Sleep(3 * time.Second)
-		return c.JSON(fiber.Map{"status": "slow 3s"})
-	})
-	v1.Post("/qbt1-diag-empty-goroutine", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
-		go func() { _ = 1 + 1 }()
-		return c.JSON(fiber.Map{"status": "empty goroutine"})
 	})
 
 	// QBTime Workforce Import — cron-callable (X-Cron-Secret) or admin session
