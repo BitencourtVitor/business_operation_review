@@ -52,7 +52,15 @@ func (h *QBTimeWorkforceImportHandler) Import(c *fiber.Ctx) error {
 
 	uid, uname := actor(c)
 
-	result, err := h.svc.Import(c.Context(), req.Company, req.Month, req.Overwrite, uid)
+	// uploaded_by has an FK to users(id) — "cron" (set by RequireCronOrAdmin
+	// for cron-secret requests) isn't a real user row, so leave it unset
+	// (repository NULLIFs empty string) rather than violating the FK.
+	uploadedBy := uid
+	if uploadedBy == "cron" {
+		uploadedBy = ""
+	}
+
+	result, err := h.svc.Import(c.Context(), req.Company, req.Month, req.Overwrite, uploadedBy)
 	if err != nil {
 		if strings.Contains(err.Error(), "already exists") {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
