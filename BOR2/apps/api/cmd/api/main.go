@@ -317,8 +317,8 @@ func main() {
 		return c.JSON(fiber.Map{"status": "sync started"})
 	})
 
-	// QBTime Workforce Import
-	api.Post("/qbtime/workforce-import", qbtWfImportHandler.Import)
+	// QBTime Workforce Import — cron-callable (X-Cron-Secret) or admin session
+	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
 
 	// QBTime Exceptions
 	qbtimeExceptions := api.Group("/qbtime/exceptions")
