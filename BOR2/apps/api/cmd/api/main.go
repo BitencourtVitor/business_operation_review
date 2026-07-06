@@ -317,6 +317,15 @@ func main() {
 		return c.JSON(fiber.Map{"status": "sync started"})
 	})
 
+	// QBT-1 DIAGNOSTIC — isolating whether goroutine-spawning is the differentiator
+	v1.Post("/qbt1-diag-no-goroutine", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "no goroutine, instant"})
+	})
+	v1.Post("/qbt1-diag-empty-goroutine", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+		go func() { _ = 1 + 1 }()
+		return c.JSON(fiber.Map{"status": "empty goroutine"})
+	})
+
 	// QBTime Workforce Import — cron-callable (X-Cron-Secret) or admin session
 	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
 
