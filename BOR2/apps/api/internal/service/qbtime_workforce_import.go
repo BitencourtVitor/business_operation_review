@@ -36,6 +36,59 @@ func isKnownClient(name string) bool {
 	return false
 }
 
+// genericFolders are QB Time grouping folders with no business meaning that
+// can appear at any level in the path — discarded outright. Kept as a slice
+// (not a single EqualFold check) because the same folder gets typed
+// inconsistently in QB Time (e.g. "Job Sites" vs "Jobsites").
+var genericFolders = []string{"job sites", "jobsites"}
+
+func isGenericFolder(name string) bool {
+	lower := strings.ToLower(strings.TrimSpace(name))
+	for _, f := range genericFolders {
+		if lower == f {
+			return true
+		}
+	}
+	return false
+}
+
+// workTypeCanonical mirrors WORKTYPE_CANONICAL in
+// BOR2/apps/web/src/app/(dashboard)/workforce-productivity/page.tsx — same
+// keys, so a segment recognized here is displayed with the same label there.
+var workTypeCanonical = map[string]string{
+	"normal labor":          "Normal Labor",
+	"normal labour":         "Normal Labor",
+	"panels":                "Panels",
+	"office":                "Office",
+	"back charge":           "Back Charge",
+	"new installation":      "New Installation",
+	"new instalation":       "New Installation",
+	"lunch break":           "Lunch Break",
+	"lunch break office":    "Lunch Break Office",
+	"lunch break es":        "Lunch Break",
+	"lunch break paid":      "Lunch Break",
+	"doors":                 "Doors",
+	"extra":                 "Extra",
+	"transport":             "Transport",
+	"holiday":               "Holiday",
+	"holiday paid":          "Holiday",
+	"sick":                  "Sick",
+	"maintenance":           "Maintenance",
+	"shift total":           "Shift Total",
+	"warranty":              "Warranty",
+	"service":               "Service",
+	"admin":                 "Admin",
+	"unregistered location": "Unregistered Location",
+	"service call":          "Service Call",
+}
+
+// canonicalWorktype returns the canonical label for a known worktype segment,
+// or "" if the segment isn't a recognized worktype (e.g. a floor ordinal like
+// "1º", or a building/lot label — those belong in lotBuilding, not worktype).
+func canonicalWorktype(s string) string {
+	return workTypeCanonical[strings.ToLower(strings.TrimSpace(s))]
+}
+
 var multiSpace = regexp.MustCompile(`\s{2,}`)
 var trailingStateCode = regexp.MustCompile(`,\s*[A-Za-z]{2}$`)
 
@@ -76,17 +129,32 @@ func titleCase(s string) string {
 // parseJobcodePath converts a QB Time jobcode hierarchy path into the
 // (client, jobsite, lotBuilding, worktype) tuple expected by WorkforceProductivityRow.
 //
+// Different addresses have different hierarchy depths (some go straight to
+// worktype, others have a building level, others a building + phase +
+// floor-number level) — so instead of assuming "the last segment is always
+// the worktype" (WF-2 follow-up: that assumption swallowed real worktypes
+// like "Panels" into lotBuilding whenever an extra level, e.g. a floor
+// ordinal "1º"/"2º", came after them), worktype is identified by scanning
+// the path back-to-front for a segment matching a KNOWN worktype name.
+// Everything else (besides jobsite) becomes lotBuilding, in original order.
+// If nothing in the path matches a known worktype, falls back to the old
+// "last segment is worktype" behavior so unrecognized/new worktypes still
+// get captured instead of silently dropped.
+//
 // QB Time path examples and expected output:
-//   ["Pulte Homes", "Canton, Coppersmith", "Normal Labor"]
-//     → client="Pulte Homes", jobsite="Canton, Coppersmith", worktype="Normal Labor"
-//   ["Canton, Coppersmith", "Normal Labor"]
-//     → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
-//   ["Job Sites", "Canton, Coppersmith", "Normal Labor"]
-//     → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
-//   ["Canton, Coppersmith", "Pulte Homes"]  (client in worktype position)
-//     → client="Pulte Homes", jobsite="Canton, Coppersmith", worktype=""
-//   ["Pulte Homes", "Canton, Coppersmith - Building 1", "Framing", "Normal Labor"]
-//     → client="Pulte Homes", jobsite="Canton, Coppersmith - Building 1", lotBuilding="Framing", worktype="Normal Labor"
+//
+//	["Pulte Homes", "Canton, Coppersmith", "Normal Labor"]
+//	  → client="Pulte Homes", jobsite="Canton, Coppersmith", worktype="Normal Labor"
+//	["Canton, Coppersmith", "Normal Labor"]
+//	  → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
+//	["Job Sites", "Canton, Coppersmith", "Normal Labor"]
+//	  → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
+//	["Canton, Coppersmith", "Pulte Homes"]  (client in worktype position)
+//	  → client="Pulte Homes", jobsite="Canton, Coppersmith", worktype=""
+//	["Pulte Homes", "Canton, Coppersmith - Building 1", "Framing", "Normal Labor"]
+//	  → client="Pulte Homes", jobsite="Canton, Coppersmith - Building 1", lotBuilding="Framing", worktype="Normal Labor"
+//	["Pulte Homes", "Canton, Neponset", "Building 1", "Panels", "1º"]
+//	  → client="Pulte Homes", jobsite="Canton, Neponset", lotBuilding="Building 1 > 1º", worktype="Panels"
 func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype string) {
 	w := make([]string, 0, len(path))
 	for _, p := range path {
@@ -94,8 +162,7 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 		if p == "" {
 			continue
 		}
-		// "Job Sites" is a generic grouping folder — discard it
-		if strings.EqualFold(p, "job sites") {
+		if isGenericFolder(p) {
 			continue
 		}
 		w = append(w, p)
@@ -125,23 +192,37 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 		w = w[:len(w)-1]
 	}
 
-	switch len(w) {
-	case 0:
-		// client-only entry
-	case 1:
-		jobsite = normalizeAddress(w[0])
-	case 2:
-		jobsite = normalizeAddress(w[0])
-		worktype = w[1]
-	case 3:
-		jobsite = normalizeAddress(w[0])
-		lotBuilding = w[1]
-		worktype = w[2]
-	default:
-		jobsite = normalizeAddress(w[0])
-		lotBuilding = strings.Join(w[1:len(w)-1], " > ")
-		worktype = w[len(w)-1]
+	if len(w) == 0 {
+		return
 	}
+
+	jobsite = normalizeAddress(w[0])
+	rest := w[1:]
+	if len(rest) == 0 {
+		return
+	}
+
+	worktypeIdx := -1
+	for i := len(rest) - 1; i >= 0; i-- {
+		if canonicalWorktype(rest[i]) != "" {
+			worktypeIdx = i
+			break
+		}
+	}
+
+	if worktypeIdx == -1 {
+		// No recognized worktype anywhere in the path — fall back to
+		// treating the last segment as worktype so it's still captured.
+		worktype = rest[len(rest)-1]
+		lotBuilding = strings.Join(rest[:len(rest)-1], " > ")
+		return
+	}
+
+	worktype = canonicalWorktype(rest[worktypeIdx])
+	lotParts := make([]string, 0, len(rest)-1)
+	lotParts = append(lotParts, rest[:worktypeIdx]...)
+	lotParts = append(lotParts, rest[worktypeIdx+1:]...)
+	lotBuilding = strings.Join(lotParts, " > ")
 
 	return
 }
