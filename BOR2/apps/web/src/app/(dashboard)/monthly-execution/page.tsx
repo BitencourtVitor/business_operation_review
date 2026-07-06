@@ -214,16 +214,14 @@ const COL_CONFIG: Record<ColVariant, { label: string; icon: React.ElementType; c
 }
 
 function KanbanColumn({
-  variant, entries, totalCaptured, canEdit, onEdit,
+  variant, entries, canEdit, onEdit,
 }: {
   variant: ColVariant
   entries: ExecutionEntry[]
-  totalCaptured?: number
   canEdit: boolean
   onEdit: (entry: ExecutionEntry) => void
 }) {
   const { label, icon: Icon, color } = COL_CONFIG[variant]
-  const isPlanned = variant === "planned"
 
   return (
     <div className="flex min-h-0 flex-col rounded-xl border border-border bg-muted/20">
@@ -234,16 +232,9 @@ function KanbanColumn({
           {label}
         </span>
         <span className="text-sm font-bold tabular-nums">
-          {isPlanned ? totalCaptured : entries.length}
+          {entries.length}
         </span>
       </div>
-
-      {isPlanned && (
-        <div className="flex items-center justify-between border-t border-border/50 px-4 py-1.5 text-xs text-muted-foreground">
-          <span>Remaining</span>
-          <span className="font-semibold tabular-nums text-primary">{entries.length}</span>
-        </div>
-      )}
 
       <div className="no-scrollbar flex flex-1 flex-col gap-2 overflow-y-auto p-3">
         {entries.length === 0 ? (
@@ -336,10 +327,15 @@ export default function MonthlyExecutionPage() {
       const m   = i + 1
       const ofi = bor2Ofi.filter(e => e.referenceMonth === m)
       const exe = allYear.filter(e => e.referenceMonth === m)
-      const started = exe.length ? (exe.filter(e => !isNotStarted(e)).length || null) : null
+      const hasExec = exe.length > 0
+      const started = hasExec ? (exe.filter(e => !isNotStarted(e)).length || null) : null
       // January 2026: no execution history exists — hardcoded from BOR1 legacy
       const startedFinal  = (m === 1 && started === null) ? 10 : started
-      const plannedFinal  = exe.length || (m === 1 ? (ofi.length || null) : null)
+      // "Planned" = not-yet-started obras only, so it sums with "Started" to the
+      // real monthly total instead of double-counting (Planned used to be the
+      // raw row count, which already included the started ones).
+      const notStarted    = hasExec ? (exe.filter(isNotStarted).length || null) : null
+      const plannedFinal  = hasExec ? notStarted : (m === 1 ? (ofi.length || null) : null)
       return {
         month:   label,
         planned: plannedFinal,
@@ -421,7 +417,6 @@ export default function MonthlyExecutionPage() {
         <KanbanColumn
           variant="planned"
           entries={planned}
-          totalCaptured={forMonth.length}
           canEdit={!isOFIFallback}
           onEdit={setEditEntry}
         />
