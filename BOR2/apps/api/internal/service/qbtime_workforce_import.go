@@ -196,6 +196,24 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 		return
 	}
 
+	// Some companies log certain work under a worktype-first path — e.g. HVAC
+	// maintenance calls come in as ["Maintenance", "<street address>"], with
+	// no jobsite level before the worktype. If the first segment matches a
+	// known worktype and there's something after it to use as the jobsite,
+	// treat it as worktype-first instead of defaulting to "first segment is
+	// always the jobsite" (which would turn "Maintenance" into the jobsite
+	// and push the real address into the worktype fallback below).
+	if len(w) >= 2 {
+		if wt := canonicalWorktype(w[0]); wt != "" {
+			worktype = wt
+			jobsite = normalizeAddress(w[1])
+			if len(w) > 2 {
+				lotBuilding = strings.Join(w[2:], " > ")
+			}
+			return
+		}
+	}
+
 	jobsite = normalizeAddress(w[0])
 	rest := w[1:]
 	if len(rest) == 0 {
