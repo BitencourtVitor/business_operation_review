@@ -109,16 +109,25 @@ func (h *PeriodReportHandler) SetUnpaidAddress(c *fiber.Ctx) error {
 }
 
 // POST /api/v1/qbtime/period-report/sync?days=14  (cron-guarded)
-// Refreshes the cache from QB Time. Runs detached from the request so a long
-// backfill is not cut short if the caller's connection drops.
+// Refreshes the cache from QB Time. Actually runs detached from the request
+// (see QBT-1: a full sync across 4 companies can take 3+ minutes, well past
+// the edge proxy's upstream timeout — waiting for it inline meant the client
+// got a spurious error even though the sync itself succeeded) so the caller
+// gets an immediate ack and the sync is not cut short by a client/proxy
+// timeout. Same pattern as /qb/sync.
 func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
 	days := c.QueryInt("days", 14)
-	logger.Info("qbtime period-report sync: request received", "days", days, "request_id", c.Locals("requestid"))
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-	defer cancel()
-	result := h.svc.SyncAll(ctx, days)
-	logger.Info("qbtime period-report sync: completed", "result", result, "request_id", c.Locals("requestid"))
-	return c.JSON(fiber.Map{"data": result})
+	requestID := c.Locals("requestid")
+	logger.Info("qbtime period-report sync: request received", "days", days, "request_id", requestID)
+
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+		result := h.svc.SyncAll(ctx, days)
+		logger.Info("qbtime period-report sync: completed", "result", result, "request_id", requestID)
+	}()
+
+	return c.JSON(fiber.Map{"data": fiber.Map{"status": "sync started"}})
 }
 
 // POST /api/v1/qbtime/period-report/refresh?company=hvac&days=100
