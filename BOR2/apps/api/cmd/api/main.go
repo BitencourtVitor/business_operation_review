@@ -290,7 +290,7 @@ func main() {
 	// state was reset). Returns immediately.
 	qbTriggerSyncer := quickbooks.NewSyncer(db)
 	qbTriggerSandbox := cfg.App.Env != "production"
-	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+	v1.Post("/qb/sync-diag-test-qbt1", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
 		go func() {
 			ctx := context.Background()
 			var clients []*quickbooks.Client
