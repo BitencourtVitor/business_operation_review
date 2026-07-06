@@ -116,6 +116,7 @@ func (h *PeriodReportHandler) SetUnpaidAddress(c *fiber.Ctx) error {
 // gets an immediate ack and the sync is not cut short by a client/proxy
 // timeout. Same pattern as /qb/sync.
 func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
+	_ = c.Body() // DIAGNOSTIC (QBT-1): force-read the request body, see if that changes the response status
 	days := c.QueryInt("days", 14)
 	requestID := c.Locals("requestid")
 	logger.Info("qbtime period-report sync: request received", "days", days, "request_id", requestID)
