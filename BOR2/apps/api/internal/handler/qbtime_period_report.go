@@ -116,7 +116,6 @@ func (h *PeriodReportHandler) SetUnpaidAddress(c *fiber.Ctx) error {
 // gets an immediate ack and the sync is not cut short by a client/proxy
 // timeout. Same pattern as /qb/sync.
 func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
-	_ = c.Body() // DIAGNOSTIC (QBT-1): force-read the request body, see if that changes the response status
 	days := c.QueryInt("days", 14)
 	requestID := c.Locals("requestid")
 	logger.Info("qbtime period-report sync: request received", "days", days, "request_id", requestID)
@@ -128,7 +127,7 @@ func (h *PeriodReportHandler) Sync(c *fiber.Ctx) error {
 		logger.Info("qbtime period-report sync: completed", "result", result, "request_id", requestID)
 	}()
 
-	return c.JSON(fiber.Map{"data": fiber.Map{"status": "sync started"}})
+	return c.JSON(fiber.Map{"data": fiber.Map{"status": "sync started", "padding_for_qbt1_diagnostic": "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"}})
 }
 
 // POST /api/v1/qbtime/period-report/refresh?company=hvac&days=100
