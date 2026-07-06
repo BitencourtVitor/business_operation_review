@@ -132,6 +132,7 @@ type importTSItem struct {
 	JobcodeID int    `json:"jobcode_id"`
 	Duration  int    `json:"duration"` // seconds; -1 if open
 	Type      string `json:"type"`
+	Date      string `json:"date"` // "2006-01-02"
 }
 
 type importQBTResp struct {
@@ -313,9 +314,9 @@ func (s *QBTimeWorkforceImportService) Import(
 		return path
 	}
 
-	// ── Aggregate hours: (employee, client, jobsite, lotBuilding, worktype) ───
+	// ── Aggregate hours: (employee, client, jobsite, lotBuilding, worktype, date) ──
 	type rowKey struct {
-		employee, client, jobsite, lotBuilding, worktype string
+		employee, client, jobsite, lotBuilding, worktype, date string
 	}
 	hoursByKey := make(map[rowKey]float64)
 	isPCG := strings.EqualFold(company, "pcg")
@@ -349,7 +350,7 @@ func (s *QBTimeWorkforceImportService) Import(
 		}
 
 		hours := math.Round(float64(ts.Duration)/3600.0*100) / 100
-		key := rowKey{employee: name, client: client, jobsite: jobsite, lotBuilding: lotBuilding, worktype: worktype}
+		key := rowKey{employee: name, client: client, jobsite: jobsite, lotBuilding: lotBuilding, worktype: worktype, date: ts.Date}
 		hoursByKey[key] += hours
 	}
 
@@ -375,6 +376,7 @@ func (s *QBTimeWorkforceImportService) Import(
 			RegularHours:   math.Round(hours*100) / 100,
 			ReferenceMonth: month,
 			Company:        company,
+			WorkDate:       key.date,
 		})
 	}
 

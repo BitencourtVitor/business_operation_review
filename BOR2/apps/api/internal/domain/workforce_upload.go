@@ -26,5 +26,6 @@ type WorkforceProductivityRow struct {
 	RegularHours   float64 `json:"regularHours"`
 	ReferenceMonth string  `json:"referenceMonth"`
 	Company        string  `json:"company"`
+	WorkDate       string  `json:"workDate,omitempty"` // "2006-01-02", empty when unknown
 }
 

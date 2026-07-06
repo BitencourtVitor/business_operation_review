@@ -103,10 +103,10 @@ func (r *PostgresWorkforceUploadRepository) BulkInsertRows(ctx context.Context, 
 	for _, row := range rows {
 		_, err := tx.Exec(ctx, `
 			INSERT INTO workforce_productivity
-				(id, upload_id, client, jobsite, lot_building, worktype, employee_name, regular_rate, regular_hours, reference_month, company)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+				(id, upload_id, client, jobsite, lot_building, worktype, employee_name, regular_rate, regular_hours, reference_month, company, work_date)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11, NULLIF($12,'')::date)
 		`, row.ID, row.UploadID, row.Client, row.Jobsite, row.LotBuilding, row.Worktype,
-			row.EmployeeName, row.RegularRate, row.RegularHours, row.ReferenceMonth, row.Company)
+			row.EmployeeName, row.RegularRate, row.RegularHours, row.ReferenceMonth, row.Company, row.WorkDate)
 		if err != nil {
 			return fmt.Errorf("insert row: %w", err)
 		}
