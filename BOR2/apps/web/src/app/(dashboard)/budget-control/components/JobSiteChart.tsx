@@ -331,7 +331,7 @@ export function JobSiteChart({ projects, selectedCustomers, forceExploded, onSel
           <span className="text-sm font-semibold">Receivable vs Payable</span>
           <span className="h-3.5 w-px bg-border" />
           <span className="text-sm font-medium text-muted-foreground">
-            {exploded ? "by Project" : "by Customer"}
+            {exploded ? "by Project" : "by Jobsite"}
           </span>
         </div>
         {!collapsed && <div className="ml-auto flex items-center gap-3">

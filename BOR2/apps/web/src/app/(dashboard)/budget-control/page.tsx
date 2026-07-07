@@ -13,7 +13,7 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, LandPlot, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight, ChevronDown,
-  CalendarClock, Users, Check, Layers,
+  CalendarClock, Users, Check, Layers, Hourglass,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
@@ -50,6 +50,19 @@ function contractorsBacklog(p: BudgetProjectDetail): number {
 }
 function contractorsNotSettled(p: BudgetProjectDetail): boolean {
   return contractorsBacklog(p) > EPS
+}
+
+// BC-25: forward-looking exposure — what's still expected to happen, on the
+// income side and on the contractors side. Mirrors (estimated - actual) + outstanding;
+// on the contractors side that collapses to committed - paid. Excludes general cost
+// on purpose (only income + contractors have a forward commitment to track).
+function pendingIncome(p: BudgetProjectDetail): number {
+  // Over-invoiced (income_actual > projected_receive) means nothing is left to
+  // invoice — clamp at 0 instead of letting it cancel out real outstanding AR.
+  return Math.max(p.projected_receive - p.income_actual, 0) + p.to_receive
+}
+function pendingContractors(p: BudgetProjectDetail): number {
+  return Math.max(p.labor_committed - p.labor_billed, 0) + Math.max(p.labor_billed - p.labor_paid, 0)
 }
 
 // ── Persisted collapse state ─────────────────────────────────────────────────
@@ -99,9 +112,10 @@ function groupProjectsByJobsite(list: BudgetProjectDetail[]): (BudgetProjectDeta
 
 // ── Project Card ──────────────────────────────────────────────────────────────
 
-function MetricRow({ label, value, color, blur, strong }: {
-  label: string; value: number; color?: string; blur: string; strong?: boolean
+function MetricRow({ label, value, color, blur, strong, dashIfNonPositive }: {
+  label: string; value: number; color?: string; blur: string; strong?: boolean; dashIfNonPositive?: boolean
 }) {
+  const showDash = dashIfNonPositive && value <= 0
   return (
     <div className="flex items-center justify-between">
       <span className="text-[11px] text-muted-foreground">{label}</span>
@@ -109,9 +123,57 @@ function MetricRow({ label, value, color, blur, strong }: {
         className={cn("tabular-nums", strong ? "text-[13px] font-bold" : "text-[12px] font-semibold", blur)}
         style={color ? { color } : undefined}
       >
-        {fmt(value)}
+        {showDash ? "—" : fmt(value)}
       </span>
     </div>
+  )
+}
+
+// Two label/value pairs stacked (label above value) side by side — narrower
+// than the inline "Label $val | Label $val" layout it replaces.
+function SplitRow({ leftLabel, leftValue, leftClass, rightLabel, rightValue, rightClass, blur }: {
+  leftLabel: string; leftValue: number; leftClass: string
+  rightLabel: string; rightValue: number; rightClass: string
+  blur: string
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 border-t border-border/40 pt-1.5">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[10px] text-muted-foreground">{leftLabel}</span>
+        <span className={cn("text-[12px] font-semibold tabular-nums", leftClass, blur)}>{fmt(leftValue)}</span>
+      </div>
+      <div className="flex flex-col items-end gap-0.5">
+        <span className="text-[10px] text-muted-foreground">{rightLabel}</span>
+        <span className={cn("text-[12px] font-semibold tabular-nums", rightClass, blur)}>{fmt(rightValue)}</span>
+      </div>
+    </div>
+  )
+}
+
+// Pending row (BC-25) — hover breaks the total into its two components:
+// what's not yet invoiced/billed vs. what's already invoiced/billed but outstanding.
+function PendingMetricRow({ label, notYetLabel, notYetValue, outstandingValue, total, color, blur }: {
+  label: string; notYetLabel: string; notYetValue: number; outstandingValue: number
+  total: number; color: string; blur: string
+}) {
+  const showDash = total <= 0
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip>
+        <TooltipTrigger render={<div className="flex cursor-help items-center justify-between" />}>
+          <span className="text-[11px] text-muted-foreground">{label}</span>
+          <span className={cn("tabular-nums text-[13px] font-bold", blur)} style={{ color }}>
+            {showDash ? "—" : fmt(total)}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="flex flex-col gap-0.5">
+            <span>{notYetLabel}: {fmt(notYetValue)}</span>
+            <span>Outstanding: {fmt(outstandingValue)}</span>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 
@@ -216,39 +278,37 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
       {/* Income + Cost containers */}
       <div className="flex flex-1 flex-col gap-2 p-2 md:flex-row md:items-stretch">
 
-      {/* Income container */}
-      <div className="flex flex-1 flex-col justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.05] px-4 py-3">
-        <div className="flex items-center gap-1.5">
-          <Wallet className="h-3.5 w-3.5 text-emerald-500" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Income</span>
-          <span className="ml-auto text-[10px] text-muted-foreground">
-            {pct(p.income_actual, p.projected_receive).toFixed(0)}% invoiced
-          </span>
-        </div>
-        {/* 3-segment bar: received | outstanding | remaining */}
-        <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
-          <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct(p.received, p.projected_receive)}%` }} />
-          <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.to_receive, p.projected_receive)}%` }} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <MetricRow label="Estimated" value={p.projected_receive} blur={blur} strong />
-          <MetricRow label="Total"     value={p.income_actual}     blur={blur} />
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-muted-foreground">Received</span>
-              <span className={cn("text-[11px] font-semibold tabular-nums text-emerald-500", blur)}>{fmt(p.received)}</span>
-            </div>
-            <span className="text-[10px] text-muted-foreground/40">|</span>
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-muted-foreground">Outstanding</span>
-              <span className={cn("text-[11px] font-semibold tabular-nums", p.to_receive > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.to_receive)}</span>
-            </div>
+      {/* Income container — padding lives on the inner wrapper, not this flex
+          item, so it doesn't inflate this item's flex-basis (border-box floor
+          on flex-basis:0% is border+padding) and skew the width vs Cost/Contractors. */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/[0.05]">
+        <div className="flex flex-col gap-2 px-4 py-3">
+          <div className="flex items-center gap-1.5">
+            <Wallet className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Income</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">
+              {pct(p.income_actual, p.projected_receive).toFixed(0)}% invoiced
+            </span>
+          </div>
+          {/* 3-segment bar: received | outstanding | remaining */}
+          <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted/30">
+            <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct(p.received, p.projected_receive)}%` }} />
+            <div className="h-full bg-orange-400/70 transition-all" style={{ width: `${pct(p.to_receive, p.projected_receive)}%` }} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <MetricRow label="Estimated" value={p.projected_receive} blur={blur} strong />
+            <MetricRow label="Total"     value={p.income_actual}     blur={blur} />
+            <SplitRow
+              leftLabel="Received" leftValue={p.received} leftClass="text-emerald-500"
+              rightLabel="Outstanding" rightValue={p.to_receive} rightClass={p.to_receive > 0 ? "text-orange-400" : "text-muted-foreground/50"}
+              blur={blur}
+            />
           </div>
         </div>
       </div>
 
       {/* Cost container — double width, holds Cost + Contractors */}
-      <div className="flex flex-[2] flex-col overflow-hidden rounded-lg border border-red-500/30 md:flex-row md:items-stretch">
+      <div className="flex min-w-0 flex-[2] flex-col overflow-hidden rounded-lg border border-red-500/30 md:flex-row md:items-stretch">
         {/* Cost */}
         <div className="flex flex-1 flex-col justify-center gap-2 border-b border-border/40 bg-red-500/[0.05] px-4 py-3 md:border-b-0">
           <div className="flex items-center gap-1.5">
@@ -266,17 +326,11 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
           <div className="flex flex-col gap-1">
             <MetricRow label="Cost Budget" value={p.cost_ceiling} blur={blur} strong />
             <MetricRow label="Total"       value={p.cost_total} color={p.over_ceiling ? "#ef4444" : undefined} blur={blur} />
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1">
-                <span className="text-[11px] text-muted-foreground">Paid</span>
-                <span className={cn("text-[11px] font-semibold tabular-nums text-red-400", blur)}>{fmt(p.paid)}</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground/40">|</span>
-              <div className="flex items-center gap-1">
-                <span className="text-[11px] text-muted-foreground">Outstanding</span>
-                <span className={cn("text-[11px] font-semibold tabular-nums", p.open_payable > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(p.open_payable)}</span>
-              </div>
-            </div>
+            <SplitRow
+              leftLabel="Paid" leftValue={p.paid} leftClass="text-red-400"
+              rightLabel="Outstanding" rightValue={p.open_payable} rightClass={p.open_payable > 0 ? "text-orange-400" : "text-muted-foreground/50"}
+              blur={blur}
+            />
           </div>
         </div>
 
@@ -302,23 +356,39 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
                 <div className="flex flex-col gap-1">
                   <MetricRow label="Contracted" value={p.labor_committed} blur={blur} strong />
                   <MetricRow label="Total"       value={p.labor_billed}   blur={blur} />
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[11px] text-muted-foreground">Paid</span>
-                      <span className={cn("text-[11px] font-semibold tabular-nums text-yellow-500", blur)}>{fmt(p.labor_paid)}</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground/40">|</span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-[11px] text-muted-foreground">Outstanding</span>
-                      <span className={cn("text-[11px] font-semibold tabular-nums", laborOutstanding > 0 ? "text-orange-400" : "text-muted-foreground/50", blur)}>{fmt(laborOutstanding)}</span>
-                    </div>
-                  </div>
+                  <SplitRow
+                    leftLabel="Paid" leftValue={p.labor_paid} leftClass="text-yellow-500"
+                    rightLabel="Outstanding" rightValue={laborOutstanding} rightClass={laborOutstanding > 0 ? "text-orange-400" : "text-muted-foreground/50"}
+                    blur={blur}
+                  />
                 </div>
               </>
             )
           })() : (
             <p className="py-1 text-[11px] italic text-muted-foreground/50">No purchase orders.</p>
           )}
+        </div>
+      </div>
+
+      {/* Pending container — third module, forward-looking exposure across income + contractors (BC-25) */}
+      <div className="flex w-40 shrink-0 flex-col gap-2 rounded-lg border border-foreground/15 bg-foreground/[0.03] px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <Hourglass className="h-3.5 w-3.5 text-foreground/70" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-foreground/70">Pending</span>
+        </div>
+        <div className="flex flex-1 flex-col justify-center gap-1.5">
+          <PendingMetricRow
+            label="Income" notYetLabel="Not yet invoiced"
+            notYetValue={Math.max(p.projected_receive - p.income_actual, 0)}
+            outstandingValue={p.to_receive}
+            total={pendingIncome(p)} color="#10b981" blur={blur}
+          />
+          <PendingMetricRow
+            label="Contractors" notYetLabel="Not yet billed"
+            notYetValue={Math.max(p.labor_committed - p.labor_billed, 0)}
+            outstandingValue={Math.max(p.labor_billed - p.labor_paid, 0)}
+            total={pendingContractors(p)} color="#eab308" blur={blur}
+          />
         </div>
       </div>
       </div>
@@ -342,56 +412,6 @@ function ClientFilter({ clients, selected, setSelected }: {
     <Popover>
       <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
         <Users className="h-3.5 w-3.5" />
-        {selected.size === 0 ? "All clients" : `${selected.size} client${selected.size > 1 ? "s" : ""}`}
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-64 p-2">
-        <div className="relative mb-2">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter clients…"
-            className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
-        </div>
-        {selected.size > 0 && (
-          <button onClick={() => setSelected(new Set())}
-            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
-            Clear selection
-          </button>
-        )}
-        <div className="flex max-h-64 flex-col overflow-y-auto no-scrollbar">
-          {filtered.map(c => {
-            const on = selected.has(c)
-            return (
-              <button key={c} onClick={() => toggle(c)}
-                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
-                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
-                  {on && <Check className="h-3 w-3" />}
-                </span>
-                <span className="min-w-0 flex-1 truncate" title={c}>{c}</span>
-              </button>
-            )
-          })}
-          {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No clients.</p>}
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-// ── Customer multi-select ───────────────────────────────────────────────────────
-
-function CustomerFilter({ customers, selected, setSelected }: {
-  customers: string[]; selected: Set<string>; setSelected: (s: Set<string>) => void
-}) {
-  const [q, setQ] = useState("")
-  const filtered = q ? customers.filter(c => c.toLowerCase().includes(q.toLowerCase())) : customers
-  const toggle = (c: string) => {
-    const next = new Set(selected)
-    next.has(c) ? next.delete(c) : next.add(c)
-    setSelected(next)
-  }
-  return (
-    <Popover>
-      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-        <Layers className="h-3.5 w-3.5" />
         {selected.size === 0 ? "All customers" : `${selected.size} customer${selected.size > 1 ? "s" : ""}`}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-64 p-2">
@@ -420,6 +440,56 @@ function CustomerFilter({ customers, selected, setSelected }: {
             )
           })}
           {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No customers.</p>}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+// ── Customer multi-select ───────────────────────────────────────────────────────
+
+function CustomerFilter({ customers, selected, setSelected }: {
+  customers: string[]; selected: Set<string>; setSelected: (s: Set<string>) => void
+}) {
+  const [q, setQ] = useState("")
+  const filtered = q ? customers.filter(c => c.toLowerCase().includes(q.toLowerCase())) : customers
+  const toggle = (c: string) => {
+    const next = new Set(selected)
+    next.has(c) ? next.delete(c) : next.add(c)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Layers className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All jobsites" : `${selected.size} jobsite${selected.size > 1 ? "s" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <div className="relative mb-2">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter jobsites…"
+            className="h-7 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+        </div>
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex max-h-64 flex-col overflow-y-auto no-scrollbar">
+          {filtered.map(c => {
+            const on = selected.has(c)
+            return (
+              <button key={c} onClick={() => toggle(c)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate" title={c}>{c}</span>
+              </button>
+            )
+          })}
+          {filtered.length === 0 && <p className="px-2 py-1.5 text-[11px] italic text-muted-foreground/50">No jobsites.</p>}
         </div>
       </PopoverContent>
     </Popover>
@@ -741,6 +811,17 @@ function BudgetContent() {
   // Sum across every displayed row, not just the current page.
   const amberBacklogTotal = useMemo(() => rows.reduce((s, p) => s + contractorsBacklog(p), 0), [rows])
 
+  // BC-26: footer totals across every displayed row (filtered set, not just the current page).
+  const listTotals = useMemo(() => rows.reduce((acc, p) => ({
+    income: acc.income + p.income_actual,
+    cost: acc.cost + p.cost_total,
+    contractors: acc.contractors + p.labor_committed,
+    // Income pending (money still coming in) and contractors pending (money still
+    // going out) are opposite directions — kept apart instead of netted into one figure.
+    pendingIncome: acc.pendingIncome + pendingIncome(p),
+    pendingContractors: acc.pendingContractors + pendingContractors(p),
+  }), { income: 0, cost: 0, contractors: 0, pendingIncome: 0, pendingContractors: 0 }), [rows])
+
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const pageRows  = useMemo(
     () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -970,6 +1051,39 @@ function BudgetContent() {
                     />
                   )
                 })}
+              </div>
+            </div>
+            {/* BC-26: totals across the full filtered set */}
+            <div className="flex shrink-0 items-center gap-5 border-t border-border/50 px-4 py-2 text-[11px]">
+              <span className="font-semibold uppercase tracking-wider text-muted-foreground/60">Totals</span>
+              <div className="ml-auto flex items-center gap-5">
+                <span className="flex items-center gap-2">
+                  <span className="font-semibold uppercase tracking-wider text-foreground/70">Billed</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Income</span>
+                    <span className={cn("font-semibold tabular-nums text-emerald-500", blur)}>{fmt(listTotals.income)}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Cost</span>
+                    <span className={cn("font-semibold tabular-nums text-red-400", blur)}>{fmt(listTotals.cost)}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Contractors</span>
+                    <span className={cn("font-semibold tabular-nums text-yellow-500", blur)}>{fmt(listTotals.contractors)}</span>
+                  </span>
+                </span>
+                <span className="h-3.5 w-px bg-border/50" />
+                <span className="flex items-center gap-2">
+                  <span className="font-semibold uppercase tracking-wider text-foreground/70">Pending</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Income</span>
+                    <span className={cn("font-semibold tabular-nums text-emerald-500", blur)}>{fmt(listTotals.pendingIncome)}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Contractors</span>
+                    <span className={cn("font-semibold tabular-nums text-yellow-500", blur)}>{fmt(listTotals.pendingContractors)}</span>
+                  </span>
+                </span>
               </div>
             </div>
             {pageCount > 1 && (
