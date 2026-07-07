@@ -1137,6 +1137,13 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
   const catNetBilled = catTotals.billed - catTotals.backCharges
   const catNetOpen = catTotals.open + catTotals.backCharges
 
+  // BC-25: forward-looking exposure — what's still expected to happen, on the
+  // income side and on the contractors side (general cost is excluded on purpose).
+  // Over-invoiced/over-billed means nothing is left on that side — clamp at 0
+  // instead of letting it cancel out real outstanding AR / unpaid bills.
+  const pendingIncomeVal = data ? Math.max(data.projected_receive - data.income_actual, 0) + data.to_receive : 0
+  const pendingContractorsVal = Math.max(catTotals.committed - catNetBilled, 0) + Math.max(catNetBilled - catNetPaid, 0)
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -1207,6 +1214,9 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     <div className="ml-auto flex items-center gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                       <span className={cn("text-base font-bold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
+                      <div className="h-3.5 w-px bg-border/50" />
+                      <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Pending</span>
+                      <span className={cn("text-base font-bold tabular-nums text-blue-400", blur)}>{fmt(pendingIncomeVal)}</span>
                       <div className="h-3.5 w-px bg-border/50" />
                       <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(data.income_actual, data.projected_receive)}</span>
                     </div>
@@ -1452,6 +1462,9 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="ml-auto flex items-center gap-1.5 self-start">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
                     <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(data.labor_budget)}</span>
+                    <div className="h-3.5 w-px bg-border/50" />
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Pending</span>
+                    <span className={cn("text-base font-bold tabular-nums text-blue-400", blur)}>{fmt(pendingContractorsVal)}</span>
                     <div className="h-3.5 w-px bg-border/50" />
                     <span className="text-xs font-semibold tabular-nums text-muted-foreground/60">{pctStr(catTotals.committed, data.labor_budget)}</span>
                   </div>
