@@ -152,17 +152,17 @@ function SplitRow({ leftLabel, leftValue, leftClass, rightLabel, rightValue, rig
 
 // Pending row (BC-25) — hover breaks the total into its two components:
 // what's not yet invoiced/billed vs. what's already invoiced/billed but outstanding.
-function PendingMetricRow({ label, notYetLabel, notYetValue, outstandingValue, total, color, blur }: {
+function PendingMetricRow({ label, notYetLabel, notYetValue, outstandingValue, total, color, blur, align }: {
   label: string; notYetLabel: string; notYetValue: number; outstandingValue: number
-  total: number; color: string; blur: string
+  total: number; color: string; blur: string; align?: "end"
 }) {
   const showDash = total <= 0
   return (
     <TooltipProvider delay={0}>
       <Tooltip>
-        <TooltipTrigger render={<div className="flex cursor-help items-center justify-between" />}>
-          <span className="text-[11px] text-muted-foreground">{label}</span>
-          <span className={cn("tabular-nums text-[13px] font-bold", blur)} style={{ color }}>
+        <TooltipTrigger render={<div className={cn("flex cursor-help flex-col gap-0.5", align === "end" && "items-end")} />}>
+          <span className="text-[10px] text-muted-foreground">{label}</span>
+          <span className={cn("tabular-nums text-[12px] font-bold", blur)} style={{ color }}>
             {showDash ? "—" : fmt(total)}
           </span>
         </TooltipTrigger>
@@ -371,20 +371,21 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
       </div>
 
       {/* Pending container — third module, forward-looking exposure across income + contractors (BC-25) */}
-      <div className="flex w-40 shrink-0 flex-col gap-2 rounded-lg border border-foreground/15 bg-foreground/[0.03] px-4 py-3">
+      <div className="flex w-28 shrink-0 flex-col gap-2 rounded-lg border border-foreground/15 bg-foreground/[0.03] px-3 py-3">
         <div className="flex items-center gap-1.5">
           <Hourglass className="h-3.5 w-3.5 text-foreground/70" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-foreground/70">Pending</span>
         </div>
-        <div className="flex flex-1 flex-col justify-center gap-1.5">
+        <div className="flex flex-1 flex-col justify-center gap-2">
           <PendingMetricRow
-            label="Income" notYetLabel="Not yet invoiced"
+            label="Income" notYetLabel="To Invoice"
             notYetValue={Math.max(p.projected_receive - p.income_actual, 0)}
             outstandingValue={p.to_receive}
             total={pendingIncome(p)} color="#10b981" blur={blur}
           />
+          <div className="border-t border-border/40" />
           <PendingMetricRow
-            label="Contractors" notYetLabel="Not yet billed"
+            label="Contractors" notYetLabel="To Bill"
             notYetValue={Math.max(p.labor_committed - p.labor_billed, 0)}
             outstandingValue={Math.max(p.labor_billed - p.labor_paid, 0)}
             total={pendingContractors(p)} color="#eab308" blur={blur}
