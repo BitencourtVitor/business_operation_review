@@ -1,3 +1,3 @@
 function graphifyHookTest() {
-  return "test";
+  return "test2";
 }
