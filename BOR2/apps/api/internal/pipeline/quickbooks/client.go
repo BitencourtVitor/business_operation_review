@@ -75,12 +75,22 @@ type TokenResponse struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
+// TokenRefresher forces a fresh, persisted access token for company — used by
+// Client to renew an expired access token mid-sync without talking to
+// Intuit's refresh endpoint directly. service.QBOAuthService implements this
+// so every refresh flows through its DB-locked path, keeping BOR2 the single
+// writer of qb_credentials even for tokens that go stale mid-sync.
+type TokenRefresher interface {
+	RefreshTokens(ctx context.Context, company string) (string, error)
+}
+
 type Client struct {
 	httpClient *http.Client
 	mu         sync.Mutex // guards config tokens + serializes refresh
 	config     CompanyConfig
 	company    Company
 	sandbox    bool
+	refresher  TokenRefresher // optional; see refreshIfStale
 }
 
 func NewClient(company Company, config CompanyConfig, sandbox bool) *Client {
@@ -90,6 +100,15 @@ func NewClient(company Company, config CompanyConfig, sandbox bool) *Client {
 		company:    company,
 		sandbox:    sandbox,
 	}
+}
+
+// WithRefresher attaches a persisted-token authority so mid-sync 401s renew
+// through it (see refreshIfStale) instead of the client's own unpersisted
+// Intuit call. Returns c for chaining. Leave unset for standalone/manual
+// clients (e.g. cmd/qbsync) that manage their own token pair outside the DB.
+func (c *Client) WithRefresher(r TokenRefresher) *Client {
+	c.refresher = r
+	return c
 }
 
 func (c *Client) Company() Company { return c.company }
@@ -119,6 +138,20 @@ func (c *Client) refreshIfStale(ctx context.Context, used string) error {
 	if c.config.AccessToken != used {
 		return nil // another goroutine already refreshed
 	}
+
+	if c.refresher != nil {
+		newToken, err := c.refresher.RefreshTokens(ctx, string(c.company))
+		if err != nil {
+			return fmt.Errorf("persisted refresh failed: %w", err)
+		}
+		c.config.AccessToken = newToken
+		logger.Info("qb access token refreshed mid-sync via persisted authority", "company", c.company)
+		return nil
+	}
+
+	// Legacy path — no persisted-refresh authority configured (standalone
+	// clients only, e.g. cmd/qbsync): refresh directly against Intuit,
+	// in-memory only.
 	if c.config.RefreshToken == "" || c.config.ClientID == "" || c.config.ClientSecret == "" {
 		return fmt.Errorf("no refresh credentials configured")
 	}

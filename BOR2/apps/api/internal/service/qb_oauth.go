@@ -89,17 +89,82 @@ func (s *QBOAuthService) ExchangeCode(ctx context.Context, company, code, realmI
 	return s.saveTokens(ctx, company, realmID, tokens.AccessToken, tokens.RefreshToken)
 }
 
-// RefreshTokens uses the stored refresh_token to obtain a new access_token,
-// persists the new token pair, and returns the fresh access_token (plaintext).
+// RefreshTokens forces a fresh access_token from Intuit (ignoring staleness),
+// persists the new token pair under the company's row lock, and returns the
+// fresh access_token (plaintext). This is the ONLY path that ever calls
+// Intuit's refresh grant — GetAccessToken, TokenInfo, and pipeline mid-sync
+// refreshes (via quickbooks.TokenRefresher) all funnel through here, so a
+// company's refresh_token is never used by two concurrent callers.
 func (s *QBOAuthService) RefreshTokens(ctx context.Context, company string) (string, error) {
-	creds, err := s.repo.Get(ctx, company)
+	creds, err := s.repo.WithCompanyLock(ctx, company, func(ctx context.Context, locked *repository.QBCredentials) (*repository.QBCredentials, error) {
+		return s.refreshLocked(ctx, company, locked)
+	})
 	if err != nil {
-		return "", fmt.Errorf("credentials not found for %s: %w", company, err)
+		return "", err
+	}
+	return crypto.Decrypt(creds.AccessToken, s.encryptionKey)
+}
+
+// GetAccessToken returns a valid (plaintext) access_token for the company,
+// refreshing automatically if needed.
+func (s *QBOAuthService) GetAccessToken(ctx context.Context, company string) (string, string, error) {
+	info, err := s.getTokenInfo(ctx, company)
+	if err != nil {
+		return "", "", err
+	}
+	return info.AccessToken, info.RealmID, nil
+}
+
+// TokenInfo returns a valid access_token for the company (refreshing if
+// needed) plus the realm id and the token's expiry — everything a caller needs
+// to talk to QuickBooks without ever seeing the refresh_token.
+type TokenInfo struct {
+	AccessToken string
+	RealmID     string
+	ExpiresAt   time.Time
+}
+
+func (s *QBOAuthService) TokenInfo(ctx context.Context, company string) (*TokenInfo, error) {
+	return s.getTokenInfo(ctx, company)
+}
+
+func (s *QBOAuthService) getTokenInfo(ctx context.Context, company string) (*TokenInfo, error) {
+	if !validCompanies[company] {
+		return nil, fmt.Errorf("unknown company: %s", company)
 	}
 
-	refreshToken, err := crypto.Decrypt(creds.RefreshToken, s.encryptionKey)
+	creds, err := s.repo.WithCompanyLock(ctx, company, func(ctx context.Context, locked *repository.QBCredentials) (*repository.QBCredentials, error) {
+		// If token was updated more than 50 minutes ago, proactively refresh
+		// (access tokens expire at 60 minutes)
+		if time.Since(locked.TokenUpdatedAt) <= 50*time.Minute {
+			return nil, nil
+		}
+		return s.refreshLocked(ctx, company, locked)
+	})
 	if err != nil {
-		return "", fmt.Errorf("failed to decrypt refresh token: %w", err)
+		return nil, fmt.Errorf("credentials not found for %s — run OAuth first", company)
+	}
+
+	accessToken, err := crypto.Decrypt(creds.AccessToken, s.encryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt access token: %w", err)
+	}
+
+	// QB access tokens expire 60 minutes after issuance.
+	return &TokenInfo{
+		AccessToken: accessToken,
+		RealmID:     creds.RealmID,
+		ExpiresAt:   creds.TokenUpdatedAt.Add(60 * time.Minute),
+	}, nil
+}
+
+// refreshLocked calls Intuit's refresh grant using locked's (still-encrypted)
+// refresh_token and returns the new token pair, encrypted, ready to persist.
+// Must only be called from inside a repo.WithCompanyLock closure.
+func (s *QBOAuthService) refreshLocked(ctx context.Context, company string, locked *repository.QBCredentials) (*repository.QBCredentials, error) {
+	refreshToken, err := crypto.Decrypt(locked.RefreshToken, s.encryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt refresh token: %w", err)
 	}
 
 	tokens, err := s.requestTokens(ctx, url.Values{
@@ -107,51 +172,33 @@ func (s *QBOAuthService) RefreshTokens(ctx context.Context, company string) (str
 		"refresh_token": {refreshToken},
 	})
 	if err != nil {
-		return "", fmt.Errorf("token refresh failed for %s: %w", company, err)
+		return nil, fmt.Errorf("token refresh failed for %s: %w", company, err)
 	}
 
-	if err := s.saveTokens(ctx, company, creds.RealmID, tokens.AccessToken, tokens.RefreshToken); err != nil {
-		return "", err
+	encAccess, err := crypto.Encrypt(tokens.AccessToken, s.encryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt access token: %w", err)
+	}
+	encRefresh, err := crypto.Encrypt(tokens.RefreshToken, s.encryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt refresh token: %w", err)
 	}
 
 	logger.Info("qb tokens refreshed", "company", company)
-	return tokens.AccessToken, nil
+	return &repository.QBCredentials{
+		RealmID:      locked.RealmID,
+		AccessToken:  encAccess,
+		RefreshToken: encRefresh,
+	}, nil
 }
 
-// GetAccessToken returns a valid (plaintext) access_token for the company,
-// refreshing automatically if needed.
-func (s *QBOAuthService) GetAccessToken(ctx context.Context, company string) (string, string, error) {
-	creds, err := s.repo.Get(ctx, company)
-	if err != nil {
-		return "", "", fmt.Errorf("credentials not found for %s — run OAuth first", company)
-	}
-
-	accessToken, err := crypto.Decrypt(creds.AccessToken, s.encryptionKey)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to decrypt access token: %w", err)
-	}
-
-	// If token was updated more than 50 minutes ago, proactively refresh
-	// (access tokens expire at 60 minutes)
-	if time.Since(creds.TokenUpdatedAt) > 50*time.Minute {
-		accessToken, err = s.RefreshTokens(ctx, company)
-		if err != nil {
-			return "", "", err
-		}
-		// Re-fetch to get updated realmID
-		creds, err = s.repo.Get(ctx, company)
-		if err != nil {
-			return "", "", err
-		}
-	}
-
-	return accessToken, creds.RealmID, nil
-}
-
-// SyncClientConfig returns everything needed to build a self-refreshing QB sync
-// client: a valid access token (proactively refreshed if stale), the realm id,
-// the decrypted refresh token, and the app client id/secret. With the refresh
-// credentials the client can renew its own access token if it expires mid-sync.
+// SyncClientConfig returns everything needed to build a QB sync client: a
+// valid access token (proactively refreshed if stale), the realm id, the
+// decrypted refresh token, and the app client id/secret. The refresh
+// credentials are kept for backward compatibility with CompanyConfig, but
+// service-backed callers should attach the service itself as the client's
+// quickbooks.TokenRefresher (via Client.WithRefresher) instead of relying on
+// the client refreshing on its own — that path never persists to the DB.
 func (s *QBOAuthService) SyncClientConfig(ctx context.Context, company string) (access, refresh, realm, clientID, clientSecret string, err error) {
 	access, realm, err = s.GetAccessToken(ctx, company)
 	if err != nil {

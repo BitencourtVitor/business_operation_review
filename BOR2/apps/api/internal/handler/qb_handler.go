@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -63,6 +65,28 @@ func (h *QBHandler) Refresh(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"ok": true, "company": company, "message": "tokens refreshed"})
+}
+
+// GET /api/v1/qb/token?company=hvac  — machine-to-machine (e.g. AutoAccounting).
+// Requires X-Service-Secret (see middleware.RequireServiceSecret). Always
+// returns a currently-valid access token, refreshing through the DB-locked
+// authority if stale. Never returns refresh_token.
+func (h *QBHandler) Token(c *fiber.Ctx) error {
+	company := c.Query("company")
+	if company == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company query param required (hvac|framing|pcg)")
+	}
+
+	info, err := h.oauth.TokenInfo(c.Context(), company)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"access_token": info.AccessToken,
+		"realm_id":     info.RealmID,
+		"expires_at":   info.ExpiresAt.UTC().Format(time.RFC3339),
+	})
 }
 
 // POST /api/v1/qb/seed  (dev only — bootstrap existing tokens without OAuth flow)

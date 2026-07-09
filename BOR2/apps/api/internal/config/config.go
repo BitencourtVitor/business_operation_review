@@ -22,10 +22,11 @@ type AIConfig struct {
 }
 
 type AppConfig struct {
-	Port           string
-	Env            string
-	AllowedOrigins string
-	CronSecret     string
+	Port                        string
+	Env                         string
+	AllowedOrigins              string
+	CronSecret                  string
+	AutoAccountingServiceSecret string
 }
 
 type DatabaseConfig struct {
@@ -45,10 +46,11 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Port:           getEnv("API_PORT", "8080"),
-			Env:            getEnv("APP_ENV", "development"),
-			AllowedOrigins: getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),
-			CronSecret:     getEnv("CRON_SECRET", ""),
+			Port:                        getEnv("API_PORT", "8080"),
+			Env:                         getEnv("APP_ENV", "development"),
+			AllowedOrigins:              getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),
+			CronSecret:                  getEnv("CRON_SECRET", ""),
+			AutoAccountingServiceSecret: getEnv("AUTOACCOUNTING_SERVICE_SECRET", ""),
 		},
 		Database: DatabaseConfig{
 			URL: requireEnv("DATABASE_URL"),
