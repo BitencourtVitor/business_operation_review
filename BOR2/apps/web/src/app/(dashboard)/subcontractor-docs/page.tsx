@@ -17,6 +17,9 @@ import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
 import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { PageSkeleton } from "@/components/common/page-skeleton"
+import { CompanyLogo } from "@/components/common/company-logo"
+import { COMPANIES, COMPANY_LABEL } from "@/lib/company"
+import type { Company } from "@/lib/company"
 import {
   useSubDocTypes, useSubDocContractors, useCreateSubDocContractor,
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
@@ -242,8 +245,11 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
       <div className="flex items-center gap-3 px-4 py-2.5">
         <span className={cn("h-2 w-2 shrink-0 rounded-full", meta.dot)} title={meta.label} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold leading-tight">
+          <p className="flex items-center gap-1.5 truncate text-sm font-semibold leading-tight">
             {ctr.name}
+            {ctr.company
+              ? <CompanyLogo company={ctr.company} className="h-3.5 w-auto shrink-0" />
+              : <span className="shrink-0 text-[10px] font-medium text-muted-foreground/50">No company</span>}
             {ctr.archived && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">· Archived</span>}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
@@ -287,6 +293,7 @@ function ContractorFormDialog({ open, onClose, initial }: {
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
+  const [company, setCompany] = useState<Company | "">("")
   const create = useCreateSubDocContractor()
   const update = useUpdateSubDocContractor()
   const isEdit = !!initial
@@ -297,15 +304,16 @@ function ContractorFormDialog({ open, onClose, initial }: {
     setEmail(initial?.email ?? "")
     setPhone(initial?.phone ?? "")
     setNotes(initial?.notes ?? "")
+    setCompany(initial?.company ?? "")
   }, [open, initial])
 
   const pending = create.isPending || update.isPending
   const save = () => {
-    if (!name.trim()) return
+    if (!name.trim() || !company) return
     if (isEdit && initial) {
-      update.mutate({ id: initial.id, name, email, phone, notes }, { onSuccess: onClose })
+      update.mutate({ id: initial.id, name, email, phone, notes, company }, { onSuccess: onClose })
     } else {
-      create.mutate({ name, email, phone, notes }, { onSuccess: onClose })
+      create.mutate({ name, email, phone, notes, company }, { onSuccess: onClose })
     }
   }
 
@@ -326,6 +334,23 @@ function ContractorFormDialog({ open, onClose, initial }: {
               <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elite Stone Works"
                 className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
             </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Division</label>
+            <Select value={company} onValueChange={v => setCompany(v as Company)}>
+              <SelectTrigger className="h-8 w-full text-sm">
+                {company
+                  ? <span className="flex items-center gap-1.5"><CompanyLogo company={company} className="h-3.5 w-auto" />{COMPANY_LABEL[company]}</span>
+                  : <span className="text-muted-foreground/50">Select division…</span>}
+              </SelectTrigger>
+              <SelectContent>
+                {COMPANIES.map(co => (
+                  <SelectItem key={co} value={co}>
+                    <span className="flex items-center gap-1.5"><CompanyLogo company={co} className="h-3.5 w-auto" />{COMPANY_LABEL[co]}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
@@ -353,7 +378,7 @@ function ContractorFormDialog({ open, onClose, initial }: {
             <button onClick={onClose} className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               Cancel
             </button>
-            <button onClick={save} disabled={pending || !name.trim()}
+            <button onClick={save} disabled={pending || !name.trim() || !company}
               className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50">
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {isEdit ? "Save" : "Add"}
@@ -444,6 +469,68 @@ function UrgencyFilter({ contractors, selected, setSelected }: {
   )
 }
 
+// ── Company multiselect dropdown ────────────────────────────────────────────────
+
+type CompanySelection = Company | "none"
+
+function CompanyFilterDropdown({ contractors, selected, setSelected }: {
+  contractors: SubDocContractor[]; selected: Set<CompanySelection>; setSelected: (s: Set<CompanySelection>) => void
+}) {
+  const toggle = (co: CompanySelection) => {
+    const next = new Set(selected)
+    next.has(co) ? next.delete(co) : next.add(co)
+    setSelected(next)
+  }
+  return (
+    <Popover>
+      <PopoverTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+        <Building2 className="h-3.5 w-3.5" />
+        {selected.size === 0 ? "All divisions" : `${selected.size} division${selected.size > 1 ? "s" : ""}`}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-56 p-2">
+        {selected.size > 0 && (
+          <button onClick={() => setSelected(new Set())}
+            className="mb-1 w-full rounded px-2 py-1 text-left text-[11px] text-muted-foreground transition-colors hover:bg-accent">
+            Clear selection
+          </button>
+        )}
+        <div className="flex flex-col">
+          {COMPANIES.map(co => {
+            const on = selected.has(co)
+            const count = contractors.filter(c => c.company === co).length
+            return (
+              <button key={co} onClick={() => toggle(co)}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <CompanyLogo company={co} className="h-3.5 w-auto shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{COMPANY_LABEL[co]}</span>
+                <span className="shrink-0 text-muted-foreground/60">{count}</span>
+              </button>
+            )
+          })}
+          {(() => {
+            const on = selected.has("none")
+            const count = contractors.filter(c => !c.company).length
+            return (
+              <button onClick={() => toggle("none")}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="h-3.5 w-3.5 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">No division</span>
+                <span className="shrink-0 text-muted-foreground/60">{count}</span>
+              </button>
+            )
+          })()}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── Export menu (XLSX / PDF) ────────────────────────────────────────────────────
 
 function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocType[] }) {
@@ -527,6 +614,7 @@ export default function SubcontractorDocsPage() {
 
   const [search, setSearch] = useState("")
   const [urgencyFilter, setUrgencyFilter] = useState<Set<Urgency>>(new Set())
+  const [companyFilter, setCompanyFilter] = useState<Set<CompanySelection>>(new Set())
   const [sortField, setSortField] = useState<SortField>("urgency")
   const [sortAsc, setSortAsc] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
@@ -535,7 +623,8 @@ export default function SubcontractorDocsPage() {
 
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
-      (urgencyFilter.size === 0 || urgencyFilter.has(c.urgency)))
+      (urgencyFilter.size === 0 || urgencyFilter.has(c.urgency)) &&
+      (companyFilter.size === 0 || companyFilter.has(c.company ?? "none")))
     .slice()
     .sort((a, b) => {
       const dir = sortAsc ? 1 : -1
@@ -570,6 +659,7 @@ export default function SubcontractorDocsPage() {
           </div>
 
           <UrgencyFilter contractors={contractors ?? []} selected={urgencyFilter} setSelected={setUrgencyFilter} />
+          <CompanyFilterDropdown contractors={contractors ?? []} selected={companyFilter} setSelected={setCompanyFilter} />
           <ExportMenu rows={rows} types={types ?? []} />
 
           <button onClick={() => setAddOpen(true)}
