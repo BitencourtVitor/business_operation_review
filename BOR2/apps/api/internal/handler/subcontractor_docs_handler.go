@@ -79,7 +79,7 @@ func urgencyFor(daysUntil int, hasExpiry bool) string {
 
 type SubDocContractor struct {
 	ID         int            `json:"id"`
-	Company    string         `json:"company"`
+	Company    *string        `json:"company"` // hvac|framing|pcg — nullable, not yet surfaced/collected by this page's UI
 	Name       string         `json:"name"`
 	Email      string         `json:"email"`
 	Phone      string         `json:"phone"`
@@ -89,11 +89,6 @@ type SubDocContractor struct {
 	NextExpiry *string        `json:"next_expiry"`
 	Urgency    string         `json:"urgency"`
 }
-
-// subDocsCompany is a placeholder value for the NOT NULL company column —
-// this page isn't segmented by company (single flat list, unlike Budget
-// Control/Accounting/etc.), so it's never read from or exposed via the API.
-const subDocsCompany = "framing"
 
 // GET /subcontractor-docs/contractors
 // Sorted soonest-expiry-first (Amanda's core ask): whoever needs attention
@@ -216,9 +211,9 @@ func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
 	}
 	var id int
 	err := h.db.QueryRow(c.Context(), `
-		INSERT INTO sub_doc_contractors (company, name, email, phone, notes)
-		VALUES ($1,$2,$3,$4,$5) RETURNING id
-	`, subDocsCompany, b.Name, b.Email, b.Phone, b.Notes).Scan(&id)
+		INSERT INTO sub_doc_contractors (name, email, phone, notes)
+		VALUES ($1,$2,$3,$4) RETURNING id
+	`, b.Name, b.Email, b.Phone, b.Notes).Scan(&id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
