@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, ChevronsDownUp, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
@@ -43,6 +44,26 @@ type JCTeamGroup = { teamName: string; employees: JCEmployee[] }
 const DEFAULT_EXCLUDED = ["Lunch break", "Lunch break office"]
 const LS_EXCLUDED_KEY = "whc_excluded_addresses"
 const LS_SELECTED_DAYS_KEY = "whc_selected_days"
+const LS_EXPORT_COLUMNS_KEY = "whc_export_columns"
+
+type ExportColumnKey = "hoursLogged" | "surplus" | "available" | "breakdown"
+type ExportColumns = Record<ExportColumnKey, boolean>
+
+const EXPORT_COLUMN_DEFS: { key: ExportColumnKey; label: string; weekOnly?: boolean }[] = [
+  { key: "hoursLogged", label: "Hours" },
+  { key: "surplus",     label: "Surplus",  weekOnly: true },
+  { key: "available",   label: "Available", weekOnly: true },
+  { key: "breakdown",   label: "Job site breakdown" },
+]
+
+function loadExportColumns(): ExportColumns {
+  const defaults: ExportColumns = { hoursLogged: true, surplus: true, available: true, breakdown: true }
+  try {
+    const raw = localStorage.getItem(LS_EXPORT_COLUMNS_KEY)
+    if (raw) return { ...defaults, ...JSON.parse(raw) }
+  } catch { /* */ }
+  return defaults
+}
 
 function loadExcluded(): string[] {
   try {
@@ -107,20 +128,23 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 // address — mirrors the on-screen expanded breakdown instead of flattening it.
 const ROW_BASE = 34, DAY_HEADER_H = 20, ADDR_H = 30, BLOCK_GAP = 6
 
-function blockHeight(days: JCDay[]): number {
+function blockHeight(days: JCDay[], showBreakdown: boolean): number {
   let h = ROW_BASE
-  for (const d of days) {
-    if (d.addresses.length === 0) continue
-    h += DAY_HEADER_H + d.addresses.length * ADDR_H
+  if (showBreakdown) {
+    for (const d of days) {
+      if (d.addresses.length === 0) continue
+      h += DAY_HEADER_H + d.addresses.length * ADDR_H
+    }
   }
   return h + BLOCK_GAP
 }
 
-// dayLabel: when provided → day mode (2 cols: name + hours for that day). Undefined → week mode (4 cols).
-function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string): HTMLCanvasElement {
+// dayLabel: when provided → day mode (name + hours for that day). Undefined → week mode (name + selected stat columns).
+// columns: which optional columns/sections to include, per the user's export column selection.
+function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const W = 860, padX = 40, padY = 36, thH = 40, titleH = 72, statsH = 72, footerH = 32
-  const blockHeights = results.map(r => blockHeight(r.days))
+  const blockHeights = results.map(r => blockHeight(r.days, columns.breakdown))
   const rowsH = blockHeights.reduce((s, h) => s + h, 0)
   const H = padY + titleH + statsH + thH + rowsH + padY + footerH
 
@@ -138,17 +162,24 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   const remainingLabel = rangeLabel(remainingDays)
   const isDayMode = !!dayLabel
 
-  const cols = isDayMode
-    ? [
-        { label: "Employee",            x: padX,       w: 560, align: "left"   as const },
-        { label: `Hours ${dayLabel}`,   x: padX + 560, w: 200, align: "center" as const },
-      ]
+  type Col = { key: string; label: string; x: number; w: number; align: "left" | "center" }
+  const contentW = W - padX * 2
+  const optional: { key: string; label: string; w: number }[] = isDayMode
+    ? (columns.hoursLogged ? [{ key: "hoursLogged", label: `Hours ${dayLabel}`, w: 200 }] : [])
     : [
-        { label: "Employee",                  x: padX,       w: 300, align: "left"   as const },
-        { label: `Hours ${pastLabel}`,        x: padX + 300, w: 150, align: "center" as const },
-        { label: "Surplus",                   x: padX + 450, w: 130, align: "center" as const },
-        { label: `${remainingLabel} Available`, x: padX + 580, w: 200, align: "center" as const },
+        ...(columns.hoursLogged ? [{ key: "hoursLogged", label: `Hours ${pastLabel}`, w: 150 }] : []),
+        ...(columns.surplus    ? [{ key: "surplus",    label: "Surplus",                       w: 130 }] : []),
+        ...(columns.available  ? [{ key: "available",  label: `${remainingLabel} Available`,    w: 200 }] : []),
       ]
+  const optionalW = optional.reduce((s, o) => s + o.w, 0)
+  const employeeW = contentW - optionalW
+  const cols: Col[] = [{ key: "employee", label: "Employee", x: padX, w: employeeW, align: "left" }]
+  let colCursor = padX + employeeW
+  for (const o of optional) {
+    cols.push({ key: o.key, label: o.label, x: colCursor, w: o.w, align: "center" })
+    colCursor += o.w
+  }
+  const col = (key: string) => cols.find(c => c.key === key)!
 
   ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H)
   ctx.fillStyle = CARD
@@ -188,9 +219,9 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   ctx.fillStyle = isDark ? "#111122" : "#f0f4ff"
   ctx.fillRect(padX - 16, ty, W - (padX - 16) * 2, thH)
   ctx.fillStyle = T2; ctx.font = `700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-  cols.forEach(col => {
-    if (col.align === "center") { ctx.textAlign = "center"; ctx.fillText(col.label.toUpperCase(), col.x + col.w / 2, ty + 24) }
-    else { ctx.textAlign = "left"; ctx.fillText(col.label.toUpperCase(), col.x, ty + 24) }
+  cols.forEach(c => {
+    if (c.align === "center") { ctx.textAlign = "center"; ctx.fillText(c.label.toUpperCase(), c.x + c.w / 2, ty + 24) }
+    else { ctx.textAlign = "left"; ctx.fillText(c.label.toUpperCase(), c.x, ty + 24) }
   })
   ctx.textAlign = "left"
   ctx.strokeStyle = BORDER; ctx.lineWidth = 1
@@ -205,36 +236,49 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
 
     const cy = ry + ROW_BASE / 2 + 5
     ctx.fillStyle = T1; ctx.font = `500 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-    ctx.textAlign = "left"; ctx.fillText(r.name, cols[0].x, cy)
-    ctx.fillStyle = T1; ctx.font = `700 14px monospace`; ctx.textAlign = "center"
-    ctx.fillText(`${r.hoursLogged}h`, cols[1].x + cols[1].w / 2, cy)
+    ctx.textAlign = "left"; ctx.fillText(r.name, col("employee").x, cy)
+    if (columns.hoursLogged) {
+      const c = col("hoursLogged")
+      ctx.fillStyle = T1; ctx.font = `700 14px monospace`; ctx.textAlign = "center"
+      ctx.fillText(`${r.hoursLogged}h`, c.x + c.w / 2, cy)
+    }
     if (!isDayMode) {
-      ctx.fillStyle = r.surplus > 0 ? RED : r.surplus < 0 ? GREEN : T2
-      ctx.font = `700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-      ctx.fillText(`${r.surplus > 0 ? "+" : ""}${r.surplus}h`, cols[2].x + cols[2].w / 2, cy)
-      ctx.fillStyle = r.available === 0 ? RED : T1; ctx.font = `700 14px monospace`
-      ctx.fillText(`${r.available}h`, cols[3].x + cols[3].w / 2, cy)
+      if (columns.surplus) {
+        const c = col("surplus")
+        ctx.fillStyle = r.surplus > 0 ? RED : r.surplus < 0 ? GREEN : T2
+        ctx.font = `700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+        ctx.textAlign = "center"
+        ctx.fillText(`${r.surplus > 0 ? "+" : ""}${r.surplus}h`, c.x + c.w / 2, cy)
+      }
+      if (columns.available) {
+        const c = col("available")
+        ctx.fillStyle = r.available === 0 ? RED : T1; ctx.font = `700 14px monospace`
+        ctx.textAlign = "center"
+        ctx.fillText(`${r.available}h`, c.x + c.w / 2, cy)
+      }
     }
     ctx.textAlign = "left"
 
     // Day → job site breakdown, indented under the employee line.
-    let dy = ry + ROW_BASE
-    for (const day of r.days) {
-      if (day.addresses.length === 0) continue
-      ctx.fillStyle = T2; ctx.font = `700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-      ctx.fillText(`${day.day.toUpperCase()} ${day.date}  ·  ${day.totalHours}h`, padX + 16, dy + 13)
-      dy += DAY_HEADER_H
-      for (const addr of day.addresses) {
-        ctx.fillStyle = T1; ctx.font = `500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-        ctx.textAlign = "left"; ctx.fillText(addr.path[0], padX + 28, dy + 12)
-        if (addr.path.length > 1) {
-          ctx.fillStyle = T2; ctx.font = `10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-          ctx.fillText(addr.path.slice(1).join(" › "), padX + 28, dy + 24)
+    if (columns.breakdown) {
+      let dy = ry + ROW_BASE
+      for (const day of r.days) {
+        if (day.addresses.length === 0) continue
+        ctx.fillStyle = T2; ctx.font = `700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+        ctx.fillText(`${day.day.toUpperCase()} ${day.date}  ·  ${day.totalHours}h`, padX + 16, dy + 13)
+        dy += DAY_HEADER_H
+        for (const addr of day.addresses) {
+          ctx.fillStyle = T1; ctx.font = `500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+          ctx.textAlign = "left"; ctx.fillText(addr.path[0], padX + 28, dy + 12)
+          if (addr.path.length > 1) {
+            ctx.fillStyle = T2; ctx.font = `10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+            ctx.fillText(addr.path.slice(1).join(" › "), padX + 28, dy + 24)
+          }
+          ctx.fillStyle = T1; ctx.font = `700 11px monospace`; ctx.textAlign = "right"
+          ctx.fillText(`${addr.hours}h`, W - padX + 16, dy + 12)
+          ctx.textAlign = "left"
+          dy += ADDR_H
         }
-        ctx.fillStyle = T1; ctx.font = `700 11px monospace`; ctx.textAlign = "right"
-        ctx.fillText(`${addr.hours}h`, W - padX + 16, dy + 12)
-        ctx.textAlign = "left"
-        dy += ADDR_H
       }
     }
 
@@ -247,15 +291,15 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   return canvas
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, dayLabel)
+function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, columns, dayLabel)
   const link = document.createElement("a")
   link.download = `weekly-hours-${new Date().toISOString().split("T")[0]}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
 }
 
-function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], dayLabel?: string) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, dayLabel)
+function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, columns, dayLabel)
   const dataUrl = canvas.toDataURL("image/png")
   const win = window.open("", "_blank")
   if (!win) return
@@ -301,10 +345,19 @@ export default function WeeklyHoursControlPage() {
   const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set())
   const [selectedDays, setSelectedDays] = useState<Set<string>>(() => loadSelectedDays())
   const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
+  const [exportColumns, setExportColumns] = useState<ExportColumns>(() => loadExportColumns())
 
   useEffect(() => {
     try { localStorage.setItem(LS_FORMAT_KEY, hourFormat) } catch { /* */ }
   }, [hourFormat])
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_EXPORT_COLUMNS_KEY, JSON.stringify(exportColumns)) } catch { /* */ }
+  }, [exportColumns])
+
+  function toggleExportColumn(key: ExportColumnKey) {
+    setExportColumns(prev => ({ ...prev, [key]: !prev[key] }))
+  }
 
   useEffect(() => {
     try { localStorage.setItem(LS_SELECTED_DAYS_KEY, JSON.stringify([...selectedDays])) } catch { /* */ }
@@ -570,13 +623,29 @@ export default function WeeklyHoursControlPage() {
                     Export
                   </Button>
                 } />
-                <PopoverContent className="w-fit p-2" align="end">
+                <PopoverContent className="w-56 p-2" align="end">
+                  <div className="flex flex-col gap-1">
+                    <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Columns</p>
+                    {EXPORT_COLUMN_DEFS.filter(def => isWeekMode || !def.weekOnly).map(def => (
+                      <label
+                        key={def.key}
+                        className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-xs hover:bg-muted/50"
+                      >
+                        <Checkbox
+                          checked={exportColumns[def.key]}
+                          onCheckedChange={() => toggleExportColumn(def.key)}
+                        />
+                        {def.label}
+                      </label>
+                    ))}
+                  </div>
+                  <div className="my-2 h-px bg-border" />
                   <div className="flex flex-col gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)}
+                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
                     >
                       <ImageIcon className="h-4 w-4" />
                       Image (PNG)
@@ -585,7 +654,7 @@ export default function WeeklyHoursControlPage() {
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)}
+                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
                     >
                       <FileText className="h-4 w-4" />
                       PDF
@@ -719,7 +788,7 @@ export default function WeeklyHoursControlPage() {
                               const filtered = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
                               return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
                             })
-                            exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, isWeekMode ? undefined : selectedDaysLabel)
+                            exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)
                           }}
                           className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
