@@ -1,5 +1,6 @@
 import { api } from "@/lib/api"
 import { useAuthStore } from "@/store/auth.store"
+import type { Company } from "@/lib/company"
 
 function getToken() {
   return useAuthStore.getState().token ?? ""
@@ -29,6 +30,7 @@ export interface SubDocContractor {
   email: string
   phone: string
   notes: string
+  company: Company | null
   archived: boolean
   records: SubDocRecord[]
   next_expiry: string | null
@@ -45,10 +47,10 @@ export const subcontractorDocsService = {
       getToken(),
     ).then(r => r ?? []),
 
-  createContractor: (body: { name: string; email: string; phone: string; notes: string }) =>
+  createContractor: (body: { name: string; email: string; phone: string; notes: string; company: Company }) =>
     api.post<{ id: number }>(`/api/v1/subcontractor-docs/contractors`, body, getToken()),
 
-  updateContractor: (id: number, body: { name: string; email: string; phone: string; notes: string }) =>
+  updateContractor: (id: number, body: { name: string; email: string; phone: string; notes: string; company: Company }) =>
     api.put(`/api/v1/subcontractor-docs/contractors/${id}`, body, getToken()),
 
   deleteContractor: (id: number) =>

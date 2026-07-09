@@ -194,11 +194,14 @@ func expiryLess(a, b *SubDocContractor) bool {
 }
 
 type contractorBody struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-	Notes string `json:"notes"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Notes   string `json:"notes"`
+	Company string `json:"company"`
 }
+
+var validSubDocCompanies = map[string]bool{"hvac": true, "framing": true, "pcg": true}
 
 // POST /subcontractor-docs/contractors
 func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
@@ -209,11 +212,14 @@ func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
 	if b.Name == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "name is required")
 	}
+	if !validSubDocCompanies[b.Company] {
+		return fiber.NewError(fiber.StatusBadRequest, "company must be one of hvac|framing|pcg")
+	}
 	var id int
 	err := h.db.QueryRow(c.Context(), `
-		INSERT INTO sub_doc_contractors (name, email, phone, notes)
-		VALUES ($1,$2,$3,$4) RETURNING id
-	`, b.Name, b.Email, b.Phone, b.Notes).Scan(&id)
+		INSERT INTO sub_doc_contractors (name, email, phone, notes, company)
+		VALUES ($1,$2,$3,$4,$5) RETURNING id
+	`, b.Name, b.Email, b.Phone, b.Notes, b.Company).Scan(&id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -230,10 +236,13 @@ func (h *SubcontractorDocsHandler) UpdateContractor(c *fiber.Ctx) error {
 	if b.Name == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "name is required")
 	}
+	if !validSubDocCompanies[b.Company] {
+		return fiber.NewError(fiber.StatusBadRequest, "company must be one of hvac|framing|pcg")
+	}
 	_, err := h.db.Exec(c.Context(), `
-		UPDATE sub_doc_contractors SET name=$1, email=$2, phone=$3, notes=$4, updated_at=now()
-		WHERE id=$5
-	`, b.Name, b.Email, b.Phone, b.Notes, id)
+		UPDATE sub_doc_contractors SET name=$1, email=$2, phone=$3, notes=$4, company=$5, updated_at=now()
+		WHERE id=$6
+	`, b.Name, b.Email, b.Phone, b.Notes, b.Company, id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
