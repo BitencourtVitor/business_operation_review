@@ -123,6 +123,24 @@ func RequireCronOrAdmin(cronSecret string, authSvc *service.AuthService) fiber.H
 	}
 }
 
+// RequireServiceSecret allows the request only if the X-Service-Secret header
+// matches secret. For trusted machine-to-machine callers (e.g. AutoAccounting)
+// that need no user session — deliberately separate from the cron secret so
+// the two blast radiuses don't overlap.
+func RequireServiceSecret(secret string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if secret == "" || c.Get("X-Service-Secret") != secret {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "missing or invalid service secret",
+				"code":  "UNAUTHORIZED",
+			})
+		}
+		c.Locals("userID", "service")
+		c.Locals("userRole", "service")
+		return c.Next()
+	}
+}
+
 func extractToken(c *fiber.Ctx) (string, error) {
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {

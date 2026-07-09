@@ -303,7 +303,7 @@ func main() {
 				clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
 					RealmID: realm, AccessToken: at,
 					RefreshToken: rt, ClientID: cid, ClientSecret: csec,
-				}, qbTriggerSandbox))
+				}, qbTriggerSandbox).WithRefresher(qbOAuthService))
 			}
 			if len(clients) == 0 {
 				logger.Error("qb sync trigger: no companies with valid tokens")
@@ -579,6 +579,7 @@ func main() {
 	qb.Get("/auth",     middleware.RequireAuth(), qbHandler.Auth)
 	qb.Get("/callback", qbHandler.Callback)
 	qb.Post("/refresh", middleware.RequireAuth(), qbHandler.Refresh)
+	qb.Get("/token",    middleware.RequireServiceSecret(cfg.App.AutoAccountingServiceSecret), qbHandler.Token)
 	qb.Post("/seed",    qbHandler.Seed) // internal bootstrap — no user session needed
 
 	// ── Background Jobs ──────────────────────────────────────────────────────

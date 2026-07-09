@@ -53,7 +53,7 @@ func main() {
 		clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
 			RealmID:     realmID,
 			AccessToken: accessToken,
-		}, false))
+		}, false).WithRefresher(oauth))
 		fmt.Printf("  ✓  %-10s token ok\n", company)
 	}
 	if len(clients) == 0 {

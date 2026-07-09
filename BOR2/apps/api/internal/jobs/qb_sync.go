@@ -45,7 +45,7 @@ func NewQBSyncJob(cfg QBSyncConfig) Job {
 						ClientSecret: clientSecret,
 					},
 					cfg.Sandbox,
-				))
+				).WithRefresher(cfg.OAuthSvc))
 			}
 
 			if len(clients) == 0 {
