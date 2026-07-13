@@ -32,7 +32,7 @@ type periodTSItem struct {
 	End       string `json:"end"`
 	Duration  int    `json:"duration"`
 	Date      string `json:"date"`
-	Type      string `json:"type"`   // "regular" | "break"
+	Type      string `json:"type"`   // "regular" | "manual" (manual = PTO/holiday/sick)
 	Active    bool   `json:"active"` // false = deleted in QB Time
 }
 
@@ -437,15 +437,6 @@ func (s *PeriodReportService) fetchTimesheetsLive(ctx context.Context, company, 
 			continue
 		}
 		path := resolveJobcodePathPR(ts.JobcodeID, nameByID, parentByID)
-		isPaid := ts.Type == "regular"
-		if ts.Type == "break" {
-			for _, p := range path {
-				if strings.Contains(strings.ToLower(p), "paid") {
-					isPaid = true
-					break
-				}
-			}
-		}
 		rows = append(rows, domain.QBTimesheetRow{
 			Company:     company,
 			QBTID:       int64(ts.ID),
@@ -458,7 +449,10 @@ func (s *PeriodReportService) fetchTimesheetsLive(ctx context.Context, company, 
 			End:         ts.End,
 			DurationMin: ts.Duration / 60,
 			Type:        ts.Type,
-			IsPaid:      isPaid,
+			// Everything is paid at the base level; the operator's unpaid-address
+			// list (the Paid/Unpaid modal) is the single source of truth for what
+			// gets excluded — QB Time's type is no longer used to guess this.
+			IsPaid: true,
 		})
 	}
 	return rows, nil
@@ -538,15 +532,6 @@ func (s *PeriodReportService) fetchTimesheetsDelta(ctx context.Context, company 
 			continue
 		}
 		path := resolveJobcodePathPR(ts.JobcodeID, nameByID, parentByID)
-		isPaid := ts.Type == "regular"
-		if ts.Type == "break" {
-			for _, p := range path {
-				if strings.Contains(strings.ToLower(p), "paid") {
-					isPaid = true
-					break
-				}
-			}
-		}
 		result.upserts = append(result.upserts, domain.QBTimesheetRow{
 			Company:     company,
 			QBTID:       int64(ts.ID),
@@ -559,7 +544,10 @@ func (s *PeriodReportService) fetchTimesheetsDelta(ctx context.Context, company 
 			End:         ts.End,
 			DurationMin: ts.Duration / 60,
 			Type:        ts.Type,
-			IsPaid:      isPaid,
+			// Everything is paid at the base level; the operator's unpaid-address
+			// list (the Paid/Unpaid modal) is the single source of truth for what
+			// gets excluded — QB Time's type is no longer used to guess this.
+			IsPaid: true,
 		})
 	}
 	return result, nil
@@ -575,9 +563,10 @@ func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, st
 		if r.UserName == "" {
 			continue
 		}
-		// Operator override (Pillar 2): a flagged address forces unpaid regardless
-		// of the QB Time type.
-		effectivePaid := r.IsPaid && !unpaid[joinPathPR(r.JobcodePath)]
+		// The Paid/Unpaid modal is the single source of truth: an address counts
+		// unless the operator flagged it unpaid. QB Time's type/name is not used to
+		// guess paid state anymore (that silently dropped "Holiday Paid" hours).
+		effectivePaid := !unpaid[joinPathPR(r.JobcodePath)]
 
 		key := empDateKey{r.UserName, r.WorkDate}
 		blocksMap[key] = append(blocksMap[key], domain.PeriodBlock{
