@@ -33,4 +33,10 @@ COPY --from=builder /app/ofi-cron .
 
 EXPOSE 8080
 
-CMD ["./api"]
+# This image bakes in three binaries (api, qbtime-sync-cron, ofi-cron) and is
+# reused by three Railway services. A Dockerfile build ignores each service's
+# start-command override, so the process to run is selected at runtime from the
+# START_BIN env var (a persisted per-service variable). Unset ⇒ the HTTP API.
+# This is deliberate: relying on Railway's start-command override silently booted
+# ./api on the cron services, which panic for lack of DATABASE_URL.
+ENTRYPOINT ["/bin/sh", "-c", "exec ./${START_BIN:-api}"]
