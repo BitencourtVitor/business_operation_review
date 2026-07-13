@@ -3,8 +3,12 @@ builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 watchPatterns = ["BOR2/apps/api/**"]
 
+# No startCommand here: this config is shared by three services that build the
+# same image (API, qbtime-sync-cron, ofi-cron). A single startCommand would force
+# every service to run one binary (it forced ./api, so the cron services panicked
+# for lack of DATABASE_URL). The binary is instead chosen by the Dockerfile
+# ENTRYPOINT from each service's START_BIN env var (unset ⇒ ./api).
 [deploy]
-startCommand = "./api"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
