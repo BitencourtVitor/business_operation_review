@@ -20,8 +20,8 @@ type PeriodBlock struct {
 	End             string   `json:"end"`             // ISO 8601
 	DurationMinutes int      `json:"durationMinutes"`
 	JobcodePath     []string `json:"jobcodePath"` // full hierarchy from root to leaf
-	Type            string   `json:"type"`        // "regular" | "break"
-	IsPaid          bool     `json:"isPaid"`
+	Type            string   `json:"type"`        // "regular" | "manual" (manual = PTO/holiday/sick)
+	IsPaid          bool     `json:"isPaid"`      // effective: false only when the address is flagged unpaid in the modal
 }
 
 type PeriodDay struct {

@@ -16,8 +16,8 @@ type QBTimesheetRow struct {
 	Start       string // ISO 8601
 	End         string // ISO 8601
 	DurationMin int
-	Type        string // "regular" | "break"
-	IsPaid      bool
+	Type        string // "regular" | "manual" (manual = PTO/holiday/sick)
+	IsPaid      bool   // base state (always true); the unpaid-address override is the real gate
 }
 
 type QBPayrollRow struct {
