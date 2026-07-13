@@ -142,25 +142,21 @@ func RequireServiceSecret(secret string) fiber.Handler {
 }
 
 func extractToken(c *fiber.Ctx) (string, error) {
+	// Return a fiber.Error (not c.Status().JSON(), which returns nil and would let
+	// the caller fall through to c.Next() — that was an auth bypass: the handler
+	// ran anyway, leaking data/executing writes behind a spurious 401). Callers do
+	// `if err != nil { return err }`, so a non-nil error aborts the chain and the
+	// errorHandler renders it.
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {
-		return "", c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "missing authorization header",
-			"code":  "UNAUTHORIZED",
-		})
+		return "", fiber.NewError(fiber.StatusUnauthorized, "missing authorization header")
 	}
 	parts := strings.SplitN(authHeader, " ", 2)
 	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
-		return "", c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid authorization header format",
-			"code":  "UNAUTHORIZED",
-		})
+		return "", fiber.NewError(fiber.StatusUnauthorized, "invalid authorization header format")
 	}
 	if parts[1] == "" {
-		return "", c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "missing token",
-			"code":  "UNAUTHORIZED",
-		})
+		return "", fiber.NewError(fiber.StatusUnauthorized, "missing token")
 	}
 	return parts[1], nil
 }
