@@ -137,7 +137,11 @@ func (s *PeriodReportService) backgroundRefresh(company string) {
 		}()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
-		_ = s.SyncCompany(ctx, company, 14)
+		// Full window (>14 ⇒ ReplaceTimesheets wholesale, with the anti-zero guard)
+		// rather than a delta: opening the report then reconciles the recent window
+		// and self-heals any drift, so a stalled daily cron can't leave the cache
+		// silently frozen — which is exactly how it went dark for a week.
+		_ = s.SyncCompany(ctx, company, 21)
 	}()
 }
 

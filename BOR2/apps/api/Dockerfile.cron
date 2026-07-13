@@ -1,0 +1,28 @@
+# Dedicated image for the qbtime-sync-cron Railway Cron Job service.
+#
+# The shared Dockerfile ends with `CMD ["./api"]`, and the cron service relied on
+# a Railway start-command override to run ./qbtime-sync-cron instead. That
+# override silently stopped applying on a project-wide redeploy, so the cron
+# container booted ./api, which panics for lack of DATABASE_URL — the daily sync
+# went dark for a week without any error surfacing. This image bakes the cron
+# binary in as CMD so the correct process runs regardless of any start-command
+# setting. Point the cron service at it with RAILWAY_DOCKERFILE_PATH=Dockerfile.cron.
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o qbtime-sync-cron ./cmd/qbtime-sync-cron
+
+FROM alpine:3.21
+
+RUN apk --no-cache add ca-certificates tzdata
+
+WORKDIR /root/
+
+COPY --from=builder /app/qbtime-sync-cron .
+
+CMD ["./qbtime-sync-cron"]
