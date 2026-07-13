@@ -201,6 +201,43 @@ func main() {
 	auth.Get("/me", middleware.RequireAuth(), authHandler.Me)
 	auth.Post("/change-password", middleware.RequireAuth(), authHandler.ChangePassword)
 
+	// ── Cron-guarded routes (X-Cron-Secret or admin session; NO user session) ────
+	// Registered BEFORE the RequireAuth group below so the positional auth
+	// middleware never enters their chain — the scheduler calls these with only the
+	// cron secret and no Bearer token. (Registering them after RequireAuth tainted
+	// the response with a 401 even though the handler ran.)
+	qbTriggerSyncer := quickbooks.NewSyncer(db)
+	qbTriggerSandbox := cfg.App.Env != "production"
+	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
+	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
+	v1.Post("/ofi/calculate", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), ofiHandler.Calculate)
+	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
+		go func() {
+			ctx := context.Background()
+			var clients []*quickbooks.Client
+			for _, company := range quickbooks.AllCompanies {
+				at, rt, realm, cid, csec, err := qbOAuthService.SyncClientConfig(ctx, string(company))
+				if err != nil {
+					logger.Error("qb sync trigger: token unavailable", "company", company, "error", err)
+					continue
+				}
+				clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
+					RealmID: realm, AccessToken: at,
+					RefreshToken: rt, ClientID: cid, ClientSecret: csec,
+				}, qbTriggerSandbox).WithRefresher(qbOAuthService))
+			}
+			if len(clients) == 0 {
+				logger.Error("qb sync trigger: no companies with valid tokens")
+				return
+			}
+			logger.Info("qb sync trigger: starting", "companies", len(clients))
+			qbTriggerSyncer.SyncAll(ctx, clients)
+			qbTriggerSyncer.ReconcileDeletions(ctx, clients, quickbooks.ReconcileEntities)
+			logger.Info("qb sync trigger: done")
+		}()
+		return c.JSON(fiber.Map{"status": "sync started"})
+	})
+
 	// Protected routes
 	api := v1.Group("", middleware.RequireAuth())
 
@@ -282,43 +319,8 @@ func main() {
 	api.Get("/qbtime/period-report/addresses",          periodReportHandler.ListAddresses)
 	api.Post("/qbtime/period-report/unpaid-addresses",  periodReportHandler.SetUnpaidAddress)
 	api.Post("/qbtime/period-report/refresh",           periodReportHandler.Refresh)
-	// Sync is cron-guarded (outside RequireAuth) so the scheduler can refresh the cache.
-	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
-
-	// QuickBooks full sync trigger (admin/cron) — runs in the background using the
-	// DB-stored OAuth tokens. Re-fetches each entity (incremental unless its sync
-	// state was reset). Returns immediately.
-	qbTriggerSyncer := quickbooks.NewSyncer(db)
-	qbTriggerSandbox := cfg.App.Env != "production"
-	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
-		go func() {
-			ctx := context.Background()
-			var clients []*quickbooks.Client
-			for _, company := range quickbooks.AllCompanies {
-				at, rt, realm, cid, csec, err := qbOAuthService.SyncClientConfig(ctx, string(company))
-				if err != nil {
-					logger.Error("qb sync trigger: token unavailable", "company", company, "error", err)
-					continue
-				}
-				clients = append(clients, quickbooks.NewClient(company, quickbooks.CompanyConfig{
-					RealmID: realm, AccessToken: at,
-					RefreshToken: rt, ClientID: cid, ClientSecret: csec,
-				}, qbTriggerSandbox).WithRefresher(qbOAuthService))
-			}
-			if len(clients) == 0 {
-				logger.Error("qb sync trigger: no companies with valid tokens")
-				return
-			}
-			logger.Info("qb sync trigger: starting", "companies", len(clients))
-			qbTriggerSyncer.SyncAll(ctx, clients)
-			qbTriggerSyncer.ReconcileDeletions(ctx, clients, quickbooks.ReconcileEntities)
-			logger.Info("qb sync trigger: done")
-		}()
-		return c.JSON(fiber.Map{"status": "sync started"})
-	})
-
-	// QBTime Workforce Import — cron-callable (X-Cron-Secret) or admin session
-	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
+	// (period-report/sync, workforce-import, qb/sync are cron-guarded and
+	// registered above, before the RequireAuth group.)
 
 	// QBTime Exceptions
 	qbtimeExceptions := api.Group("/qbtime/exceptions")
@@ -377,8 +379,7 @@ func main() {
 	ofi.Get("/",                        ofiHandler.List)
 	ofi.Get("/monthly-execution",       ofiHandler.ListExecution)
 	ofi.Patch("/monthly-execution/:id", ofiHandler.UpdateExecutionReason)
-	// POST /calculate is outside RequireAuth so the cron binary can call it with X-Cron-Secret
-	v1.Post("/ofi/calculate", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), ofiHandler.Calculate)
+	// (/ofi/calculate is cron-guarded and registered above, before RequireAuth.)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")
@@ -631,8 +632,19 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	if errors.As(err, &e) {
 		code = e.Code
 	}
+	codeStr := "INTERNAL_ERROR"
+	switch code {
+	case fiber.StatusBadRequest:
+		codeStr = "BAD_REQUEST"
+	case fiber.StatusUnauthorized:
+		codeStr = "UNAUTHORIZED"
+	case fiber.StatusForbidden:
+		codeStr = "FORBIDDEN"
+	case fiber.StatusNotFound:
+		codeStr = "NOT_FOUND"
+	}
 	return c.Status(code).JSON(fiber.Map{
 		"error": err.Error(),
-		"code":  "INTERNAL_ERROR",
+		"code":  codeStr,
 	})
 }
