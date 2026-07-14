@@ -25,7 +25,7 @@ import {
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
   useArchiveSubDocContractor,
 } from "@/hooks/use-subcontractor-docs"
-import type { SubDocContractor, SubDocRecord, SubDocType, DocStatus, Urgency } from "@/services/subcontractor-docs.service"
+import type { SubDocContractor, SubDocRecord, SubDocType, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -36,6 +36,18 @@ const URGENCY_META: Record<Urgency, { label: string; text: string; border: strin
   ok:      { label: "Current",   text: "text-emerald-500", border: "border-emerald-500/30", bg: "bg-emerald-500/[0.04]", dot: "bg-emerald-500" },
   none:    { label: "No date on file", text: "text-muted-foreground", border: "border-border/50", bg: "bg-card/40", dot: "bg-muted-foreground/40" },
 }
+
+// Lifecycle groups — the split Amanda asked for: a sub that just let a doc
+// lapse (Pending, derived automatically) is not the same as one that no longer
+// works with the company (Off-boarded, the manual archive flag).
+const LIFECYCLE_META: Record<Lifecycle, { label: string; hint: string; text: string; border: string; bg: string; dot: string }> = {
+  pending:  { label: "Pending",      hint: "Docs missing or expired — needs to regularize",  text: "text-amber-500",           border: "border-amber-500/40",  bg: "bg-amber-500/[0.06]",  dot: "bg-amber-500" },
+  active:   { label: "Active",       hint: "All required docs on file and current",           text: "text-emerald-500",         border: "border-emerald-500/40", bg: "bg-emerald-500/[0.05]", dot: "bg-emerald-500" },
+  inactive: { label: "Off-boarded",  hint: "No longer works with the company",                text: "text-muted-foreground",    border: "border-border/60",     bg: "bg-muted/30",          dot: "bg-muted-foreground/50" },
+}
+
+// Order the groups render in: problems first, then healthy, then archived.
+const LIFECYCLE_ORDER: Lifecycle[] = ["pending", "active", "inactive"]
 
 const STATUS_META: Record<DocStatus, { label: string; icon: React.ElementType; color: string }> = {
   missing:        { label: "Missing",   icon: HelpCircle,  color: "text-muted-foreground/50" },
@@ -237,20 +249,24 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
   onEdit: () => void; onDelete: () => void
 }) {
   const meta = URGENCY_META[ctr.urgency]
+  const life = LIFECYCLE_META[ctr.status]
   const recordsByType = Object.fromEntries(ctr.records.map(r => [r.doc_type, r]))
   const archive = useArchiveSubDocContractor()
 
   return (
-    <div className={cn("shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40", ctr.archived && "opacity-50")}>
+    <div className={cn("shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40", ctr.archived && "opacity-60")}>
       <div className="flex items-center gap-3 px-4 py-2.5">
-        <span className={cn("h-2 w-2 shrink-0 rounded-full", meta.dot)} title={meta.label} />
+        <span title={life.hint}
+          className={cn("flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold", life.border, life.bg, life.text)}>
+          <span className={cn("h-1.5 w-1.5 rounded-full", life.dot)} />
+          {life.label}
+        </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 truncate text-sm font-semibold leading-tight">
             {ctr.name}
             {ctr.company
               ? <CompanyLogo company={ctr.company} className="h-3.5 w-auto shrink-0" />
               : <span className="shrink-0 text-[10px] font-medium text-muted-foreground/50">No company</span>}
-            {ctr.archived && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">· Archived</span>}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email || "—"}</span>
@@ -265,7 +281,7 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
           <Pencil className="h-3 w-3" />
         </button>
         <button onClick={() => archive.mutate({ id: ctr.id, archived: !ctr.archived })} disabled={archive.isPending}
-          title={ctr.archived ? "Unarchive subcontractor" : "Archive subcontractor"}
+          title={ctr.archived ? "Restore — mark active again" : "Off-board — no longer works with us"}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50">
           {ctr.archived ? <ArchiveRestore className="h-3 w-3" /> : <Archive className="h-3 w-3" />}
         </button>
@@ -537,10 +553,10 @@ function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocTy
   const [open, setOpen] = useState(false)
 
   const exportExcel = () => {
-    const header = ["Name", "Email", "Phone", "Status", ...types.map(t => t.label)]
+    const header = ["Name", "Email", "Phone", "Status", "Compliance", ...types.map(t => t.label)]
     const data = [header, ...rows.map(c => {
       const byType = Object.fromEntries(c.records.map(r => [r.doc_type, r]))
-      return [c.name, c.email, c.phone, URGENCY_META[c.urgency].label,
+      return [c.name, c.email, c.phone, LIFECYCLE_META[c.status].label, URGENCY_META[c.urgency].label,
         ...types.map(t => docSummary(byType[t.key], t.has_expiry))]
     })]
     const ws = XLSX.utils.aoa_to_sheet(data)
@@ -555,6 +571,7 @@ function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocTy
       const byType = Object.fromEntries(c.records.map(r => [r.doc_type, r]))
       return `<tr>
         <td>${c.name}</td><td>${c.email || "—"}</td><td>${c.phone || "—"}</td>
+        <td>${LIFECYCLE_META[c.status].label}</td>
         <td>${URGENCY_META[c.urgency].label}</td>
         ${types.map(t => `<td>${docSummary(byType[t.key], t.has_expiry)}</td>`).join("")}
       </tr>`
@@ -573,7 +590,7 @@ td{padding:5px 8px;border:1px solid #e5e7eb}
 </style></head><body>
 <h1>Subcontractor Docs</h1>
 <div class="sub">Generated ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} — ${rows.length} subcontractors</div>
-<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th>${types.map(t => `<th>${t.label}</th>`).join("")}</tr></thead>
+<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Compliance</th>${types.map(t => `<th>${t.label}</th>`).join("")}</tr></thead>
 <tbody>${rowsHtml}</tbody></table>
 </body></html>`
     const win = window.open("", "_blank", "width=1100,height=800")
@@ -681,7 +698,7 @@ export default function SubcontractorDocsPage() {
               <span className={cn("flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border", showArchived ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
                 {showArchived && <Check className="h-2.5 w-2.5" />}
               </span>
-              Show archived
+              Show off-boarded
             </button>
             <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
               <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
@@ -711,11 +728,26 @@ export default function SubcontractorDocsPage() {
               <EmptyTitle>No subcontractors found.</EmptyTitle>
             </Empty>
           ) : (
-            <div className="flex flex-col gap-3">
-              {rows.map(ctr => (
-                <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []}
-                  onEdit={() => setEditing(ctr)} onDelete={() => setDeleting(ctr)} />
-              ))}
+            <div className="flex flex-col gap-6">
+              {LIFECYCLE_ORDER.map(status => {
+                const group = rows.filter(c => c.status === status)
+                if (group.length === 0) return null
+                const gMeta = LIFECYCLE_META[status]
+                return (
+                  <div key={status} className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("h-1.5 w-1.5 rounded-full", gMeta.dot)} />
+                      <span className={cn("text-xs font-semibold uppercase tracking-wider", gMeta.text)}>{gMeta.label}</span>
+                      <span className="text-xs text-muted-foreground">{group.length}</span>
+                      <span className="text-[11px] text-muted-foreground/60">· {gMeta.hint}</span>
+                    </div>
+                    {group.map(ctr => (
+                      <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []}
+                        onEdit={() => setEditing(ctr)} onDelete={() => setDeleting(ctr)} />
+                    ))}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ function getToken() {
 
 export type DocStatus = "missing" | "requested" | "received" | "not_applicable"
 export type Urgency = "expired" | "urgent" | "soon" | "ok" | "none"
+export type Lifecycle = "active" | "pending" | "inactive"
 
 export interface SubDocType {
   key: string
@@ -35,6 +36,7 @@ export interface SubDocContractor {
   records: SubDocRecord[]
   next_expiry: string | null
   urgency: Urgency
+  status: Lifecycle
 }
 
 export const subcontractorDocsService = {

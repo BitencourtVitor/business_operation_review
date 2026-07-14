@@ -88,6 +88,41 @@ type SubDocContractor struct {
 	Records    []SubDocRecord `json:"records"`
 	NextExpiry *string        `json:"next_expiry"`
 	Urgency    string         `json:"urgency"`
+	Status     string         `json:"status"` // active | pending | inactive — see lifecycleFor
+}
+
+// Lifecycle buckets — the "arquivado vs ativo" split Amanda asked to widen.
+// Off-boarded (manual archive) is one thing; a sub that just let a doc lapse is
+// another. We derive "pending" automatically from the docs she already feeds so
+// she never has to hand-maintain a third status.
+const (
+	LifecycleActive   = "active"   // every required doc received & current
+	LifecyclePending  = "pending"  // still a sub, but a required doc is missing/expired
+	LifecycleInactive = "inactive" // archived — no longer works with the company
+)
+
+// docSatisfied: a doc type is "in order" when it's marked N/A, or it's received
+// and (for dated docs) not past expiry. Missing/requested/expired counts against
+// the sub being fully Active — matching "eles ficam inativos até mandar todos os
+// documentos".
+func docSatisfied(rec SubDocRecord, hasExpiry bool, today time.Time) bool {
+	if rec.Status == "not_applicable" {
+		return true
+	}
+	if rec.Status != "received" {
+		return false
+	}
+	if !hasExpiry {
+		return true
+	}
+	if rec.ExpiryDate == nil {
+		return false
+	}
+	exp, err := time.Parse("2006-01-02", *rec.ExpiryDate)
+	if err != nil {
+		return false
+	}
+	return !exp.Before(today)
 }
 
 // GET /subcontractor-docs/contractors
@@ -95,6 +130,23 @@ type SubDocContractor struct {
 // next surfaces at the top instead of being buried in a flat spreadsheet.
 func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	includeArchived := c.Query("include_archived") == "true"
+
+	// Required doc types — needed to tell "fully in order" (Active) from a sub
+	// with an outstanding/expired doc (Pending), including doc types with no
+	// record row at all (implicitly Missing).
+	typeRows, err := h.db.Query(c.Context(), `SELECT key, has_expiry FROM sub_doc_types`)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	docTypeHasExpiry := map[string]bool{}
+	for typeRows.Next() {
+		var key string
+		var hasExpiry bool
+		typeRows.Scan(&key, &hasExpiry)
+		docTypeHasExpiry[key] = hasExpiry
+	}
+	typeRows.Close()
+
 	query := `SELECT id, company, name, email, phone, notes, archived FROM sub_doc_contractors`
 	if !includeArchived {
 		query += ` WHERE archived = false`
@@ -160,11 +212,34 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	for _, ctr := range out {
 		if ctr.NextExpiry == nil {
 			ctr.Urgency = UrgencyNone
-			continue
+		} else {
+			exp, _ := time.Parse("2006-01-02", *ctr.NextExpiry)
+			days := int(exp.Sub(today).Hours() / 24)
+			ctr.Urgency = urgencyFor(days, true)
 		}
-		exp, _ := time.Parse("2006-01-02", *ctr.NextExpiry)
-		days := int(exp.Sub(today).Hours() / 24)
-		ctr.Urgency = urgencyFor(days, true)
+
+		switch {
+		case ctr.Archived:
+			ctr.Status = LifecycleInactive
+		default:
+			recByType := make(map[string]SubDocRecord, len(ctr.Records))
+			for _, r := range ctr.Records {
+				recByType[r.DocType] = r
+			}
+			outstanding := false
+			for key, hasExpiry := range docTypeHasExpiry {
+				rec, ok := recByType[key]
+				if !ok || !docSatisfied(rec, hasExpiry, today) {
+					outstanding = true
+					break
+				}
+			}
+			if outstanding {
+				ctr.Status = LifecyclePending
+			} else {
+				ctr.Status = LifecycleActive
+			}
+		}
 	}
 
 	sortByUrgency(out)
