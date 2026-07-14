@@ -238,6 +238,17 @@ func main() {
 		return c.JSON(fiber.Map{"status": "sync started"})
 	})
 
+	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect;
+	// /token uses a service secret for machine-to-machine calls like AutoAccounting).
+	// Registered before the catch-all RequireAuth below so /token and /seed aren't
+	// blocked by user-session auth they were never meant to require.
+	qb := v1.Group("/qb")
+	qb.Get("/auth",     middleware.RequireAuth(), qbHandler.Auth)
+	qb.Get("/callback", qbHandler.Callback)
+	qb.Post("/refresh", middleware.RequireAuth(), qbHandler.Refresh)
+	qb.Get("/token",    middleware.RequireServiceSecret(cfg.App.AutoAccountingServiceSecret), qbHandler.Token)
+	qb.Post("/seed",    qbHandler.Seed) // internal bootstrap — no user session needed
+
 	// Protected routes
 	api := v1.Group("", middleware.RequireAuth())
 
@@ -574,14 +585,6 @@ func main() {
 	ai.Get("/conversations/:id/messages",         aiChatHandler.ListMessages)
 	ai.Get("/context/:company",                   aiChatHandler.GetContext)
 	ai.Patch("/context/:company",                 aiChatHandler.UpsertContext)
-
-	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect)
-	qb := v1.Group("/qb")
-	qb.Get("/auth",     middleware.RequireAuth(), qbHandler.Auth)
-	qb.Get("/callback", qbHandler.Callback)
-	qb.Post("/refresh", middleware.RequireAuth(), qbHandler.Refresh)
-	qb.Get("/token",    middleware.RequireServiceSecret(cfg.App.AutoAccountingServiceSecret), qbHandler.Token)
-	qb.Post("/seed",    qbHandler.Seed) // internal bootstrap — no user session needed
 
 	// ── Background Jobs ──────────────────────────────────────────────────────
 	jobCtx, jobCancel := context.WithCancel(context.Background())
