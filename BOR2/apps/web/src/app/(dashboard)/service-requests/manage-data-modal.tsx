@@ -4,8 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
+import * as XLSX from 'xlsx'
 import { useServiceRequests } from '@/hooks/use-service-requests'
-import { useAuth } from '@/hooks/use-auth'
 import { serviceRequestService } from '@/services/service-request.service'
 import type { ServiceRequest, ServiceRequestInput } from '@/services/service-request.service'
 import { Calendar } from '@/components/ui/calendar'
@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import {
   AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, CalendarIcon,
-  CheckCircle2, Edit2, HardHat, Loader2, Plus, RefreshCw, Search, ShieldCheck, Trash2, X,
+  CheckCircle2, Download, Edit2, HardHat, Loader2, Plus, Search, ShieldCheck, Trash2, X,
 } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -314,12 +314,80 @@ function VisitsEditor({ value, onChange }: { value: string; onChange: (v: string
   )
 }
 
+// ─── ExportPopover ────────────────────────────────────────────────────────────
+
+function ExportPopover({ onExport }: { onExport: (from: string, to: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState<'all' | 'range'>('all')
+  const [from, setFrom] = useState('')
+  const [to,   setTo]   = useState('')
+
+  function handleExport() {
+    onExport(mode === 'range' ? from : '', mode === 'range' ? to : '')
+    setOpen(false)
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        title="Export the records currently listed to Excel"
+        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Download className="h-3.5 w-3.5" />
+        Export
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-3" side="bottom" align="end">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Export Range
+        </p>
+
+        <div className="mb-3 flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => setMode('all')}
+            className={`flex-1 rounded border px-2 py-1 text-xs font-medium transition-colors ${
+              mode === 'all' ? 'border-primary/50 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted'
+            }`}
+          >
+            All records
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('range')}
+            className={`flex-1 rounded border px-2 py-1 text-xs font-medium transition-colors ${
+              mode === 'range' ? 'border-primary/50 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-muted'
+            }`}
+          >
+            Date range
+          </button>
+        </div>
+
+        {mode === 'range' && (
+          <div className="mb-3 flex items-center gap-2">
+            <DatePicker value={from} onChange={setFrom} />
+            <span className="text-xs text-muted-foreground">to</span>
+            <DatePicker value={to} onChange={setTo} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleExport}
+          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-lg bg-primary text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Export
+        </button>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const queryClient                         = useQueryClient()
   const { data: records = [], isLoading }   = useServiceRequests()
-  const { user }                            = useAuth()
 
   const [search,     setSearch]     = useState('')
   const [sortCol,    setSortCol]    = useState<string | null>('dateReceived')
@@ -330,7 +398,6 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const [addingRow,  setAddingRow]  = useState(false)
   const [newDraft,   setNewDraft]   = useState<Draft>(EMPTY_DRAFT)
   const [saving,       setSaving]       = useState(false)
-  const [syncingSheet, setSyncingSheet] = useState(false)
   const [notice,       setNotice]       = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null)
   const [page,         setPage]         = useState(1)
   const PAGE_SIZE = 50
@@ -415,17 +482,31 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
     finally { setSaving(false) }
   }
 
-  async function syncSheet() {
-    setSyncingSheet(true); setNotice(null)
-    try {
-      const { total, inserted } = await serviceRequestService.syncFromSheet()
-      await invalidate()
-      setNotice({ kind: 'ok', msg: `Synced ${total} records (${inserted} inserted)` })
-    } catch {
-      setNotice({ kind: 'err', msg: 'Sync failed. Please try again.' })
-    } finally {
-      setSyncingSheet(false)
-    }
+  function exportToExcel(from: string, to: string) {
+    const filtered = (!from && !to) ? sorted : sorted.filter(r => {
+      const received = toIso(r.dateReceived)
+      if (!received) return false
+      if (from && received < from) return false
+      if (to && received > to) return false
+      return true
+    })
+
+    const header = [
+      'Contractor', 'Job Site', 'City', 'Lot', 'Address', 'Issue', 'Tech',
+      'Warranty', 'Subcontractor', 'Date Received', 'Material Available',
+      'Resident Available', 'Date Completed', 'Additional Visits',
+    ]
+    const rows = filtered.map(r => [
+      r.contractor || '', r.jobSite || '', r.city || '', r.lot || '', r.address || '',
+      r.issue || '', r.tech || '', r.warranty ? 'Yes' : 'No', r.subcontractor ? 'Yes' : 'No',
+      fmtDate(r.dateReceived), fmtDate(r.materialAvailableDate), fmtDate(r.residentAvailableDate),
+      fmtDate(r.dateCompleted), (r.additionalVisits ?? []).map(fmtDate).join(', '),
+    ])
+
+    const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Service Requests')
+    XLSX.writeFile(wb, `service_requests_${new Date().toISOString().slice(0, 10)}.xlsx`)
   }
 
   function DraftRow({ d, setD, onSave, onCancel }: {
@@ -545,17 +626,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
           <ThemeToggle />
 
-          {(user?.role as string) === 'dev' && (
-            <button
-              onClick={syncSheet}
-              disabled={syncingSheet}
-              title="Replace all records from the Google Sheet (dev only)"
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-            >
-              {syncingSheet ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-              sync-sheet
-            </button>
-          )}
+          <ExportPopover onExport={exportToExcel} />
         </div>
       </div>
 
