@@ -130,7 +130,7 @@ function displayToIso(display: string): string {
   return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 }
 
-function DatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function DatePicker({ value, onChange, className = 'w-[90px]' }: { value: string; onChange: (v: string) => void; className?: string }) {
   const [inputText, setInputText] = useState(isoToDisplay(value))
   const [open, setOpen]           = useState(false)
   useEffect(() => setInputText(isoToDisplay(value)), [value])
@@ -158,7 +158,7 @@ function DatePicker({ value, onChange }: { value: string; onChange: (v: string) 
   const selectedDate = value ? parseISO(value) : undefined
 
   return (
-    <div className="flex h-7 w-[90px] items-center overflow-hidden rounded border border-input bg-background">
+    <div className={`flex h-7 items-center overflow-hidden rounded border border-input bg-background ${className}`}>
       <input
         className="h-full min-w-0 flex-1 bg-transparent px-1.5 text-xs outline-none placeholder:text-muted-foreground/50"
         placeholder="mm/dd/yy"
@@ -363,10 +363,15 @@ function ExportPopover({ onExport }: { onExport: (from: string, to: string) => v
         </div>
 
         {mode === 'range' && (
-          <div className="mb-3 flex items-center gap-2">
-            <DatePicker value={from} onChange={setFrom} />
-            <span className="text-xs text-muted-foreground">to</span>
-            <DatePicker value={to} onChange={setTo} />
+          <div className="mb-3 flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-medium text-muted-foreground">From</span>
+              <DatePicker value={from} onChange={setFrom} className="w-full" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-medium text-muted-foreground">To</span>
+              <DatePicker value={to} onChange={setTo} className="w-full" />
+            </div>
           </div>
         )}
 
@@ -484,11 +489,12 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
   function exportToExcel(from: string, to: string) {
     const filtered = (!from && !to) ? sorted : sorted.filter(r => {
-      const received = toIso(r.dateReceived)
-      if (!received) return false
-      if (from && received < from) return false
-      if (to && received > to) return false
-      return true
+      const dates = [
+        r.dateReceived, r.materialAvailableDate, r.residentAvailableDate,
+        r.dateCompleted, ...(r.additionalVisits ?? []),
+      ].map(toIso).filter(Boolean)
+
+      return dates.some(d => (!from || d >= from) && (!to || d <= to))
     })
 
     const header = [
