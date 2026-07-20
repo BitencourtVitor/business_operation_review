@@ -286,6 +286,52 @@ type WorkforceImportResult struct {
 	Skipped  int
 }
 
+// getWithRetry issues a GET against the QB Time API, retrying transient
+// failures (network errors and 5xx) with backoff. QB Time occasionally
+// returns a bare 500 for a few seconds — most often around 2am UTC-3 during
+// the daily cron — with no signal it's happening besides the status code, so
+// a handful of retries clears it without ever surfacing to the caller.
+func (s *QBTimeWorkforceImportService) getWithRetry(ctx context.Context, url, token string) ([]byte, int, error) {
+	const maxAttempts = 4
+	var lastErr error
+	var lastBody []byte
+	var lastStatus int
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return nil, 0, fmt.Errorf("build request: %w", err)
+		}
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := s.httpClient.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("qbt api: %w", err)
+		} else {
+			body, readErr := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			if readErr != nil {
+				lastErr = fmt.Errorf("read response: %w", readErr)
+			} else if resp.StatusCode >= 500 {
+				lastErr = nil
+				lastBody, lastStatus = body, resp.StatusCode
+			} else {
+				return body, resp.StatusCode, nil
+			}
+		}
+
+		if attempt < maxAttempts {
+			log.Printf("[qbt-workforce-import] transient error (attempt %d/%d), retrying: %v status=%d", attempt, maxAttempts, lastErr, lastStatus)
+			time.Sleep(time.Duration(attempt) * 2 * time.Second)
+		}
+	}
+	if lastErr != nil {
+		return nil, 0, lastErr
+	}
+	return lastBody, lastStatus, nil
+}
+
 // Import fetches all closed timesheets for `company` during `month` (format: "2026-05"),
 // converts them to WorkforceProductivityRow records and persists them as a new upload.
 // If overwrite=true and a record for the same month+company already exists, it is replaced.
@@ -331,24 +377,12 @@ func (s *QBTimeWorkforceImportService) Import(
 			"%s/timesheets?start_date=%s&end_date=%s&on_the_clock=no&supplemental_data=yes&per_page=200&page=%d",
 			qbtBaseURL, startDate, endDate, page,
 		)
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		body, status, err := s.getWithRetry(ctx, url, token)
 		if err != nil {
-			return nil, fmt.Errorf("build request: %w", err)
+			return nil, err
 		}
-		req.Header.Set("Authorization", "Bearer "+token)
-		req.Header.Set("Content-Type", "application/json")
-
-		resp, err := s.httpClient.Do(req)
-		if err != nil {
-			return nil, fmt.Errorf("qbt api: %w", err)
-		}
-		body, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
-		if err != nil {
-			return nil, fmt.Errorf("read response: %w", err)
-		}
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("qbt api returned %d: %s", resp.StatusCode, string(body))
+		if status != http.StatusOK {
+			return nil, fmt.Errorf("qbt api returned %d: %s", status, string(body))
 		}
 
 		var pageResp importQBTResp
