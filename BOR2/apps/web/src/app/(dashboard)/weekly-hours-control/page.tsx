@@ -275,7 +275,7 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
             ctx.fillText(addr.path.slice(1).join(" › "), padX + 28, dy + 24)
           }
           ctx.fillStyle = T1; ctx.font = `700 11px monospace`; ctx.textAlign = "right"
-          ctx.fillText(`${addr.hours}h`, W - padX + 16, dy + 12)
+          ctx.fillText(`${addr.hours}h`, padX + 480, dy + 12)
           ctx.textAlign = "left"
           dy += ADDR_H
         }

@@ -186,9 +186,26 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		return err
 	}
 
-	// Auto-seed fieldwire docs from catalog:
-	// - client+type specific entries (matched by project cliente and type)
-	// - universal entries (client = '' and type = '' → apply to all projects)
+	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
+		return err
+	}
+	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// seedFieldwireDocs copies catalog fieldwire docs matching the project's
+// cliente/type into forecast_fieldwire. It's called on Create AND Update
+// (guarded by the NOT EXISTS check below, keyed on document) so that fixing
+// cliente/type on an existing project — not just creating it correctly the
+// first time — backfills whatever docs weren't seeded yet, without ever
+// inserting the same document twice for one project:
+// - client+type specific entries (matched by project cliente and type)
+// - client-level entries (client matches, type = '' → apply to any type for that client)
+// - universal entries (client = '' and type = '' → apply to all projects)
+func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, projectID, cliente, projType string) error {
 	if _, err := r.db.Exec(ctx, `
 		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_fieldwire)
 		INSERT INTO forecast_fieldwire (id, project_id, category, document, status)
@@ -198,14 +215,22 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		       c.document,
 		       false
 		FROM catalog_forecast_fieldwire c, max_id
-		WHERE (LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
-		   OR (LOWER(c.client) = LOWER($2) AND c.type = '')
-		   OR (c.client = '' AND c.type = '')
-	`, p.ID, p.Cliente, p.Type); err != nil {
+		WHERE ((LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
+		    OR (LOWER(c.client) = LOWER($2) AND c.type = '')
+		    OR (c.client = '' AND c.type = ''))
+		  AND NOT EXISTS (
+		    SELECT 1 FROM forecast_fieldwire fw
+		    WHERE LOWER(fw.project_id) = LOWER($1) AND fw.document = c.document
+		  )
+	`, projectID, cliente, projType); err != nil {
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
 	}
+	return nil
+}
 
-	// Auto-seed machines from catalog based on client (category) + type (subcategory).
+// seedMachines mirrors seedFieldwireDocs for forecast_machines, matched on
+// catalog category+subcategory and de-duped on (category, subcategory, title).
+func (r *PostgresForecastRepository) seedMachines(ctx context.Context, projectID, cliente, projType string) error {
 	if _, err := r.db.Exec(ctx, `
 		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_machines)
 		INSERT INTO forecast_machines (id, project_id, category, subcategory, equipment_category, title, unit, status)
@@ -220,10 +245,14 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		FROM catalog_forecast_machines c, max_id
 		WHERE LOWER(c.category)    = LOWER($2)
 		  AND LOWER(c.subcategory) = LOWER($3)
-	`, p.ID, p.Cliente, p.Type); err != nil {
+		  AND NOT EXISTS (
+		    SELECT 1 FROM forecast_machines m
+		    WHERE LOWER(m.project_id) = LOWER($1)
+		      AND m.category = c.category AND m.subcategory = c.subcategory AND m.title = c.title
+		  )
+	`, projectID, cliente, projType); err != nil {
 		return fmt.Errorf("seeding machines: %w", err)
 	}
-
 	return nil
 }
 
@@ -247,7 +276,18 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		p.ID,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
+		return err
+	}
+	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) error {
