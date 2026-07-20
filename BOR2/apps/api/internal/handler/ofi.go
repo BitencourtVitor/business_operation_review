@@ -89,7 +89,13 @@ func calcBoolScore(ctx context.Context, db *pgxpool.Pool, query, id string, weig
 }
 
 // calcMachineScore queries forecast_machines and counts 'scheduled'/'dispensed'.
-func calcMachineScore(ctx context.Context, db *pgxpool.Pool, id string) float64 {
+// Private-client obras never get machines seeded (no catalog entries for that
+// client), so an empty list there means "not applicable", not "not ready" —
+// score them as fully satisfied instead of 0.
+func calcMachineScore(ctx context.Context, db *pgxpool.Pool, id, cliente string) float64 {
+	if strings.EqualFold(strings.TrimSpace(cliente), "private") {
+		return 2
+	}
 	rows, err := db.Query(ctx,
 		`SELECT COALESCE(status,'') FROM forecast_machines WHERE project_id = $1`, id)
 	if err != nil {
@@ -362,6 +368,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 
 	type obra struct {
 		ID           string
+		Cliente      string
 		Storage      bool
 		QBTime       bool
 		BuilderTrend bool
@@ -369,6 +376,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 
 	obraRows, err := h.db.Query(ctx, `
 		SELECT id,
+		       COALESCE(cliente,''),
 		       COALESCE(storage,false),
 		       COALESCE(qb_time,false),
 		       COALESCE(buildertrend,false)
@@ -383,7 +391,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 	var obras []obra
 	for obraRows.Next() {
 		var o obra
-		if scanErr := obraRows.Scan(&o.ID, &o.Storage, &o.QBTime, &o.BuilderTrend); scanErr == nil {
+		if scanErr := obraRows.Scan(&o.ID, &o.Cliente, &o.Storage, &o.QBTime, &o.BuilderTrend); scanErr == nil {
 			obras = append(obras, o)
 		}
 	}
@@ -405,7 +413,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 			fwScore := calcBoolScore(ctx, h.db,
 				`SELECT status FROM forecast_fieldwire WHERE project_id = $1`, o.ID, 2.0)
 
-			mScore := calcMachineScore(ctx, h.db, o.ID)
+			mScore := calcMachineScore(ctx, h.db, o.ID, o.Cliente)
 
 			cScore := calcBoolScore(ctx, h.db,
 				`SELECT status FROM forecast_contract_steps WHERE project_id = $1`, o.ID, 2.0)
