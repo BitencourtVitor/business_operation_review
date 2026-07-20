@@ -74,9 +74,12 @@ function isMachineOk(status: string | null | undefined): boolean {
 }
 
 function projectAspects(p: ForecastProject): Record<AspectKey, boolean> {
+  // Private obras never get machines seeded (no catalog entries for that
+  // client) — an empty list there means "not applicable", not "not ready".
+  const isPrivate = p.cliente?.toLowerCase().trim() === "private"
   return {
     fieldwire:    p.fieldwire?.length    ? p.fieldwire.every(d => isTruthy(d.status))     : false,
-    machines:     p.machines?.length     ? p.machines.every(m => isMachineOk(m.status))   : false,
+    machines:     isPrivate || (p.machines?.length ? p.machines.every(m => isMachineOk(m.status)) : false),
     contract:     p.contractSteps?.length ? p.contractSteps.every(s => isTruthy(s.status)) : false,
     buildertrend: !!p.buildertrend,
     storage:      !!p.storage,

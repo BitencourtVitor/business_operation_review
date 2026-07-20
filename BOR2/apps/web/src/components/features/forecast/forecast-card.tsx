@@ -231,11 +231,13 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
   const fwComplete = fwTotal > 0 && fwDone === fwTotal
 
-  // Machines progress
+  // Machines progress — Private obras never need machines (no catalog entries
+  // for that client), so treat them as complete instead of perpetually pending.
+  const isPrivate = p.cliente?.toLowerCase().trim() === "private"
   const mTotal    = p.machines?.length ?? 0
   const mDone     = p.machines?.filter((m) => isTruthy(m.status)).length ?? 0
-  const mPct      = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0
-  const mComplete = mTotal > 0 && mDone === mTotal
+  const mPct      = isPrivate ? 100 : (mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0)
+  const mComplete = isPrivate || (mTotal > 0 && mDone === mTotal)
 
   // Contract progress
   const cTotal    = p.contractSteps?.length ?? 0
@@ -379,7 +381,7 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
               </IconSlot>
 
               {/* Machines */}
-              <IconSlot done={mDone > 0} pct={mPct} complete={mComplete} withProgress title="Machines & Attachments">
+              <IconSlot done={isPrivate || mDone > 0} pct={mPct} complete={mComplete} withProgress title={isPrivate ? "Machines & Attachments (not required)" : "Machines & Attachments"}>
                 <Truck className="h-3.5 w-3.5 text-foreground" />
               </IconSlot>
 
