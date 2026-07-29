@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import type { QBTimeDailyReport, QBTimeTeam } from "@bor2/shared"
+import type { QBTimeDailyReport, QBTimeEmployeeTeam, QBTimeTeam } from "@bor2/shared"
 import { useAuthStore } from "@/store/auth.store"
 
 function getToken() {
@@ -35,4 +35,18 @@ export const qbtimeTeamService = {
 
   delete: (id: string) =>
     api.delete<void>(`/api/v1/qbtime/teams/${id}`, getToken()),
+}
+
+export const qbtimeEmployeeTeamService = {
+  list: (company: string) =>
+    api.get<QBTimeEmployeeTeam[]>(`/api/v1/qbtime/employee-teams?company=${encodeURIComponent(company)}`, getToken()),
+
+  setOverride: (id: string, teamName: string) =>
+    api.patch<QBTimeEmployeeTeam>(`/api/v1/qbtime/employee-teams/${id}/override`, { teamName }, getToken()),
+
+  clearOverride: (id: string) =>
+    api.delete<QBTimeEmployeeTeam>(`/api/v1/qbtime/employee-teams/${id}/override`, getToken()),
+
+  sync: () =>
+    api.post<Record<string, string>>("/api/v1/qbtime/employee-teams/sync", {}, getToken()),
 }

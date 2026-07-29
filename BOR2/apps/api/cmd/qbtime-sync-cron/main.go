@@ -7,6 +7,9 @@
 //     late-closed timesheets and corrections in the tail of last month are
 //     absorbed too). Replaces the manual "QB Time Import" button click that used
 //     to be required every month for each company.
+//  3. Refreshes qbtime_employee_teams by POSTing to /qbtime/employee-teams/sync,
+//     re-pulling each employee's QB Time Group so team assignments stay current
+//     without wiping any manual override set in Settings > Teams.
 //
 // Deploy as a Railway Cron Job service pointing at this binary:
 //   Schedule : 0 5 * * *   (05:00 UTC ≈ just after midnight US Eastern)
@@ -54,6 +57,13 @@ func main() {
 
 	if err := syncWorkforce(client, apiURL, secret); err != nil {
 		failed = true
+	}
+
+	if err := syncEmployeeTeams(client, apiURL, secret); err != nil {
+		fmt.Printf("[qbtime-sync-cron] employee-teams sync FAILED: %v\n", err)
+		failed = true
+	} else {
+		fmt.Println("[qbtime-sync-cron] employee-teams sync OK")
 	}
 
 	if failed {
@@ -137,6 +147,31 @@ func importWorkforceOne(client *http.Client, apiURL, secret, company, month stri
 	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("API returned HTTP %d: %s", resp.StatusCode, string(body))
 	}
+	return nil
+}
+
+func syncEmployeeTeams(client *http.Client, apiURL, secret string) error {
+	url := fmt.Sprintf("%s/api/v1/qbtime/employee-teams/sync", apiURL)
+	fmt.Printf("[qbtime-sync-cron] %s — POST %s\n", time.Now().UTC().Format(time.RFC3339), url)
+
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Cron-Secret", secret)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("http call: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("API returned HTTP %d: %s", resp.StatusCode, string(body))
+	}
+	fmt.Printf("[qbtime-sync-cron] Success: %s\n", string(body))
 	return nil
 }
 

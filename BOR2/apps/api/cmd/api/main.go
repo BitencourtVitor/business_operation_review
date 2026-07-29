@@ -69,6 +69,7 @@ func main() {
 	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
 	qbtimeTeamRepo       := repository.NewPostgresQBTimeTeamRepository(db)
+	qbtimeEmployeeTeamRepo := repository.NewPostgresQBTimeEmployeeTeamRepository(db)
 	qbtimeExceptionsRepo := repository.NewPostgresQBTimeExceptionsRepository(db)
 	qbtimePeriodCacheRepo := repository.NewPostgresQBTimePeriodCacheRepository(db)
 	qbtimeUnpaidAddrRepo  := repository.NewPostgresQBTimeUnpaidAddressRepository(db)
@@ -94,6 +95,7 @@ func main() {
 	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
 	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
 	qbtimeTeamSvc        := service.NewQBTimeTeamService(qbtimeTeamRepo)
+	qbtimeEmployeeTeamSvc := service.NewQBTimeEmployeeTeamService(qbtimeEmployeeTeamRepo)
 	whosWorkingSvc       := service.NewWhosWorkingService(qbtimeExceptionsRepo, qbtimeTeamRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
@@ -131,6 +133,7 @@ func main() {
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
 	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
+	qbtimeEmployeeTeamHandler := handler.NewQBTimeEmployeeTeamHandler(qbtimeEmployeeTeamSvc, auditService)
 	whosWorkingHandler       := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
 	weeklyReportSvc          := service.NewWeeklyReportService()
 	weeklyReportHandler      := handler.NewWeeklyReportHandler(weeklyReportSvc)
@@ -210,6 +213,7 @@ func main() {
 	qbTriggerSandbox := cfg.App.Env != "production"
 	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
 	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
+	v1.Post("/qbtime/employee-teams/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtimeEmployeeTeamHandler.Sync)
 	v1.Post("/ofi/calculate", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), ofiHandler.Calculate)
 	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
 		go func() {
@@ -316,6 +320,13 @@ func main() {
 	qbtimeTeams.Post("/", qbtimeTeamHandler.Create)
 	qbtimeTeams.Patch("/:id", qbtimeTeamHandler.Update)
 	qbtimeTeams.Delete("/:id", qbtimeTeamHandler.Delete)
+
+	// QBTime Employee Teams (synced from QB Time Groups, with manual override)
+	qbtimeEmployeeTeams := api.Group("/qbtime/employee-teams")
+	qbtimeEmployeeTeams.Get("/", qbtimeEmployeeTeamHandler.List)
+	qbtimeEmployeeTeams.Patch("/:id/override", qbtimeEmployeeTeamHandler.SetOverride)
+	qbtimeEmployeeTeams.Delete("/:id/override", qbtimeEmployeeTeamHandler.ClearOverride)
+	// (POST /qbtime/employee-teams/sync is cron-guarded, registered above before RequireAuth.)
 
 	// QBTime Who's Working
 	api.Get("/qbtime/whos-working", whosWorkingHandler.Get)
