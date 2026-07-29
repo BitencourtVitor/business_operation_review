@@ -22,19 +22,22 @@ const qbtBaseURL = "https://rest.tsheets.com/api/v1"
 // WhosWorkingService fetches real-time QB Time clock data and assembles
 // the Who's Working report grouped by BOR2 teams.
 type WhosWorkingService struct {
-	exceptionRepo repository.QBTimeExceptionsRepository
-	teamRepo      repository.QBTimeTeamRepository
-	httpClient    *http.Client
+	exceptionRepo    repository.QBTimeExceptionsRepository
+	teamRepo         repository.QBTimeTeamRepository
+	employeeTeamRepo repository.QBTimeEmployeeTeamRepository
+	httpClient       *http.Client
 }
 
 func NewWhosWorkingService(
 	exceptionRepo repository.QBTimeExceptionsRepository,
 	teamRepo repository.QBTimeTeamRepository,
+	employeeTeamRepo repository.QBTimeEmployeeTeamRepository,
 ) *WhosWorkingService {
 	return &WhosWorkingService{
-		exceptionRepo: exceptionRepo,
-		teamRepo:      teamRepo,
-		httpClient:    &http.Client{Timeout: 15 * time.Second},
+		exceptionRepo:    exceptionRepo,
+		teamRepo:         teamRepo,
+		employeeTeamRepo: employeeTeamRepo,
+		httpClient:       &http.Client{Timeout: 15 * time.Second},
 	}
 }
 
@@ -56,13 +59,13 @@ func qbtToken(company string) string {
 // ── QB Time API response shapes ───────────────────────────────────────────────
 
 type qbtTimesheetItem struct {
-	ID         int    `json:"id"`
-	UserID     int    `json:"user_id"`
-	JobcodeID  int    `json:"jobcode_id"`
-	Start      string `json:"start"`
-	End        string `json:"end"`
-	Duration   int    `json:"duration"` // seconds; -1 when open
-	Type       string `json:"type"`     // "regular" | "break"
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	JobcodeID int    `json:"jobcode_id"`
+	Start     string `json:"start"`
+	End       string `json:"end"`
+	Duration  int    `json:"duration"` // seconds; -1 when open
+	Type      string `json:"type"`     // "regular" | "break"
 }
 
 type qbtUserItem struct {
@@ -115,6 +118,58 @@ func (s *WhosWorkingService) fetchTimesheets(ctx context.Context, token, url str
 		return nil, fmt.Errorf("parse qbt response: %w", err)
 	}
 	return &r, nil
+}
+
+func normalizedEmployeeName(name string) string {
+	return strings.ToLower(strings.TrimSpace(name))
+}
+
+func (s *WhosWorkingService) effectiveTeamMap(ctx context.Context, company string) (map[string]string, []string, error) {
+	nameToTeam := make(map[string]string)
+	teamOrder := make([]string, 0)
+	seenTeams := make(map[string]bool)
+
+	addTeam := func(team string) {
+		team = strings.TrimSpace(team)
+		if team == "" || team == "Unassigned" || seenTeams[team] {
+			return
+		}
+		seenTeams[team] = true
+		teamOrder = append(teamOrder, team)
+	}
+
+	if s.employeeTeamRepo != nil {
+		employees, err := s.employeeTeamRepo.List(ctx, strings.ToLower(company))
+		if err != nil {
+			return nil, nil, fmt.Errorf("load employee teams: %w", err)
+		}
+		for _, employee := range employees {
+			team := strings.TrimSpace(employee.EffectiveTeamName)
+			if team == "" {
+				team = "Unassigned"
+			}
+			nameToTeam[normalizedEmployeeName(employee.EmployeeName)] = team
+			addTeam(team)
+		}
+		if len(nameToTeam) > 0 {
+			return nameToTeam, teamOrder, nil
+		}
+	}
+
+	if s.teamRepo != nil {
+		teams, err := s.teamRepo.List(ctx, strings.ToLower(company))
+		if err != nil {
+			return nil, nil, fmt.Errorf("load teams: %w", err)
+		}
+		for _, team := range teams {
+			addTeam(team.Name)
+			for _, member := range team.Members {
+				nameToTeam[normalizedEmployeeName(member)] = team.Name
+			}
+		}
+	}
+
+	return nameToTeam, teamOrder, nil
 }
 
 // GetWhosWorking calls QB Time and returns who is currently clocked in,
@@ -170,7 +225,7 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 		id   int
 		name string
 	}
-	userByID   := make(map[int]userInfo)
+	userByID := make(map[int]userInfo)
 	jobcodeByID := make(map[int]string)
 
 	for _, u := range openResp.SupplementalData.Users {
@@ -201,19 +256,13 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 	}
 	excluded := make(map[string]bool, len(exceptions))
 	for _, e := range exceptions {
-		excluded[strings.ToLower(e.EmployeeName)] = true
+		excluded[normalizedEmployeeName(e.EmployeeName)] = true
 	}
 
 	// ── Teams (name → team mapping) ───────────────────────────────────────────
-	teams, err := s.teamRepo.List(ctx, strings.ToLower(company))
+	nameToTeam, teamOrder, err := s.effectiveTeamMap(ctx, company)
 	if err != nil {
-		return nil, fmt.Errorf("load teams: %w", err)
-	}
-	nameToTeam := make(map[string]string)
-	for _, t := range teams {
-		for _, m := range t.Members {
-			nameToTeam[strings.ToLower(m)] = t.Name
-		}
+		return nil, err
 	}
 
 	// ── Build entries grouped by team ─────────────────────────────────────────
@@ -224,7 +273,7 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 		if !ok {
 			continue
 		}
-		if excluded[strings.ToLower(u.name)] {
+		if excluded[normalizedEmployeeName(u.name)] {
 			continue
 		}
 
@@ -241,10 +290,10 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 
 		// Aggregate closed blocks for this user.
 		var (
-			completedWorkSec  int
-			totalBreakSec     int
-			firstStart        = currentStart
-			breaks            []domain.WhosWorkingBreak
+			completedWorkSec int
+			totalBreakSec    int
+			firstStart       = currentStart
+			breaks           []domain.WhosWorkingBreak
 		)
 
 		for _, closedTS := range closedByUser[openTS.UserID] {
@@ -302,7 +351,7 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 		// Current address from open block's jobcode.
 		currentAddress := jobcodeByID[openTS.JobcodeID]
 
-		team := nameToTeam[strings.ToLower(u.name)]
+		team := nameToTeam[normalizedEmployeeName(u.name)]
 		if team == "" {
 			team = "Unassigned"
 		}
@@ -326,14 +375,14 @@ func (s *WhosWorkingService) GetWhosWorking(ctx context.Context, company string)
 	var groups []domain.WhosWorkingGroup
 	seen := make(map[string]bool)
 
-	for _, t := range teams {
-		entries := groupMap[t.Name]
+	for _, teamName := range teamOrder {
+		entries := groupMap[teamName]
 		if len(entries) == 0 {
 			continue
 		}
 		sort.Slice(entries, func(i, j int) bool { return entries[i].Name < entries[j].Name })
-		groups = append(groups, domain.WhosWorkingGroup{Team: t.Name, Entries: entries})
-		seen[t.Name] = true
+		groups = append(groups, domain.WhosWorkingGroup{Team: teamName, Entries: entries})
+		seen[teamName] = true
 	}
 	if entries := groupMap["Unassigned"]; len(entries) > 0 {
 		sort.Slice(entries, func(i, j int) bool { return entries[i].Name < entries[j].Name })

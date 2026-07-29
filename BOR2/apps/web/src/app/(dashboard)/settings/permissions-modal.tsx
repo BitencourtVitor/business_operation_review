@@ -7,9 +7,9 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, Building2, CalendarCheck, CalendarClock,
+  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText, Fuel,
-  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Package, Settings,
+  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -26,7 +26,7 @@ function canManage(myRole: string, targetRole: string) {
 
 // ─── Permission pages — mirrors app-sidebar structure ─────────────────────────
 
-type PermDef   = { key?: string; label: string; icon?: React.ElementType; image?: string; imageDark?: string; writeLabel?: string; children?: PermDef[] }
+type PermDef   = { key?: string; label: string; icon?: React.ElementType; image?: string; imageDark?: string; writeLabel?: string; children?: PermDef[]; locked?: string }
 type PermGroup = { label: string; permissions: PermDef[] }
 
 const PERMISSION_GROUPS: PermGroup[] = [
@@ -74,6 +74,19 @@ const PERMISSION_GROUPS: PermGroup[] = [
     label: "Settings",
     permissions: [
       { key: "settings", label: "Settings", icon: Settings },
+      {
+        label: "Settings Pages",
+        icon: Settings,
+        children: [
+          { key: "settings_users",         label: "Manage Users",   icon: Users   },
+          { key: "settings_teams",         label: "Teams",          icon: Network, writeLabel: "Manage teams" },
+          { key: "settings_notifications", label: "Notifications",  icon: Bell    },
+          {
+            key: "settings_permissions", label: "Edit Permissions", icon: Lock,
+            locked: "Edit Permissions is always restricted to Dev, Owner and Manager accounts. It can't be granted to standard users here.",
+          },
+        ],
+      },
     ],
   },
 ]
@@ -199,6 +212,7 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
 
   const selectedPerm  = ALL_PERMS.find(p => p.key === selectedKey)
   const writeLabel    = selectedPerm?.writeLabel ?? "Edit data"
+  const lockedMessage = selectedPerm?.locked
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
@@ -210,20 +224,22 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
         </DialogHeader>
 
         {/* ── Column headers ── */}
-        <div className="flex shrink-0 border-b border-border">
-          <div className="flex w-56 shrink-0 flex-col border-r border-border bg-muted/20 px-3 py-2.5">
-            <span className="text-xs font-semibold">Page</span>
-            <span className="text-[11px] text-muted-foreground">Select a page to manage access</span>
+        {!lockedMessage && (
+          <div className="flex shrink-0 border-b border-border">
+            <div className="flex w-56 shrink-0 flex-col border-r border-border bg-muted/20 px-3 py-2.5">
+              <span className="text-xs font-semibold">Page</span>
+              <span className="text-[11px] text-muted-foreground">Select a page to manage access</span>
+            </div>
+            <div className="flex w-64 shrink-0 flex-col border-r border-border px-3 py-2.5">
+              <span className="text-xs font-semibold">No Access</span>
+              <span className="text-[11px] text-muted-foreground">Drag to grant access to this page</span>
+            </div>
+            <div className="flex flex-1 flex-col px-3 py-2.5">
+              <span className="text-xs font-semibold">Has Access</span>
+              <span className="text-[11px] text-muted-foreground">Drag to revoke · toggle read / write</span>
+            </div>
           </div>
-          <div className="flex w-64 shrink-0 flex-col border-r border-border px-3 py-2.5">
-            <span className="text-xs font-semibold">No Access</span>
-            <span className="text-[11px] text-muted-foreground">Drag to grant access to this page</span>
-          </div>
-          <div className="flex flex-1 flex-col px-3 py-2.5">
-            <span className="text-xs font-semibold">Has Access</span>
-            <span className="text-[11px] text-muted-foreground">Drag to revoke · toggle read / write</span>
-          </div>
-        </div>
+        )}
 
         <div className="flex flex-1 overflow-hidden">
 
@@ -299,7 +315,13 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
             ))}
           </aside>
 
-          {/* ── DnD columns ── */}
+          {/* ── DnD columns, or a locked-page notice ── */}
+          {lockedMessage ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-10 text-center">
+              <Lock className="h-6 w-6 text-muted-foreground/40" />
+              <p className="max-w-sm text-sm text-muted-foreground">{lockedMessage}</p>
+            </div>
+          ) : (
           <div className="flex flex-1 overflow-hidden">
 
               {/* No Access */}
@@ -396,6 +418,7 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
               </div>
 
           </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

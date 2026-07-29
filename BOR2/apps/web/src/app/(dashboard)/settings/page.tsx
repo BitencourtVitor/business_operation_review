@@ -2,19 +2,27 @@
 
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import Link from "next/link"
 import { Bell, ChevronRight, KeyRound, Loader2, Network, ShieldAlert, ShieldCheck, Users } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
-import { TeamsModal } from "./teams-modal"
+import { TeamsModal } from "@/components/features/qbtime/teams-modal"
+
+// Dev/Owner/Manager can always see every settings page, same tier the
+// permissions modal treats as "always has access" and can't be revoked.
+// Edit Permissions specifically is hardcoded to this tier — it's never
+// exposed as a grantable permission (see permissions-modal.tsx "locked").
+const ALWAYS_ACCESS_ROLES = ["dev", "owner", "manager"]
 
 export default function SettingsPage() {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
+  const { canView, canEdit, isLoading: permsLoading } = usePermission()
   const [resetOpen, setResetOpen]   = useState(false)
   const [permsOpen, setPermsOpen]   = useState(false)
   const [teamsOpen, setTeamsOpen]   = useState(false)
 
-  if (isLoading) {
+  if (authLoading || permsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -22,38 +30,48 @@ export default function SettingsPage() {
     )
   }
 
-  if (user && !["dev", "owner", "manager"].includes(user.role)) {
+  const hasFullAccess = !!user && ALWAYS_ACCESS_ROLES.includes(user.role)
+  const canManageUsers = hasFullAccess || canView("settings_users")
+  const canManageTeams = hasFullAccess || canEdit("settings_teams")
+  const canManageNotifications = hasFullAccess || canView("settings_notifications")
+
+  // Reaching /settings at all still requires either the always-access tier
+  // or at least one granted settings sub-page — Reset My Password alone
+  // doesn't unlock the page.
+  if (!hasFullAccess && !canManageUsers && !canManageTeams && !canManageNotifications) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
           <ShieldAlert className="h-10 w-10 text-destructive/60" />
           <p className="font-medium">Access Denied</p>
-          <p className="text-sm text-muted-foreground">Only administrators can access Settings.</p>
+          <p className="text-sm text-muted-foreground">You don&apos;t have access to any Settings page.</p>
         </div>
       </div>
     )
   }
 
   const options = [
-    {
+    canManageUsers && {
       icon:        Users,
       title:       "Manage Users",
       description: "Create, edit and delete user accounts. Control roles for each user.",
       href:        "/settings/users",
     },
-    {
+    // Edit Permissions is intentionally NOT permission-gated — only the
+    // always-access tier can ever see or use it.
+    hasFullAccess && {
       icon:        ShieldCheck,
       title:       "Edit Permissions",
       description: "Define what each user can view or edit across every section of the system.",
       onClick:     () => setPermsOpen(true),
     },
-    {
+    canManageTeams && {
       icon:        Network,
       title:       "Teams",
       description: "Manage QB Time team assignments per employee, with manual override when QB Time is wrong.",
       onClick:     () => setTeamsOpen(true),
     },
-    {
+    canManageNotifications && {
       icon:        Bell,
       title:       "Notifications",
       description: "Send or schedule system notifications. Edit and delete pending scheduled notifications.",
@@ -65,7 +83,7 @@ export default function SettingsPage() {
       description: "Change your current password to a new secure one.",
       onClick:     () => setResetOpen(true),
     },
-  ] as const
+  ].filter((o): o is Exclude<typeof o, false> => !!o)
 
   return (
     <>
@@ -96,7 +114,7 @@ export default function SettingsPage() {
 
             const cls = `group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/70 ${!isLast ? "border-b border-border/30" : ""}`
 
-            if ("href" in opt) {
+            if (opt.href) {
               return <Link key={opt.title} href={opt.href} className={cls}>{inner}</Link>
             }
             return (
@@ -113,14 +131,18 @@ export default function SettingsPage() {
         onClose={() => setResetOpen(false)}
         onSuccess={() => setResetOpen(false)}
       />
-      <PermissionsModal
-        open={permsOpen}
-        onClose={() => setPermsOpen(false)}
-      />
-      <TeamsModal
-        open={teamsOpen}
-        onClose={() => setTeamsOpen(false)}
-      />
+      {hasFullAccess && (
+        <PermissionsModal
+          open={permsOpen}
+          onClose={() => setPermsOpen(false)}
+        />
+      )}
+      {canManageTeams && (
+        <TeamsModal
+          open={teamsOpen}
+          onClose={() => setTeamsOpen(false)}
+        />
+      )}
     </>
   )
 }

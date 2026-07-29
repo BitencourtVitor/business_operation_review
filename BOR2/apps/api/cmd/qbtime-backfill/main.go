@@ -48,9 +48,10 @@ func main() {
 	defer db.Close()
 
 	teamRepo := repository.NewPostgresQBTimeTeamRepository(db)
+	employeeTeamRepo := repository.NewPostgresQBTimeEmployeeTeamRepository(db)
 	cacheRepo := repository.NewPostgresQBTimePeriodCacheRepository(db)
 	unpaidRepo := repository.NewPostgresQBTimeUnpaidAddressRepository(db)
-	svc := service.NewPeriodReportService(teamRepo, cacheRepo, unpaidRepo)
+	svc := service.NewPeriodReportService(teamRepo, employeeTeamRepo, cacheRepo, unpaidRepo)
 
 	fmt.Printf("[qbtime-backfill] syncing last %d days for all companies…\n", days)
 	start := time.Now()
