@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   useQBTimeEmployeeTeams,
   useSetQBTimeEmployeeTeamOverride,
@@ -9,35 +9,35 @@ import {
 } from "@/hooks/use-qbtime-employee-teams"
 import type { QBTimeEmployeeTeam } from "@bor2/shared"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { CompanyLogo } from "@/components/common/company-logo"
+import { COMPANIES, COMPANY_LABEL, type Company } from "@/lib/company"
 import { Loader2, Network, RefreshCw, RotateCcw, ShieldAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const COMPANIES = ["Framing", "PCG", "HVAC"] as const
-type Company = (typeof COMPANIES)[number]
 
 // ─── One employee row ───────────────────────────────────────────────────────
 
 function EmployeeRow({
   employee,
   isLast,
+  availableTeams,
   onSetOverride,
   onClearOverride,
   savingId,
 }: {
   employee: QBTimeEmployeeTeam
   isLast: boolean
+  availableTeams: string[]
   onSetOverride: (id: string, teamName: string) => void
   onClearOverride: (id: string) => void
   savingId: string | null
 }) {
   const [editing, setEditing] = useState(false)
-  const [value, setValue]     = useState(employee.overrideTeamName ?? employee.qbTeamName ?? "")
+  const [value, setValue]     = useState(employee.overrideTeamName ?? employee.qbTeamName ?? availableTeams[0] ?? "")
   const isSaving = savingId === employee.id
 
   function handleSave() {
-    const trimmed = value.trim()
-    if (!trimmed) return
-    onSetOverride(employee.id, trimmed)
+    if (!value) return
+    onSetOverride(employee.id, value)
     setEditing(false)
   }
 
@@ -77,18 +77,21 @@ function EmployeeRow({
 
       {editing ? (
         <div className="flex shrink-0 items-center gap-2">
-          <input
+          <select
             autoFocus
             value={value}
             onChange={e => setValue(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setEditing(false) }}
-            placeholder="Team name"
+            onKeyDown={e => { if (e.key === "Escape") setEditing(false) }}
             className="w-36 rounded-lg border border-border bg-muted/30 px-2 py-1.5 text-xs outline-none focus:border-primary"
-          />
+          >
+            {availableTeams.length === 0 && <option value="">No teams yet</option>}
+            {availableTeams.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
           <button
             type="button"
             onClick={handleSave}
-            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            disabled={!value}
+            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             Save
           </button>
@@ -106,7 +109,7 @@ function EmployeeRow({
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
-            onClick={() => { setValue(employee.overrideTeamName ?? employee.qbTeamName ?? ""); setEditing(true) }}
+            onClick={() => { setValue(employee.overrideTeamName ?? employee.qbTeamName ?? availableTeams[0] ?? ""); setEditing(true) }}
             className="rounded-lg border border-border px-3 py-1.5 text-xs transition-colors hover:bg-muted"
           >
             Override
@@ -130,13 +133,22 @@ function EmployeeRow({
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 export function TeamsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [company, setCompany]   = useState<Company>("Framing")
+  const [company, setCompany]   = useState<Company>("framing")
   const [savingId, setSavingId] = useState<string | null>(null)
 
-  const { data: employees = [], isLoading } = useQBTimeEmployeeTeams(company.toLowerCase())
-  const setOverride   = useSetQBTimeEmployeeTeamOverride(company.toLowerCase())
-  const clearOverride = useClearQBTimeEmployeeTeamOverride(company.toLowerCase())
-  const sync           = useSyncQBTimeEmployeeTeams(company.toLowerCase())
+  const { data: employees = [], isLoading } = useQBTimeEmployeeTeams(company)
+  const setOverride   = useSetQBTimeEmployeeTeamOverride(company)
+  const clearOverride = useClearQBTimeEmployeeTeamOverride(company)
+  const sync           = useSyncQBTimeEmployeeTeams(company)
+
+  const availableTeams = useMemo(() => {
+    const names = new Set<string>()
+    for (const e of employees) {
+      if (e.qbTeamName) names.add(e.qbTeamName)
+      if (e.overrideTeamName) names.add(e.overrideTeamName)
+    }
+    return Array.from(names).sort((a, b) => a.localeCompare(b))
+  }, [employees])
 
   async function handleSetOverride(id: string, teamName: string) {
     setSavingId(id)
@@ -158,44 +170,50 @@ export function TeamsModal({ open, onClose }: { open: boolean; onClose: () => vo
         <DialogHeader className="flex-row items-center gap-3 border-b border-border px-5 py-4">
           <Network className="h-4 w-4 shrink-0 text-muted-foreground" />
           <DialogTitle className="flex-1 text-base">Team Management</DialogTitle>
-          <button
-            type="button"
-            onClick={() => sync.mutate()}
-            disabled={sync.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50"
-          >
-            {sync.isPending
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <RefreshCw className="h-3.5 w-3.5" />
-            }
-            Sync now
-          </button>
         </DialogHeader>
 
-        {/* Company nav bar */}
-        <div className="flex shrink-0 gap-2 border-b border-border px-5 py-3">
-          {COMPANIES.map(c => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCompany(c)}
-              className={cn(
-                "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                company === c
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-muted/30 text-muted-foreground hover:bg-muted",
-              )}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
+        <div className="flex flex-col gap-3 border-b border-border px-5 py-3">
+          <div className="flex items-center justify-between gap-3">
+            {/* Company segmented control */}
+            <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
+              {COMPANIES.map(c => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCompany(c)}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    company === c
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <CompanyLogo company={c} />
+                  {COMPANY_LABEL[c]}
+                </button>
+              ))}
+            </div>
 
-        {overriddenCount > 0 && (
-          <p className="shrink-0 px-5 pt-3 text-xs text-amber-600 dark:text-amber-400">
-            {overriddenCount} employee{overriddenCount === 1 ? "" : "s"} currently diverging from QuickBooks via manual override.
-          </p>
-        )}
+            <button
+              type="button"
+              onClick={() => sync.mutate()}
+              disabled={sync.isPending}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50"
+            >
+              {sync.isPending
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : <RefreshCw className="h-3.5 w-3.5" />
+              }
+              Sync now
+            </button>
+          </div>
+
+          {overriddenCount > 0 && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              {overriddenCount} employee{overriddenCount === 1 ? "" : "s"} currently diverging from QuickBooks via manual override.
+            </p>
+          )}
+        </div>
 
         {/* Employee list */}
         <div className="overflow-y-auto px-5 py-3">
@@ -205,7 +223,7 @@ export function TeamsModal({ open, onClose }: { open: boolean; onClose: () => vo
             <div className="flex flex-col items-center gap-3 py-16 text-center">
               <Network className="h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">
-                No employees synced yet for {company}. Click &quot;Sync now&quot; to pull from QuickBooks.
+                No employees synced yet for {COMPANY_LABEL[company]}. Click &quot;Sync now&quot; to pull from QuickBooks.
               </p>
             </div>
           ) : (
@@ -215,6 +233,7 @@ export function TeamsModal({ open, onClose }: { open: boolean; onClose: () => vo
                   key={e.id}
                   employee={e}
                   isLast={i === employees.length - 1}
+                  availableTeams={availableTeams}
                   onSetOverride={handleSetOverride}
                   onClearOverride={handleClearOverride}
                   savingId={savingId}
