@@ -19,3 +19,26 @@ export interface QBTimeDailyReportEntry {
   overtimeHours: number
   totalHours: number
 }
+
+export interface QBTimeTeam {
+  id: string
+  company: string
+  name: string
+  members: string[]
+  createdAt: string
+}
+
+export interface QBTimeEmployeeTeam {
+  id: string
+  company: string
+  qbtUserId: number
+  employeeName: string
+  qbTeamId: number | null
+  qbTeamName: string | null
+  overrideTeamName: string | null
+  overriddenBy: string | null
+  overriddenAt: string | null
+  lastSyncedAt: string
+  effectiveTeamName: string
+  isOverridden: boolean
+}

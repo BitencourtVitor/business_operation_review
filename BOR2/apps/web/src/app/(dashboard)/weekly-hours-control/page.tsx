@@ -41,6 +41,23 @@ type JCEmployee = {
 }
 type JCTeamGroup = { teamName: string; employees: JCEmployee[] }
 
+function formatAddressFocus(path: string[]): { primary: string; secondary: string } {
+  const parts = path.map(p => p.trim()).filter(Boolean)
+  if (parts.length <= 1) return { primary: parts[0] ?? "—", secondary: "" }
+
+  const client = parts[0]
+  const jobSite = parts[1]
+  const tail = parts.slice(2)
+  const lotIndex = tail.findIndex(part => /\b(lot|bldg|building|unit)\b/i.test(part))
+  const lot = lotIndex >= 0 ? tail[lotIndex] : ""
+  const secondaryTail = tail.filter((_, i) => i !== lotIndex)
+
+  return {
+    primary: [jobSite, lot].filter(Boolean).join(" › "),
+    secondary: [client, ...secondaryTail].filter(Boolean).join(" › "),
+  }
+}
+
 const DEFAULT_EXCLUDED = ["Lunch break", "Lunch break office"]
 const LS_EXCLUDED_KEY = "whc_excluded_addresses"
 const LS_SELECTED_DAYS_KEY = "whc_selected_days"
@@ -268,11 +285,12 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
         ctx.fillText(`${day.day.toUpperCase()} ${day.date}  ·  ${day.totalHours}h`, padX + 16, dy + 13)
         dy += DAY_HEADER_H
         for (const addr of day.addresses) {
+          const address = formatAddressFocus(addr.path)
           ctx.fillStyle = T1; ctx.font = `500 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-          ctx.textAlign = "left"; ctx.fillText(addr.path[0], padX + 28, dy + 12)
-          if (addr.path.length > 1) {
+          ctx.textAlign = "left"; ctx.fillText(address.primary, padX + 28, dy + 12)
+          if (address.secondary) {
             ctx.fillStyle = T2; ctx.font = `10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-            ctx.fillText(addr.path.slice(1).join(" › "), padX + 28, dy + 24)
+            ctx.fillText(address.secondary, padX + 28, dy + 24)
           }
           ctx.fillStyle = T1; ctx.font = `700 11px monospace`; ctx.textAlign = "right"
           ctx.fillText(`${addr.hours}h`, padX + 480, dy + 12)
@@ -871,19 +889,22 @@ export default function WeeklyHoursControlPage() {
                                       <span className="ml-auto font-mono text-[11px] font-bold text-foreground">{fmtH(day.totalHours, hourFormat)}</span>
                                     </div>
                                     <div className="divide-y divide-border/40">
-                                      {day.addresses.map((addr, i) => (
-                                        <div key={i} className="flex items-start gap-2 px-3 py-2 text-[12px]">
-                                          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                                            <span className="font-medium text-foreground/90">{addr.path[0]}</span>
-                                            {addr.path.length > 1 && (
-                                              <span className="text-[11px] text-muted-foreground">
-                                                {addr.path.slice(1).join(" › ")}
-                                              </span>
-                                            )}
+                                      {day.addresses.map((addr, i) => {
+                                        const address = formatAddressFocus(addr.path)
+                                        return (
+                                          <div key={i} className="flex items-start gap-2 px-3 py-2 text-[12px]">
+                                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                              <span className="font-medium text-foreground/90">{address.primary}</span>
+                                              {address.secondary && (
+                                                <span className="text-[11px] text-muted-foreground">
+                                                  {address.secondary}
+                                                </span>
+                                              )}
+                                            </div>
+                                            <span className="shrink-0 font-mono tabular-nums text-foreground/80">{fmtH(addr.hours, hourFormat)}</span>
                                           </div>
-                                          <span className="shrink-0 font-mono tabular-nums text-foreground/80">{fmtH(addr.hours, hourFormat)}</span>
-                                        </div>
-                                      ))}
+                                        )
+                                      })}
                                     </div>
                                   </div>
                                 ))}

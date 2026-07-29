@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Check, Copy, Loader2, RefreshCw, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { TeamsModal } from "@/components/features/qbtime/teams-modal"
+import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import { cn } from "@/lib/utils"
 import { useQBTimeTeams } from "@/hooks/use-qbtime-teams"
 import {
@@ -329,8 +332,12 @@ export default function WhosWorkingPage() {
   const [metricMode,   setMetricMode]   = useState<"decimal" | "time">("time")
   const [fetchEnabled, setFetchEnabled] = useState(false)
   const [copied,       setCopied]       = useState(false)
+  const [teamsOpen,    setTeamsOpen]    = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const { user } = useAuth()
+  const { canEdit } = usePermission()
+  const canManageTeams = ["dev", "owner", "admin", "manager"].includes(user?.role ?? "") || canEdit("settings_teams")
   const { data, isFetching, refetch } = useWhosWorking(company, fetchEnabled)
 
   // Redraw whenever data or metric mode changes
@@ -369,6 +376,13 @@ export default function WhosWorkingPage() {
 
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
+      {canManageTeams && (
+        <TeamsModal
+          open={teamsOpen}
+          onClose={() => setTeamsOpen(false)}
+          defaultCompany={company as "framing" | "hvac" | "pcg"}
+        />
+      )}
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
@@ -448,6 +462,16 @@ export default function WhosWorkingPage() {
 
         {/* Footer */}
         <div className="flex flex-col gap-2 border-t border-sidebar-border p-2">
+          {canManageTeams && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTeamsOpen(true)}
+              className="w-full gap-2"
+            >
+              Manage Teams
+            </Button>
+          )}
           <Button onClick={generate} disabled={isFetching} className="w-full gap-2">
             {isFetching
               ? <Loader2 className="h-4 w-4 animate-spin" />

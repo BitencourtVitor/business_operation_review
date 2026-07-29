@@ -27,7 +27,7 @@ import {
   CalendarCheck, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
   Eye, FileCheck, Fuel, Gauge,
   Gem, KeyRound, Loader2,
-  Package, Pencil, Plus, Ruler, Search,
+  Network, Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
   User, UserCheck, UserCog, UserPlus, Users, Wrench,
 } from "lucide-react"
@@ -80,6 +80,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
     permissions: [
       { key: "settings",               label: "Settings",            icon: Settings },
       { key: "settings_users",         label: "Manage Users",        icon: UserCog  },
+      { key: "settings_teams",         label: "Manage QBTime Teams", icon: Network  },
       { key: "settings_notifications", label: "Manage Notifications", icon: Bell    },
     ],
   },
@@ -507,7 +508,7 @@ function PermissionsModal({
                   </div>
 
                   {/* Permission cards */}
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                     {group.permissions.map(perm => {
                       const Icon  = perm.icon ?? null
                       const level = permissions[perm.key]
@@ -684,7 +685,7 @@ export default function UsersPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-y-auto rounded-xl border bg-card" style={{ maxHeight: "calc(100vh - 16rem)" }}>
+        <div className="overflow-auto rounded-xl border bg-card" style={{ maxHeight: "calc(100vh - 16rem)" }}>
           {ul ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

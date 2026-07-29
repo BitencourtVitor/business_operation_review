@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { TeamsModal } from "@/components/features/qbtime/teams-modal"
+import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import { usePayPeriods, usePeriodIntervals, usePeriodAccounting } from "@/hooks/use-qbtime-period-report"
 import { UnpaidAddressesModal } from "./unpaid-addresses-modal"
 import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals, IntervalsResponse } from "@/services/qbtime-period-report.service"
@@ -649,7 +652,11 @@ export default function PeriodReportsPage() {
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
   const [groupBy,      setGroupBy]      = useState<"name" | "team">("name")
   const [addressesOpen, setAddressesOpen] = useState(false)
+  const [teamsOpen,    setTeamsOpen]    = useState(false)
 
+  const { user } = useAuth()
+  const { canEdit } = usePermission()
+  const canManageTeams = ["dev", "owner", "admin", "manager"].includes(user?.role ?? "") || canEdit("settings_teams")
   const { data: periodsData, isLoading: periodsLoading } = usePayPeriods(company)
   const periods = periodsData?.periods ?? []
   const period  = periods[periodIndex] ?? null
@@ -763,6 +770,13 @@ export default function PeriodReportsPage() {
 
   return (
     <div className="flex h-full flex-col gap-4">
+      {canManageTeams && (
+        <TeamsModal
+          open={teamsOpen}
+          onClose={() => setTeamsOpen(false)}
+          defaultCompany={company as "framing" | "hvac" | "pcg"}
+        />
+      )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold">Period Reports</h1>
@@ -773,7 +787,6 @@ export default function PeriodReportsPage() {
 
         {/* Controls */}
         <div className="flex flex-wrap items-end gap-3">
-
           {/* View mode */}
           <div className="flex flex-col items-start gap-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">View</p>
@@ -943,6 +956,15 @@ export default function PeriodReportsPage() {
                 {visibleEmployees.length} {visibleEmployees.length === 1 ? "employee" : "employees"}
               </span>
               <div className="flex items-center gap-1">
+                {canManageTeams && (
+                  <>
+                    <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setTeamsOpen(true)}>
+                      <Users className="h-3.5 w-3.5" />
+                      Teams
+                    </Button>
+                    <div className="mx-1 h-4 w-px bg-border" />
+                  </>
+                )}
                 <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setAddressesOpen(true)}>
                   <Ban className="h-3.5 w-3.5" />
                   Paid/Unpaid Addresses

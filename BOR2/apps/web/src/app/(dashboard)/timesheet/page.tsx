@@ -10,14 +10,30 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { PageSkeleton } from "@/components/common/page-skeleton"
+import { useQBTimeEmployeeTeams } from "@/hooks/use-qbtime-employee-teams"
 import { useTimesheets } from "@/hooks/use-timesheets"
 import { Clock, Users, DollarSign } from "lucide-react"
 
 const fmt = (n: number) =>
   `$${n.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 
+const normalizeName = (name: string) => name.trim().toLowerCase()
+
 export default function TimesheetPage() {
   const { data: entries, isLoading } = useTimesheets()
+  const framingTeams = useQBTimeEmployeeTeams("framing")
+  const hvacTeams = useQBTimeEmployeeTeams("hvac")
+  const pcgTeams = useQBTimeEmployeeTeams("pcg")
+
+  const effectiveTeamByName = new Map<string, string>()
+  for (const source of [framingTeams.data, hvacTeams.data, pcgTeams.data]) {
+    for (const employee of source ?? []) {
+      const team = employee.effectiveTeamName?.trim()
+      if (team && team !== "Unassigned") {
+        effectiveTeamByName.set(normalizeName(employee.employeeName), team)
+      }
+    }
+  }
 
   const totalHours = entries?.reduce((sum, e) => sum + e.hours, 0) ?? 0
   const totalCost = entries?.reduce((sum, e) => sum + e.total, 0) ?? 0
@@ -65,44 +81,46 @@ export default function TimesheetPage() {
 
       {/* Table */}
       <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead>Corporation</TableHead>
-              <TableHead>Jobsite</TableHead>
-              <TableHead>Worktype</TableHead>
-              <TableHead className="text-right">Hours</TableHead>
-              <TableHead className="text-right">Rate</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {entries?.length === 0 ? (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                  No timesheet entries found
-                </TableCell>
+                <TableHead>Date</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Team</TableHead>
+                <TableHead>Corporation</TableHead>
+                <TableHead>Jobsite</TableHead>
+                <TableHead>Worktype</TableHead>
+                <TableHead className="text-right">Hours</TableHead>
+                <TableHead className="text-right">Rate</TableHead>
+                <TableHead className="text-right">Total</TableHead>
               </TableRow>
-            ) : (
-              entries?.map((e) => (
-                <TableRow key={e.id}>
-                  <TableCell>{e.date ? new Date(e.date).toLocaleDateString() : "—"}</TableCell>
-                  <TableCell className="font-medium">{e.name}</TableCell>
-                  <TableCell>{e.team}</TableCell>
-                  <TableCell>{e.corporation}</TableCell>
-                  <TableCell>{e.jobsite}</TableCell>
-                  <TableCell>{e.worktype}</TableCell>
-                  <TableCell className="text-right">{e.hours.toFixed(1)}</TableCell>
-                  <TableCell className="text-right">{fmt(e.rate)}</TableCell>
-                  <TableCell className="text-right font-medium">{fmt(e.total)}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {entries?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                    No timesheet entries found
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                entries?.map((e) => (
+                  <TableRow key={e.id}>
+                    <TableCell>{e.date ? new Date(e.date).toLocaleDateString() : "—"}</TableCell>
+                    <TableCell className="font-medium">{e.name}</TableCell>
+                    <TableCell>{effectiveTeamByName.get(normalizeName(e.name)) ?? e.team}</TableCell>
+                    <TableCell>{e.corporation}</TableCell>
+                    <TableCell>{e.jobsite}</TableCell>
+                    <TableCell>{e.worktype}</TableCell>
+                    <TableCell className="text-right">{e.hours.toFixed(1)}</TableCell>
+                    <TableCell className="text-right">{fmt(e.rate)}</TableCell>
+                    <TableCell className="text-right font-medium">{fmt(e.total)}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
     </div>
   )

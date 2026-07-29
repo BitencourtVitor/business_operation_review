@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // RequireAuth validates that a Bearer token is present.
@@ -39,8 +41,8 @@ func RequireAuthFull(authSvc *service.AuthService) fiber.Handler {
 			})
 		}
 
-		c.Locals("token",    token)
-		c.Locals("userID",   user.ID)
+		c.Locals("token", token)
+		c.Locals("userID", user.ID)
 		c.Locals("userName", user.Name)
 		c.Locals("userRole", string(user.Role))
 		return c.Next()
@@ -70,6 +72,53 @@ func RequireRole(roles ...string) fiber.Handler {
 	}
 }
 
+// RequirePermission restricts a route to users with a permission key.
+// It must be used after RequireAuthFull so userID/userRole are available.
+func RequirePermission(db *pgxpool.Pool, key string, level string) fiber.Handler {
+	fullAccessRoles := map[string]bool{"dev": true, "owner": true, "admin": true, "manager": true}
+	return func(c *fiber.Ctx) error {
+		userRole, _ := c.Locals("userRole").(string)
+		if fullAccessRoles[userRole] {
+			return c.Next()
+		}
+
+		userID, ok := c.Locals("userID").(string)
+		if !ok || userID == "" {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "forbidden",
+				"code":  "FORBIDDEN",
+			})
+		}
+
+		var raw []byte
+		if err := db.QueryRow(c.Context(), `
+			SELECT permissions FROM user_permissions WHERE user_id = $1
+		`, userID).Scan(&raw); err != nil {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "insufficient permissions",
+				"code":  "FORBIDDEN",
+			})
+		}
+
+		permissions := map[string]string{}
+		if err := json.Unmarshal(raw, &permissions); err != nil {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "insufficient permissions",
+				"code":  "FORBIDDEN",
+			})
+		}
+
+		actual := permissions[key]
+		if actual == "write" || (level == "read" && actual == "read") {
+			return c.Next()
+		}
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "insufficient permissions",
+			"code":  "FORBIDDEN",
+		})
+	}
+}
+
 // RequireCronOrAdmin allows the request if either:
 //   - The X-Cron-Secret header matches the configured cronSecret, OR
 //   - A valid Bearer token belongs to a dev/owner/admin user.
@@ -81,7 +130,7 @@ func RequireCronOrAdmin(cronSecret string, authSvc *service.AuthService) fiber.H
 	return func(c *fiber.Ctx) error {
 		// 1. Cron secret path — fast, no DB round-trip
 		if cronSecret != "" && c.Get("X-Cron-Secret") == cronSecret {
-			c.Locals("userID",   "cron")
+			c.Locals("userID", "cron")
 			c.Locals("userName", "cron-job")
 			c.Locals("userRole", "dev")
 			return c.Next()
@@ -115,8 +164,8 @@ func RequireCronOrAdmin(cronSecret string, authSvc *service.AuthService) fiber.H
 				"code":  "FORBIDDEN",
 			})
 		}
-		c.Locals("token",    parts[1])
-		c.Locals("userID",   user.ID)
+		c.Locals("token", parts[1])
+		c.Locals("userID", user.ID)
 		c.Locals("userName", user.Name)
 		c.Locals("userRole", string(user.Role))
 		return c.Next()

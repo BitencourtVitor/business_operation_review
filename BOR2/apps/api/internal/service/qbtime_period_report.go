@@ -86,10 +86,11 @@ type usersResp struct {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type PeriodReportService struct {
-	httpClient *http.Client
-	teamRepo   repository.QBTimeTeamRepository
-	cacheRepo  repository.QBTimePeriodCacheRepository
-	unpaidRepo repository.QBTimeUnpaidAddressRepository
+	httpClient       *http.Client
+	teamRepo         repository.QBTimeTeamRepository
+	employeeTeamRepo repository.QBTimeEmployeeTeamRepository
+	cacheRepo        repository.QBTimePeriodCacheRepository
+	unpaidRepo       repository.QBTimeUnpaidAddressRepository
 
 	// Background-refresh guard: viewing the report kicks off a throttled cache
 	// refresh so corrections in QuickBooks land without a manual button.
@@ -100,16 +101,18 @@ type PeriodReportService struct {
 
 func NewPeriodReportService(
 	teamRepo repository.QBTimeTeamRepository,
+	employeeTeamRepo repository.QBTimeEmployeeTeamRepository,
 	cacheRepo repository.QBTimePeriodCacheRepository,
 	unpaidRepo repository.QBTimeUnpaidAddressRepository,
 ) *PeriodReportService {
 	return &PeriodReportService{
-		httpClient: &http.Client{Timeout: 60 * time.Second},
-		teamRepo:   teamRepo,
-		cacheRepo:  cacheRepo,
-		unpaidRepo: unpaidRepo,
-		syncing:    make(map[string]bool),
-		lastSync:   make(map[string]time.Time),
+		httpClient:       &http.Client{Timeout: 60 * time.Second},
+		teamRepo:         teamRepo,
+		employeeTeamRepo: employeeTeamRepo,
+		cacheRepo:        cacheRepo,
+		unpaidRepo:       unpaidRepo,
+		syncing:          make(map[string]bool),
+		lastSync:         make(map[string]time.Time),
 	}
 }
 
@@ -555,6 +558,35 @@ func (s *PeriodReportService) fetchTimesheetsDelta(ctx context.Context, company 
 
 // ── Assemble intervals from rows (cache or live) ───────────────────────────────
 
+func (s *PeriodReportService) effectiveTeamByEmployee(ctx context.Context, company string) map[string]string {
+	nameToTeam := make(map[string]string)
+	if s.employeeTeamRepo != nil {
+		if employees, err := s.employeeTeamRepo.List(ctx, strings.ToLower(company)); err == nil {
+			for _, employee := range employees {
+				team := strings.TrimSpace(employee.EffectiveTeamName)
+				if team == "" || team == "Unassigned" {
+					continue
+				}
+				nameToTeam[normalizedEmployeeName(employee.EmployeeName)] = team
+			}
+			if len(nameToTeam) > 0 {
+				return nameToTeam
+			}
+		}
+	}
+
+	if s.teamRepo != nil {
+		if teams, err := s.teamRepo.List(ctx, strings.ToLower(company)); err == nil {
+			for _, team := range teams {
+				for _, member := range team.Members {
+					nameToTeam[normalizedEmployeeName(member)] = team.Name
+				}
+			}
+		}
+	}
+	return nameToTeam
+}
+
 func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, startDate, endDate string, rows []domain.QBTimesheetRow, unpaid map[string]bool) *domain.IntervalsResponse {
 	type empDateKey struct{ name, date string }
 	blocksMap := make(map[empDateKey][]domain.PeriodBlock)
@@ -585,17 +617,7 @@ func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, st
 		})
 	}
 
-	// BOR2 team per employee (members stored as "First Last"). Best-effort.
-	nameToTeam := make(map[string]string)
-	if s.teamRepo != nil {
-		if teams, err := s.teamRepo.List(ctx, strings.ToLower(company)); err == nil {
-			for _, t := range teams {
-				for _, m := range t.Members {
-					nameToTeam[strings.ToLower(strings.TrimSpace(m))] = t.Name
-				}
-			}
-		}
-	}
+	nameToTeam := s.effectiveTeamByEmployee(ctx, company)
 
 	empDays := make(map[string]map[string]domain.PeriodDay)
 	for key, blocks := range blocksMap {
@@ -631,7 +653,7 @@ func (s *PeriodReportService) assembleIntervals(ctx context.Context, company, st
 
 		employees = append(employees, domain.PeriodEmployee{
 			Name:       name,
-			Team:       nameToTeam[strings.ToLower(name)],
+			Team:       nameToTeam[normalizedEmployeeName(name)],
 			TotalHours: round2(totalHours),
 			Days:       days,
 		})
