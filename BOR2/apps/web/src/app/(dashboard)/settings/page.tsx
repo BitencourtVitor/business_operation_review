@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Bell, ChevronRight, KeyRound, Loader2, Network, ShieldAlert, ShieldCheck, Users } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
-import { TeamsModal } from "@/components/features/qbtime/teams-modal"
+import { TeamsModal } from "@/components/features/qbtime-teams-modal"
 
 // Dev/Owner/Manager can always see every settings page, same tier the
 // permissions modal treats as "always has access" and can't be revoked.

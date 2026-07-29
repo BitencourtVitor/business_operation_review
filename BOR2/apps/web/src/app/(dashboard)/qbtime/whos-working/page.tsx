@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Check, Copy, Loader2, RefreshCw, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { TeamsModal } from "@/components/features/qbtime/teams-modal"
+import { TeamsModal } from "@/components/features/qbtime-teams-modal"
 import { useAuth } from "@/hooks/use-auth"
 import { usePermission } from "@/hooks/use-permission"
 import { cn } from "@/lib/utils"
