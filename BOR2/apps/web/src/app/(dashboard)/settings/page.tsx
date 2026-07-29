@@ -3,14 +3,16 @@
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
-import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users, Users2 } from "lucide-react"
+import { Bell, ChevronRight, KeyRound, Loader2, Network, ShieldAlert, ShieldCheck, Users } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
+import { TeamsModal } from "./teams-modal"
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuth()
   const [resetOpen, setResetOpen]   = useState(false)
   const [permsOpen, setPermsOpen]   = useState(false)
+  const [teamsOpen, setTeamsOpen]   = useState(false)
 
   if (isLoading) {
     return (
@@ -46,10 +48,10 @@ export default function SettingsPage() {
       onClick:     () => setPermsOpen(true),
     },
     {
-      icon:        Users2,
+      icon:        Network,
       title:       "Teams",
       description: "Manage QB Time team assignments per employee, with manual override when QB Time is wrong.",
-      href:        "/settings/teams",
+      onClick:     () => setTeamsOpen(true),
     },
     {
       icon:        Bell,
@@ -114,6 +116,10 @@ export default function SettingsPage() {
       <PermissionsModal
         open={permsOpen}
         onClose={() => setPermsOpen(false)}
+      />
+      <TeamsModal
+        open={teamsOpen}
+        onClose={() => setTeamsOpen(false)}
       />
     </>
   )

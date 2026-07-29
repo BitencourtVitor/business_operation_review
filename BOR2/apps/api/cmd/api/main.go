@@ -324,8 +324,9 @@ func main() {
 	// QBTime Employee Teams (synced from QB Time Groups, with manual override)
 	qbtimeEmployeeTeams := api.Group("/qbtime/employee-teams")
 	qbtimeEmployeeTeams.Get("/", qbtimeEmployeeTeamHandler.List)
-	qbtimeEmployeeTeams.Patch("/:id/override", qbtimeEmployeeTeamHandler.SetOverride)
-	qbtimeEmployeeTeams.Delete("/:id/override", qbtimeEmployeeTeamHandler.ClearOverride)
+	// Full auth (resolves userName) so the audit log and "overridden by" record who acted.
+	qbtimeEmployeeTeams.Patch("/:id/override", middleware.RequireAuthFull(authService), qbtimeEmployeeTeamHandler.SetOverride)
+	qbtimeEmployeeTeams.Delete("/:id/override", middleware.RequireAuthFull(authService), qbtimeEmployeeTeamHandler.ClearOverride)
 	// (POST /qbtime/employee-teams/sync is cron-guarded, registered above before RequireAuth.)
 
 	// QBTime Who's Working
