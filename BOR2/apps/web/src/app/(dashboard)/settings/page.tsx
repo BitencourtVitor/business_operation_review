@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
-import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users } from "lucide-react"
+import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users, Users2 } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
 
@@ -44,6 +44,12 @@ export default function SettingsPage() {
       title:       "Edit Permissions",
       description: "Define what each user can view or edit across every section of the system.",
       onClick:     () => setPermsOpen(true),
+    },
+    {
+      icon:        Users2,
+      title:       "Teams",
+      description: "Manage QB Time team assignments per employee, with manual override when QB Time is wrong.",
+      href:        "/settings/teams",
     },
     {
       icon:        Bell,
