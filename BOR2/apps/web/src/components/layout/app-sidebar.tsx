@@ -36,7 +36,6 @@ import {
   CreditCard,
   FileCheck,
   FileText,
-  Fuel,
   Gauge,
   HandCoins,
   ImageIcon,
@@ -53,8 +52,7 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
-import { useMyPermissions } from "@/hooks/use-settings"
-import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashboard)/permits/manage-data-modal"
 import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
@@ -66,7 +64,6 @@ type SubItem = {
   href: string
   icon?: React.ElementType
   image?: string
-  disabled?: boolean
   permKey?: string       // permission key required to VIEW this sub-item
 }
 
@@ -76,7 +73,6 @@ type NavItem = {
   icon?: React.ElementType
   image?: string
   imageDark?: string
-  disabled?: boolean
   children?: SubItem[]
   permKey?: string       // permission key required to VIEW this item
   editPermKey?: string   // permission key that grants the gear edit button (opens modal)
@@ -131,15 +127,6 @@ const activeGroup: NavGroup = {
     },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
     { title: "Subcontractor Docs", href: "/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
-  ],
-}
-
-// Not ready — disabled, shown at the bottom with a "Coming Soon" label
-const comingSoonGroup: NavGroup = {
-  label: "Coming Soon",
-  items: [
-    { title: "HVAC Projects",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
-    { title: "Fuel Control",   href: "/fuel",               icon: Fuel,                       disabled: true },
   ],
 }
 
@@ -228,32 +215,22 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
         >
           <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{item.title}</div>
           {item.children.map((child) => (
-            child.disabled ? (
-              <div
-                key={child.href + child.title}
-                className="flex cursor-not-allowed items-center gap-2 rounded-md px-2 py-1.5 text-sm opacity-40"
-              >
-                {child.icon ? <child.icon className="h-3.5 w-3.5" /> : null}
-                {child.title}
-              </div>
-            ) : (
-              <Link
-                key={child.href + child.title}
-                href={child.href}
-                className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
-                  isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
-                }`}
-                onClick={() => setShow(false)}
-              >
-                {child.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-                ) : child.icon ? (
-                  <child.icon className="h-3.5 w-3.5" />
-                ) : null}
-                {child.title}
-              </Link>
-            )
+            <Link
+              key={child.href + child.title}
+              href={child.href}
+              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
+                isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
+              }`}
+              onClick={() => setShow(false)}
+            >
+              {child.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+              ) : child.icon ? (
+                <child.icon className="h-3.5 w-3.5" />
+              ) : null}
+              {child.title}
+            </Link>
           ))}
           {item.editPermKey && canEdit(item.editPermKey) && (
             <>
@@ -282,7 +259,6 @@ function NavGroupItems({
   isItemExpanded,
   toggleExpanded,
   canEdit,
-  canPreviewDisabled,
   onEditOpen,
 }: {
   items: NavItem[]
@@ -293,7 +269,6 @@ function NavGroupItems({
   isItemExpanded: (item: NavItem) => boolean
   toggleExpanded: (title: string) => void
   canEdit: (permKey: string) => boolean
-  canPreviewDisabled: boolean
   onEditOpen: (item: NavItem) => void
 }) {
   const router = useRouter()
@@ -319,27 +294,14 @@ function NavGroupItems({
         return item.children ? (
           <SidebarMenuItem key={item.title}>
             {!open ? (
-              item.disabled && !canPreviewDisabled ? (
-                <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
-                  <NavItemIcon item={item} />
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-              ) : (
-                <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} onEditOpen={onEditOpen} />
-              )
-            ) : item.disabled && !canPreviewDisabled ? (
-              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
-                <NavItemIcon item={item} />
-                <span>{item.title}</span>
-                <ChevronDown className="ml-auto h-4 w-4 -rotate-90" />
-              </SidebarMenuButton>
+              <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} onEditOpen={onEditOpen} />
             ) : (
               <>
                 <SidebarMenuButton
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={`${item.disabled ? "opacity-50" : ""} ${item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}`}
+                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
@@ -375,25 +337,18 @@ function NavGroupItems({
                   <SidebarMenuSub className="gap-1 py-1">
                     {item.children.map((child) => (
                       <SidebarMenuSubItem key={child.title + child.href}>
-                        {child.disabled ? (
-                          <span className="flex cursor-not-allowed items-center gap-2 px-2 py-1.5 text-sm opacity-40">
-                            {child.icon ? <child.icon className="h-3.5 w-3.5" /> : null}
-                            {child.title}
-                          </span>
-                        ) : (
-                          <SidebarMenuSubButton
-                            isActive={isActive(child.href)}
-                            render={<Link href={child.href} />}
-                          >
-                            {child.image ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-                            ) : child.icon ? (
-                              <child.icon className="h-3.5 w-3.5" />
-                            ) : null}
-                            <span>{child.title}</span>
-                          </SidebarMenuSubButton>
-                        )}
+                        <SidebarMenuSubButton
+                          isActive={isActive(child.href)}
+                          render={<Link href={child.href} />}
+                        >
+                          {child.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+                          ) : child.icon ? (
+                            <child.icon className="h-3.5 w-3.5" />
+                          ) : null}
+                          <span>{child.title}</span>
+                        </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>
@@ -403,55 +358,46 @@ function NavGroupItems({
           </SidebarMenuItem>
         ) : (
           <SidebarMenuItem key={item.title + item.href}>
-            {item.disabled ? (
-              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
-                <NavItemIcon item={item} />
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            ) : (
-              <>
-                <SidebarMenuButton
-                  isActive={isActive(item.href)}
-                  render={<Link href={item.href} />}
-                  tooltip={item.title}
-                  className={(item.editPermKey && canEdit(item.editPermKey)) || item.metricsHref ? "peer" : ""}
-                >
-                  <NavItemIcon item={item} />
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-                {item.metricsHref && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger render={
-                        <SidebarMenuAction
-                          showOnHover
-                          onClick={e => { e.preventDefault(); e.stopPropagation(); router.push(item.metricsHref!) }}
-                          className={`hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary ${item.editPermKey && canEdit(item.editPermKey) ? "right-7" : ""}`}
-                        />
-                      }>
-                        <TrendingUp className="h-3.5 w-3.5" />
-                      </TooltipTrigger>
-                      <TooltipContent side="right">See Metrics</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-                {item.editPermKey && canEdit(item.editPermKey) && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger render={
-                        <SidebarMenuAction
-                          showOnHover
-                          onClick={e => { e.preventDefault(); onEditOpen(item) }}
-                          className="hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
-                        />
-                      }>
-                        <Settings className="h-3.5 w-3.5" />
-                      </TooltipTrigger>
-                      <TooltipContent side="right">Manage Data</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </>
+            <SidebarMenuButton
+              isActive={isActive(item.href)}
+              render={<Link href={item.href} />}
+              tooltip={item.title}
+              className={(item.editPermKey && canEdit(item.editPermKey)) || item.metricsHref ? "peer" : ""}
+            >
+              <NavItemIcon item={item} />
+              <span>{item.title}</span>
+            </SidebarMenuButton>
+            {item.metricsHref && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <SidebarMenuAction
+                      showOnHover
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); router.push(item.metricsHref!) }}
+                      className={`hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary ${item.editPermKey && canEdit(item.editPermKey) ? "right-7" : ""}`}
+                    />
+                  }>
+                    <TrendingUp className="h-3.5 w-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right">See Metrics</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {item.editPermKey && canEdit(item.editPermKey) && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <SidebarMenuAction
+                      showOnHover
+                      onClick={e => { e.preventDefault(); onEditOpen(item) }}
+                      className="hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
+                    />
+                  }>
+                    <Settings className="h-3.5 w-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Manage Data</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </SidebarMenuItem>
         )
@@ -468,25 +414,7 @@ export function AppSidebar() {
   const [expanded, setExpanded] = useState<string[]>([])
   const [editItem, setEditItem] = useState<NavItem | null>(null)
 
-  const { user } = useAuth()
-  const { data: myPerms, isLoading: permsLoading } = useMyPermissions()
-
-  const ADMIN_ROLES    = ["dev", "owner", "admin"]
-  const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
-
-  function canEdit(permKey: string): boolean {
-    if (!user) return false
-    if (ADMIN_ROLES.includes(user.role)) return true
-    return myPerms?.permissions[permKey] === "write"
-  }
-
-  // canView: controls whether the nav item is rendered at all
-  function canView(permKey: string): boolean {
-    if (!user) return false
-    if (FULL_ACCESS_ROLES.includes(user.role)) return true
-    if (permsLoading) return true           // avoid flash while permissions load
-    return !!myPerms?.permissions[permKey]  // "read" or "write" both grant visibility
-  }
+  const { canView, canEdit } = usePermission()
 
   // Filter nav items based on permissions; also filters children with permKeys
   function filterNavItems(items: NavItem[]): NavItem[] {
@@ -537,13 +465,10 @@ export function AppSidebar() {
     return expanded.includes(item.title) || isGroupActive(item)
   }
 
-  const canPreviewDisabled = !!user && ADMIN_ROLES.includes(user.role)
-
   const groupProps = {
     open: isMobile ? true : open,
     isMobile,
     isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
-    canPreviewDisabled,
     onEditOpen: setEditItem,
   }
 
@@ -607,17 +532,6 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <NavGroupItems items={filterNavItems(activeGroup.items)} {...groupProps} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Full-width separator */}
-        <div className="h-px shrink-0 bg-sidebar-border" />
-
-        {/* Coming Soon */}
-        <SidebarGroup>
-          {(open || isMobile) && <SidebarGroupLabel className="text-muted-foreground/50">{comingSoonGroup.label}</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <NavGroupItems items={comingSoonGroup.items} {...groupProps} />
           </SidebarGroupContent>
         </SidebarGroup>
 
