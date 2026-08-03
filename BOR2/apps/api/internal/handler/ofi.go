@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -58,6 +59,10 @@ func round2(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
+func validOFIPeriod(month, year int) bool {
+	return month >= 1 && month <= 12 && year >= 2000 && year <= 9999
+}
+
 func ofiInternalErr(c *fiber.Ctx, op string, err error) error {
 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 		"error": fmt.Sprintf("%s: %v", op, err),
@@ -66,62 +71,70 @@ func ofiInternalErr(c *fiber.Ctx, op string, err error) error {
 }
 
 // calcBoolScore queries a boolean-status table and returns (done/total)*weight.
-func calcBoolScore(ctx context.Context, db *pgxpool.Pool, query, id string, weight float64) float64 {
+func calcBoolScore(ctx context.Context, db pgx.Tx, query, id string, weight float64) (float64, error) {
 	rows, err := db.Query(ctx, query, id)
 	if err != nil {
-		return 0
+		return 0, err
 	}
 	defer rows.Close()
 	var total, done int
 	for rows.Next() {
 		var status bool
-		if rows.Scan(&status) == nil {
-			total++
-			if status {
-				done++
-			}
+		if err := rows.Scan(&status); err != nil {
+			return 0, err
+		}
+		total++
+		if status {
+			done++
 		}
 	}
-	if total == 0 {
-		return 0
+	if err := rows.Err(); err != nil {
+		return 0, err
 	}
-	return round2(float64(done) / float64(total) * weight)
+	if total == 0 {
+		return 0, nil
+	}
+	return round2(float64(done) / float64(total) * weight), nil
 }
 
 // calcMachineScore queries forecast_machines and counts 'scheduled'/'dispensed'.
 // Private-client obras never get machines seeded (no catalog entries for that
 // client), so an empty list there means "not applicable", not "not ready" —
 // score them as fully satisfied instead of 0.
-func calcMachineScore(ctx context.Context, db *pgxpool.Pool, id, cliente string) float64 {
+func calcMachineScore(ctx context.Context, db pgx.Tx, id, cliente string) (float64, error) {
 	if strings.EqualFold(strings.TrimSpace(cliente), "private") {
-		return 2
+		return 2, nil
 	}
 	rows, err := db.Query(ctx,
 		`SELECT COALESCE(status,'') FROM forecast_machines WHERE project_id = $1`, id)
 	if err != nil {
-		return 0
+		return 0, err
 	}
 	defer rows.Close()
 	var total, done int
 	for rows.Next() {
 		var status string
-		if rows.Scan(&status) == nil {
-			total++
-			if s := strings.ToLower(status); s == "scheduled" || s == "dispensed" {
-				done++
-			}
+		if err := rows.Scan(&status); err != nil {
+			return 0, err
+		}
+		total++
+		if s := strings.ToLower(status); s == "scheduled" || s == "dispensed" {
+			done++
 		}
 	}
-	if total == 0 {
-		return 0
+	if err := rows.Err(); err != nil {
+		return 0, err
 	}
-	return round2(float64(done) / float64(total) * 2)
+	if total == 0 {
+		return 0, nil
+	}
+	return round2(float64(done) / float64(total) * 2), nil
 }
 
 // ─── GET /ofi ─────────────────────────────────────────────────────────────────
 
 func (h *OFIHandler) List(c *fiber.Ctx) error {
-	year, _  := strconv.Atoi(c.Query("year"))
+	year, _ := strconv.Atoi(c.Query("year"))
 	month, _ := strconv.Atoi(c.Query("month"))
 
 	rows, err := h.db.Query(context.Background(), `
@@ -166,7 +179,7 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 // ─── GET /ofi/monthly-execution ───────────────────────────────────────────────
 
 func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
-	year, _  := strconv.Atoi(c.Query("year"))
+	year, _ := strconv.Atoi(c.Query("year"))
 	month, _ := strconv.Atoi(c.Query("month"))
 
 	rows, err := h.db.Query(context.Background(), `
@@ -246,126 +259,143 @@ func (h *OFIHandler) UpdateExecutionReason(c *fiber.Ctx) error {
 
 func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 	ctx := context.Background()
-	now := time.Now().UTC()
+	location, err := time.LoadLocation("America/Sao_Paulo")
+	if err != nil {
+		return ofiInternalErr(c, "load business timezone", err)
+	}
+	now := time.Now().In(location)
 
 	var req struct {
-		ExecutionMonth int `json:"executionMonth"`
-		ExecutionYear  int `json:"executionYear"`
-		Month          int `json:"month"`
-		Year           int `json:"year"`
+		ExecutionMonth int  `json:"executionMonth"`
+		ExecutionYear  int  `json:"executionYear"`
+		Month          int  `json:"month"`
+		Year           int  `json:"year"`
+		DryRun         bool `json:"dryRun"`
 	}
-	_ = c.BodyParser(&req)
-
-	// Execution period
-	execMonth := req.ExecutionMonth
-	execYear  := req.ExecutionYear
-	if execMonth == 0 { execMonth = int(now.Month()) }
-	if execYear  == 0 { execYear  = now.Year()       }
-
-	// Planning period (next calendar month by default)
-	targetMonth := req.Month
-	targetYear  := req.Year
-	if targetMonth == 0 {
-		next        := now.AddDate(0, 1, 0)
-		targetMonth  = int(next.Month())
-		targetYear   = next.Year()
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invalid body", "code": "BAD_REQUEST",
+		})
 	}
-	if targetYear == 0 { targetYear = now.Year() }
+	if !validOFIPeriod(req.ExecutionMonth, req.ExecutionYear) ||
+		!validOFIPeriod(req.Month, req.Year) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "executionMonth, executionYear, month and year are required and must be valid",
+			"code":  "BAD_REQUEST",
+		})
+	}
 
-	// ── Pipeline 1: Monthly Execution ────────────────────────────────────────
+	execMonth, execYear := req.ExecutionMonth, req.ExecutionYear
+	targetMonth, targetYear := req.Month, req.Year
+	tx, err := h.db.Begin(ctx)
+	if err != nil {
+		return ofiInternalErr(c, "begin OFI calculation", err)
+	}
+	defer tx.Rollback(ctx)
 
-	// Load obra IDs planned for execution period (from OFI scores)
-	planRows, err := h.db.Query(ctx,
-		`SELECT DISTINCT obra_id FROM operational_forecast_index
-		 WHERE reference_month = $1 AND reference_year = $2`,
-		execMonth, execYear,
-	)
+	planRows, err := tx.Query(ctx, `
+		SELECT DISTINCT obra_id FROM operational_forecast_index
+		WHERE reference_month = $1 AND reference_year = $2`, execMonth, execYear)
 	if err != nil {
 		return ofiInternalErr(c, "load planned obras", err)
 	}
 	var plannedIDs []string
 	for planRows.Next() {
 		var id string
-		if scanErr := planRows.Scan(&id); scanErr == nil {
-			plannedIDs = append(plannedIDs, id)
+		if err := planRows.Scan(&id); err != nil {
+			planRows.Close()
+			return ofiInternalErr(c, "scan planned obra", err)
 		}
+		plannedIDs = append(plannedIDs, id)
+	}
+	if err := planRows.Err(); err != nil {
+		planRows.Close()
+		return ofiInternalErr(c, "read planned obras", err)
 	}
 	planRows.Close()
 
-	execCount := 0
-	if len(plannedIDs) > 0 {
-		// Preserve manually-entered reasons before wiping
-		reasonRows, _ := h.db.Query(ctx,
-			`SELECT obra_id, reason FROM monthly_execution_history
-			 WHERE reference_month = $1 AND reference_year = $2 AND reason <> ''`,
-			execMonth, execYear,
-		)
-		reasonMap := map[string]string{}
-		for reasonRows.Next() {
-			var obraID, reason string
-			if scanErr := reasonRows.Scan(&obraID, &reason); scanErr == nil {
-				reasonMap[obraID] = reason
-			}
+	type preservedExecution struct {
+		plannedStatus string
+		reason        string
+		subcontractor string
+	}
+	preserved := map[string]preservedExecution{}
+	preservedRows, err := tx.Query(ctx, `
+		SELECT obra_id, COALESCE(planned_status,''), COALESCE(reason,''), COALESCE(subcontractor,'')
+		FROM monthly_execution_history
+		WHERE reference_month = $1 AND reference_year = $2`, execMonth, execYear)
+	if err != nil {
+		return ofiInternalErr(c, "load preserved execution data", err)
+	}
+	for preservedRows.Next() {
+		var obraID string
+		var value preservedExecution
+		if err := preservedRows.Scan(&obraID, &value.plannedStatus, &value.reason, &value.subcontractor); err != nil {
+			preservedRows.Close()
+			return ofiInternalErr(c, "scan preserved execution data", err)
 		}
-		reasonRows.Close()
+		preserved[obraID] = value
+	}
+	if err := preservedRows.Err(); err != nil {
+		preservedRows.Close()
+		return ofiInternalErr(c, "read preserved execution data", err)
+	}
+	preservedRows.Close()
 
-		if _, err = h.db.Exec(ctx,
-			`DELETE FROM monthly_execution_history
-			 WHERE reference_month = $1 AND reference_year = $2`,
-			execMonth, execYear,
-		); err != nil {
-			return ofiInternalErr(c, "delete old execution", err)
-		}
-
-		for _, obraID := range plannedIDs {
-			var status    string
-			var startDate *time.Time
-			var endDate   *time.Time
-			if err := h.db.QueryRow(ctx,
-				`SELECT COALESCE(status,''), previous_start_date, previous_end_date
-				 FROM forecast_core WHERE id = $1`, obraID,
-			).Scan(&status, &startDate, &endDate); err != nil {
-				continue
-			}
-
-			statusLower     := strings.ToLower(strings.TrimSpace(status))
-			isStartedFlag   := statusLower == "open" || statusLower == "started" || statusLower == "closed"
-			isCompletedFlag := statusLower == "closed"
-
-			actualStatus := "not_started"
-			if isCompletedFlag {
-				actualStatus = "completed"
-			} else if isStartedFlag {
-				actualStatus = "started"
-			}
-
-			var actualStart, actualEnd *time.Time
-			if isStartedFlag   { actualStart = startDate }
-			if isCompletedFlag { actualEnd   = endDate   }
-
-			if _, err = h.db.Exec(ctx, `
-				INSERT INTO monthly_execution_history
-				  (obra_id, reference_month, reference_year,
-				   planned_status, actual_status, reason, subcontractor,
-				   is_cycle_completed, actual_start_date, actual_end_date)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-				obraID, execMonth, execYear,
-				status, actualStatus, reasonMap[obraID], "",
-				isCompletedFlag, actualStart, actualEnd,
-			); err != nil {
-				return ofiInternalErr(c, "insert execution record", err)
-			}
-			execCount++
-		}
+	if _, err = tx.Exec(ctx, `
+		DELETE FROM monthly_execution_history
+		WHERE reference_month = $1 AND reference_year = $2`, execMonth, execYear); err != nil {
+		return ofiInternalErr(c, "delete old execution", err)
 	}
 
-	// ── Pipeline 2: OFI Planning ──────────────────────────────────────────────
+	execCount := 0
+	startedCount := 0
+	for _, obraID := range plannedIDs {
+		var status string
+		var startDate, endDate *time.Time
+		if err := tx.QueryRow(ctx, `
+			SELECT COALESCE(status,''), previous_start_date, previous_end_date
+			FROM forecast_core WHERE id = $1`, obraID).Scan(&status, &startDate, &endDate); err != nil {
+			return ofiInternalErr(c, "load execution obra", err)
+		}
+
+		statusLower := strings.ToLower(strings.TrimSpace(status))
+		isStarted := statusLower == "open" || statusLower == "started" || statusLower == "closed"
+		isCompleted := statusLower == "closed"
+		actualStatus := "not_started"
+		if isCompleted {
+			actualStatus = "completed"
+		} else if isStarted {
+			actualStatus = "started"
+		}
+		if isStarted {
+			startedCount++
+		}
+
+		var actualStart, actualEnd *time.Time
+		if isStarted {
+			actualStart = startDate
+		}
+		if isCompleted {
+			actualEnd = endDate
+		}
+
+		old := preserved[obraID]
+		if _, err = tx.Exec(ctx, `
+			INSERT INTO monthly_execution_history
+			  (obra_id, reference_month, reference_year,
+			   planned_status, actual_status, reason, subcontractor,
+			   is_cycle_completed, actual_start_date, actual_end_date)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+			obraID, execMonth, execYear, old.plannedStatus, actualStatus,
+			old.reason, old.subcontractor, isCompleted, actualStart, actualEnd); err != nil {
+			return ofiInternalErr(c, "insert execution record", err)
+		}
+		execCount++
+	}
 
 	startOfMonth := fmt.Sprintf("%04d-%02d-01", targetYear, targetMonth)
-	// Last day of target month: first day of month+1 minus 1 day
-	endOfMonth := time.Date(targetYear, time.Month(targetMonth+1), 0, 0, 0, 0, 0, time.UTC).
-		Format("2006-01-02")
-
+	endOfMonth := time.Date(targetYear, time.Month(targetMonth+1), 0, 0, 0, 0, 0, location).Format("2006-01-02")
 	type obra struct {
 		ID           string
 		Cliente      string
@@ -373,106 +403,136 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 		QBTime       bool
 		BuilderTrend bool
 	}
-
-	obraRows, err := h.db.Query(ctx, `
-		SELECT id,
-		       COALESCE(cliente,''),
-		       COALESCE(storage,false),
-		       COALESCE(qb_time,false),
-		       COALESCE(buildertrend,false)
+	obraRows, err := tx.Query(ctx, `
+		SELECT id, COALESCE(cliente,''), COALESCE(storage,false),
+		       COALESCE(qb_time,false), COALESCE(buildertrend,false)
 		FROM forecast_core
-		WHERE previous_start_date >= $1
-		  AND previous_start_date <= $2`,
-		startOfMonth, endOfMonth,
-	)
+		WHERE previous_start_date >= $1 AND previous_start_date <= $2`, startOfMonth, endOfMonth)
 	if err != nil {
 		return ofiInternalErr(c, "load obras for planning", err)
 	}
 	var obras []obra
 	for obraRows.Next() {
 		var o obra
-		if scanErr := obraRows.Scan(&o.ID, &o.Cliente, &o.Storage, &o.QBTime, &o.BuilderTrend); scanErr == nil {
-			obras = append(obras, o)
+		if err := obraRows.Scan(&o.ID, &o.Cliente, &o.Storage, &o.QBTime, &o.BuilderTrend); err != nil {
+			obraRows.Close()
+			return ofiInternalErr(c, "scan planning obra", err)
 		}
+		obras = append(obras, o)
+	}
+	if err := obraRows.Err(); err != nil {
+		obraRows.Close()
+		return ofiInternalErr(c, "read planning obras", err)
 	}
 	obraRows.Close()
 
-	ofiCount := 0
-	if len(obras) > 0 {
-		if _, err = h.db.Exec(ctx,
-			`DELETE FROM operational_forecast_index
-			 WHERE reference_month = $1 AND reference_year = $2`,
-			targetMonth, targetYear,
-		); err != nil {
-			return ofiInternalErr(c, "delete old OFI scores", err)
-		}
-
-		captureDate := now.Format("2006-01-02")
-
-		for _, o := range obras {
-			fwScore := calcBoolScore(ctx, h.db,
-				`SELECT status FROM forecast_fieldwire WHERE project_id = $1`, o.ID, 2.0)
-
-			mScore := calcMachineScore(ctx, h.db, o.ID, o.Cliente)
-
-			cScore := calcBoolScore(ctx, h.db,
-				`SELECT status FROM forecast_contract_steps WHERE project_id = $1`, o.ID, 2.0)
-
-			sScore := 0.0
-			if o.Storage      { sScore += 0.333 }
-			if o.QBTime       { sScore += 0.333 }
-			if o.BuilderTrend { sScore += 0.334 }
-			if sScore > 1.0   { sScore = 1.0    }
-			sScore = round2(sScore)
-
-			total := round2(fwScore + mScore + cScore + sScore)
-
-			if _, err = h.db.Exec(ctx, `
-				INSERT INTO operational_forecast_index
-				  (obra_id, reference_month, reference_year, capture_date,
-				   fieldwire_score, machines_score, contract_score, systems_score, total_score)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-				o.ID, targetMonth, targetYear, captureDate,
-				fwScore, mScore, cScore, sScore, total,
-			); err != nil {
-				return ofiInternalErr(c, "insert OFI score", err)
-			}
-			ofiCount++
-		}
+	if _, err = tx.Exec(ctx, `
+		DELETE FROM operational_forecast_index
+		WHERE reference_month = $1 AND reference_year = $2`, targetMonth, targetYear); err != nil {
+		return ofiInternalErr(c, "delete old OFI scores", err)
 	}
 
-	// ── Pipeline 3: Seed planned execution records for target month ──────────────
-	// Insert not_started entries into monthly_execution_history for every obra
-	// that received an OFI score in the target month, so Monthly Execution can
-	// show the planned list immediately without falling back to OFI data.
-
-	if ofiCount > 0 {
-		if _, err = h.db.Exec(ctx, `
-			INSERT INTO monthly_execution_history
-			  (obra_id, reference_month, reference_year,
-			   planned_status, actual_status, reason, subcontractor,
-			   is_cycle_completed, actual_start_date, actual_end_date)
-			SELECT o.obra_id, $1, $2, '', 'not_started', '', '', false, NULL, NULL
-			FROM (SELECT DISTINCT obra_id FROM operational_forecast_index
-			      WHERE reference_month = $1 AND reference_year = $2) o
-			WHERE NOT EXISTS (
-			  SELECT 1 FROM monthly_execution_history
-			  WHERE obra_id = o.obra_id
-			    AND reference_month = $1 AND reference_year = $2
-			)`,
-			targetMonth, targetYear,
-		); err != nil {
-			return ofiInternalErr(c, "seed planned execution records", err)
+	ofiCount := 0
+	totalScore := 0.0
+	captureDate := now.Format("2006-01-02")
+	for _, o := range obras {
+		fwScore, err := calcBoolScore(ctx, tx,
+			`SELECT status FROM forecast_fieldwire WHERE project_id = $1`, o.ID, 2.0)
+		if err != nil {
+			return ofiInternalErr(c, "calculate Fieldwire score", err)
 		}
+		mScore, err := calcMachineScore(ctx, tx, o.ID, o.Cliente)
+		if err != nil {
+			return ofiInternalErr(c, "calculate machines score", err)
+		}
+		cScore, err := calcBoolScore(ctx, tx,
+			`SELECT status FROM forecast_contract_steps WHERE project_id = $1`, o.ID, 2.0)
+		if err != nil {
+			return ofiInternalErr(c, "calculate contract score", err)
+		}
+
+		sScore := 0.0
+		if o.Storage {
+			sScore += 0.333
+		}
+		if o.QBTime {
+			sScore += 0.333
+		}
+		if o.BuilderTrend {
+			sScore += 0.334
+		}
+		if sScore > 1.0 {
+			sScore = 1.0
+		}
+		sScore = round2(sScore)
+		total := round2(fwScore + mScore + cScore + sScore)
+
+		if _, err = tx.Exec(ctx, `
+			INSERT INTO operational_forecast_index
+			  (obra_id, reference_month, reference_year, capture_date,
+			   fieldwire_score, machines_score, contract_score, systems_score, total_score)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, o.ID, targetMonth, targetYear,
+			captureDate, fwScore, mScore, cScore, sScore, total); err != nil {
+			return ofiInternalErr(c, "insert OFI score", err)
+		}
+		totalScore += total
+		ofiCount++
+	}
+
+	prunedTag, err := tx.Exec(ctx, `
+		DELETE FROM monthly_execution_history e
+		WHERE e.reference_month = $1 AND e.reference_year = $2
+		  AND NOT EXISTS (
+		    SELECT 1 FROM operational_forecast_index o
+		    WHERE o.obra_id = e.obra_id
+		      AND o.reference_month = $1 AND o.reference_year = $2
+		  )`, targetMonth, targetYear)
+	if err != nil {
+		return ofiInternalErr(c, "prune stale planned execution records", err)
+	}
+	if _, err = tx.Exec(ctx, `
+		INSERT INTO monthly_execution_history
+		  (obra_id, reference_month, reference_year,
+		   planned_status, actual_status, reason, subcontractor,
+		   is_cycle_completed, actual_start_date, actual_end_date)
+		SELECT o.obra_id, $1, $2, '', 'not_started', '', '', false, NULL, NULL
+		FROM operational_forecast_index o
+		WHERE o.reference_month = $1 AND o.reference_year = $2
+		  AND NOT EXISTS (
+		    SELECT 1 FROM monthly_execution_history e
+		    WHERE e.obra_id = o.obra_id
+		      AND e.reference_month = $1 AND e.reference_year = $2
+		  )`, targetMonth, targetYear); err != nil {
+		return ofiInternalErr(c, "seed planned execution records", err)
+	}
+
+	var targetExecutionCount int
+	if err := tx.QueryRow(ctx, `
+		SELECT COUNT(*) FROM monthly_execution_history
+		WHERE reference_month = $1 AND reference_year = $2`, targetMonth, targetYear).
+		Scan(&targetExecutionCount); err != nil {
+		return ofiInternalErr(c, "count target execution records", err)
+	}
+
+	averageScore := 0.0
+	if ofiCount > 0 {
+		averageScore = round2(totalScore / float64(ofiCount))
+	}
+	if req.DryRun {
+		if err := tx.Rollback(ctx); err != nil {
+			return ofiInternalErr(c, "rollback OFI dry run", err)
+		}
+	} else if err := tx.Commit(ctx); err != nil {
+		return ofiInternalErr(c, "commit OFI calculation", err)
 	}
 
 	return c.JSON(fiber.Map{
-		"success":        true,
-		"executionMonth": execMonth,
-		"executionYear":  execYear,
-		"executionCount": execCount,
-		"planningMonth":  targetMonth,
-		"planningYear":   targetYear,
-		"ofiCount":       ofiCount,
+		"success": true, "dryRun": req.DryRun,
+		"executionMonth": execMonth, "executionYear": execYear,
+		"executionCount": execCount, "startedCount": startedCount,
+		"planningMonth": targetMonth, "planningYear": targetYear,
+		"ofiCount": ofiCount, "averageScore": averageScore,
+		"targetExecutionCount":       targetExecutionCount,
+		"prunedTargetExecutionCount": prunedTag.RowsAffected(),
 	})
 }
