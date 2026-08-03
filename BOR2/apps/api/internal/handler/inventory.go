@@ -103,6 +103,29 @@ type InventoryResponse struct {
 	ProductPrices   map[string]float64 `json:"product_prices"`
 }
 
+func inventoryMonth(value string) string {
+	if len(value) < 7 {
+		return ""
+	}
+	return value[:7]
+}
+
+func filterInventoryHistory(data []HistoricoSaldo, visibleIDs map[string]bool, historyStartMonth string) []HistoricoSaldo {
+	if historyStartMonth == "" {
+		return []HistoricoSaldo{}
+	}
+	filtered := make([]HistoricoSaldo, 0, len(data))
+	for _, h := range data {
+		if len(visibleIDs) > 0 && !visibleIDs[string(h.ProductID)] {
+			continue
+		}
+		if inventoryMonth(h.Mes) >= historyStartMonth {
+			filtered = append(filtered, h)
+		}
+	}
+	return filtered
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
@@ -172,20 +195,21 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		}
 	}
 
-	// HistoricoSaldo — filter to visible products only
+	historyStartMonth := ""
+	if body, err := fetch("stock_movements", "select=movement_date&order=movement_date.asc&limit=1"); err == nil {
+		var movements []struct {
+			MovementDate string `json:"movement_date"`
+		}
+		if json.Unmarshal(body, &movements) == nil && len(movements) > 0 {
+			historyStartMonth = inventoryMonth(movements[0].MovementDate)
+		}
+	}
+
+	// The monthly balance view emits rows before inventory tracking began.
 	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
 		var data []HistoricoSaldo
 		if json.Unmarshal(body, &data) == nil {
-			if len(visibleIDs) > 0 {
-				filtered := data[:0]
-				for _, h := range data {
-					if visibleIDs[string(h.ProductID)] {
-						filtered = append(filtered, h)
-					}
-				}
-				data = filtered
-			}
-			result.HistoricoSaldo = data
+			result.HistoricoSaldo = filterInventoryHistory(data, visibleIDs, historyStartMonth)
 		}
 	}
 

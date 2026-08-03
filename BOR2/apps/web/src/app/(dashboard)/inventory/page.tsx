@@ -288,12 +288,12 @@ export default function InventoryPage() {
         cur.normal += normalUnits * price
       })
     return Array.from(grouped.entries())
-      .filter(([, d]) => d.normal > 0 || d.excess > 0)
+      .filter(([mo]) => availableMonths.includes(parseInt(mo, 10)))
       .map(([mo, d]) => ({
         month: MONTHS_SHORT[parseInt(mo, 10) - 1],
         ...d,
       }))
-  }, [data, yearStr])
+  }, [data, yearStr, availableMonths])
 
   // ── KPI: Excess Units ───────────────────────────────────────────────────────
   const totalExcessUnits = useMemo(() => {
