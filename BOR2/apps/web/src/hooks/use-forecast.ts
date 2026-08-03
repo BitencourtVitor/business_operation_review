@@ -1,19 +1,11 @@
 import { forecastService } from "@/services/forecast.service"
 import type { ForecastFilters, } from "@bor2/shared"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { MOCK_FORECAST_PROJECTS } from "@/lib/mock-data"
 
 export function useForecast(filters?: Partial<ForecastFilters>) {
   return useQuery({
     queryKey: ["forecast", filters],
-    queryFn: async () => {
-      try {
-        const data = await forecastService.list(filters)
-        return data && data.length > 0 ? data : MOCK_FORECAST_PROJECTS
-      } catch {
-        return MOCK_FORECAST_PROJECTS
-      }
-    },
+    queryFn: () => forecastService.list(filters),
   })
 }
 
