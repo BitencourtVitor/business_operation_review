@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils"
 import {
   BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock,
-  ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText, Fuel,
+  ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
@@ -44,13 +44,6 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
       { key: "building_schedule", label: "Building Schedule",          icon: Building2     },
       { key: "subcontractor_docs", label: "Subcontractor Docs",        icon: FileText      },
-    ],
-  },
-  {
-    label: "Coming Soon",
-    permissions: [
-      { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },
-      { key: "fuel",               label: "Fuel Control",            icon: Fuel           },
     ],
   },
   {

@@ -51,12 +51,9 @@ func main() {
 	forecastRepo := repository.NewPostgresForecastRepository(db)
 	accountingRepo := repository.NewPostgresAccountingRepository(db)
 	subcontractorRepo := repository.NewPostgresSubcontractorRepository(db)
-	samsaraRepo := repository.NewPostgresSamsaraRepository(db)
-	wexRepo := repository.NewPostgresWexRepository(db)
 	permitRowRepo := repository.NewPostgresPermitRowRepository(db)
 	serviceRequestRepo := repository.NewPostgresServiceRequestRepository(db)
 	timesheetRowRepo := repository.NewPostgresTimesheetRowRepository(db)
-	projMonHvacRepo := repository.NewPostgresProjectMonitoringHvacRepository(db)
 	employeeNameRepo := repository.NewPostgresEmployeeNameRepository(db)
 	takeoffRepo := repository.NewPostgresTakeoffWorkRepository(db)
 	destaqueRepo := repository.NewPostgresDestaqueRepository(db)
@@ -83,7 +80,6 @@ func main() {
 	permitRowService := service.NewPermitRowService(permitRowRepo)
 	serviceRequestService := service.NewServiceRequestService(serviceRequestRepo)
 	timesheetRowService := service.NewTimesheetRowService(timesheetRowRepo)
-	projMonHvacService := service.NewProjectMonitoringHvacService(projMonHvacRepo)
 	employeeNameService := service.NewEmployeeNameService(employeeNameRepo)
 	takeoffService := service.NewTakeoffWorkService(takeoffRepo)
 	destaqueService := service.NewDestaqueService(destaqueRepo)
@@ -104,11 +100,9 @@ func main() {
 	forecastHandler := handler.NewForecastHandler(forecastService, auditService)
 	accountingHandler := handler.NewAccountingHandler(accountingService, auditService)
 	subcontractorHandler := handler.NewSubcontractorHandler(subcontractorService, auditService)
-	fuelHandler := handler.NewFuelHandler(samsaraRepo, wexRepo)
 	permitRowHandler := handler.NewPermitRowHandler(permitRowService, auditService)
 	serviceRequestHandler := handler.NewServiceRequestHandler(serviceRequestService, auditService)
 	timesheetRowHandler := handler.NewTimesheetRowHandler(timesheetRowService)
-	projMonHvacHandler := handler.NewProjectMonitoringHvacHandler(projMonHvacService, auditService)
 	employeeNameHandler := handler.NewEmployeeNameHandler(employeeNameService, auditService)
 	takeoffHandler := handler.NewTakeoffWorkHandler(takeoffService, auditService)
 	destaqueHandler := handler.NewDestaqueHandler(destaqueService, auditService, authService, db)
@@ -309,11 +303,6 @@ func main() {
 	subs.Post("/", subcontractorHandler.Create)
 	subs.Patch("/:id/status", subcontractorHandler.UpdateStatus)
 
-	// Fuel
-	fuel := api.Group("/fuel")
-	fuel.Get("/samsara", fuelHandler.ListSamsara)
-	fuel.Get("/wex", fuelHandler.ListWex)
-
 	// QBTime Teams
 	qbtimeTeams := api.Group("/qbtime/teams")
 	qbtimeTeams.Get("/", qbtimeTeamHandler.List)
@@ -414,14 +403,6 @@ func main() {
 	workforce.Post("/rules", workforceRuleHandler.Create)
 	workforce.Put("/rules/:id", workforceRuleHandler.Update)
 	workforce.Delete("/rules/:id", workforceRuleHandler.Delete)
-
-	// Project Monitoring HVAC
-	monitoring := api.Group("/project-monitoring")
-	monitoring.Get("/", projMonHvacHandler.List)
-	monitoring.Get("/:id", projMonHvacHandler.Get)
-	monitoring.Post("/", projMonHvacHandler.Create)
-	monitoring.Put("/:id", projMonHvacHandler.Update)
-	monitoring.Delete("/:id", projMonHvacHandler.Delete)
 
 	// Employee Names
 	employees := api.Group("/employees")
