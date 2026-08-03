@@ -110,8 +110,8 @@ func inventoryMonth(value string) string {
 	return value[:7]
 }
 
-func filterInventoryHistory(data []HistoricoSaldo, visibleIDs map[string]bool, historyStartMonth string) []HistoricoSaldo {
-	if historyStartMonth == "" {
+func filterInventoryHistory(data []HistoricoSaldo, visibleIDs, movementMonths map[string]bool) []HistoricoSaldo {
+	if len(movementMonths) == 0 {
 		return []HistoricoSaldo{}
 	}
 	filtered := make([]HistoricoSaldo, 0, len(data))
@@ -119,7 +119,7 @@ func filterInventoryHistory(data []HistoricoSaldo, visibleIDs map[string]bool, h
 		if len(visibleIDs) > 0 && !visibleIDs[string(h.ProductID)] {
 			continue
 		}
-		if inventoryMonth(h.Mes) >= historyStartMonth {
+		if movementMonths[inventoryMonth(h.Mes)] {
 			filtered = append(filtered, h)
 		}
 	}
@@ -195,21 +195,25 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		}
 	}
 
-	historyStartMonth := ""
-	if body, err := fetch("stock_movements", "select=movement_date&order=movement_date.asc&limit=1"); err == nil {
+	movementMonths := map[string]bool{}
+	if body, err := fetch("stock_movements", "select=movement_date&limit=5000"); err == nil {
 		var movements []struct {
 			MovementDate string `json:"movement_date"`
 		}
-		if json.Unmarshal(body, &movements) == nil && len(movements) > 0 {
-			historyStartMonth = inventoryMonth(movements[0].MovementDate)
+		if json.Unmarshal(body, &movements) == nil {
+			for _, movement := range movements {
+				if month := inventoryMonth(movement.MovementDate); month != "" {
+					movementMonths[month] = true
+				}
+			}
 		}
 	}
 
-	// The monthly balance view emits rows before inventory tracking began.
+	// The monthly balance view emits rows for months with no movements.
 	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
 		var data []HistoricoSaldo
 		if json.Unmarshal(body, &data) == nil {
-			result.HistoricoSaldo = filterInventoryHistory(data, visibleIDs, historyStartMonth)
+			result.HistoricoSaldo = filterInventoryHistory(data, visibleIDs, movementMonths)
 		}
 	}
 
