@@ -1,23 +1,34 @@
-// ofi-cron runs the OFI calculator by POSTing to the API's /ofi/calculate endpoint.
+// ofi-cron closes the previous month and plans the current month through the
+// API's /ofi/calculate endpoint.
 //
-// Deploy as a Railway Cron Job service pointing at this binary:
-//   Schedule : 0 23 28-31 * *   (23:00 UTC on days 28–31)
-//   The binary itself verifies it is the last day of the month before firing.
-//
-// Required env vars (set in the Railway Cron Job service):
-//   API_URL     — public or internal URL of the BOR2 API service
-//                 e.g. https://bor2-api.up.railway.app
-//   CRON_SECRET — must match the CRON_SECRET env var configured on the API service
+// Railway schedule: 5 3 1 * * (00:05 America/Sao_Paulo on the first day).
+// The local-date guard prevents deploys or accidental starts from calculating
+// outside the intended monthly window.
 package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 )
+
+const (
+	businessTimezone = "America/Sao_Paulo"
+	calculatePath    = "/api/v1/ofi/calculate"
+)
+
+type calculateRequest struct {
+	ExecutionMonth int `json:"executionMonth"`
+	ExecutionYear  int `json:"executionYear"`
+	Month          int `json:"month"`
+	Year           int `json:"year"`
+}
 
 func main() {
 	apiURL := os.Getenv("API_URL")
@@ -29,22 +40,39 @@ func main() {
 		fatalf("CRON_SECRET env var is required")
 	}
 
-	// Guard: only run on the last day of the month
-	now      := time.Now().UTC()
-	tomorrow := now.AddDate(0, 0, 1)
-	if tomorrow.Month() == now.Month() {
-		fmt.Printf("[ofi-cron] %s is not the last day of the month — skipping.\n",
-			now.Format("2006-01-02"))
-		os.Exit(0)
+	location, err := time.LoadLocation(businessTimezone)
+	if err != nil {
+		fatalf("load business timezone: %v", err)
 	}
 
-	fmt.Printf("[ofi-cron] Last day of month detected (%s) — triggering OFI calculate\n",
-		now.Format("2006-01-02"))
+	now := time.Now()
+	localNow := now.In(location)
+	payload, shouldRun := requestForDate(now, location)
+	if !shouldRun {
+		fmt.Printf("[ofi-cron] %s is not the first day in %s; skipping.\n",
+			localNow.Format("2006-01-02"), businessTimezone)
+		return
+	}
 
-	req, err := http.NewRequest(http.MethodPost,
-		apiURL+"/api/v1/ofi/calculate",
-		bytes.NewReader([]byte("{}")),
+	endpoint, err := calculateEndpoint(apiURL)
+	if err != nil {
+		fatalf("invalid API_URL: %v", err)
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		fatalf("encode request: %v", err)
+	}
+
+	fmt.Printf(
+		"[ofi-cron] Closing %04d-%02d and planning %04d-%02d (local date %s)\n",
+		payload.ExecutionYear,
+		payload.ExecutionMonth,
+		payload.Year,
+		payload.Month,
+		localNow.Format("2006-01-02"),
 	)
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
 		fatalf("build request: %v", err)
 	}
@@ -58,12 +86,50 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fatalf("read response: %v", err)
+	}
 	if resp.StatusCode != http.StatusOK {
-		fatalf("API returned HTTP %d: %s", resp.StatusCode, string(body))
+		fatalf("API returned HTTP %d: %s", resp.StatusCode, string(responseBody))
 	}
 
-	fmt.Printf("[ofi-cron] Success: %s\n", string(body))
+	fmt.Printf("[ofi-cron] Success: %s\n", string(responseBody))
+}
+
+func requestForDate(now time.Time, location *time.Location) (calculateRequest, bool) {
+	localNow := now.In(location)
+	if localNow.Day() != 1 {
+		return calculateRequest{}, false
+	}
+
+	planningMonth := time.Date(localNow.Year(), localNow.Month(), 1, 0, 0, 0, 0, location)
+	executionMonth := planningMonth.AddDate(0, -1, 0)
+
+	return calculateRequest{
+		ExecutionMonth: int(executionMonth.Month()),
+		ExecutionYear:  executionMonth.Year(),
+		Month:          int(planningMonth.Month()),
+		Year:           planningMonth.Year(),
+	}, true
+}
+
+func calculateEndpoint(rawBaseURL string) (string, error) {
+	baseURL := strings.TrimSpace(rawBaseURL)
+	parsed, err := url.Parse(baseURL)
+	if err != nil {
+		return "", err
+	}
+	if (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+		return "", fmt.Errorf("must be an absolute HTTP(S) URL")
+	}
+	if parsed.RawQuery != "" || parsed.Fragment != "" {
+		return "", fmt.Errorf("must not contain a query or fragment")
+	}
+
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + calculatePath
+	parsed.RawPath = ""
+	return parsed.String(), nil
 }
 
 func fatalf(format string, args ...any) {
