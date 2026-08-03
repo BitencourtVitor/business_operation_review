@@ -21,6 +21,7 @@ export interface HistoricoSaldo {
   saldo_minimo: number;
   saldo_acumulado: number;
   abaixo_minimo: boolean;
+  source: 'backup' | 'live';
 }
 
 export interface DetalheExcesso {
@@ -37,6 +38,7 @@ export interface DetalheExcesso {
   consumo_acumulado_momento: number;
   excedeu_neste_momento: boolean;
   valor_unitario?: number;
+  source: 'backup' | 'live';
 }
 
 export interface GastoUsuario {
@@ -54,6 +56,8 @@ export interface InventoryData {
   detalhes_excesso: DetalheExcesso[];
   gastos_usuario: GastoUsuario[];
   product_prices: Record<string, number>;
+  reset_date: string;
+  backup_through: string;
 }
 
 export const inventoryService = {

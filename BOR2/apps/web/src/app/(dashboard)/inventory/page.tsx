@@ -60,26 +60,29 @@ function adherenceColor(v: number | null, threshold: number) {
 
 function AdherenceTooltip({ active, payload, label, threshold }: any) {
   if (!active || !payload?.length) return null
-  const val   = payload[0]?.value as number | null
-  const below = payload[0]?.payload?.below as number ?? 0
-  const total = payload[0]?.payload?.total as number ?? 0
+  const point = payload[0]?.payload
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-sm shadow-lg space-y-1">
       <p className="font-medium">{label}</p>
-      <p className={`font-bold ${adherenceColor(val, threshold ?? 75)}`}>{fmtPct(val)}</p>
-      {total > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {below} of {total} product {total === 1 ? 'type' : 'types'} below minimum
-        </p>
-      )}
+      {point.backupAdherence != null && <div className="border-l-2 border-dashed border-muted-foreground/50 pl-2">
+        <p className="text-[10px] uppercase text-muted-foreground">Backup</p>
+        <p className={`font-bold ${adherenceColor(point.backupAdherence, threshold ?? 75)}`}>{fmtPct(point.backupAdherence)}</p>
+        <p className="text-xs text-muted-foreground">{point.backupBelow} of {point.backupTotal} below minimum</p>
+      </div>}
+      {point.liveAdherence != null && <div className="border-l-2 border-primary pl-2">
+        <p className="text-[10px] uppercase text-muted-foreground">Live</p>
+        <p className={`font-bold ${adherenceColor(point.liveAdherence, threshold ?? 75)}`}>{fmtPct(point.liveAdherence)}</p>
+        <p className="text-xs text-muted-foreground">{point.liveBelow} of {point.liveTotal} below minimum</p>
+      </div>}
     </div>
   )
 }
 
 function FinancialTooltip({ active, payload, label, show }: any) {
   if (!active || !payload?.length) return null
-  const normal = payload.find((p: any) => p.dataKey === 'normal')?.value ?? 0
-  const excess  = payload.find((p: any) => p.dataKey === 'excess')?.value  ?? 0
+  const point = payload[0]?.payload
+  const normal = (point.backupNormal ?? 0) + (point.liveNormal ?? 0)
+  const excess = (point.backupExcess ?? 0) + (point.liveExcess ?? 0)
   const total = normal + excess
   const normalPct = total > 0 ? Math.round((normal / total) * 100) : 0
   const excessPct = total > 0 ? Math.round((excess / total) * 100) : 0
@@ -91,6 +94,7 @@ function FinancialTooltip({ active, payload, label, show }: any) {
         <p className={`font-bold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(total)}</p>
       </div>
       <div className="border-t border-border pt-1.5 space-y-1">
+        {(point.backupNormal > 0 || point.backupExcess > 0) && <p className="text-[10px] uppercase text-muted-foreground">Includes backup history</p>}
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">Within limit</p>
           <div className="flex items-center gap-2">
@@ -215,6 +219,9 @@ export default function InventoryPage() {
 
   const yearStr = String(selectedYear)
   const monthStr = selectedMonth === 'all' ? 'all' : String(selectedMonth).padStart(2, '0')
+  const resetYear = data?.reset_date ? Number(data.reset_date.substring(0, 4)) : null
+  const resetMonth = data?.reset_date ? Number(data.reset_date.substring(5, 7)) : null
+  const resetMonthLabel = resetMonth ? MONTHS_SHORT[resetMonth - 1] : null
 
   // ── Months that actually have data for the selected year ────────────────────
   const availableMonths = useMemo(() => {
@@ -232,25 +239,33 @@ export default function InventoryPage() {
   // ── Adherence trend (12 months for selected year) ───────────────────────────
   const adherenceData = useMemo(() => {
     if (!data) return []
-    const grouped = new Map<string, { total: number; below: number }>()
+    const grouped = new Map<string, { backupTotal: number; backupBelow: number; liveTotal: number; liveBelow: number }>()
     for (let i = 1; i <= 12; i++) {
-      grouped.set(String(i).padStart(2, '0'), { total: 0, below: 0 })
+      grouped.set(String(i).padStart(2, '0'), { backupTotal: 0, backupBelow: 0, liveTotal: 0, liveBelow: 0 })
     }
     data.historico_saldo
       .filter(h => h.mes.startsWith(yearStr))
       .forEach(h => {
         const mo = h.mes.substring(5, 7)
         const cur = grouped.get(mo)!
-        cur.total++
-        if (h.abaixo_minimo) cur.below++
+        if (h.source === 'backup') {
+          cur.backupTotal++
+          if (h.abaixo_minimo) cur.backupBelow++
+        } else {
+          cur.liveTotal++
+          if (h.abaixo_minimo) cur.liveBelow++
+        }
       })
     return Array.from(grouped.entries())
-      .filter(([, d]) => d.total > 0)
+      .filter(([, d]) => d.backupTotal > 0 || d.liveTotal > 0)
       .map(([mo, d]) => ({
         month: MONTHS_SHORT[parseInt(mo, 10) - 1],
-        adherence: ((d.total - d.below) / d.total) * 100,
-        total: d.total,
-        below: d.below,
+        backupAdherence: d.backupTotal > 0 ? ((d.backupTotal - d.backupBelow) / d.backupTotal) * 100 : null,
+        liveAdherence: d.liveTotal > 0 ? ((d.liveTotal - d.liveBelow) / d.liveTotal) * 100 : null,
+        adherence: ((d.backupTotal + d.liveTotal - d.backupBelow - d.liveBelow) / (d.backupTotal + d.liveTotal)) * 100,
+        total: d.backupTotal + d.liveTotal,
+        below: d.backupBelow + d.liveBelow,
+        ...d,
       }))
   }, [data, yearStr])
 
@@ -268,9 +283,9 @@ export default function InventoryPage() {
   const financialData = useMemo(() => {
     if (!data) return []
     const prices = data.product_prices ?? {}
-    const grouped = new Map<string, { normal: number; excess: number }>()
+    const grouped = new Map<string, { backupNormal: number; backupExcess: number; liveNormal: number; liveExcess: number }>()
     for (let i = 1; i <= 12; i++) {
-      grouped.set(String(i).padStart(2, '0'), { normal: 0, excess: 0 })
+      grouped.set(String(i).padStart(2, '0'), { backupNormal: 0, backupExcess: 0, liveNormal: 0, liveExcess: 0 })
     }
     data.detalhes_excesso
       .filter(d => d.movement_date.startsWith(yearStr))
@@ -284,13 +299,20 @@ export default function InventoryPage() {
         const excessUnits = Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, prev))
         const normalUnits = Math.max(0, d.quantidade_retirada - excessUnits)
         const cur = grouped.get(mo)!
-        cur.excess += excessUnits * price
-        cur.normal += normalUnits * price
+        if (d.source === 'backup') {
+          cur.backupExcess += excessUnits * price
+          cur.backupNormal += normalUnits * price
+        } else {
+          cur.liveExcess += excessUnits * price
+          cur.liveNormal += normalUnits * price
+        }
       })
     return Array.from(grouped.entries())
       .filter(([mo]) => availableMonths.includes(parseInt(mo, 10)))
       .map(([mo, d]) => ({
         month: MONTHS_SHORT[parseInt(mo, 10) - 1],
+        normal: d.backupNormal + d.liveNormal,
+        excess: d.backupExcess + d.liveExcess,
         ...d,
       }))
   }, [data, yearStr, availableMonths])
@@ -630,26 +652,45 @@ export default function InventoryPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={adherenceData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="adherenceGrad" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="adherenceLiveGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%"  stopColor={adherenceStrokeColor} stopOpacity={0.3} />
                       <stop offset="95%" stopColor={adherenceStrokeColor} stopOpacity={0}   />
+                    </linearGradient>
+                    <linearGradient id="adherenceBackupGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.14} />
+                      <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                   <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.5} />
+                  {selectedYear === resetYear && resetMonthLabel && (
+                    <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
+                  )}
                   <Tooltip content={(props) => <AdherenceTooltip {...props} threshold={threshold} />} />
                   <Area
                     type="monotone"
-                    dataKey="adherence"
+                    dataKey="backupAdherence"
+                    stroke="#94a3b8"
+                    strokeDasharray="5 4"
+                    strokeWidth={2}
+                    strokeOpacity={0.75}
+                    fill="url(#adherenceBackupGrad)"
+                    connectNulls
+                    dot={{ r: 3, fill: '#94a3b8', fillOpacity: 0.7, strokeWidth: 0 }}
+                    activeDot={{ r: 4, strokeWidth: 0 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="liveAdherence"
                     stroke={adherenceStrokeColor}
                     strokeWidth={2}
-                    fill="url(#adherenceGrad)"
+                    fill="url(#adherenceLiveGrad)"
                     connectNulls
                     dot={(props: any) => {
                       const { cx, cy, payload } = props
-                      const below = payload.adherence != null && payload.adherence < threshold
+                      const below = payload.liveAdherence != null && payload.liveAdherence < threshold
                       return <circle key={`d-${cx}`} cx={cx} cy={cy} r={4} fill={below ? '#ef4444' : adherenceStrokeColor} strokeWidth={0} />
                     }}
                     activeDot={{ r: 5, strokeWidth: 0 }}
@@ -738,15 +779,21 @@ export default function InventoryPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={showFinancialData ? (v => `$${(v/1000).toFixed(0)}k`) : (() => '')} />
+                {selectedYear === resetYear && resetMonthLabel && (
+                  <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
+                )}
                 <Tooltip content={(props) => <FinancialTooltip {...props} show={showFinancialData} />} cursor={{ fill: 'hsl(var(--foreground))', fillOpacity: 0.12 }} />
-                <Bar dataKey="normal" stackId="a" fill={primaryColor} opacity={0.85} radius={[0,0,0,0]} />
-                <Bar dataKey="excess" stackId="a" fill="#ef4444" radius={[4,4,0,0]} />
+                <Bar dataKey="backupNormal" stackId="backup" fill={primaryColor} fillOpacity={0.3} stroke={primaryColor} strokeOpacity={0.65} strokeDasharray="4 3" />
+                <Bar dataKey="backupExcess" stackId="backup" fill="#ef4444" fillOpacity={0.3} stroke="#ef4444" strokeOpacity={0.65} strokeDasharray="4 3" radius={[3,3,0,0]} />
+                <Bar dataKey="liveNormal" stackId="live" fill={primaryColor} opacity={0.85} />
+                <Bar dataKey="liveExcess" stackId="live" fill="#ef4444" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="mt-2 flex shrink-0 items-center gap-4 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: primaryColor }} />Within limit</span>
             <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" />Excess withdrawal</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm border border-dashed border-muted-foreground bg-muted-foreground/20" />Backup</span>
           </div>
         </div>
 

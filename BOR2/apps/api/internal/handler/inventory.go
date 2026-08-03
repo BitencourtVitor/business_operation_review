@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -68,6 +69,7 @@ type HistoricoSaldo struct {
 	SaldoMinimo    float64 `json:"saldo_minimo"`
 	SaldoAcumulado float64 `json:"saldo_acumulado"`
 	AbaixoMinimo   bool    `json:"abaixo_minimo"`
+	Source         string  `json:"source"`
 }
 
 type DetalheExcesso struct {
@@ -84,6 +86,7 @@ type DetalheExcesso struct {
 	ConsumoAcumuladoMomento float64  `json:"consumo_acumulado_momento"`
 	ExcedeuNesteMomento     bool     `json:"excedeu_neste_momento"`
 	ValorUnitario           *float64 `json:"valor_unitario"`
+	Source                  string   `json:"source"`
 }
 
 type GastoUsuario struct {
@@ -101,6 +104,53 @@ type InventoryResponse struct {
 	DetalhesExcesso []DetalheExcesso   `json:"detalhes_excesso"`
 	GastosUsuario   []GastoUsuario     `json:"gastos_usuario"`
 	ProductPrices   map[string]float64 `json:"product_prices"`
+	ResetDate       string             `json:"reset_date"`
+	BackupThrough   string             `json:"backup_through"`
+}
+
+func (h *InventoryHandler) loadInventoryBackup(result *InventoryResponse) {
+	ctx := context.Background()
+	if err := h.db.QueryRow(ctx, `
+		SELECT reset_date::text, backup_through::text
+		FROM inventory_history_sources WHERE source='backup'`).
+		Scan(&result.ResetDate, &result.BackupThrough); err != nil {
+		return
+	}
+
+	rows, err := h.db.Query(ctx, `
+		SELECT reference_month::text, product_id, product_name, minimum_balance,
+		       accumulated_balance, below_minimum, source
+		FROM inventory_history_balances WHERE source='backup'
+		ORDER BY reference_month, product_name`)
+	if err == nil {
+		for rows.Next() {
+			var row HistoricoSaldo
+			if rows.Scan(&row.Mes, &row.ProductID, &row.ProductNome, &row.SaldoMinimo,
+				&row.SaldoAcumulado, &row.AbaixoMinimo, &row.Source) == nil {
+				result.HistoricoSaldo = append(result.HistoricoSaldo, row)
+			}
+		}
+		rows.Close()
+	}
+
+	rows, err = h.db.Query(ctx, `
+		SELECT project_id, project_name, house_model_name, product_id, product_name,
+		       responsible_user, recipient_id, movement_date::text, withdrawn_quantity,
+		       quantity_limit, accumulated_consumption, exceeded_at_movement, unit_price, source
+		FROM inventory_history_withdrawals WHERE source='backup'
+		ORDER BY movement_date, original_item_id`)
+	if err == nil {
+		for rows.Next() {
+			var row DetalheExcesso
+			if rows.Scan(&row.ProjectID, &row.ProjectNome, &row.HouseModelNome, &row.ProductID,
+				&row.ProductNome, &row.UsuarioResponsavel, &row.DestinatarioID, &row.MovementDate,
+				&row.QuantidadeRetirada, &row.QuantidadeLimite, &row.ConsumoAcumuladoMomento,
+				&row.ExcedeuNesteMomento, &row.ValorUnitario, &row.Source) == nil {
+				result.DetalhesExcesso = append(result.DetalhesExcesso, row)
+			}
+		}
+		rows.Close()
+	}
 }
 
 func inventoryMonth(value string) string {
@@ -213,6 +263,9 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
 		var data []HistoricoSaldo
 		if json.Unmarshal(body, &data) == nil {
+			for i := range data {
+				data[i].Source = "live"
+			}
 			result.HistoricoSaldo = filterInventoryHistory(data, visibleIDs, movementMonths)
 		}
 	}
@@ -221,6 +274,9 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	if body, err := fetch("vw_detalhes_excesso_limite", "select=*&limit=5000"); err == nil {
 		var data []DetalheExcesso
 		if json.Unmarshal(body, &data) == nil {
+			for i := range data {
+				data[i].Source = "live"
+			}
 			result.DetalhesExcesso = data
 		}
 	}
@@ -262,5 +318,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		}
 	}
 
+	h.loadInventoryBackup(result)
 	return c.JSON(result)
 }
