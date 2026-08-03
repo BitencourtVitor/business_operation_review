@@ -1,6 +1,6 @@
 export type Company = "hvac" | "framing" | "pcg"
 
-export type Role = "admin" | "manager" | "viewer"
+export type Role = "dev" | "owner" | "admin" | "manager" | "user" | "viewer"
 
 export type Month =
   | "January" | "February" | "March" | "April"
