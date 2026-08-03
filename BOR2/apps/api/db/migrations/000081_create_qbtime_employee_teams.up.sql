@@ -1,4 +1,4 @@
-CREATE TABLE qbtime_employee_teams (
+CREATE TABLE IF NOT EXISTS qbtime_employee_teams (
   id                 UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   company            TEXT        NOT NULL,
   qbt_user_id        INTEGER     NOT NULL,
@@ -12,4 +12,4 @@ CREATE TABLE qbtime_employee_teams (
   CONSTRAINT qbtime_employee_teams_company_user_key UNIQUE (company, qbt_user_id)
 );
 
-CREATE INDEX qbtime_employee_teams_company_idx ON qbtime_employee_teams (company);
+CREATE INDEX IF NOT EXISTS qbtime_employee_teams_company_idx ON qbtime_employee_teams (company);
