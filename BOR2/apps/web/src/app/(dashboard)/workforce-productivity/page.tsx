@@ -29,6 +29,12 @@ const WORKTYPE_COLORS = [
 ]
 
 const TOP_N_OPTIONS = [5, 10, 15, 20]
+const EMPTY_WORKFORCE_ROWS: WorkforceRow[] = []
+const EMPTY_ATTRIBUTION_RULES: AttributionRule[] = []
+const LEGACY_JOB_SITE_PATHS: Record<string, string> = {
+  "emerald run, shrewsbury": "Job Sites > Emerald Run, Shrewsbury",
+  "maynard homes, building 1, nashua": "Job Sites > Maynard Homes, Building 1, Nashua",
+}
 
 // Canonical worktype names — keyed by lowercase trimmed variant
 const WORKTYPE_CANONICAL: Record<string, string> = {
@@ -65,13 +71,43 @@ function isClientName(s: string): boolean {
 
 function normalizeWorktype(raw: string): string {
   const v = raw?.trim()
-  if (!v || isClientName(v)) return "Normal Labor"
+  if (!v) return ""
+  if (isClientName(v)) return "Normal Labor"
   // address-like string: starts with number + space + word (e.g. "33 Scott St")
   if (/^\d+\s+[a-zA-Z]/.test(v)) return "Normal Labor"
   // floor ordinals: "1º", "2º", "3º", "4º", "1°", etc.
   if (/^\d+[º°ª]$/.test(v)) return "Normal Labor"
   const key = v.toLowerCase()
   return WORKTYPE_CANONICAL[key] ?? v
+}
+
+function normalizeImportedAddressFolder(row: WorkforceRow): WorkforceRow {
+  const knownLegacyPath = LEGACY_JOB_SITE_PATHS[row.jobsite.trim().toLowerCase()]
+  if (knownLegacyPath && !row.lotBuilding.trim() && !row.worktype.trim()) {
+    return { ...row, jobsite: knownLegacyPath }
+  }
+
+  if (row.jobsite.trim().toLowerCase() !== "address (new)") return row
+
+  const lotParts = row.lotBuilding.split(">").map(part => part.trim()).filter(Boolean)
+  if (lotParts.length > 0) {
+    return {
+      ...row,
+      jobsite: lotParts[0].replace(/,\s*[A-Za-z]{2}$/, ""),
+      lotBuilding: lotParts.slice(1).join(" > "),
+    }
+  }
+
+  const misplacedProject = row.worktype.trim()
+  if (!misplacedProject || WORKTYPE_CANONICAL[misplacedProject.toLowerCase()]) return row
+
+  const normalizedProject = misplacedProject.replace(/,\s*[A-Za-z]{2}$/, "")
+
+  return {
+    ...row,
+    jobsite: LEGACY_JOB_SITE_PATHS[normalizedProject.toLowerCase()] ?? normalizedProject,
+    worktype: "",
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -294,11 +330,15 @@ export default function WorkforceProductivityPage() {
     setWorktypeFilter([])
   }, [])
 
-  const { data: rawRows  = [], isLoading }  = useWorkforceData({ company })
-  const { data: rules    = [] }             = useWorkforceRules()
+  const { data: rawRows  = EMPTY_WORKFORCE_ROWS, isLoading } = useWorkforceData({ company })
+  const { data: rules    = EMPTY_ATTRIBUTION_RULES }          = useWorkforceRules()
 
-  // Apply attribution rules: rows matching rule conditions get their company overridden
-  const allRows = useMemo(() => applyRules(rawRows, rules), [rawRows, rules])
+  // Apply attribution rules, then repair rows imported before Address (NEW)
+  // was recognized as an organizational QB Time folder.
+  const allRows = useMemo(
+    () => applyRules(rawRows, rules).map(normalizeImportedAddressFolder),
+    [rawRows, rules],
+  )
 
   // ── Filter options ────────────────────────────────────────────────────────
 
@@ -387,7 +427,10 @@ export default function WorkforceProductivityPage() {
   // Resets the Building/Lot filter whenever the Jobsite selection narrows,
   // so it can't silently keep referencing a building outside the new scope.
   useEffect(() => {
-    setLotBuildingFilter(prev => prev.filter(l => lotBuildingOptions.includes(l)))
+    setLotBuildingFilter(prev => {
+      const next = prev.filter(l => lotBuildingOptions.includes(l))
+      return next.length === prev.length ? prev : next
+    })
   }, [jobsiteFilter, lotBuildingOptions])
 
   const isSingleProject = jobsiteFilter.length === 1
@@ -427,8 +470,8 @@ export default function WorkforceProductivityPage() {
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const raw = r.worktype || "Normal Labor"
-      const wt = normalizeWorktype(raw)
+      const wt = normalizeWorktype(r.worktype)
+      if (!wt) return
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
@@ -461,7 +504,7 @@ export default function WorkforceProductivityPage() {
 
   const spWorktypes = useMemo(() =>
     isSingleProject
-      ? Array.from(new Set(rows.map(r => normalizeWorktype(r.worktype || "Normal Labor"))))
+      ? Array.from(new Set(rows.map(r => normalizeWorktype(r.worktype)).filter(Boolean)))
       : []
   , [rows, isSingleProject])
 
@@ -478,7 +521,7 @@ export default function WorkforceProductivityPage() {
       spWorktypes.forEach(wt => {
         entry[wt] = Math.round(
           mRows
-            .filter(r => normalizeWorktype(r.worktype || "Normal Labor") === wt)
+            .filter(r => normalizeWorktype(r.worktype) === wt)
             .reduce((s, r) => s + r.regularHours, 0)
         )
       })
@@ -491,7 +534,8 @@ export default function WorkforceProductivityPage() {
     if (!isSingleProject) return []
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const wt = normalizeWorktype(r.worktype || "Normal Labor")
+      const wt = normalizeWorktype(r.worktype)
+      if (!wt) return
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
     return Object.entries(map)
