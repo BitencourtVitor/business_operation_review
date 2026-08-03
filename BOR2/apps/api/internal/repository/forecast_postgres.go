@@ -134,7 +134,7 @@ func (r *PostgresForecastRepository) List(ctx context.Context, f domain.Forecast
 	query := forecastCTE + forecastSelect + `
 WHERE ($1 = '' OR m.company = $1)
   AND ($2 = '' OR m.status  = $2)
-  AND ($3 = 0  OR EXTRACT(YEAR FROM m.start_date) = $3)
+  AND ($3 = 0  OR EXTRACT(YEAR FROM m.previous_start_date) = $3)
 ORDER BY m.start_date ASC
 `
 	rows, err := r.db.Query(ctx, query, f.Company, string(f.Status), f.Year)
