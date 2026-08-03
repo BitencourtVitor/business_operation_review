@@ -9,7 +9,7 @@ import {
   BarChart, Bar,
   XAxis, YAxis,
   CartesianGrid, Tooltip,
-  ReferenceLine,
+  ReferenceArea, ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
 import {
@@ -38,6 +38,32 @@ const MONTHS = [
 ]
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+const LIMIT_EXCLUDED_PROJECTS = new Set([
+  'neponset canton',
+  'neponset panels',
+  'neponset building 1',
+  'emerald run building 1',
+  'emerald run panels',
+  'coppersmith building 1',
+  'riverview building 1',
+  'bellevue hills q',
+  'bellevue hill q',
+  'bfs allston',
+])
+
+function normalizeProjectName(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/\bpanels?\b/g, 'panels')
+    .replace(/\bbldg?\b/g, 'building')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function hasConfiguredMaterialLimit(projectName: string) {
+  return !LIMIT_EXCLUDED_PROJECTS.has(normalizeProjectName(projectName))
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -231,7 +257,7 @@ export default function InventoryPage() {
       .filter(h => h.mes.startsWith(yearStr))
       .forEach(h => s.add(parseInt(h.mes.substring(5, 7), 10)))
     data.detalhes_excesso
-      .filter(d => d.movement_date.startsWith(yearStr))
+      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d.project_nome))
       .forEach(d => s.add(parseInt(d.movement_date.substring(5, 7), 10)))
     return Array.from(s).sort((a, b) => a - b)
   }, [data, yearStr])
@@ -324,7 +350,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento
+        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d.project_nome)
       })
       .reduce((acc, d) => {
         const prev = d.consumo_acumulado_momento - d.quantidade_retirada
@@ -341,7 +367,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return true
+        return hasConfiguredMaterialLimit(d.project_nome)
       })
       .forEach(d => {
         const price = (d.valor_unitario != null && d.valor_unitario > 0)
@@ -368,7 +394,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento
+        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d.project_nome)
       })
       .forEach(d => {
         const key = d.project_nome
@@ -664,6 +690,9 @@ export default function InventoryPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
+                  {selectedYear === resetYear && resetMonthLabel && adherenceData.length > 0 && (
+                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
+                  )}
                   <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.5} />
                   {selectedYear === resetYear && resetMonthLabel && (
                     <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
@@ -779,6 +808,9 @@ export default function InventoryPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={showFinancialData ? (v => `$${(v/1000).toFixed(0)}k`) : (() => '')} />
+                {selectedYear === resetYear && resetMonthLabel && financialData.length > 0 && (
+                  <ReferenceArea x1={financialData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
+                )}
                 {selectedYear === resetYear && resetMonthLabel && (
                   <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
                 )}
