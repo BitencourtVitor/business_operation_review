@@ -296,7 +296,8 @@ export default function InventoryPage() {
         below: d.backupBelow + d.liveBelow,
         ...d,
       }))
-  }, [data, yearStr])
+      .filter(d => monthStr === 'all' || d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1])
+  }, [data, yearStr, monthStr])
 
   // ── Average service level (filtered by month if selected) ───────────────────
   const avgServiceLevel = useMemo(() => {
@@ -344,7 +345,8 @@ export default function InventoryPage() {
         excess: d.backupExcess + d.liveExcess,
         ...d,
       }))
-  }, [data, yearStr, availableMonths])
+      .filter(d => monthStr === 'all' || d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1])
+  }, [data, yearStr, monthStr, availableMonths])
 
   // ── KPI: Excess Units ───────────────────────────────────────────────────────
   const totalExcessUnits = useMemo(() => {
@@ -607,7 +609,7 @@ export default function InventoryPage() {
       <div className="flex min-h-0 flex-1 flex-col gap-4">
 
         {/* KPIs */}
-        <div className="grid shrink-0 grid-cols-3 gap-4">
+        <div className="grid shrink-0 grid-cols-1 gap-4 sm:grid-cols-3">
           <KpiCard
             icon={Package}
             label="Stock Service Level"
@@ -693,11 +695,11 @@ export default function InventoryPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
-                  {selectedYear === resetYear && resetMonthLabel && adherenceData.length > 0 && (
-                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill={primaryColor} fillOpacity={0.045} strokeOpacity={0} />
+                  {selectedYear === resetYear && resetMonthLabel && adherenceData.some(d => d.month === resetMonthLabel) && (
+                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
                   )}
                   <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.5} />
-                  {selectedYear === resetYear && resetMonthLabel && (
+                  {selectedYear === resetYear && resetMonthLabel && adherenceData.some(d => d.month === resetMonthLabel) && (
                     <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
                   )}
                   <Tooltip content={(props) => <AdherenceTooltip {...props} threshold={threshold} />} />
@@ -808,14 +810,24 @@ export default function InventoryPage() {
           </div>
           <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={financialData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <BarChart data={financialData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }} maxBarSize={72}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={showFinancialData ? (v => `$${(v/1000).toFixed(0)}k`) : (() => '')} />
-                {selectedYear === resetYear && resetMonthLabel && financialData.length > 0 && (
-                  <ReferenceArea x1={financialData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
+                {selectedYear === resetYear && resetMonthLabel && financialData.some(d => d.month === resetMonthLabel) && (
+                  <ReferenceArea
+                    x1={financialData[0].month} x2={resetMonthLabel}
+                    fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0}
+                    shape={(props: any) => {
+                      // Reset happens mid-band: the backup shading must stop at the reset
+                      // line, not at the end of the reset month's band.
+                      const bands = financialData.findIndex(d => d.month === resetMonthLabel) + 1
+                      const half  = bands > 0 ? props.width / bands / 2 : 0
+                      return <Rectangle {...props} width={props.width - half} />
+                    }}
+                  />
                 )}
-                {selectedYear === resetYear && resetMonthLabel && (
+                {selectedYear === resetYear && resetMonthLabel && financialData.some(d => d.month === resetMonthLabel) && (
                   <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
                 )}
                 <Tooltip content={(props) => <FinancialTooltip {...props} show={showFinancialData} />} cursor={{ fill: 'hsl(var(--foreground))', fillOpacity: 0.12 }} />
