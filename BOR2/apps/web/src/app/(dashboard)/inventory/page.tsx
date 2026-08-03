@@ -10,6 +10,7 @@ import {
   XAxis, YAxis,
   CartesianGrid, Tooltip,
   ReferenceArea, ReferenceLine,
+  Rectangle,
   ResponsiveContainer,
 } from 'recharts';
 import {
@@ -39,30 +40,17 @@ const MONTHS = [
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-const LIMIT_EXCLUDED_PROJECTS = new Set([
-  'neponset canton',
-  'neponset panels',
-  'neponset building 1',
-  'emerald run building 1',
-  'emerald run panels',
-  'coppersmith building 1',
-  'riverview building 1',
-  'bellevue hills q',
-  'bellevue hill q',
-  'bfs allston',
-])
-
-function normalizeProjectName(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/\bpanels?\b/g, 'panels')
-    .replace(/\bbldg?\b/g, 'building')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
+function hasConfiguredMaterialLimit(detail: { house_model_nome?: string | null }) {
+  const model = detail.house_model_nome?.trim().toLowerCase()
+  return Boolean(model && model !== 'no template')
 }
 
-function hasConfiguredMaterialLimit(projectName: string) {
-  return !LIMIT_EXCLUDED_PROJECTS.has(normalizeProjectName(projectName))
+function CenteredFinancialBar({ source, ...props }: any) {
+  const hasBackup = props.payload.backupNormal > 0 || props.payload.backupExcess > 0
+  const hasLive = props.payload.liveNormal > 0 || props.payload.liveExcess > 0
+  const isHybrid = hasBackup && hasLive
+  const groupOffset = isHybrid ? 0 : (props.width + 4) / 2 * (source === 'backup' ? 1 : -1)
+  return <Rectangle {...props} x={props.x + groupOffset} />
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -90,7 +78,7 @@ function AdherenceTooltip({ active, payload, label, threshold }: any) {
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-sm shadow-lg space-y-1">
       <p className="font-medium">{label}</p>
-      {point.backupAdherence != null && <div className="border-l-2 border-dashed border-muted-foreground/50 pl-2">
+      {point.backupAdherence != null && <div className="border-l-2 border-dashed border-primary/50 pl-2">
         <p className="text-[10px] uppercase text-muted-foreground">Backup</p>
         <p className={`font-bold ${adherenceColor(point.backupAdherence, threshold ?? 75)}`}>{fmtPct(point.backupAdherence)}</p>
         <p className="text-xs text-muted-foreground">{point.backupBelow} of {point.backupTotal} below minimum</p>
@@ -107,11 +95,11 @@ function AdherenceTooltip({ active, payload, label, threshold }: any) {
 function FinancialTooltip({ active, payload, label, show }: any) {
   if (!active || !payload?.length) return null
   const point = payload[0]?.payload
-  const normal = (point.backupNormal ?? 0) + (point.liveNormal ?? 0)
-  const excess = (point.backupExcess ?? 0) + (point.liveExcess ?? 0)
-  const total = normal + excess
-  const normalPct = total > 0 ? Math.round((normal / total) * 100) : 0
-  const excessPct = total > 0 ? Math.round((excess / total) * 100) : 0
+  const sections = [
+    { label: 'Backup history', normal: point.backupNormal ?? 0, excess: point.backupExcess ?? 0, backup: true },
+    { label: 'Current storage', normal: point.liveNormal ?? 0, excess: point.liveExcess ?? 0, backup: false },
+  ].filter(section => section.normal > 0 || section.excess > 0)
+  const total = sections.reduce((sum, section) => sum + section.normal + section.excess, 0)
   const vBlur = !show ? 'blur-sm select-none' : ''
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-sm shadow-lg space-y-1.5">
@@ -119,22 +107,37 @@ function FinancialTooltip({ active, payload, label, show }: any) {
         <p className="font-semibold">{label}</p>
         <p className={`font-bold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(total)}</p>
       </div>
-      <div className="border-t border-border pt-1.5 space-y-1">
-        {(point.backupNormal > 0 || point.backupExcess > 0) && <p className="text-[10px] uppercase text-muted-foreground">Includes backup history</p>}
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">Within limit</p>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{normalPct}%</span>
-            <span className={`text-xs font-semibold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(normal)}</span>
+      <div className="border-t border-border pt-1.5">
+        {sections.map((section, index) => {
+          const sectionTotal = section.normal + section.excess
+          const normalPct = sectionTotal > 0 ? Math.round((section.normal / sectionTotal) * 100) : 0
+          const excessPct = sectionTotal > 0 ? Math.round((section.excess / sectionTotal) * 100) : 0
+          return <div key={section.label} className={index > 0 ? 'mt-2 border-t border-border pt-2' : ''}>
+            <div className="mb-1 flex items-center justify-between gap-6">
+              <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase text-muted-foreground">
+                <span className={`inline-block h-2 w-2 rounded-sm border ${section.backup ? 'border-dashed border-muted-foreground bg-muted-foreground/20' : 'border-primary bg-primary'}`} />
+                {section.label}
+              </p>
+              <span className={`text-xs font-semibold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(sectionTotal)}</span>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-muted-foreground">Within limit</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{normalPct}%</span>
+                  <span className={`text-xs font-semibold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(section.normal)}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-red-500">Excess</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-red-400">{excessPct}%</span>
+                  <span className={`text-xs font-semibold text-red-500 transition-[filter] ${vBlur}`}>{fmtUSD(section.excess)}</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-red-500">Excess</p>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-red-400">{excessPct}%</span>
-            <span className={`text-xs font-semibold text-red-500 transition-[filter] ${vBlur}`}>{fmtUSD(excess)}</span>
-          </div>
-        </div>
+        })}
       </div>
     </div>
   )
@@ -257,7 +260,7 @@ export default function InventoryPage() {
       .filter(h => h.mes.startsWith(yearStr))
       .forEach(h => s.add(parseInt(h.mes.substring(5, 7), 10)))
     data.detalhes_excesso
-      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d.project_nome))
+      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d))
       .forEach(d => s.add(parseInt(d.movement_date.substring(5, 7), 10)))
     return Array.from(s).sort((a, b) => a - b)
   }, [data, yearStr])
@@ -314,7 +317,7 @@ export default function InventoryPage() {
       grouped.set(String(i).padStart(2, '0'), { backupNormal: 0, backupExcess: 0, liveNormal: 0, liveExcess: 0 })
     }
     data.detalhes_excesso
-      .filter(d => d.movement_date.startsWith(yearStr))
+      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d))
       .forEach(d => {
         const price = (d.valor_unitario != null && d.valor_unitario > 0)
           ? d.valor_unitario
@@ -350,7 +353,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d.project_nome)
+        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d)
       })
       .reduce((acc, d) => {
         const prev = d.consumo_acumulado_momento - d.quantidade_retirada
@@ -367,7 +370,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return hasConfiguredMaterialLimit(d.project_nome)
+        return hasConfiguredMaterialLimit(d)
       })
       .forEach(d => {
         const price = (d.valor_unitario != null && d.valor_unitario > 0)
@@ -394,7 +397,7 @@ export default function InventoryPage() {
       .filter(d => {
         if (!d.movement_date.startsWith(yearStr)) return false
         if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d.project_nome)
+        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d)
       })
       .forEach(d => {
         const key = d.project_nome
@@ -683,15 +686,15 @@ export default function InventoryPage() {
                       <stop offset="95%" stopColor={adherenceStrokeColor} stopOpacity={0}   />
                     </linearGradient>
                     <linearGradient id="adherenceBackupGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.14} />
-                      <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
+                      <stop offset="5%" stopColor={primaryColor} stopOpacity={0.12} />
+                      <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                   {selectedYear === resetYear && resetMonthLabel && adherenceData.length > 0 && (
-                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
+                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill={primaryColor} fillOpacity={0.045} strokeOpacity={0} />
                   )}
                   <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.5} />
                   {selectedYear === resetYear && resetMonthLabel && (
@@ -701,13 +704,13 @@ export default function InventoryPage() {
                   <Area
                     type="monotone"
                     dataKey="backupAdherence"
-                    stroke="#94a3b8"
+                    stroke={primaryColor}
                     strokeDasharray="5 4"
                     strokeWidth={2}
-                    strokeOpacity={0.75}
+                    strokeOpacity={0.48}
                     fill="url(#adherenceBackupGrad)"
                     connectNulls
-                    dot={{ r: 3, fill: '#94a3b8', fillOpacity: 0.7, strokeWidth: 0 }}
+                    dot={{ r: 3, fill: primaryColor, fillOpacity: 0.5, strokeWidth: 0 }}
                     activeDot={{ r: 4, strokeWidth: 0 }}
                   />
                   <Area
@@ -719,6 +722,7 @@ export default function InventoryPage() {
                     connectNulls
                     dot={(props: any) => {
                       const { cx, cy, payload } = props
+                      if (payload.liveAdherence == null) return <g key={`empty-${cx}`} />
                       const below = payload.liveAdherence != null && payload.liveAdherence < threshold
                       return <circle key={`d-${cx}`} cx={cx} cy={cy} r={4} fill={below ? '#ef4444' : adherenceStrokeColor} strokeWidth={0} />
                     }}
@@ -815,10 +819,10 @@ export default function InventoryPage() {
                   <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
                 )}
                 <Tooltip content={(props) => <FinancialTooltip {...props} show={showFinancialData} />} cursor={{ fill: 'hsl(var(--foreground))', fillOpacity: 0.12 }} />
-                <Bar dataKey="backupNormal" stackId="backup" fill={primaryColor} fillOpacity={0.3} stroke={primaryColor} strokeOpacity={0.65} strokeDasharray="4 3" />
-                <Bar dataKey="backupExcess" stackId="backup" fill="#ef4444" fillOpacity={0.3} stroke="#ef4444" strokeOpacity={0.65} strokeDasharray="4 3" radius={[3,3,0,0]} />
-                <Bar dataKey="liveNormal" stackId="live" fill={primaryColor} opacity={0.85} />
-                <Bar dataKey="liveExcess" stackId="live" fill="#ef4444" radius={[4,4,0,0]} />
+                <Bar dataKey="backupNormal" stackId="backup" fill={primaryColor} fillOpacity={0.3} stroke={primaryColor} strokeOpacity={0.65} strokeDasharray="4 3" shape={(props: any) => <CenteredFinancialBar {...props} source="backup" />} />
+                <Bar dataKey="backupExcess" stackId="backup" fill="#ef4444" fillOpacity={0.3} stroke="#ef4444" strokeOpacity={0.65} strokeDasharray="4 3" radius={[3,3,0,0]} shape={(props: any) => <CenteredFinancialBar {...props} source="backup" />} />
+                <Bar dataKey="liveNormal" stackId="live" fill={primaryColor} opacity={0.85} shape={(props: any) => <CenteredFinancialBar {...props} source="live" />} />
+                <Bar dataKey="liveExcess" stackId="live" fill="#ef4444" radius={[4,4,0,0]} shape={(props: any) => <CenteredFinancialBar {...props} source="live" />} />
               </BarChart>
             </ResponsiveContainer>
           </div>
