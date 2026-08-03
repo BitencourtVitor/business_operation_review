@@ -23,5 +23,5 @@ export function usePermission() {
     return myPerms?.permissions[permKey] === "write"
   }
 
-  return { canView, canEdit, isLoading }
+  return { canView, canEdit, isDev: user?.role === "dev", isLoading }
 }

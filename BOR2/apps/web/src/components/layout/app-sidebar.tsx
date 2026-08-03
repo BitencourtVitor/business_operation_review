@@ -58,6 +58,7 @@ import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashbo
 import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
 import { ManageDataModal as WorkforceManageDataModal }      from "@/app/(dashboard)/workforce-productivity/manage-data-modal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 
 type SubItem = {
   title: string
@@ -77,6 +78,8 @@ type NavItem = {
   permKey?: string       // permission key required to VIEW this item
   editPermKey?: string   // permission key that grants the gear edit button (opens modal)
   metricsHref?: string   // if set, shows a "See Metrics" action button linking here
+  badge?: string         // short label rendered opposite the title, where the chevron sits
+  devOnly?: boolean      // visible to everyone, but only the dev role can open it
 }
 
 type NavGroup = {
@@ -127,6 +130,12 @@ const activeGroup: NavGroup = {
     },
     { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
     { title: "Subcontractor Docs", href: "/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
+    {
+      title: "PCG Bid Requests", href: "/pcg-bid-requests",
+      image: "/images/sublogo_pcg.png",
+      badge: "Soon",
+      devOnly: true,
+    },
   ],
 }
 
@@ -169,6 +178,19 @@ function NavItemIcon({ item }: { item: NavItem }) {
   }
   if (item.icon) return <item.icon />
   return null
+}
+
+// Sits in the same slot the chevron uses on items with a company selector.
+function NavItemBadge({ item }: { item: NavItem }) {
+  if (!item.badge) return null
+  return (
+    <Badge
+      variant="outline"
+      className="ml-auto h-4 px-1.5 text-[10px] text-muted-foreground group-data-[collapsible=icon]:hidden"
+    >
+      {item.badge}
+    </Badge>
+  )
 }
 
 function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavItem; isActive: (href: string) => boolean; canEdit: (k: string) => boolean; onEditOpen: (item: NavItem) => void }) {
@@ -259,6 +281,7 @@ function NavGroupItems({
   isItemExpanded,
   toggleExpanded,
   canEdit,
+  isDev,
   onEditOpen,
 }: {
   items: NavItem[]
@@ -269,6 +292,7 @@ function NavGroupItems({
   isItemExpanded: (item: NavItem) => boolean
   toggleExpanded: (title: string) => void
   canEdit: (permKey: string) => boolean
+  isDev: boolean
   onEditOpen: (item: NavItem) => void
 }) {
   const router = useRouter()
@@ -286,6 +310,7 @@ function NavGroupItems({
               >
                 <NavItemIcon item={item} />
                 <span>{item.title}</span>
+                <NavItemBadge item={item} />
               </SidebarMenuButton>
             </SidebarMenuItem>
           )
@@ -358,6 +383,13 @@ function NavGroupItems({
           </SidebarMenuItem>
         ) : (
           <SidebarMenuItem key={item.title + item.href}>
+            {item.devOnly && !isDev ? (
+              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
+                <NavItemIcon item={item} />
+                <span>{item.title}</span>
+                <NavItemBadge item={item} />
+              </SidebarMenuButton>
+            ) : (
             <SidebarMenuButton
               isActive={isActive(item.href)}
               render={<Link href={item.href} />}
@@ -366,7 +398,9 @@ function NavGroupItems({
             >
               <NavItemIcon item={item} />
               <span>{item.title}</span>
+              <NavItemBadge item={item} />
             </SidebarMenuButton>
+            )}
             {item.metricsHref && (
               <TooltipProvider>
                 <Tooltip>
@@ -414,7 +448,7 @@ export function AppSidebar() {
   const [expanded, setExpanded] = useState<string[]>([])
   const [editItem, setEditItem] = useState<NavItem | null>(null)
 
-  const { canView, canEdit } = usePermission()
+  const { canView, canEdit, isDev } = usePermission()
 
   // Filter nav items based on permissions; also filters children with permKeys
   function filterNavItems(items: NavItem[]): NavItem[] {
@@ -468,7 +502,7 @@ export function AppSidebar() {
   const groupProps = {
     open: isMobile ? true : open,
     isMobile,
-    isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
+    isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit, isDev,
     onEditOpen: setEditItem,
   }
 
