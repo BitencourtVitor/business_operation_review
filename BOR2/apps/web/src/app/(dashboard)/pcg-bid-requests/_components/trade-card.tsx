@@ -9,8 +9,9 @@ export function TradeCard({
   trade, onEdit, onDelete,
 }: {
   trade: Trade
-  onEdit: () => void
-  onDelete: () => void
+  // Both absent for read-only access — the card still shows what the trade is.
+  onEdit?: () => void
+  onDelete?: () => void
 }) {
   const Icon = tradeIcon(trade.icon)
   const scopeCount = trade.workIncluded.length + trade.exclusions.length + trade.responsibilityMatrix.length
@@ -27,22 +28,28 @@ export function TradeCard({
             {trade.code ?? "Contract generated from scope"}
           </p>
         </div>
-        <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-          <button
-            onClick={onEdit}
-            aria-label={`Edit ${trade.name}`}
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={onDelete}
-            aria-label={`Delete ${trade.name}`}
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
+        {(onEdit || onDelete) && (
+          <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                aria-label={`Edit ${trade.name}`}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                aria-label={`Delete ${trade.name}`}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">

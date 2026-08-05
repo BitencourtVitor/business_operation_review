@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useCatalogStore } from "./_lib/catalog-store"
+import { useCanEditBidRequests } from "./_lib/use-can-edit"
 import { useProjectsStore, emptyProject } from "./_lib/projects-store"
 import { PROJECT_STATUS_LABEL } from "./_lib/types"
 import type { Project, ProjectStatus } from "./_lib/types"
@@ -23,6 +24,7 @@ const FILTERS: Filter[] = ["all", "active", "on_hold", "completed"]
 export default function PCGBidRequestsPage() {
   const trades = useCatalogStore(s => s.trades)
   const { projects, addProject, deleteProject } = useProjectsStore()
+  const canEdit = useCanEditBidRequests()
 
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<Filter>("all")
@@ -94,10 +96,12 @@ export default function PCGBidRequestsPage() {
           Trades
         </Button>
 
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4" />
-          New project
-        </Button>
+        {canEdit && (
+          <Button onClick={openNew}>
+            <Plus className="h-4 w-4" />
+            New project
+          </Button>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
@@ -117,13 +121,17 @@ export default function PCGBidRequestsPage() {
               <div>
                 <p className="font-medium">No projects yet</p>
                 <p className="text-sm text-muted-foreground">
-                  Create one, pick which trades it needs, and each gets its own bid request track.
+                  {canEdit
+                    ? "Create one, pick which trades it needs, and each gets its own bid request track."
+                    : "Nothing has been set up yet. Ask someone with edit access to create the first project."}
                 </p>
               </div>
-              <Button onClick={openNew}>
-                <Plus className="h-4 w-4" />
-                New project
-              </Button>
+              {canEdit && (
+                <Button onClick={openNew}>
+                  <Plus className="h-4 w-4" />
+                  New project
+                </Button>
+              )}
             </div>
           ) : visible.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
@@ -140,7 +148,7 @@ export default function PCGBidRequestsPage() {
                   project={project}
                   trades={trades}
                   onOpen={() => setOpenProjectId(project.id)}
-                  onDelete={() => setPendingDelete(project)}
+                  onDelete={canEdit ? () => setPendingDelete(project) : undefined}
                 />
               ))}
             </div>

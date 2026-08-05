@@ -9,10 +9,11 @@ import type { SaveState } from "../_lib/use-async-save"
 import type { Question, ProjectTrade } from "../_lib/types"
 
 function QuantityStepper({
-  value, unit, onChange,
+  value, unit, readOnly, onChange,
 }: {
   value: string
   unit: string
+  readOnly: boolean
   onChange: (value: string) => void
 }) {
   // The question is only asked after a Yes, so one is the floor — zero would
@@ -25,7 +26,7 @@ function QuantityStepper({
       <span className="flex h-8 items-center rounded-lg border border-input dark:bg-input/30">
         <button
           onClick={() => onChange(String(Math.max(1, n - 1)))}
-          disabled={n <= 1}
+          disabled={readOnly || n <= 1}
           aria-label="Decrease quantity"
           className="flex h-full w-7 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
         >
@@ -38,12 +39,14 @@ function QuantityStepper({
             onChange(digits === "" || digits === "0" ? "1" : digits)
           }}
           inputMode="numeric"
+          readOnly={readOnly}
           className="h-full w-10 bg-transparent text-center text-sm tabular-nums outline-none"
         />
         <button
           onClick={() => onChange(String(n + 1))}
+          disabled={readOnly}
           aria-label="Increase quantity"
-          className="flex h-full w-7 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex h-full w-7 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
@@ -54,10 +57,11 @@ function QuantityStepper({
 }
 
 export function QuestionnaireForm({
-  questions, answers, saveStateOf, onChange,
+  questions, answers, readOnly = false, saveStateOf, onChange,
 }: {
   questions: Question[]
   answers: ProjectTrade["answers"]
+  readOnly?: boolean
   saveStateOf: (questionId: string) => SaveState
   onChange: (questionId: string, value: string | string[]) => void
 }) {
@@ -116,6 +120,7 @@ export function QuestionnaireForm({
                     <Input
                       value={typeof value === "string" ? value : ""}
                       onChange={e => onChange(q.id, e.target.value)}
+                      disabled={readOnly}
                       placeholder={q.hint || "Answer"}
                       className="h-8 text-sm"
                     />
@@ -128,6 +133,7 @@ export function QuestionnaireForm({
                           <button
                             key={opt}
                             aria-pressed={on}
+                            disabled={readOnly}
                             onClick={() => {
                               if (q.type === "multi") {
                                 onChange(q.id, on ? list.filter(o => o !== opt) : [...list, opt])
@@ -140,10 +146,10 @@ export function QuestionnaireForm({
                                 onChange(quantityKey(q.id), "1")
                               }
                             }}
-                            className={`flex h-8 items-center rounded-lg border px-3 text-xs font-medium transition-colors ${
+                            className={`flex h-8 items-center rounded-lg border px-3 text-xs font-medium transition-colors disabled:pointer-events-none ${
                               on
                                 ? "border-primary bg-primary/10 text-primary"
-                                : "border-input text-muted-foreground hover:bg-accent hover:text-foreground dark:bg-input/30"
+                                : `border-input text-muted-foreground hover:bg-accent hover:text-foreground dark:bg-input/30 ${readOnly ? "opacity-50" : ""}`
                             }`}
                           >
                             {opt}
@@ -159,6 +165,7 @@ export function QuestionnaireForm({
                           <QuantityStepper
                             value={typeof answers[quantityKey(q.id)] === "string" ? (answers[quantityKey(q.id)] as string) : ""}
                             unit={q.hint}
+                            readOnly={readOnly}
                             onChange={v => onChange(quantityKey(q.id), v)}
                           />
                         </>

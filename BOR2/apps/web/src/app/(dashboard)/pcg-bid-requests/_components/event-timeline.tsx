@@ -441,11 +441,12 @@ function EditEventForm({
 }
 
 export function EventTimeline({
-  trade, projectTrade, complete, current, currentParams, staleApproval, open, onToggle, onLog,
-  onUpdate, onDelete,
+  trade, projectTrade, canEdit, complete, current, currentParams, staleApproval, open, onToggle,
+  onLog, onUpdate, onDelete,
 }: {
   trade: Trade
   projectTrade: ProjectTrade
+  canEdit: boolean
   complete: boolean
   current: DocumentParams                // what the trade says right now
   currentParams: () => DocumentParams    // same, but freezing the definition
@@ -487,8 +488,8 @@ export function EventTimeline({
           {step.label}
         </span>
 
-        <Popover open={logging} onOpenChange={setLogging}>
-          {blocked ? (
+        <Popover open={logging && canEdit} onOpenChange={setLogging}>
+          {!canEdit ? null : blocked ? (
             // A disabled trigger swallows its own title — the reason has to come
             // from a tooltip on a wrapper.
             <TooltipProvider delay={200}>
@@ -650,7 +651,7 @@ export function EventTimeline({
                         </span>
                       )}
                     </span>
-                    {event.type !== "created" && (
+                    {canEdit && event.type !== "created" && (
                       <>
                         <Popover
                           open={editing === event.id}

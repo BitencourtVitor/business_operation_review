@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
 import { useCatalogStore } from "../_lib/catalog-store"
+import { useCanEditBidRequests } from "../_lib/use-can-edit"
 import { useProjectsStore, newProjectTrade, answerProgress } from "../_lib/projects-store"
 import { useAsyncSave } from "../_lib/use-async-save"
 import { tradeIcon } from "../_lib/trade-icons"
@@ -49,6 +50,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const updateTradeEvent = useProjectsStore(s => s.updateTradeEvent)
   const deleteTradeEvent = useProjectsStore(s => s.deleteTradeEvent)
   const { user } = useAuth()
+  const canEdit = useCanEditBidRequests()
   const { resolvedTheme, setTheme } = useTheme()
 
   const { save, isSaving, stateOf } = useAsyncSave()
@@ -169,6 +171,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
           <TradeView
             projectTrade={openTrade}
             trade={openCatalog}
+            canEdit={canEdit}
             isSaving={isSaving}
             stateOf={stateOf}
             onPatch={(key, p) => patchTrade(openTrade.tradeId, key, p)}
@@ -190,6 +193,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                     id="project-name"
                     value={project.name}
                     onChange={e => patchProject("project:name", { name: e.target.value })}
+                    disabled={!canEdit}
                     placeholder="e.g. Bates Quarry Lot 19"
                     className="h-8 text-sm"
                   />
@@ -199,6 +203,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                     id="project-address"
                     value={project.address}
                     onChange={e => patchProject("project:address", { address: e.target.value })}
+                    disabled={!canEdit}
                     placeholder="Street, city, state, ZIP"
                     className="h-8 text-sm"
                   />
@@ -214,9 +219,10 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                         <button
                           key={s}
                           onClick={() => patchProject("project:status", { status: s })}
-                          className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
+                          disabled={!canEdit}
+                          className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors disabled:pointer-events-none ${
                             on ? `bg-background shadow-sm ${meta.text}` : "text-muted-foreground hover:text-foreground"
-                          }`}
+                          } ${!canEdit && !on ? "opacity-50" : ""}`}
                         >
                           <Icon className="h-3.5 w-3.5" />
                           {PROJECT_STATUS_LABEL[s]}
@@ -271,7 +277,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                 <div className="flex flex-col gap-2">
                   {/* Add sits at the head of the list, as a row of the list itself —
                       and steps aside while the picker it opened is on screen. */}
-                  {!picking && (
+                  {canEdit && !picking && (
                     <button
                       onClick={() => setPicking(true)}
                       className="flex items-center gap-3 rounded-xl border border-dashed p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/30"
@@ -364,7 +370,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                         trade={trade}
                         loading={isSaving(`trade:${pt.tradeId}`)}
                         onOpen={() => setOpenTradeId(pt.tradeId)}
-                        onRemove={answered => requestRemove(pt.tradeId, trade.name, answered)}
+                        onRemove={canEdit ? answered => requestRemove(pt.tradeId, trade.name, answered) : undefined}
                       />
                     )
                   })}
@@ -445,7 +451,7 @@ function TradeRow({
   trade: Trade
   loading: boolean
   onOpen: () => void
-  onRemove: (answered: number) => void
+  onRemove?: (answered: number) => void   // absent for read-only access
 }) {
   const Icon = tradeIcon(trade.icon)
   const status = currentStatus(trade, projectTrade)
@@ -513,13 +519,15 @@ function TradeRow({
         {answered}/{total} answered
       </Badge>
 
-      <button
-        onClick={e => { e.stopPropagation(); onRemove(answered) }}
-        aria-label={`Remove ${trade.name}`}
-        className="shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-      </button>
+      {onRemove && (
+        <button
+          onClick={e => { e.stopPropagation(); onRemove(answered) }}
+          aria-label={`Remove ${trade.name}`}
+          className="shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      )}
 
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </div>
@@ -561,11 +569,12 @@ function DocButton({
 // ── Trade view inside the modal ─────────────────────────────────────────────
 
 function TradeView({
-  projectTrade: rawTrade, trade, isSaving, stateOf, onPatch, onGenerate, onLogEvent, onUpdateEvent,
-  onDeleteEvent,
+  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, onLogEvent,
+  onUpdateEvent, onDeleteEvent,
 }: {
   projectTrade: ProjectTrade
   trade: Trade
+  canEdit: boolean
   isSaving: (key: string) => boolean
   stateOf: (key: string) => "idle" | "saving" | "saved"
   onPatch: (key: string, patch: Partial<ProjectTrade>) => void
@@ -731,6 +740,7 @@ function TradeView({
             <QuestionnaireForm
               questions={trade.questions}
               answers={projectTrade.answers}
+              readOnly={!canEdit}
               saveStateOf={questionId => stateOf(`${prefix}:q:${questionId}`)}
               onChange={(questionId, value) => onPatch(`${prefix}:q:${questionId}`, {
                 answers: { ...projectTrade.answers, [questionId]: value },
@@ -744,6 +754,7 @@ function TradeView({
       <EventTimeline
         trade={trade}
         projectTrade={projectTrade}
+        canEdit={canEdit}
         complete={complete}
         current={current}
         currentParams={currentParams}
