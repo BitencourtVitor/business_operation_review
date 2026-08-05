@@ -605,12 +605,15 @@ function TradeView({
       }
     }),
   }), [rawTrade, revisions, trade, documentBlocks])
-  // One at a time, like the trade editor — whichever is open takes the height
-  // that is left and scrolls inside itself.
-  const [openSection, setOpenSection] = useState<"questions" | "history">("questions")
-  const showQuestions = openSection === "questions"
   const { answered, total } = answerProgress(trade, projectTrade.answers)
   const complete = total > 0 && answered === total
+  // One at a time, like the trade editor — whichever is open takes the height
+  // that is left and scrolls inside itself. A finished questionnaire has nothing
+  // left to answer, so the trade opens on the history, where the next move is.
+  const [openSection, setOpenSection] = useState<"questions" | "history">(
+    complete ? "history" : "questions",
+  )
+  const showQuestions = openSection === "questions"
   const status = currentStatus(trade, projectTrade)
   const meta = STATUS_META[status]
   const prefix = `trade:${projectTrade.tradeId}`
