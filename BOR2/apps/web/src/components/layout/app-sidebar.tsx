@@ -132,7 +132,8 @@ const activeGroup: NavGroup = {
     { title: "Subcontractor Docs", href: "/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
     {
       title: "PCG Bid Requests", href: "/pcg-bid-requests",
-      image: "/images/sublogo_pcg.png",
+      // The square mark, not the full lockup — the wordmark is unreadable at 16px.
+      image: "/images/icon_pcg.png",
       badge: "Soon",
       devOnly: true,
     },

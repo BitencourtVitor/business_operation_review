@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, RotateCcw, Search, X } from "lucide-react"
+import { ArrowLeft, FileText, Plus, Search, SearchX, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -13,6 +13,7 @@ import { useCatalogStore, emptyTrade } from "../_lib/catalog-store"
 import type { Trade } from "../_lib/types"
 import { TradeCard } from "../_components/trade-card"
 import { TradeEditorModal } from "../_components/trade-editor-modal"
+import { DocumentBlocksModal } from "../_components/document-blocks-modal"
 
 type Filter = "all" | "bid_form" | "direct"
 
@@ -23,14 +24,14 @@ const FILTERS: { value: Filter; label: string }[] = [
 ]
 
 export default function TradeCatalogPage() {
-  const { trades, addTrade, updateTrade, deleteTrade, resetCatalog } = useCatalogStore()
+  const { trades, documentBlocks, addTrade, updateTrade, deleteTrade, setDocumentBlocks } = useCatalogStore()
 
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<Filter>("all")
   const [editing, setEditing] = useState<Trade | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Trade | null>(null)
-  const [confirmReset, setConfirmReset] = useState(false)
+  const [editingBlocks, setEditingBlocks] = useState(false)
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -64,7 +65,7 @@ export default function TradeCatalogPage() {
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Trade Catalog</h1>
             <p className="text-sm text-muted-foreground">
-              Questionnaire and standard scope behind every bid request
+              Questionnaire and standard scope
             </p>
           </div>
         </div>
@@ -104,6 +105,11 @@ export default function TradeCatalogPage() {
           ))}
         </div>
 
+        <Button variant="outline" onClick={() => setEditingBlocks(true)}>
+          <FileText className="h-4 w-4" />
+          Document defaults
+        </Button>
+
         <Button onClick={() => { setEditing(emptyTrade()); setIsNew(true) }}>
           <Plus className="h-4 w-4" />
           New trade
@@ -112,26 +118,22 @@ export default function TradeCatalogPage() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
         <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
-          <span className="flex items-center text-sm font-semibold leading-none">Trades</span>
+          <span className="flex items-center text-sm font-semibold leading-none">Trade List</span>
           <span className="flex items-center text-xs leading-none text-muted-foreground">
             {visible.length === trades.length ? trades.length : `${visible.length} of ${trades.length}`}
           </span>
-          <button
-            onClick={() => setConfirmReset(true)}
-            className="ml-auto flex h-7 items-center gap-1.5 rounded-md border border-input bg-transparent px-2.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Reset catalog
-          </button>
         </div>
 
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
           {visible.length === 0 ? (
-            <p className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-              No trade matches this filter.
-            </p>
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <SearchX className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">No trade matches this filter.</p>
+            </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {visible.map(trade => (
                 <TradeCard
                   key={trade.id}
@@ -171,20 +173,13 @@ export default function TradeCatalogPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reset the catalog?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Every trade goes back to the 19 that came from PCG&apos;s scope spreadsheet. Your edits are discarded.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { resetCatalog(); setConfirmReset(false) }}>Reset</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {editingBlocks && (
+        <DocumentBlocksModal
+          blocks={documentBlocks}
+          onSave={blocks => { setDocumentBlocks(blocks); setEditingBlocks(false) }}
+          onClose={() => setEditingBlocks(false)}
+        />
+      )}
     </div>
   )
 }

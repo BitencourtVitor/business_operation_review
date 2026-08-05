@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { Building2, Plus, Search, Settings2, X } from "lucide-react"
+import { Building2, Plus, Search, SearchX, Settings2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -126,11 +126,14 @@ export default function PCGBidRequestsPage() {
               </Button>
             </div>
           ) : visible.length === 0 ? (
-            <p className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-              No project matches this filter.
-            </p>
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <SearchX className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">No project matches this filter.</p>
+            </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {visible.map(project => (
                 <ProjectCard
                   key={project.id}

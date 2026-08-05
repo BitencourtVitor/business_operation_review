@@ -79,12 +79,14 @@ export function QuestionnaireForm({
         return (
           <li
             key={q.id}
-            className={`rounded-lg border p-3 transition-colors ${
-              done ? "border-emerald-500/40 bg-emerald-500/[0.04]" : "border-dashed"
+            // Answered shows in the border and the check — tinting the whole card
+            // as well turns a long questionnaire into a wall of green.
+            className={`rounded-lg border bg-muted/40 p-3 transition-colors ${
+              done ? "border-emerald-500/40" : "border-dashed"
             }`}
           >
             <div className="flex items-start gap-3">
-              <span className={`w-6 shrink-0 text-right text-base font-semibold tabular-nums ${
+              <span className={`w-6 shrink-0 text-center text-base font-semibold tabular-nums ${
                 done ? "text-emerald-500/70" : "text-muted-foreground/50"
               }`}>
                 {i + 1}

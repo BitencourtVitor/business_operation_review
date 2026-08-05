@@ -3,11 +3,16 @@
 import { FORM_LAYOUT } from "../_lib/form-layout"
 import { quantityKey } from "../_lib/types"
 import { formatDate } from "../_lib/format"
-import type { Project, ProjectTrade, Question, Trade } from "../_lib/types"
+import { PRINT_CSS } from "../_lib/print"
+import { useCatalogStore } from "../_lib/catalog-store"
+import type { DocumentBlock, Project, ProjectTrade, Question, Trade } from "../_lib/types"
 
 // Mirrors PCG_BidForms_All_Trades.pdf: same title block, same "To the
 // subcontractor" paragraph, same section order, same checkbox rows, same
 // confidential footer. Times New Roman because that's the form PCG sends today.
+// No scope sections on purpose — in the source form the bid is only the
+// questionnaire; work included, exclusions and the matrix belong to the
+// contract's Exhibit A.
 export function BidRequestDocument({
   project, projectTrade, trade,
 }: {
@@ -15,8 +20,11 @@ export function BidRequestDocument({
   projectTrade: ProjectTrade
   trade: Trade
 }) {
+  const documentBlocks = useCatalogStore(s => s.documentBlocks)
   const layout = FORM_LAYOUT[trade.name]
   const byId = new Map(trade.questions.map(q => [q.id, q]))
+
+  const blocks = documentBlocks.filter(b => b.scope === "bid" || b.scope === "both")
 
   const sections = layout
     ? layout.sections.map(s => ({
@@ -27,24 +35,11 @@ export function BidRequestDocument({
 
   return (
     <>
-      <style>{`
-        @media print {
-          body * { visibility: hidden !important; }
-          [data-print-root], [data-print-root] * { visibility: visible !important; }
-          [data-print-root] {
-            position: absolute !important;
-            left: 0 !important; top: 0 !important;
-            width: 100% !important; max-height: none !important;
-            overflow: visible !important;
-            box-shadow: none !important;
-          }
-          @page { size: letter; margin: 16mm 14mm; }
-        }
-      `}</style>
+      <style>{PRINT_CSS}</style>
 
       <div
         data-print-root
-        className="mx-auto w-[8.5in] bg-white px-[0.6in] py-[0.5in] text-black"
+        className="mx-auto w-[8.5in] bg-white p-[0.5in] text-black print:w-full print:p-0"
         style={{ fontFamily: '"Times New Roman", Times, serif' }}
       >
         {/* ── Letterhead ─────────────────────────────────────────────── */}
@@ -69,7 +64,7 @@ export function BidRequestDocument({
         </div>
 
         <h1 className="mt-5 text-center text-[17pt] font-bold uppercase tracking-wide">
-          Bid Request — {trade.name}
+          Bid Request: {trade.name}
         </h1>
         <p className="mt-1 text-center text-[10pt] italic text-neutral-700">
           Project specifications for subcontractor pricing
@@ -80,9 +75,8 @@ export function BidRequestDocument({
           <tbody>
             <Row label="Project Name" value={project.name} />
             <Row label="Project Address" value={project.address} />
-            <Row label="General Contractor" value="Premium Contractors Group Inc" />
-            <Row label="Subcontractor" value={projectTrade.subcontractor} />
-            <Row label="Bid Due Date" value="" />
+            {/* Nothing else belongs here: the GC is already the letterhead, the
+                sub is only named when the bid is sent, and no due date exists. */}
           </tbody>
         </table>
 
@@ -92,15 +86,19 @@ export function BidRequestDocument({
 
         {trade.standardNote && (
           <p className="mt-3 border-l-2 border-neutral-400 pl-3 text-[10pt] leading-relaxed">
-            <span className="font-bold">PCG Standard — included in all projects: </span>
+            <span className="font-bold">PCG Standard (included in all projects): </span>
             {trade.standardNote}
           </p>
         )}
 
+        {blocks.filter(b => b.placement === "before_sections").map(block => (
+          <BlockSection key={block.id} block={block} />
+        ))}
+
         {/* ── Specifications ─────────────────────────────────────────── */}
         {sections.map(section => (
-          <section key={section.title} className="mt-5 break-inside-avoid">
-            <h2 className="border-b border-neutral-400 pb-1 text-[11pt] font-bold uppercase tracking-wide">
+          <section key={section.title} className="mt-5">
+            <h2 className="break-after-avoid border-b border-neutral-400 pb-1 text-[11pt] font-bold uppercase tracking-wide">
               {section.title}
             </h2>
             <table className="w-full border-collapse text-[10.5pt]">
@@ -111,6 +109,10 @@ export function BidRequestDocument({
               </tbody>
             </table>
           </section>
+        ))}
+
+        {blocks.filter(b => b.placement === "after_sections").map(block => (
+          <BlockSection key={block.id} block={block} />
         ))}
 
         {/* ── Notes ──────────────────────────────────────────────────── */}
@@ -126,10 +128,21 @@ export function BidRequestDocument({
         </section>
 
         <p className="mt-8 border-t border-neutral-400 pt-2 text-center text-[8.5pt] text-neutral-600">
-          Premium Contractors Group Inc · {trade.name} Bid Request · Confidential — For Pricing Purposes Only
+          Premium Contractors Group Inc · {trade.name} Bid Request · Confidential · For Pricing Purposes Only
         </p>
       </div>
     </>
+  )
+}
+
+function BlockSection({ block }: { block: DocumentBlock }) {
+  return (
+    <section className="mt-5">
+      <h2 className="break-after-avoid border-b border-neutral-400 pb-1 text-[11pt] font-bold uppercase tracking-wide">
+        {block.title}
+      </h2>
+      <p className="mt-2 whitespace-pre-line text-justify text-[10.5pt] leading-relaxed">{block.body}</p>
+    </section>
   )
 }
 

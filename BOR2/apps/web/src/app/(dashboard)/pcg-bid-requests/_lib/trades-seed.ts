@@ -42,8 +42,8 @@ export const TRADES_SEED: Trade[] = [
     ],
     responsibilityMatrix: [
       "GC provides: approved architectural and structural drawings, soils report, and geotechnical recommendations prior to mobilization.",
-      "Concrete supply: GC or Sub — to be defined at contract execution per Exhibit A.",
-      "Rebar, anchor bolts, embedded hardware, vapor barrier, and gravel: GC or Sub — to be defined at contract execution per Exhibit A.",
+      "Concrete supply: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "Rebar, anchor bolts, embedded hardware, vapor barrier, and gravel: GC or Sub, to be defined at contract execution per Exhibit A.",
       "GC provides: concrete pump truck if required by site conditions or pour volume.",
       "GC provides: building permit and coordination of all required foundation inspections.",
       "GC coordinates: backfill and compaction operations to follow foundation completion.",
@@ -51,6 +51,7 @@ export const TRADES_SEED: Trade[] = [
       "Sub provides: layout and elevation control for all foundation elements.",
       "GC coordinates: with all MEP subcontractors prior to each pour to confirm sleeve, conduit, and penetration locations.",
     ],
+    rules: [],
   },
   {
     id: "excavation",
@@ -76,7 +77,7 @@ export const TRADES_SEED: Trade[] = [
       "Mass excavation of the building footprint to the depths required for foundation, footing, and basement construction.",
       "Excavation of all individual footing pits, grade beam trenches, and stepped footings.",
       "Excavation of all utility trenches for water, sewer, gas, electrical, and drainage lines.",
-      "Rock excavation if encountered — scope and pricing TBD per site conditions.",
+      "Rock excavation if encountered, scope and pricing TBD per site conditions.",
       "Dewatering of excavation if groundwater is encountered.",
       "Shoring, sheeting, or slope stabilization as required by site conditions and OSHA regulations.",
       "Subgrade preparation and compaction to the bearing capacity specified by the geotechnical engineer.",
@@ -85,7 +86,7 @@ export const TRADES_SEED: Trade[] = [
       "Backfill of all foundation walls after waterproofing is complete and approved.",
       "Backfill and compaction of all utility trenches after MEP rough-in inspections are complete.",
       "Final rough grading of the site in preparation for landscaping.",
-      "Haul-off and legal disposal of all excess soil, rock, and debris — scope TBD per site conditions.",
+      "Haul-off and legal disposal of all excess soil, rock, and debris; scope TBD per site conditions.",
       "Installation and maintenance of silt fence and stormwater pollution prevention measures.",
     ],
     exclusions: [
@@ -99,7 +100,13 @@ export const TRADES_SEED: Trade[] = [
       "GC coordinates: with Foundation subcontractor to confirm excavation depths and subgrade bearing conditions.",
       "GC coordinates: with all MEP subcontractors to confirm trench locations, depths, and sequencing.",
       "GC coordinates: waterproofing inspection and approval prior to backfill of foundation walls.",
-      "Staking and layout of excavation limits — responsibility of Licensed Surveyor, coordinated by GC.",
+      "Staking and layout of excavation limits, responsibility of Licensed Surveyor, coordinated by GC.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q5", operator: "equals", value: "Yes", action: "add", target: "exclusions",
+        clauses: ["Rock excavation is excluded from this bid; priced separately once site conditions are confirmed."], replaces: "" },
+      { id: "r2", questionId: "q6", operator: "equals", value: "Yes", action: "add", target: "exclusions",
+        clauses: ["Haul-off of excess soil is excluded from this bid; priced separately by volume removed."], replaces: "" },
     ],
   },
   {
@@ -129,7 +136,7 @@ export const TRADES_SEED: Trade[] = [
       "Stair framing for all interior and exterior stair assemblies, including stringers, landings, and structural members.",
       "Installation of all structural hardware furnished by GC, including joist hangers, straps, hold-downs, post bases, and hurricane ties.",
       "Coordination and framing of all rough openings for MEP trades, including headers, cripples, and blocking.",
-      "Crane or lifting equipment if required — TBD per project requirements.",
+      "Crane or lifting equipment if required, TBD per project requirements.",
       "Continuous site cleanup and removal of all framing-related debris, cutoffs, scrap lumber, and waste materials.",
       "One-year workmanship warranty commencing upon substantial completion.",
       "Coordination with GC and other trades to maintain project schedule.",
@@ -142,11 +149,17 @@ export const TRADES_SEED: Trade[] = [
 
     ],
     responsibilityMatrix: [
-      "GC provides: all framing lumber, engineered wood, sheathing, structural hardware, windows, exterior doors, fasteners, and all materials — delivered in advance.",
+      "GC provides: all framing lumber, engineered wood, sheathing, structural hardware, windows, exterior doors, fasteners, and all materials, delivered in advance.",
       "GC provides: building permit, approved construction documents, and engineered structural drawings on-site prior to mobilization.",
       "GC coordinates: all required municipal framing inspections.",
       "Sub provides: all labor, supervision, hand tools, power tools, crane/lifting equipment, and consumables.",
       "GC coordinates: with MEP subcontractors to confirm rough opening sizes, backing locations, and penetration requirements.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q9", operator: "equals", value: "Yes", action: "add", target: "exclusions",
+        clauses: ["Crane service is excluded from this bid; priced separately per lift schedule."], replaces: "" },
+      { id: "r2", questionId: "q10", operator: "equals", value: "Yes", action: "add", target: "workIncluded",
+        clauses: ["Installation of windows and exterior doors is included in the Framing scope."], replaces: "" },
     ],
   },
   {
@@ -177,18 +190,28 @@ export const TRADES_SEED: Trade[] = [
       "Site cleanup and removal of all deck-related materials and debris.",
     ],
     exclusions: [
-      "Railing installation is excluded — performed by Interior Trim subcontractor.",
-      "Concrete footings and piers for deck posts are excluded — performed by Foundation subcontractor.",
-      "Painting or staining is excluded — performed by Painting subcontractor.",
-      "Building permit and all required inspections are excluded — obtained and coordinated by GC.",
+      "Railing installation is excluded; performed by Interior Trim subcontractor.",
+      "Concrete footings and piers for deck posts are excluded; performed by Foundation subcontractor.",
+      "Painting or staining is excluded; performed by Painting subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
       "GC provides: approved deck drawings and specifications prior to mobilization.",
-      "Decking materials, framing lumber, hardware, and accessories: GC or Sub — to be defined at contract execution per Exhibit A.",
+      "Decking materials, framing lumber, hardware, and accessories: GC or Sub, to be defined at contract execution per Exhibit A.",
       "GC provides: building permit and coordination of all required inspections.",
       "Sub provides: all labor, supervision, tools, and equipment.",
       "Sub coordinates: with Interior Trim subcontractor for post blocking and anchor requirements.",
       "Sub coordinates: with Foundation subcontractor for footing installation prior to framing.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q5", operator: "equals", value: "Yes", action: "remove", target: "exclusions",
+        clauses: [], replaces: "Railing installation is excluded; performed by Interior Trim subcontractor." },
+      { id: "r2", questionId: "q5", operator: "equals", value: "Yes", action: "add", target: "workIncluded",
+        clauses: ["Installation of deck and porch railing systems, including posts, balusters, and top rail."], replaces: "" },
+      { id: "r3", questionId: "q7", operator: "equals", value: "Yes", action: "remove", target: "exclusions",
+        clauses: [], replaces: "Concrete footings and piers for deck posts are excluded; performed by Foundation subcontractor." },
+      { id: "r4", questionId: "q7", operator: "equals", value: "Yes", action: "add", target: "workIncluded",
+        clauses: ["Excavation, forming, and pouring of concrete footings and piers for deck posts."], replaces: "" },
     ],
   },
   {
@@ -218,9 +241,9 @@ export const TRADES_SEED: Trade[] = [
       "Site cleanup and removal of all glass-related materials and packaging.",
     ],
     exclusions: [
-      "Tile and waterproofing installation are excluded — performed by Tile subcontractor.",
-      "Plumbing fixture installation is excluded — performed by Plumbing subcontractor.",
-      "Building permit and all required inspections are excluded — obtained and coordinated by GC.",
+      "Tile and waterproofing installation are excluded; performed by Tile subcontractor.",
+      "Plumbing fixture installation is excluded; performed by Plumbing subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
       "GC provides: approved shower enclosure specifications, glass type, and hardware selections prior to templating.",
@@ -228,13 +251,17 @@ export const TRADES_SEED: Trade[] = [
       "Sub coordinates: with Tile subcontractor to confirm tile installation is complete and walls are plumb and flat prior to templating.",
       "Sub coordinates: with Plumbing subcontractor to confirm all fixtures are installed prior to glass enclosure installation.",
     ],
+    rules: [],
   },
   {
     id: "landscaping",
     name: "Landscaping",
-    code: null,
+    // The xlsx index calls this a direct contract, but the PDF carries a full
+    // BRF-LND form and the platform summary lists it among the 14 with a bid
+    // form — two sources against one.
+    code: "BRF-LND",
     icon: "landscaping",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Final grading full lot", type: "yn", options: ["Yes", "No", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
@@ -245,7 +272,7 @@ export const TRADES_SEED: Trade[] = [
       { id: "q6", label: "Mulch beds and edging", type: "yn", options: ["Yes", "No", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
       { id: "q7", label: "Drainage swales / French drains", type: "yn", options: ["Yes", "No", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
       { id: "q8", label: "Irrigation system", type: "yn", options: ["Yes", "No"], hint: "TBD bid form", tag: null, needsQuantity: false },
-      { id: "q9", label: "Supply responsibility", type: "select", options: ["Labor Only — GC Supplies", "Sub Supplies All", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
+      { id: "q9", label: "Supply responsibility", type: "select", options: ["Labor Only (GC Supplies)", "Sub Supplies All", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
       { id: "q10", label: "Special conditions / notes", type: "text", options: [], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
@@ -264,15 +291,16 @@ export const TRADES_SEED: Trade[] = [
       "Irrigation system installation is excluded unless specifically included herein.",
       "Hardscape installation is excluded unless specifically included herein.",
       "Tree removal beyond construction clearing is excluded unless specifically included herein.",
-      "Building permit and all required inspections are excluded — obtained and coordinated by GC.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
       "GC provides: approved grading plan, landscape plan, and final grade elevations prior to mobilization.",
-      "Topsoil, sod, seed, plants, mulch, and materials: GC or Sub — to be defined at contract execution per Exhibit A.",
+      "Topsoil, sod, seed, plants, mulch, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
       "GC provides: building permit and coordination of all required inspections.",
       "Sub provides: all labor, supervision, equipment, tools, and machinery.",
       "GC coordinates: final utility locating and as-built survey prior to final grading.",
     ],
+    rules: [],
   },
   {
     id: "plumbing",
@@ -286,7 +314,7 @@ export const TRADES_SEED: Trade[] = [
       { id: "q2", label: "Sewer", type: "select", options: ["Municipal Sewer", "Septic System"], hint: "", tag: null, needsQuantity: false },
       { id: "q3", label: "Gas", type: "select", options: ["Natural Gas", "Propane", "None"], hint: "", tag: null, needsQuantity: false },
       { id: "q4", label: "Main shutoff location", type: "text", options: [], hint: "", tag: "all_projects", needsQuantity: false },
-      { id: "q5", label: "Outdoor hose bibs", type: "text", options: [], hint: "Qty & locations — per code", tag: null, needsQuantity: false },
+      { id: "q5", label: "Outdoor hose bibs", type: "text", options: [], hint: "Qty & locations (per code)", tag: null, needsQuantity: false },
       { id: "q6", label: "Water heater model / brand", type: "text", options: [], hint: "e.g. HTP Crossover 20-100", tag: null, needsQuantity: false },
       { id: "q7", label: "Water heater quantity", type: "select", options: ["1", "2", "3+"], hint: "", tag: null, needsQuantity: false },
       { id: "q8", label: "Water heater location", type: "text", options: [], hint: "e.g. Basement mechanical room", tag: null, needsQuantity: false },
@@ -296,29 +324,46 @@ export const TRADES_SEED: Trade[] = [
       { id: "q12", label: "Fixture portfolio", type: "select", options: ["Attached", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
       { id: "q13", label: "Appliance connections", type: "multi", options: ["Dishwasher", "Refrigerator Shut-Off", "Ice Maker", "Washer Supply & Drain", "Wine Cooler", "Bar Sink", "Utility Sink", "Steam Shower Generator"], hint: "", tag: null, needsQuantity: false },
       { id: "q14", label: "Washer location", type: "select", options: ["1st Floor", "2nd Floor", "Basement", "Multiple"], hint: "", tag: null, needsQuantity: false },
-      { id: "q15", label: "Supply responsibility", type: "select", options: ["PCG Supplies — Sub Installs", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
-      { id: "q16", label: "Gas lines — interior", type: "multi", options: ["Range", "Cooktop", "Dryer", "Fireplace Interior", "HVAC", "Water Heater"], hint: "", tag: null, needsQuantity: false },
-      { id: "q17", label: "Gas lines — exterior", type: "multi", options: ["Outdoor Grill", "Exterior Fireplace", "Generator (future)", "Outdoor Kitchen"], hint: "", tag: null, needsQuantity: false },
+      { id: "q15", label: "Supply responsibility", type: "select", options: ["PCG Supplies (Sub Installs)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q16", label: "Gas lines (interior)", type: "multi", options: ["Range", "Cooktop", "Dryer", "Fireplace Interior", "HVAC", "Water Heater"], hint: "", tag: null, needsQuantity: false },
+      { id: "q17", label: "Gas lines (exterior)", type: "multi", options: ["Outdoor Grill", "Exterior Fireplace", "Generator (future)", "Outdoor Kitchen"], hint: "", tag: null, needsQuantity: false },
       { id: "q18", label: "Floor drains locations", type: "multi", options: ["Garage", "Basement", "Mechanical Room", "Laundry", "Mudroom"], hint: "", tag: "all_projects", needsQuantity: false },
-      { id: "q19", label: "Rinsing station", type: "select", options: ["Yes — Location Defined", "Yes — Location to Be Defined", "No"], hint: "", tag: null, needsQuantity: false },
-      { id: "q20", label: "Basement bath rough", type: "select", options: ["Yes — Location Defined", "Rough Only to Be Defined", "No"], hint: "", tag: null, needsQuantity: false },
+      { id: "q19", label: "Rinsing station", type: "select", options: ["Yes (Location Defined)", "Yes (Location to Be Defined)", "No"], hint: "", tag: null, needsQuantity: false },
+      { id: "q20", label: "Basement bath rough", type: "select", options: ["Yes (Location Defined)", "Rough Only to Be Defined", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q21", label: "Sump pump", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q22", label: "Steam shower", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q23", label: "Pot filler", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q24", label: "Water filter / softener", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q25", label: "Pool / hot tub connections", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q26", label: "Scope phase", type: "select", options: ["Rough-In Only", "Finish Only", "Both Phases"], hint: "", tag: null, needsQuantity: false },
-      { id: "q27", label: "Materials", type: "select", options: ["Labor Only — PCG Supplies All", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q27", label: "Materials", type: "select", options: ["Labor Only (PCG Supplies All)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of the complete water supply system from the source connection to all fixtures, including rough-in and trim.",
+      "Installation of the complete drain, waste, and vent system from all fixtures to the sewer or septic connection.",
+      "Installation of all interior and exterior gas lines serving the specified appliances and equipment.",
+      "Installation of the main water shutoff at the specified location, accessible and labeled.",
+      "Installation of all water heaters at the specified locations, including expansion tanks, pans, and discharge piping.",
+      "Installation of all outdoor hose bibs at the specified quantity and locations, frost proof per code.",
+      "Installation of all condensate drain lines serving the furnaces and air handlers.",
+      "Installation of all floor drains, sump pumps, and basement rough-ins at the specified locations.",
+      "Setting and connection of all fixtures and appliance connections in the specified portfolio.",
+      "Pressure testing of all supply and waste lines, and coordination of all required plumbing inspections.",
     ],
     exclusions: [
-
+      "Electrical connections to plumbing equipment are excluded; performed by the Electrical subcontractor.",
+      "HVAC equipment and ductwork are excluded; performed by the HVAC subcontractor.",
+      "Wall, ceiling, and finish repair after rough-in is excluded; performed by the respective subcontractors.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved plumbing plan, fixture schedule, and appliance specifications prior to rough-in.",
+      "Fixtures, appliances, water heaters, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: utility tap, meter set, and sewer or septic connection with the utility provider.",
     ],
+    rules: [],
   },
   {
     id: "electrical",
@@ -335,19 +380,19 @@ export const TRADES_SEED: Trade[] = [
       { id: "q5", label: "Condensers / heat pumps", type: "text", options: [], hint: "Qty & locations", tag: null, needsQuantity: false },
       { id: "q6", label: "Tankless water heater", type: "text", options: [], hint: "Qty", tag: null, needsQuantity: false },
       { id: "q7", label: "Fixture portfolio", type: "select", options: ["Attached", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
-      { id: "q8", label: "Range / stove", type: "select", options: ["Gas — Circuit Only", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
-      { id: "q9", label: "Range hood", type: "select", options: ["Gas — Circuit Only", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
-      { id: "q10", label: "Dryer", type: "select", options: ["Gas — Circuit Only", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
-      { id: "q11", label: "Fireplace", type: "select", options: ["Gas — Circuit Only", "Electric — Dedicated Circuit", "N/A"], hint: "", tag: null, needsQuantity: false },
-      { id: "q12", label: "Car charger / EV", type: "text", options: [], hint: "Qty — Level 2 240V", tag: "all_projects", needsQuantity: false },
+      { id: "q8", label: "Range / stove", type: "select", options: ["Gas (Circuit Only)", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
+      { id: "q9", label: "Range hood", type: "select", options: ["Gas (Circuit Only)", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
+      { id: "q10", label: "Dryer", type: "select", options: ["Gas (Circuit Only)", "Electric"], hint: "dedicated circuit", tag: null, needsQuantity: false },
+      { id: "q11", label: "Fireplace", type: "select", options: ["Gas (Circuit Only)", "Electric (Dedicated Circuit)", "N/A"], hint: "", tag: null, needsQuantity: false },
+      { id: "q12", label: "Car charger / EV", type: "text", options: [], hint: "Qty (Level 2 240V)", tag: "all_projects", needsQuantity: false },
       { id: "q13", label: "Generator", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q14", label: "Solar panel chase", type: "yn", options: ["Yes", "No"], hint: "", tag: "all_projects", needsQuantity: false },
       { id: "q15", label: "Pool / hot tub circuit", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
-      { id: "q16", label: "Recessed lights", type: "text", options: [], hint: "Qty — dimmer yes/no", tag: null, needsQuantity: false },
-      { id: "q17", label: "Motion lights exterior", type: "text", options: [], hint: "Qty — locations TBD", tag: null, needsQuantity: false },
+      { id: "q16", label: "Recessed lights", type: "text", options: [], hint: "Qty (dimmer yes/no)", tag: null, needsQuantity: false },
+      { id: "q17", label: "Motion lights exterior", type: "text", options: [], hint: "Qty (locations TBD)", tag: null, needsQuantity: false },
       { id: "q18", label: "Motion lights closets", type: "text", options: [], hint: "Qty", tag: "all_projects", needsQuantity: false },
       { id: "q19", label: "Under cabinet lights", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
-      { id: "q20", label: "Towel warmers primary baths", type: "text", options: [], hint: "Qty — optional", tag: "optional", needsQuantity: false },
+      { id: "q20", label: "Towel warmers primary baths", type: "text", options: [], hint: "Qty (optional)", tag: "optional", needsQuantity: false },
       { id: "q21", label: "Pre-wire landscape lighting", type: "yn", options: ["Yes", "No"], hint: "", tag: "all_projects", needsQuantity: false },
       { id: "q22", label: "Exterior soffit lighting", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q23", label: "Step / stair lighting", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
@@ -368,20 +413,37 @@ export const TRADES_SEED: Trade[] = [
       { id: "q38", label: "CO detectors", type: "text", options: [], hint: "Qty per code", tag: "all_projects", needsQuantity: false },
       { id: "q39", label: "Bathroom exhaust fans", type: "text", options: [], hint: "Qty", tag: "all_projects", needsQuantity: false },
       { id: "q40", label: "GFCI protection", type: "multi", options: ["Bathrooms", "Kitchen", "Exterior", "Garage", "Basement"], hint: "", tag: "all_projects", needsQuantity: false },
-      { id: "q41", label: "AFCI protection", type: "text", options: [], hint: "Per code — all required circuits", tag: null, needsQuantity: false },
+      { id: "q41", label: "AFCI protection", type: "text", options: [], hint: "Per code (all required circuits)", tag: null, needsQuantity: false },
       { id: "q42", label: "Scope phase", type: "select", options: ["Rough-In Only", "Finish Only", "Both Phases"], hint: "", tag: null, needsQuantity: false },
-      { id: "q43", label: "Fixtures / devices supply", type: "select", options: ["PCG Supplies — Sub Installs", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
-      { id: "q44", label: "Materials / wire", type: "select", options: ["Labor Only — PCG Supplies", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q43", label: "Fixtures / devices supply", type: "select", options: ["PCG Supplies (Sub Installs)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q44", label: "Materials / wire", type: "select", options: ["Labor Only (PCG Supplies)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of the complete electrical service, main panel, and all sub-panels at the specified capacity.",
+      "Installation of all branch circuits, wiring, boxes, devices, and cover plates throughout the residence.",
+      "Installation of all dedicated circuits serving HVAC equipment, water heaters, appliances, and specified equipment.",
+      "Installation of all lighting fixtures, recessed lighting, dimmers, and controls in the specified portfolio.",
+      "Installation of all exterior lighting, including soffit, step, and motion activated fixtures where specified.",
+      "Installation of all specified low voltage rough-in, including TV outlets, doorbell, intercom, and garage door wiring.",
+      "Installation of all smoke detectors and carbon monoxide detectors, interconnected per code.",
+      "Installation of GFCI and AFCI protection on all circuits required by code.",
+      "Wiring of all bathroom exhaust fans and connection to the specified controls.",
+      "Testing and energizing of the complete system, and coordination of all required electrical inspections.",
     ],
     exclusions: [
-
+      "HVAC equipment and ductwork are excluded; performed by the HVAC subcontractor.",
+      "Gas piping to appliances and equipment is excluded; performed by the Plumbing subcontractor.",
+      "Audio, security, and network cabling are excluded unless specifically included herein.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved electrical plan, lighting schedule, and appliance specifications prior to rough-in.",
+      "Fixtures, devices, wire, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: service drop, meter set, and temporary power with the utility provider.",
     ],
+    rules: [],
   },
   {
     id: "hvac",
@@ -412,14 +474,31 @@ export const TRADES_SEED: Trade[] = [
       { id: "q19", label: "Special conditions / notes", type: "text", options: [], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of all furnaces and air handlers at the specified quantity, capacity, and locations.",
+      "Installation of all condensers and heat pumps at the specified quantity and tonnage, including line sets and pads.",
+      "Installation of the complete supply and return duct system serving all specified zones.",
+      "Installation of all zone controls, thermostats, and dampers for the specified number of zones.",
+      "Tie-in of all bathroom exhaust fans and the kitchen hood, including duct, damper, and exterior cap.",
+      "Installation of all specified air quality equipment, including humidifier, media filter, and UV sanitizer.",
+      "Installation of all refrigerant lines and condensate drain connections.",
+      "Conditioning of the screened porch, basement, and garage where included in the scope.",
+      "Commissioning, startup, balancing, and instruction of the owner on system operation.",
+      "Coordination of all required mechanical inspections.",
     ],
     exclusions: [
-
+      "Gas piping to the equipment is excluded; performed by the Plumbing subcontractor.",
+      "Electrical circuits and disconnects serving the equipment are excluded; performed by the Electrical subcontractor.",
+      "Framing of chases and soffits for ductwork is excluded; performed by the Framing subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved mechanical plan, equipment schedule, and zone layout prior to rough-in.",
+      "Equipment, ductwork, thermostats, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: equipment locations on site with the Framing and Electrical subcontractors.",
     ],
+    rules: [],
   },
   {
     id: "insulation",
@@ -440,20 +519,36 @@ export const TRADES_SEED: Trade[] = [
       { id: "q9", label: "Basement walls", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q10", label: "Rim joist", type: "select", options: ["Spray Foam", "Rigid Board", "Batt"], hint: "", tag: null, needsQuantity: false },
       { id: "q11", label: "Crawl space", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
-      { id: "q12", label: "Garage ceiling — conditioned above", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
+      { id: "q12", label: "Garage ceiling (conditioned above)", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q13", label: "Sound insulation interior walls", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q14", label: "Vapor barrier", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
-      { id: "q15", label: "Materials supply", type: "select", options: ["Labor Only — PCG Supplies", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q15", label: "Materials supply", type: "select", options: ["Labor Only (PCG Supplies)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of insulation in all exterior walls at the specified type and R-value.",
+      "Installation of attic insulation at the specified type and R-value, including baffles and ventilation clearance.",
+      "Installation of insulation at all cathedral and vaulted ceilings at the specified R-value.",
+      "Installation of basement wall, rim joist, and crawl space insulation where specified.",
+      "Installation of garage ceiling insulation where conditioned space is above.",
+      "Installation of sound insulation at all specified interior walls.",
+      "Installation of vapor barrier where specified, sealed at all seams and penetrations.",
+      "Air sealing of all penetrations, top plates, and rough openings prior to insulating.",
+      "Site cleanup and removal of all packaging and installation debris.",
     ],
     exclusions: [
-
+      "HERS rating and blower door testing are excluded unless the rater is specifically identified herein.",
+      "Spray foam at areas not specified is excluded unless specifically included herein.",
+      "Drywall and wall finishes are excluded; performed by the Drywall subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: energy code compliance path, HERS target, and approved insulation schedule prior to installation.",
+      "Insulation, vapor barrier, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: rough-in sign-off by all trades before insulation is installed.",
     ],
+    rules: [],
   },
   {
     id: "roofing",
@@ -482,14 +577,32 @@ export const TRADES_SEED: Trade[] = [
       { id: "q17", label: "Sheathing replacement", type: "select", options: ["Sub Responsibility", "PCG to Authorize Separately"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of the complete roofing system in the specified material, brand, product line, and color.",
+      "Installation of underlayment across the entire roof deck per the manufacturer's specifications.",
+      "Installation of ice and water shield at all eaves, valleys, and penetrations as specified.",
+      "Installation of drip edge, step flashing, counter flashing, and valley flashing at all required locations.",
+      "Installation of pipe boot flashings at all roof penetrations.",
+      "Installation of chimney flashing and counter flashing at all chimneys.",
+      "Installation of ridge vent and all specified roof ventilation.",
+      "Roofing of the screened porch and garage where included in the scope.",
+      "Replacement of deteriorated sheathing where specified, at the agreed unit rate.",
+      "Registration of the manufacturer warranty at the specified level.",
+      "Site cleanup, magnetic sweep of the perimeter, and removal of all roofing debris.",
     ],
     exclusions: [
-
+      "Gutters and downspouts are excluded; performed by the Gutters subcontractor.",
+      "Skylight supply is excluded unless specifically included herein.",
+      "Structural framing repair is excluded; performed by the Framing subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved roof plan, material selection, and color selection prior to mobilization.",
+      "Roofing material, underlayment, flashing, and fasteners: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: dry-in schedule with the Framing subcontractor before the roof is loaded.",
     ],
+    rules: [],
   },
   {
     id: "gutters",
@@ -513,14 +626,29 @@ export const TRADES_SEED: Trade[] = [
       { id: "q12", label: "Garage gutters", type: "yn", options: ["Yes", "No"], hint: "", tag: "all_projects", needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of gutters in the specified type, size, material, and color at all specified roof edges.",
+      "Installation of all downspouts at the specified size, quantity, and discharge locations.",
+      "Installation of gutter guards or leaf protection where specified.",
+      "Connection of downspouts to the underground drainage system where specified.",
+      "Installation of gutters at the screened porch and garage where included in the scope.",
+      "Installation of all hangers, end caps, miters, and sealant at all joints.",
+      "Verification of positive slope to all outlets and testing for free drainage.",
+      "Site cleanup and removal of all installation debris.",
     ],
     exclusions: [
-
+      "Underground drainage piping beyond the downspout connection is excluded unless specifically included herein.",
+      "Roofing, flashing, and drip edge are excluded; performed by the Roofing subcontractor.",
+      "Fascia and soffit are excluded; performed by the Siding subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved roof plan, linear footage, color selection, and discharge locations prior to mobilization.",
+      "Gutter, downspout, guard, and fastener materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: final grading and discharge points with the Landscaping subcontractor.",
     ],
+    rules: [],
   },
   {
     id: "siding",
@@ -559,13 +687,34 @@ export const TRADES_SEED: Trade[] = [
       { id: "q27", label: "Garage siding", type: "yn", options: ["Yes", "No"], hint: "", tag: "all_projects", needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of siding in the specified type, brand, product line, profile, thickness, finish, and color.",
+      "Installation of all trim in the specified type, material, thickness, and profile.",
+      "Installation of corner boards, frieze board, and belly band or water table where specified.",
+      "Installation of exterior window trim and exterior door trim at all openings.",
+      "Installation of shutters where specified.",
+      "Installation of soffit and fascia in the specified materials, vented where specified.",
+      "Siding of gable ends, screened porch, and garage where included in the scope.",
+      "Flashing and caulking at all penetrations, transitions, and terminations.",
+      "Site cleanup and removal of all installation debris and cut-offs.",
     ],
     exclusions: [
-
+      "Painting and staining are excluded; performed by the Painting subcontractor.",
+      "Gutters and downspouts are excluded; performed by the Gutters subcontractor.",
+      "Masonry veneer and its flashing are excluded; performed by the Masonry subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved elevations, material selections, and color selections prior to mobilization.",
+      "Siding, trim, house wrap, and fastener materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, staging, and machinery for the specified number of stories.",
+      "GC coordinates: window and exterior door installation completion before siding starts.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q21", operator: "equals", value: "Yes Included", action: "add", target: "workIncluded",
+        clauses: ["Installation of house wrap over sheathing, taped and flashed per manufacturer's requirements."], replaces: "" },
+      { id: "r2", questionId: "q21", operator: "equals", value: "No", action: "add", target: "exclusions",
+        clauses: ["House wrap is excluded; installed by the framing subcontractor."], replaces: "" },
     ],
   },
   {
@@ -591,7 +740,7 @@ export const TRADES_SEED: Trade[] = [
       { id: "q13", label: "Window wells", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q14", label: "Soldier course / accents", type: "yn", options: ["Yes", "No"], hint: "locations", tag: null, needsQuantity: false },
       { id: "q15", label: "Water table / belt course", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
-      { id: "q16", label: "Supply responsibility", type: "select", options: ["Labor Only — PCG Supplies All", "Sub Supplies and Installs", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
+      { id: "q16", label: "Supply responsibility", type: "select", options: ["Labor Only (PCG Supplies All)", "Sub Supplies and Installs", "To Be Defined"], hint: "", tag: null, needsQuantity: false },
       { id: "q17", label: "Lintels", type: "select", options: ["PCG Provides", "Sub Provides", "N/A"], hint: "", tag: null, needsQuantity: false },
       { id: "q18", label: "Flashing at base", type: "select", options: ["Yes Included", "No"], hint: "by other trade", tag: null, needsQuantity: false },
       { id: "q19", label: "Weep holes", type: "select", options: ["Yes Included", "No"], hint: "", tag: null, needsQuantity: false },
@@ -600,13 +749,34 @@ export const TRADES_SEED: Trade[] = [
       { id: "q22", label: "Screened porch masonry", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of masonry veneer in the specified primary material, brand, product line, and color.",
+      "Installation of mortar in the specified type, color, and joint profile.",
+      "Installation of foundation veneer, water table, and belt course where specified.",
+      "Construction of chimneys and exterior fireplaces where specified.",
+      "Construction of steps, stoops, and retaining walls where specified.",
+      "Installation of window sills, window wells, lintels, and soldier course accents where specified.",
+      "Masonry at the screened porch where included in the scope.",
+      "Application of sealer where specified.",
+      "Site cleanup, washdown of all installed masonry, and removal of all debris.",
     ],
     exclusions: [
-
+      "Structural foundation work is excluded; performed by the Foundation subcontractor.",
+      "Painting and staining of masonry are excluded unless specifically included herein.",
+      "Siding and exterior trim are excluded; performed by the Siding subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved elevations, material selection, mortar selection, and color selection prior to mobilization.",
+      "Masonry units, mortar, lintels, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, scaffolding, and machinery for the specified number of stories.",
+      "GC coordinates: foundation ledge and structural openings with the Foundation subcontractor.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q18", operator: "equals", value: "Yes Included", action: "add", target: "workIncluded",
+        clauses: ["Installation of through-wall flashing and weeps at the base of masonry."], replaces: "" },
+      { id: "r2", questionId: "q18", operator: "equals", value: "No", action: "add", target: "exclusions",
+        clauses: ["Flashing at the base of masonry is excluded; installed by another trade."], replaces: "" },
     ],
   },
   {
@@ -623,17 +793,32 @@ export const TRADES_SEED: Trade[] = [
       { id: "q4", label: "Tray ceilings", type: "yn", options: ["Yes", "No"], hint: "rooms", tag: null, needsQuantity: true },
       { id: "q5", label: "Curved walls", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q6", label: "Access panels", type: "yn", options: ["Yes", "No"], hint: "locations TBD on site", tag: null, needsQuantity: false },
-      { id: "q7", label: "Materials supply", type: "select", options: ["Labor Only — PCG Supplies All", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q7", label: "Materials supply", type: "select", options: ["Labor Only (PCG Supplies All)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of drywall board throughout the residence at the specified thickness per assembly.",
+      "Installation of fire rated assemblies at the garage and all locations required by code.",
+      "Taping, finishing, and sanding of all surfaces to the specified finish level.",
+      "Drywall at the basement and screened porch where included in the scope.",
+      "Framing and finishing of all coffered ceilings, tray ceilings, and curved walls where specified.",
+      "Installation of all access panels at the specified locations.",
+      "Installation of corner bead at all outside corners and control joints where required.",
+      "Site cleanup and removal of all scrap board, joint compound, and installation debris.",
     ],
     exclusions: [
-
+      "Priming and painting are excluded; performed by the Painting subcontractor.",
+      "Insulation and vapor barrier are excluded; performed by the Insulation subcontractor.",
+      "Interior trim and casing are excluded; performed by the Interior Trim subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved plans, ceiling details, and finish level specification prior to mobilization.",
+      "Board, joint compound, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: rough-in and insulation sign-off before board is hung.",
     ],
+    rules: [],
   },
   {
     id: "painting",
@@ -657,14 +842,31 @@ export const TRADES_SEED: Trade[] = [
       { id: "q12", label: "Number of coats exterior", type: "select", options: ["1", "2"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Surface preparation of all surfaces, including patching, caulking, and sanding.",
+      "Priming of all new surfaces prior to finish coats.",
+      "Application of the specified number of coats to all interior walls at the specified sheen.",
+      "Application of the specified number of coats to all ceilings.",
+      "Application of the specified number of coats to all interior trim, doors, and casing at the specified sheen.",
+      "Application of the specified number of coats to all exterior surfaces at the specified sheen.",
+      "Painting of the garage interior, basement, and screened porch where included in the scope.",
+      "Finishing of the deck or porch floor where included in the scope.",
+      "Masking and protection of all floors, fixtures, and finished surfaces during the work.",
+      "Site cleanup, removal of all masking, and final touch-up.",
     ],
     exclusions: [
-
+      "Wall repair beyond normal patching is excluded; performed by the Drywall subcontractor.",
+      "Staining and finishing of hardwood floors are excluded; performed by the Flooring subcontractor.",
+      "Cabinet finishing is excluded unless specifically included herein.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved color schedule, sheen schedule, and brand selection prior to mobilization.",
+      "Paint, primer, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, scaffolding, and step ladders.",
+      "GC coordinates: drywall sign-off before priming starts.",
     ],
+    rules: [],
   },
   {
     id: "tile",
@@ -689,20 +891,40 @@ export const TRADES_SEED: Trade[] = [
       { id: "q13", label: "Linear drain", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q14", label: "Heated floor mat", type: "yn", options: ["Yes", "No"], hint: "which baths", tag: null, needsQuantity: false },
       { id: "q15", label: "Heated floor supply", type: "select", options: ["Sub Provides Labor and Materials"], hint: "", tag: null, needsQuantity: false },
-      { id: "q16", label: "Tile supply", type: "select", options: ["PCG Supplies Tile — Sub Installs", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
+      { id: "q16", label: "Tile supply", type: "select", options: ["PCG Supplies Tile (Sub Installs)", "Sub Supplies and Installs"], hint: "", tag: null, needsQuantity: false },
       { id: "q17", label: "Waterproofing membrane", type: "select", options: ["Yes Sub Installs", "No"], hint: "by drywall sub", tag: null, needsQuantity: false },
       { id: "q18", label: "Grout sealing", type: "select", options: ["Yes Included", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q19", label: "Tile size", type: "select", options: ["Mosaic", "12x24", "24x48", "Large Format", "Mix"], hint: "", tag: null, needsQuantity: false },
       { id: "q20", label: "Natural stone", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of tile at all specified locations in the specified size and material.",
+      "Installation of shower walls, floors, niches, benches, and seats at all specified showers.",
+      "Installation of linear drains and floor drains at all specified locations.",
+      "Installation of kitchen backsplash, fireplace surround, and accent areas where specified.",
+      "Installation of heated floor mat systems at all specified locations.",
+      "Setting, grouting, and sealing of all installed tile.",
+      "Installation of all trim pieces, transitions, and edge profiles.",
+      "Site cleanup, washdown of all installed surfaces, and removal of all debris.",
     ],
     exclusions: [
-
+      "Electrical connection of heated floor systems is excluded; performed by the Electrical subcontractor.",
+      "Plumbing fixture installation is excluded; performed by the Plumbing subcontractor.",
+      "Shower glass and mirrors are excluded; performed by the Shower Glass & Mirrors subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved tile schedule, layout, and material selections prior to mobilization.",
+      "Tile, setting materials, grout, and heated floor systems: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: plumbing rough-in and shower pan sign-off before tile starts.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q17", operator: "equals", value: "Yes Sub Installs", action: "add", target: "workIncluded",
+        clauses: ["Installation of waterproofing membrane at all wet areas per manufacturer's specifications."], replaces: "" },
+      { id: "r2", questionId: "q17", operator: "equals", value: "No", action: "add", target: "exclusions",
+        clauses: ["Waterproofing membrane is excluded; installed by the drywall subcontractor."], replaces: "" },
     ],
   },
   {
@@ -711,7 +933,7 @@ export const TRADES_SEED: Trade[] = [
     code: "BRF-FLR",
     icon: "flooring",
     hasBidForm: true,
-    standardNote: "Labor only — PCG supplies all flooring materials.",
+    standardNote: "Labor only. PCG supplies all flooring materials.",
     questions: [
       { id: "q1", label: "Main living areas", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q2", label: "Bedrooms", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
@@ -727,14 +949,29 @@ export const TRADES_SEED: Trade[] = [
       { id: "q12", label: "Transitions & thresholds", type: "yn", options: ["Yes"], hint: "included", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of flooring at all specified locations in the specified materials.",
+      "Installation of hardwood, engineered wood, LVP or LVT, and carpet in the areas specified.",
+      "Installation of stair treads and risers where specified.",
+      "Sanding and finishing of hardwood on site where specified.",
+      "Subfloor leveling and preparation prior to installation.",
+      "Installation of all transitions, thresholds, and reducers.",
+      "Flooring at the basement and screened porch where included in the scope.",
+      "Protection of installed flooring, site cleanup, and removal of all debris.",
     ],
     exclusions: [
-
+      "Subfloor structural repair is excluded; performed by the Framing subcontractor.",
+      "Tile flooring is excluded; performed by the Tile subcontractor.",
+      "Base molding and shoe molding are excluded; performed by the Interior Trim subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved flooring schedule, material selections, and room layout prior to mobilization.",
+      "Flooring materials, underlayment, and finishes: PCG supplies all flooring materials per the standard note.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: HVAC operation and acclimation period before hardwood is installed.",
     ],
+    rules: [],
   },
   {
     id: "interior-trim",
@@ -742,7 +979,7 @@ export const TRADES_SEED: Trade[] = [
     code: "BRF-TRM",
     icon: "trim",
     hasBidForm: true,
-    standardNote: "Labor only — PCG provides all materials and fixtures. Scaffolding and step ladder by sub.",
+    standardNote: "Labor only. PCG provides all materials and fixtures. Scaffolding and step ladder by sub.",
     questions: [
       { id: "q1", label: "Base molding", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q2", label: "Door casing interior", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
@@ -771,16 +1008,36 @@ export const TRADES_SEED: Trade[] = [
       { id: "q25", label: "Install mirrors", type: "yn", options: ["Yes", "No"], hint: "", tag: null, needsQuantity: false },
       { id: "q26", label: "Attic access / pull down stair", type: "yn", options: ["Yes", "No"], hint: "", tag: "optional", needsQuantity: false },
       { id: "q27", label: "Countertops install", type: "yn", options: ["Yes"], hint: "included in trim scope", tag: null, needsQuantity: false },
-      { id: "q28", label: "Windows & exterior doors install", type: "yn", options: ["Yes — Included in Trim Scope (exterior)", "Framing Scope"], hint: "", tag: null, needsQuantity: false },
+      { id: "q28", label: "Windows & exterior doors install", type: "yn", options: ["Yes, Included in Trim Scope (exterior)", "Framing Scope"], hint: "", tag: null, needsQuantity: false },
     ],
     workIncluded: [
-
+      "Installation of base molding, door casing, window casing, and shoe molding throughout the residence.",
+      "Installation of crown molding and wainscoting at all specified locations.",
+      "Installation of all interior doors, door handles, and exterior door hardware.",
+      "Installation of stair treads, risers, newel posts, railings, and balusters where specified.",
+      "Installation of kitchen cabinets, vanities, and all cabinet and vanity pulls.",
+      "Installation of closet shelving systems, rods, and hardware.",
+      "Installation of bath hardware, including paper holders, towel bars, robe hooks, and medicine cabinets.",
+      "Installation of the fireplace mantel, floating shelves, and mirrors where specified.",
+      "Installation of the attic access or pull down stair where specified.",
+      "Site cleanup and removal of all cut-offs and installation debris.",
     ],
     exclusions: [
-
+      "Painting and staining are excluded; performed by the Painting subcontractor.",
+      "Shower glass clips and glass hardware are excluded; performed by the Shower Glass & Mirrors subcontractor.",
+      "Flooring is excluded; performed by the Flooring subcontractor.",
+      "Building permit and all required inspections are excluded; obtained and coordinated by GC.",
     ],
     responsibilityMatrix: [
-
+      "GC provides: approved trim schedule, door schedule, cabinet drawings, and hardware selections prior to mobilization.",
+      "Trim, doors, cabinets, hardware, and materials: GC or Sub, to be defined at contract execution per Exhibit A.",
+      "GC provides: building permit and coordination of all required inspections.",
+      "Sub provides: all labor, supervision, equipment, tools, and machinery.",
+      "GC coordinates: cabinet and countertop delivery with the installation schedule.",
+    ],
+    rules: [
+      { id: "r1", questionId: "q27", operator: "equals", value: "Yes", action: "add", target: "workIncluded",
+        clauses: ["Countertop installation is included in the interior trim scope."], replaces: "" },
     ],
   },
 ]

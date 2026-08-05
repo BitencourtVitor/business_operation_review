@@ -1,3 +1,5 @@
+import type { TradeIconKey } from "./trade-icons"
+
 export type QuestionType = "select" | "yn" | "multi" | "text"
 
 // ALL PROJECTS = answered on every bid request; OPTIONAL = only when the project calls for it.
@@ -31,13 +33,78 @@ export type Trade = {
   workIncluded: string[]
   exclusions: string[]
   responsibilityMatrix: string[]
+  rules: ScopeRule[]
 }
 
-export type TradeIconKey =
-  | "foundation" | "excavation" | "framing" | "deck" | "glass" | "landscaping"
-  | "plumbing" | "electrical" | "hvac" | "insulation" | "roofing" | "gutters"
-  | "siding" | "masonry" | "drywall" | "painting" | "tile" | "flooring" | "trim"
-  | "general"
+// ── Conditional scope ───────────────────────────────────────────────────────
+
+export type ScopeSection = "workIncluded" | "exclusions" | "responsibilityMatrix"
+
+export type RuleOperator = "equals" | "includes" | "answered" | "not_answered"
+
+// `add` appends the clauses; `remove` drops the baseline clause named in `replaces`;
+// `replace` does both, so one condition can swap a standing clause for another wording.
+export type RuleAction = "add" | "remove" | "replace"
+
+// One rule emits N clauses — the relation between a definition on the trade and
+// what lands in the document is 1:N, never 1:1.
+export type ScopeRule = {
+  id: string
+  questionId: string
+  operator: RuleOperator
+  value: string            // ignored by "answered" / "not_answered"
+  action: RuleAction
+  target: ScopeSection
+  clauses: string[]        // what `add` / `replace` writes into the section
+  replaces: string         // baseline clause `remove` / `replace` takes out
+}
+
+export const SCOPE_SECTION_LABEL: Record<ScopeSection, string> = {
+  workIncluded:         "Work included",
+  exclusions:           "Exclusions",
+  responsibilityMatrix: "Responsibility matrix",
+}
+
+export const RULE_OPERATOR_LABEL: Record<RuleOperator, string> = {
+  equals:       "is",
+  includes:     "includes",
+  answered:     "is answered",
+  not_answered: "is not answered",
+}
+
+export const RULE_ACTION_LABEL: Record<RuleAction, string> = {
+  add:     "Add clauses",
+  remove:  "Remove a clause",
+  replace: "Replace a clause",
+}
+
+// ── Company-level document defaults ─────────────────────────────────────────
+
+export type DocumentScope = "bid" | "contract" | "both"
+export type DocumentPlacement = "before_sections" | "after_sections"
+
+// Text that belongs to PCG, not to a trade — editing one changes every document.
+export type DocumentBlock = {
+  id: string
+  title: string
+  body: string
+  scope: DocumentScope
+  placement: DocumentPlacement
+}
+
+export const DOCUMENT_SCOPE_LABEL: Record<DocumentScope, string> = {
+  bid:      "Bid requests",
+  contract: "Contracts",
+  both:     "Both",
+}
+
+export const DOCUMENT_PLACEMENT_LABEL: Record<DocumentPlacement, string> = {
+  before_sections: "Before specifications",
+  after_sections:  "After specifications",
+}
+
+// The catalog itself defines the keys — see trade-icons.ts.
+export type { TradeIconKey } from "./trade-icons"
 
 // ── Projects ────────────────────────────────────────────────────────────────
 
@@ -49,12 +116,85 @@ export type TradeStatus =
   | "not_started" | "bid_draft" | "bid_sent" | "bid_received"
   | "bid_approved" | "contract_draft" | "contract_sent" | "contract_signed"
 
+// Only two things are stored: what was asked, and what happened. Status, price
+// and the sub are all read off the history — see _lib/events.ts.
 export type ProjectTrade = {
   tradeId: string
-  status: TradeStatus
-  subcontractor: string
-  bidAmount: number | null
+  events: TradeEvent[]
   answers: Record<string, string | string[]>
+}
+
+// ── Event history ───────────────────────────────────────────────────────────
+
+export type TradeEventType =
+  | "created" | "bid_sent" | "bid_received" | "bid_approved"
+  | "contract_sent" | "contract_signed"
+
+// What a document was generated from: which frozen definition of the trade, and
+// which answers. Together they reproduce the exact paper the sub received.
+export type DocumentParams = {
+  // The whole frozen definition, so the document can be reproduced exactly.
+  tradeRevisionId: string
+  // Only the part of it the bid request puts in front of the sub. An approval is
+  // measured against this one: rewriting Exhibit A's scope changes the trade,
+  // but it does not change the form somebody already priced.
+  questionnaireId: string
+  answers: Record<string, string | string[]>
+}
+
+// How long the sub said it takes. A count and the scale it is counted in, never
+// prose — "12 weeks" typed by hand cannot be compared, sorted or converted.
+export type LeadTimeUnit = "days" | "weeks" | "months"
+
+export type TradeEvent = {
+  id: string
+  type: TradeEventType
+  at: string           // the day it happened, as told by whoever logged it
+  recordedAt: string   // when it was typed in — the two differ, and both matter
+  by: string           // who logged it, taken from the session
+  note: string
+  params: DocumentParams | null   // captured by the events that put paper out
+  url: string                     // SharePoint link, on contract_signed
+  amount: number | null           // the price the sub quoted, on bid_received
+  leadTimeValue: number | null    // how long they said it takes, on bid_received
+  leadTimeUnit: LeadTimeUnit      // the scale that count is read in
+  subcontractor: string           // who it went to, on the events that send paper
+}
+
+// What an already-logged event lets you correct. The step itself, the frozen
+// params and the audit trail are deliberately out: a bid that went out is not
+// retroactively a different step, and who typed it in when is not editable.
+export type TradeEventEdit = Partial<
+  Pick<TradeEvent, "at" | "note" | "url" | "amount" | "leadTimeValue" | "leadTimeUnit" | "subcontractor">
+>
+
+// A frozen copy of everything the document is built from. Shared by every event
+// that used it, so twenty projects on the same definition point at one object.
+export type TradeRevision = {
+  id: string
+  tradeId: string
+  revisedAt: string
+  trade: Trade
+  blocks: DocumentBlock[]
+}
+
+export const TRADE_EVENT_LABEL: Record<TradeEventType, string> = {
+  created:         "Trade opened",
+  bid_sent:        "Bid sent to sub",
+  bid_received:    "Bid received from sub",
+  bid_approved:    "Bid approved",
+  contract_sent:   "Contract sent to sub",
+  contract_signed: "Contract signed",
+}
+
+// The status each event lands the trade on.
+export const EVENT_STATUS: Record<TradeEventType, TradeStatus> = {
+  created:         "not_started",
+  bid_sent:        "bid_sent",
+  bid_received:    "bid_received",
+  bid_approved:    "bid_approved",
+  contract_sent:   "contract_sent",
+  contract_signed: "contract_signed",
 }
 
 export type Project = {
