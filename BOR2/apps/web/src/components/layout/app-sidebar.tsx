@@ -134,8 +134,7 @@ const activeGroup: NavGroup = {
       title: "PCG Bid Requests", href: "/pcg-bid-requests",
       // The square mark, not the full lockup — the wordmark is unreadable at 16px.
       image: "/images/icon_pcg.png",
-      badge: "Soon",
-      devOnly: true,
+      permKey: "pcg_bid_requests",
     },
   ],
 }

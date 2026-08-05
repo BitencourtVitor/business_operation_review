@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useCatalogStore, emptyTrade } from "../_lib/catalog-store"
+import { useCanEditBidRequests } from "../_lib/use-can-edit"
 import type { Trade } from "../_lib/types"
 import { TradeCard } from "../_components/trade-card"
 import { TradeEditorModal } from "../_components/trade-editor-modal"
@@ -25,6 +26,7 @@ const FILTERS: { value: Filter; label: string }[] = [
 
 export default function TradeCatalogPage() {
   const { trades, documentBlocks, addTrade, updateTrade, deleteTrade, setDocumentBlocks } = useCatalogStore()
+  const canEdit = useCanEditBidRequests()
 
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<Filter>("all")
@@ -105,15 +107,19 @@ export default function TradeCatalogPage() {
           ))}
         </div>
 
-        <Button variant="outline" onClick={() => setEditingBlocks(true)}>
-          <FileText className="h-4 w-4" />
-          Document defaults
-        </Button>
+        {canEdit && (
+          <>
+            <Button variant="outline" onClick={() => setEditingBlocks(true)}>
+              <FileText className="h-4 w-4" />
+              Document defaults
+            </Button>
 
-        <Button onClick={() => { setEditing(emptyTrade()); setIsNew(true) }}>
-          <Plus className="h-4 w-4" />
-          New trade
-        </Button>
+            <Button onClick={() => { setEditing(emptyTrade()); setIsNew(true) }}>
+              <Plus className="h-4 w-4" />
+              New trade
+            </Button>
+          </>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
@@ -138,8 +144,8 @@ export default function TradeCatalogPage() {
                 <TradeCard
                   key={trade.id}
                   trade={trade}
-                  onEdit={() => { setEditing(trade); setIsNew(false) }}
-                  onDelete={() => setPendingDelete(trade)}
+                  onEdit={canEdit ? () => { setEditing(trade); setIsNew(false) } : undefined}
+                  onDelete={canEdit ? () => setPendingDelete(trade) : undefined}
                 />
               ))}
             </div>

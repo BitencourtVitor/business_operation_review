@@ -20,7 +20,7 @@ export function ProjectCard({
   project: Project
   trades: Trade[]
   onOpen: () => void
-  onDelete: () => void
+  onDelete?: () => void   // absent for read-only access — no trash on the card
 }) {
   const { done, total } = projectProgress(project)
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
@@ -106,13 +106,15 @@ export function ProjectCard({
           <CalendarDays className="h-3 w-3" />
           Added {formatDate(project.createdAt)}
         </span>
-        <button
-          onClick={e => { e.stopPropagation(); onDelete() }}
-          aria-label={`Delete ${project.name}`}
-          className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+        {onDelete && (
+          <button
+            onClick={e => { e.stopPropagation(); onDelete() }}
+            aria-label={`Delete ${project.name}`}
+            className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
     </div>
   )
