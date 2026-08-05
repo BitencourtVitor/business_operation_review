@@ -23,7 +23,7 @@ export const FORM_LAYOUT: Record<string, FormLayout> = {
       { title: "WATER HEATER", questionIds: ["q6", "q9", "q14"] },
       { title: "FURNACES / BOILERS", questionIds: ["q7", "q8", "q11"] },
       { title: "FIXTURES & APPLIANCES", questionIds: ["q12", "q13", "q15"] },
-      { title: "GAS LINES — CONNECTIONS REQUIRED", questionIds: ["q16", "q17"] },
+      { title: "GAS LINES: CONNECTIONS REQUIRED", questionIds: ["q16", "q17"] },
       { title: "FLOOR DRAINS", questionIds: ["q10"] },
       { title: "SPECIAL ITEMS", questionIds: ["q19", "q20", "q21", "q22", "q23", "q24", "q25"] },
       { title: "SCOPE", questionIds: ["q26", "q27"] },
@@ -46,7 +46,7 @@ export const FORM_LAYOUT: Record<string, FormLayout> = {
     ],
   },
   "HVAC": {
-    intro: "PCG Standard — included in all projects: Carrier 95% efficient, ERV, dryer box & vent pipe, exhaust fan pipes, finish grills, quick flash all penetrations, thermostats, ductwork, commissioning & startup. Labor and materials by sub. Gas lines by plumbing sub. Electrical by electrical sub. Equipment locations TBD on site.",
+    intro: "PCG Standard (included in all projects): Carrier 95% efficient, ERV, dryer box & vent pipe, exhaust fan pipes, finish grills, quick flash all penetrations, thermostats, ductwork, commissioning & startup. Labor and materials by sub. Gas lines by plumbing sub. Electrical by electrical sub. Equipment locations TBD on site.",
     sections: [
       { title: "FURNACES", questionIds: ["q1", "q2", "q3", "q4"] },
       { title: "CONDENSERS / HEAT PUMPS", questionIds: ["q5", "q6", "q7", "q8"] },
@@ -103,20 +103,20 @@ export const FORM_LAYOUT: Record<string, FormLayout> = {
     intro: "PCG Standard: Subcontractor provides all scaffolding and machinery. Labor and materials responsibility defined per project below. Lintels provided by PCG unless noted otherwise.",
     sections: [
       { title: "MATERIAL", questionIds: ["q1", "q2", "q3", "q4", "q5", "q6"] },
-      { title: "SCOPE — ITEMS INCLUDED", questionIds: ["q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"] },
+      { title: "SCOPE: ITEMS INCLUDED", questionIds: ["q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"] },
       { title: "LABOR & MATERIALS", questionIds: ["q16", "q17", "q18", "q19", "q20"] },
       { title: "PROJECT DETAILS", questionIds: ["q21", "q22"] },
     ],
   },
   "Drywall": {
-    intro: "PCG Standard — all projects: 1/2\" main house, 5/8\" garage (fire rated assembly), smooth finish Level 5. Submit complete estimate based on specifications below.",
+    intro: "PCG Standard (all projects): 1/2\" main house, 5/8\" garage (fire rated assembly), smooth finish Level 5. Submit complete estimate based on specifications below.",
     sections: [
       { title: "SCOPE", questionIds: ["q1", "q2", "q3", "q4", "q5", "q6"] },
       { title: "LABOR & MATERIALS", questionIds: ["q7"] },
     ],
   },
   "Painting": {
-    intro: "PCG Standard — all projects: Sub provides labor and materials. 5 different colors per project. Scaffolding and step ladder by sub. Scope includes: interior walls, ceilings, trim, doors, closets, exterior body, trim and doors. Caulking and primer included.",
+    intro: "PCG Standard (all projects): Sub provides labor and materials. 5 different colors per project. Scaffolding and step ladder by sub. Scope includes: interior walls, ceilings, trim, doors, closets, exterior body, trim and doors. Caulking and primer included.",
     sections: [
       { title: "ADDITIONAL SCOPE", questionIds: ["q1", "q2", "q3", "q4"] },
       { title: "PRODUCT", questionIds: ["q5", "q6", "q7", "q8"] },
@@ -137,13 +137,13 @@ export const FORM_LAYOUT: Record<string, FormLayout> = {
   "Flooring": {
     intro: "",
     sections: [
-      { title: "SCOPE — AREAS INCLUDED", questionIds: ["q1", "q2", "q3", "q4", "q5"] },
+      { title: "SCOPE: AREAS INCLUDED", questionIds: ["q1", "q2", "q3", "q4", "q5"] },
       { title: "MATERIAL TYPE", questionIds: ["q6", "q7", "q8", "q9", "q10"] },
       { title: "SUBFLOOR PREP", questionIds: ["q11", "q12"] },
     ],
   },
   "Interior Trim": {
-    intro: "PCG Standard: Labor only — PCG provides all materials and fixtures. Scaffolding and step ladder provided by sub. Sub installs all interior trim necessary.",
+    intro: "PCG Standard: Labor only. PCG provides all materials and fixtures. Scaffolding and step ladder provided by sub. Sub installs all interior trim necessary.",
     sections: [
       { title: "TRIM & MOLDING", questionIds: ["q1", "q2", "q3", "q4", "q5", "q6"] },
       { title: "DOORS", questionIds: ["q7", "q8", "q9", "q10"] },

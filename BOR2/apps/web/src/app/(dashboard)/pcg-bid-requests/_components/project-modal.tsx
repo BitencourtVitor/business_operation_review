@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
-  ArrowDown01, ArrowDownAZ, ArrowLeft, ArrowUp01, ArrowUpZA, Check, ChevronRight,
-  FileOutput, HardHat, Loader2, Plus, Trash2, X,
+  ArrowDown01, ArrowDownAZ, ArrowLeft, ArrowUp01, ArrowUpZA, Check, ChevronDown,
+  ChevronRight, FileOutput, FileSignature, HardHat, ListChecks, Loader2, Moon, Plus,
+  Search, Sun, Trash2, X,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -15,6 +17,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useAuth } from "@/hooks/use-auth"
 import { useCatalogStore } from "../_lib/catalog-store"
 import { useProjectsStore, newProjectTrade, answerProgress } from "../_lib/projects-store"
 import { useAsyncSave } from "../_lib/use-async-save"
@@ -22,12 +26,17 @@ import { tradeIcon } from "../_lib/trade-icons"
 import { STATUS_META, PROJECT_STATUS_META } from "../_lib/status-meta"
 import { formatMoney, formatAmount, parseMoneyInput, formatDate } from "../_lib/format"
 import {
-  DIRECT_CONTRACT_FLOW, PROJECT_STATUS_LABEL, TRADE_STATUS_FLOW, TRADE_STATUS_LABEL,
+  bidAmountOf, currentStatus, lastOfType, leadTimeOf, questionnaireId, revisionId, sameParams,
+  subcontractorOf,
+} from "../_lib/events"
+import { PROJECT_STATUS_LABEL, TRADE_STATUS_LABEL } from "../_lib/types"
+import type {
+  DocumentParams, Project, ProjectStatus, ProjectTrade, Trade, TradeEvent, TradeEventEdit,
 } from "../_lib/types"
-import type { Project, ProjectStatus, ProjectTrade, Trade, TradeStatus } from "../_lib/types"
 import { QuestionnaireForm } from "./questionnaire-form"
 import { SubcontractorPicker } from "./subcontractor-picker"
 import { DocumentPreviewModal } from "./document-preview-modal"
+import { EventTimeline } from "./event-timeline"
 
 const STATUSES: ProjectStatus[] = ["active", "on_hold", "completed"]
 
@@ -36,14 +45,20 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const project = useProjectsStore(s => s.projects.find(p => p.id === projectId))
   const updateProject = useProjectsStore(s => s.updateProject)
   const updateProjectTrade = useProjectsStore(s => s.updateProjectTrade)
+  const addTradeEvent = useProjectsStore(s => s.addTradeEvent)
+  const updateTradeEvent = useProjectsStore(s => s.updateTradeEvent)
+  const deleteTradeEvent = useProjectsStore(s => s.deleteTradeEvent)
+  const { user } = useAuth()
+  const { resolvedTheme, setTheme } = useTheme()
 
   const { save, isSaving, stateOf } = useAsyncSave()
   const [openTradeId, setOpenTradeId] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
+  const [tradeSearch, setTradeSearch] = useState("")
   const [pendingRemove, setPendingRemove] = useState<{ tradeId: string; name: string; answered: number } | null>(null)
   const [sortBy, setSortBy] = useState<"name" | "answered">("name")
   const [sortAsc, setSortAsc] = useState(true)
-  const [previewing, setPreviewing] = useState(false)
+  const [previewing, setPreviewing] = useState<"bid" | "contract" | null>(null)
 
   if (!project) return null
 
@@ -58,9 +73,10 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
 
   function addTrade(tradeId: string) {
     save(`trade:${tradeId}`, () => updateProject(projectId, {
-      trades: [...project!.trades, newProjectTrade(tradeId)],
+      trades: [...project!.trades, newProjectTrade(tradeId, user?.name ?? "")],
     }))
     setPicking(false)
+    setTradeSearch("")
   }
 
   function removeTrade(tradeId: string) {
@@ -78,6 +94,11 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const openTrade = openTradeId ? project.trades.find(t => t.tradeId === openTradeId) : null
   const openCatalog = openTrade ? trades.find(t => t.id === openTrade.tradeId) : null
   const available = trades.filter(t => !project.trades.some(pt => pt.tradeId === t.id))
+  const matchingTrades = available.filter(t => {
+    const term = tradeSearch.trim().toLowerCase()
+    if (!term) return true
+    return t.name.toLowerCase().includes(term) || (t.code ?? "").toLowerCase().includes(term)
+  })
 
   const sortedTrades = [...project.trades].sort((a, b) => {
     const ta = trades.find(t => t.id === a.tradeId)
@@ -125,6 +146,16 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
           <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
             Added {formatDate(project.createdAt)}
           </span>
+          {/* The documents are read against the theme — flipping it without
+              leaving the modal saves a round trip. next-themes persists it. */}
+          <button
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            aria-label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+            title={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:text-foreground"
+          >
+            {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
           <button
             onClick={onClose}
             aria-label="Close"
@@ -141,7 +172,10 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
             isSaving={isSaving}
             stateOf={stateOf}
             onPatch={(key, p) => patchTrade(openTrade.tradeId, key, p)}
-            onGenerate={() => setPreviewing(true)}
+            onGenerate={kind => setPreviewing(kind)}
+            onLogEvent={event => addTradeEvent(projectId, openTrade.tradeId, event)}
+            onUpdateEvent={(eventId, patch) => updateTradeEvent(projectId, openTrade.tradeId, eventId, patch)}
+            onDeleteEvent={eventId => deleteTradeEvent(projectId, openTrade.tradeId, eventId)}
           />
         ) : (
           <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4">
@@ -235,32 +269,67 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
 
               <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
                 <div className="flex flex-col gap-2">
-                  {/* Add sits at the head of the list, as a row of the list itself */}
-                  <button
-                    onClick={() => setPicking(v => !v)}
-                    aria-expanded={picking}
-                    className="flex items-center gap-3 rounded-xl border border-dashed p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/30"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                      <Plus className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium">Add trade</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {available.length} available in the catalog
+                  {/* Add sits at the head of the list, as a row of the list itself —
+                      and steps aside while the picker it opened is on screen. */}
+                  {!picking && (
+                    <button
+                      onClick={() => setPicking(true)}
+                      className="flex items-center gap-3 rounded-xl border border-dashed p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/30"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Plus className="h-4 w-4" />
                       </span>
-                    </span>
-                  </button>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-medium">Add trade</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {available.length} available in the catalog
+                        </span>
+                      </span>
+                    </button>
+                  )}
 
                   {picking && (
-                    <div className="rounded-xl border bg-muted/20 p-3">
+                    <div className="flex flex-col gap-3 rounded-xl border bg-muted/20 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            autoFocus
+                            value={tradeSearch}
+                            onChange={e => setTradeSearch(e.target.value)}
+                            placeholder="Search trades"
+                            className="h-8 pl-8 pr-8 text-sm"
+                          />
+                          {tradeSearch && (
+                            <button
+                              onClick={() => setTradeSearch("")}
+                              aria-label="Clear search"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setPicking(false); setTradeSearch("") }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+
                       {available.length === 0 ? (
                         <p className="py-2 text-center text-xs text-muted-foreground">
                           Every trade in the catalog is already on this project.
                         </p>
+                      ) : matchingTrades.length === 0 ? (
+                        <p className="py-2 text-center text-xs text-muted-foreground">
+                          No trade matches this search.
+                        </p>
                       ) : (
                         <div className="grid gap-2 sm:grid-cols-3">
-                          {available.map(trade => {
+                          {matchingTrades.map(trade => {
                             const Icon = tradeIcon(trade.icon)
                             return (
                               <button
@@ -308,10 +377,11 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
 
       {previewing && openTrade && openCatalog && (
         <DocumentPreviewModal
+          kind={previewing}
           project={project}
           projectTrade={openTrade}
           trade={openCatalog}
-          onClose={() => setPreviewing(false)}
+          onClose={() => setPreviewing(null)}
         />
       )}
 
@@ -378,7 +448,8 @@ function TradeRow({
   onRemove: (answered: number) => void
 }) {
   const Icon = tradeIcon(trade.icon)
-  const meta = STATUS_META[projectTrade.status]
+  const status = currentStatus(trade, projectTrade)
+  const meta = STATUS_META[status]
   const StatusIcon = meta.icon
   const { answered, total } = answerProgress(trade, projectTrade.answers)
   const complete = total > 0 && answered === total
@@ -419,17 +490,17 @@ function TradeRow({
         </span>
         <span className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
           <HardHat className="h-3 w-3 shrink-0" />
-          <span className="truncate">{projectTrade.subcontractor || "No sub assigned"}</span>
+          <span className="truncate">{subcontractorOf(projectTrade) || "No sub assigned"}</span>
         </span>
       </span>
 
-      {projectTrade.bidAmount !== null && (
-        <span className="shrink-0 text-xs font-medium tabular-nums">{formatMoney(projectTrade.bidAmount)}</span>
+      {bidAmountOf(projectTrade) !== null && (
+        <span className="shrink-0 text-xs font-medium tabular-nums">{formatMoney(bidAmountOf(projectTrade))}</span>
       )}
 
       <Badge variant="outline" className={`shrink-0 gap-1 text-[10px] ${meta.text} ${meta.border} ${meta.bg}`}>
         <StatusIcon className="h-3 w-3" />
-        {TRADE_STATUS_LABEL[projectTrade.status]}
+        {TRADE_STATUS_LABEL[status]}
       </Badge>
 
       <Badge
@@ -455,110 +526,234 @@ function TradeRow({
   )
 }
 
+// A disabled button explains itself — the reason is never obvious from the
+// button alone, and a native title does not fire on a disabled control.
+function DocButton({
+  label, icon: Icon, variant, blocked, onClick,
+}: {
+  label: string
+  icon: React.ElementType
+  variant?: "outline"
+  blocked: string | null
+  onClick: () => void
+}) {
+  const button = (
+    <Button size="sm" variant={variant} disabled={!!blocked} onClick={onClick}>
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </Button>
+  )
+
+  if (!blocked) return button
+
+  return (
+    <TooltipProvider delay={200}>
+      <Tooltip>
+        <TooltipTrigger render={<span className="inline-flex cursor-not-allowed" />}>
+          <span className="pointer-events-none">{button}</span>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[220px]">{blocked}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+
 // ── Trade view inside the modal ─────────────────────────────────────────────
 
 function TradeView({
-  projectTrade, trade, isSaving, stateOf, onPatch, onGenerate,
+  projectTrade: rawTrade, trade, isSaving, stateOf, onPatch, onGenerate, onLogEvent, onUpdateEvent,
+  onDeleteEvent,
 }: {
   projectTrade: ProjectTrade
   trade: Trade
   isSaving: (key: string) => boolean
   stateOf: (key: string) => "idle" | "saving" | "saved"
   onPatch: (key: string, patch: Partial<ProjectTrade>) => void
-  onGenerate: () => void
+  onGenerate: (kind: "bid" | "contract") => void
+  onLogEvent: (event: TradeEvent) => void
+  onUpdateEvent: (eventId: string, patch: TradeEventEdit) => void
+  onDeleteEvent: (eventId: string) => void
 }) {
+  const captureRevision = useCatalogStore(s => s.captureRevision)
+  const documentBlocks = useCatalogStore(s => s.documentBlocks)
+  const revisions = useCatalogStore(s => s.revisions)
+
+  // Params frozen before the questionnaire had a fingerprint of its own carry
+  // only the full revision id. The definition they froze is still on file, so
+  // the fingerprint is recomputed from that paper instead of guessed — an old
+  // approval is judged by the same rule as a new one.
+  const projectTrade = useMemo(() => ({
+    ...rawTrade,
+    events: rawTrade.events.map(event => {
+      if (!event.params || event.params.questionnaireId) return event
+      const frozen = revisions[event.params.tradeRevisionId]
+      return {
+        ...event,
+        params: {
+          ...event.params,
+          questionnaireId: questionnaireId(frozen?.trade ?? trade, frozen?.blocks ?? documentBlocks),
+        },
+      }
+    }),
+  }), [rawTrade, revisions, trade, documentBlocks])
+  // One at a time, like the trade editor — whichever is open takes the height
+  // that is left and scrolls inside itself.
+  const [openSection, setOpenSection] = useState<"questions" | "history">("questions")
+  const showQuestions = openSection === "questions"
   const { answered, total } = answerProgress(trade, projectTrade.answers)
   const complete = total > 0 && answered === total
-  const flow = trade.hasBidForm ? TRADE_STATUS_FLOW : DIRECT_CONTRACT_FLOW
-  const meta = STATUS_META[projectTrade.status]
+  const status = currentStatus(trade, projectTrade)
+  const meta = STATUS_META[status]
   const prefix = `trade:${projectTrade.tradeId}`
+  const bidAmount = bidAmountOf(projectTrade)
+  const leadTime = leadTimeOf(projectTrade)
+  const subcontractor = subcontractorOf(projectTrade)
+
+  const currentParams = (): DocumentParams => ({
+    tradeRevisionId: captureRevision(trade),
+    questionnaireId: questionnaireId(trade, documentBlocks),
+    answers: projectTrade.answers,
+  })
+
+  // What the trade says right now — the yardstick every frozen paper is measured
+  // against. Computed without capturing, so rendering writes nothing.
+  const current: DocumentParams = {
+    tradeRevisionId: revisionId(trade, documentBlocks),
+    questionnaireId: questionnaireId(trade, documentBlocks),
+    answers: projectTrade.answers,
+  }
+
+  // The approval only holds while the paper behind it still matches the answers.
+  const approved = lastOfType(projectTrade, "bid_approved")
+  const staleApproval = approved?.params && !sameParams(approved.params, current)
+    ? approved.params
+    : null
+
+  const contractReady = trade.hasBidForm
+    ? !!approved && !staleApproval
+    : complete
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-5 py-4">
       {/* ── Metadata ───────────────────────────────────────────────────── */}
       <div className="shrink-0 overflow-hidden rounded-xl border border-border/60 bg-card/40">
         <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3">
-          <span className="flex items-center text-sm font-semibold leading-none">Bid details</span>
+          <span className="flex items-center text-sm font-semibold leading-none">Details</span>
         </div>
         <div className="grid gap-3 p-4 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
-            <FieldLabel label="Condition" saving={isSaving(`${prefix}:status`)} />
-            <Select
-              value={projectTrade.status}
-              onValueChange={v => v && onPatch(`${prefix}:status`, { status: v as TradeStatus })}
-            >
-              <SelectTrigger className={`w-full ${meta.text} ${meta.border} ${meta.bg}`}>
-                <span className="flex flex-1 items-center gap-1.5 truncate text-left text-sm">
-                  <meta.icon className="h-3.5 w-3.5" />
-                  {TRADE_STATUS_LABEL[projectTrade.status]}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                {flow.map(s => {
-                  const Icon = STATUS_META[s].icon
-                  return (
-                    <SelectItem key={s} value={s}>
-                      <span className="flex items-center gap-2">
-                        <Icon className={`h-3.5 w-3.5 ${STATUS_META[s].text}`} />
-                        {TRADE_STATUS_LABEL[s]}
-                      </span>
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
+            {/* Read-only on purpose: status is the tail of the history below. */}
+            <FieldLabel label="Condition" saving={false} />
+            <div className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm ${meta.text} ${meta.border} ${meta.bg}`}>
+              <meta.icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{TRADE_STATUS_LABEL[status]}</span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel label="Subcontractor" saving={isSaving(`${prefix}:sub`)} />
-            <SubcontractorPicker
-              value={projectTrade.subcontractor}
-              onChange={name => onPatch(`${prefix}:sub`, { subcontractor: name })}
-            />
+            {/* Read-only: the sub is whoever the last paper went to. */}
+            <FieldLabel label="Subcontractor" saving={false} />
+            <div className="flex h-8 items-center gap-1.5 rounded-lg border border-input px-2.5 text-sm dark:bg-input/30">
+              <HardHat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className={`truncate ${subcontractor ? "" : "text-muted-foreground"}`}>
+                {subcontractor || "Not assigned yet"}
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <FieldLabel label="Bid amount" saving={isSaving(`${prefix}:bid`)} />
-            <div className="relative">
-              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-              <Input
-                id="bid-amount"
-                value={formatAmount(projectTrade.bidAmount)}
-                onChange={e => onPatch(`${prefix}:bid`, { bidAmount: parseMoneyInput(e.target.value) })}
-                inputMode="numeric"
-                placeholder="0.00"
-                className="h-8 pl-6 text-right text-sm tabular-nums"
-              />
+            {/* Read-only: the price comes from the bid received event, so it can
+                never say something the history does not back. */}
+            <FieldLabel label="Bid amount" saving={false} />
+            <div className="flex h-8 items-center justify-between gap-2 rounded-lg border border-input px-2.5 text-sm dark:bg-input/30">
+              {bidAmount === null ? (
+                <span className="text-muted-foreground">Not received yet</span>
+              ) : (
+                <>
+                  <span className="truncate text-xs text-muted-foreground">{leadTime}</span>
+                  <span className="font-medium tabular-nums">{formatMoney(bidAmount)}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Questionnaire ──────────────────────────────────────────────── */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
-        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
-          <span className="flex items-center text-sm font-semibold leading-none">Questionnaire</span>
-          <span className={`flex items-center text-xs leading-none ${complete ? "text-emerald-500" : "text-muted-foreground"}`}>
-            {answered}/{total} answered
-          </span>
+      <div className={`flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 ${showQuestions ? "min-h-0 flex-1" : "shrink-0"}`}>
+        <div className="flex shrink-0 items-center gap-3 px-4 py-3">
+          <button
+            onClick={() => setOpenSection("questions")}
+            aria-expanded={showQuestions}
+            className="flex min-w-0 items-center gap-3 text-left"
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold leading-none">
+              <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
+              Questionnaire
+            </span>
+            <span className={`flex items-center text-xs leading-none ${complete ? "text-emerald-500" : "text-muted-foreground"}`}>
+              {answered}/{total} answered
+            </span>
+          </button>
           <span className="flex-1" />
-          <Button size="sm" disabled={!complete} onClick={onGenerate}>
-            <FileOutput className="h-3.5 w-3.5" />
-            Generate document
-          </Button>
+          {trade.hasBidForm && (
+            <DocButton
+              label="Bid request"
+              icon={FileOutput}
+              variant="outline"
+              blocked={complete ? null : `Answer all ${total} questions first`}
+              onClick={() => onGenerate("bid")}
+            />
+          )}
+          <DocButton
+            label="Contract"
+            icon={FileSignature}
+            blocked={
+              contractReady ? null
+              : !complete ? `Answer all ${total} questions first`
+              : staleApproval ? "The answers changed — the bid needs a new approval"
+              : "The bid has to be approved first"
+            }
+            onClick={() => onGenerate("contract")}
+          />
+          <button
+            onClick={() => setOpenSection("questions")}
+            aria-expanded={showQuestions}
+            aria-label={showQuestions ? "Collapse questionnaire" : "Expand questionnaire"}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ChevronDown className={`h-4 w-4 transition-transform ${showQuestions ? "rotate-180" : ""}`} />
+          </button>
         </div>
 
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-          <QuestionnaireForm
-            questions={trade.questions}
-            answers={projectTrade.answers}
-            saveStateOf={questionId => stateOf(`${prefix}:q:${questionId}`)}
-            onChange={(questionId, value) => onPatch(`${prefix}:q:${questionId}`, {
-              answers: { ...projectTrade.answers, [questionId]: value },
-            })}
-          />
-        </div>
+        {showQuestions && (
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto border-t border-border/50 p-4">
+            <QuestionnaireForm
+              questions={trade.questions}
+              answers={projectTrade.answers}
+              saveStateOf={questionId => stateOf(`${prefix}:q:${questionId}`)}
+              onChange={(questionId, value) => onPatch(`${prefix}:q:${questionId}`, {
+                answers: { ...projectTrade.answers, [questionId]: value },
+              })}
+            />
+          </div>
+        )}
       </div>
+
+      {/* ── History ────────────────────────────────────────────────────── */}
+      <EventTimeline
+        trade={trade}
+        projectTrade={projectTrade}
+        complete={complete}
+        current={current}
+        currentParams={currentParams}
+        staleApproval={staleApproval}
+        open={openSection === "history"}
+        onToggle={() => setOpenSection(s => (s === "history" ? "questions" : "history"))}
+        onLog={onLogEvent}
+        onUpdate={onUpdateEvent}
+        onDelete={onDeleteEvent}
+      />
     </div>
   )
 }

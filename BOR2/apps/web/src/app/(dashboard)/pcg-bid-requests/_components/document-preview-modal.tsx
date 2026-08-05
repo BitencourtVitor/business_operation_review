@@ -3,12 +3,15 @@
 import { Printer, X } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { printDocument } from "../_lib/print"
 import { BidRequestDocument } from "./bid-request-document"
+import { ContractDocument } from "./contract-document"
 import type { Project, ProjectTrade, Trade } from "../_lib/types"
 
 export function DocumentPreviewModal({
-  project, projectTrade, trade, onClose,
+  kind, project, projectTrade, trade, onClose,
 }: {
+  kind: "bid" | "contract"
   project: Project
   projectTrade: ProjectTrade
   trade: Trade
@@ -22,9 +25,9 @@ export function DocumentPreviewModal({
       >
         <div className="flex shrink-0 items-center gap-3 border-b px-5 py-3 print:hidden">
           <DialogTitle className="min-w-0 flex-1 truncate text-base">
-            {trade.name} Bid Request
+            {trade.name} {kind === "bid" ? "Bid Request" : "Subcontract"}
           </DialogTitle>
-          <Button size="sm" onClick={() => window.print()}>
+          <Button size="sm" onClick={printDocument}>
             <Printer className="h-3.5 w-3.5" />
             Print / Save as PDF
           </Button>
@@ -39,7 +42,9 @@ export function DocumentPreviewModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto bg-neutral-200 p-6 dark:bg-neutral-800">
           <div className="mx-auto w-fit shadow-lg">
-            <BidRequestDocument project={project} projectTrade={projectTrade} trade={trade} />
+            {kind === "bid"
+              ? <BidRequestDocument project={project} projectTrade={projectTrade} trade={trade} />
+              : <ContractDocument project={project} projectTrade={projectTrade} trade={trade} />}
           </div>
         </div>
       </DialogContent>

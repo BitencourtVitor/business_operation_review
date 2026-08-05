@@ -3,11 +3,13 @@
 import { CalendarDays, MapPin, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { tradeIcon } from "../_lib/trade-icons"
 import { STATUS_META, PROJECT_STATUS_META } from "../_lib/status-meta"
 import { projectProgress } from "../_lib/projects-store"
+import { currentStatus, lastEvent } from "../_lib/events"
 import { formatDate } from "../_lib/format"
-import { PROJECT_STATUS_LABEL, TRADE_STATUS_LABEL } from "../_lib/types"
+import { PROJECT_STATUS_LABEL, TRADE_EVENT_LABEL, TRADE_STATUS_LABEL } from "../_lib/types"
 import type { Project, Trade } from "../_lib/types"
 
 const MAX_ICONS = 10
@@ -64,15 +66,35 @@ export function ProjectCard({
             const trade = trades.find(t => t.id === pt.tradeId)
             if (!trade) return null
             const Icon = tradeIcon(trade.icon)
-            const meta = STATUS_META[pt.status]
+            const status = currentStatus(trade, pt)
+            const meta = STATUS_META[status]
+            const last = lastEvent(pt)
             return (
-              <span
-                key={pt.tradeId}
-                title={`${trade.name} — ${TRADE_STATUS_LABEL[pt.status]}`}
-                className={`flex h-6 w-6 items-center justify-center rounded-md border ${meta.border} ${meta.bg} ${meta.text}`}
-              >
-                <Icon className="h-3 w-3" />
-              </span>
+              <TooltipProvider key={pt.tradeId} delay={200}>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span
+                        className={`flex h-6 w-6 cursor-default items-center justify-center rounded-md border ${meta.border} ${meta.bg} ${meta.text}`}
+                      />
+                    }
+                  >
+                    <Icon className="h-3 w-3" />
+                  </TooltipTrigger>
+                  <TooltipContent className="flex max-w-[240px] flex-col gap-1">
+                    <p className="font-semibold">{trade.name}</p>
+                    <p className={`flex items-center gap-1.5 text-xs ${meta.text}`}>
+                      <Icon className="h-3 w-3 shrink-0" />
+                      {TRADE_STATUS_LABEL[status]}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {last && last.type !== "created"
+                        ? `${TRADE_EVENT_LABEL[last.type]} on ${formatDate(last.at)}`
+                        : `Opened ${last ? formatDate(last.at) : "—"} · no event logged yet`}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )
           })}
           {rest > 0 && <span className="text-[11px] text-muted-foreground">+{rest}</span>}
