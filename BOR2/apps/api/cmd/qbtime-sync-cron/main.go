@@ -10,6 +10,10 @@
 //  3. Refreshes qbtime_employee_teams by POSTing to /qbtime/employee-teams/sync,
 //     re-pulling each employee's QB Time Group so team assignments stay current
 //     without wiping any manual override set in Settings > Teams.
+//  4. Recomputes absences by POSTing to /qbtime/absences/detect and notifies
+//     whoever holds the absence_control permission. Runs LAST on purpose: it
+//     reads the tables the three steps above just refreshed, so running it
+//     earlier would read a stale sync as if people had not shown up.
 //
 // Deploy as a Railway Cron Job service pointing at this binary:
 //   Schedule : 0 5 * * *   (05:00 UTC ≈ just after midnight US Eastern)
@@ -64,6 +68,13 @@ func main() {
 		failed = true
 	} else {
 		fmt.Println("[qbtime-sync-cron] employee-teams sync OK")
+	}
+
+	if err := detectAbsences(client, apiURL, secret); err != nil {
+		fmt.Printf("[qbtime-sync-cron] absence detect FAILED: %v\n", err)
+		failed = true
+	} else {
+		fmt.Println("[qbtime-sync-cron] absence detect OK")
 	}
 
 	if failed {
@@ -152,6 +163,31 @@ func importWorkforceOne(client *http.Client, apiURL, secret, company, month stri
 
 func syncEmployeeTeams(client *http.Client, apiURL, secret string) error {
 	url := fmt.Sprintf("%s/api/v1/qbtime/employee-teams/sync", apiURL)
+	fmt.Printf("[qbtime-sync-cron] %s — POST %s\n", time.Now().UTC().Format(time.RFC3339), url)
+
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Cron-Secret", secret)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("http call: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("API returned HTTP %d: %s", resp.StatusCode, string(body))
+	}
+	fmt.Printf("[qbtime-sync-cron] Success: %s\n", string(body))
+	return nil
+}
+
+func detectAbsences(client *http.Client, apiURL, secret string) error {
+	url := apiURL + "/api/v1/qbtime/absences/detect"
 	fmt.Printf("[qbtime-sync-cron] %s — POST %s\n", time.Now().UTC().Format(time.RFC3339), url)
 
 	req, err := http.NewRequest(http.MethodPost, url, nil)
