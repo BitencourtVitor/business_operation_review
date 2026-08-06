@@ -33,7 +33,56 @@ export interface AbsenceResponse {
   evaluatedDays: string[]
 }
 
+// ─── Weekly attendance grid ───────────────────────────────────────────────────
+
+export type AttendanceStatus = "present" | "absent" | "skipped"
+
+export interface AttendanceDay {
+  date:    string
+  weekday: string
+  status:  AttendanceStatus
+  /** Consecutive absent days ending on this one, counting back past Monday. */
+  streak:  number
+}
+
+export interface AttendanceDayHeader {
+  date:      string
+  weekday:   string
+  /** False when the whole company sat the day out — holiday or failed sync. */
+  evaluated: boolean
+}
+
+export interface AttendanceEmployee {
+  qbtUserId:   number
+  name:        string
+  days:        AttendanceDay[]
+  absentCount: number
+  maxStreak:   number
+}
+
+export interface AttendanceTeam {
+  team:      string
+  employees: AttendanceEmployee[]
+}
+
+export interface AttendanceResponse {
+  company:      string
+  weekStart:    string
+  weekEnd:      string
+  days:         AttendanceDayHeader[]
+  teams:        AttendanceTeam[]
+  rosterSize:   number
+  totalAbsent:  number
+  totalFlagged: number
+}
+
 export const absenceService = {
+  attendance: (company: string, week?: string) =>
+    api.get<AttendanceResponse>(
+      `/api/v1/qbtime/absences/attendance?company=${company}${week ? `&week=${week}` : ""}`,
+      getToken(),
+    ),
+
   get: (company: string, days?: number) =>
     api.get<AbsenceResponse>(
       `/api/v1/qbtime/absences?company=${company}${days ? `&days=${days}` : ""}`,

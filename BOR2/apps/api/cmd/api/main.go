@@ -327,6 +327,7 @@ func main() {
 
 	// ── QB Time Absences ──────────────────────────────────────────────────────
 	api.Get("/qbtime/absences", qbtimeAbsenceHandler.Get)
+	api.Get("/qbtime/absences/attendance", qbtimeAbsenceHandler.Attendance)
 	// (POST /qbtime/absences/detect is cron-guarded, registered above before RequireAuth.)
 
 	// QBTime Weekly Report

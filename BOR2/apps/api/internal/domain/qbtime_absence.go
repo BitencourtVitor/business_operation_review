@@ -18,6 +18,51 @@ type QBTimeAbsenceEvent struct {
 	NotifiedAt   *time.Time `json:"notifiedAt,omitempty"`
 }
 
+// ── Weekly attendance grid ────────────────────────────────────────────────────
+// Everyone on the roster shows up every week, present or not — the grid is the
+// view, the absence is just a state inside it.
+
+// AttendanceDay is one cell. Status is "present", "absent" or "skipped"
+// (a business day the whole company sat out — holiday or a sync that failed).
+type AttendanceDay struct {
+	Date    string `json:"date"`
+	Weekday string `json:"weekday"`
+	Status  string `json:"status"`
+	// Streak is how many consecutive absent days end on this one, counting back
+	// past the start of the week. 2 or more is what the alert fires on.
+	Streak int `json:"streak"`
+}
+
+type AttendanceDayHeader struct {
+	Date      string `json:"date"`
+	Weekday   string `json:"weekday"`
+	Evaluated bool   `json:"evaluated"`
+}
+
+type AttendanceEmployee struct {
+	QBTUserID   int64           `json:"qbtUserId"`
+	Name        string          `json:"name"`
+	Days        []AttendanceDay `json:"days"`
+	AbsentCount int             `json:"absentCount"`
+	MaxStreak   int             `json:"maxStreak"`
+}
+
+type AttendanceTeam struct {
+	Team      string               `json:"team"`
+	Employees []AttendanceEmployee `json:"employees"`
+}
+
+type AttendanceResponse struct {
+	Company      string                `json:"company"`
+	WeekStart    string                `json:"weekStart"`
+	WeekEnd      string                `json:"weekEnd"`
+	Days         []AttendanceDayHeader `json:"days"`
+	Teams        []AttendanceTeam      `json:"teams"`
+	RosterSize   int                   `json:"rosterSize"`
+	TotalAbsent  int                   `json:"totalAbsent"`
+	TotalFlagged int                   `json:"totalFlagged"`
+}
+
 type QBTimeAbsenceGroup struct {
 	Team   string               `json:"team"`
 	Events []QBTimeAbsenceEvent `json:"events"`

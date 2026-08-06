@@ -31,6 +31,11 @@ type QBTimeAbsenceRepository interface {
 	// company actually punched on. Used to drop holidays and failed syncs.
 	DaysWithActivity(ctx context.Context, company string, days []time.Time) (map[string]bool, error)
 	AbsentOn(ctx context.Context, company string, day time.Time) ([]AbsentEmployee, error)
+	// Roster is everyone on the company's QB Time roster, minus the exception
+	// list — the people the grid always shows, punched or not.
+	Roster(ctx context.Context, company string) ([]AbsentEmployee, error)
+	// PunchedDays maps qbt_user_id → set of YYYY-MM-DD they clocked in on.
+	PunchedDays(ctx context.Context, company string, from, to time.Time) (map[int64]map[string]bool, error)
 	// ReplaceWindow swaps every event overlapping [from,to] for the computed
 	// set, preserving notified_at for blocks that are still the same block.
 	ReplaceWindow(ctx context.Context, company string, from, to time.Time, events []AbsenceEventInput) error
@@ -119,6 +124,68 @@ func (r *PostgresQBTimeAbsenceRepository) AbsentOn(ctx context.Context, company 
 			return nil, fmt.Errorf("scan absent employee: %w", err)
 		}
 		out = append(out, a)
+	}
+	return out, nil
+}
+
+func (r *PostgresQBTimeAbsenceRepository) Roster(ctx context.Context, company string) ([]AbsentEmployee, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT et.qbt_user_id,
+		       et.employee_name,
+		       COALESCE(
+		           NULLIF(TRIM(et.override_team_name), ''),
+		           NULLIF(TRIM(et.qbt_team_name), ''),
+		           'Unassigned'
+		       ) AS team_name
+		FROM qbtime_employee_teams et
+		WHERE LOWER(et.company) = LOWER($1)
+		  AND NOT EXISTS (
+		      SELECT 1 FROM qbtime_whos_working_exceptions ex
+		      WHERE LOWER(ex.company) = LOWER($1)
+		        AND LOWER(TRIM(ex.employee_name)) = LOWER(TRIM(et.employee_name))
+		  )
+		ORDER BY et.employee_name
+	`, company)
+	if err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	}
+	defer rows.Close()
+
+	var out []AbsentEmployee
+	for rows.Next() {
+		var a AbsentEmployee
+		if err := rows.Scan(&a.QBTUserID, &a.EmployeeName, &a.TeamName); err != nil {
+			return nil, fmt.Errorf("scan roster row: %w", err)
+		}
+		out = append(out, a)
+	}
+	return out, nil
+}
+
+func (r *PostgresQBTimeAbsenceRepository) PunchedDays(ctx context.Context, company string, from, to time.Time) (map[int64]map[string]bool, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT DISTINCT user_id, work_date
+		FROM qbtime_timesheets
+		WHERE LOWER(company) = LOWER($1)
+		  AND work_date >= $2
+		  AND work_date <= $3
+	`, company, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("punched days: %w", err)
+	}
+	defer rows.Close()
+
+	out := map[int64]map[string]bool{}
+	for rows.Next() {
+		var userID int64
+		var day time.Time
+		if err := rows.Scan(&userID, &day); err != nil {
+			return nil, fmt.Errorf("scan punched day: %w", err)
+		}
+		if out[userID] == nil {
+			out[userID] = map[string]bool{}
+		}
+		out[userID][day.Format(dateLayout)] = true
 	}
 	return out, nil
 }
