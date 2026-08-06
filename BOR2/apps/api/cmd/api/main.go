@@ -70,6 +70,7 @@ func main() {
 	qbtimeExceptionsRepo := repository.NewPostgresQBTimeExceptionsRepository(db)
 	qbtimePeriodCacheRepo := repository.NewPostgresQBTimePeriodCacheRepository(db)
 	qbtimeUnpaidAddrRepo := repository.NewPostgresQBTimeUnpaidAddressRepository(db)
+	qbtimeAbsenceRepo := repository.NewPostgresQBTimeAbsenceRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService := service.NewAuditService(auditLogRepo)
@@ -93,6 +94,7 @@ func main() {
 	qbtimeTeamSvc := service.NewQBTimeTeamService(qbtimeTeamRepo)
 	qbtimeEmployeeTeamSvc := service.NewQBTimeEmployeeTeamService(qbtimeEmployeeTeamRepo)
 	whosWorkingSvc := service.NewWhosWorkingService(qbtimeExceptionsRepo, qbtimeTeamRepo, qbtimeEmployeeTeamRepo)
+	qbtimeAbsenceSvc := service.NewQBTimeAbsenceService(qbtimeAbsenceRepo, notificationService)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler := handler.NewHealthHandler()
@@ -129,6 +131,7 @@ func main() {
 	qbtimeTeamHandler := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
 	qbtimeEmployeeTeamHandler := handler.NewQBTimeEmployeeTeamHandler(qbtimeEmployeeTeamSvc, auditService)
 	whosWorkingHandler := handler.NewWhosWorkingHandler(whosWorkingSvc, auditService)
+	qbtimeAbsenceHandler := handler.NewQBTimeAbsenceHandler(qbtimeAbsenceSvc)
 	weeklyReportSvc := service.NewWeeklyReportService()
 	weeklyReportHandler := handler.NewWeeklyReportHandler(weeklyReportSvc)
 	periodReportSvc := service.NewPeriodReportService(qbtimeTeamRepo, qbtimeEmployeeTeamRepo, qbtimePeriodCacheRepo, qbtimeUnpaidAddrRepo)
@@ -208,6 +211,7 @@ func main() {
 	v1.Post("/qbtime/period-report/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), periodReportHandler.Sync)
 	v1.Post("/qbtime/workforce-import", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtWfImportHandler.Import)
 	v1.Post("/qbtime/employee-teams/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtimeEmployeeTeamHandler.Sync)
+	v1.Post("/qbtime/absences/detect", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), qbtimeAbsenceHandler.Detect)
 	v1.Post("/ofi/calculate", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), ofiHandler.Calculate)
 	v1.Post("/qb/sync", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), func(c *fiber.Ctx) error {
 		go func() {
@@ -320,6 +324,10 @@ func main() {
 
 	// QBTime Who's Working
 	api.Get("/qbtime/whos-working", whosWorkingHandler.Get)
+
+	// ── QB Time Absences ──────────────────────────────────────────────────────
+	api.Get("/qbtime/absences", qbtimeAbsenceHandler.Get)
+	// (POST /qbtime/absences/detect is cron-guarded, registered above before RequireAuth.)
 
 	// QBTime Weekly Report
 	api.Get("/qbtime/weekly-report", weeklyReportHandler.Get)

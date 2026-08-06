@@ -7,7 +7,7 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock,
+  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarX,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
@@ -63,6 +63,8 @@ const PERMISSION_GROUPS: PermGroup[] = [
           { key: "weekly_hours",  label: "Weekly Hours Control", icon: CalendarClock },
           { key: "whos_working",  label: "Who's Working",        icon: UserCheck     },
           { key: "period_reports", label: "Period Reports",      icon: Banknote      },
+          // Granting this also subscribes the user to the absence notification.
+          { key: "absence_control", label: "Absence Control",    icon: CalendarX     },
         ],
       },
     ],

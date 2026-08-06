@@ -36,7 +36,7 @@ func NewPostgresNotificationRepository(db *pgxpool.Pool) *PostgresNotificationRe
 
 const notifSelect = `
 	SELECT id, title, content, recipients, viewed_by,
-	       scheduled_at, created_by, created_at
+	       link, scheduled_at, created_by, created_at
 	FROM notifications
 `
 
@@ -53,7 +53,7 @@ func scanNotifications(rows interface {
 		if err := rows.Scan(
 			&n.ID, &n.Title, &n.Content,
 			&recipientsBytes, &viewedByBytes,
-			&n.ScheduledAt, &n.CreatedBy, &n.CreatedAt,
+			&n.Link, &n.ScheduledAt, &n.CreatedBy, &n.CreatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("scan notification: %w", err)
 		}
@@ -118,10 +118,10 @@ func (r *PostgresNotificationRepository) Create(ctx context.Context, n *domain.N
 	viewedByJSON, _ := json.Marshal(n.ViewedBy)
 
 	err := r.db.QueryRow(ctx, `
-		INSERT INTO notifications (title, content, recipients, viewed_by, scheduled_at, created_by)
-		VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6)
+		INSERT INTO notifications (title, content, recipients, viewed_by, link, scheduled_at, created_by)
+		VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6, $7)
 		RETURNING id, created_at
-	`, n.Title, n.Content, string(recipientsJSON), string(viewedByJSON), n.ScheduledAt, n.CreatedBy).
+	`, n.Title, n.Content, string(recipientsJSON), string(viewedByJSON), n.Link, n.ScheduledAt, n.CreatedBy).
 		Scan(&n.ID, &n.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("create notification: %w", err)

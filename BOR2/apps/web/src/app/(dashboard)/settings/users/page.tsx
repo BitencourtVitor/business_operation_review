@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/tooltip"
 import {
   Activity, ArrowLeft, BarChart2, Banknote, Bell,
-  CalendarCheck, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
-  Eye, FileCheck, Fuel, Gauge,
+  CalendarCheck, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
+  Eye, FileCheck, Gauge,
   Gem, KeyRound, Loader2,
   Network, Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
@@ -99,7 +99,6 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "forecast",   label: "Framing Forecast",  image: "/images/sublogo_framing.png" },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
-      { key: "fuel",       label: "Fuel Control",      icon: Fuel      },
     ],
   },
   {
@@ -108,9 +107,9 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "autolog",          label: "Quickbooks Time Auto Log", icon: Activity      },
       { key: "weekly_hours",     label: "Weekly Hours Control",   icon: CalendarCheck },
       { key: "whos_working",     label: "Who's Working Report",   icon: UserCheck     },
+      { key: "absence_control",  label: "Absence Control",        icon: CalendarX     },
       { key: "data_control",     label: "Forecast Data Control", icon: ClipboardList },
       { key: "permits",          label: "Permit Control",        icon: FileCheck     },
-      { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },
       { key: "service_requests", label: "Service Requests",      icon: Wrench        },
       { key: "takeoff",          label: "Takeoff Works",         icon: Ruler         },
     ],

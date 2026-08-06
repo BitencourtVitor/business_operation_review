@@ -7,6 +7,8 @@ export type Notification = {
   content:     string
   recipients:  string[]
   viewedBy:    string[]
+  /** In-app path to open on click. Set by system notifications; null for hand-written ones. */
+  link?:       string | null
   scheduledAt: string | null
   createdBy:   string
   createdAt:   string

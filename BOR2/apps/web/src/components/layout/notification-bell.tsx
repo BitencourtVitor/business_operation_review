@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Bell, Trash2, ExternalLink, CheckCheck } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import type { Notification } from "@/services/notification.service"
 
@@ -86,6 +87,7 @@ export function NotificationBell({
   onOpenChange?: (v: boolean) => void
   triggerClassName?: string
 } = {}) {
+  const router                                    = useRouter()
   const { user }                                  = useAuth()
   const { data: notifications = [] }              = useNotifications()
   const markViewed                                = useMarkNotificationViewed()
@@ -117,10 +119,17 @@ export function NotificationBell({
       .forEach(n => markViewed.mutate(n.id))
   }
 
+  // A notification that carries a link is a pointer to a screen, not a message
+  // to read — go there instead of opening the detail modal.
   function openDetail(n: Notification) {
+    setPopoverOpen(false)
+    if (n.link) {
+      setModalOpen(false)
+      router.push(n.link)
+      return
+    }
     setSelected(n)
     setModalOpen(true)
-    setPopoverOpen(false)
   }
 
   return (
@@ -217,7 +226,15 @@ export function NotificationBell({
                   {notifications.map(n => (
                     <div
                       key={n.id}
+                      onClick={() => {
+                        if (!n.link) return
+                        if (!n.viewedBy.includes(userID)) markViewed.mutate(n.id)
+                        setModalOpen(false)
+                        router.push(n.link)
+                      }}
                       className={`group rounded-lg border p-3 transition-colors ${
+                        n.link ? "cursor-pointer hover:bg-muted/60 " : ""
+                      }${
                         n.viewedBy.includes(userID)
                           ? "border-border/40 opacity-60"
                           : "border-primary/20 bg-primary/5"
