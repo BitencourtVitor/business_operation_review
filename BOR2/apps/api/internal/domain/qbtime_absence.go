@@ -22,8 +22,13 @@ type QBTimeAbsenceEvent struct {
 // Everyone on the roster shows up every week, present or not — the grid is the
 // view, the absence is just a state inside it.
 
-// AttendanceDay is one cell. Status is "present", "absent" or "skipped"
-// (a business day the whole company sat out — holiday or a sync that failed).
+// AttendanceDay is one cell. Status is one of:
+//   present — punched in
+//   absent  — business day with no punch
+//   skipped — business day the whole company sat out (holiday or failed sync)
+//   pending — today or later, hasn't happened yet
+//   off     — weekend with no punch. Never an absence: weekend work is the
+//             exception, so the grid only ever marks it when someone worked.
 type AttendanceDay struct {
 	Date    string `json:"date"`
 	Weekday string `json:"weekday"`
@@ -37,6 +42,7 @@ type AttendanceDayHeader struct {
 	Date      string `json:"date"`
 	Weekday   string `json:"weekday"`
 	Evaluated bool   `json:"evaluated"`
+	Weekend   bool   `json:"weekend"`
 }
 
 type AttendanceEmployee struct {
