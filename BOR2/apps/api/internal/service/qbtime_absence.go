@@ -253,7 +253,9 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 		ref = parsed
 	}
 	weekStart := mondayOf(ref)
-	weekEnd := weekStart.AddDate(0, 0, 4) // Friday
+	// Sunday. The weekend is shown because people do work it sometimes, but it
+	// is never judged — only weekdays can produce an absence.
+	weekEnd := weekStart.AddDate(0, 0, 6)
 
 	lookbackStart := weekStart.AddDate(0, 0, -attendanceLookbackDays)
 	span := businessDaysBetween(lookbackStart, weekEnd)
@@ -271,16 +273,29 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 		return nil, err
 	}
 
-	weekDays := businessDaysBetween(weekStart, weekEnd)
+	// Today is still running: whoever has not punched yet has not missed the
+	// day. Counting it would flag most of the roster every morning.
+	todayISO := easternNow().Format(dateOnly)
+
+	// Every day of the week gets a column; only the weekdays get judged.
+	var weekDays []time.Time
+	for d := weekStart; !d.After(weekEnd); d = d.AddDate(0, 0, 1) {
+		weekDays = append(weekDays, d)
+	}
+
 	headers := make([]domain.AttendanceDayHeader, 0, len(weekDays))
 	inWeek := map[string]bool{}
 	for _, d := range weekDays {
 		iso := d.Format(dateOnly)
-		inWeek[iso] = true
+		weekend := d.Weekday() == time.Saturday || d.Weekday() == time.Sunday
+		if !weekend {
+			inWeek[iso] = true
+		}
 		headers = append(headers, domain.AttendanceDayHeader{
 			Date:      iso,
 			Weekday:   d.Format("Mon"),
-			Evaluated: active[iso],
+			Evaluated: !weekend && active[iso] && iso < todayISO,
+			Weekend:   weekend,
 		})
 	}
 
@@ -290,20 +305,32 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 	for _, person := range roster {
 		mine := punched[person.QBTUserID]
 		streak := 0
-		days := make([]domain.AttendanceDay, 0, len(weekDays))
-		absentCount, maxStreak := 0, 0
+		absentCount := 0
 
-		// Walk the whole span so the streak entering Monday is already correct.
+		type cell struct {
+			status string
+			streak int
+		}
+		judged := map[string]cell{}
+
+		// Walk the weekdays of the whole span, so the streak entering Monday is
+		// already at its real length instead of restarting at the week border.
 		for _, d := range span {
 			iso := d.Format(dateOnly)
+
+			// Today and anything after it have not happened yet.
+			if iso >= todayISO {
+				if inWeek[iso] {
+					judged[iso] = cell{status: "pending"}
+				}
+				continue
+			}
 
 			// A day nobody in the company punched proves nothing about this
 			// person — it neither breaks the streak nor counts as an absence.
 			if !active[iso] {
 				if inWeek[iso] {
-					days = append(days, domain.AttendanceDay{
-						Date: iso, Weekday: d.Format("Mon"), Status: "skipped",
-					})
+					judged[iso] = cell{status: "skipped"}
 				}
 				continue
 			}
@@ -314,19 +341,33 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 			} else {
 				status = "absent"
 				streak++
-				if streak > maxStreak {
-					maxStreak = streak
-				}
 			}
 
 			if inWeek[iso] {
 				if status == "absent" {
 					absentCount++
 				}
-				days = append(days, domain.AttendanceDay{
-					Date: iso, Weekday: d.Format("Mon"), Status: status, Streak: streak,
-				})
+				judged[iso] = cell{status: status, streak: streak}
 			}
+		}
+
+		// Emit one cell per calendar day. Weekends carry punches only: no
+		// weekend absence exists, so an empty Saturday says nothing.
+		days := make([]domain.AttendanceDay, 0, len(weekDays))
+		for _, d := range weekDays {
+			iso := d.Format(dateOnly)
+			day := domain.AttendanceDay{Date: iso, Weekday: d.Format("Mon")}
+
+			if c, ok := judged[iso]; ok {
+				day.Status, day.Streak = c.status, c.streak
+			} else if mine[iso] {
+				day.Status = "present"
+			} else if iso >= todayISO {
+				day.Status = "pending"
+			} else {
+				day.Status = "off"
+			}
+			days = append(days, day)
 		}
 
 		if absentCount > 0 {

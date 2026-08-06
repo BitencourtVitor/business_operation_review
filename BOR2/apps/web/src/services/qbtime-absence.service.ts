@@ -35,7 +35,10 @@ export interface AbsenceResponse {
 
 // ─── Weekly attendance grid ───────────────────────────────────────────────────
 
-export type AttendanceStatus = "present" | "absent" | "skipped"
+/** `pending` = today or later, hasn't happened yet. `skipped` = nobody in the
+ *  company punched that day (holiday or failed sync), so it proves nothing.
+ *  `off`     = weekend with no punch — never an absence. */
+export type AttendanceStatus = "present" | "absent" | "skipped" | "pending" | "off"
 
 export interface AttendanceDay {
   date:    string
@@ -50,6 +53,7 @@ export interface AttendanceDayHeader {
   weekday:   string
   /** False when the whole company sat the day out — holiday or failed sync. */
   evaluated: boolean
+  weekend:   boolean
 }
 
 export interface AttendanceEmployee {
