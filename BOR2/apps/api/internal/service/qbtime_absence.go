@@ -20,6 +20,8 @@ const (
 	absenceAlertDays = 2
 	// Granting this permission is what subscribes a user to the alert.
 	absencePermKey = "absence_control"
+	// An absence is a calendar fact — dates travel as plain YYYY-MM-DD.
+	dateOnly = "2006-01-02"
 )
 
 // AbsenceCompanies mirrors the QB Time workspaces the sync already covers.
@@ -68,7 +70,7 @@ func (s *QBTimeAbsenceService) evaluatedDays(ctx context.Context, company string
 	}
 	var out []time.Time
 	for _, d := range candidates {
-		if active[d.Format("2006-01-02")] {
+		if active[d.Format(dateOnly)] {
 			out = append(out, d)
 		}
 	}
@@ -217,6 +219,178 @@ func (s *QBTimeAbsenceService) Run(ctx context.Context) (map[string]int, error) 
 	return out, firstErr
 }
 
+// How far back the grid looks past the week it renders, so a streak that
+// started earlier is already at its real length on Monday.
+const attendanceLookbackDays = 21
+
+func mondayOf(d time.Time) time.Time {
+	d = time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+	offset := (int(d.Weekday()) + 6) % 7 // Monday = 0
+	return d.AddDate(0, 0, -offset)
+}
+
+func businessDaysBetween(from, to time.Time) []time.Time {
+	var out []time.Time
+	for d := from; !d.After(to); d = d.AddDate(0, 0, 1) {
+		switch d.Weekday() {
+		case time.Saturday, time.Sunday:
+			continue
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+// Attendance builds the weekly grid: every team, every person on the roster,
+// present or not. Absence is a state inside the grid, not a separate list.
+func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, week string) (*domain.AttendanceResponse, error) {
+	ref := easternNow()
+	if week != "" {
+		parsed, err := time.Parse(dateOnly, week)
+		if err != nil {
+			return nil, fmt.Errorf("invalid week %q: expected YYYY-MM-DD", week)
+		}
+		ref = parsed
+	}
+	weekStart := mondayOf(ref)
+	weekEnd := weekStart.AddDate(0, 0, 4) // Friday
+
+	lookbackStart := weekStart.AddDate(0, 0, -attendanceLookbackDays)
+	span := businessDaysBetween(lookbackStart, weekEnd)
+
+	active, err := s.repo.DaysWithActivity(ctx, company, span)
+	if err != nil {
+		return nil, err
+	}
+	punched, err := s.repo.PunchedDays(ctx, company, lookbackStart, weekEnd)
+	if err != nil {
+		return nil, err
+	}
+	roster, err := s.repo.Roster(ctx, company)
+	if err != nil {
+		return nil, err
+	}
+
+	weekDays := businessDaysBetween(weekStart, weekEnd)
+	headers := make([]domain.AttendanceDayHeader, 0, len(weekDays))
+	inWeek := map[string]bool{}
+	for _, d := range weekDays {
+		iso := d.Format(dateOnly)
+		inWeek[iso] = true
+		headers = append(headers, domain.AttendanceDayHeader{
+			Date:      iso,
+			Weekday:   d.Format("Mon"),
+			Evaluated: active[iso],
+		})
+	}
+
+	byTeam := map[string][]domain.AttendanceEmployee{}
+	totalAbsent, totalFlagged := 0, 0
+
+	for _, person := range roster {
+		mine := punched[person.QBTUserID]
+		streak := 0
+		days := make([]domain.AttendanceDay, 0, len(weekDays))
+		absentCount, maxStreak := 0, 0
+
+		// Walk the whole span so the streak entering Monday is already correct.
+		for _, d := range span {
+			iso := d.Format(dateOnly)
+
+			// A day nobody in the company punched proves nothing about this
+			// person — it neither breaks the streak nor counts as an absence.
+			if !active[iso] {
+				if inWeek[iso] {
+					days = append(days, domain.AttendanceDay{
+						Date: iso, Weekday: d.Format("Mon"), Status: "skipped",
+					})
+				}
+				continue
+			}
+
+			status := "present"
+			if mine[iso] {
+				streak = 0
+			} else {
+				status = "absent"
+				streak++
+				if streak > maxStreak {
+					maxStreak = streak
+				}
+			}
+
+			if inWeek[iso] {
+				if status == "absent" {
+					absentCount++
+				}
+				days = append(days, domain.AttendanceDay{
+					Date: iso, Weekday: d.Format("Mon"), Status: status, Streak: streak,
+				})
+			}
+		}
+
+		if absentCount > 0 {
+			totalAbsent++
+		}
+		// Flag on the streak visible this week, not on history already closed.
+		weekStreak := 0
+		for _, d := range days {
+			if d.Streak > weekStreak {
+				weekStreak = d.Streak
+			}
+		}
+		if weekStreak >= absenceAlertDays {
+			totalFlagged++
+		}
+
+		byTeam[person.TeamName] = append(byTeam[person.TeamName], domain.AttendanceEmployee{
+			QBTUserID:   person.QBTUserID,
+			Name:        person.EmployeeName,
+			Days:        days,
+			AbsentCount: absentCount,
+			MaxStreak:   weekStreak,
+		})
+	}
+
+	teamNames := make([]string, 0, len(byTeam))
+	for team := range byTeam {
+		teamNames = append(teamNames, team)
+	}
+	sort.Slice(teamNames, func(i, j int) bool {
+		if (teamNames[i] == "Unassigned") != (teamNames[j] == "Unassigned") {
+			return teamNames[j] == "Unassigned"
+		}
+		return teamNames[i] < teamNames[j]
+	})
+
+	teams := make([]domain.AttendanceTeam, 0, len(teamNames))
+	for _, name := range teamNames {
+		list := byTeam[name]
+		sort.Slice(list, func(i, j int) bool {
+			// Worst first, so the eye lands on who needs attention.
+			if list[i].MaxStreak != list[j].MaxStreak {
+				return list[i].MaxStreak > list[j].MaxStreak
+			}
+			if list[i].AbsentCount != list[j].AbsentCount {
+				return list[i].AbsentCount > list[j].AbsentCount
+			}
+			return list[i].Name < list[j].Name
+		})
+		teams = append(teams, domain.AttendanceTeam{Team: name, Employees: list})
+	}
+
+	return &domain.AttendanceResponse{
+		Company:      company,
+		WeekStart:    weekStart.Format(dateOnly),
+		WeekEnd:      weekEnd.Format(dateOnly),
+		Days:         headers,
+		Teams:        teams,
+		RosterSize:   len(roster),
+		TotalAbsent:  totalAbsent,
+		TotalFlagged: totalFlagged,
+	}, nil
+}
+
 // Get builds the screen payload: events grouped by team, open ones first.
 func (s *QBTimeAbsenceService) Get(ctx context.Context, company string, days int) (*domain.QBTimeAbsenceResponse, error) {
 	if days <= 0 || days > absenceWindowDays {
@@ -237,7 +411,7 @@ func (s *QBTimeAbsenceService) Get(ctx context.Context, company string, days int
 	lastEvaluated := ""
 	evaluatedISO := make([]string, 0, len(evaluated))
 	for _, d := range evaluated {
-		iso := d.Format("2006-01-02")
+		iso := d.Format(dateOnly)
 		evaluatedISO = append(evaluatedISO, iso)
 		lastEvaluated = iso
 	}

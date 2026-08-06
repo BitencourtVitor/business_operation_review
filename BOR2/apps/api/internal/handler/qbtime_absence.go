@@ -31,6 +31,21 @@ func (h *QBTimeAbsenceHandler) Get(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": resp})
 }
 
+// GET /api/v1/qbtime/absences/attendance?company=framing&week=YYYY-MM-DD
+// week is any date inside the wanted week; omitted means the current one.
+func (h *QBTimeAbsenceHandler) Attendance(c *fiber.Ctx) error {
+	company := strings.ToLower(strings.TrimSpace(c.Query("company")))
+	if company == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "company is required", "code": "BAD_REQUEST"})
+	}
+
+	resp, err := h.svc.Attendance(c.Context(), company, strings.TrimSpace(c.Query("week")))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"data": resp})
+}
+
 // POST /api/v1/qbtime/absences/detect — cron-guarded; recompute + notify.
 func (h *QBTimeAbsenceHandler) Detect(c *fiber.Ctx) error {
 	counts, err := h.svc.Run(c.Context())
