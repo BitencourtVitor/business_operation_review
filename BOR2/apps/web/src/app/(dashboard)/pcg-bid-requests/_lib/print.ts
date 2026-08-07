@@ -17,9 +17,23 @@ export const PRINT_CSS = `
     body > *:not(#print-portal) { display: none !important; }
     ::backdrop { display: none !important; }
 
+    /* The dashed separator is a reading aid for the preview, where the document
+       is one continuous strip. On paper the page break already says it, and a
+       dashed line printed across a subcontract would look like a defect. It
+       carries print:hidden too — this is the second lock, because the clone
+       that gets printed is built from the DOM and must never take it along. */
+    [data-doc-separator] { display: none !important; }
+
     #print-portal {
       display: block !important;
       position: static !important;
+    }
+
+    /* The module containers and the coloured scope lists are the document's own
+       marks, not decoration the printer gets to drop. */
+    #print-portal [data-print-root], #print-portal [data-print-root] * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     #print-portal [data-print-root] {
@@ -32,12 +46,12 @@ export const PRINT_CSS = `
       box-shadow: none !important;
     }
 
-    /* No paper size on purpose. Forcing "letter" onto a printer set to A4 makes
-       Chrome shrink the letter page to fit and centre it on the sheet, which is
-       what added half an inch above and below the content on every page — while
-       the side margins stayed put. Left alone, the page takes the paper the user
-       picked and the margin below is the only spacing. */
-    @page { margin: 0.5in; }
+    /* A4, stated. It used to be left to whatever paper the printer was set to,
+       which was fine while the preview was one long strip — but the preview now
+       draws where the paper is cut, and a cut mark is only honest if it is
+       measuring the same sheet the PDF will use. The document is laid out at
+       this page's printable width for the same reason. */
+    @page { size: A4; margin: 0.5in; }
   }
 `
 

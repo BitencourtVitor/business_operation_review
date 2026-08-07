@@ -1,8 +1,62 @@
 // Generated from PCG_Scope_Questionnaire_AllTrades.xlsx — the catalog PCG maintains
 // by hand today. Seeds the editable catalog on first load; edits live in the store.
-import type { Trade } from "./types"
+import type { Question, Trade } from "./types"
 
-export const TRADES_SEED: Trade[] = [
+// Asked first on every trade: before anything else, the sub has to know whether
+// they are pricing their hands or their hands and the material. Same wording
+// everywhere, because eight trades had already grown their own version of it and
+// no two agreed — see SUPERSEDED_BY_SUPPLY below.
+export const SUPPLY_QUESTION_ID = "supply"
+
+export const SUPPLY_QUESTION: Question = {
+  id: SUPPLY_QUESTION_ID,
+  label: "What is included",
+  type: "select",
+  options: ["Labor only", "Labor and material"],
+  hint: "",
+  tag: "all_projects",
+  needsQuantity: false,
+}
+
+// The per-trade questions the universal one replaces: same question about the
+// whole trade, in eight different wordings. Item-level ones stay — Electrical
+// still needs to say who buys the fixtures as opposed to the wire, and Tile who
+// buys the tile, and neither is answered by "labor or labor and material".
+const SUPERSEDED_BY_SUPPLY: Record<string, string[]> = {
+  landscaping: ["q9"],
+  plumbing:    ["q15", "q27"],
+  electrical:  ["q44"],
+  insulation:  ["q15"],
+  masonry:     ["q16"],
+  drywall:     ["q7"],
+}
+
+// Project type is about the whole job, not about a trade: Foundation and
+// Excavation both asked it, and both got the same answer for the same house. It
+// lives on the project now — see Project.type.
+const PROJECT_TYPE_QUESTION: Record<string, string> = {
+  foundation: "q1",
+  excavation: "q1",
+}
+
+export function projectTypeQuestionId(tradeId: string): string | undefined {
+  return PROJECT_TYPE_QUESTION[tradeId]
+}
+
+// Puts the universal question first, drops the ones it supersedes, and takes out
+// the project-type question. Applied to the seed here, and to catalogs already
+// stored by the v15 migration — the seed alone never reaches a stored catalog,
+// because merge only fills gaps.
+export function withSupplyQuestion(trade: Trade): Trade {
+  const superseded = SUPERSEDED_BY_SUPPLY[trade.id] ?? []
+  const projectType = PROJECT_TYPE_QUESTION[trade.id]
+  const rest = trade.questions.filter(
+    q => q.id !== SUPPLY_QUESTION_ID && !superseded.includes(q.id) && q.id !== projectType,
+  )
+  return { ...trade, questions: [SUPPLY_QUESTION, ...rest] }
+}
+
+const TRADES_RAW: Trade[] = [
   {
     id: "foundation",
     name: "Foundation",
@@ -1041,3 +1095,5 @@ export const TRADES_SEED: Trade[] = [
     ],
   },
 ]
+
+export const TRADES_SEED: Trade[] = TRADES_RAW.map(withSupplyQuestion)

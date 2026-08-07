@@ -87,7 +87,9 @@ function SelectContent({
           {...props}
         >
           <SelectScrollUpButton />
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          {/* The gutter the items' rounded corners are drawn for — without it
+              they square off against the popup edge. */}
+          <SelectPrimitive.List className="p-1">{children}</SelectPrimitive.List>
           <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
@@ -111,8 +113,11 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  // Off for items too narrow to spare the gutter — the trigger still says what
+  // is selected, and `data-selected` is on the item to style.
+  indicator = true,
   ...props
-}: SelectPrimitive.Item.Props) {
+}: SelectPrimitive.Item.Props & { indicator?: boolean }) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -125,13 +130,15 @@ function SelectItem({
       <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
         {children}
       </SelectPrimitive.ItemText>
-      <SelectPrimitive.ItemIndicator
-        render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
-        }
-      >
-        <CheckIcon className="pointer-events-none" />
-      </SelectPrimitive.ItemIndicator>
+      {indicator && (
+        <SelectPrimitive.ItemIndicator
+          render={
+            <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
+          }
+        >
+          <CheckIcon className="pointer-events-none" />
+        </SelectPrimitive.ItemIndicator>
+      )}
     </SelectPrimitive.Item>
   )
 }

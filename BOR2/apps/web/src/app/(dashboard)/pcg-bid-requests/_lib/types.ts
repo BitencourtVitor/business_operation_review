@@ -81,15 +81,44 @@ export const RULE_ACTION_LABEL: Record<RuleAction, string> = {
 // ── Company-level document defaults ─────────────────────────────────────────
 
 export type DocumentScope = "bid" | "contract" | "both"
-export type DocumentPlacement = "before_sections" | "after_sections"
 
-// Text that belongs to PCG, not to a trade — editing one changes every document.
+// What a module is made of. `text` is written in the modal; `generated` is drawn
+// by the renderer from the trade and the answers; `locked` is standing text
+// nobody edits. Position is the one thing all three share — a generated or
+// locked module cannot be rewritten, but it can be moved.
+export type DocumentBlockKind = "text" | "generated" | "locked"
+
+// The generated modules the renderer knows how to draw. Every contract has to
+// carry both, so they are modules with a fixed body, not optional blocks.
+export type GeneratedModule = "scope_of_work" | "signatures" | "payment_schedule"
+
+// A module of the document body. The frame around it — letterhead, title, the
+// project data table, the footer — stays in the renderer: those are not text
+// anybody edits, they are the shape of the paper.
 export type DocumentBlock = {
   id: string
   title: string
   body: string
   scope: DocumentScope
-  placement: DocumentPlacement
+  kind: DocumentBlockKind
+  // Numbered modules take the next number in the document they print on, so
+  // deleting section 4 renumbers what follows instead of leaving a hole.
+  numbered: boolean
+  generated: GeneratedModule | null
+}
+
+// Order is the array's order. Kept as position rather than a stored field so
+// there is no second source of truth to drift — the modal reorders the list.
+export function documentModules(blocks: DocumentBlock[], scope: "bid" | "contract"): DocumentBlock[] {
+  return blocks.filter(b => b.scope === scope || b.scope === "both")
+}
+
+// The number each module prints with, counted over the numbered ones only.
+export function moduleNumbers(modules: DocumentBlock[]): Map<string, number> {
+  const out = new Map<string, number>()
+  let n = 0
+  for (const m of modules) if (m.numbered) out.set(m.id, ++n)
+  return out
 }
 
 export const DOCUMENT_SCOPE_LABEL: Record<DocumentScope, string> = {
@@ -98,9 +127,25 @@ export const DOCUMENT_SCOPE_LABEL: Record<DocumentScope, string> = {
   both:     "Both",
 }
 
-export const DOCUMENT_PLACEMENT_LABEL: Record<DocumentPlacement, string> = {
-  before_sections: "Before specifications",
-  after_sections:  "After specifications",
+export const DOCUMENT_KIND_LABEL: Record<DocumentBlockKind, string> = {
+  text:      "Editable",
+  generated: "Generated",
+  locked:    "Standard",
+}
+
+// What a generated module is called in the list. It draws its own heading (or
+// none at all) in the document, so the title field is usually empty — without
+// this the modal would call every one of them the same thing.
+export const GENERATED_MODULE_TITLE: Record<GeneratedModule, string> = {
+  scope_of_work:    "Exhibit A: Scope of Work",
+  signatures:       "Signatures",
+  payment_schedule: "Payment schedule",
+}
+
+export const GENERATED_MODULE_LABEL: Record<GeneratedModule, string> = {
+  scope_of_work:    "Built from the trade's scope and the approved specifications",
+  signatures:       "Signature blocks for both parties",
+  payment_schedule: "The milestones agreed on this contract, priced from the approved bid",
 }
 
 // The catalog itself defines the keys — see trade-icons.ts.
@@ -110,6 +155,18 @@ export type { TradeIconKey } from "./trade-icons"
 
 export type ProjectStatus = "active" | "on_hold" | "completed"
 
+// What kind of job this is. Asked once for the house, not once per trade — the
+// bid and the contract both carry it, right under the address.
+export type ProjectType = "new_construction" | "addition" | "renovation"
+
+export const PROJECT_TYPE_LABEL: Record<ProjectType, string> = {
+  new_construction: "New Construction",
+  addition:         "Addition",
+  renovation:       "Renovation",
+}
+
+export const PROJECT_TYPES: ProjectType[] = ["new_construction", "addition", "renovation"]
+
 // The eight states a trade moves through. Trades with no bid form skip
 // straight from not_started to contract_draft.
 export type TradeStatus =
@@ -118,17 +175,50 @@ export type TradeStatus =
 
 // Only two things are stored: what was asked, and what happened. Status, price
 // and the sub are all read off the history — see _lib/events.ts.
+// A line of the payment schedule. The percentage is what is agreed; the money is
+// always derived from it and the approved bid, so the two can never disagree.
+export type PaymentMilestone = {
+  id: string
+  milestone: string
+  percent: number
+}
+
+export function scheduleTotal(schedule: PaymentMilestone[]): number {
+  return schedule.reduce((sum, m) => sum + (Number.isFinite(m.percent) ? m.percent : 0), 0)
+}
+
+// What is left to hand out. Never negative — the editor caps at 100.
+export function scheduleRemaining(schedule: PaymentMilestone[]): number {
+  return Math.max(0, 100 - scheduleTotal(schedule))
+}
+
+export function milestoneAmount(percent: number, total: number | null): number | null {
+  return total === null ? null : Math.round(total * percent) / 100
+}
+
 export type ProjectTrade = {
   tradeId: string
   events: TradeEvent[]
   answers: Record<string, string | string[]>
+  // Standing text rewritten for this contract alone: module id -> body. A sub who
+  // argues one clause — $35.00 an hour against their $40.00 — changes their own
+  // paper, never PCG's catalog or anybody else's contract.
+  moduleOverrides: Record<string, string>
+}
+
+// What the document actually prints for a module: the override if this contract
+// has one, the catalog's text otherwise.
+export function moduleBody(block: DocumentBlock, overrides: ProjectTrade["moduleOverrides"]): string {
+  const override = overrides?.[block.id]
+  return override === undefined ? block.body : override
 }
 
 // ── Event history ───────────────────────────────────────────────────────────
 
 export type TradeEventType =
   | "created" | "bid_sent" | "bid_received" | "bid_approved"
-  | "contract_sent" | "contract_signed"
+  | "bid_declined" | "bid_adjustment"
+  | "contract_sent" | "contract_signed" | "contract_adjustment"
 
 // What a document was generated from: which frozen definition of the trade, and
 // which answers. Together they reproduce the exact paper the sub received.
@@ -142,8 +232,9 @@ export type DocumentParams = {
   answers: Record<string, string | string[]>
 }
 
-// How long the sub said it takes. A count and the scale it is counted in, never
-// prose — "12 weeks" typed by hand cannot be compared, sorted or converted.
+// How long PCG gives the trade. Set by us when the price comes back, not quoted
+// by the sub. A count and the scale it is counted in, never prose — "12 weeks"
+// typed by hand cannot be compared, sorted or converted.
 export type LeadTimeUnit = "days" | "weeks" | "months"
 
 export type TradeEvent = {
@@ -156,9 +247,15 @@ export type TradeEvent = {
   params: DocumentParams | null   // captured by the events that put paper out
   url: string                     // SharePoint link, on contract_signed
   amount: number | null           // the price the sub quoted, on bid_received
-  leadTimeValue: number | null    // how long they said it takes, on bid_received
+  leadTimeValue: number | null    // the term PCG sets for the work, on bid_received
   leadTimeUnit: LeadTimeUnit      // the scale that count is read in
   subcontractor: string           // who it went to, on the events that send paper
+  // How the price is to be paid, on the events that settle it: the approval
+  // agrees one, a contract adjustment renegotiates it. Carried by the event and
+  // not by the trade, so renegotiating does not rewrite what was approved —
+  // what the sub agreed to in August is still readable in October. Absent on
+  // every other event, which is most of them.
+  paymentSchedule?: PaymentMilestone[]
 }
 
 // What an already-logged event lets you correct. The step itself, the frozen
@@ -179,16 +276,21 @@ export type TradeRevision = {
 }
 
 export const TRADE_EVENT_LABEL: Record<TradeEventType, string> = {
-  created:         "Trade opened",
-  bid_sent:        "Bid sent to sub",
-  bid_received:    "Bid received from sub",
-  bid_approved:    "Bid approved",
-  contract_sent:   "Contract sent to sub",
-  contract_signed: "Contract signed",
+  created:             "Trade opened",
+  bid_sent:            "Bid sent to sub",
+  bid_received:        "Bid received from sub",
+  bid_approved:        "Bid approved",
+  bid_declined:        "Bid declined",
+  bid_adjustment:      "Bid adjusted by the sub",
+  contract_sent:       "Contract sent to sub",
+  contract_signed:     "Contract signed",
+  contract_adjustment: "Contract adjusted",
 }
 
-// The status each event lands the trade on.
-export const EVENT_STATUS: Record<TradeEventType, TradeStatus> = {
+// The status each event lands the trade on. An adjustment is deliberately absent:
+// rewriting a clause is not a step forward or back, so the trade stays where the
+// last real step left it.
+export const EVENT_STATUS: Partial<Record<TradeEventType, TradeStatus>> = {
   created:         "not_started",
   bid_sent:        "bid_sent",
   bid_received:    "bid_received",
@@ -202,6 +304,7 @@ export type Project = {
   name: string
   address: string
   status: ProjectStatus
+  type: ProjectType
   trades: ProjectTrade[]
   createdAt: string
 }

@@ -1,4 +1,5 @@
 import { FORM_LAYOUT } from "./form-layout"
+import { SUPPLY_QUESTION_ID } from "./trades-seed"
 import { quantityKey } from "./types"
 import type { ProjectTrade, Question, Trade } from "./types"
 
@@ -37,10 +38,21 @@ export function resolveSpecs(trade: Trade, answers: ProjectTrade["answers"]): Sp
     : [{ title: "", questions: trade.questions }]
 
   // Questions outside the printed layout still belong in the contract: leaving a
-  // priced answer out would make the paper narrower than the deal.
+  // priced answer out would make the paper narrower than the deal. The supply
+  // question leads, the same way it leads the bid form; anything else joins the
+  // layout's own trailing section rather than opening a second one with the same
+  // heading right under it.
   const laidOut = new Set(groups.flatMap(g => g.questions.map(q => q.id)))
   const loose = trade.questions.filter(q => !laidOut.has(q.id))
-  if (loose.length) groups.push({ title: "ADDITIONAL SPECIFICATIONS", questions: loose })
+  const leading = loose.filter(q => q.id === SUPPLY_QUESTION_ID)
+  const trailing = loose.filter(q => q.id !== SUPPLY_QUESTION_ID)
+
+  if (leading.length) groups.unshift({ title: "SCOPE OF PRICING", questions: leading })
+  if (trailing.length) {
+    const last = groups[groups.length - 1]
+    if (last && last.title === "ADDITIONAL SPECIFICATIONS") last.questions.push(...trailing)
+    else groups.push({ title: "ADDITIONAL SPECIFICATIONS", questions: trailing })
+  }
 
   return groups
     .map(g => ({

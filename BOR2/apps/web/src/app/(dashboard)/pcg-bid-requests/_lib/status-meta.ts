@@ -1,8 +1,9 @@
 import {
-  BadgeCheck, CheckCircle2, Circle, CircleCheck, FileText, Inbox, PauseCircle, PencilLine,
-  PlayCircle, Send, SendHorizontal,
+  BadgeCheck, CheckCircle2, Circle, CircleCheck, CircleSlash, FilePen, FileText, Inbox,
+  PauseCircle, PencilLine, PlayCircle, Send, SendHorizontal,
 } from "lucide-react"
-import type { ProjectStatus, TradeStatus } from "./types"
+import { EVENT_STATUS } from "./types"
+import type { ProjectStatus, TradeEventType, TradeStatus } from "./types"
 
 // Same treatment for the project's own condition.
 export const PROJECT_STATUS_META: Record<ProjectStatus, {
@@ -56,4 +57,29 @@ export const STATUS_META: Record<TradeStatus, {
     icon: BadgeCheck,
     text: "text-emerald-500", border: "border-emerald-500/40", bg: "bg-emerald-500/[0.07]", dot: "bg-emerald-500",
   },
+}
+
+// Events that are not steps on the ladder still show up in the history, so they
+// need their own face — they have no TradeStatus to borrow one from.
+const OFF_LADDER_META: Partial<Record<TradeEventType, (typeof STATUS_META)[TradeStatus]>> = {
+  contract_adjustment: {
+    icon: FilePen,
+    text: "text-fuchsia-400", border: "border-fuchsia-400/40", bg: "bg-fuchsia-400/[0.07]", dot: "bg-fuchsia-400",
+  },
+  // Carries the approval over to the answers the sub asked to change; the trade
+  // stays approved, so this is not a step either.
+  bid_adjustment: {
+    icon: FilePen,
+    text: "text-teal-400", border: "border-teal-400/40", bg: "bg-teal-400/[0.07]", dot: "bg-teal-400",
+  },
+  // Turning one sub down does not move the trade — the others are still in play.
+  bid_declined: {
+    icon: CircleSlash,
+    text: "text-rose-400", border: "border-rose-400/40", bg: "bg-rose-400/[0.07]", dot: "bg-rose-400",
+  },
+}
+
+export function eventMeta(type: TradeEventType) {
+  const status = EVENT_STATUS[type]
+  return status ? STATUS_META[status] : OFF_LADDER_META[type] ?? STATUS_META.not_started
 }
