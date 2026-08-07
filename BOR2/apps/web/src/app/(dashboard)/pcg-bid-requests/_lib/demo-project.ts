@@ -6,11 +6,12 @@ import { questionnaireId, revisionId } from "./events"
 // would read as stale forever, and putting an answer back would never clear it.
 const SIDING_TRADE = TRADES_SEED.find(t => t.id === "siding")!
 const SIDING_REV = revisionId(SIDING_TRADE, DOCUMENT_BLOCKS_SEED)
-const SIDING_QID = questionnaireId(SIDING_TRADE, DOCUMENT_BLOCKS_SEED)
+const SIDING_QID = questionnaireId(SIDING_TRADE)
 // A worked example, not PCG data: one trade with a bid form and one without, far
 // enough along to exercise events, frozen params and the re-approval warning.
 // Remove this file and its use in projects-store.ts to drop it.
 const DAY = (d: number) => new Date(2026, 6, d, 12, 0).toISOString()
+const AUG = (d: number) => new Date(2026, 7, d, 12, 0).toISOString()
 // What the Siding questionnaire says today.
 const SIDING_ANSWERS: Record<string, string> = {
   q1: "Fiber Cement HardiePlank", q2: "James Hardie HZ10", q3: "7\" lap", q4: "5/16\"",
@@ -27,6 +28,7 @@ export const DEMO_PROJECT: Project = {
   name: "Demo — Willow Creek, Lot 42",
   address: "4210 Willow Creek Dr, Charlotte, NC 28216",
   status: "active",
+  type: "new_construction",
   createdAt: DAY(6),
   trades: [
     {
@@ -34,6 +36,7 @@ export const DEMO_PROJECT: Project = {
       // what puts the re-approval warning on screen.
       tradeId: "siding",
       answers: SIDING_ANSWERS,
+      moduleOverrides: {},
       events: [
         { id: "e1", type: "created", at: DAY(6), recordedAt: DAY(6), by: "Vitor Bitencourt", note: "", params: null, url: "", amount: null, leadTimeValue: null, leadTimeUnit: "weeks", subcontractor: "" },
         {
@@ -61,6 +64,7 @@ export const DEMO_PROJECT: Project = {
         q6: "Yes", q7: "Yes", q8: "No",
         q9: "Pour scheduled after the utility trench is backfilled and compacted.",
       },
+      moduleOverrides: {},
       events: [
         { id: "e1", type: "created", at: DAY(6), recordedAt: DAY(6), by: "Vitor Bitencourt", note: "", params: null, url: "", amount: null, leadTimeValue: null, leadTimeUnit: "weeks", subcontractor: "" },
         { id: "e2", type: "contract_sent", at: DAY(20), recordedAt: DAY(20), by: "Vitor Bitencourt", note: "", params: null, url: "", amount: null, leadTimeValue: null, leadTimeUnit: "weeks", subcontractor: "Piedmont Concrete Co" },
@@ -73,3 +77,48 @@ export const DEMO_PROJECT: Project = {
     },
   ],
 }
+
+// The second worked example: one trade, opened and fully answered, nothing sent
+// yet. Covers the state the first one skips past — a questionnaire complete and
+// ready to generate a bid request, with the history still on its first event.
+const ROOFING_ANSWERS: Record<string, string | string[]> = {
+  supply: "Labor and material",
+  q1: "Architectural Shingles",
+  q2: "GAF Timberline HDZ",
+  q3: "Charcoal",
+  q4: "30 Year",
+  q5: "Synthetic Felt",
+  q6: ["Eaves", "Valleys", "All Penetrations"],
+  q7: "Yes Aluminum",
+  q8: "Yes",
+  q9: "Yes",
+  q10: "Yes",
+  q11: "Closed Valley",
+  q12: "Coordinated with Masonry Sub",
+  q13: "Yes",
+  q14: "Hip Roof",
+  q15: "No",
+  q16: "Yes",
+  q17: "PCG to Authorize Separately",
+}
+
+export const DEMO_ROOFING_PROJECT: Project = {
+  id: "demo-ashford-ridge",
+  name: "Demo — Ashford Ridge, Lot 7",
+  address: "1188 Ashford Ridge Rd, Charlotte, NC 28226",
+  status: "active",
+  type: "new_construction",
+  createdAt: AUG(3),
+  trades: [
+    {
+      tradeId: "roofing",
+      answers: ROOFING_ANSWERS,
+      moduleOverrides: {},
+      events: [
+        { id: "e1", type: "created", at: AUG(3), recordedAt: AUG(3), by: "Vitor Bitencourt", note: "", params: null, url: "", amount: null, leadTimeValue: null, leadTimeUnit: "weeks", subcontractor: "" },
+      ],
+    },
+  ],
+}
+
+export const DEMO_PROJECTS: Project[] = [DEMO_ROOFING_PROJECT, DEMO_PROJECT]

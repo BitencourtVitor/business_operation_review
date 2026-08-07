@@ -2,35 +2,48 @@
 
 import { useState } from "react"
 import {
-  CalendarIcon, ChevronDown, CircleAlert, ExternalLink, HardHat, History, Info, KeyRound, Lock,
-  Pencil, Plus, User,
+  CalendarIcon, ChevronDown, CircleAlert, ExternalLink, FilePen, HardHat, History, Info, KeyRound,
+  Lock, Pencil, Plus, User,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
-import { STATUS_META } from "../_lib/status-meta"
+import { eventMeta } from "../_lib/status-meta"
 import {
-  availableEventTypes, blockedReason, diffParams, eventDateBounds, eventDay, eventFlow,
-  NAMES_SUBCONTRACTOR, newEventMinDay, nextEventId, nextStepHint, STEP_TONE, subcontractorOf,
+  availableEventTypes, bidAmountOf, blockedReason, compareEvents, diffParams, eventDateBounds,
+  eventDay, eventFlow, NAMES_SUBCONTRACTOR, newEventMinDay, nextEventId, nextStepHint, roundBids,
+  SETS_SCHEDULE, STEP_TONE, subcontractorOf,
 } from "../_lib/events"
 import {
   formatAmount, formatDate, formatDateTime, formatLeadTime, formatMoney, LEAD_TIME_UNITS,
   parseLeadTimeInput, parseMoneyInput,
 } from "../_lib/format"
-import { EVENT_STATUS, TRADE_EVENT_LABEL } from "../_lib/types"
+import { TRADE_EVENT_LABEL } from "../_lib/types"
 import type {
-  DocumentParams, LeadTimeUnit, ProjectTrade, Trade, TradeEvent, TradeEventEdit, TradeEventType,
+  DocumentParams, LeadTimeUnit, PaymentMilestone, ProjectTrade, Trade, TradeEvent, TradeEventEdit,
+  TradeEventType,
 } from "../_lib/types"
 import { DeleteButton } from "./delete-button"
+import { PaymentSchedulePopover } from "./payment-schedule-popover"
 import { SubcontractorPicker } from "./subcontractor-picker"
 
 // Events that put paper in front of the sub freeze what that paper said.
-const CAPTURES_PARAMS: TradeEventType[] = ["bid_sent", "bid_approved", "contract_sent"]
+const CAPTURES_PARAMS: TradeEventType[] = [
+  "bid_sent", "bid_approved", "bid_adjustment", "contract_sent",
+]
+
+// A link typed without a scheme is still a link to somewhere else. Left as
+// typed, "premiumgroup.sharepoint.com/..." resolves against this app's own
+// origin and lands on a page of the dashboard that does not exist.
+function externalHref(url: string): string {
+  return /^[a-z][a-z0-9+.-]*:/i.test(url) ? url : `https://${url}`
+}
 
 function toISODate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
@@ -70,43 +83,103 @@ function LeadTimeField({
   )
 }
 
-function EventTypeOption({ type, step }: { type: TradeEventType; step: number }) {
-  const meta = STATUS_META[EVENT_STATUS[type]]
+// Steps that end in one of two ways. Neither partner is a step of its own — it
+// is the other outcome of the step it is paired with — so the two share a row
+// and a number instead of the second one being exiled below the ladder.
+// What the two outcomes have in common is written once, at the head of the row:
+// side by side, "Contract signed" and "Contract adjusted" spend most of their
+// width repeating the word the row is already about.
+const SHARED_STEP: Partial<Record<TradeEventType, {
+  partner: TradeEventType
+  noun: string
+  label: string
+  partnerLabel: string
+}>> = {
+  bid_approved: {
+    partner: "bid_declined", noun: "Bid", label: "Approved", partnerLabel: "Declined",
+  },
+  contract_signed: {
+    partner: "contract_adjustment", noun: "Contract", label: "Signed", partnerLabel: "Adjusted",
+  },
+}
+
+const STEP_OWNER = Object.fromEntries(
+  Object.entries(SHARED_STEP).map(([owner, pair]) => [pair.partner, owner]),
+) as Partial<Record<TradeEventType, TradeEventType>>
+
+// The number a type is shown with, in the list and on the trigger alike. A
+// partner borrows its step's. Anything genuinely off the ladder comes back 0.
+function stepOf(flow: TradeEventType[], type: TradeEventType): number {
+  return flow.indexOf(STEP_OWNER[type] ?? type) + 1
+}
+
+// Equal halves of the row, whatever they hold — so the pair reads as one control
+// with two sides rather than two labels of different lengths. The text is
+// centred in the half it got: the item's own `justify-center` cannot do it while
+// SelectItemText is `flex-1` and fills the box, so that one is pinned back to
+// its content width.
+const PAIR_ITEM =
+  "min-w-0 flex-1 justify-center px-1 [&>div]:flex-none data-[selected]:bg-accent/60"
+
+function EventTypeOption({
+  type, step, showStep = true, label,
+}: { type: TradeEventType; step: number; showStep?: boolean; label?: string }) {
+  const meta = eventMeta(type)
   const Icon = meta.icon
   return (
     <span className="flex items-center gap-2">
-      <span className="w-3 shrink-0 text-xs tabular-nums text-muted-foreground">{step}</span>
+      {/* Step 0 means "not a step": an off-ladder event keeps the column so the
+          labels stay aligned, but carries no number. Dropped outright inside a
+          shared row, where the number is already at the head of the row. */}
+      {showStep && (
+        <span className="w-3 shrink-0 text-xs tabular-nums text-muted-foreground">{step || ""}</span>
+      )}
       <Icon className={`h-3.5 w-3.5 shrink-0 ${meta.text}`} />
-      {TRADE_EVENT_LABEL[type]}
+      {label ?? TRADE_EVENT_LABEL[type]}
     </span>
   )
 }
 
 function LogEventForm({
-  flow, options, projectTrade, currentParams, currentSub, loggedBy, onClose, onLog,
+  flow, options, projectTrade, current, currentParams, currentSub, loggedBy, onClose, onLog,
 }: {
   flow: TradeEventType[]
   currentSub: string
   loggedBy: string
   options: TradeEventType[]
   projectTrade: ProjectTrade
+  current: DocumentParams
   currentParams: () => DocumentParams
   onClose: () => void
   onLog: (event: TradeEvent) => void
 }) {
-  // Nothing can have happened before the last thing that happened, so today is
-  // only the default when today clears that floor.
-  const minDay = newEventMinDay(projectTrade.events)
   const today = toISODate(new Date())
 
   const [type, setType] = useState<TradeEventType>(options[0])
-  const [at, setAt] = useState(minDay && minDay > today ? minDay : today)
+  // Nothing can have happened before the last thing that happened, so today is
+  // only the default when today clears that floor. The floor moves with the
+  // step being logged — a send has none.
+  const minDay = newEventMinDay(projectTrade.events, type)
+  const [at, setAt] = useState(() => {
+    const floor = newEventMinDay(projectTrade.events, options[0])
+    return floor && floor > today ? floor : today
+  })
+
+  // Switching step can raise the floor above the day already picked — a send is
+  // free to be backdated, and what follows it is not.
+  const changeType = (next: TradeEventType) => {
+    setType(next)
+    const floor = newEventMinDay(projectTrade.events, next)
+    if (floor && at < floor) setAt(floor)
+  }
   const [note, setNote] = useState("")
   const [url, setUrl] = useState("")
   const [amount, setAmount] = useState<number | null>(null)
   const [leadTimeValue, setLeadTimeValue] = useState<number | null>(null)
   const [leadTimeUnit, setLeadTimeUnit] = useState<LeadTimeUnit>("weeks")
-  const [sub, setSub] = useState(currentSub)
+  // Blank on purpose: a second envelope goes to a different company, so
+  // pre-filling the last one would quietly send the same sub two forms.
+  const [sub, setSub] = useState("")
   const [pickingDate, setPickingDate] = useState(false)
 
   const selected = new Date(`${at}T00:00:00`)
@@ -115,22 +188,105 @@ function LogEventForm({
   const needsPrice = type === "bid_received"
   const needsSub = NAMES_SUBCONTRACTOR.includes(type)
 
+  // A price comes back from one of the subs the form went to; an approval or a
+  // refusal decides one of the subs who answered. Neither is free text — the
+  // name has to be one already in the round.
+  // `current`, never `currentParams()`: the capturing one writes a revision to
+  // the catalog, and doing that while rendering updates a store mid-render.
+  const bids = roundBids(projectTrade, current)
+  const eligible =
+    type === "bid_received" ? bids.filter(b => !b.receivedAt)
+    : type === "bid_approved" || type === "bid_declined" ? bids.filter(b => b.receivedAt && !b.outcome)
+    : []
+  const pickFromRound = eligible.length > 0
+  const chosenSub = pickFromRound
+    ? (eligible.some(b => b.subcontractor === sub) ? sub : eligible[0].subcontractor)
+    : sub
+
+  // The name that will actually be written to the event: the round's pick, the
+  // sub the contract is already going to, or whatever was typed.
+  const savedSub = type === "contract_sent" && currentSub ? currentSub : chosenSub
+
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex flex-col gap-1.5">
         <Label>What happened</Label>
-        <Select value={type} onValueChange={v => v && setType(v as TradeEventType)}>
+        <Select value={type} onValueChange={v => v && changeType(v as TradeEventType)}>
           <SelectTrigger className="h-8 w-full">
             <span className="flex-1 truncate text-left text-sm">
-              <EventTypeOption type={type} step={flow.indexOf(type) + 1} />
+              <EventTypeOption type={type} step={stepOf(flow, type)} />
             </span>
           </SelectTrigger>
           {/* The whole ladder is listed; only the steps that make sense now can
-              be picked. */}
+              be picked. Below it, what is available but is not a step: adjusting
+              a bid moves nothing forward, so it has no number — and listing only
+              the ladder would hide it.
+              A step that ends in one of two ways takes a row of its own: the
+              number and the thing both outcomes are about on the left, then the
+              two outcomes side by side. */}
           <SelectContent>
-            {flow.map((t, i) => (
-              <SelectItem key={t} value={t} disabled={!options.includes(t)}>
-                <EventTypeOption type={t} step={i + 1} />
+            {flow.map((t, i) => {
+              const pair = SHARED_STEP[t]
+              // Both outcomes are always on screen, greyed when they cannot be
+              // picked — same as the steps already behind us. A step that shows
+              // one outcome today and two tomorrow reads as a menu that changes
+              // shape, and you cannot learn a ladder that keeps rearranging.
+              return pair ? (
+                <div key={t} className="flex items-center gap-2 pl-1.5">
+                  {/* The noun heads the row, it is not one of the choices: same
+                      type and same colour as the step number it sits next to, so
+                      the only thing standing out in the row is what there is to
+                      pick.
+                      Floored at the width of the longest noun, so every shared
+                      step hands its options the same slot and they line up down
+                      the list instead of starting wherever the word ended.
+                      Dimmed with the row when neither outcome can be picked: it
+                      sits outside the items, so the disabled styling they get for
+                      free never reaches it. One outcome still open leaves the
+                      head lit — the step is reachable. */}
+                  <span
+                    className={`flex w-17 shrink-0 items-center gap-2 text-xs tabular-nums text-muted-foreground ${
+                      options.includes(t) || options.includes(pair.partner) ? "" : "opacity-50"
+                    }`}
+                  >
+                    <span className="w-3 shrink-0">{i + 1}</span>
+                    {pair.noun}
+                  </span>
+                  <div className="flex min-w-0 flex-1 gap-1">
+                    <SelectItem
+                      value={t}
+                      disabled={!options.includes(t)}
+                      indicator={false}
+                      className={PAIR_ITEM}
+                    >
+                      <EventTypeOption type={t} step={0} showStep={false} label={pair.label} />
+                    </SelectItem>
+                    <SelectItem
+                      value={pair.partner}
+                      disabled={!options.includes(pair.partner)}
+                      indicator={false}
+                      className={PAIR_ITEM}
+                    >
+                      <EventTypeOption
+                        type={pair.partner}
+                        step={0}
+                        showStep={false}
+                        label={pair.partnerLabel}
+                      />
+                    </SelectItem>
+                  </div>
+                </div>
+              ) : (
+                <SelectItem key={t} value={t} disabled={!options.includes(t)}>
+                  <EventTypeOption type={t} step={i + 1} />
+                </SelectItem>
+              )
+            })}
+            {/* Whatever is available and belongs to no step at all. A partner is
+                never listed here — it is already up in its step's row. */}
+            {options.filter(t => !flow.includes(t) && !STEP_OWNER[t]).map(t => (
+              <SelectItem key={t} value={t}>
+                <EventTypeOption type={t} step={stepOf(flow, t)} />
               </SelectItem>
             ))}
           </SelectContent>
@@ -164,10 +320,62 @@ function LogEventForm({
       {needsSub && (
         <div className="flex flex-col gap-1.5">
           <Label>Subcontractor</Label>
-          <SubcontractorPicker value={sub} onChange={setSub} />
-          <p className="text-xs text-muted-foreground">
-            Sending the paper is what assigns the sub to this trade.
-          </p>
+          {/* The contract goes to whoever priced and won the bid. Offering a
+              picker here would let the paper leave for a company that never
+              quoted the job. */}
+          {type === "contract_sent" && currentSub ? (
+            <>
+              {/* Same face as the picker and the round's select — all three are
+                  the subcontractor field, whatever the event lets you do with
+                  it. */}
+              <p className="flex h-8 items-center gap-1.5 rounded-lg border bg-muted/40 px-2.5 text-sm">
+                <HardHat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="flex-1 truncate">{currentSub}</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                The contract goes to the sub the bid was approved with.
+              </p>
+            </>
+          ) : pickFromRound ? (
+            <>
+              {/* One candidate is not a choice. The field still says who it is,
+                  because the event is about them — it just stops pretending
+                  there is something to pick. */}
+              <Select
+                value={chosenSub}
+                onValueChange={v => v && setSub(v)}
+                disabled={eligible.length === 1}
+              >
+                <SelectTrigger className="h-8 w-full">
+                  <HardHat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="flex-1 truncate text-left text-sm">{chosenSub}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {eligible.map(b => (
+                    <SelectItem key={b.subcontractor} value={b.subcontractor}>
+                      {b.subcontractor}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {eligible.length === 1
+                  ? type === "bid_received"
+                    ? "The only sub this form is still waiting on."
+                    : "The only sub who answered and is still without a decision."
+                  : type === "bid_received"
+                    ? "Of the subs this form went to, still waiting on a price."
+                    : "Of the subs who answered, still without a decision."}
+              </p>
+            </>
+          ) : (
+            <>
+              <SubcontractorPicker value={sub} onChange={setSub} />
+              <p className="text-xs text-muted-foreground">
+                Sending the paper is what assigns the sub to this trade.
+              </p>
+            </>
+          )}
         </div>
       )}
 
@@ -188,7 +396,7 @@ function LogEventForm({
             </div>
           </div>
           <div className="flex flex-1 flex-col gap-1.5">
-            <Label htmlFor="event-lead">Lead time</Label>
+            <Label htmlFor="event-lead">Term set by PCG</Label>
             <LeadTimeField
               id="event-lead"
               value={leadTimeValue}
@@ -215,18 +423,20 @@ function LogEventForm({
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="event-note">Note</Label>
-        <Input
+        {/* A note is prose, not a value — it grows with what is written. */}
+        <Textarea
           id="event-note"
           value={note}
           onChange={e => setNote(e.target.value)}
           placeholder="Optional"
-          className="text-sm"
+          rows={2}
+          className="min-h-14 text-sm"
         />
       </div>
 
       {CAPTURES_PARAMS.includes(type) && (
-        <p className="flex gap-2 rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        <p className="flex items-start gap-2 rounded-lg border border-dashed px-3 py-2 text-xs leading-5 text-muted-foreground">
+          <Info className="h-3.5 w-3.5 shrink-0" />
           <span>
             Freezes the answers and the catalog definition in use right now, so this
             document can be reproduced exactly as it went out.
@@ -241,7 +451,9 @@ function LogEventForm({
           disabled={
             (needsUrl && !url.trim())
             || (needsPrice && amount === null)
-            || (needsSub && !sub.trim())
+            // The name that will be saved — for a step decided inside the round
+            // that is what the select resolved to, not the untouched state.
+            || (needsSub && !savedSub.trim())
           }
           onClick={() => {
             onLog({
@@ -256,7 +468,7 @@ function LogEventForm({
               amount: needsPrice ? amount : null,
               leadTimeValue: needsPrice ? leadTimeValue : null,
               leadTimeUnit,
-              subcontractor: needsSub ? sub.trim() : "",
+              subcontractor: needsSub ? savedSub.trim() : "",
             })
             onClose()
           }}
@@ -271,10 +483,13 @@ function LogEventForm({
 // Correcting what was typed in, not re-telling the story: the step stays, and
 // the day can only move inside the window its neighbours leave open.
 function EditEventForm({
-  event, bounds, onClose, onSave,
+  event, bounds, subLocked, onClose, onSave,
 }: {
   event: TradeEvent
   bounds: { min: string | null; max: string | null }
+  // A contract that already went out names a company. Correcting a typo in the
+  // history cannot quietly move the paper to a different sub.
+  subLocked: boolean
   onClose: () => void
   onSave: (patch: TradeEventEdit) => void
 }) {
@@ -344,7 +559,19 @@ function EditEventForm({
       {needsSub && (
         <div className="flex flex-col gap-1.5">
           <Label>Subcontractor</Label>
-          <SubcontractorPicker value={sub} onChange={setSub} />
+          {subLocked ? (
+            <>
+              <p className="flex h-8 items-center gap-1.5 rounded-lg border bg-muted/40 px-2.5 text-sm">
+                <HardHat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="flex-1 truncate">{sub || "—"}</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                The contract is already out; the sub it names cannot be changed here.
+              </p>
+            </>
+          ) : (
+            <SubcontractorPicker value={sub} onChange={setSub} />
+          )}
         </div>
       )}
 
@@ -365,7 +592,7 @@ function EditEventForm({
             </div>
           </div>
           <div className="flex flex-1 flex-col gap-1.5">
-            <Label htmlFor="edit-lead">Lead time</Label>
+            <Label htmlFor="edit-lead">Term set by PCG</Label>
             <LeadTimeField
               id="edit-lead"
               value={leadTimeValue}
@@ -392,18 +619,19 @@ function EditEventForm({
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="edit-note">Note</Label>
-        <Input
+        <Textarea
           id="edit-note"
           value={note}
           onChange={e => setNote(e.target.value)}
           placeholder="Optional"
-          className="text-sm"
+          rows={2}
+          className="min-h-14 text-sm"
         />
       </div>
 
       {event.params && (
-        <p className="flex gap-2 rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        <p className="flex items-start gap-2 rounded-lg border border-dashed px-3 py-2 text-xs leading-5 text-muted-foreground">
+          <Info className="h-3.5 w-3.5 shrink-0" />
           <span>
             The answers frozen with this document are not touched — the paper the
             sub received stays reproducible.
@@ -442,7 +670,7 @@ function EditEventForm({
 
 export function EventTimeline({
   trade, projectTrade, canEdit, complete, current, currentParams, staleApproval, open, onToggle,
-  onLog, onUpdate, onDelete,
+  onLog, onUpdate, onDelete, onEditTerms, onSaveSchedule, overrideCount,
 }: {
   trade: Trade
   projectTrade: ProjectTrade
@@ -456,6 +684,9 @@ export function EventTimeline({
   onLog: (event: TradeEvent) => void
   onUpdate: (eventId: string, patch: TradeEventEdit) => void
   onDelete: (eventId: string) => void
+  onEditTerms: () => void
+  onSaveSchedule: (eventId: string, schedule: PaymentMilestone[]) => void
+  overrideCount: number
 }) {
   const { user } = useAuth()
   const [logging, setLogging] = useState(false)
@@ -511,13 +742,24 @@ export function EventTimeline({
               Log event
             </PopoverTrigger>
           )}
-          {/* Hangs off the button towards the left, where there is room. */}
-          <PopoverContent side="bottom" align="end" className="w-[320px] gap-0 p-0">
+          {/* Hangs off the button towards the left, where there is room. Stays
+              on the vertical axis whatever happens: once the history is long
+              enough that the form no longer fits under the button, the default
+              is to throw it out to the side, where it lands against the viewport
+              edge reading as if it belonged to nothing. Above, below, or scrolled
+              — but always off this button. */}
+          <PopoverContent
+            side="bottom"
+            align="end"
+            collisionAvoidance={{ fallbackAxisSide: "none" }}
+            className="max-h-(--available-height) w-[320px] gap-0 overflow-y-auto p-0"
+          >
             {logging && (
               <LogEventForm
                 flow={flow}
                 options={options}
                 projectTrade={projectTrade}
+                current={current}
                 currentParams={currentParams}
                 currentSub={subcontractorOf(projectTrade)}
                 loggedBy={user?.name ?? ""}
@@ -543,7 +785,7 @@ export function EventTimeline({
           {staleApproval && (
             // Same skeleton as an event card — only the accent colour sets it apart.
             <div className="flex shrink-0 items-start gap-3 rounded-lg border border-amber-500/40 bg-muted/40 p-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-amber-500/40 bg-amber-500/[0.07] text-amber-500">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-amber-500/40 bg-amber-500/[0.07] text-amber-500">
                 <CircleAlert className="h-3 w-3" />
               </span>
               <div className="min-w-0 flex-1">
@@ -551,7 +793,8 @@ export function EventTimeline({
                   Conditions changed — needs a new approval
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Put the answers back the way they were and the approval stands again.
+                  Put the answers back the way they were and the approval stands again. If the
+                  change came from the sub, log a bid adjustment and the approval moves onto it.
                 </p>
                 {changes.length > 0 && (
                   <ul className="mt-2 flex flex-col gap-1">
@@ -569,16 +812,19 @@ export function EventTimeline({
             </div>
           )}
 
+          {/* Sorted here and not only on write: histories stored before a type
+              had its place in the ladder keep the order they were saved in, and
+              nothing would ever re-sort them. */}
           <ol className="flex shrink-0 flex-col gap-2">
-            {[...projectTrade.events].reverse().map(event => {
-              const meta = STATUS_META[EVENT_STATUS[event.type]]
+            {[...projectTrade.events].sort(compareEvents).reverse().map(event => {
+              const meta = eventMeta(event.type)
               const Icon = meta.icon
               return (
                 <li
                   key={event.id}
                   className="flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3"
                 >
-                  <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${meta.border} ${meta.bg} ${meta.text}`}>
+                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${meta.border} ${meta.bg} ${meta.text}`}>
                     <Icon className="h-3 w-3" />
                   </span>
 
@@ -613,17 +859,54 @@ export function EventTimeline({
                         )}
                       </p>
                     )}
+                    {/* Logging the adjustment says a change was agreed; this is
+                        where it gets written down. The terms live here and
+                        nowhere else — an adjustment nobody spelled out is a note
+                        saying something changed without saying what. */}
+                    <div className="flex flex-wrap items-center gap-2 empty:hidden">
                     {event.url && (
-                      <a
-                        href={event.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      // With the other actions of the row, and looking like them:
+                      // it is one more thing to open, not a footnote.
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2"
+                        // It looks like the buttons beside it, but it is a link:
+                        // told to the primitive so it keeps link semantics
+                        // instead of claiming to be a button it is not.
+                        nativeButton={false}
+                        render={<a href={externalHref(event.url)} target="_blank" rel="noreferrer" />}
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3.5 w-3.5" />
                         Signed contract
-                      </a>
+                      </Button>
                     )}
+                    {event.type === "contract_adjustment" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={onEditTerms}
+                      >
+                        <FilePen className="h-3.5 w-3.5" />
+                        {overrideCount
+                          ? `Terms · ${overrideCount} rewritten`
+                          : "Specify what changed"}
+                      </Button>
+                    )}
+                    {/* The approval is where the price is settled, so it is where
+                        the schedule that divides it is kept. An adjustment gets
+                        the same control: renegotiating a contract is as often
+                        about when the money lands as about the wording. */}
+                    {SETS_SCHEDULE.includes(event.type) && (
+                      <PaymentSchedulePopover
+                        schedule={event.paymentSchedule ?? []}
+                        bidAmount={bidAmountOf(projectTrade)}
+                        canEdit={canEdit}
+                        onSave={schedule => onSaveSchedule(event.id, schedule)}
+                      />
+                    )}
+                    </div>
                   </div>
 
                   {/* Audit only: when it was typed in, and which paper it froze.
@@ -663,10 +946,16 @@ export function EventTimeline({
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </PopoverTrigger>
-                          <PopoverContent side="bottom" align="end" className="w-[320px] gap-0 p-0">
+                          <PopoverContent
+                            side="bottom"
+                            align="end"
+                            collisionAvoidance={{ fallbackAxisSide: "none" }}
+                            className="max-h-(--available-height) w-[320px] gap-0 overflow-y-auto p-0"
+                          >
                             {editing === event.id && (
                               <EditEventForm
                                 event={event}
+                                subLocked={projectTrade.events.some(e => e.type === "contract_sent")}
                                 bounds={eventDateBounds(projectTrade.events, event.id)}
                                 onClose={() => setEditing(null)}
                                 onSave={patch => onUpdate(event.id, patch)}

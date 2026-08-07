@@ -1,7 +1,8 @@
 "use client"
 
 import { FORM_LAYOUT } from "../_lib/form-layout"
-import { quantityKey } from "../_lib/types"
+import { SUPPLY_QUESTION_ID } from "../_lib/trades-seed"
+import { PROJECT_TYPE_LABEL, documentModules, moduleNumbers, quantityKey } from "../_lib/types"
 import { formatDate } from "../_lib/format"
 import { PRINT_CSS } from "../_lib/print"
 import { useCatalogStore } from "../_lib/catalog-store"
@@ -24,14 +25,35 @@ export function BidRequestDocument({
   const layout = FORM_LAYOUT[trade.name]
   const byId = new Map(trade.questions.map(q => [q.id, q]))
 
-  const blocks = documentBlocks.filter(b => b.scope === "bid" || b.scope === "both")
+  // A generated module draws the contract's own body (Exhibit A, signatures) and
+  // has no place on a form somebody is only pricing.
+  const blocks = documentModules(documentBlocks, "bid").filter(b => b.kind !== "generated")
+  const numbers = moduleNumbers(blocks)
 
-  const sections = layout
+  // The layouts come from the printed forms and name their questions one by one,
+  // so a question they predate would silently never reach the sub. Anything the
+  // layout does not place is printed after it rather than dropped.
+  const laidOut = layout
     ? layout.sections.map(s => ({
         title: s.title,
         questions: s.questionIds.map(id => byId.get(id)).filter((q): q is Question => !!q),
       })).filter(s => s.questions.length)
     : [{ title: "SPECIFICATIONS", questions: trade.questions }]
+
+  const placed = new Set(laidOut.flatMap(s => s.questions.map(q => q.id)))
+  const unplaced = trade.questions.filter(q => !placed.has(q.id))
+
+  // "What is included" is the first question of the questionnaire and has to be
+  // the first thing on the paper too: everything the sub prices after it depends
+  // on whether they are quoting labour or labour and material.
+  const leading = unplaced.filter(q => q.id === SUPPLY_QUESTION_ID)
+  const trailing = unplaced.filter(q => q.id !== SUPPLY_QUESTION_ID)
+
+  const sections = [
+    ...(leading.length ? [{ title: "SCOPE OF PRICING", questions: leading }] : []),
+    ...laidOut,
+    ...(trailing.length ? [{ title: "ADDITIONAL SPECIFICATIONS", questions: trailing }] : []),
+  ]
 
   return (
     <>
@@ -39,7 +61,7 @@ export function BidRequestDocument({
 
       <div
         data-print-root
-        className="mx-auto w-[8.5in] bg-white p-[0.5in] text-black print:w-full print:p-0"
+        className="mx-auto w-[8.27in] bg-white p-[0.5in] text-black print:w-full print:p-0"
         style={{ fontFamily: '"Times New Roman", Times, serif' }}
       >
         {/* ── Letterhead ─────────────────────────────────────────────── */}
@@ -75,6 +97,7 @@ export function BidRequestDocument({
           <tbody>
             <Row label="Project Name" value={project.name} />
             <Row label="Project Address" value={project.address} />
+            <Row label="Project Type" value={PROJECT_TYPE_LABEL[project.type]} />
             {/* Nothing else belongs here: the GC is already the letterhead, the
                 sub is only named when the bid is sent, and no due date exists. */}
           </tbody>
@@ -90,10 +113,6 @@ export function BidRequestDocument({
             {trade.standardNote}
           </p>
         )}
-
-        {blocks.filter(b => b.placement === "before_sections").map(block => (
-          <BlockSection key={block.id} block={block} />
-        ))}
 
         {/* ── Specifications ─────────────────────────────────────────── */}
         {sections.map(section => (
@@ -111,8 +130,8 @@ export function BidRequestDocument({
           </section>
         ))}
 
-        {blocks.filter(b => b.placement === "after_sections").map(block => (
-          <BlockSection key={block.id} block={block} />
+        {blocks.map(block => (
+          <BlockSection key={block.id} block={block} number={numbers.get(block.id)} />
         ))}
 
         {/* ── Notes ──────────────────────────────────────────────────── */}
@@ -135,11 +154,11 @@ export function BidRequestDocument({
   )
 }
 
-function BlockSection({ block }: { block: DocumentBlock }) {
+function BlockSection({ block, number }: { block: DocumentBlock; number: number | undefined }) {
   return (
     <section className="mt-5">
       <h2 className="break-after-avoid border-b border-neutral-400 pb-1 text-[11pt] font-bold uppercase tracking-wide">
-        {block.title}
+        {number ? `${number}. ` : ""}{block.title}
       </h2>
       <p className="mt-2 whitespace-pre-line text-justify text-[10.5pt] leading-relaxed">{block.body}</p>
     </section>

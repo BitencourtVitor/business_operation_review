@@ -1,21 +1,27 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 import type {
-  LeadTimeUnit, Project, ProjectTrade, Trade, TradeEvent, TradeEventEdit, TradeEventType,
+  LeadTimeUnit, PaymentMilestone, Project, ProjectTrade, ProjectType, Trade, TradeEvent,
+  TradeEventEdit, TradeEventType,
 } from "./types"
-import { clampEventDate, clampNewEventDate, compareEvents, lastEvent } from "./events"
-import { DEMO_PROJECT } from "./demo-project"
+import { clampEventDate, clampNewEventDate, compareEvents, lastEvent, SETS_SCHEDULE } from "./events"
+import { projectTypeQuestionId } from "./trades-seed"
+import { DEMO_PROJECTS } from "./demo-project"
 
 // Local-only while the page is being designed — moves to the Railway API once
 // the shape settles.
 interface ProjectsState {
   projects: Project[]
+  // How many demo projects this store has been handed. Not persist's `version`
+  // — see DEMO_SEED_REVISION.
+  demoSeedRevision: number
   addProject: (project: Project) => void
   updateProject: (id: string, patch: Partial<Project>) => void
   deleteProject: (id: string) => void
   updateProjectTrade: (projectId: string, tradeId: string, patch: Partial<ProjectTrade>) => void
   addTradeEvent: (projectId: string, tradeId: string, event: TradeEvent) => void
   updateTradeEvent: (projectId: string, tradeId: string, eventId: string, patch: TradeEventEdit) => void
+  setEventSchedule: (projectId: string, tradeId: string, eventId: string, schedule: PaymentMilestone[]) => void
   deleteTradeEvent: (projectId: string, tradeId: string, eventId: string) => void
 }
 
@@ -35,6 +41,60 @@ function patchTrade(
 // the migration would throw and persist would silently fall back to the seed.
 const LEGACY_LEAD_TIME = /(\d+)\s*(day|week|month)/i
 
+// Reads the project type out of the trade that used to ask it. Declared above
+// the store for the same reason as the regex: rehydration runs while this module
+// is still evaluating.
+const PROJECT_TYPE_FROM_ANSWER: Record<string, ProjectType> = {
+  "new construction": "new_construction",
+  addition:           "addition",
+  renovation:         "renovation",
+}
+
+function projectTypeFromAnswers(project: Project): ProjectType {
+  for (const trade of project.trades ?? []) {
+    const questionId = projectTypeQuestionId(trade.tradeId)
+    if (!questionId) continue
+    const answer = trade.answers?.[questionId]
+    const key = (Array.isArray(answer) ? answer[0] : answer)?.trim().toLowerCase()
+    const type = key ? PROJECT_TYPE_FROM_ANSWER[key] : undefined
+    if (type) return type
+  }
+  return "new_construction"
+}
+
+// Demo projects land once each, and a delete afterwards sticks. Counted here
+// rather than left to persist's `version` for the reason the catalog store
+// learned the hard way: that number is stamped on every save, so a save can land
+// before the bump ever rehydrates and migrate is then skipped forever. This
+// counter only moves when a demo is actually added. Declared above the store
+// with the rest — rehydration runs while this module is still evaluating.
+const DEMO_SEED_REVISION = 2
+
+function withDemos(projects: Project[], revision: number): Project[] {
+  if (revision >= DEMO_SEED_REVISION) return projects
+  const known = new Set(projects.map(p => p.id))
+  return [...DEMO_PROJECTS.filter(p => !known.has(p.id)), ...projects]
+}
+
+// The schedule used to sit on the trade, one per trade. Hand it to the last
+// event that could have settled it — the adjustment if there was one, otherwise
+// the approval — so nothing already agreed is lost on the way in. Idempotent,
+// and declared above the store like the rest: rehydration runs while this module
+// is still evaluating.
+function legacySchedule(trade: ProjectTrade & { paymentSchedule?: PaymentMilestone[] }): TradeEvent[] {
+  const events = trade.events ?? []
+  const stored = trade.paymentSchedule
+  if (!stored?.length) return events
+  if (events.some(e => e.paymentSchedule?.length)) return events
+
+  let target = -1
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (SETS_SCHEDULE.includes(events[i].type)) { target = i; break }
+  }
+  if (target < 0) return events
+  return events.map((e, i) => (i === target ? { ...e, paymentSchedule: stored } : e))
+}
+
 function legacyLeadTime(event: TradeEvent & { leadTime?: string }): TradeEvent {
   if (!("leadTime" in event)) return event
   const { leadTime, ...rest } = event
@@ -49,7 +109,8 @@ function legacyLeadTime(event: TradeEvent & { leadTime?: string }): TradeEvent {
 export const useProjectsStore = create<ProjectsState>()(
   persist(
     (set) => ({
-      projects: [DEMO_PROJECT],
+      projects: DEMO_PROJECTS,
+      demoSeedRevision: DEMO_SEED_REVISION,
       addProject: (project) => set(s => ({ projects: [project, ...s.projects] })),
       updateProject: (id, patch) => set(s => ({
         projects: s.projects.map(p => (p.id === id ? { ...p, ...patch } : p)),
@@ -63,7 +124,7 @@ export const useProjectsStore = create<ProjectsState>()(
       addTradeEvent: (projectId, tradeId, event) => set(s => ({
         projects: patchTrade(s.projects, projectId, tradeId, t => ({
           ...t,
-          events: [...t.events, { ...event, at: clampNewEventDate(t.events, event.at) }]
+          events: [...t.events, { ...event, at: clampNewEventDate(t.events, event.at, event.type) }]
             .sort(compareEvents),
         })),
       })),
@@ -80,6 +141,14 @@ export const useProjectsStore = create<ProjectsState>()(
           return { ...t, events }
         }),
       })),
+      // Written straight onto the event that settled it — the approval keeps
+      // what was approved, an adjustment keeps what was renegotiated.
+      setEventSchedule: (projectId, tradeId, eventId, schedule) => set(s => ({
+        projects: patchTrade(s.projects, projectId, tradeId, t => ({
+          ...t,
+          events: t.events.map(e => (e.id === eventId ? { ...e, paymentSchedule: schedule } : e)),
+        })),
+      })),
       deleteTradeEvent: (projectId, tradeId, eventId) => set(s => ({
         projects: patchTrade(s.projects, projectId, tradeId, t => ({
           ...t,
@@ -94,7 +163,12 @@ export const useProjectsStore = create<ProjectsState>()(
       // project, v4 re-sorted histories that a timestamp comparison had left in
       // the wrong order within a day, v5 split the free-text lead time into a
       // count and a unit.
-      version: 5,
+      // v6 gave each trade its own overrides map for the standing contract text.
+      // v7 moved project type off Foundation/Excavation and onto the project.
+      // v8 moved the payment schedule off the trade and onto the event that
+      // settled it — one schedule per trade meant a contract adjustment silently
+      // rewrote what the approval had agreed.
+      version: 8,
       migrate: (state, version) => {
         const s = state as ProjectsState
         const projects = version >= 2
@@ -102,15 +176,41 @@ export const useProjectsStore = create<ProjectsState>()(
           : (s?.projects ?? []).map(p => ({ ...p, trades: p.trades.map(legacyTrade) }))
         const sorted = projects.map(p => ({
           ...p,
+          // The answer already given on Foundation or Excavation is the project's
+          // type: carrying it over beats defaulting every existing job to new
+          // construction and making somebody re-answer what they answered.
+          type: p.type ?? projectTypeFromAnswers(p),
           trades: p.trades.map(t => ({
             ...t,
-            events: t.events.map(legacyLeadTime).sort(compareEvents),
+            moduleOverrides: t.moduleOverrides ?? {},
+            events: legacySchedule(t).map(legacyLeadTime).sort(compareEvents),
           })),
         }))
-        const withDemo = sorted.some(p => p.id === DEMO_PROJECT.id)
-          ? sorted
-          : [DEMO_PROJECT, ...sorted]
-        return { ...s, projects: withDemo }
+        // Seeding the demos is merge's job now — it runs on every rehydration,
+        // so a seed added after this store was last migrated still arrives.
+        return { ...s, projects: sorted }
+      },
+      // Same lesson as the catalog store: a version bump fires once, and if it
+      // lands before the code it was delivering has compiled, the field it was
+      // meant to fill stays empty forever. Both fields are idempotent, so they
+      // are filled on every rehydration instead.
+      merge: (persisted, current) => {
+        const s = (persisted ?? {}) as Partial<ProjectsState>
+        const stored = (s.projects ?? []).map(p => ({
+          ...p,
+          type: p.type ?? projectTypeFromAnswers(p),
+          trades: (p.trades ?? []).map(t => ({
+            ...t,
+            moduleOverrides: t.moduleOverrides ?? {},
+            events: legacySchedule(t),
+          })),
+        }))
+        return {
+          ...current,
+          ...s,
+          projects: withDemos(stored, s.demoSeedRevision ?? 0),
+          demoSeedRevision: DEMO_SEED_REVISION,
+        }
       },
     }
   )
@@ -146,7 +246,7 @@ function legacyTrade(t: LegacyTrade): ProjectTrade {
       subcontractor: t.subcontractor ?? "",
     })
   }
-  return { tradeId: t.tradeId, answers: t.answers, events }
+  return { tradeId: t.tradeId, answers: t.answers, events, moduleOverrides: {} }
 }
 
 const LEGACY_EVENT: Record<string, TradeEventType | undefined> = {
@@ -163,6 +263,7 @@ export function emptyProject(): Project {
     name: "",
     address: "",
     status: "active",
+    type: "new_construction",
     trades: [],
     createdAt: new Date().toISOString(),
   }
@@ -177,6 +278,7 @@ export function newProjectTrade(tradeId: string, by = ""): ProjectTrade {
       note: "", params: null, url: "", amount: null, leadTimeValue: null, leadTimeUnit: "weeks", subcontractor: "",
     }],
     answers: {},
+    moduleOverrides: {},
   }
 }
 

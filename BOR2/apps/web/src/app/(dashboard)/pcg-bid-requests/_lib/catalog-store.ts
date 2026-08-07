@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 import type { DocumentBlock, Trade, TradeRevision } from "./types"
-import { TRADES_SEED } from "./trades-seed"
+import { TRADES_SEED, withSupplyQuestion } from "./trades-seed"
 import { DOCUMENT_BLOCKS_SEED } from "./document-blocks-seed"
 import { makeRevision } from "./events"
 
@@ -10,6 +10,9 @@ import { makeRevision } from "./events"
 interface CatalogState {
   trades: Trade[]
   documentBlocks: DocumentBlock[]
+  // How many one-off reorders of the document body this catalog has taken. Not
+  // persist's `version` — see BLOCK_ORDER_REVISION.
+  blockOrderRevision: number
   // Frozen copies of what documents were generated from, addressed by content.
   revisions: Record<string, TradeRevision>
   subcontractors: string[]
@@ -87,11 +90,58 @@ function fillScopeGaps(trade: Trade): Trade {
   }
 }
 
+// One-off reorders are counted here rather than left to persist's `version`.
+// That number is stamped on every save, so a save can land before the bump ever
+// rehydrates and migrate is then skipped forever — which is what happened to v15
+// and again to v16. This counter only moves when the reorder actually runs.
+// Revision 2 also gave "Materials and Supply" its number.
+const BLOCK_ORDER_REVISION = 2
+
+// "Materials and Supply" opened the contract because it was the only block that
+// existed before the body became ordered modules. It reads as a note on the
+// scope, so it belongs under it — and it is a clause like the others, so it
+// takes a number like the others.
+function fixMaterialsBlock(blocks: DocumentBlock[]): DocumentBlock[] {
+  const numbered = blocks.map(b => (b.id === "block-exhibit-a" ? { ...b, numbered: true } : b))
+
+  const from = numbered.findIndex(b => b.id === "block-exhibit-a")
+  const scope = numbered.findIndex(b => b.id === "block-scope-of-work")
+  if (from < 0 || scope < 0 || from === scope + 1) return numbered
+
+  const out = [...numbered]
+  const [moved] = out.splice(from, 1)
+  out.splice(out.findIndex(b => b.id === "block-scope-of-work") + 1, 0, moved)
+  return out
+}
+
+// A module the store has never seen goes where the seed puts it, not at the end.
+// Appending was harmless while blocks were loose paragraphs; now that they are
+// the document's body in order, an appended one prints after the signatures.
+// Position is taken from the nearest seed neighbour that the store already has,
+// so anything reordered by hand keeps its place.
+function mergeBlocks(stored: DocumentBlock[], seed: DocumentBlock[]): DocumentBlock[] {
+  const out = [...stored]
+  const known = new Set(stored.map(b => b.id))
+
+  seed.forEach((block, i) => {
+    if (known.has(block.id)) return
+    let anchor = -1
+    for (let j = i - 1; j >= 0; j--) {
+      const at = out.findIndex(b => b.id === seed[j].id)
+      if (at >= 0) { anchor = at; break }
+    }
+    out.splice(anchor + 1, 0, block)
+    known.add(block.id)
+  })
+  return out
+}
+
 export const useCatalogStore = create<CatalogState>()(
   persist(
     (set, get) => ({
       trades: TRADES_SEED,
       documentBlocks: DOCUMENT_BLOCKS_SEED,
+      blockOrderRevision: BLOCK_ORDER_REVISION,
       revisions: {},
       subcontractors: [],
       addTrade: (trade) => set(s => ({ trades: [...s.trades, trade] })),
@@ -123,17 +173,32 @@ export const useCatalogStore = create<CatalogState>()(
       // dashes out of everything that reaches the paper, v12 wrote the standard
       // scope for the 13 trades that had none, v13 rewrote the em dashes that
       // v11 never reached because the bump raced the seed it was delivering.
-      version: 13,
-      // Rewrites punctuation in what is already stored. Independent of the seed
-      // on purpose: it transforms the strings it finds, so nothing about it can
-      // race a recompile the way v11 and v12 did.
+      // v14 turned the document body into ordered modules: `placement` (two
+      // buckets) became position in the list, plus a kind and a numbering flag.
+      // v15 put the universal supply question first on every trade and dropped
+      // the eight per-trade versions of it. v16 moved "Materials and Supply"
+      // under the scope of work.
+      version: 16,
+      // Rewrites punctuation in what is already stored, and brings blocks stored
+      // under the old shape up to the module one. Independent of the seed on
+      // purpose: it transforms the objects it finds, so nothing about it can race
+      // a recompile the way v11 and v12 did.
       migrate: (state) => {
         const s = (state ?? {}) as CatalogState
         return {
           ...s,
-          trades: (s.trades ?? []).map(undashTrade),
+          trades: (s.trades ?? []).map(undashTrade).map(withSupplyQuestion),
           documentBlocks: (s.documentBlocks ?? []).map(b => ({
-            ...b, title: undash(b.title), body: undash(b.body),
+            ...b,
+            title: undash(b.title),
+            body: undash(b.body),
+            // Everything that existed before modules was free text somebody
+            // wrote, so it stays editable. Unnumbered: the numbered sections
+            // arrive with the seed, and a block that predates them was never
+            // meant to be section 1.
+            kind: b.kind ?? "text",
+            numbered: b.numbered ?? false,
+            generated: b.generated ?? null,
           })),
         }
       },
@@ -152,15 +217,27 @@ export const useCatalogStore = create<CatalogState>()(
         const trades = s.trades ?? []
         const blocks = s.documentBlocks ?? []
         const knownTrade = new Set(trades.map(t => t.id))
-        const knownBlock = new Set(blocks.map(b => b.id))
         return {
           ...current,
           ...s,
           trades: [
-            ...trades.map(fillScopeGaps),
+            // withSupplyQuestion belongs here rather than in migrate, for the
+            // reason written above: a version bump fires once and can land
+            // before the code it was delivering has compiled — which is exactly
+            // what happened to v12, and happened again to v15 in development.
+            // Here it is idempotent and runs on every rehydration.
+            ...trades.map(fillScopeGaps).map(withSupplyQuestion),
             ...TRADES_SEED.filter(t => !knownTrade.has(t.id)),
           ],
-          documentBlocks: [...blocks, ...DOCUMENT_BLOCKS_SEED.filter(b => !knownBlock.has(b.id))],
+          // The reorder runs once and records itself, so moving the block by hand
+          // afterwards sticks instead of being undone on the next load.
+          documentBlocks: mergeBlocks(
+            (s.blockOrderRevision ?? 0) < BLOCK_ORDER_REVISION
+              ? fixMaterialsBlock(blocks)
+              : blocks,
+            DOCUMENT_BLOCKS_SEED,
+          ),
+          blockOrderRevision: BLOCK_ORDER_REVISION,
           revisions: s.revisions ?? {},
         }
       },
@@ -190,7 +267,9 @@ export function emptyDocumentBlock(): DocumentBlock {
     title: "",
     body: "",
     scope: "both",
-    placement: "after_sections",
+    kind: "text",
+    numbered: true,
+    generated: null,
   }
 }
 

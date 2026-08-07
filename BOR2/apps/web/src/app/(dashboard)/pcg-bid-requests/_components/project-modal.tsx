@@ -1,10 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import {
   ArrowDown01, ArrowDownAZ, ArrowLeft, ArrowUp01, ArrowUpZA, Check, ChevronDown,
   ChevronRight, FileOutput, FileSignature, HardHat, ListChecks, Loader2, Moon, Plus,
-  Search, Sun, Trash2, X,
+  Search, Sun, Trash2, Users, X,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
@@ -24,18 +25,22 @@ import { useCanEditBidRequests } from "../_lib/use-can-edit"
 import { useProjectsStore, newProjectTrade, answerProgress } from "../_lib/projects-store"
 import { useAsyncSave } from "../_lib/use-async-save"
 import { tradeIcon } from "../_lib/trade-icons"
-import { STATUS_META, PROJECT_STATUS_META } from "../_lib/status-meta"
-import { formatMoney, formatAmount, parseMoneyInput, formatDate } from "../_lib/format"
+import { STATUS_META, PROJECT_STATUS_META, eventMeta } from "../_lib/status-meta"
+import { formatMoney, formatAmount, formatLeadTime, parseMoneyInput, formatDate } from "../_lib/format"
 import {
-  bidAmountOf, currentStatus, lastOfType, leadTimeOf, questionnaireId, revisionId, sameParams,
-  subcontractorOf,
+  approvalInForce, bidAmountOf, currentStatus, lastBidEventType, lastOfType, leadTimeOf,
+  questionnaireId, revisionId, roundBids, sameParams, scheduleInForce, subcontractorOf,
 } from "../_lib/events"
-import { PROJECT_STATUS_LABEL, TRADE_STATUS_LABEL } from "../_lib/types"
+import {
+  PROJECT_STATUS_LABEL, PROJECT_TYPE_LABEL, PROJECT_TYPES, TRADE_STATUS_LABEL,
+} from "../_lib/types"
 import type {
-  DocumentParams, Project, ProjectStatus, ProjectTrade, Trade, TradeEvent, TradeEventEdit,
+  DocumentParams, PaymentMilestone, Project, ProjectStatus, ProjectTrade, Trade, TradeEvent,
+  TradeEventEdit,
 } from "../_lib/types"
 import { QuestionnaireForm } from "./questionnaire-form"
 import { SubcontractorPicker } from "./subcontractor-picker"
+import { ContractTermsModal } from "./contract-terms-modal"
 import { DocumentPreviewModal } from "./document-preview-modal"
 import { EventTimeline } from "./event-timeline"
 
@@ -43,11 +48,13 @@ const STATUSES: ProjectStatus[] = ["active", "on_hold", "completed"]
 
 export function ProjectModal({ projectId, onClose }: { projectId: string; onClose: () => void }) {
   const trades = useCatalogStore(s => s.trades)
+  const documentBlocks = useCatalogStore(s => s.documentBlocks)
   const project = useProjectsStore(s => s.projects.find(p => p.id === projectId))
   const updateProject = useProjectsStore(s => s.updateProject)
   const updateProjectTrade = useProjectsStore(s => s.updateProjectTrade)
   const addTradeEvent = useProjectsStore(s => s.addTradeEvent)
   const updateTradeEvent = useProjectsStore(s => s.updateTradeEvent)
+  const setEventSchedule = useProjectsStore(s => s.setEventSchedule)
   const deleteTradeEvent = useProjectsStore(s => s.deleteTradeEvent)
   const { user } = useAuth()
   const canEdit = useCanEditBidRequests()
@@ -61,6 +68,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const [sortBy, setSortBy] = useState<"name" | "answered">("name")
   const [sortAsc, setSortAsc] = useState(true)
   const [previewing, setPreviewing] = useState<"bid" | "contract" | null>(null)
+  const [editingTerms, setEditingTerms] = useState(false)
 
   if (!project) return null
 
@@ -176,9 +184,12 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
             stateOf={stateOf}
             onPatch={(key, p) => patchTrade(openTrade.tradeId, key, p)}
             onGenerate={kind => setPreviewing(kind)}
+            onEditTerms={() => setEditingTerms(true)}
             onLogEvent={event => addTradeEvent(projectId, openTrade.tradeId, event)}
             onUpdateEvent={(eventId, patch) => updateTradeEvent(projectId, openTrade.tradeId, eventId, patch)}
             onDeleteEvent={eventId => deleteTradeEvent(projectId, openTrade.tradeId, eventId)}
+            onSaveSchedule={(eventId, schedule) =>
+              setEventSchedule(projectId, openTrade.tradeId, eventId, schedule)}
           />
         ) : (
           <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4">
@@ -226,6 +237,29 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                         >
                           <Icon className="h-3.5 w-3.5" />
                           {PROJECT_STATUS_LABEL[s]}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+                {/* Same control as status, one row down: it is the other thing
+                    that is true of the whole job rather than of one trade. */}
+                <div className="flex flex-col gap-1.5">
+                  <FieldLabel label="Type" saving={isSaving("project:type")} />
+                  <div className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+                    {PROJECT_TYPES.map(t => {
+                      const on = project.type === t
+                      return (
+                        <button
+                          key={t}
+                          onClick={() => patchProject("project:type", { type: t })}
+                          disabled={!canEdit}
+                          className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors disabled:pointer-events-none ${
+                            on ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                          } ${!canEdit && !on ? "opacity-50" : ""}`}
+                        >
+                          <HardHat className="h-3.5 w-3.5" />
+                          {PROJECT_TYPE_LABEL[t]}
                         </button>
                       )
                     })}
@@ -388,6 +422,19 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
           projectTrade={openTrade}
           trade={openCatalog}
           onClose={() => setPreviewing(null)}
+        />
+      )}
+
+      {editingTerms && openTrade && (
+        <ContractTermsModal
+          blocks={documentBlocks}
+          overrides={openTrade.moduleOverrides}
+          canEdit={canEdit}
+          onSave={patch => {
+            patchTrade(openTrade.tradeId, "trade:terms", patch)
+            setEditingTerms(false)
+          }}
+          onClose={() => setEditingTerms(false)}
         />
       )}
 
@@ -569,8 +616,8 @@ function DocButton({
 // ── Trade view inside the modal ─────────────────────────────────────────────
 
 function TradeView({
-  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, onLogEvent,
-  onUpdateEvent, onDeleteEvent,
+  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, onEditTerms,
+  onLogEvent, onUpdateEvent, onDeleteEvent, onSaveSchedule,
 }: {
   projectTrade: ProjectTrade
   trade: Trade
@@ -579,9 +626,11 @@ function TradeView({
   stateOf: (key: string) => "idle" | "saving" | "saved"
   onPatch: (key: string, patch: Partial<ProjectTrade>) => void
   onGenerate: (kind: "bid" | "contract") => void
+  onEditTerms: () => void
   onLogEvent: (event: TradeEvent) => void
   onUpdateEvent: (eventId: string, patch: TradeEventEdit) => void
   onDeleteEvent: (eventId: string) => void
+  onSaveSchedule: (eventId: string, schedule: PaymentMilestone[]) => void
 }) {
   const captureRevision = useCatalogStore(s => s.captureRevision)
   const documentBlocks = useCatalogStore(s => s.documentBlocks)
@@ -591,20 +640,24 @@ function TradeView({
   // only the full revision id. The definition they froze is still on file, so
   // the fingerprint is recomputed from that paper instead of guessed — an old
   // approval is judged by the same rule as a new one.
+  // Recomputed on every frozen paper, not only on the ones that predate the
+  // fingerprint: the id is derived from the definition, and the definition is
+  // what is on file. Deriving it again means the rule for judging an old
+  // approval can be corrected without every old approval reading as stale.
   const projectTrade = useMemo(() => ({
     ...rawTrade,
     events: rawTrade.events.map(event => {
-      if (!event.params || event.params.questionnaireId) return event
+      if (!event.params) return event
       const frozen = revisions[event.params.tradeRevisionId]
       return {
         ...event,
         params: {
           ...event.params,
-          questionnaireId: questionnaireId(frozen?.trade ?? trade, frozen?.blocks ?? documentBlocks),
+          questionnaireId: questionnaireId(frozen?.trade ?? trade),
         },
       }
     }),
-  }), [rawTrade, revisions, trade, documentBlocks])
+  }), [rawTrade, revisions, trade])
   const { answered, total } = answerProgress(trade, projectTrade.answers)
   const complete = total > 0 && answered === total
   // One at a time, like the trade editor — whichever is open takes the height
@@ -623,7 +676,7 @@ function TradeView({
 
   const currentParams = (): DocumentParams => ({
     tradeRevisionId: captureRevision(trade),
-    questionnaireId: questionnaireId(trade, documentBlocks),
+    questionnaireId: questionnaireId(trade),
     answers: projectTrade.answers,
   })
 
@@ -631,19 +684,30 @@ function TradeView({
   // against. Computed without capturing, so rendering writes nothing.
   const current: DocumentParams = {
     tradeRevisionId: revisionId(trade, documentBlocks),
-    questionnaireId: questionnaireId(trade, documentBlocks),
+    questionnaireId: questionnaireId(trade),
     answers: projectTrade.answers,
   }
 
-  // The approval only holds while the paper behind it still matches the answers.
-  const approved = lastOfType(projectTrade, "bid_approved")
+  // The approval only holds while the paper behind it still matches the answers
+  // — and an adjustment logged by the sub is what moves it onto new ones.
+  const approved = approvalInForce(projectTrade)
   const staleApproval = approved?.params && !sameParams(approved.params, current)
     ? approved.params
     : null
 
+  // A contract with no payment schedule prints a blank Exhibit where the money
+  // goes. Only demanded of trades that go through a bid: the schedule is set on
+  // the approval, and a direct-contract trade never has one to set it on.
+  const scheduled = scheduleInForce(projectTrade).length > 0
   const contractReady = trade.hasBidForm
-    ? !!approved && !staleApproval
+    ? !!approved && !staleApproval && scheduled
     : complete
+
+  const overrideCount = Object.keys(projectTrade.moduleOverrides ?? {}).length
+  const bids = roundBids(projectTrade, current)
+  // The round opens off the condition field, so the popup takes its width and
+  // its side from the field rather than from the icon that triggers it.
+  const conditionRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-5 py-4">
@@ -656,9 +720,76 @@ function TradeView({
           <div className="flex flex-col gap-1.5">
             {/* Read-only on purpose: status is the tail of the history below. */}
             <FieldLabel label="Condition" saving={false} />
-            <div className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm ${meta.text} ${meta.border} ${meta.bg}`}>
+            <div
+              ref={conditionRef}
+              className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm ${meta.text} ${meta.border} ${meta.bg}`}
+            >
               <meta.icon className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{TRADE_STATUS_LABEL[status]}</span>
+              <span className="min-w-0 flex-1 truncate">{TRADE_STATUS_LABEL[status]}</span>
+              {/* The round hangs off the condition rather than sitting in the
+                  body: which sub is where only matters while the condition is
+                  still being decided, and once it is decided nobody reads it
+                  again. Anchored on the field, not on this icon, so it opens the
+                  width of the field and in the same direction. */}
+              {bids.length > 0 && (
+                <Popover>
+                  <PopoverTrigger
+                    aria-label="Bids out on this round"
+                    className="-mr-1 shrink-0 rounded p-1 opacity-70 transition-opacity hover:opacity-100"
+                  >
+                    <Users className="h-3.5 w-3.5" />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    anchor={conditionRef}
+                    side="bottom"
+                    align="start"
+                    collisionAvoidance={{ fallbackAxisSide: "none" }}
+                    className="max-h-(--available-height) w-(--anchor-width) gap-0 overflow-y-auto p-0 text-foreground"
+                  >
+                    <div className="flex items-center gap-2 border-b border-border/50 px-3 py-2">
+                      <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="text-sm font-semibold leading-none">Bids out</span>
+                      <span className="text-xs leading-none text-muted-foreground">
+                        {bids.length} sub{bids.length > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <ul className="divide-y divide-border/40">
+                      {bids.map(bid => {
+                        const last = eventMeta(lastBidEventType(bid))
+                        return (
+                          <li key={bid.subcontractor} className="flex flex-col gap-0.5 px-3 py-2">
+                            <div className="flex items-baseline gap-2">
+                              <span className="min-w-0 flex-1 truncate text-sm">{bid.subcontractor}</span>
+                              {bid.outcome && (
+                                <span className={`shrink-0 text-xs font-medium ${
+                                  bid.outcome === "approved" ? "text-emerald-500" : "text-rose-400"
+                                }`}>
+                                  {bid.outcome === "approved" ? "Approved" : "Declined"}
+                                </span>
+                              )}
+                            </div>
+                            {/* Where this one sub stands, in the same face the
+                                history gives the event it came from. */}
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <last.icon className={`h-3 w-3 shrink-0 ${last.text}`} />
+                              {bid.receivedAt ? (
+                                <>
+                                  <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                                    {formatLeadTime(bid.leadTimeValue, bid.leadTimeUnit)}
+                                  </span>
+                                  <span className="shrink-0 tabular-nums">{formatMoney(bid.amount)}</span>
+                                </>
+                              ) : (
+                                <span className="truncate text-muted-foreground">Waiting on a price</span>
+                              )}
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
           </div>
 
@@ -724,7 +855,8 @@ function TradeView({
               contractReady ? null
               : !complete ? `Answer all ${total} questions first`
               : staleApproval ? "The answers changed — the bid needs a new approval"
-              : "The bid has to be approved first"
+              : !approved ? "The bid has to be approved first"
+              : "Set the payment schedule on the approved bid first"
             }
             onClick={() => onGenerate("contract")}
           />
@@ -767,6 +899,9 @@ function TradeView({
         onLog={onLogEvent}
         onUpdate={onUpdateEvent}
         onDelete={onDeleteEvent}
+        onEditTerms={onEditTerms}
+        onSaveSchedule={onSaveSchedule}
+        overrideCount={overrideCount}
       />
     </div>
   )

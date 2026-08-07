@@ -52,7 +52,7 @@ export default function PCGBidRequestsPage() {
     <div className="flex h-full flex-col overflow-hidden">
       <div className="shrink-0 flex flex-wrap items-center gap-3 pb-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">PCG Bid Requests</h1>
+          <h1 className="text-xl font-semibold tracking-tight">PCG Bids and Contracts</h1>
           <p className="text-sm text-muted-foreground">Bid requests and contract documents by project and trade</p>
         </div>
 

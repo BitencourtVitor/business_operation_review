@@ -22,7 +22,7 @@ export default function PCGBidRequestsLayout({ children }: { children: React.Rea
         <div className="flex flex-col items-center gap-3 text-center">
           <ShieldAlert className="h-10 w-10 text-destructive/60" />
           <p className="font-medium">Access Denied</p>
-          <p className="text-sm text-muted-foreground">PCG Bid Requests isn&apos;t available yet.</p>
+          <p className="text-sm text-muted-foreground">PCG Bids and Contracts isn&apos;t available yet.</p>
         </div>
       </div>
     )
