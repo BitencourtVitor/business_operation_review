@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"mime"
+	"net"
 	"net/smtp"
 	"os"
 	"strings"
@@ -49,8 +51,18 @@ func (s *GmailSMTPSender) Send(ctx context.Context, message EmailMessage) (Email
 	}
 	if len(message.CC) > 0 { headers = append(headers, "Cc: "+strings.Join(message.CC, ", ")) }
 	body := strings.Join(headers, "\r\n") + "\r\n\r\n" + message.Text
-	auth := smtp.PlainAuth("", s.user, s.password, "smtp.gmail.com")
-	if err := smtp.SendMail("smtp.gmail.com:587", auth, s.user, all, []byte(body)); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp delivery: %w", err) }
+	conn, err := (&net.Dialer{Timeout: 12 * time.Second}).DialContext(ctx, "tcp", "smtp.gmail.com:587")
+	if err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp connection: %w", err) }
+	client, err := smtp.NewClient(conn, "smtp.gmail.com")
+	if err != nil { conn.Close(); return EmailDelivery{}, fmt.Errorf("gmail smtp handshake: %w", err) }
+	defer client.Quit()
+	if err := client.StartTLS(&tls.Config{ServerName: "smtp.gmail.com", MinVersion: tls.VersionTLS12}); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp tls: %w", err) }
+	if err := client.Auth(smtp.PlainAuth("", s.user, s.password, "smtp.gmail.com")); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp authentication: %w", err) }
+	if err := client.Mail(s.user); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp sender: %w", err) }
+	for _, recipient := range all { if err := client.Rcpt(recipient); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp recipient: %w", err) } }
+	writer, err := client.Data(); if err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp data: %w", err) }
+	if _, err := writer.Write([]byte(body)); err != nil { writer.Close(); return EmailDelivery{}, fmt.Errorf("gmail smtp write: %w", err) }
+	if err := writer.Close(); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp delivery: %w", err) }
 	logger.Info("email accepted by smtp", "delivery_id", deliveryID, "to_count", len(message.To), "cc_count", len(message.CC), "at", time.Now().UTC().Format(time.RFC3339))
 	return EmailDelivery{ID: deliveryID, Provider: "gmail-smtp"}, nil
 }
