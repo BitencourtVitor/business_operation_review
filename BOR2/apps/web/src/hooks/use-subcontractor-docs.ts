@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { subcontractorDocsService } from "@/services/subcontractor-docs.service"
+import { settingsService } from "@/services/settings.service"
 
 export function useSubDocDivisions() {
   return useQuery({
@@ -20,7 +21,17 @@ export function useSubDocTypes() {
 export function useSubDocEmailRecipients() {
   return useQuery({
     queryKey: ["sub-doc-email-recipients"],
-    queryFn: () => subcontractorDocsService.listEmailRecipients(),
+    queryFn: async () => {
+      // The recipient endpoint is introduced with the email delivery backend.
+      // Until that backend is deployed, use the existing Settings users API so
+      // the modal remains usable during local UI review.
+      const users = await settingsService.getUsers()
+      try {
+        return await subcontractorDocsService.listEmailRecipients()
+      } catch {
+        return { users, settings: { to_user_ids: [], cc_user_ids: [] } }
+      }
+    },
     enabled: false,
   })
 }

@@ -1,9 +1,6 @@
 package handler
 
 import (
-	"fmt"
-	"net/smtp"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -11,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/bitencourtVitor/bor2-api/internal/service"
+	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 )
 
 // SubcontractorDocsHandler manages the Subcontractor Docs page: tracks
@@ -209,32 +207,11 @@ func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
 
 	delivery, err := h.email.Send(c.Context(), service.EmailMessage{To: toEmails, CC: ccEmails, Subject: "BOR2 - Subcontractor Docs email test", Text: "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."})
 	if err != nil {
+		logger.Error("subcontractor docs test email failed", "error", err, "to_count", len(toEmails), "cc_count", len(ccEmails))
 		return fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 	return c.JSON(fiber.Map{"data": delivery})
 
-	from, password := os.Getenv("GMAIL_USER"), os.Getenv("GMAIL_APP_PASSWORD")
-	if from == "" || password == "" {
-		return fiber.NewError(fiber.StatusServiceUnavailable, "email delivery is not configured")
-	}
-	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\n", from, strings.Join(toEmails, ", "))
-	if len(ccEmails) > 0 {
-		msg += fmt.Sprintf("Cc: %s\r\n", strings.Join(ccEmails, ", "))
-	}
-	msg += "Subject: BOR2 — Subcontractor Docs email test\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nThis is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."
-	auth := smtp.PlainAuth("", from, password, "smtp.gmail.com")
-	if err := smtp.SendMail("smtp.gmail.com:587", auth, from, append(toEmails, ccEmails...), []byte(msg)); err != nil {
-		return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
-	}
-	return c.SendStatus(fiber.StatusNoContent)
-}
-
-func emailRecipientsForProvider(emails []string) []map[string]string {
-	recipients := make([]map[string]string, 0, len(emails))
-	for _, email := range emails {
-		recipients = append(recipients, map[string]string{"email": email})
-	}
-	return recipients
 }
 
 // GET /subcontractor-docs/divisions

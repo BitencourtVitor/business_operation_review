@@ -7,7 +7,7 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore, ExternalLink, Settings2,
+  Download, Building2, Archive, ArchiveRestore, ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -28,7 +28,7 @@ import {
   useUpdateSubDocEmailRecipients, useSendSubDocEmailRecipientsTest,
 } from "@/hooks/use-subcontractor-docs"
 import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
-import { useAuthStore } from "@/store/auth.store"
+import { useAuth } from "@/hooks/use-auth"
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -714,30 +714,26 @@ td{padding:5px 8px;border:1px solid #e5e7eb}
 type RecipientDraft = { to: string[]; cc: string[] }
 
 function EmailRecipientsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const currentUser = useAuthStore(s => s.user)
   const { data, isLoading, refetch } = useSubDocEmailRecipients()
   const updateRecipients = useUpdateSubDocEmailRecipients()
   const sendTest = useSendSubDocEmailRecipientsTest()
   const [draft, setDraft] = useState<RecipientDraft>({ to: [], cc: [] })
+  const [addingRecipient, setAddingRecipient] = useState(false)
+  const [recipientToAdd, setRecipientToAdd] = useState("")
+  const [recipientRole, setRecipientRole] = useState<"to" | "cc">("to")
+  const [testResult, setTestResult] = useState("")
 
-  useEffect(() => { if (open) void refetch() }, [open, refetch])
+  useEffect(() => {
+    if (!open) return
+    setAddingRecipient(false)
+    setRecipientToAdd("")
+    setTestResult("")
+    void refetch()
+  }, [open, refetch])
   useEffect(() => {
     if (!data) return
-    setDraft({ to: data.settings.to_user_ids ?? (currentUser ? [currentUser.id] : []), cc: data.settings.cc_user_ids ?? [] })
-  }, [data, currentUser])
-
-  const toggle = (field: "to" | "cc", userID: string) => {
-    setDraft(current => {
-      const next = current[field].includes(userID) ? current[field].filter(id => id !== userID) : [...current[field], userID]
-      const other = field === "to" ? "cc" : "to"
-      return { ...current, [field]: next, [other]: current[other].filter(id => id !== userID) }
-    })
-  }
-
-  const useOnlyMe = () => {
-    if (!currentUser) return
-    setDraft({ to: [currentUser.id], cc: [] })
-  }
+    setDraft({ to: data.settings.to_user_ids ?? [], cc: data.settings.cc_user_ids ?? [] })
+  }, [data])
 
   const save = async () => {
     if (!draft.to.length) {
@@ -756,28 +752,66 @@ function EmailRecipientsDialog({ open, onClose }: { open: boolean; onClose: () =
   const test = async () => {
     if (!draft.to.length) { toast.error("Choose at least one primary recipient before testing."); return }
     try {
-      await sendTest.mutateAsync({ toUserIDs: draft.to, ccUserIDs: draft.cc })
+      const delivery = await sendTest.mutateAsync({ toUserIDs: draft.to, ccUserIDs: draft.cc })
+      setTestResult(`Accepted by ${delivery.provider} · Delivery ${delivery.delivery_id}`)
       toast.success("Test email sent.")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to send test email.")
+      const message = error instanceof Error ? error.message : "Unable to send test email."
+      setTestResult(`Failed · ${message}`)
+      toast.error(message)
     }
   }
 
+  const selectedRecipients = (data?.users ?? []).filter(user => draft.to.includes(user.id) || draft.cc.includes(user.id))
+
+  const addRecipient = () => {
+    if (!recipientToAdd) return
+    setDraft(current => ({
+      to: recipientRole === "to" ? [...current.to.filter(id => id !== recipientToAdd), recipientToAdd] : current.to.filter(id => id !== recipientToAdd),
+      cc: recipientRole === "cc" ? [...current.cc.filter(id => id !== recipientToAdd), recipientToAdd] : current.cc.filter(id => id !== recipientToAdd),
+    }))
+    setRecipientToAdd("")
+    setAddingRecipient(false)
+  }
+
+  const removeRecipient = (userID: string) => {
+    setDraft(current => ({ to: current.to.filter(id => id !== userID), cc: current.cc.filter(id => id !== userID) }))
+  }
+
   return <Dialog open={open} onOpenChange={value => !value && onClose()}>
-    <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+    <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] max-w-lg overflow-y-auto">
       <DialogHeader><DialogTitle>Email recipients</DialogTitle><p className="text-sm text-muted-foreground">This single list receives all Subcontractor Docs compliance alerts.</p></DialogHeader>
-      <div className="flex justify-end"><button type="button" onClick={useOnlyMe} disabled={!currentUser} className="h-8 rounded-md border border-input px-3 text-xs font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50">Only me</button></div>
       {isLoading ? <div className="py-10 text-center text-sm text-muted-foreground">Loading users…</div> : <div className="space-y-5">
         <div className="overflow-hidden rounded-md border border-border/60">
-          <div className="grid grid-cols-[minmax(0,1fr)_54px_54px] border-b border-border/60 bg-muted/40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"><span>User</span><span className="text-center">To</span><span className="text-center">CC</span></div>
-          {(data?.users ?? []).map(user => <div key={user.id} className="grid grid-cols-[minmax(0,1fr)_54px_54px] items-center border-b border-border/50 px-3 py-2.5 last:border-b-0">
-            <div className="min-w-0"><p className="truncate text-sm font-medium">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p></div>
-            <label className="flex justify-center"><input aria-label={`${user.name} primary recipient`} type="checkbox" checked={draft.to.includes(user.id)} onChange={() => toggle("to", user.id)} className="h-4 w-4 accent-primary" /></label>
-            <label className="flex justify-center"><input aria-label={`${user.name} copied recipient`} type="checkbox" checked={draft.cc.includes(user.id)} onChange={() => toggle("cc", user.id)} className="h-4 w-4 accent-primary" /></label>
-          </div>)}
+          <div className="grid grid-cols-[minmax(0,1fr)_72px_36px] border-b border-border/60 bg-muted/40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"><span>Recipient</span><span>Delivery</span><span /></div>
+          <div className="max-h-56 overflow-y-auto">
+            {selectedRecipients.map(user => <div key={user.id} className="grid grid-cols-[minmax(0,1fr)_72px_36px] items-center border-b border-border/50 px-3 py-2.5">
+              <div className="min-w-0"><p className="truncate text-sm font-medium">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p></div>
+              <span className="text-xs text-muted-foreground">{draft.to.includes(user.id) ? "To" : "CC"}</span>
+              <button type="button" onClick={() => removeRecipient(user.id)} aria-label={`Remove ${user.name}`} className="justify-self-end text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
+            </div>)}
+            {addingRecipient ? <div className="flex min-w-0 items-center gap-2 border-b border-border/50 p-2">
+              <Select value={recipientToAdd} onValueChange={value => setRecipientToAdd(value ?? "")}>
+                <SelectTrigger className="h-8 min-w-0 flex-1 text-sm">
+                  {recipientToAdd
+                    ? <span className="truncate">{(data?.users ?? []).find(user => user.id === recipientToAdd)?.name}</span>
+                    : <span className="text-muted-foreground">Select a system user...</span>}
+                </SelectTrigger>
+                <SelectContent align="start" alignItemWithTrigger={false} className="max-w-[min(24rem,calc(100vw-2rem))]">
+                  {(data?.users ?? []).filter(user => !draft.to.includes(user.id) && !draft.cc.includes(user.id)).map(user => <SelectItem key={user.id} value={user.id}><span className="min-w-0"><span className="block truncate">{user.name}</span><span className="block truncate text-xs text-muted-foreground">{user.email}</span></span></SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={recipientRole} onValueChange={value => value && setRecipientRole(value as "to" | "cc")}>
+                <SelectTrigger className="h-8 w-16 text-xs"><span className="uppercase">{recipientRole}</span></SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}><SelectItem value="to">To</SelectItem><SelectItem value="cc">CC</SelectItem></SelectContent>
+              </Select>
+              <button type="button" onClick={addRecipient} disabled={!recipientToAdd} className="h-8 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground disabled:opacity-50">Add</button>
+            </div> : <button type="button" onClick={() => setAddingRecipient(true)} className="flex w-full items-center gap-2 px-3 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"><Plus className="h-4 w-4" /> Add recipients</button>}
+          </div>
         </div>
       </div>}
-      <div className="flex flex-wrap justify-end gap-2"><button type="button" onClick={() => void test()} disabled={isLoading || sendTest.isPending} className="h-9 rounded-md border border-input px-3 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50">Send test email</button><button type="button" onClick={onClose} className="h-9 rounded-md border border-input px-3 text-sm font-medium hover:bg-muted">Cancel</button><button type="button" onClick={() => void save()} disabled={isLoading || updateRecipients.isPending} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">Save recipients</button></div>
+      {testResult && <p className={cn("rounded-md border px-3 py-2 text-xs", testResult.startsWith("Failed") ? "border-red-500/30 bg-red-500/5 text-red-600" : "border-emerald-500/30 bg-emerald-500/5 text-emerald-600")}>{testResult}</p>}
+      <div className="flex flex-wrap justify-end gap-2"><button type="button" onClick={() => void test()} disabled={!draft.to.length || sendTest.isPending} className="h-9 rounded-md border border-input px-3 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50">Send test email</button><button type="button" onClick={onClose} className="h-9 rounded-md border border-input px-3 text-sm font-medium hover:bg-muted">Cancel</button><button type="button" onClick={() => void save()} disabled={!draft.to.length || updateRecipients.isPending} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">Save recipients</button></div>
     </DialogContent>
   </Dialog>
 }
@@ -787,6 +821,7 @@ type SortField = "urgency" | "name"
 const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, ok: 3, none: 4 }
 
 export default function SubcontractorDocsPage() {
+  const { user } = useAuth()
   const { data: types, isLoading: typesLoading } = useSubDocTypes()
   const { data: divisions, isLoading: divisionsLoading } = useSubDocDivisions()
   const [showArchived, setShowArchived] = useState(false)
@@ -801,6 +836,7 @@ export default function SubcontractorDocsPage() {
   const [editing, setEditing] = useState<SubDocContractor | null>(null)
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
   const [emailRecipientsOpen, setEmailRecipientsOpen] = useState(false)
+  const canManageEmailAlerts = !!user && ["dev", "owner", "manager"].includes(user.role)
 
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
@@ -843,10 +879,10 @@ export default function SubcontractorDocsPage() {
           <CompanyFilterDropdown contractors={contractors ?? []} divisions={divisions ?? []} selected={companyFilter} setSelected={setCompanyFilter} />
           <ExportMenu rows={rows} types={types ?? []} />
 
-          <button onClick={() => setEmailRecipientsOpen(true)} title="Manage email recipients"
+          {canManageEmailAlerts && <button onClick={() => setEmailRecipientsOpen(true)} title="Manage email recipients"
             className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-            <Settings2 className="h-3.5 w-3.5" /> Email alerts
-          </button>
+            <Mail className="h-3.5 w-3.5" /> Email alerts
+          </button>}
 
           <button onClick={() => setAddOpen(true)}
             className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80">
