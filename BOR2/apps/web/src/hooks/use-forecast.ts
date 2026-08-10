@@ -45,7 +45,7 @@ export function useDeleteForecast() {
 export function useToggleFieldwire() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ fwId, status }: { fwId: number; status: boolean }) =>
+    mutationFn: ({ fwId, status }: { fwId: number; status: string }) =>
       forecastService.toggleFieldwire(fwId, status),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
   })

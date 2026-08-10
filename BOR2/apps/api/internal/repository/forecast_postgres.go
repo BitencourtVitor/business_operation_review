@@ -16,7 +16,7 @@ type ForecastRepository interface {
 	Create(ctx context.Context, p *domain.ForecastProject) error
 	Update(ctx context.Context, p *domain.ForecastProject) error
 	Delete(ctx context.Context, id string) error
-	UpdateFieldwireStatus(ctx context.Context, fwID int64, status bool) error
+	UpdateFieldwireStatus(ctx context.Context, fwID int64, status string) error
 	UpdateMachineStatus(ctx context.Context, machID int64, status string) error
 	UpdateMachineUnit(ctx context.Context, machID int64, unit string) error
 	UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error
@@ -32,6 +32,8 @@ type PostgresForecastRepository struct {
 func NewPostgresForecastRepository(db *pgxpool.Pool) *PostgresForecastRepository {
 	return &PostgresForecastRepository{db: db}
 }
+
+func (r *PostgresForecastRepository) Pool() *pgxpool.Pool { return r.db }
 
 // statusToDisplay maps BOR1 status strings to BOR2 ForecastStatus values.
 // Used as a SQL CASE expression in queries.
@@ -86,7 +88,7 @@ SELECT
 	COALESCE(
 		(SELECT json_agg(json_build_object(
 			'id',       fw.id,
-			'status',   fw.status::text,
+			'status',   CASE WHEN lower(fw.status::text) = 'completed' THEN 'true' ELSE fw.status::text END,
 			'category', COALESCE(fw.category, ''),
 			'document', COALESCE(fw.document, '')
 		) ORDER BY fw.id)
@@ -213,14 +215,15 @@ func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, proj
 		       $1,
 		       CASE WHEN c.client = '' THEN '' ELSE c.client || ' – ' || c.type END,
 		       c.document,
-		       false
+		       NULL
 		FROM catalog_forecast_fieldwire c, max_id
 		WHERE ((LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
 		    OR (LOWER(c.client) = LOWER($2) AND c.type = '')
 		    OR (c.client = '' AND c.type = ''))
 		  AND NOT EXISTS (
 		    SELECT 1 FROM forecast_fieldwire fw
-		    WHERE LOWER(fw.project_id) = LOWER($1) AND fw.document = c.document
+		    WHERE LOWER(fw.project_id) = LOWER($1)
+		      AND LOWER(TRIM(fw.document)) = LOWER(TRIM(c.document))
 		  )
 	`, projectID, cliente, projType); err != nil {
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
@@ -248,7 +251,7 @@ func (r *PostgresForecastRepository) seedMachines(ctx context.Context, projectID
 		  AND NOT EXISTS (
 		    SELECT 1 FROM forecast_machines m
 		    WHERE LOWER(m.project_id) = LOWER($1)
-		      AND m.category = c.category AND m.subcategory = c.subcategory AND m.title = c.title
+		      AND LOWER(TRIM(m.title)) = LOWER(TRIM(c.title))
 		  )
 	`, projectID, cliente, projType); err != nil {
 		return fmt.Errorf("seeding machines: %w", err)
@@ -295,10 +298,14 @@ func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) erro
 	return err
 }
 
-func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, fwID int64, status bool) error {
+func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, fwID int64, status string) error {
+	var value *string
+	if status != "" {
+		value = &status
+	}
 	_, err := r.db.Exec(ctx,
 		"UPDATE forecast_fieldwire SET status=$1 WHERE id=$2",
-		status, fwID,
+		value, fwID,
 	)
 	return err
 }

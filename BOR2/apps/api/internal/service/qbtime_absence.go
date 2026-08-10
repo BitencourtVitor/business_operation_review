@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"html"
 	"sort"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 	"github.com/bitencourtVitor/bor2-api/internal/repository"
 	"github.com/bitencourtVitor/bor2-api/pkg/logger"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -29,12 +31,25 @@ const (
 var AbsenceCompanies = []string{"framing", "hvac", "pcg", "hvacing"}
 
 type QBTimeAbsenceService struct {
-	repo     repository.QBTimeAbsenceRepository
-	notifSvc *NotificationService
+	repo       repository.QBTimeAbsenceRepository
+	notifSvc   *NotificationService
+	email      EmailSender
+	recipients *AlertRecipientDirectory
 }
 
-func NewQBTimeAbsenceService(repo repository.QBTimeAbsenceRepository, notifSvc *NotificationService) *QBTimeAbsenceService {
-	return &QBTimeAbsenceService{repo: repo, notifSvc: notifSvc}
+func NewQBTimeAbsenceService(repo repository.QBTimeAbsenceRepository, notifSvc *NotificationService, deps ...any) *QBTimeAbsenceService {
+	svc := &QBTimeAbsenceService{repo: repo, notifSvc: notifSvc}
+	if len(deps) >= 2 {
+		svc.email, _ = deps[0].(EmailSender)
+		svc.recipients, _ = deps[1].(*AlertRecipientDirectory)
+	}
+	if svc.email == nil || svc.recipients == nil {
+		if provider, ok := repo.(interface{ Pool() *pgxpool.Pool }); ok {
+			svc.email = NewGmailAPISenderFromEnv()
+			svc.recipients = NewAlertRecipientDirectory(provider.Pool())
+		}
+	}
+	return svc
 }
 
 func easternNow() time.Time {
@@ -190,6 +205,28 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 		CreatedBy:  "system",
 	}); err != nil {
 		return fmt.Errorf("create absence notification: %w", err)
+	}
+
+	if s.email == nil || s.recipients == nil {
+		return fmt.Errorf("absence email dependencies are not configured")
+	}
+	to, cc, err := s.recipients.Resolve(ctx)
+	if err != nil {
+		return err
+	}
+	if len(to) > 0 {
+		var htmlRows strings.Builder
+		for _, event := range pending {
+			htmlRows.WriteString("<tr><td>" + html.EscapeString(event.EmployeeName) + "</td><td>" + html.EscapeString(event.TeamName) + "</td><td>" + fmt.Sprint(event.DaysCount) + "</td><td>" + html.EscapeString(event.StartDate) + "</td></tr>")
+		}
+		delivery, err := s.email.Send(ctx, EmailMessage{
+			To: to, CC: cc, Subject: title, Text: content,
+			HTML: "<p>No clock-in was found for two consecutive evaluated business days.</p><table style=\"border-collapse:collapse;width:100%\"><thead><tr><th align=\"left\">Employee</th><th align=\"left\">Team</th><th align=\"left\">Days</th><th align=\"left\">Since</th></tr></thead><tbody>" + htmlRows.String() + "</tbody></table>",
+		})
+		if err != nil {
+			return fmt.Errorf("send absence email: %w", err)
+		}
+		logger.Info("absence email accepted", "company", company, "delivery_id", delivery.ID, "events", len(pending))
 	}
 
 	return s.repo.MarkNotified(ctx, ids)

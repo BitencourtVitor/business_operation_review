@@ -28,7 +28,7 @@ export const forecastService = {
   delete: (id: string) =>
     api.delete<void>(`/api/v1/forecast/${id}`, getToken()),
 
-  toggleFieldwire: (fwId: number, status: boolean) =>
+  toggleFieldwire: (fwId: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/fieldwire/${fwId}`, { status }, getToken()),
 
   toggleMachine: (machId: number, status: string) =>

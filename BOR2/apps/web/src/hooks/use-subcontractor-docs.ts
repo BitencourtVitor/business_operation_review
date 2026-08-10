@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { subcontractorDocsService } from "@/services/subcontractor-docs.service"
+import type { WorkersCompCheckStatus } from "@/services/subcontractor-docs.service"
 import { settingsService } from "@/services/settings.service"
 
 export function useSubDocDivisions() {
@@ -49,6 +50,23 @@ export function useSendSubDocEmailRecipientsTest() {
   return useMutation({
     mutationFn: ({ toUserIDs, ccUserIDs }: { toUserIDs: string[]; ccUserIDs: string[] }) =>
       subcontractorDocsService.sendEmailRecipientsTest({ to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
+  })
+}
+
+export function useSubDocWorkersCompReview(enabled: boolean) {
+  return useQuery({
+    queryKey: ["sub-doc-workers-comp-review"],
+    queryFn: () => subcontractorDocsService.getWorkersCompReview(),
+    enabled,
+  })
+}
+
+export function useUpdateSubDocWorkersCompCheck() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, status, notes }: { id: string; status: WorkersCompCheckStatus; notes: string }) =>
+      subcontractorDocsService.updateWorkersCompCheck(id, { status, notes }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-workers-comp-review"] }),
   })
 }
 
