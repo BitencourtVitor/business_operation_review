@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/smtp"
 	"os"
 	"strconv"
@@ -205,6 +208,45 @@ func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
 		ccEmails = append(ccEmails, emails[id])
 	}
 
+	// Prefer the transactional provider already used for password e-mails. It
+	// uses HTTPS, which avoids relying on an outbound SMTP connection from the
+	// Railway container. Keep the Gmail SMTP path below only as a fallback for
+	// environments where Brevo has not been configured yet.
+	if apiKey := os.Getenv("BREVO_API_KEY"); apiKey != "" {
+		from := os.Getenv("GMAIL_USER")
+		if from == "" {
+			return fiber.NewError(fiber.StatusServiceUnavailable, "email delivery is not configured")
+		}
+		payload := map[string]any{
+			"sender":      map[string]string{"name": "Premium Group", "email": from},
+			"to":          emailRecipientsForProvider(toEmails),
+			"subject":     "BOR2 - Subcontractor Docs email test",
+			"textContent": "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required.",
+		}
+		if len(ccEmails) > 0 {
+			payload["cc"] = emailRecipientsForProvider(ccEmails)
+		}
+		body, err := json.Marshal(payload)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "unable to prepare test email")
+		}
+		reqHTTP, err := http.NewRequestWithContext(c.Context(), http.MethodPost, "https://api.brevo.com/v3/smtp/email", bytes.NewReader(body))
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "unable to prepare test email")
+		}
+		reqHTTP.Header.Set("api-key", apiKey)
+		reqHTTP.Header.Set("Content-Type", "application/json")
+		resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(reqHTTP)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode >= http.StatusMultipleChoices {
+			return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
+		}
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+
 	from, password := os.Getenv("GMAIL_USER"), os.Getenv("GMAIL_APP_PASSWORD")
 	if from == "" || password == "" {
 		return fiber.NewError(fiber.StatusServiceUnavailable, "email delivery is not configured")
@@ -219,6 +261,14 @@ func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
 	}
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func emailRecipientsForProvider(emails []string) []map[string]string {
+	recipients := make([]map[string]string, 0, len(emails))
+	for _, email := range emails {
+		recipients = append(recipients, map[string]string{"email": email})
+	}
+	return recipients
 }
 
 // GET /subcontractor-docs/divisions
