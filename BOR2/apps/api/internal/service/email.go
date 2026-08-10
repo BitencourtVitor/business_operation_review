@@ -23,7 +23,10 @@ type EmailMessage struct {
 	Text    string
 }
 
-type EmailDelivery struct { ID, Provider string }
+type EmailDelivery struct {
+	ID       string `json:"delivery_id"`
+	Provider string `json:"provider"`
+}
 
 type EmailSender interface { Send(context.Context, EmailMessage) (EmailDelivery, error) }
 

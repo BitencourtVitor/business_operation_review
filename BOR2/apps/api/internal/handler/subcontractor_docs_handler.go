@@ -207,10 +207,11 @@ func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
 		ccEmails = append(ccEmails, emails[id])
 	}
 
-	if _, err := h.email.Send(c.Context(), service.EmailMessage{To: toEmails, CC: ccEmails, Subject: "BOR2 - Subcontractor Docs email test", Text: "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."}); err != nil {
+	delivery, err := h.email.Send(c.Context(), service.EmailMessage{To: toEmails, CC: ccEmails, Subject: "BOR2 - Subcontractor Docs email test", Text: "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."})
+	if err != nil {
 		return fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
-	return c.SendStatus(fiber.StatusNoContent)
+	return c.JSON(fiber.Map{"data": delivery})
 
 	from, password := os.Getenv("GMAIL_USER"), os.Getenv("GMAIL_APP_PASSWORD")
 	if from == "" || password == "" {
