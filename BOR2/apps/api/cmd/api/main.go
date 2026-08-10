@@ -548,9 +548,11 @@ func main() {
 	subDocs.Get("/divisions", subcontractorDocsHandler.ListDivisions)
 	subDocs.Get("/types", subcontractorDocsHandler.ListTypes)
 	subDocs.Get("/contractors", subcontractorDocsHandler.ListContractors)
-	subDocs.Get("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), subcontractorDocsHandler.ListEmailRecipients)
-	subDocs.Put("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), subcontractorDocsHandler.UpdateEmailRecipients)
-	subDocs.Post("/email-recipients/test", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), subcontractorDocsHandler.SendEmailRecipientsTest)
+	// Recipient administration and test delivery are restricted server-side as
+	// well as in the UI, so a direct API request cannot bypass the role rule.
+	subDocs.Get("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.ListEmailRecipients)
+	subDocs.Put("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.UpdateEmailRecipients)
+	subDocs.Post("/email-recipients/test", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.SendEmailRecipientsTest)
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)
 	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)
