@@ -54,12 +54,13 @@ func (s *GmailSMTPSender) Send(ctx context.Context, message EmailMessage) (Email
 	}
 	if len(message.CC) > 0 { headers = append(headers, "Cc: "+strings.Join(message.CC, ", ")) }
 	body := strings.Join(headers, "\r\n") + "\r\n\r\n" + message.Text
-	conn, err := (&net.Dialer{Timeout: 12 * time.Second}).DialContext(ctx, "tcp", "smtp.gmail.com:587")
+	conn, err := (&net.Dialer{Timeout: 12 * time.Second}).DialContext(ctx, "tcp", "smtp.gmail.com:465")
 	if err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp connection: %w", err) }
-	client, err := smtp.NewClient(conn, "smtp.gmail.com")
-	if err != nil { conn.Close(); return EmailDelivery{}, fmt.Errorf("gmail smtp handshake: %w", err) }
+	tlsConn := tls.Client(conn, &tls.Config{ServerName: "smtp.gmail.com", MinVersion: tls.VersionTLS12})
+	if err := tlsConn.HandshakeContext(ctx); err != nil { conn.Close(); return EmailDelivery{}, fmt.Errorf("gmail smtp tls: %w", err) }
+	client, err := smtp.NewClient(tlsConn, "smtp.gmail.com")
+	if err != nil { tlsConn.Close(); return EmailDelivery{}, fmt.Errorf("gmail smtp handshake: %w", err) }
 	defer client.Quit()
-	if err := client.StartTLS(&tls.Config{ServerName: "smtp.gmail.com", MinVersion: tls.VersionTLS12}); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp tls: %w", err) }
 	if err := client.Auth(smtp.PlainAuth("", s.user, s.password, "smtp.gmail.com")); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp authentication: %w", err) }
 	if err := client.Mail(s.user); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp sender: %w", err) }
 	for _, recipient := range all { if err := client.Rcpt(recipient); err != nil { return EmailDelivery{}, fmt.Errorf("gmail smtp recipient: %w", err) } }
