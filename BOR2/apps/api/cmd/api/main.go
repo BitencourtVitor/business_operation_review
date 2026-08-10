@@ -139,8 +139,8 @@ func main() {
 	qbAccountingHandler := handler.NewQBAccountingHandler(db)
 	budgetHandler := handler.NewBudgetHandler(db, periodReportSvc)
 	budgetTaxonomyHandler := handler.NewBudgetTaxonomyHandler(db)
-	// Shared SMTP delivery is composed once and injected into every feature that sends mail.
-	emailSender := service.NewGmailSMTPSenderFromEnv()
+	// Shared transactional delivery is composed once and injected into every feature that sends mail.
+	emailSender := service.NewBrevoEmailSenderFromEnv()
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
