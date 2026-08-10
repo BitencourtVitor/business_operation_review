@@ -28,6 +28,7 @@ type EmailMessage struct {
 	CC      []string
 	Subject string
 	Text    string
+	HTML    string
 }
 
 type EmailDelivery struct {
@@ -166,13 +167,27 @@ func buildGmailMessage(sender string, message EmailMessage) string {
 		"To: " + strings.Join(message.To, ", "),
 		"Subject: " + mime.QEncoding.Encode("UTF-8", sanitizeEmailHeader(message.Subject)),
 		"MIME-Version: 1.0",
-		"Content-Type: text/plain; charset=UTF-8",
-		"Content-Transfer-Encoding: 8bit",
 	}
 	if len(message.CC) > 0 {
 		headers = append(headers, "Cc: "+strings.Join(message.CC, ", "))
 	}
-	return strings.Join(headers, "\r\n") + "\r\n\r\n" + message.Text
+	if strings.TrimSpace(message.HTML) == "" {
+		headers = append(headers, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit")
+		return strings.Join(headers, "\r\n") + "\r\n\r\n" + message.Text
+	}
+
+	const boundary = "bor2-email-alternative"
+	headers = append(headers, `Content-Type: multipart/alternative; boundary="`+boundary+`"`)
+	body := []string{
+		"--" + boundary,
+		"Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n",
+		message.Text,
+		"--" + boundary,
+		"Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n",
+		message.HTML,
+		"--" + boundary + "--",
+	}
+	return strings.Join(headers, "\r\n") + "\r\n\r\n" + strings.Join(body, "\r\n")
 }
 
 func sanitizeEmailHeader(value string) string {

@@ -7,7 +7,7 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore, ExternalLink,
+  Download, Building2, Archive, ArchiveRestore, ExternalLink, ShieldCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -29,6 +29,7 @@ import {
 } from "@/hooks/use-subcontractor-docs"
 import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
 import { useAuth } from "@/hooks/use-auth"
+import { WorkersCompReviewDialog } from "./workers-comp-review-dialog"
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -836,6 +837,7 @@ export default function SubcontractorDocsPage() {
   const [editing, setEditing] = useState<SubDocContractor | null>(null)
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
   const [emailRecipientsOpen, setEmailRecipientsOpen] = useState(false)
+  const [workersCompReviewOpen, setWorkersCompReviewOpen] = useState(false)
   const canManageEmailAlerts = !!user && ["dev", "owner", "manager"].includes(user.role)
 
   const rows = (contractors ?? [])
@@ -882,6 +884,11 @@ export default function SubcontractorDocsPage() {
           {canManageEmailAlerts && <button onClick={() => setEmailRecipientsOpen(true)} title="Manage email recipients"
             className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
             <Mail className="h-3.5 w-3.5" /> Email alerts
+          </button>}
+
+          {canManageEmailAlerts && <button onClick={() => setWorkersCompReviewOpen(true)} title="Review Workers' Compensation regularity"
+            className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+            <ShieldCheck className="h-3.5 w-3.5" /> WC review
           </button>}
 
           <button onClick={() => setAddOpen(true)}
@@ -962,6 +969,7 @@ export default function SubcontractorDocsPage() {
       <ContractorFormDialog open={!!editing} onClose={() => setEditing(null)} initial={editing} divisions={divisions ?? []} />
       <DeleteContractorDialog contractor={deleting} onClose={() => setDeleting(null)} />
       <EmailRecipientsDialog open={emailRecipientsOpen} onClose={() => setEmailRecipientsOpen(false)} />
+      <WorkersCompReviewDialog open={workersCompReviewOpen} onClose={() => setWorkersCompReviewOpen(false)} />
     </div>
   )
 }

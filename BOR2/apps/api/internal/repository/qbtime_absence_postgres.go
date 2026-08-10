@@ -55,6 +55,8 @@ func NewPostgresQBTimeAbsenceRepository(db *pgxpool.Pool) *PostgresQBTimeAbsence
 	return &PostgresQBTimeAbsenceRepository{db: db}
 }
 
+func (r *PostgresQBTimeAbsenceRepository) Pool() *pgxpool.Pool { return r.db }
+
 const dateLayout = "2006-01-02"
 
 func (r *PostgresQBTimeAbsenceRepository) DaysWithActivity(ctx context.Context, company string, days []time.Time) (map[string]bool, error) {

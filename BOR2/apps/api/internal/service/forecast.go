@@ -51,7 +51,7 @@ func (s *ForecastService) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *ForecastService) ToggleFieldwire(ctx context.Context, fwID int64, status bool) error {
+func (s *ForecastService) ToggleFieldwire(ctx context.Context, fwID int64, status string) error {
 	return s.repo.UpdateFieldwireStatus(ctx, fwID, status)
 }
 

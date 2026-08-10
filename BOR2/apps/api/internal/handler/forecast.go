@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 	"github.com/bitencourtVitor/bor2-api/internal/service"
@@ -87,12 +88,16 @@ func (h *ForecastHandler) ToggleFieldwire(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
 	}
 	var body struct {
-		Status bool `json:"status"`
+		Status string `json:"status"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
 	}
-	if err := h.svc.ToggleFieldwire(c.Context(), fwID, body.Status); err != nil {
+	status := strings.ToLower(strings.TrimSpace(body.Status))
+	if status != "" && status != "completed" && status != "dispensed" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "status must be completed, dispensed, or empty", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.ToggleFieldwire(c.Context(), fwID, status); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)

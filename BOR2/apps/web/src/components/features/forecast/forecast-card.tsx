@@ -75,7 +75,7 @@ function fmt(d?: string | null) {
 function isTruthy(v?: string | boolean | null): boolean {
   if (typeof v === "boolean") return v
   if (!v) return false
-  return ["yes", "sim", "true", "1", "y", "scheduled", "dispensed"].includes(v.toString().toLowerCase().trim())
+  return ["yes", "sim", "true", "1", "y", "scheduled", "dispensed", "completed", "complete"].includes(v.toString().toLowerCase().trim())
 }
 
 function getCompletionMetrics(p: ForecastProject) {

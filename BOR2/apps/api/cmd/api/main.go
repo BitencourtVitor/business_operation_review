@@ -141,7 +141,10 @@ func main() {
 	budgetTaxonomyHandler := handler.NewBudgetTaxonomyHandler(db)
 	// Shared transactional delivery is composed once and injected into every feature that sends mail.
 	emailSender := service.NewGmailAPISenderFromEnv()
+	alertRecipients := service.NewAlertRecipientDirectory(db)
+	workersCompReviewService := service.NewWorkersCompReviewService(db, emailSender)
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
+	workersCompReviewHandler := handler.NewWorkersCompReviewHandler(workersCompReviewService)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler := handler.NewBuildingsHandler(db, auditService)
@@ -555,6 +558,8 @@ func main() {
 	subDocs.Get("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.ListEmailRecipients)
 	subDocs.Put("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.UpdateEmailRecipients)
 	subDocs.Post("/email-recipients/test", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.SendEmailRecipientsTest)
+	subDocs.Get("/workers-comp-review", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.Current)
+	subDocs.Patch("/workers-comp-review/checks/:id", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.UpdateCheck)
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)
 	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)
@@ -601,13 +606,11 @@ func main() {
 	defer jobCancel()
 
 	alertsJob := jobs.NewForecastAlertsJob(jobs.ForecastAlertsConfig{
-		SMTPHost:     "smtp.gmail.com",
-		SMTPPort:     "587",
-		GmailUser:    os.Getenv("GMAIL_USER"),
-		GmailPass:    os.Getenv("GMAIL_APP_PASSWORD"),
-		AlertDays:    15,
-		ForecastRepo: forecastRepo,
+		DB:         db,
+		Email:      emailSender,
+		Recipients: alertRecipients,
 	})
+	workersCompReviewJob := jobs.NewWorkersCompReviewJob(workersCompReviewService)
 
 	qbSyncJob := jobs.NewQBSyncJob(jobs.QBSyncConfig{
 		Syncer:   quickbooks.NewSyncer(db),
@@ -615,7 +618,7 @@ func main() {
 		Sandbox:  cfg.App.Env != "production",
 	})
 
-	scheduler := jobs.NewScheduler(alertsJob, qbSyncJob)
+	scheduler := jobs.NewScheduler(alertsJob, workersCompReviewJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────

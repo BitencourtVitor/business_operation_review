@@ -326,8 +326,14 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
 function FieldwireTab({ p }: { p: ForecastProject }) {
   const fw     = p.fieldwire ?? []
   const toggle = useToggleFieldwire()
-  const isOk   = (f: typeof fw[0]) => f.status === "true" || f.status === true || f.status === "t" || f.status === "1"
-  const done   = fw.filter(isOk).length
+  type FieldwireState = "none" | "completed" | "dispensed"
+  const getState = (f: typeof fw[0]): FieldwireState => {
+    const value = String(f.status ?? "").toLowerCase()
+    if (value === "dispensed") return "dispensed"
+    if (["completed", "complete", "true", "t", "1", "yes"].includes(value)) return "completed"
+    return "none"
+  }
+  const done = fw.filter(f => getState(f) !== "none").length
 
   // Group by category
   const groups = fw.reduce<Record<string, typeof fw>>((acc, f) => {
@@ -355,28 +361,42 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{cat}</p>
             <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
               {items.map((f, i) => {
-                const checked    = isOk(f)
+                const state      = getState(f)
                 const isToggling = toggle.isPending && toggle.variables?.fwId === f.id
                 return (
-                  <label
+                  <div
                     key={f.id ?? i}
-                    className={`flex cursor-pointer items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
+                    className={`flex items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
                   >
                     {isToggling
                       ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
-                      : <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 shrink-0 accent-primary"
-                          checked={checked}
-                          onChange={e => {
-                            if (f.id != null) toggle.mutate({ fwId: f.id, status: e.target.checked })
-                          }}
-                        />
+                      : <div className="flex shrink-0 overflow-hidden rounded-md border bg-background">
+                          {([
+                            ["none", <X key="none" className="h-3 w-3" />, "Not required"],
+                            ["completed", <Check key="completed" className="h-3 w-3" />, "Completed"],
+                            ["dispensed", <Ban key="dispensed" className="h-3 w-3" />, "Dispensed"],
+                          ] as const).map(([value, icon, label]) => (
+                            <button
+                              key={value}
+                              type="button"
+                              title={label}
+                              aria-label={`${label}: ${f.document ?? "document"}`}
+                              className={`grid h-6 w-7 place-items-center border-r last:border-r-0 transition-colors ${
+                                state === value
+                                  ? value === "completed" ? "bg-emerald-600 text-white" : value === "dispensed" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+                                  : "text-muted-foreground hover:bg-muted"
+                              }`}
+                              onClick={() => f.id != null && toggle.mutate({ fwId: f.id, status: value === "none" ? "" : value })}
+                            >
+                              {icon}
+                            </button>
+                          ))}
+                        </div>
                     }
-                    <span className={`flex-1 truncate text-xs ${checked ? "text-muted-foreground line-through" : ""}`}>
+                    <span className={`flex-1 truncate text-xs ${state !== "none" ? "text-muted-foreground" : ""}`}>
                       {f.document?.trim() || `Doc #${f.id ?? i + 1}`}
                     </span>
-                  </label>
+                  </div>
                 )
               })}
             </div>

@@ -20,7 +20,7 @@ import { dateSearchStr } from "../lib"
 function isTruthy(v?: string | boolean | null): boolean {
   if (typeof v === "boolean") return v
   if (!v) return false
-  return ["yes","sim","true","1","y","scheduled","dispensed","done","complete"].includes(v.toLowerCase().trim())
+  return ["yes","sim","true","1","y","scheduled","dispensed","done","complete","completed"].includes(v.toLowerCase().trim())
 }
 
 function isFieldwireDone(p: ForecastProject)  { return !!p.fieldwire?.length && p.fieldwire.every(f => isTruthy(f.status)) }

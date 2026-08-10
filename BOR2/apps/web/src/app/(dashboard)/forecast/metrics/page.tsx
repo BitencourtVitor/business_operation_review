@@ -63,7 +63,7 @@ type AspectKey = (typeof ASPECTS)[number]["key"]
 function isTruthy(v: boolean | string | null | undefined): boolean {
   if (v === null || v === undefined) return false
   if (typeof v === "boolean") return v
-  return ["yes", "sim", "true", "1", "y"].includes(String(v).toLowerCase())
+  return ["yes", "sim", "true", "1", "y", "scheduled", "dispensed", "completed", "complete"].includes(String(v).toLowerCase())
 }
 
 function isMachineOk(status: string | null | undefined): boolean {

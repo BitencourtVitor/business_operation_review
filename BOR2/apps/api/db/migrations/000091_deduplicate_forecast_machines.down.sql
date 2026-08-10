@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS forecast_machines_project_title_unique_idx;

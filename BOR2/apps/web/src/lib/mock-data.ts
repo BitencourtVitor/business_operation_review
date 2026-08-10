@@ -30,9 +30,9 @@ export const MOCK_FORECAST_PROJECTS: ForecastProject[] = [
     previousStartDate: null,
     previousEndDate: null,
     fieldwire: [
-      { id: 1, status: true },
-      { id: 2, status: true },
-      { id: 3, status: true },
+      { id: 1, status: "completed" },
+      { id: 2, status: "completed" },
+      { id: 3, status: "completed" },
     ],
     machines: [
       { id: 1, title: "Boom Lift", status: "dispensed" },
@@ -71,8 +71,8 @@ export const MOCK_FORECAST_PROJECTS: ForecastProject[] = [
     previousStartDate: null,
     previousEndDate: null,
     fieldwire: [
-      { id: 4, status: true },
-      { id: 5, status: false },
+      { id: 4, status: "completed" },
+      { id: 5, status: null },
     ],
     machines: [
       { id: 3, title: "Boom Lift", status: "scheduled" },

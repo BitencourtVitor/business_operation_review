@@ -34,6 +34,30 @@ export interface SubDocEmailRecipientSettings {
 
 export interface EmailDeliveryResult { delivery_id: string; provider: string }
 
+export type WorkersCompCheckStatus = "pending" | "regular" | "irregular"
+
+export interface WorkersCompReviewCheck {
+  id: string
+  contractor_id: number
+  contractor_name: string
+  email: string
+  divisions: string[]
+  status: WorkersCompCheckStatus
+  notes: string
+  checked_by: string | null
+  checked_at: string | null
+}
+
+export interface WorkersCompReviewCycle {
+  id: string
+  review_date: string
+  communication_date: string
+  status: "open" | "closed"
+  review_email_sent_at: string | null
+  communication_sent_at: string | null
+  checks: WorkersCompReviewCheck[]
+}
+
 export interface SubDocEmailRecipientsData {
   users: SubDocEmailUser[]
   settings: SubDocEmailRecipientSettings
@@ -81,6 +105,12 @@ export const subcontractorDocsService = {
 
   sendEmailRecipientsTest: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
     api.post<EmailDeliveryResult>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
+
+  getWorkersCompReview: () =>
+    api.get<WorkersCompReviewCycle>(`/api/v1/subcontractor-docs/workers-comp-review`, getToken()),
+
+  updateWorkersCompCheck: (id: string, body: { status: WorkersCompCheckStatus; notes: string }) =>
+    api.patch<{ ok: boolean }>(`/api/v1/subcontractor-docs/workers-comp-review/checks/${id}`, body, getToken()),
 
   listContractors: (includeArchived?: boolean) =>
     api.get<SubDocContractor[]>(
