@@ -181,7 +181,7 @@ function DocCell({ contractorId, division, typeInfo, record }: {
   const Icon = meta.icon
   const dateLabel = typeInfo.has_expiry
     ? (record.status === "received" ? fmtDate(record.expiry_date) : meta.label)
-    : (record.status === "requested" && record.requested_date ? `req. ${fmtDate(record.requested_date)}` : meta.label)
+    : (record.status === "requested" && record.requested_date ? fmtDate(record.requested_date) : meta.label)
   const urgency = docUrgency(record, typeInfo.has_expiry)
   const flagged = urgency === "expired" || urgency === "urgent"
   const urgMeta = URGENCY_META[urgency]
@@ -346,7 +346,7 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
           return (
             <div key={division} className={cn("flex gap-3", isMultiDivision && "border-b border-border/20 py-3 first:pt-0 last:border-b-0 last:pb-0")}>
               {isMultiDivision && (
-                <div className="flex w-12 shrink-0 items-start justify-center pt-2">
+                <div className="flex w-12 shrink-0 items-center justify-center">
                   <DivisionLogo division={division} label={divisionInfo?.label ?? division} className="max-h-7 max-w-10" />
                 </div>
               )}
