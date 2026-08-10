@@ -140,7 +140,7 @@ func main() {
 	budgetHandler := handler.NewBudgetHandler(db, periodReportSvc)
 	budgetTaxonomyHandler := handler.NewBudgetTaxonomyHandler(db)
 	// Shared transactional delivery is composed once and injected into every feature that sends mail.
-	emailSender := service.NewBrevoEmailSenderFromEnv()
+	emailSender := service.NewGmailAPISenderFromEnv()
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
