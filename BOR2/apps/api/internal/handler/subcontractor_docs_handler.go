@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,31 +24,64 @@ type SubDocType struct {
 	Key       string `json:"key"`
 	Label     string `json:"label"`
 	HasExpiry bool   `json:"has_expiry"`
+	// Which divisions require this document. The catalog is shared, the list of
+	// what each division asks for is not.
+	Divisions []string `json:"divisions"`
+}
+
+type SubDocDivision struct {
+	Key   string `json:"key"`
+	Label string `json:"label"`
+}
+
+// GET /subcontractor-docs/divisions
+func (h *SubcontractorDocsHandler) ListDivisions(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(), `SELECT key, label FROM sub_doc_divisions ORDER BY sort_order`)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	out := []SubDocDivision{}
+	for rows.Next() {
+		var d SubDocDivision
+		rows.Scan(&d.Key, &d.Label)
+		out = append(out, d)
+	}
+	return c.JSON(fiber.Map{"data": out})
 }
 
 // GET /subcontractor-docs/types
 func (h *SubcontractorDocsHandler) ListTypes(c *fiber.Ctx) error {
-	rows, err := h.db.Query(c.Context(), `SELECT key, label, has_expiry FROM sub_doc_types ORDER BY sort_order`)
+	rows, err := h.db.Query(c.Context(), `
+		SELECT t.key, t.label, t.has_expiry, COALESCE(array_agg(d.division) FILTER (WHERE d.division IS NOT NULL), '{}')
+		FROM sub_doc_types t
+		LEFT JOIN sub_doc_type_divisions d ON d.doc_type = t.key
+		GROUP BY t.key, t.label, t.has_expiry, t.sort_order
+		ORDER BY t.sort_order
+	`)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	out := []SubDocType{}
 	for rows.Next() {
-		var t SubDocType
-		rows.Scan(&t.Key, &t.Label, &t.HasExpiry)
+		t := SubDocType{Divisions: []string{}}
+		rows.Scan(&t.Key, &t.Label, &t.HasExpiry, &t.Divisions)
 		out = append(out, t)
 	}
 	return c.JSON(fiber.Map{"data": out})
 }
 
 type SubDocRecord struct {
-	DocType       string  `json:"doc_type"`
+	DocType string `json:"doc_type"`
+	// Which division's list this record answers. "" is a sub with no division yet.
+	Division      string  `json:"division"`
 	Status        string  `json:"status"` // missing | requested | received | not_applicable
 	StartDate     *string `json:"start_date"`
 	ExpiryDate    *string `json:"expiry_date"`
 	RequestedDate *string `json:"requested_date"`
 	Notes         string  `json:"notes"`
+	URL           string  `json:"url"` // where the document lives, normally SharePoint
 }
 
 // Urgency buckets, computed from the soonest expiry among this contractor's
@@ -78,8 +112,12 @@ func urgencyFor(daysUntil int, hasExpiry bool) string {
 }
 
 type SubDocContractor struct {
-	ID         int            `json:"id"`
-	Company    *string        `json:"company"` // hvac|framing|pcg — nullable, not yet surfaced/collected by this page's UI
+	ID int `json:"id"`
+	// Kept for the company filter the rest of the app still speaks. Divisions are
+	// what this page works in now: a sub can serve several, and each one asks for
+	// its own set of documents.
+	Company    *string        `json:"company"`
+	Divisions  []string       `json:"divisions"`
 	Name       string         `json:"name"`
 	Email      string         `json:"email"`
 	Phone      string         `json:"phone"`
@@ -147,11 +185,30 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	}
 	typeRows.Close()
 
-	query := `SELECT id, company, name, email, phone, notes, archived FROM sub_doc_contractors`
-	if !includeArchived {
-		query += ` WHERE archived = false`
+	// What each division asks for. Since the catalog stopped being global, "in
+	// order" has to be judged against the divisions this sub actually serves —
+	// otherwise a Framing-only sub is pending for a document only PCG wants.
+	divTypeRows, err := h.db.Query(c.Context(), `SELECT division, doc_type FROM sub_doc_type_divisions`)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	query += ` ORDER BY name`
+	requiredBy := map[string][]string{}
+	for divTypeRows.Next() {
+		var division, docType string
+		divTypeRows.Scan(&division, &docType)
+		requiredBy[division] = append(requiredBy[division], docType)
+	}
+	divTypeRows.Close()
+
+	query := `
+		SELECT c.id, c.company, c.name, c.email, c.phone, c.notes, c.archived,
+		       COALESCE(array_agg(d.division ORDER BY d.division) FILTER (WHERE d.division IS NOT NULL), '{}')
+		FROM sub_doc_contractors c
+		LEFT JOIN sub_doc_contractor_divisions d ON d.contractor_id = c.id`
+	if !includeArchived {
+		query += ` WHERE c.archived = false`
+	}
+	query += ` GROUP BY c.id, c.company, c.name, c.email, c.phone, c.notes, c.archived ORDER BY c.name`
 	rows, err := h.db.Query(c.Context(), query)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -159,8 +216,8 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	out := []*SubDocContractor{}
 	byID := map[int]*SubDocContractor{}
 	for rows.Next() {
-		ctr := &SubDocContractor{Records: []SubDocRecord{}}
-		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.Email, &ctr.Phone, &ctr.Notes, &ctr.Archived)
+		ctr := &SubDocContractor{Records: []SubDocRecord{}, Divisions: []string{}}
+		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.Email, &ctr.Phone, &ctr.Notes, &ctr.Archived, &ctr.Divisions)
 		out = append(out, ctr)
 		byID[ctr.ID] = ctr
 	}
@@ -170,9 +227,9 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	}
 
 	recRows, err := h.db.Query(c.Context(), `
-		SELECT r.contractor_id, r.doc_type, r.status,
+		SELECT r.contractor_id, r.doc_type, r.division, r.status,
 		       to_char(r.start_date,'YYYY-MM-DD'), to_char(r.expiry_date,'YYYY-MM-DD'),
-		       to_char(r.requested_date,'YYYY-MM-DD'), r.notes, t.has_expiry
+		       to_char(r.requested_date,'YYYY-MM-DD'), r.notes, r.url, t.has_expiry
 		FROM sub_doc_records r
 		JOIN sub_doc_types t ON t.key = r.doc_type
 	`)
@@ -187,7 +244,7 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 		var rec SubDocRecord
 		var hasExpiry bool
 		var startDate, expiryDate, requestedDate *string
-		recRows.Scan(&contractorID, &rec.DocType, &rec.Status, &startDate, &expiryDate, &requestedDate, &rec.Notes, &hasExpiry)
+		recRows.Scan(&contractorID, &rec.DocType, &rec.Division, &rec.Status, &startDate, &expiryDate, &requestedDate, &rec.Notes, &rec.URL, &hasExpiry)
 		rec.StartDate, rec.ExpiryDate, rec.RequestedDate = startDate, expiryDate, requestedDate
 
 		ctr, ok := byID[contractorID]
@@ -222,15 +279,28 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 		case ctr.Archived:
 			ctr.Status = LifecycleInactive
 		default:
+			// Keyed by division as well: the same document can be received for
+			// one division and still missing for another.
 			recByType := make(map[string]SubDocRecord, len(ctr.Records))
 			for _, r := range ctr.Records {
-				recByType[r.DocType] = r
+				recByType[r.Division+"\x00"+r.DocType] = r
+			}
+			// A sub with no division yet is judged against nothing, the way it
+			// was before divisions existed.
+			divisions := ctr.Divisions
+			if len(divisions) == 0 {
+				divisions = []string{""}
 			}
 			outstanding := false
-			for key, hasExpiry := range docTypeHasExpiry {
-				rec, ok := recByType[key]
-				if !ok || !docSatisfied(rec, hasExpiry, today) {
-					outstanding = true
+			for _, division := range divisions {
+				for _, key := range requiredBy[division] {
+					rec, ok := recByType[division+"\x00"+key]
+					if !ok || !docSatisfied(rec, docTypeHasExpiry[key], today) {
+						outstanding = true
+						break
+					}
+				}
+				if outstanding {
 					break
 				}
 			}
@@ -269,14 +339,52 @@ func expiryLess(a, b *SubDocContractor) bool {
 }
 
 type contractorBody struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	Phone   string `json:"phone"`
-	Notes   string `json:"notes"`
-	Company string `json:"company"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	Notes string `json:"notes"`
+	// The divisions this sub serves. Several are allowed — Cruz Solutions Inc is
+	// framing and pcg. `company` is still accepted so the older single-value
+	// clients keep working.
+	Divisions []string `json:"divisions"`
+	Company   string   `json:"company"`
 }
 
 var validSubDocCompanies = map[string]bool{"hvac": true, "framing": true, "pcg": true}
+
+// The company column is the shared enum and only knows the three operating
+// companies, so a sub whose divisions are all new ones (Fisher Lane, Pleasant
+// Park) stores NULL there and lives entirely in the divisions table.
+func companyFor(b contractorBody) any {
+	if validSubDocCompanies[b.Company] {
+		return b.Company
+	}
+	for _, d := range b.Divisions {
+		if validSubDocCompanies[d] {
+			return d
+		}
+	}
+	return nil
+}
+
+func (h *SubcontractorDocsHandler) setDivisions(c *fiber.Ctx, contractorID int, divisions []string) error {
+	if _, err := h.db.Exec(c.Context(),
+		`DELETE FROM sub_doc_contractor_divisions WHERE contractor_id = $1`, contractorID); err != nil {
+		return err
+	}
+	for _, division := range divisions {
+		if division == "" {
+			continue
+		}
+		if _, err := h.db.Exec(c.Context(), `
+			INSERT INTO sub_doc_contractor_divisions (contractor_id, division)
+			VALUES ($1,$2) ON CONFLICT DO NOTHING
+		`, contractorID, division); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // POST /subcontractor-docs/contractors
 func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
@@ -287,15 +395,22 @@ func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
 	if b.Name == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "name is required")
 	}
-	if !validSubDocCompanies[b.Company] {
-		return fiber.NewError(fiber.StatusBadRequest, "company must be one of hvac|framing|pcg")
+	if len(b.Divisions) == 0 && !validSubDocCompanies[b.Company] {
+		return fiber.NewError(fiber.StatusBadRequest, "at least one division is required")
 	}
 	var id int
 	err := h.db.QueryRow(c.Context(), `
 		INSERT INTO sub_doc_contractors (name, email, phone, notes, company)
 		VALUES ($1,$2,$3,$4,$5) RETURNING id
-	`, b.Name, b.Email, b.Phone, b.Notes, b.Company).Scan(&id)
+	`, b.Name, b.Email, b.Phone, b.Notes, companyFor(b)).Scan(&id)
 	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	divisions := b.Divisions
+	if len(divisions) == 0 {
+		divisions = []string{b.Company}
+	}
+	if err := h.setDivisions(c, id, divisions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
@@ -311,14 +426,25 @@ func (h *SubcontractorDocsHandler) UpdateContractor(c *fiber.Ctx) error {
 	if b.Name == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "name is required")
 	}
-	if !validSubDocCompanies[b.Company] {
-		return fiber.NewError(fiber.StatusBadRequest, "company must be one of hvac|framing|pcg")
+	if len(b.Divisions) == 0 && !validSubDocCompanies[b.Company] {
+		return fiber.NewError(fiber.StatusBadRequest, "at least one division is required")
 	}
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE sub_doc_contractors SET name=$1, email=$2, phone=$3, notes=$4, company=$5, updated_at=now()
 		WHERE id=$6
-	`, b.Name, b.Email, b.Phone, b.Notes, b.Company, id)
+	`, b.Name, b.Email, b.Phone, b.Notes, companyFor(b), id)
 	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	contractorID, convErr := strconv.Atoi(id)
+	if convErr != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid id")
+	}
+	divisions := b.Divisions
+	if len(divisions) == 0 {
+		divisions = []string{b.Company}
+	}
+	if err := h.setDivisions(c, contractorID, divisions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(fiber.Map{"ok": true})
@@ -353,17 +479,19 @@ func (h *SubcontractorDocsHandler) ArchiveContractor(c *fiber.Ctx) error {
 }
 
 // PUT /subcontractor-docs/records
-// body {contractor_id, doc_type, status, start_date?, expiry_date?, requested_date?, notes?}
+// body {contractor_id, doc_type, status, start_date?, expiry_date?, requested_date?, notes?, url?}
 // Dates are "YYYY-MM-DD" or "" to clear.
 func (h *SubcontractorDocsHandler) SetRecord(c *fiber.Ctx) error {
 	var b struct {
 		ContractorID  int    `json:"contractor_id"`
 		DocType       string `json:"doc_type"`
+		Division      string `json:"division"`
 		Status        string `json:"status"`
 		StartDate     string `json:"start_date"`
 		ExpiryDate    string `json:"expiry_date"`
 		RequestedDate string `json:"requested_date"`
 		Notes         string `json:"notes"`
+		URL           string `json:"url"`
 	}
 	if err := c.BodyParser(&b); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
@@ -382,12 +510,12 @@ func (h *SubcontractorDocsHandler) SetRecord(c *fiber.Ctx) error {
 		requested = b.RequestedDate
 	}
 	_, err := h.db.Exec(c.Context(), `
-		INSERT INTO sub_doc_records (contractor_id, doc_type, status, start_date, expiry_date, requested_date, notes, updated_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,now())
-		ON CONFLICT (contractor_id, doc_type) DO UPDATE SET
+		INSERT INTO sub_doc_records (contractor_id, doc_type, division, status, start_date, expiry_date, requested_date, notes, url, updated_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
+		ON CONFLICT (contractor_id, division, doc_type) DO UPDATE SET
 			status=EXCLUDED.status, start_date=EXCLUDED.start_date, expiry_date=EXCLUDED.expiry_date,
-			requested_date=EXCLUDED.requested_date, notes=EXCLUDED.notes, updated_at=now()
-	`, b.ContractorID, b.DocType, b.Status, start, expiry, requested, b.Notes)
+			requested_date=EXCLUDED.requested_date, notes=EXCLUDED.notes, url=EXCLUDED.url, updated_at=now()
+	`, b.ContractorID, b.DocType, b.Division, b.Status, start, expiry, requested, b.Notes, b.URL)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

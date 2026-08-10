@@ -1,6 +1,5 @@
 import { api } from "@/lib/api"
 import { useAuthStore } from "@/store/auth.store"
-import type { Company } from "@/lib/company"
 
 function getToken() {
   return useAuthStore.getState().token ?? ""
@@ -14,15 +13,24 @@ export interface SubDocType {
   key: string
   label: string
   has_expiry: boolean
+  divisions: string[]
+}
+
+export interface SubDocDivision {
+  key: string
+  label: string
 }
 
 export interface SubDocRecord {
   doc_type: string
+  division: string
   status: DocStatus
   start_date: string | null
   expiry_date: string | null
   requested_date: string | null
   notes: string
+  // Where the document actually is — normally a SharePoint link.
+  url: string
 }
 
 export interface SubDocContractor {
@@ -31,7 +39,8 @@ export interface SubDocContractor {
   email: string
   phone: string
   notes: string
-  company: Company | null
+  company: string | null
+  divisions: string[]
   archived: boolean
   records: SubDocRecord[]
   next_expiry: string | null
@@ -43,16 +52,19 @@ export const subcontractorDocsService = {
   listTypes: () =>
     api.get<SubDocType[]>(`/api/v1/subcontractor-docs/types`, getToken()).then(r => r ?? []),
 
+  listDivisions: () =>
+    api.get<SubDocDivision[]>(`/api/v1/subcontractor-docs/divisions`, getToken()).then(r => r ?? []),
+
   listContractors: (includeArchived?: boolean) =>
     api.get<SubDocContractor[]>(
       `/api/v1/subcontractor-docs/contractors${includeArchived ? "?include_archived=true" : ""}`,
       getToken(),
     ).then(r => r ?? []),
 
-  createContractor: (body: { name: string; email: string; phone: string; notes: string; company: Company }) =>
+  createContractor: (body: { name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
     api.post<{ id: number }>(`/api/v1/subcontractor-docs/contractors`, body, getToken()),
 
-  updateContractor: (id: number, body: { name: string; email: string; phone: string; notes: string; company: Company }) =>
+  updateContractor: (id: number, body: { name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
     api.put(`/api/v1/subcontractor-docs/contractors/${id}`, body, getToken()),
 
   deleteContractor: (id: number) =>
@@ -62,8 +74,9 @@ export const subcontractorDocsService = {
     api.patch(`/api/v1/subcontractor-docs/contractors/${id}/archive`, { archived }, getToken()),
 
   setRecord: (body: {
-    contractor_id: number; doc_type: string; status: DocStatus
+    contractor_id: number; doc_type: string; division: string; status: DocStatus
     start_date?: string; expiry_date?: string; requested_date?: string; notes?: string
+    url?: string
   }) =>
     api.put(`/api/v1/subcontractor-docs/records`, body, getToken()),
 }
