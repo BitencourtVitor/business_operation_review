@@ -32,6 +32,8 @@ export interface SubDocEmailRecipientSettings {
   cc_user_ids: string[]
 }
 
+export interface EmailDeliveryResult { delivery_id: string; provider: string }
+
 export interface SubDocEmailRecipientsData {
   users: SubDocEmailUser[]
   settings: SubDocEmailRecipientSettings
@@ -78,7 +80,7 @@ export const subcontractorDocsService = {
     api.put<SubDocEmailRecipientSettings>(`/api/v1/subcontractor-docs/email-recipients`, body, getToken()),
 
   sendEmailRecipientsTest: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
-    api.post<void>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
+    api.post<EmailDeliveryResult>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
 
   listContractors: (includeArchived?: boolean) =>
     api.get<SubDocContractor[]>(
