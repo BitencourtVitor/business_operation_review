@@ -6,7 +6,6 @@ import type {
 } from "./types"
 import { clampEventDate, clampNewEventDate, compareEvents, lastEvent, SETS_SCHEDULE } from "./events"
 import { projectTypeQuestionId } from "./trades-seed"
-import { DEMO_PROJECTS } from "./demo-project"
 
 // Local-only while the page is being designed — moves to the Railway API once
 // the shape settles.
@@ -14,7 +13,6 @@ interface ProjectsState {
   projects: Project[]
   // How many demo projects this store has been handed. Not persist's `version`
   // — see DEMO_SEED_REVISION.
-  demoSeedRevision: number
   addProject: (project: Project) => void
   updateProject: (id: string, patch: Partial<Project>) => void
   deleteProject: (id: string) => void
@@ -68,12 +66,8 @@ function projectTypeFromAnswers(project: Project): ProjectType {
 // before the bump ever rehydrates and migrate is then skipped forever. This
 // counter only moves when a demo is actually added. Declared above the store
 // with the rest — rehydration runs while this module is still evaluating.
-const DEMO_SEED_REVISION = 2
-
-function withDemos(projects: Project[], revision: number): Project[] {
-  if (revision >= DEMO_SEED_REVISION) return projects
-  const known = new Set(projects.map(p => p.id))
-  return [...DEMO_PROJECTS.filter(p => !known.has(p.id)), ...projects]
+function withoutLegacyDemos(projects: Project[]): Project[] {
+  return projects.filter(project => !project.id.startsWith("demo-"))
 }
 
 // The schedule used to sit on the trade, one per trade. Hand it to the last
@@ -109,8 +103,7 @@ function legacyLeadTime(event: TradeEvent & { leadTime?: string }): TradeEvent {
 export const useProjectsStore = create<ProjectsState>()(
   persist(
     (set) => ({
-      projects: DEMO_PROJECTS,
-      demoSeedRevision: DEMO_SEED_REVISION,
+      projects: [],
       addProject: (project) => set(s => ({ projects: [project, ...s.projects] })),
       updateProject: (id, patch) => set(s => ({
         projects: s.projects.map(p => (p.id === id ? { ...p, ...patch } : p)),
@@ -168,7 +161,7 @@ export const useProjectsStore = create<ProjectsState>()(
       // v8 moved the payment schedule off the trade and onto the event that
       // settled it — one schedule per trade meant a contract adjustment silently
       // rewrote what the approval had agreed.
-      version: 8,
+      version: 9,
       migrate: (state, version) => {
         const s = state as ProjectsState
         const projects = version >= 2
@@ -188,7 +181,7 @@ export const useProjectsStore = create<ProjectsState>()(
         }))
         // Seeding the demos is merge's job now — it runs on every rehydration,
         // so a seed added after this store was last migrated still arrives.
-        return { ...s, projects: sorted }
+        return { ...s, projects: withoutLegacyDemos(sorted) }
       },
       // Same lesson as the catalog store: a version bump fires once, and if it
       // lands before the code it was delivering has compiled, the field it was
@@ -208,8 +201,7 @@ export const useProjectsStore = create<ProjectsState>()(
         return {
           ...current,
           ...s,
-          projects: withDemos(stored, s.demoSeedRevision ?? 0),
-          demoSeedRevision: DEMO_SEED_REVISION,
+          projects: withoutLegacyDemos(stored),
         }
       },
     }
