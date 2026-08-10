@@ -51,10 +51,10 @@ type GmailAPISender struct {
 
 func NewGmailAPISenderFromEnv() *GmailAPISender {
 	return &GmailAPISender{
-		clientID:     os.Getenv("GMAIL_CLIENT_ID"),
-		clientSecret: os.Getenv("GMAIL_CLIENT_SECRET"),
-		refreshToken: os.Getenv("GMAIL_REFRESH_TOKEN"),
-		sender:       os.Getenv("GMAIL_USER"),
+		clientID:     strings.TrimSpace(os.Getenv("GMAIL_CLIENT_ID")),
+		clientSecret: strings.TrimSpace(os.Getenv("GMAIL_CLIENT_SECRET")),
+		refreshToken: strings.TrimSpace(os.Getenv("GMAIL_REFRESH_TOKEN")),
+		sender:       strings.TrimSpace(os.Getenv("GMAIL_USER")),
 		client:       &http.Client{Timeout: 20 * time.Second},
 	}
 }
