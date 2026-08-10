@@ -545,6 +545,7 @@ func main() {
 
 	// Subcontractor Docs (compliance document tracking per subcontractor)
 	subDocs := api.Group("/subcontractor-docs")
+	subDocs.Get("/divisions", subcontractorDocsHandler.ListDivisions)
 	subDocs.Get("/types", subcontractorDocsHandler.ListTypes)
 	subDocs.Get("/contractors", subcontractorDocsHandler.ListContractors)
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)

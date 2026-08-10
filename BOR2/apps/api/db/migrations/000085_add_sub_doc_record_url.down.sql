@@ -1,0 +1,1 @@
+ALTER TABLE sub_doc_records DROP COLUMN IF EXISTS url;

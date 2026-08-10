@@ -7,13 +7,14 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore,
+  Download, Building2, Archive, ArchiveRestore, ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { PageSkeleton } from "@/components/common/page-skeleton"
@@ -23,9 +24,9 @@ import type { Company } from "@/lib/company"
 import {
   useSubDocTypes, useSubDocContractors, useCreateSubDocContractor,
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
-  useArchiveSubDocContractor,
+  useArchiveSubDocContractor, useSubDocDivisions,
 } from "@/hooks/use-subcontractor-docs"
-import type { SubDocContractor, SubDocRecord, SubDocType, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
+import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -56,8 +57,24 @@ const STATUS_META: Record<DocStatus, { label: string; icon: React.ElementType; c
   not_applicable: { label: "N/A",       icon: X,           color: "text-muted-foreground/30" },
 }
 
-const EMPTY_RECORD = (docType: string): SubDocRecord => ({
-  doc_type: docType, status: "missing", start_date: null, expiry_date: null, requested_date: null, notes: "",
+const DIVISION_IMAGES: Record<string, string> = {
+  framing: "/images/sublogo_framing.png",
+  hvac: "/images/sublogo_hvac.png",
+  // Keep this consistent with the PCG Bids and Contracts item in the sidebar.
+  pcg: "/images/icon_pcg.png",
+  // These divisions do not have dedicated logos yet.
+  "fisher-lane": "/favicon.png",
+  "pleasant-park": "/favicon.png",
+}
+
+function DivisionLogo({ division, label, className }: { division: string; label: string; className?: string }) {
+  const src = DIVISION_IMAGES[division] ?? "/favicon.png"
+  return <img src={src} alt={label} className={cn("h-4 w-auto object-contain", className)} />
+}
+
+const EMPTY_RECORD = (docType: string, division: string): SubDocRecord => ({
+  doc_type: docType, division, status: "missing", start_date: null, expiry_date: null, requested_date: null,
+  notes: "", url: "",
 })
 
 // ── Formatters ───────────────────────────────────────────────────────────────
@@ -131,8 +148,8 @@ function MiniDatePicker({ label, value, onSelect }: { label: string; value: stri
 
 // ── Document cell (status + dates + notes editor) ──────────────────────────────
 
-function DocCell({ contractorId, typeInfo, record }: {
-  contractorId: number; typeInfo: SubDocType; record: SubDocRecord
+function DocCell({ contractorId, division, typeInfo, record }: {
+  contractorId: number; division: string; typeInfo: SubDocType; record: SubDocRecord
 }) {
   const setRecord = useSetSubDocRecord()
   const [open, setOpen] = useState(false)
@@ -141,6 +158,7 @@ function DocCell({ contractorId, typeInfo, record }: {
   const [expiryDate, setExpiryDate] = useState(record.expiry_date ?? "")
   const [requestedDate, setRequestedDate] = useState(record.requested_date ?? "")
   const [notes, setNotes] = useState(record.notes ?? "")
+  const [url, setUrl] = useState(record.url ?? "")
 
   useEffect(() => {
     if (!open) return
@@ -149,12 +167,13 @@ function DocCell({ contractorId, typeInfo, record }: {
     setExpiryDate(record.expiry_date ?? "")
     setRequestedDate(record.requested_date ?? "")
     setNotes(record.notes ?? "")
+    setUrl(record.url ?? "")
   }, [open, record])
 
   const save = () => {
     setRecord.mutate({
-      contractor_id: contractorId, doc_type: typeInfo.key, status,
-      start_date: startDate, expiry_date: expiryDate, requested_date: requestedDate, notes,
+      contractor_id: contractorId, doc_type: typeInfo.key, division, status,
+      start_date: startDate, expiry_date: expiryDate, requested_date: requestedDate, notes, url,
     }, { onSuccess: () => setOpen(false) })
   }
 
@@ -227,6 +246,31 @@ function DocCell({ contractorId, typeInfo, record }: {
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes…" className="min-h-16 text-xs" />
         </div>
 
+        {/* The record already said the document exists and when it expires. This
+            is where it is — so nobody has to go hunting for the file. */}
+        <div className="mb-3 flex flex-col gap-1">
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">
+            SharePoint link
+          </span>
+          <Input
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            placeholder="https://…"
+            className="h-7 text-xs"
+          />
+          {url.trim() && (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex w-fit items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ExternalLink className="h-2.5 w-2.5" />
+              Open document
+            </a>
+          )}
+        </div>
+
         <div className="flex justify-end gap-2">
           <button onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             Cancel
@@ -244,13 +288,16 @@ function DocCell({ contractorId, typeInfo, record }: {
 
 // ── Contractor card ─────────────────────────────────────────────────────────────
 
-function ContractorCard({ ctr, types, onEdit, onDelete }: {
-  ctr: SubDocContractor; types: SubDocType[]
+function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
+  ctr: SubDocContractor; types: SubDocType[]; divisions: SubDocDivision[]
   onEdit: () => void; onDelete: () => void
 }) {
   const meta = URGENCY_META[ctr.urgency]
   const life = LIFECYCLE_META[ctr.status]
-  const recordsByType = Object.fromEntries(ctr.records.map(r => [r.doc_type, r]))
+  const divisionByKey = Object.fromEntries(divisions.map(d => [d.key, d]))
+  const servedDivisions = ctr.divisions.length > 0 ? ctr.divisions : (ctr.company ? [ctr.company] : [])
+  const isMultiDivision = servedDivisions.length > 1
+  const recordsByDivisionAndType = Object.fromEntries(ctr.records.map(r => [`${r.division}\u0000${r.doc_type}`, r]))
   const archive = useArchiveSubDocContractor()
 
   return (
@@ -264,9 +311,9 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 truncate text-sm font-semibold leading-tight">
             {ctr.name}
-            {ctr.company
-              ? <CompanyLogo company={ctr.company} className="h-3.5 w-auto shrink-0" />
-              : <span className="shrink-0 text-[10px] font-medium text-muted-foreground/50">No company</span>}
+            {!isMultiDivision && servedDivisions[0] && (
+              <DivisionLogo division={servedDivisions[0]} label={divisionByKey[servedDivisions[0]]?.label ?? servedDivisions[0]} className="h-3.5 w-auto shrink-0" />
+            )}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email || "—"}</span>
@@ -290,10 +337,28 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
           <Trash2 className="h-3 w-3" />
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-2 border-t border-border/20 p-3 sm:grid-cols-4 lg:grid-cols-7">
-        {types.map(t => (
-          <DocCell key={t.key} contractorId={ctr.id} typeInfo={t} record={recordsByType[t.key] ?? EMPTY_RECORD(t.key)} />
-        ))}
+      <div className="border-t border-border/20 p-3">
+        {servedDivisions.length === 0 ? (
+          <p className="py-2 text-xs text-muted-foreground">No division assigned.</p>
+        ) : servedDivisions.map(division => {
+          const divisionInfo = divisionByKey[division]
+          const divisionTypes = types.filter(type => type.divisions.includes(division))
+          return (
+            <div key={division} className={cn("flex gap-3", isMultiDivision && "border-b border-border/20 py-3 first:pt-0 last:border-b-0 last:pb-0")}>
+              {isMultiDivision && (
+                <div className="flex w-12 shrink-0 items-start justify-center pt-2">
+                  <DivisionLogo division={division} label={divisionInfo?.label ?? division} className="max-h-7 max-w-10" />
+                </div>
+              )}
+              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+                {divisionTypes.map(type => (
+                  <DocCell key={`${division}-${type.key}`} contractorId={ctr.id} division={division} typeInfo={type}
+                    record={recordsByDivisionAndType[`${division}\u0000${type.key}`] ?? EMPTY_RECORD(type.key, division)} />
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -301,15 +366,17 @@ function ContractorCard({ ctr, types, onEdit, onDelete }: {
 
 // ── Add / Edit contractor dialog ────────────────────────────────────────────────
 
-function ContractorFormDialog({ open, onClose, initial }: {
+function ContractorFormDialog({ open, onClose, initial, divisions }: {
   open: boolean; onClose: () => void
   initial: SubDocContractor | null
+  divisions: SubDocDivision[]
 }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
-  const [company, setCompany] = useState<Company | "">("")
+  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([])
+  const company = selectedDivisions[0] as Company | ""
   const create = useCreateSubDocContractor()
   const update = useUpdateSubDocContractor()
   const isEdit = !!initial
@@ -320,16 +387,16 @@ function ContractorFormDialog({ open, onClose, initial }: {
     setEmail(initial?.email ?? "")
     setPhone(initial?.phone ?? "")
     setNotes(initial?.notes ?? "")
-    setCompany(initial?.company ?? "")
+    setSelectedDivisions(initial?.divisions ?? (initial?.company ? [initial.company] : []))
   }, [open, initial])
 
   const pending = create.isPending || update.isPending
   const save = () => {
-    if (!name.trim() || !company) return
+    if (!name.trim() || selectedDivisions.length === 0) return
     if (isEdit && initial) {
-      update.mutate({ id: initial.id, name, email, phone, notes, company }, { onSuccess: onClose })
+      update.mutate({ id: initial.id, name, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
     } else {
-      create.mutate({ name, email, phone, notes, company }, { onSuccess: onClose })
+      create.mutate({ name, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
     }
   }
 
@@ -353,7 +420,24 @@ function ContractorFormDialog({ open, onClose, initial }: {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Division</label>
-            <Select value={company} onValueChange={v => setCompany(v as Company)}>
+            <div className="grid grid-cols-2 gap-1.5 rounded-md border border-input p-1.5">
+              {divisions.map(division => {
+                const checked = selectedDivisions.includes(division.key)
+                return (
+                  <button key={division.key} type="button"
+                    onClick={() => setSelectedDivisions(current => checked ? current.filter(key => key !== division.key) : [...current, division.key])}
+                    className={cn("flex h-8 items-center gap-2 rounded px-2 text-left text-xs transition-colors", checked ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60")}>
+                    <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", checked ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+                      {checked && <Check className="h-3 w-3" />}
+                    </span>
+                    <DivisionLogo division={division.key} label={division.label} className="h-3.5 max-w-5" />
+                    <span className="truncate">{division.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <div className="hidden">
+            <Select value={selectedDivisions[0] ?? ""} onValueChange={v => setSelectedDivisions(v ? [v] : [])}>
               <SelectTrigger className="h-8 w-full text-sm">
                 {company
                   ? <span className="flex items-center gap-1.5"><CompanyLogo company={company} className="h-3.5 w-auto" />{COMPANY_LABEL[company]}</span>
@@ -367,6 +451,7 @@ function ContractorFormDialog({ open, onClose, initial }: {
                 ))}
               </SelectContent>
             </Select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
@@ -394,7 +479,7 @@ function ContractorFormDialog({ open, onClose, initial }: {
             <button onClick={onClose} className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               Cancel
             </button>
-            <button onClick={save} disabled={pending || !name.trim() || !company}
+            <button onClick={save} disabled={pending || !name.trim() || selectedDivisions.length === 0}
               className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50">
               {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {isEdit ? "Save" : "Add"}
@@ -487,10 +572,10 @@ function UrgencyFilter({ contractors, selected, setSelected }: {
 
 // ── Company multiselect dropdown ────────────────────────────────────────────────
 
-type CompanySelection = Company | "none"
+type CompanySelection = string | "none"
 
-function CompanyFilterDropdown({ contractors, selected, setSelected }: {
-  contractors: SubDocContractor[]; selected: Set<CompanySelection>; setSelected: (s: Set<CompanySelection>) => void
+function CompanyFilterDropdown({ contractors, divisions, selected, setSelected }: {
+  contractors: SubDocContractor[]; divisions: SubDocDivision[]; selected: Set<CompanySelection>; setSelected: (s: Set<CompanySelection>) => void
 }) {
   const toggle = (co: CompanySelection) => {
     const next = new Set(selected)
@@ -511,17 +596,18 @@ function CompanyFilterDropdown({ contractors, selected, setSelected }: {
           </button>
         )}
         <div className="flex flex-col">
-          {COMPANIES.map(co => {
+          {divisions.map(division => {
+            const co = division.key
             const on = selected.has(co)
-            const count = contractors.filter(c => c.company === co).length
+            const count = contractors.filter(c => c.divisions.includes(co)).length
             return (
               <button key={co} onClick={() => toggle(co)}
                 className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
                 <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
                   {on && <Check className="h-3 w-3" />}
                 </span>
-                <CompanyLogo company={co} className="h-3.5 w-auto shrink-0" />
-                <span className="min-w-0 flex-1 truncate">{COMPANY_LABEL[co]}</span>
+                <DivisionLogo division={co} label={division.label} className="h-3.5 max-w-5 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{division.label}</span>
                 <span className="shrink-0 text-muted-foreground/60">{count}</span>
               </button>
             )
@@ -626,6 +712,7 @@ const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, 
 
 export default function SubcontractorDocsPage() {
   const { data: types, isLoading: typesLoading } = useSubDocTypes()
+  const { data: divisions, isLoading: divisionsLoading } = useSubDocDivisions()
   const [showArchived, setShowArchived] = useState(false)
   const { data: contractors, isLoading } = useSubDocContractors(showArchived)
 
@@ -641,7 +728,7 @@ export default function SubcontractorDocsPage() {
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
       (urgencyFilter.size === 0 || urgencyFilter.has(c.urgency)) &&
-      (companyFilter.size === 0 || companyFilter.has(c.company ?? "none")))
+      (companyFilter.size === 0 || [...companyFilter].some(division => division === "none" ? c.divisions.length === 0 : c.divisions.includes(division))))
     .slice()
     .sort((a, b) => {
       const dir = sortAsc ? 1 : -1
@@ -652,7 +739,7 @@ export default function SubcontractorDocsPage() {
       return 0
     })
 
-  if (isLoading || typesLoading) return <PageSkeleton />
+  if (isLoading || typesLoading || divisionsLoading) return <PageSkeleton />
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -676,7 +763,7 @@ export default function SubcontractorDocsPage() {
           </div>
 
           <UrgencyFilter contractors={contractors ?? []} selected={urgencyFilter} setSelected={setUrgencyFilter} />
-          <CompanyFilterDropdown contractors={contractors ?? []} selected={companyFilter} setSelected={setCompanyFilter} />
+          <CompanyFilterDropdown contractors={contractors ?? []} divisions={divisions ?? []} selected={companyFilter} setSelected={setCompanyFilter} />
           <ExportMenu rows={rows} types={types ?? []} />
 
           <button onClick={() => setAddOpen(true)}
@@ -742,7 +829,7 @@ export default function SubcontractorDocsPage() {
                       <span className="text-[11px] text-muted-foreground/60">· {gMeta.hint}</span>
                     </div>
                     {group.map(ctr => (
-                      <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []}
+                      <ContractorCard key={ctr.id} ctr={ctr} types={types ?? []} divisions={divisions ?? []}
                         onEdit={() => setEditing(ctr)} onDelete={() => setDeleting(ctr)} />
                     ))}
                   </div>
@@ -753,8 +840,8 @@ export default function SubcontractorDocsPage() {
         </div>
       </div>
 
-      <ContractorFormDialog open={addOpen} onClose={() => setAddOpen(false)} initial={null} />
-      <ContractorFormDialog open={!!editing} onClose={() => setEditing(null)} initial={editing} />
+      <ContractorFormDialog open={addOpen} onClose={() => setAddOpen(false)} initial={null} divisions={divisions ?? []} />
+      <ContractorFormDialog open={!!editing} onClose={() => setEditing(null)} initial={editing} divisions={divisions ?? []} />
       <DeleteContractorDialog contractor={deleting} onClose={() => setDeleting(null)} />
     </div>
   )

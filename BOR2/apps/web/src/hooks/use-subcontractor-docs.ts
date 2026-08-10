@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { subcontractorDocsService } from "@/services/subcontractor-docs.service"
-import type { Company } from "@/lib/company"
+
+export function useSubDocDivisions() {
+  return useQuery({
+    queryKey: ["sub-doc-divisions"],
+    queryFn: () => subcontractorDocsService.listDivisions(),
+    staleTime: 60 * 60 * 1000,
+  })
+}
 
 export function useSubDocTypes() {
   return useQuery({
@@ -28,7 +35,7 @@ export function useCreateSubDocContractor() {
 export function useUpdateSubDocContractor() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number; name: string; email: string; phone: string; notes: string; company: Company }) =>
+    mutationFn: ({ id, ...body }: { id: number; name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
       subcontractorDocsService.updateContractor(id, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-contractors"] }),
   })
