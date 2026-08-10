@@ -28,9 +28,16 @@ export function useSubDocEmailRecipients() {
 export function useUpdateSubDocEmailRecipients() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ alertType, toUserIDs, ccUserIDs }: { alertType: import("@/services/subcontractor-docs.service").SubDocEmailAlertType; toUserIDs: string[]; ccUserIDs: string[] }) =>
-      subcontractorDocsService.updateEmailRecipients(alertType, { to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
+    mutationFn: ({ toUserIDs, ccUserIDs }: { toUserIDs: string[]; ccUserIDs: string[] }) =>
+      subcontractorDocsService.updateEmailRecipients({ to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-email-recipients"] }),
+  })
+}
+
+export function useSendSubDocEmailRecipientsTest() {
+  return useMutation({
+    mutationFn: ({ toUserIDs, ccUserIDs }: { toUserIDs: string[]; ccUserIDs: string[] }) =>
+      subcontractorDocsService.sendEmailRecipientsTest({ to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
   })
 }
 

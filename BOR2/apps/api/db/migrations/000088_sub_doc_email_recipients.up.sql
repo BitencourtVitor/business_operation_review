@@ -1,7 +1,7 @@
--- Recipients are system users, not hardcoded names or e-mail addresses. A
--- separate configuration exists for the review and irregularity messages.
+-- Recipients are system users, not hardcoded names or e-mail addresses. One
+-- configuration is shared by every Subcontractor Docs compliance alert.
 CREATE TABLE IF NOT EXISTS sub_doc_email_recipient_settings (
-    alert_type text PRIMARY KEY CHECK (alert_type IN ('workers_comp_review', 'workers_comp_irregularity')),
+    alert_type text PRIMARY KEY CHECK (alert_type = 'workers_comp'),
     updated_by text REFERENCES users(id) ON DELETE SET NULL,
     updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -14,6 +14,5 @@ CREATE TABLE IF NOT EXISTS sub_doc_email_recipients (
 );
 
 INSERT INTO sub_doc_email_recipient_settings (alert_type) VALUES
-    ('workers_comp_review'),
-    ('workers_comp_irregularity')
+    ('workers_comp')
 ON CONFLICT (alert_type) DO NOTHING;
