@@ -346,8 +346,11 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
           return (
             <div key={division} className={cn("flex gap-3", isMultiDivision && "border-b border-border/20 py-3 first:pt-0 last:border-b-0 last:pb-0")}>
               {isMultiDivision && (
-                <div className="flex w-12 shrink-0 items-center justify-center">
+                <div className="flex w-12 shrink-0 flex-col items-center justify-center gap-1 text-center">
                   <DivisionLogo division={division} label={divisionInfo?.label ?? division} className="max-h-7 max-w-10" />
+                  <span className="max-w-full text-[9px] font-medium leading-tight text-muted-foreground">
+                    {divisionInfo?.label ?? division}
+                  </span>
                 </div>
               )}
               <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
