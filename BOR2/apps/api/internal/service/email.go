@@ -1,11 +1,15 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
 	"mime"
 	"net"
+	"net/http"
 	"net/smtp"
 	"os"
 	"strings"
@@ -29,6 +33,33 @@ type EmailDelivery struct {
 }
 
 type EmailSender interface { Send(context.Context, EmailMessage) (EmailDelivery, error) }
+
+// BrevoEmailSender delivers over HTTPS, which is the production provider on
+// Railway because outbound SMTP ports are unavailable there.
+type BrevoEmailSender struct { apiKey, sender string; client *http.Client }
+
+func NewBrevoEmailSenderFromEnv() *BrevoEmailSender {
+	return &BrevoEmailSender{apiKey: os.Getenv("BREVO_API_KEY"), sender: os.Getenv("GMAIL_USER"), client: &http.Client{Timeout: 15 * time.Second}}
+}
+
+func (s *BrevoEmailSender) Send(ctx context.Context, message EmailMessage) (EmailDelivery, error) {
+	if s.apiKey == "" || s.sender == "" { return EmailDelivery{}, fmt.Errorf("brevo email delivery is not configured") }
+	if len(message.To) == 0 { return EmailDelivery{}, fmt.Errorf("at least one primary recipient is required") }
+	recipients := func(emails []string) []map[string]string { out := make([]map[string]string, 0, len(emails)); for _, email := range emails { out = append(out, map[string]string{"email": email}) }; return out }
+	payload := map[string]any{"sender": map[string]string{"name": "Premium Group", "email": s.sender}, "to": recipients(message.To), "subject": message.Subject, "textContent": message.Text}
+	if len(message.CC) > 0 { payload["cc"] = recipients(message.CC) }
+	body, err := json.Marshal(payload); if err != nil { return EmailDelivery{}, fmt.Errorf("brevo payload: %w", err) }
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.brevo.com/v3/smtp/email", bytes.NewReader(body)); if err != nil { return EmailDelivery{}, fmt.Errorf("brevo request: %w", err) }
+	req.Header.Set("api-key", s.apiKey); req.Header.Set("Content-Type", "application/json")
+	resp, err := s.client.Do(req); if err != nil { return EmailDelivery{}, fmt.Errorf("brevo connection: %w", err) }
+	defer resp.Body.Close()
+	responseBody, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+	if resp.StatusCode >= 300 { return EmailDelivery{}, fmt.Errorf("brevo rejected email with status %d: %s", resp.StatusCode, strings.TrimSpace(string(responseBody))) }
+	var result struct { MessageID string `json:"messageId"` }; _ = json.Unmarshal(responseBody, &result)
+	if result.MessageID == "" { result.MessageID = uuid.NewString() }
+	logger.Info("email accepted by provider", "provider", "brevo", "delivery_id", result.MessageID, "to_count", len(message.To), "cc_count", len(message.CC))
+	return EmailDelivery{ID: result.MessageID, Provider: "brevo"}, nil
+}
 
 // GmailSMTPSender is the shared transactional-mail sender. Railway provides
 // GMAIL_USER and GMAIL_APP_PASSWORD as service variables; no handler reads
