@@ -548,6 +548,8 @@ func main() {
 	subDocs.Get("/divisions", subcontractorDocsHandler.ListDivisions)
 	subDocs.Get("/types", subcontractorDocsHandler.ListTypes)
 	subDocs.Get("/contractors", subcontractorDocsHandler.ListContractors)
+	subDocs.Get("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), subcontractorDocsHandler.ListEmailRecipients)
+	subDocs.Put("/email-recipients/:alertType", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), subcontractorDocsHandler.UpdateEmailRecipients)
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)
 	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)

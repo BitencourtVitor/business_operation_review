@@ -17,6 +17,23 @@ export function useSubDocTypes() {
   })
 }
 
+export function useSubDocEmailRecipients() {
+  return useQuery({
+    queryKey: ["sub-doc-email-recipients"],
+    queryFn: () => subcontractorDocsService.listEmailRecipients(),
+    enabled: false,
+  })
+}
+
+export function useUpdateSubDocEmailRecipients() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ alertType, toUserIDs, ccUserIDs }: { alertType: import("@/services/subcontractor-docs.service").SubDocEmailAlertType; toUserIDs: string[]; ccUserIDs: string[] }) =>
+      subcontractorDocsService.updateEmailRecipients(alertType, { to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-email-recipients"] }),
+  })
+}
+
 export function useSubDocContractors(includeArchived?: boolean) {
   return useQuery({
     queryKey: ["sub-doc-contractors", includeArchived ?? false],

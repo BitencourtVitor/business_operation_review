@@ -7,7 +7,7 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore, ExternalLink,
+  Download, Building2, Archive, ArchiveRestore, ExternalLink, Settings2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -24,9 +24,11 @@ import type { Company } from "@/lib/company"
 import {
   useSubDocTypes, useSubDocContractors, useCreateSubDocContractor,
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
-  useArchiveSubDocContractor, useSubDocDivisions,
+  useArchiveSubDocContractor, useSubDocDivisions, useSubDocEmailRecipients,
+  useUpdateSubDocEmailRecipients,
 } from "@/hooks/use-subcontractor-docs"
-import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
+import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle, SubDocEmailAlertType } from "@/services/subcontractor-docs.service"
+import { useAuthStore } from "@/store/auth.store"
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -709,6 +711,84 @@ td{padding:5px 8px;border:1px solid #e5e7eb}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+type RecipientDraft = Record<SubDocEmailAlertType, { to: string[]; cc: string[] }>
+
+function EmailRecipientsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const currentUser = useAuthStore(s => s.user)
+  const { data, isLoading, refetch } = useSubDocEmailRecipients()
+  const updateRecipients = useUpdateSubDocEmailRecipients()
+  const [draft, setDraft] = useState<RecipientDraft>({
+    workers_comp_review: { to: [], cc: [] },
+    workers_comp_irregularity: { to: [], cc: [] },
+  })
+
+  useEffect(() => { if (open) void refetch() }, [open, refetch])
+  useEffect(() => {
+    if (!data) return
+    const read = (alertType: SubDocEmailAlertType) => {
+      const saved = data.settings.find(setting => setting.alert_type === alertType)
+      return { to: saved?.to_user_ids ?? (currentUser ? [currentUser.id] : []), cc: saved?.cc_user_ids ?? [] }
+    }
+    setDraft({ workers_comp_review: read("workers_comp_review"), workers_comp_irregularity: read("workers_comp_irregularity") })
+  }, [data, currentUser])
+
+  const toggle = (alertType: SubDocEmailAlertType, field: "to" | "cc", userID: string) => {
+    setDraft(current => {
+      const next = current[alertType][field].includes(userID)
+        ? current[alertType][field].filter(id => id !== userID)
+        : [...current[alertType][field], userID]
+      const other = field === "to" ? "cc" : "to"
+      return { ...current, [alertType]: { ...current[alertType], [field]: next, [other]: current[alertType][other].filter(id => id !== userID) } }
+    })
+  }
+
+  const useOnlyMe = () => {
+    if (!currentUser) return
+    setDraft({ workers_comp_review: { to: [currentUser.id], cc: [] }, workers_comp_irregularity: { to: [currentUser.id], cc: [] } })
+  }
+
+  const save = async () => {
+    if (!draft.workers_comp_review.to.length || !draft.workers_comp_irregularity.to.length) {
+      toast.error("Each alert needs at least one primary recipient.")
+      return
+    }
+    try {
+      await updateRecipients.mutateAsync({ alertType: "workers_comp_review", toUserIDs: draft.workers_comp_review.to, ccUserIDs: draft.workers_comp_review.cc })
+      await updateRecipients.mutateAsync({ alertType: "workers_comp_irregularity", toUserIDs: draft.workers_comp_irregularity.to, ccUserIDs: draft.workers_comp_irregularity.cc })
+      toast.success("Email recipients updated.")
+      onClose()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save email recipients.")
+    }
+  }
+
+  const alerts: { type: SubDocEmailAlertType; title: string; description: string }[] = [
+    { type: "workers_comp_review", title: "Review request", description: "Thursday list of Workers' Compensation records to verify." },
+    { type: "workers_comp_irregularity", title: "Irregularity notice", description: "Friday notice after a review identifies an irregular record." },
+  ]
+
+  return <Dialog open={open} onOpenChange={value => !value && onClose()}>
+    <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+      <DialogHeader><DialogTitle>Email recipients</DialogTitle><p className="text-sm text-muted-foreground">Recipients are system users. Use “Only me” while validating the new alerts.</p></DialogHeader>
+      <div className="flex justify-end"><button type="button" onClick={useOnlyMe} disabled={!currentUser} className="h-8 rounded-md border border-input px-3 text-xs font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50">Only me</button></div>
+      {isLoading ? <div className="py-10 text-center text-sm text-muted-foreground">Loading users…</div> : <div className="space-y-5">
+        {alerts.map(alert => <section key={alert.type} className="rounded-lg border border-border/70 p-4">
+          <h3 className="text-sm font-semibold">{alert.title}</h3><p className="mt-1 text-xs text-muted-foreground">{alert.description}</p>
+          <div className="mt-3 overflow-hidden rounded-md border border-border/60">
+            <div className="grid grid-cols-[minmax(0,1fr)_54px_54px] border-b border-border/60 bg-muted/40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"><span>User</span><span className="text-center">To</span><span className="text-center">CC</span></div>
+            {(data?.users ?? []).map(user => <div key={user.id} className="grid grid-cols-[minmax(0,1fr)_54px_54px] items-center border-b border-border/50 px-3 py-2.5 last:border-b-0">
+              <div className="min-w-0"><p className="truncate text-sm font-medium">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p></div>
+              <label className="flex justify-center"><input aria-label={`${user.name} primary recipient`} type="checkbox" checked={draft[alert.type].to.includes(user.id)} onChange={() => toggle(alert.type, "to", user.id)} className="h-4 w-4 accent-primary" /></label>
+              <label className="flex justify-center"><input aria-label={`${user.name} copied recipient`} type="checkbox" checked={draft[alert.type].cc.includes(user.id)} onChange={() => toggle(alert.type, "cc", user.id)} className="h-4 w-4 accent-primary" /></label>
+            </div>)}
+          </div>
+        </section>)}
+      </div>}
+      <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className="h-9 rounded-md border border-input px-3 text-sm font-medium hover:bg-muted">Cancel</button><button type="button" onClick={() => void save()} disabled={isLoading || updateRecipients.isPending} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">Save recipients</button></div>
+    </DialogContent>
+  </Dialog>
+}
+
 type SortField = "urgency" | "name"
 
 const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, ok: 3, none: 4 }
@@ -727,6 +807,7 @@ export default function SubcontractorDocsPage() {
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<SubDocContractor | null>(null)
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
+  const [emailRecipientsOpen, setEmailRecipientsOpen] = useState(false)
 
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
@@ -768,6 +849,11 @@ export default function SubcontractorDocsPage() {
           <UrgencyFilter contractors={contractors ?? []} selected={urgencyFilter} setSelected={setUrgencyFilter} />
           <CompanyFilterDropdown contractors={contractors ?? []} divisions={divisions ?? []} selected={companyFilter} setSelected={setCompanyFilter} />
           <ExportMenu rows={rows} types={types ?? []} />
+
+          <button onClick={() => setEmailRecipientsOpen(true)} title="Manage email recipients"
+            className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
+            <Settings2 className="h-3.5 w-3.5" /> Email alerts
+          </button>
 
           <button onClick={() => setAddOpen(true)}
             className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80">
@@ -846,6 +932,7 @@ export default function SubcontractorDocsPage() {
       <ContractorFormDialog open={addOpen} onClose={() => setAddOpen(false)} initial={null} divisions={divisions ?? []} />
       <ContractorFormDialog open={!!editing} onClose={() => setEditing(null)} initial={editing} divisions={divisions ?? []} />
       <DeleteContractorDialog contractor={deleting} onClose={() => setDeleting(null)} />
+      <EmailRecipientsDialog open={emailRecipientsOpen} onClose={() => setEmailRecipientsOpen(false)} />
     </div>
   )
 }
