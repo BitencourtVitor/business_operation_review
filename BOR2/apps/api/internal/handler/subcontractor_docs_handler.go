@@ -2,6 +2,7 @@ package handler
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,6 +33,147 @@ type SubDocType struct {
 type SubDocDivision struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`
+}
+
+type SubDocEmailUser struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+type SubDocEmailRecipientSettings struct {
+	AlertType string   `json:"alert_type"`
+	ToUserIDs []string `json:"to_user_ids"`
+	CCUserIDs []string `json:"cc_user_ids"`
+}
+
+// GET /subcontractor-docs/email-recipients
+// Recipients are deliberately modeled as user ids. The delivery job resolves
+// the e-mail at send time, so an address change in Settings never leaves a
+// stale compliance recipient behind.
+func (h *SubcontractorDocsHandler) ListEmailRecipients(c *fiber.Ctx) error {
+	usersRows, err := h.db.Query(c.Context(), `SELECT id, name, email FROM users ORDER BY name, email`)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer usersRows.Close()
+	users := []SubDocEmailUser{}
+	for usersRows.Next() {
+		var user SubDocEmailUser
+		if err := usersRows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		users = append(users, user)
+	}
+
+	rows, err := h.db.Query(c.Context(), `
+		SELECT s.alert_type,
+		       COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'to'), '{}'),
+		       COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'cc'), '{}')
+		FROM sub_doc_email_recipient_settings s
+		LEFT JOIN sub_doc_email_recipients r ON r.alert_type = s.alert_type
+		GROUP BY s.alert_type
+		ORDER BY s.alert_type
+	`)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	settings := []SubDocEmailRecipientSettings{}
+	for rows.Next() {
+		var setting SubDocEmailRecipientSettings
+		if err := rows.Scan(&setting.AlertType, &setting.ToUserIDs, &setting.CCUserIDs); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		settings = append(settings, setting)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"users": users, "settings": settings}})
+}
+
+type updateSubDocEmailRecipientsReq struct {
+	ToUserIDs []string `json:"to_user_ids"`
+	CCUserIDs []string `json:"cc_user_ids"`
+}
+
+func uniqueUserIDs(ids []string) []string {
+	seen := map[string]bool{}
+	out := []string{}
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id != "" && !seen[id] {
+			seen[id] = true
+			out = append(out, id)
+		}
+	}
+	return out
+}
+
+// PUT /subcontractor-docs/email-recipients/:alertType
+func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
+	alertType := c.Params("alertType")
+	if alertType != "workers_comp_review" && alertType != "workers_comp_irregularity" {
+		return fiber.NewError(fiber.StatusBadRequest, "unknown alert type")
+	}
+
+	var req updateSubDocEmailRecipientsReq
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+	toIDs := uniqueUserIDs(req.ToUserIDs)
+	if len(toIDs) == 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "at least one primary recipient is required")
+	}
+	toSet := map[string]bool{}
+	for _, id := range toIDs {
+		toSet[id] = true
+	}
+	ccIDs := []string{}
+	for _, id := range uniqueUserIDs(req.CCUserIDs) {
+		if !toSet[id] {
+			ccIDs = append(ccIDs, id)
+		}
+	}
+	allIDs := append(append([]string{}, toIDs...), ccIDs...)
+	var userCount int
+	if err := h.db.QueryRow(c.Context(), `SELECT count(*) FROM users WHERE id = ANY($1)`, allIDs).Scan(&userCount); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	if userCount != len(allIDs) {
+		return fiber.NewError(fiber.StatusBadRequest, "one or more recipients are not system users")
+	}
+
+	actorID, _ := c.Locals("userID").(string)
+	tx, err := h.db.Begin(c.Context())
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer tx.Rollback(c.Context())
+	if _, err = tx.Exec(c.Context(), `
+		INSERT INTO sub_doc_email_recipient_settings (alert_type, updated_by, updated_at)
+		VALUES ($1, $2, now())
+		ON CONFLICT (alert_type) DO UPDATE SET updated_by = EXCLUDED.updated_by, updated_at = EXCLUDED.updated_at
+	`, alertType, actorID); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	if _, err = tx.Exec(c.Context(), `DELETE FROM sub_doc_email_recipients WHERE alert_type = $1`, alertType); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	for _, recipient := range []struct {
+		kind string
+		ids  []string
+	}{{"to", toIDs}, {"cc", ccIDs}} {
+		for _, userID := range recipient.ids {
+			if _, err = tx.Exec(c.Context(), `
+				INSERT INTO sub_doc_email_recipients (alert_type, recipient_type, user_id) VALUES ($1, $2, $3)
+			`, alertType, recipient.kind, userID); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+		}
+	}
+	if err = tx.Commit(c.Context()); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(fiber.Map{"data": SubDocEmailRecipientSettings{AlertType: alertType, ToUserIDs: toIDs, CCUserIDs: ccIDs}})
 }
 
 // GET /subcontractor-docs/divisions
