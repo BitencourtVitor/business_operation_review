@@ -208,7 +208,7 @@ func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
 	}
 
 	if _, err := h.email.Send(c.Context(), service.EmailMessage{To: toEmails, CC: ccEmails, Subject: "BOR2 - Subcontractor Docs email test", Text: "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."}); err != nil {
-		return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
+		return fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 
