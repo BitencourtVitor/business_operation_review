@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"fmt"
+	"net/smtp"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -42,7 +45,6 @@ type SubDocEmailUser struct {
 }
 
 type SubDocEmailRecipientSettings struct {
-	AlertType string   `json:"alert_type"`
 	ToUserIDs []string `json:"to_user_ids"`
 	CCUserIDs []string `json:"cc_user_ids"`
 }
@@ -66,26 +68,16 @@ func (h *SubcontractorDocsHandler) ListEmailRecipients(c *fiber.Ctx) error {
 		users = append(users, user)
 	}
 
-	rows, err := h.db.Query(c.Context(), `
-		SELECT s.alert_type,
-		       COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'to'), '{}'),
+	var settings SubDocEmailRecipientSettings
+	err = h.db.QueryRow(c.Context(), `
+		SELECT COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'to'), '{}'),
 		       COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'cc'), '{}')
 		FROM sub_doc_email_recipient_settings s
 		LEFT JOIN sub_doc_email_recipients r ON r.alert_type = s.alert_type
-		GROUP BY s.alert_type
-		ORDER BY s.alert_type
-	`)
+		WHERE s.alert_type = 'workers_comp'
+	`).Scan(&settings.ToUserIDs, &settings.CCUserIDs)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	defer rows.Close()
-	settings := []SubDocEmailRecipientSettings{}
-	for rows.Next() {
-		var setting SubDocEmailRecipientSettings
-		if err := rows.Scan(&setting.AlertType, &setting.ToUserIDs, &setting.CCUserIDs); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		settings = append(settings, setting)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"users": users, "settings": settings}})
 }
@@ -108,20 +100,10 @@ func uniqueUserIDs(ids []string) []string {
 	return out
 }
 
-// PUT /subcontractor-docs/email-recipients/:alertType
-func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
-	alertType := c.Params("alertType")
-	if alertType != "workers_comp_review" && alertType != "workers_comp_irregularity" {
-		return fiber.NewError(fiber.StatusBadRequest, "unknown alert type")
-	}
-
-	var req updateSubDocEmailRecipientsReq
-	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
-	}
+func (h *SubcontractorDocsHandler) validateEmailRecipients(c *fiber.Ctx, req updateSubDocEmailRecipientsReq) ([]string, []string, error) {
 	toIDs := uniqueUserIDs(req.ToUserIDs)
 	if len(toIDs) == 0 {
-		return fiber.NewError(fiber.StatusBadRequest, "at least one primary recipient is required")
+		return nil, nil, fiber.NewError(fiber.StatusBadRequest, "at least one primary recipient is required")
 	}
 	toSet := map[string]bool{}
 	for _, id := range toIDs {
@@ -136,10 +118,23 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 	allIDs := append(append([]string{}, toIDs...), ccIDs...)
 	var userCount int
 	if err := h.db.QueryRow(c.Context(), `SELECT count(*) FROM users WHERE id = ANY($1)`, allIDs).Scan(&userCount); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return nil, nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	if userCount != len(allIDs) {
-		return fiber.NewError(fiber.StatusBadRequest, "one or more recipients are not system users")
+		return nil, nil, fiber.NewError(fiber.StatusBadRequest, "one or more recipients are not system users")
+	}
+	return toIDs, ccIDs, nil
+}
+
+// PUT /subcontractor-docs/email-recipients
+func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
+	var req updateSubDocEmailRecipientsReq
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+	toIDs, ccIDs, err := h.validateEmailRecipients(c, req)
+	if err != nil {
+		return err
 	}
 
 	actorID, _ := c.Locals("userID").(string)
@@ -152,10 +147,10 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 		INSERT INTO sub_doc_email_recipient_settings (alert_type, updated_by, updated_at)
 		VALUES ($1, $2, now())
 		ON CONFLICT (alert_type) DO UPDATE SET updated_by = EXCLUDED.updated_by, updated_at = EXCLUDED.updated_at
-	`, alertType, actorID); err != nil {
+	`, "workers_comp", actorID); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	if _, err = tx.Exec(c.Context(), `DELETE FROM sub_doc_email_recipients WHERE alert_type = $1`, alertType); err != nil {
+	if _, err = tx.Exec(c.Context(), `DELETE FROM sub_doc_email_recipients WHERE alert_type = $1`, "workers_comp"); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	for _, recipient := range []struct {
@@ -165,7 +160,7 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 		for _, userID := range recipient.ids {
 			if _, err = tx.Exec(c.Context(), `
 				INSERT INTO sub_doc_email_recipients (alert_type, recipient_type, user_id) VALUES ($1, $2, $3)
-			`, alertType, recipient.kind, userID); err != nil {
+			`, "workers_comp", recipient.kind, userID); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 		}
@@ -173,7 +168,57 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 	if err = tx.Commit(c.Context()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(fiber.Map{"data": SubDocEmailRecipientSettings{AlertType: alertType, ToUserIDs: toIDs, CCUserIDs: ccIDs}})
+	return c.JSON(fiber.Map{"data": SubDocEmailRecipientSettings{ToUserIDs: toIDs, CCUserIDs: ccIDs}})
+}
+
+// POST /subcontractor-docs/email-recipients/test
+// Sends a deliberately generic message only after the caller explicitly asks
+// for it. The same recipient validation prevents arbitrary e-mail addresses.
+func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
+	var req updateSubDocEmailRecipientsReq
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+	toIDs, ccIDs, err := h.validateEmailRecipients(c, req)
+	if err != nil {
+		return err
+	}
+	allIDs := append(append([]string{}, toIDs...), ccIDs...)
+	rows, err := h.db.Query(c.Context(), `SELECT id, email FROM users WHERE id = ANY($1)`, allIDs)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	emails := map[string]string{}
+	for rows.Next() {
+		var id, email string
+		if err := rows.Scan(&id, &email); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		emails[id] = email
+	}
+	toEmails, ccEmails := []string{}, []string{}
+	for _, id := range toIDs {
+		toEmails = append(toEmails, emails[id])
+	}
+	for _, id := range ccIDs {
+		ccEmails = append(ccEmails, emails[id])
+	}
+
+	from, password := os.Getenv("GMAIL_USER"), os.Getenv("GMAIL_APP_PASSWORD")
+	if from == "" || password == "" {
+		return fiber.NewError(fiber.StatusServiceUnavailable, "email delivery is not configured")
+	}
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\n", from, strings.Join(toEmails, ", "))
+	if len(ccEmails) > 0 {
+		msg += fmt.Sprintf("Cc: %s\r\n", strings.Join(ccEmails, ", "))
+	}
+	msg += "Subject: BOR2 — Subcontractor Docs email test\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nThis is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."
+	auth := smtp.PlainAuth("", from, password, "smtp.gmail.com")
+	if err := smtp.SendMail("smtp.gmail.com:587", auth, from, append(toEmails, ccEmails...), []byte(msg)); err != nil {
+		return fiber.NewError(fiber.StatusBadGateway, "unable to send test email")
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 // GET /subcontractor-docs/divisions

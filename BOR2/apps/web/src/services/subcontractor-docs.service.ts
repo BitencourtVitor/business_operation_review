@@ -21,8 +21,6 @@ export interface SubDocDivision {
   label: string
 }
 
-export type SubDocEmailAlertType = "workers_comp_review" | "workers_comp_irregularity"
-
 export interface SubDocEmailUser {
   id: string
   name: string
@@ -30,14 +28,13 @@ export interface SubDocEmailUser {
 }
 
 export interface SubDocEmailRecipientSettings {
-  alert_type: SubDocEmailAlertType
   to_user_ids: string[]
   cc_user_ids: string[]
 }
 
 export interface SubDocEmailRecipientsData {
   users: SubDocEmailUser[]
-  settings: SubDocEmailRecipientSettings[]
+  settings: SubDocEmailRecipientSettings
 }
 
 export interface SubDocRecord {
@@ -77,8 +74,11 @@ export const subcontractorDocsService = {
   listEmailRecipients: () =>
     api.get<SubDocEmailRecipientsData>(`/api/v1/subcontractor-docs/email-recipients`, getToken()),
 
-  updateEmailRecipients: (alertType: SubDocEmailAlertType, body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
-    api.put<SubDocEmailRecipientSettings>(`/api/v1/subcontractor-docs/email-recipients/${alertType}`, body, getToken()),
+  updateEmailRecipients: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
+    api.put<SubDocEmailRecipientSettings>(`/api/v1/subcontractor-docs/email-recipients`, body, getToken()),
+
+  sendEmailRecipientsTest: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
+    api.post<void>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
 
   listContractors: (includeArchived?: boolean) =>
     api.get<SubDocContractor[]>(
