@@ -24,7 +24,13 @@ import {
 import type { EmailTrigger, TriggerParamDef } from "@/services/email-triggers.service"
 import { cn } from "@/lib/utils"
 
-type Props = { open: boolean; onClose: () => void }
+type Props = {
+  open: boolean
+  onClose: () => void
+  /** Restricts the modal to one module's triggers, so a page can open its own
+   *  e-mail settings without exposing the whole registry. */
+  module?: string
+}
 
 type Draft = {
   enabled: boolean
@@ -192,8 +198,12 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   )
 }
 
-export function EmailTriggersModal({ open, onClose }: Props) {
-  const { data: triggers, isLoading } = useEmailTriggers(open)
+export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Props) {
+  const { data: allTriggers, isLoading } = useEmailTriggers(open)
+  const triggers = useMemo(
+    () => moduleFilter ? (allTriggers ?? []).filter(t => t.module === moduleFilter) : allTriggers,
+    [allTriggers, moduleFilter],
+  )
   const { data: users } = useUsers()
   const update = useUpdateEmailTrigger()
   const preview = usePreviewEmailTrigger()
@@ -388,10 +398,12 @@ export function EmailTriggersModal({ open, onClose }: Props) {
         <DialogHeader className="border-b border-border px-5 py-3.5">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Mail className="h-4 w-4" />
-            Email Triggers
+            {moduleFilter ? `${moduleFilter} — Email Triggers` : "Email Triggers"}
           </DialogTitle>
           <p className="text-xs text-muted-foreground">
-            Every automatic e-mail the system sends. Subject and body are built from live data and stay in code.
+            {moduleFilter
+              ? "The automatic e-mails this screen sends. Subject and body are built from live data and stay in code."
+              : "Every automatic e-mail the system sends. Subject and body are built from live data and stay in code."}
           </p>
         </DialogHeader>
 
@@ -410,6 +422,8 @@ export function EmailTriggersModal({ open, onClose }: Props) {
           </div>
         ) : (
           <div className="flex min-h-0 flex-1">
+            {/* A single trigger needs no picker: the modal is already on it. */}
+            {(triggers?.length ?? 0) > 1 && (
             <aside className="flex w-60 shrink-0 flex-col overflow-y-auto border-r border-border bg-muted/20 p-2">
               {grouped.map(([module, items]) => (
                 <div key={module} className="mb-2">
@@ -440,6 +454,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                 </div>
               ))}
             </aside>
+            )}
 
             {selected && draft && (
               <div className="flex min-w-0 flex-1 flex-col">
