@@ -222,7 +222,13 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         onValueChange={value => patch({ runHour: Number(value) })}
                       >
                         <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Select an hour" />
+                          <SelectValue>
+                            {draft.runHour === null ? (
+                              <span className="text-muted-foreground">Select an hour</span>
+                            ) : (
+                              `${String(draft.runHour).padStart(2, "0")}:00 UTC`
+                            )}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {HOURS.map(hour => (
@@ -258,7 +264,11 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                                 }
                               >
                                 <SelectTrigger className="w-56">
-                                  <SelectValue placeholder="Select" />
+                                  <SelectValue>
+                                    {param.options?.find(option => option.value === String(value))?.label ?? (
+                                      <span className="text-muted-foreground">Select</span>
+                                    )}
+                                  </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                   {param.options?.map(option => (
