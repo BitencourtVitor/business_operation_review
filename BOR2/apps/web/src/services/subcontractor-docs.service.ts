@@ -51,10 +51,9 @@ export interface WorkersCompReviewCheck {
 export interface WorkersCompReviewCycle {
   id: string
   review_date: string
-  communication_date: string
   status: "open" | "closed"
   review_email_sent_at: string | null
-  communication_sent_at: string | null
+  closed_at: string | null
   checks: WorkersCompReviewCheck[]
 }
 

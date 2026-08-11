@@ -199,6 +199,34 @@ func (r *PostgresQBTimeAbsenceRepository) ReplaceWindow(ctx context.Context, com
 	}
 	defer tx.Rollback(ctx)
 
+	// The window is deleted and rebuilt every run, so an ongoing absence comes
+	// back as a brand new row. Without carrying notified_at across, the same
+	// person would be announced again every single day they keep missing.
+	// Keyed by the start date: a longer streak is the same absence, while a
+	// new absence starts on a new date and is news worth sending.
+	notified := map[string]time.Time{}
+	announcedRows, err := tx.Query(ctx, `
+		SELECT qbt_user_id, start_date, notified_at
+		FROM qbtime_absence_events
+		WHERE LOWER(company) = LOWER($1)
+		  AND end_date >= $2
+		  AND start_date <= $3
+		  AND notified_at IS NOT NULL
+	`, company, from, to)
+	if err != nil {
+		return fmt.Errorf("read announced absences: %w", err)
+	}
+	for announcedRows.Next() {
+		var userID int64
+		var start, at time.Time
+		if err := announcedRows.Scan(&userID, &start, &at); err != nil {
+			announcedRows.Close()
+			return fmt.Errorf("scan announced absence: %w", err)
+		}
+		notified[fmt.Sprintf("%d|%s", userID, start.Format("2006-01-02"))] = at
+	}
+	announcedRows.Close()
+
 	if _, err := tx.Exec(ctx, `
 		DELETE FROM qbtime_absence_events
 		WHERE LOWER(company) = LOWER($1)
@@ -209,17 +237,22 @@ func (r *PostgresQBTimeAbsenceRepository) ReplaceWindow(ctx context.Context, com
 	}
 
 	for _, e := range events {
+		var announcedAt any
+		if at, ok := notified[fmt.Sprintf("%d|%s", e.QBTUserID, e.StartDate.Format("2006-01-02"))]; ok {
+			announcedAt = at
+		}
 		if _, err := tx.Exec(ctx, `
 			INSERT INTO qbtime_absence_events
-			  (company, qbt_user_id, employee_name, team_name, start_date, end_date, days_count)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			  (company, qbt_user_id, employee_name, team_name, start_date, end_date, days_count, notified_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			ON CONFLICT (company, qbt_user_id, start_date) DO UPDATE
 			SET employee_name = EXCLUDED.employee_name,
 			    team_name     = EXCLUDED.team_name,
 			    end_date      = EXCLUDED.end_date,
 			    days_count    = EXCLUDED.days_count,
+			    notified_at   = COALESCE(qbtime_absence_events.notified_at, EXCLUDED.notified_at),
 			    updated_at    = NOW()
-		`, company, e.QBTUserID, e.EmployeeName, e.TeamName, e.StartDate, e.EndDate, e.DaysCount); err != nil {
+		`, company, e.QBTUserID, e.EmployeeName, e.TeamName, e.StartDate, e.EndDate, e.DaysCount, announcedAt); err != nil {
 			return fmt.Errorf("upsert absence event (user_id=%d): %w", e.QBTUserID, err)
 		}
 	}
