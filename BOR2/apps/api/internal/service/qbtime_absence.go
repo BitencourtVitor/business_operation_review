@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"html"
 	"sort"
 	"strings"
 	"time"
@@ -257,23 +256,28 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 		return err
 	}
 	if emailDue && len(to) > 0 {
-		var htmlRows strings.Builder
+		rows := make([]AbsenceRow, 0, len(pending))
 		for _, event := range pending {
-			htmlRows.WriteString("<tr><td>" + html.EscapeString(event.EmployeeName) + "</td><td>" + html.EscapeString(event.TeamName) + "</td><td>" + fmt.Sprint(event.DaysCount) + "</td><td>" + html.EscapeString(event.StartDate) + "</td></tr>")
+			rows = append(rows, AbsenceRow{
+				EmployeeName: event.EmployeeName,
+				TeamName:     event.TeamName,
+				DaysCount:    event.DaysCount,
+				StartDate:    event.StartDate,
+			})
 		}
+		body := BuildAbsenceEmail(company, alertDays, rows)
 		delivery, err := s.email.Send(ctx, EmailMessage{
-			To: to, CC: cc, Subject: title, Text: content,
-			HTML: fmt.Sprintf("<p>No clock-in was found for %d consecutive evaluated business days.</p>", alertDays) + "<table style=\"border-collapse:collapse;width:100%\"><thead><tr><th align=\"left\">Employee</th><th align=\"left\">Team</th><th align=\"left\">Days</th><th align=\"left\">Since</th></tr></thead><tbody>" + htmlRows.String() + "</tbody></table>",
+			To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
 		})
 		if err != nil {
 			s.triggers.LogDelivery(ctx, TriggerDelivery{
-				TriggerKey: TriggerQBTimeAbsence, Subject: title, To: to, CC: cc,
+				TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc,
 				Context: label, Status: "failed", Error: err.Error(),
 			})
 			return fmt.Errorf("send absence email: %w", err)
 		}
 		s.triggers.LogDelivery(ctx, TriggerDelivery{
-			TriggerKey: TriggerQBTimeAbsence, Subject: title, To: to, CC: cc, Context: label,
+			TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc, Context: label,
 		})
 		logger.Info("absence email accepted", "company", company, "delivery_id", delivery.ID, "events", len(pending))
 	}

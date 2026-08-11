@@ -5,7 +5,7 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
-export type TriggerParamType = "int" | "text" | "date" | "select"
+export type TriggerParamType = "int" | "text" | "date" | "select" | "multiselect"
 
 export interface TriggerParamOption {
   value: string
@@ -20,6 +20,14 @@ export interface TriggerParamDef {
   options?: TriggerParamOption[]
   min?: number
   max?: number
+  // Renders on the same row as the previous field.
+  inline?: boolean
+}
+
+export interface EmailBody {
+  subject: string
+  text: string
+  html: string
 }
 
 export interface EmailTrigger {
@@ -68,4 +76,7 @@ export const emailTriggersService = {
 
   history: (key: string) =>
     api.get<EmailTriggerDelivery[]>(`/api/v1/email-triggers/${key}/history`, getToken()),
+
+  preview: (key: string, body: UpdateEmailTriggerBody) =>
+    api.post<EmailBody>(`/api/v1/email-triggers/${key}/preview`, body, getToken()),
 }
