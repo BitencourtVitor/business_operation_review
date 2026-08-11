@@ -33,6 +33,8 @@ export interface EmailBody {
 export interface EmailTrigger {
   key: string
   label: string
+  /** System the trigger belongs to; the modal maps it to an image or glyph. */
+  icon: string
   module: string
   description: string
   when: string

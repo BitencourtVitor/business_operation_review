@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
-  AlertCircle, CalendarIcon, Check, Clock, Eye, History, Loader2, Mail, Users,
+  AlertCircle, CalendarIcon, CalendarX, Check, Clock, Eye, FileText, History, Loader2, Mail,
+  ShieldAlert, Users,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -48,6 +49,22 @@ function asList(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String)
   if (typeof value === "string" && value.trim()) return [value]
   return []
+}
+
+/** Maps the system a trigger belongs to onto its mark: the Fieldwire logo for
+ *  Fieldwire, a glyph for the rest. Unknown names fall back to the envelope. */
+function TriggerIcon({ icon, className }: { icon: string; className?: string }) {
+  if (icon === "fieldwire") {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src="/images/icon_fieldwire.png" alt="" className={cn("object-contain", className)} />
+    )
+  }
+  const Glyph = icon === "sub_docs" ? FileText
+    : icon === "sub_docs_alert" ? ShieldAlert
+    : icon === "absence" ? CalendarX
+    : Mail
+  return <Glyph className={className} />
 }
 
 /** Groups parameters into rows: an inline param shares the previous one's row. */
@@ -256,13 +273,15 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         trigger.key === selectedKey ? "bg-primary/10 text-primary" : "hover:bg-muted/70",
                       )}
                     >
+                      <TriggerIcon icon={trigger.icon} className="h-4 w-4 shrink-0" />
+                      <span className="min-w-0 flex-1 truncate">{trigger.label}</span>
                       <span
+                        title={trigger.enabled ? "Enabled" : "Disabled"}
                         className={cn(
                           "h-1.5 w-1.5 shrink-0 rounded-full",
                           trigger.enabled ? "bg-emerald-500" : "bg-muted-foreground/40",
                         )}
                       />
-                      <span className="min-w-0 flex-1 truncate">{trigger.label}</span>
                     </button>
                   ))}
                 </div>

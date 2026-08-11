@@ -43,8 +43,11 @@ type Option struct {
 // TriggerDefinition is the static half of a trigger: what it is and which
 // knobs it exposes. The values live in the database.
 type TriggerDefinition struct {
-	Key         string     `json:"key"`
-	Label       string     `json:"label"`
+	Key   string `json:"key"`
+	Label string `json:"label"`
+	// Icon names the system the trigger belongs to. The screen maps it to an
+	// image or a glyph; the backend stays out of that choice.
+	Icon        string     `json:"icon"`
 	Module      string     `json:"module"`
 	Description string     `json:"description"`
 	When        string     `json:"when"`
@@ -58,6 +61,7 @@ var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerForecastPlotPlan,
 		Label:       "Fieldwire Docs Missing",
+		Icon:        "fieldwire",
 		Module:      "Framing Forecast",
 		Description: "Warns that a job is approaching its date with Fieldwire documents still missing. Only the selected documents count, and a document marked completed or dispensed is not missing. One e-mail per job, never repeated for the same target date.",
 		When:        "Daily, for every job of the selected clients whose chosen date is within the configured window.",
@@ -82,6 +86,7 @@ var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerWorkersCompReview,
 		Label:       "Workers' Comp review",
+		Icon:        "sub_docs",
 		Module:      "Subcontractor Docs",
 		Description: "Opens a review cycle and sends the table of subcontractors to be checked one by one.",
 		When:        "On every review date derived from the anchor and the cycle length.",
@@ -94,6 +99,7 @@ var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerWorkersCompCommunication,
 		Label:       "Workers' Comp irregularities",
+		Icon:        "sub_docs_alert",
 		Module:      "Subcontractor Docs",
 		Description: "Sends the subcontractors marked Irregular in the previous review. Nothing is sent when the cycle has no irregularity.",
 		When:        "The configured number of days after each review date.",
@@ -105,6 +111,7 @@ var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerQBTimeAbsence,
 		Label:       "Absence alert",
+		Icon:        "absence",
 		Module:      "Absence Control",
 		Description: "Announces employees with consecutive business days without a clock-in. One consolidated e-mail per company.",
 		When:        "Right after the QB Time sync, which sets its own schedule.",
