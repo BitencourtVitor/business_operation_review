@@ -24,6 +24,17 @@ export function usePreviewEmailTrigger() {
   })
 }
 
+export function useSendEmailTriggerTest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ key, body }: { key: string; body: UpdateEmailTriggerBody }) =>
+      emailTriggersService.sendTest(key, body),
+    // The test lands in the history, so a expanded list must refetch.
+    onSuccess: (_data, variables) =>
+      qc.invalidateQueries({ queryKey: ["email-trigger-history", variables.key] }),
+  })
+}
+
 export function useUpdateEmailTrigger() {
   const qc = useQueryClient()
   return useMutation({

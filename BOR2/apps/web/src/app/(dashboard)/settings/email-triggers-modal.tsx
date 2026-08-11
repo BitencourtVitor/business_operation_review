@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
   AlertCircle, CalendarIcon, CalendarX, Check, ChevronDown, Clock, Eye, FileText, History,
-  Loader2, Mail, Plus, Search, ShieldAlert, Users, X,
+  Loader2, Mail, Plus, Search, Send, ShieldAlert, Users, X,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,7 @@ import {
 import { useUsers } from "@/hooks/use-settings"
 import {
   useEmailTriggers, useEmailTriggerHistory, useUpdateEmailTrigger, usePreviewEmailTrigger,
+  useSendEmailTriggerTest,
 } from "@/hooks/use-email-triggers"
 import type { EmailTrigger, TriggerParamDef } from "@/services/email-triggers.service"
 import { cn } from "@/lib/utils"
@@ -189,6 +190,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
   const { data: users } = useUsers()
   const update = useUpdateEmailTrigger()
   const preview = usePreviewEmailTrigger()
+  const sendTest = useSendEmailTriggerTest()
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -197,6 +199,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
   const [showRecipients, setShowRecipients] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [previewBody, setPreviewBody] = useState<{ subject: string; html: string } | null>(null)
+  const [testedTo, setTestedTo] = useState<string | null>(null)
 
   const selected = useMemo(
     () => triggers?.find(t => t.key === selectedKey) ?? null,
@@ -223,8 +226,22 @@ export function EmailTriggersModal({ open, onClose }: Props) {
       setShowRecipients(false)
       setShowHistory(false)
       setPreviewBody(null)
+      setTestedTo(null)
     }
   }, [selected])
+
+  async function runTest() {
+    const payload = body()
+    if (!selected || !payload) return
+    setError(null)
+    setTestedTo(null)
+    try {
+      const result = await sendTest.mutateAsync({ key: selected.key, body: payload })
+      setTestedTo(result.delivered_to)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send the test")
+    }
+  }
 
   const dirty = useMemo(() => {
     if (!selected || !draft) return false
@@ -631,10 +648,15 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                             key={`${entry.sent_at}-${index}`}
                             className="flex items-center gap-2 border-b border-border/20 py-1.5 text-xs last:border-b-0"
                           >
-                            <span className={cn(
-                              "h-1.5 w-1.5 shrink-0 rounded-full",
-                              entry.status === "sent" ? "bg-emerald-500" : "bg-destructive",
-                            )} />
+                            <span
+                              title={entry.status}
+                              className={cn(
+                                "h-1.5 w-1.5 shrink-0 rounded-full",
+                                entry.status === "sent" ? "bg-emerald-500"
+                                  : entry.status === "test" ? "bg-sky-500"
+                                  : "bg-destructive",
+                              )}
+                            />
                             <span className="w-32 shrink-0 text-muted-foreground">
                               {format(parseISO(entry.sent_at), "MMM dd, HH:mm")}
                             </span>
@@ -673,6 +695,11 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         <AlertCircle className="h-3.5 w-3.5" />
                         {error}
                       </span>
+                    ) : testedTo ? (
+                      <span className="flex items-center gap-1.5 text-emerald-500">
+                        <Check className="h-3.5 w-3.5" />
+                        Test sent to {testedTo}
+                      </span>
                     ) : saved ? (
                       <span className="flex items-center gap-1.5 text-emerald-500">
                         <Check className="h-3.5 w-3.5" />
@@ -688,6 +715,14 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         : <Eye className="h-3.5 w-3.5" />}
                       Preview
+                    </Button>
+                    {/* Goes only to the signed-in user, never to the configured
+                        recipients — testing must not notify anyone. */}
+                    <Button size="sm" variant="outline" onClick={runTest} disabled={sendTest.isPending}>
+                      {sendTest.isPending
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        : <Send className="h-3.5 w-3.5" />}
+                      Send a test to me
                     </Button>
                     <Button size="sm" onClick={save} disabled={!dirty || update.isPending}>
                       {update.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
