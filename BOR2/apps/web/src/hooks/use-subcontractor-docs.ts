@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { subcontractorDocsService } from "@/services/subcontractor-docs.service"
 import type { WorkersCompCheckStatus } from "@/services/subcontractor-docs.service"
-import { settingsService } from "@/services/settings.service"
 
 export function useSubDocDivisions() {
   return useQuery({
@@ -16,40 +15,6 @@ export function useSubDocTypes() {
     queryKey: ["sub-doc-types"],
     queryFn: () => subcontractorDocsService.listTypes(),
     staleTime: 60 * 60 * 1000,
-  })
-}
-
-export function useSubDocEmailRecipients() {
-  return useQuery({
-    queryKey: ["sub-doc-email-recipients"],
-    queryFn: async () => {
-      // The recipient endpoint is introduced with the email delivery backend.
-      // Until that backend is deployed, use the existing Settings users API so
-      // the modal remains usable during local UI review.
-      const users = await settingsService.getUsers()
-      try {
-        return await subcontractorDocsService.listEmailRecipients()
-      } catch {
-        return { users, settings: { to_user_ids: [], cc_user_ids: [] } }
-      }
-    },
-    enabled: false,
-  })
-}
-
-export function useUpdateSubDocEmailRecipients() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ toUserIDs, ccUserIDs }: { toUserIDs: string[]; ccUserIDs: string[] }) =>
-      subcontractorDocsService.updateEmailRecipients({ to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-email-recipients"] }),
-  })
-}
-
-export function useSendSubDocEmailRecipientsTest() {
-  return useMutation({
-    mutationFn: ({ toUserIDs, ccUserIDs }: { toUserIDs: string[]; ccUserIDs: string[] }) =>
-      subcontractorDocsService.sendEmailRecipientsTest({ to_user_ids: toUserIDs, cc_user_ids: ccUserIDs }),
   })
 }
 

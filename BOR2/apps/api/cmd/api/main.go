@@ -145,7 +145,7 @@ func main() {
 	emailTriggerService := service.NewEmailTriggerService(db)
 	emailTriggersHandler := handler.NewEmailTriggersHandler(emailTriggerService, emailSender)
 	workersCompReviewService := service.NewWorkersCompReviewService(db, emailSender, emailTriggerService)
-	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
+	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db)
 	workersCompReviewHandler := handler.NewWorkersCompReviewHandler(workersCompReviewService)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
@@ -557,9 +557,6 @@ func main() {
 	subDocs.Get("/contractors", subcontractorDocsHandler.ListContractors)
 	// Recipient administration and test delivery are restricted server-side as
 	// well as in the UI, so a direct API request cannot bypass the role rule.
-	subDocs.Get("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.ListEmailRecipients)
-	subDocs.Put("/email-recipients", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.UpdateEmailRecipients)
-	subDocs.Post("/email-recipients/test", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.SendEmailRecipientsTest)
 	subDocs.Get("/workers-comp-review", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.Current)
 	subDocs.Patch("/workers-comp-review/checks/:id", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.UpdateCheck)
 	// Email Triggers — every automatic e-mail in the system, in one place.

@@ -21,19 +21,6 @@ export interface SubDocDivision {
   label: string
 }
 
-export interface SubDocEmailUser {
-  id: string
-  name: string
-  email: string
-}
-
-export interface SubDocEmailRecipientSettings {
-  to_user_ids: string[]
-  cc_user_ids: string[]
-}
-
-export interface EmailDeliveryResult { delivery_id: string; provider: string }
-
 export type WorkersCompCheckStatus = "pending" | "regular" | "irregular"
 
 export interface WorkersCompReviewCheck {
@@ -57,11 +44,6 @@ export interface WorkersCompReviewCycle {
   checks: WorkersCompReviewCheck[]
   prev_review_date: string
   next_review_date: string
-}
-
-export interface SubDocEmailRecipientsData {
-  users: SubDocEmailUser[]
-  settings: SubDocEmailRecipientSettings
 }
 
 export interface SubDocRecord {
@@ -97,15 +79,6 @@ export const subcontractorDocsService = {
 
   listDivisions: () =>
     api.get<SubDocDivision[]>(`/api/v1/subcontractor-docs/divisions`, getToken()).then(r => r ?? []),
-
-  listEmailRecipients: () =>
-    api.get<SubDocEmailRecipientsData>(`/api/v1/subcontractor-docs/email-recipients`, getToken()),
-
-  updateEmailRecipients: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
-    api.put<SubDocEmailRecipientSettings>(`/api/v1/subcontractor-docs/email-recipients`, body, getToken()),
-
-  sendEmailRecipientsTest: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
-    api.post<EmailDeliveryResult>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
 
   getWorkersCompReview: (date?: string) =>
     api.get<WorkersCompReviewCycle>(

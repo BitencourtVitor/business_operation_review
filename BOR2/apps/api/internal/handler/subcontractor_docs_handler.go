@@ -2,13 +2,10 @@ package handler
 
 import (
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/bitencourtVitor/bor2-api/internal/service"
-	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 )
 
 // SubcontractorDocsHandler manages the Subcontractor Docs page: tracks
@@ -16,12 +13,11 @@ import (
 // certificates, W-9, master contract, ID, policy binder), replacing the
 // manual "COI Subcontractors" spreadsheet.
 type SubcontractorDocsHandler struct {
-	db    *pgxpool.Pool
-	email service.EmailSender
+	db *pgxpool.Pool
 }
 
-func NewSubcontractorDocsHandler(db *pgxpool.Pool, email service.EmailSender) *SubcontractorDocsHandler {
-	return &SubcontractorDocsHandler{db: db, email: email}
+func NewSubcontractorDocsHandler(db *pgxpool.Pool) *SubcontractorDocsHandler {
+	return &SubcontractorDocsHandler{db: db}
 }
 
 type SubDocType struct {
@@ -36,195 +32,6 @@ type SubDocType struct {
 type SubDocDivision struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`
-}
-
-type SubDocEmailUser struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-type SubDocEmailRecipientSettings struct {
-	ToUserIDs []string `json:"to_user_ids"`
-	CCUserIDs []string `json:"cc_user_ids"`
-}
-
-// GET /subcontractor-docs/email-recipients
-// Recipients are deliberately modeled as user ids. The delivery job resolves
-// the e-mail at send time, so an address change in Settings never leaves a
-// stale compliance recipient behind.
-func (h *SubcontractorDocsHandler) ListEmailRecipients(c *fiber.Ctx) error {
-	usersRows, err := h.db.Query(c.Context(), `SELECT id, name, email FROM users ORDER BY name, email`)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	defer usersRows.Close()
-	users := []SubDocEmailUser{}
-	for usersRows.Next() {
-		var user SubDocEmailUser
-		if err := usersRows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		users = append(users, user)
-	}
-
-	// Reads the central registry, so this modal and Settings → Email Triggers
-	// can never disagree about who gets the Workers' Comp review.
-	var settings SubDocEmailRecipientSettings
-	err = h.db.QueryRow(c.Context(), `
-		SELECT COALESCE(array_agg(user_id) FILTER (WHERE recipient_type = 'to'), '{}'),
-		       COALESCE(array_agg(user_id) FILTER (WHERE recipient_type = 'cc'), '{}')
-		FROM email_trigger_recipients
-		WHERE trigger_key = $1
-	`, service.TriggerWorkersCompReview).Scan(&settings.ToUserIDs, &settings.CCUserIDs)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"users": users, "settings": settings}})
-}
-
-type updateSubDocEmailRecipientsReq struct {
-	ToUserIDs []string `json:"to_user_ids"`
-	CCUserIDs []string `json:"cc_user_ids"`
-}
-
-// nullableString keeps an unauthenticated actor out of a NOT NULL FK.
-func nullableString(value string) any {
-	if strings.TrimSpace(value) == "" {
-		return nil
-	}
-	return value
-}
-
-func uniqueUserIDs(ids []string) []string {
-	seen := map[string]bool{}
-	out := []string{}
-	for _, id := range ids {
-		id = strings.TrimSpace(id)
-		if id != "" && !seen[id] {
-			seen[id] = true
-			out = append(out, id)
-		}
-	}
-	return out
-}
-
-func (h *SubcontractorDocsHandler) validateEmailRecipients(c *fiber.Ctx, req updateSubDocEmailRecipientsReq) ([]string, []string, error) {
-	toIDs := uniqueUserIDs(req.ToUserIDs)
-	if len(toIDs) == 0 {
-		return nil, nil, fiber.NewError(fiber.StatusBadRequest, "at least one primary recipient is required")
-	}
-	toSet := map[string]bool{}
-	for _, id := range toIDs {
-		toSet[id] = true
-	}
-	ccIDs := []string{}
-	for _, id := range uniqueUserIDs(req.CCUserIDs) {
-		if !toSet[id] {
-			ccIDs = append(ccIDs, id)
-		}
-	}
-	allIDs := append(append([]string{}, toIDs...), ccIDs...)
-	var userCount int
-	if err := h.db.QueryRow(c.Context(), `SELECT count(*) FROM users WHERE id = ANY($1)`, allIDs).Scan(&userCount); err != nil {
-		return nil, nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	if userCount != len(allIDs) {
-		return nil, nil, fiber.NewError(fiber.StatusBadRequest, "one or more recipients are not system users")
-	}
-	return toIDs, ccIDs, nil
-}
-
-// PUT /subcontractor-docs/email-recipients
-func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
-	var req updateSubDocEmailRecipientsReq
-	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
-	}
-	toIDs, ccIDs, err := h.validateEmailRecipients(c, req)
-	if err != nil {
-		return err
-	}
-
-	actorID, _ := c.Locals("userID").(string)
-	tx, err := h.db.Begin(c.Context())
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	defer tx.Rollback(c.Context())
-	// Same list the Workers' Comp review trigger reads in Settings → Email
-	// Triggers; this modal is a second door onto it, never a second copy.
-	keys := []string{service.TriggerWorkersCompReview}
-	for _, key := range keys {
-		if _, err = tx.Exec(c.Context(), `
-			UPDATE email_triggers SET updated_by = $2, updated_at = now() WHERE key = $1
-		`, key, nullableString(actorID)); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		if _, err = tx.Exec(c.Context(), `DELETE FROM email_trigger_recipients WHERE trigger_key = $1`, key); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		for _, recipient := range []struct {
-			kind string
-			ids  []string
-		}{{"to", toIDs}, {"cc", ccIDs}} {
-			for _, userID := range recipient.ids {
-				if _, err = tx.Exec(c.Context(), `
-					INSERT INTO email_trigger_recipients (trigger_key, recipient_type, user_id)
-					VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
-				`, key, recipient.kind, userID); err != nil {
-					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-				}
-			}
-		}
-	}
-	if err = tx.Commit(c.Context()); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	return c.JSON(fiber.Map{"data": SubDocEmailRecipientSettings{ToUserIDs: toIDs, CCUserIDs: ccIDs}})
-}
-
-// POST /subcontractor-docs/email-recipients/test
-// Sends a deliberately generic message only after the caller explicitly asks
-// for it. The same recipient validation prevents arbitrary e-mail addresses.
-func (h *SubcontractorDocsHandler) SendEmailRecipientsTest(c *fiber.Ctx) error {
-	var req updateSubDocEmailRecipientsReq
-	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
-	}
-	toIDs, ccIDs, err := h.validateEmailRecipients(c, req)
-	if err != nil {
-		return err
-	}
-	allIDs := append(append([]string{}, toIDs...), ccIDs...)
-	rows, err := h.db.Query(c.Context(), `SELECT id, email FROM users WHERE id = ANY($1)`, allIDs)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	defer rows.Close()
-	emails := map[string]string{}
-	for rows.Next() {
-		var id, email string
-		if err := rows.Scan(&id, &email); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		emails[id] = email
-	}
-	toEmails, ccEmails := []string{}, []string{}
-	for _, id := range toIDs {
-		toEmails = append(toEmails, emails[id])
-	}
-	for _, id := range ccIDs {
-		ccEmails = append(ccEmails, emails[id])
-	}
-
-	delivery, err := h.email.Send(c.Context(), service.EmailMessage{To: toEmails, CC: ccEmails, Subject: "BOR2 - Subcontractor Docs email test", Text: "This is a test of the Subcontractor Docs compliance-alert recipient list. No compliance action is required."})
-	if err != nil {
-		logger.Error("subcontractor docs test email failed", "error", err, "to_count", len(toEmails), "cc_count", len(ccEmails))
-		return fiber.NewError(fiber.StatusBadGateway, err.Error())
-	}
-	return c.JSON(fiber.Map{"data": delivery})
-
 }
 
 // GET /subcontractor-docs/divisions
