@@ -143,7 +143,7 @@ func main() {
 	emailSender := service.NewGmailAPISenderFromEnv()
 	alertRecipients := service.NewAlertRecipientDirectory(db)
 	emailTriggerService := service.NewEmailTriggerService(db)
-	emailTriggersHandler := handler.NewEmailTriggersHandler(emailTriggerService)
+	emailTriggersHandler := handler.NewEmailTriggersHandler(emailTriggerService, emailSender)
 	workersCompReviewService := service.NewWorkersCompReviewService(db, emailSender, emailTriggerService)
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
 	workersCompReviewHandler := handler.NewWorkersCompReviewHandler(workersCompReviewService)
@@ -570,6 +570,7 @@ func main() {
 	emailTriggers.Put("/:key", emailTriggersHandler.Update)
 	emailTriggers.Get("/:key/history", emailTriggersHandler.History)
 	emailTriggers.Post("/:key/preview", emailTriggersHandler.Preview)
+	emailTriggers.Post("/:key/test", emailTriggersHandler.SendTest)
 
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)

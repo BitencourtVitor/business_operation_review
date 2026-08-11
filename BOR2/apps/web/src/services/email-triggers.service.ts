@@ -62,7 +62,7 @@ export interface EmailTriggerDelivery {
   to: string[]
   cc: string[]
   context: string
-  status: "sent" | "failed"
+  status: "sent" | "failed" | "test"
   error: string
   sent_at: string
 }
@@ -86,4 +86,7 @@ export const emailTriggersService = {
 
   preview: (key: string, body: UpdateEmailTriggerBody) =>
     api.post<EmailBody>(`/api/v1/email-triggers/${key}/preview`, body, getToken()),
+
+  sendTest: (key: string, body: UpdateEmailTriggerBody) =>
+    api.post<{ delivered_to: string }>(`/api/v1/email-triggers/${key}/test`, body, getToken()),
 }

@@ -9,10 +9,11 @@ import (
 
 type EmailTriggersHandler struct {
 	triggers *service.EmailTriggerService
+	email    service.EmailSender
 }
 
-func NewEmailTriggersHandler(triggers *service.EmailTriggerService) *EmailTriggersHandler {
-	return &EmailTriggersHandler{triggers: triggers}
+func NewEmailTriggersHandler(triggers *service.EmailTriggerService, email service.EmailSender) *EmailTriggersHandler {
+	return &EmailTriggersHandler{triggers: triggers, email: email}
 }
 
 // GET /email-triggers
@@ -57,6 +58,22 @@ func (h *EmailTriggersHandler) Preview(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	return c.JSON(fiber.Map{"data": body})
+}
+
+// POST /email-triggers/:key/test
+// Sends the preview to the caller only. Configured recipients are not used,
+// so testing delivery never notifies anyone else.
+func (h *EmailTriggersHandler) SendTest(c *fiber.Ctx) error {
+	var req service.TriggerUpdate
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid payload")
+	}
+	actor, _ := c.Locals("userID").(string)
+	address, err := h.triggers.SendTest(c.Context(), c.Params("key"), req, actor, h.email)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"delivered_to": address}})
 }
 
 // GET /email-triggers/:key/history

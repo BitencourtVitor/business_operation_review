@@ -260,8 +260,10 @@ func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConf
 		return nil, err
 	}
 
+	// Test sends are excluded: the count answers "how many alerts went out".
 	_ = s.db.QueryRow(ctx, `
-		SELECT count(*) FROM email_trigger_deliveries WHERE trigger_key = $1
+		SELECT count(*) FROM email_trigger_deliveries
+		WHERE trigger_key = $1 AND status <> 'test'
 	`, key).Scan(&cfg.DeliveryCount)
 	return cfg, nil
 }
@@ -565,6 +567,50 @@ func (s *EmailTriggerService) Preview(ctx context.Context, key string, req Trigg
 		cfg.Params = req.Params
 	}
 	return previewSample(key, cfg), nil
+}
+
+// SendTest delivers the preview to the caller's own address and nobody else.
+// It never touches the configured recipients: the point is to prove delivery
+// works without notifying anyone.
+func (s *EmailTriggerService) SendTest(ctx context.Context, key string, req TriggerUpdate, actorID string, sender EmailSender) (string, error) {
+	if sender == nil {
+		return "", fmt.Errorf("email delivery is not configured")
+	}
+	var address string
+	if err := s.db.QueryRow(ctx, `SELECT COALESCE(email, '') FROM users WHERE id = $1`, actorID).Scan(&address); err != nil {
+		return "", fmt.Errorf("could not resolve your user")
+	}
+	if strings.TrimSpace(address) == "" {
+		return "", fmt.Errorf("your user has no e-mail address on file")
+	}
+
+	body, err := s.Preview(ctx, key, req)
+	if err != nil {
+		return "", err
+	}
+
+	const notice = "This is a test sent from Settings → Email Triggers. The data below is invented."
+	message := EmailMessage{
+		To:      []string{address},
+		Subject: "[TEST] " + body.Subject,
+		Text:    notice + "\n\n" + body.Text,
+		HTML:    `<p style="padding:8px 12px;background:#fff3cd;color:#664d03;font-size:13px">` + notice + `</p>` + body.HTML,
+	}
+
+	delivery, err := sender.Send(ctx, message)
+	if err != nil {
+		s.LogDelivery(ctx, TriggerDelivery{
+			TriggerKey: key, Subject: message.Subject, To: message.To,
+			Context: "test", Status: "failed", Error: err.Error(),
+		})
+		return "", err
+	}
+	s.LogDelivery(ctx, TriggerDelivery{
+		TriggerKey: key, Subject: message.Subject, To: message.To,
+		Context: "test", Status: "test",
+	})
+	_ = delivery
+	return address, nil
 }
 
 func (c *TriggerConfig) ParamInt(key string, fallback int) int {
