@@ -68,7 +68,8 @@ var plotPlanDateFields = map[string]bool{
 
 type plotPlanProject struct {
 	ID        string
-	Name      string
+	JobSite   string
+	Unit      string
 	Address   string
 	Client    string
 	StartDate time.Time
@@ -119,7 +120,9 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 	today := forecastEasternDay(now)
 	rows, err := cfg.DB.Query(ctx, fmt.Sprintf(`
 		SELECT c.id,
-		       COALESCE(NULLIF(c.name, ''), NULLIF(c.lote_bld, ''), c.id),
+		       COALESCE(c.job_site, ''),
+		       -- "Lot 62" / "Building 4": the number alone repeats across sites.
+		       trim(COALESCE(c.type, '') || ' ' || COALESCE(NULLIF(c.lote_bld, ''), c.name, '')),
 		       COALESCE(c.address, ''),
 		       COALESCE(c.cliente, ''),
 		       c.%[1]s,
@@ -148,8 +151,8 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 	var projects []plotPlanProject
 	for rows.Next() {
 		var project plotPlanProject
-		if err := rows.Scan(&project.ID, &project.Name, &project.Address, &project.Client,
-			&project.StartDate, &project.Missing); err != nil {
+		if err := rows.Scan(&project.ID, &project.JobSite, &project.Unit, &project.Address,
+			&project.Client, &project.StartDate, &project.Missing); err != nil {
 			return err
 		}
 		if len(project.Missing) == 0 {
@@ -186,7 +189,8 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		}
 
 		body := service.BuildFieldwireMissingEmail(service.FieldwireMissingProject{
-			Name:             project.Name,
+			JobSite:          project.JobSite,
+			Unit:             project.Unit,
 			Address:          project.Address,
 			Client:           project.Client,
 			ReferenceLabel:   service.ReferenceLabel(dateField),
@@ -200,13 +204,13 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		if err != nil {
 			cfg.Triggers.LogDelivery(ctx, service.TriggerDelivery{
 				TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
-				Context: project.Name, Status: "failed", Error: err.Error(),
+				Context: project.Unit, Status: "failed", Error: err.Error(),
 			})
 			return fmt.Errorf("send Fieldwire missing-document alert for %s: %w", project.ID, err)
 		}
 		cfg.Triggers.LogDelivery(ctx, service.TriggerDelivery{
 			TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
-			Context: fmt.Sprintf("%s — %d missing", project.Name, len(project.Missing)),
+			Context: fmt.Sprintf("%s — %d missing", project.Unit, len(project.Missing)),
 		})
 		if _, err := cfg.DB.Exec(ctx, `
 			INSERT INTO forecast_email_deliveries (project_id, alert_type, target_date, delivery_id)
