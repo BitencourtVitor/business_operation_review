@@ -17,6 +17,20 @@ func NewWorkersCompReviewHandler(svc *service.WorkersCompReviewService) *Workers
 }
 
 func (h *WorkersCompReviewHandler) Current(c *fiber.Ctx) error {
+	// With ?date the screen is browsing the cadence, which is read-only: only
+	// the dateless call may open a cycle and close the older ones.
+	if raw := strings.TrimSpace(c.Query("date")); raw != "" {
+		date, err := time.Parse("2006-01-02", raw)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "date must be YYYY-MM-DD")
+		}
+		cycle, err := h.svc.ByDate(c.Context(), date)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(fiber.Map{"data": cycle})
+	}
+
 	cycle, err := h.svc.Current(c.Context(), time.Now())
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

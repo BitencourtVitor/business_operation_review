@@ -53,10 +53,10 @@ export function useSendSubDocEmailRecipientsTest() {
   })
 }
 
-export function useSubDocWorkersCompReview(enabled: boolean) {
+export function useSubDocWorkersCompReview(enabled: boolean, date?: string) {
   return useQuery({
-    queryKey: ["sub-doc-workers-comp-review"],
-    queryFn: () => subcontractorDocsService.getWorkersCompReview(),
+    queryKey: ["sub-doc-workers-comp-review", date ?? "current"],
+    queryFn: () => subcontractorDocsService.getWorkersCompReview(date),
     enabled,
   })
 }

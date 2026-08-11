@@ -38,6 +38,10 @@ type WorkersCompReviewCycle struct {
 	ReviewEmailSentAt *time.Time               `json:"review_email_sent_at"`
 	ClosedAt          *time.Time               `json:"closed_at"`
 	Checks            []WorkersCompReviewCheck `json:"checks"`
+	// Neighbours on the cadence, so the screen can walk cycles without
+	// guessing the anchor. Empty when there is nothing on that side.
+	PrevReviewDate string `json:"prev_review_date"`
+	NextReviewDate string `json:"next_review_date"`
 }
 
 type WorkersCompReviewService struct {
@@ -152,7 +156,56 @@ func (s *WorkersCompReviewService) Current(ctx context.Context, now time.Time) (
 	if err != nil {
 		return nil, err
 	}
-	return s.getCycle(ctx, cycleID)
+	cycle, err := s.getCycle(ctx, cycleID)
+	if err != nil {
+		return nil, err
+	}
+	s.attachNeighbours(cycle, reviewDate, sched)
+	return cycle, nil
+}
+
+// ByDate reads a cycle that already exists. It never creates one and never
+// closes another: walking the history must not move the cadence forward.
+func (s *WorkersCompReviewService) ByDate(ctx context.Context, reviewDate time.Time) (*WorkersCompReviewCycle, error) {
+	sched, err := s.schedule(ctx)
+	if err != nil {
+		return nil, err
+	}
+	reviewDate = time.Date(reviewDate.Year(), reviewDate.Month(), reviewDate.Day(), 0, 0, 0, 0, time.UTC)
+
+	var cycleID string
+	err = s.db.QueryRow(ctx, `
+		SELECT id FROM sub_doc_workers_comp_cycles WHERE review_date = $1
+	`, reviewDate).Scan(&cycleID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows") {
+			// A cycle on the cadence that was never opened — a future one, or
+			// one from before the feature existed.
+			cycle := &WorkersCompReviewCycle{
+				ReviewDate: reviewDate.Format(workersCompDateLayout),
+				Status:     "not_opened",
+				Checks:     []WorkersCompReviewCheck{},
+			}
+			s.attachNeighbours(cycle, reviewDate, sched)
+			return cycle, nil
+		}
+		return nil, fmt.Errorf("find workers comp cycle by date: %w", err)
+	}
+
+	cycle, err := s.getCycle(ctx, cycleID)
+	if err != nil {
+		return nil, err
+	}
+	s.attachNeighbours(cycle, reviewDate, sched)
+	return cycle, nil
+}
+
+func (s *WorkersCompReviewService) attachNeighbours(cycle *WorkersCompReviewCycle, reviewDate time.Time, sched workersCompSchedule) {
+	prev := reviewDate.AddDate(0, 0, -sched.cycleDays)
+	if !prev.Before(sched.anchor) {
+		cycle.PrevReviewDate = prev.Format(workersCompDateLayout)
+	}
+	cycle.NextReviewDate = reviewDate.AddDate(0, 0, sched.cycleDays).Format(workersCompDateLayout)
 }
 
 func (s *WorkersCompReviewService) getCycle(ctx context.Context, cycleID string) (*WorkersCompReviewCycle, error) {
