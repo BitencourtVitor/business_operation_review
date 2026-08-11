@@ -46,6 +46,13 @@ function draftOf(trigger: EmailTrigger): Draft {
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 
+/** 0–23 is what the backend stores; nobody reads a schedule that way. */
+function formatHour(hour: number): string {
+  const period = hour < 12 ? "AM" : "PM"
+  const display = hour % 12 === 0 ? 12 : hour % 12
+  return `${display}:00 ${period}`
+}
+
 function asList(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String)
   if (typeof value === "string" && value.trim()) return [value]
@@ -466,7 +473,12 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         ))}
                         {selected.schedulable && (
                           <div className="flex flex-col gap-1.5">
-                            <Label className="text-xs">Run hour</Label>
+                            {/* The zone belongs to the label: it qualifies the
+                                hour, it is not a note about the field. */}
+                            <Label className="text-xs">
+                              Run hour
+                              <span className="font-normal text-muted-foreground">Hopedale time</span>
+                            </Label>
                             <Select
                               value={draft.runHour === null ? "" : String(draft.runHour)}
                               onValueChange={value => patch({ runHour: Number(value) })}
@@ -475,20 +487,17 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                                 <SelectValue>
                                   {draft.runHour === null
                                     ? <span className="text-muted-foreground">Select</span>
-                                    : `${String(draft.runHour).padStart(2, "0")}:00`}
+                                    : formatHour(draft.runHour)}
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {HOURS.map(hour => (
                                   <SelectItem key={hour} value={String(hour)}>
-                                    {String(hour).padStart(2, "0")}:00
+                                    {formatHour(hour)}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            {/* Stored as a local hour, not UTC, so it does not
-                                drift when daylight saving changes. */}
-                            <p className="text-[11px] text-muted-foreground">Hopedale time</p>
                           </div>
                         )}
                       </div>
