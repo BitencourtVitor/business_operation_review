@@ -74,15 +74,17 @@ var triggerDefinitions = []TriggerDefinition{
 				Help: "Only jobs of these clients are considered."},
 			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "fieldwire_documents",
 				Help: "A job is alerted when any of these is missing. A document with no row at all counts as missing."},
-			{Key: "offset_value", Label: "Send in advance", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(365)},
-			{Key: "offset_unit", Label: "Unit", Type: "select", Group: "timing", Inline: true, Options: []Option{
-				{Value: "days", Label: "days"},
-				{Value: "months", Label: "months"},
-			}},
+			// Ordered so the row reads as one sentence: 2 months before the
+			// start date, at 12:00 UTC.
 			{Key: "date_field", Label: "Reference date", Type: "select", Group: "timing", Options: []Option{
 				{Value: "previous_start_date", Label: "Start date"},
 				{Value: "previous_beams_date", Label: "Beams date"},
 				{Value: "previous_end_date", Label: "End date"},
+			}},
+			{Key: "offset_value", Label: "Send in advance", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(365)},
+			{Key: "offset_unit", Label: "Unit", Type: "select", Group: "timing", Inline: true, Options: []Option{
+				{Value: "days", Label: "days"},
+				{Value: "months", Label: "months"},
 			}},
 		},
 	},
