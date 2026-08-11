@@ -74,7 +74,7 @@ var triggerDefinitions = []TriggerDefinition{
 			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "fieldwire_documents",
 				Help: "A job is alerted when any of these is missing. A document with no row at all counts as missing."},
 			// Ordered so the row reads as one sentence: 2 months before the
-			// start date, at 12:00 UTC.
+			// start date, at 08:00.
 			{Key: "date_field", Label: "Reference date", Type: "select", Group: "timing", Options: []Option{
 				{Value: "previous_start_date", Label: "Start date"},
 				{Value: "previous_beams_date", Label: "Beams date"},
@@ -120,13 +120,13 @@ var triggerDefinitions = []TriggerDefinition{
 // screen renders from — same name would shadow it in the JSON.
 type TriggerConfig struct {
 	TriggerDefinition
-	Enabled    bool           `json:"enabled"`
-	RunHourUTC *int           `json:"run_hour_utc"`
-	Params     map[string]any `json:"values"`
-	ToUserIDs  []string       `json:"to_user_ids"`
-	CCUserIDs  []string       `json:"cc_user_ids"`
-	UpdatedBy  *string        `json:"updated_by"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+	Enabled      bool           `json:"enabled"`
+	RunHourLocal *int           `json:"run_hour_local"`
+	Params       map[string]any `json:"values"`
+	ToUserIDs    []string       `json:"to_user_ids"`
+	CCUserIDs    []string       `json:"cc_user_ids"`
+	UpdatedBy    *string        `json:"updated_by"`
+	UpdatedAt    time.Time      `json:"updated_at"`
 	// Lets the history block state how much it holds without loading it.
 	DeliveryCount int `json:"delivery_count"`
 }
@@ -212,9 +212,9 @@ func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConf
 	s.resolveOptions(ctx, &cfg.TriggerDefinition)
 	var raw []byte
 	err := s.db.QueryRow(ctx, `
-		SELECT enabled, run_hour_utc, params, updated_by, updated_at
+		SELECT enabled, run_hour_local, params, updated_by, updated_at
 		FROM email_triggers WHERE key = $1
-	`, key).Scan(&cfg.Enabled, &cfg.RunHourUTC, &raw, &cfg.UpdatedBy, &cfg.UpdatedAt)
+	`, key).Scan(&cfg.Enabled, &cfg.RunHourLocal, &raw, &cfg.UpdatedBy, &cfg.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("load email trigger %s: %w", key, err)
 	}
@@ -268,11 +268,11 @@ func (s *EmailTriggerService) List(ctx context.Context) ([]*TriggerConfig, error
 }
 
 type TriggerUpdate struct {
-	Enabled    bool           `json:"enabled"`
-	RunHourUTC *int           `json:"run_hour_utc"`
-	Params     map[string]any `json:"values"`
-	ToUserIDs  []string       `json:"to_user_ids"`
-	CCUserIDs  []string       `json:"cc_user_ids"`
+	Enabled      bool           `json:"enabled"`
+	RunHourLocal *int           `json:"run_hour_local"`
+	Params       map[string]any `json:"values"`
+	ToUserIDs    []string       `json:"to_user_ids"`
+	CCUserIDs    []string       `json:"cc_user_ids"`
 }
 
 func (s *EmailTriggerService) Update(ctx context.Context, key string, req TriggerUpdate, actor string) (*TriggerConfig, error) {
@@ -282,9 +282,9 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 	}
 	s.resolveOptions(ctx, &def)
 	if !def.Schedulable {
-		req.RunHourUTC = nil
+		req.RunHourLocal = nil
 	}
-	if req.RunHourUTC != nil && (*req.RunHourUTC < 0 || *req.RunHourUTC > 23) {
+	if req.RunHourLocal != nil && (*req.RunHourLocal < 0 || *req.RunHourLocal > 23) {
 		return nil, fmt.Errorf("run hour must be between 0 and 23")
 	}
 
@@ -368,9 +368,9 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 
 	if _, err := tx.Exec(ctx, `
 		UPDATE email_triggers
-		SET enabled=$2, run_hour_utc=$3, params=$4, updated_by=$5, updated_at=now()
+		SET enabled=$2, run_hour_local=$3, params=$4, updated_by=$5, updated_at=now()
 		WHERE key=$1
-	`, key, req.Enabled, req.RunHourUTC, encoded, nullableActor(actor)); err != nil {
+	`, key, req.Enabled, req.RunHourLocal, encoded, nullableActor(actor)); err != nil {
 		return nil, err
 	}
 	if _, err := tx.Exec(ctx, `DELETE FROM email_trigger_recipients WHERE trigger_key=$1`, key); err != nil {
@@ -460,10 +460,16 @@ func (s *EmailTriggerService) ShouldRun(ctx context.Context, key string, now tim
 	if !cfg.Enabled {
 		return false, cfg, nil
 	}
-	if !cfg.Schedulable || cfg.RunHourUTC == nil {
+	if !cfg.Schedulable || cfg.RunHourLocal == nil {
 		return true, cfg, nil
 	}
-	return now.UTC().Hour() == *cfg.RunHourUTC, cfg, nil
+	// The hour is the company's own, not UTC: 08:00 stays 08:00 in Hopedale
+	// on both sides of daylight saving.
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		loc = time.UTC
+	}
+	return now.In(loc).Hour() == *cfg.RunHourLocal, cfg, nil
 }
 
 func (s *EmailTriggerService) LogDelivery(ctx context.Context, entry TriggerDelivery) {

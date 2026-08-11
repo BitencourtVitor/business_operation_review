@@ -43,7 +43,7 @@ export interface EmailTrigger {
   schedulable: boolean
   params: TriggerParamDef[]
   enabled: boolean
-  run_hour_utc: number | null
+  run_hour_local: number | null
   // Current values keyed by TriggerParamDef.key. Separate from `params`,
   // which is the schema describing how to render each one.
   values: Record<string, unknown>
@@ -69,7 +69,7 @@ export interface EmailTriggerDelivery {
 
 export interface UpdateEmailTriggerBody {
   enabled: boolean
-  run_hour_utc: number | null
+  run_hour_local: number | null
   values: Record<string, unknown>
   to_user_ids: string[]
   cc_user_ids: string[]
