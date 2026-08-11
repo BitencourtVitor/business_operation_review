@@ -78,7 +78,9 @@ export function WorkersCompReviewDialog({ open, onClose }: { open: boolean; onCl
       <DialogContent className="w-[min(920px,calc(100vw-2rem))] max-w-none overflow-hidden p-0">
         <DialogHeader className="border-b border-border px-5 py-4">
           <DialogTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-emerald-600" />Workers&apos; Compensation Review</DialogTitle>
-          {data && <p className="text-xs text-muted-foreground">Review {shortDate(data.review_date)} · Communicate irregularities {shortDate(data.communication_date)}</p>}
+          {/* No e-mail goes out on the follow-up date: it is when the cycle
+              closes and whoever is responsible chases the irregular subs. */}
+          {data && <p className="text-xs text-muted-foreground">Review {shortDate(data.review_date)} · Follow up {shortDate(data.communication_date)}</p>}
         </DialogHeader>
 
         {isLoading ? <div className="flex h-64 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
