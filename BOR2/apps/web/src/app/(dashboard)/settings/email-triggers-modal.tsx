@@ -37,7 +37,7 @@ type Draft = {
 function draftOf(trigger: EmailTrigger): Draft {
   return {
     enabled: trigger.enabled,
-    runHour: trigger.run_hour_utc,
+    runHour: trigger.run_hour_local,
     values: { ...trigger.values },
     to: [...trigger.to_user_ids],
     cc: [...trigger.cc_user_ids],
@@ -262,7 +262,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
     if (!selected || !draft) return null
     return {
       enabled: draft.enabled,
-      run_hour_utc: selected.schedulable ? draft.runHour : null,
+      run_hour_local: selected.schedulable ? draft.runHour : null,
       values: draft.values,
       to_user_ids: draft.to,
       cc_user_ids: draft.cc,
@@ -366,7 +366,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
   }
 
   /** Schedule fields sit on one wrapping row: read together they form a single
-   *  sentence ("2 months before the start date, at 12:00 UTC"). */
+   *  sentence ("2 months before the start date, at 08:00"). */
   function timingWidth(param: TriggerParamDef) {
     if (param.type === "int") return "w-24"
     if (param.type === "date") return "w-40"
@@ -466,7 +466,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                         ))}
                         {selected.schedulable && (
                           <div className="flex flex-col gap-1.5">
-                            <Label className="text-xs">Run hour (UTC)</Label>
+                            <Label className="text-xs">Run hour</Label>
                             <Select
                               value={draft.runHour === null ? "" : String(draft.runHour)}
                               onValueChange={value => patch({ runHour: Number(value) })}
@@ -475,17 +475,20 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                                 <SelectValue>
                                   {draft.runHour === null
                                     ? <span className="text-muted-foreground">Select</span>
-                                    : `${String(draft.runHour).padStart(2, "0")}:00 UTC`}
+                                    : `${String(draft.runHour).padStart(2, "0")}:00`}
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {HOURS.map(hour => (
                                   <SelectItem key={hour} value={String(hour)}>
-                                    {String(hour).padStart(2, "0")}:00 UTC
+                                    {String(hour).padStart(2, "0")}:00
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
+                            {/* Stored as a local hour, not UTC, so it does not
+                                drift when daylight saving changes. */}
+                            <p className="text-[11px] text-muted-foreground">Hopedale time</p>
                           </div>
                         )}
                       </div>
