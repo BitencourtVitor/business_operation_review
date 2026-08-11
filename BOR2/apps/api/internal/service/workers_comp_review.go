@@ -78,11 +78,7 @@ func (s *WorkersCompReviewService) schedule(ctx context.Context) (workersCompSch
 	if days := review.ParamInt("cycle_days", out.cycleDays); days > 0 {
 		out.cycleDays = days
 	}
-	communication, err := s.triggers.Get(ctx, TriggerWorkersCompCommunication)
-	if err != nil {
-		return out, err
-	}
-	if days := communication.ParamInt("days_after_review", out.daysAfter); days > 0 {
+	if days := review.ParamInt("days_after_review", out.daysAfter); days > 0 {
 		out.daysAfter = days
 	}
 	return out, nil
@@ -268,45 +264,25 @@ func (s *WorkersCompReviewService) sendReview(ctx context.Context, cycle *Worker
 	return err
 }
 
-func (s *WorkersCompReviewService) sendCommunication(ctx context.Context, cycle *WorkersCompReviewCycle) error {
+// closeCycle ends the cycle on its follow-up date. No e-mail goes out: the
+// system asks for the survey once, and chasing the irregular subcontractors
+// from there is a person's job, not a second notification.
+func (s *WorkersCompReviewService) closeCycle(ctx context.Context, cycle *WorkersCompReviewCycle) error {
 	if cycle.CommunicationSentAt != nil {
 		return nil
 	}
-	irregular := make([]WorkersCompReviewCheck, 0)
+	irregular := 0
 	for _, check := range cycle.Checks {
 		if check.Status == "irregular" {
-			irregular = append(irregular, check)
+			irregular++
 		}
 	}
-	if len(irregular) == 0 {
-		_, err := s.db.Exec(ctx, `UPDATE sub_doc_workers_comp_cycles SET status='closed', communication_sent_at=now(), updated_at=now() WHERE id=$1`, cycle.ID)
-		return err
-	}
-	to, cc, err := s.recipients(ctx, TriggerWorkersCompCommunication)
-	if err != nil {
-		return err
-	}
-	if len(to) == 0 {
-		return nil
-	}
-	body := BuildWorkersCompCommunicationEmail(cycle.CommunicationDate, workersCompRows(irregular))
-	subject := body.Subject
-	delivery, err := s.email.Send(ctx, EmailMessage{
-		To: to, CC: cc, Subject: subject, Text: body.Text, HTML: body.HTML,
-	})
-	if err != nil {
-		s.triggers.LogDelivery(ctx, TriggerDelivery{
-			TriggerKey: TriggerWorkersCompCommunication, Subject: subject, To: to, CC: cc,
-			Context: fmt.Sprintf("%d irregular", len(irregular)), Status: "failed", Error: err.Error(),
-		})
-		return err
-	}
-	s.triggers.LogDelivery(ctx, TriggerDelivery{
-		TriggerKey: TriggerWorkersCompCommunication, Subject: subject, To: to, CC: cc,
-		Context: fmt.Sprintf("%d irregular", len(irregular)),
-	})
-	_, err = s.db.Exec(ctx, `UPDATE sub_doc_workers_comp_cycles SET status='closed', communication_sent_at=now(), updated_at=now() WHERE id=$1`, cycle.ID)
-	logger.Info("workers comp communication email accepted", "cycle", cycle.ID, "delivery_id", delivery.ID, "irregular", len(irregular))
+	_, err := s.db.Exec(ctx, `
+		UPDATE sub_doc_workers_comp_cycles
+		SET status='closed', communication_sent_at=now(), updated_at=now()
+		WHERE id=$1
+	`, cycle.ID)
+	logger.Info("workers comp cycle closed", "cycle", cycle.ID, "irregular", irregular)
 	return err
 }
 
@@ -339,24 +315,19 @@ func (s *WorkersCompReviewService) RunDaily(ctx context.Context, now time.Time) 
 		return s.sendReview(ctx, cycle)
 	}
 
+	// Closing is bookkeeping, not a notification, so it does not consult the
+	// trigger: a disabled review e-mail must still let open cycles close.
 	reviewDate := today.AddDate(0, 0, -sched.daysAfter)
 	if reviewDate.Equal(nextWorkersCompReviewDate(reviewDate, sched)) {
-		communicationDue, _, err := s.triggers.ShouldRun(ctx, TriggerWorkersCompCommunication, now)
-		if err != nil {
-			return err
-		}
-		if !communicationDue {
-			return nil
-		}
 		var cycleID string
 		if err := s.db.QueryRow(ctx, `SELECT id FROM sub_doc_workers_comp_cycles WHERE review_date=$1`, reviewDate).Scan(&cycleID); err != nil {
-			return fmt.Errorf("find workers comp communication cycle: %w", err)
+			return fmt.Errorf("find workers comp cycle to close: %w", err)
 		}
 		cycle, err := s.getCycle(ctx, cycleID)
 		if err != nil {
 			return err
 		}
-		return s.sendCommunication(ctx, cycle)
+		return s.closeCycle(ctx, cycle)
 	}
 	return nil
 }

@@ -152,10 +152,9 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer tx.Rollback(c.Context())
-	// This modal treats Workers' Comp as one audience, so it writes the same
-	// list to both of its triggers. Splitting review from irregularities is
-	// done in Settings → Email Triggers — and saving here flattens it again.
-	keys := []string{service.TriggerWorkersCompReview, service.TriggerWorkersCompCommunication}
+	// Same list the Workers' Comp review trigger reads in Settings → Email
+	// Triggers; this modal is a second door onto it, never a second copy.
+	keys := []string{service.TriggerWorkersCompReview}
 	for _, key := range keys {
 		if _, err = tx.Exec(c.Context(), `
 			UPDATE email_triggers SET updated_by = $2, updated_at = now() WHERE key = $1

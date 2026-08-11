@@ -105,21 +105,6 @@ func BuildWorkersCompReviewEmail(reviewDate string, checks []WorkersCompRow) Ema
 	}
 }
 
-func BuildWorkersCompCommunicationEmail(communicationDate string, irregular []WorkersCompRow) EmailBody {
-	var textRows strings.Builder
-	rows := make([][]string, 0, len(irregular))
-	for _, check := range irregular {
-		textRows.WriteString(fmt.Sprintf("- %s | %s | %s\n", check.ContractorName, check.Divisions, strings.ToUpper(check.Status)))
-		rows = append(rows, []string{check.ContractorName, check.Divisions, strings.ToUpper(check.Status)})
-	}
-	return EmailBody{
-		Subject: "Workers' Compensation irregularities — " + communicationDate,
-		Text:    "The following subcontractors were marked irregular and require communication today.\n\n" + textRows.String(),
-		HTML: `<p>The following subcontractors were marked <strong>Irregular</strong> and require communication today.</p>` +
-			emailTable([]string{"Subcontractor", "Divisions", "Status"}, rows),
-	}
-}
-
 // ── Absence ───────────────────────────────────────────────────────────────────
 
 type AbsenceRow struct {
@@ -185,11 +170,6 @@ func previewSample(key string, cfg *TriggerConfig) EmailBody {
 		return BuildWorkersCompReviewEmail(sampleDate.Format(workersCompDateLayout), []WorkersCompRow{
 			{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing", Status: "pending"},
 			{ContractorName: "SAMPLE — Northline Concrete", Divisions: "HVAC, PCG", Status: "pending"},
-		})
-
-	case TriggerWorkersCompCommunication:
-		return BuildWorkersCompCommunicationEmail(sampleDate.Format(workersCompDateLayout), []WorkersCompRow{
-			{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing", Status: "irregular"},
 		})
 
 	case TriggerQBTimeAbsence:
