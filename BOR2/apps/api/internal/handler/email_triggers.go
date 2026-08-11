@@ -44,6 +44,21 @@ func (h *EmailTriggersHandler) Update(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": updated})
 }
 
+// POST /email-triggers/:key/preview
+// Renders the message from invented data using the configuration in the body,
+// so an edit can be previewed before it is saved.
+func (h *EmailTriggersHandler) Preview(c *fiber.Ctx) error {
+	var req service.TriggerUpdate
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid payload")
+	}
+	body, err := h.triggers.Preview(c.Context(), c.Params("key"), req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(fiber.Map{"data": body})
+}
+
 // GET /email-triggers/:key/history
 func (h *EmailTriggersHandler) History(c *fiber.Ctx) error {
 	limit, _ := strconv.Atoi(c.Query("limit"))

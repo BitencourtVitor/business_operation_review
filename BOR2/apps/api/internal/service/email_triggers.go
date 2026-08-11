@@ -25,10 +25,14 @@ type ParamDef struct {
 	Key     string   `json:"key"`
 	Label   string   `json:"label"`
 	Help    string   `json:"help,omitempty"`
-	Type    string   `json:"type"` // int | text | date | select
+	Type    string   `json:"type"` // int | text | date | select | multiselect
 	Options []Option `json:"options,omitempty"`
 	Min     *int     `json:"min,omitempty"`
 	Max     *int     `json:"max,omitempty"`
+	// Inline renders the field on the same row as the previous one.
+	Inline bool `json:"inline,omitempty"`
+	// OptionsSource fills Options from live data instead of a fixed list.
+	OptionsSource string `json:"-"`
 }
 
 type Option struct {
@@ -53,20 +57,23 @@ func intPtr(v int) *int { return &v }
 var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerForecastPlotPlan,
-		Label:       "Plot Plan due",
-		Module:      "Forecast",
-		Description: "Warns that a job is approaching its date and the Plot Plan has to be prepared. One e-mail per job, never repeated for the same target date.",
-		When:        "Daily, for every job whose chosen date is within the configured window.",
+		Label:       "Fieldwire Docs Missing",
+		Module:      "Framing Forecast",
+		Description: "Warns that a job is approaching its date with Fieldwire documents still missing. Only the selected documents count, and a document marked completed or dispensed is not missing. One e-mail per job, never repeated for the same target date.",
+		When:        "Daily, for every job of the selected clients whose chosen date is within the configured window.",
 		Schedulable: true,
 		Params: []ParamDef{
-			{Key: "client", Label: "Client", Type: "text", Help: "Only jobs of this client are considered. Case-insensitive."},
+			{Key: "clients", Label: "Clients", Type: "multiselect", OptionsSource: "clients",
+				Help: "Only jobs of these clients are considered."},
+			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "fieldwire_documents",
+				Help: "A job is alerted when any of these is missing. A document with no row at all counts as missing."},
 			{Key: "date_field", Label: "Reference date", Type: "select", Options: []Option{
 				{Value: "previous_start_date", Label: "Start date"},
 				{Value: "previous_beams_date", Label: "Beams date"},
 				{Value: "previous_end_date", Label: "End date"},
 			}},
 			{Key: "offset_value", Label: "Send in advance", Type: "int", Min: intPtr(1), Max: intPtr(365)},
-			{Key: "offset_unit", Label: "Unit", Type: "select", Options: []Option{
+			{Key: "offset_unit", Label: "Unit", Type: "select", Inline: true, Options: []Option{
 				{Value: "days", Label: "days"},
 				{Value: "months", Label: "months"},
 			}},
@@ -155,6 +162,43 @@ func definitionFor(key string) (TriggerDefinition, bool) {
 	return TriggerDefinition{}, false
 }
 
+// resolveOptions fills the option lists that come from live data. A source
+// that fails to load yields an empty list rather than breaking the screen.
+// The parameter slice is copied first: the definitions are package-level and
+// writing into them would leak one request's options into every other.
+func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDefinition) {
+	def.Params = append([]ParamDef(nil), def.Params...)
+	for index, param := range def.Params {
+		if param.OptionsSource == "" {
+			continue
+		}
+		var query string
+		switch param.OptionsSource {
+		case "clients":
+			query = `SELECT name FROM catalog_clients ORDER BY name`
+		case "fieldwire_documents":
+			query = `SELECT DISTINCT trim(document) FROM forecast_fieldwire
+			         WHERE trim(document) <> '' AND upper(trim(document)) <> 'N/A'
+			         ORDER BY 1`
+		default:
+			continue
+		}
+		rows, err := s.db.Query(ctx, query)
+		if err != nil {
+			continue
+		}
+		options := []Option{}
+		for rows.Next() {
+			var value string
+			if err := rows.Scan(&value); err == nil {
+				options = append(options, Option{Value: value, Label: value})
+			}
+		}
+		rows.Close()
+		def.Params[index].Options = options
+	}
+}
+
 // Get returns the stored configuration for a trigger. A trigger missing from
 // the table is reported as disabled rather than silently defaulting to on.
 func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConfig, error) {
@@ -164,6 +208,7 @@ func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConf
 	}
 
 	cfg := &TriggerConfig{TriggerDefinition: def, Params: map[string]any{}}
+	s.resolveOptions(ctx, &cfg.TriggerDefinition)
 	var raw []byte
 	err := s.db.QueryRow(ctx, `
 		SELECT enabled, run_hour_utc, params, updated_by, updated_at
@@ -225,6 +270,7 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 	if !ok {
 		return nil, fmt.Errorf("unknown email trigger %q", key)
 	}
+	s.resolveOptions(ctx, &def)
 	if !def.Schedulable {
 		req.RunHourUTC = nil
 	}
@@ -265,6 +311,29 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 				return nil, fmt.Errorf("%s has an invalid option", param.Label)
 			}
 			clean[param.Key] = text
+		case "multiselect":
+			list, ok := value.([]any)
+			if !ok {
+				return nil, fmt.Errorf("%s must be a list", param.Label)
+			}
+			allowed := map[string]bool{}
+			for _, option := range param.Options {
+				allowed[option.Value] = true
+			}
+			selected := []string{}
+			for _, item := range list {
+				text := strings.TrimSpace(fmt.Sprint(item))
+				// An option can disappear from the catalogue after being
+				// selected; rejecting the whole save would strand the screen.
+				if text == "" || !allowed[text] {
+					continue
+				}
+				selected = append(selected, text)
+			}
+			if len(selected) == 0 {
+				return nil, fmt.Errorf("%s needs at least one option", param.Label)
+			}
+			clean[param.Key] = selected
 		case "date":
 			text := strings.TrimSpace(fmt.Sprint(value))
 			if _, err := time.Parse("2006-01-02", text); err != nil {
@@ -436,6 +505,45 @@ func (c *TriggerConfig) ParamString(key, fallback string) string {
 		}
 	}
 	return fallback
+}
+
+// ParamStrings reads a multiselect parameter. Values stored before the
+// parameter became a list are accepted as a single-item list.
+func (c *TriggerConfig) ParamStrings(key string) []string {
+	value, ok := c.Params[key]
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case []any:
+		out := []string{}
+		for _, item := range typed {
+			if text := strings.TrimSpace(fmt.Sprint(item)); text != "" {
+				out = append(out, text)
+			}
+		}
+		return out
+	case []string:
+		return typed
+	case string:
+		if text := strings.TrimSpace(typed); text != "" {
+			return []string{text}
+		}
+	}
+	return nil
+}
+
+// Preview renders what this trigger would send, from invented data, using the
+// configuration passed in — so an unsaved edit can be previewed too.
+func (s *EmailTriggerService) Preview(ctx context.Context, key string, req TriggerUpdate) (EmailBody, error) {
+	cfg, err := s.Get(ctx, key)
+	if err != nil {
+		return EmailBody{}, err
+	}
+	if req.Params != nil {
+		cfg.Params = req.Params
+	}
+	return previewSample(key, cfg), nil
 }
 
 func (c *TriggerConfig) ParamInt(key string, fallback int) int {

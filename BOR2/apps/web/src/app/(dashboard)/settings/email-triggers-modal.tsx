@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
-  AlertCircle, CalendarIcon, Check, Clock, History, Loader2, Mail, Users,
+  AlertCircle, CalendarIcon, Check, Clock, Eye, History, Loader2, Mail, Users,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -16,8 +16,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import { useUsers } from "@/hooks/use-settings"
-import { useEmailTriggers, useEmailTriggerHistory, useUpdateEmailTrigger } from "@/hooks/use-email-triggers"
-import type { EmailTrigger } from "@/services/email-triggers.service"
+import {
+  useEmailTriggers, useEmailTriggerHistory, useUpdateEmailTrigger, usePreviewEmailTrigger,
+} from "@/hooks/use-email-triggers"
+import type { EmailTrigger, TriggerParamDef } from "@/services/email-triggers.service"
 import { cn } from "@/lib/utils"
 
 type Props = { open: boolean; onClose: () => void }
@@ -42,6 +44,61 @@ function draftOf(trigger: EmailTrigger): Draft {
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 
+function asList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String)
+  if (typeof value === "string" && value.trim()) return [value]
+  return []
+}
+
+/** Groups parameters into rows: an inline param shares the previous one's row. */
+function paramRows(params: TriggerParamDef[]): TriggerParamDef[][] {
+  const rows: TriggerParamDef[][] = []
+  for (const param of params) {
+    if (param.inline && rows.length > 0) {
+      rows[rows.length - 1].push(param)
+    } else {
+      rows.push([param])
+    }
+  }
+  return rows
+}
+
+/** Chips that toggle: the option lists are short and fully visible at a glance. */
+function MultiSelect({
+  param, selected, onToggle,
+}: {
+  param: TriggerParamDef
+  selected: string[]
+  onToggle: (value: string) => void
+}) {
+  if (!param.options?.length) {
+    return <p className="text-[11px] text-muted-foreground">No options available.</p>
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {param.options.map(option => {
+        const active = selected.includes(option.value)
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onToggle(option.value)}
+            className={cn(
+              "flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition-colors",
+              active
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border/40 text-muted-foreground hover:bg-muted/60",
+            )}
+          >
+            {active && <Check className="h-3 w-3" />}
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function EmailTriggersModal({ open, onClose }: Props) {
   const { data: triggers, isLoading } = useEmailTriggers(open)
   const { data: users } = useUsers()
@@ -52,6 +109,8 @@ export function EmailTriggersModal({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const preview = usePreviewEmailTrigger()
+  const [previewBody, setPreviewBody] = useState<{ subject: string; html: string } | null>(null)
 
   const selected = useMemo(
     () => triggers?.find(t => t.key === selectedKey) ?? null,
@@ -76,8 +135,29 @@ export function EmailTriggersModal({ open, onClose }: Props) {
       setError(null)
       setSaved(false)
       setShowHistory(false)
+      setPreviewBody(null)
     }
   }, [selected])
+
+  async function runPreview() {
+    if (!selected || !draft) return
+    setError(null)
+    try {
+      const body = await preview.mutateAsync({
+        key: selected.key,
+        body: {
+          enabled: draft.enabled,
+          run_hour_utc: selected.schedulable ? draft.runHour : null,
+          values: draft.values,
+          to_user_ids: draft.to,
+          cc_user_ids: draft.cc,
+        },
+      })
+      setPreviewBody({ subject: body.subject, html: body.html })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not render the preview")
+    }
+  }
 
   const dirty = useMemo(() => {
     if (!selected || !draft) return false
@@ -250,80 +330,105 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Parameters
                       </p>
-                      {selected.params.map(param => {
-                        const value = draft.values[param.key]
-                        return (
-                          <div key={param.key} className="flex flex-col gap-1.5">
-                            <Label className="text-xs">{param.label}</Label>
+                      {paramRows(selected.params).map((row, rowIndex) => (
+                        <div key={rowIndex} className="flex flex-wrap items-start gap-3">
+                          {row.map(param => {
+                            const value = draft.values[param.key]
+                            const grouped = row.length > 1
+                            const controlWidth = grouped ? "w-28" : "w-56"
+                            return (
+                              <div key={param.key} className="flex flex-col gap-1.5">
+                                <Label className="text-xs">{param.label}</Label>
 
-                            {param.type === "select" ? (
-                              <Select
-                                value={value === undefined ? "" : String(value)}
-                                onValueChange={next =>
-                                  patch({ values: { ...draft.values, [param.key]: next } })
-                                }
-                              >
-                                <SelectTrigger className="w-56">
-                                  <SelectValue>
-                                    {param.options?.find(option => option.value === String(value))?.label ?? (
-                                      <span className="text-muted-foreground">Select</span>
-                                    )}
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {param.options?.map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : param.type === "date" ? (
-                              <Popover>
-                                <PopoverTrigger className="flex h-9 w-56 items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm transition-colors hover:bg-muted/60">
-                                  <CalendarIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                  {value ? String(value) : <span className="text-muted-foreground">Select a date</span>}
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                    mode="single"
-                                    selected={value ? parseISO(String(value)) : undefined}
-                                    onSelect={date =>
-                                      date &&
+                                {param.type === "multiselect" ? (
+                                  <MultiSelect
+                                    param={param}
+                                    selected={asList(value)}
+                                    onToggle={option => {
+                                      const current = asList(value)
                                       patch({
-                                        values: { ...draft.values, [param.key]: format(date, "yyyy-MM-dd") },
+                                        values: {
+                                          ...draft.values,
+                                          [param.key]: current.includes(option)
+                                            ? current.filter(item => item !== option)
+                                            : [...current, option],
+                                        },
+                                      })
+                                    }}
+                                  />
+                                ) : param.type === "select" ? (
+                                  <Select
+                                    value={value === undefined ? "" : String(value)}
+                                    onValueChange={next =>
+                                      patch({ values: { ...draft.values, [param.key]: next } })
+                                    }
+                                  >
+                                    <SelectTrigger className={controlWidth}>
+                                      <SelectValue>
+                                        {param.options?.find(option => option.value === String(value))?.label ?? (
+                                          <span className="text-muted-foreground">Select</span>
+                                        )}
+                                      </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {param.options?.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                          {option.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : param.type === "date" ? (
+                                  <Popover>
+                                    <PopoverTrigger className={cn(
+                                      "flex h-9 items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm transition-colors hover:bg-muted/60",
+                                      controlWidth,
+                                    )}>
+                                      <CalendarIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                                      {value ? String(value) : <span className="text-muted-foreground">Select a date</span>}
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                      <Calendar
+                                        mode="single"
+                                        selected={value ? parseISO(String(value)) : undefined}
+                                        onSelect={date =>
+                                          date &&
+                                          patch({
+                                            values: { ...draft.values, [param.key]: format(date, "yyyy-MM-dd") },
+                                          })
+                                        }
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                ) : (
+                                  <Input
+                                    className={controlWidth}
+                                    type={param.type === "int" ? "number" : "text"}
+                                    min={param.min}
+                                    max={param.max}
+                                    value={value === undefined || value === null ? "" : String(value)}
+                                    onChange={event =>
+                                      patch({
+                                        values: {
+                                          ...draft.values,
+                                          [param.key]:
+                                            param.type === "int"
+                                              ? Number(event.target.value)
+                                              : event.target.value,
+                                        },
                                       })
                                     }
                                   />
-                                </PopoverContent>
-                              </Popover>
-                            ) : (
-                              <Input
-                                className="w-56"
-                                type={param.type === "int" ? "number" : "text"}
-                                min={param.min}
-                                max={param.max}
-                                value={value === undefined || value === null ? "" : String(value)}
-                                onChange={event =>
-                                  patch({
-                                    values: {
-                                      ...draft.values,
-                                      [param.key]:
-                                        param.type === "int"
-                                          ? Number(event.target.value)
-                                          : event.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                            )}
+                                )}
 
-                            {param.help && (
-                              <p className="text-[11px] text-muted-foreground">{param.help}</p>
-                            )}
-                          </div>
-                        )
-                      })}
+                                {param.help && (
+                                  <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ))}
                     </div>
                   )}
 
@@ -374,6 +479,27 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                       </p>
                     )}
                   </div>
+
+                  {previewBody && (
+                    <div className="flex flex-col gap-1.5">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Eye className="h-3.5 w-3.5" />
+                        Preview — sample data
+                      </p>
+                      <div className="overflow-hidden rounded-lg border border-border/40">
+                        <div className="border-b border-border/40 bg-muted/40 px-3 py-2">
+                          <p className="text-[11px] text-muted-foreground">Subject</p>
+                          <p className="text-xs font-medium">{previewBody.subject}</p>
+                        </div>
+                        {/* Rendered on white: e-mail clients have no dark mode and
+                            the body is composed by our own builder. */}
+                        <div
+                          className="overflow-x-auto bg-white p-4 text-black [&_a]:text-blue-700"
+                          dangerouslySetInnerHTML={{ __html: previewBody.html }}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-2">
                     <button
@@ -433,10 +559,18 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                       `Last change ${format(parseISO(selected.updated_at), "MMM dd, yyyy HH:mm")}`
                     )}
                   </p>
-                  <Button size="sm" onClick={save} disabled={!dirty || update.isPending}>
-                    {update.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Save changes
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={runPreview} disabled={preview.isPending}>
+                      {preview.isPending
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        : <Eye className="h-3.5 w-3.5" />}
+                      Preview
+                    </Button>
+                    <Button size="sm" onClick={save} disabled={!dirty || update.isPending}>
+                      {update.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Save changes
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

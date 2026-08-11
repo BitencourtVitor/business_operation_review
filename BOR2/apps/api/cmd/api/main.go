@@ -569,6 +569,7 @@ func main() {
 	emailTriggers.Get("/", emailTriggersHandler.List)
 	emailTriggers.Put("/:key", emailTriggersHandler.Update)
 	emailTriggers.Get("/:key/history", emailTriggersHandler.History)
+	emailTriggers.Post("/:key/preview", emailTriggersHandler.Preview)
 
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)

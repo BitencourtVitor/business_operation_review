@@ -17,6 +17,13 @@ export function useEmailTriggerHistory(key: string | null) {
   })
 }
 
+export function usePreviewEmailTrigger() {
+  return useMutation({
+    mutationFn: ({ key, body }: { key: string; body: UpdateEmailTriggerBody }) =>
+      emailTriggersService.preview(key, body),
+  })
+}
+
 export function useUpdateEmailTrigger() {
   const qc = useQueryClient()
   return useMutation({

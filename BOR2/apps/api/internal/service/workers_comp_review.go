@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"html"
 	"strings"
 	"time"
 
@@ -224,15 +223,16 @@ func (s *WorkersCompReviewService) recipients(ctx context.Context, triggerKey st
 	return s.triggers.Recipients(ctx, triggerKey)
 }
 
-func workersCompEmailTable(checks []WorkersCompReviewCheck) (string, string) {
-	var textRows, htmlRows strings.Builder
+func workersCompRows(checks []WorkersCompReviewCheck) []WorkersCompRow {
+	rows := make([]WorkersCompRow, 0, len(checks))
 	for _, check := range checks {
-		divisions := strings.Join(check.Divisions, ", ")
-		textRows.WriteString(fmt.Sprintf("- %s | %s | %s\n", check.ContractorName, divisions, strings.ToUpper(check.Status)))
-		htmlRows.WriteString("<tr><td>" + html.EscapeString(check.ContractorName) + "</td><td>" + html.EscapeString(divisions) + "</td><td>" + html.EscapeString(strings.ToUpper(check.Status)) + "</td></tr>")
+		rows = append(rows, WorkersCompRow{
+			ContractorName: check.ContractorName,
+			Divisions:      strings.Join(check.Divisions, ", "),
+			Status:         check.Status,
+		})
 	}
-	htmlTable := `<table style="border-collapse:collapse;width:100%"><thead><tr><th style="text-align:left;border-bottom:1px solid #ccc;padding:8px">Subcontractor</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:8px">Divisions</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:8px">Status</th></tr></thead><tbody>` + htmlRows.String() + `</tbody></table>`
-	return textRows.String(), htmlTable
+	return rows
 }
 
 func (s *WorkersCompReviewService) sendReview(ctx context.Context, cycle *WorkersCompReviewCycle) error {
@@ -247,12 +247,10 @@ func (s *WorkersCompReviewService) sendReview(ctx context.Context, cycle *Worker
 		logger.Info("workers-comp-review: no primary recipients, skipping", "cycle", cycle.ID)
 		return nil
 	}
-	textRows, htmlTable := workersCompEmailTable(cycle.Checks)
-	subject := "Workers' Compensation review — " + cycle.ReviewDate
+	body := BuildWorkersCompReviewEmail(cycle.ReviewDate, workersCompRows(cycle.Checks))
+	subject := body.Subject
 	delivery, err := s.email.Send(ctx, EmailMessage{
-		To: to, CC: cc, Subject: subject,
-		Text: "Review each eligible subcontractor below and record Regular or Irregular in BOR.\n\n" + textRows,
-		HTML: "<p>Review each eligible subcontractor below and record <strong>Regular</strong> or <strong>Irregular</strong> in BOR.</p>" + htmlTable,
+		To: to, CC: cc, Subject: subject, Text: body.Text, HTML: body.HTML,
 	})
 	if err != nil {
 		s.triggers.LogDelivery(ctx, TriggerDelivery{
@@ -291,12 +289,10 @@ func (s *WorkersCompReviewService) sendCommunication(ctx context.Context, cycle 
 	if len(to) == 0 {
 		return nil
 	}
-	textRows, htmlTable := workersCompEmailTable(irregular)
-	subject := "Workers' Compensation irregularities — " + cycle.CommunicationDate
+	body := BuildWorkersCompCommunicationEmail(cycle.CommunicationDate, workersCompRows(irregular))
+	subject := body.Subject
 	delivery, err := s.email.Send(ctx, EmailMessage{
-		To: to, CC: cc, Subject: subject,
-		Text: "The following subcontractors were marked irregular and require communication today.\n\n" + textRows,
-		HTML: "<p>The following subcontractors were marked <strong>Irregular</strong> and require communication today.</p>" + htmlTable,
+		To: to, CC: cc, Subject: subject, Text: body.Text, HTML: body.HTML,
 	})
 	if err != nil {
 		s.triggers.LogDelivery(ctx, TriggerDelivery{

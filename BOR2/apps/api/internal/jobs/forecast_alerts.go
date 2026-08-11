@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"fmt"
-	"html"
 	"strings"
 	"time"
 
@@ -71,7 +70,9 @@ type plotPlanProject struct {
 	ID        string
 	Name      string
 	Address   string
+	Client    string
 	StartDate time.Time
+	Missing   []string
 }
 
 func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.Time) error {
@@ -86,10 +87,24 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		return nil
 	}
 
-	client := strings.ToLower(strings.TrimSpace(trigger.ParamString("client", "toll brothers")))
+	clients := trigger.ParamStrings("clients")
+	if len(clients) == 0 {
+		logger.Info("forecast-plot-plan-alerts: no client selected")
+		return nil
+	}
+	documents := trigger.ParamStrings("documents")
+	if len(documents) == 0 {
+		logger.Info("forecast-plot-plan-alerts: no document selected")
+		return nil
+	}
+	lowerClients := make([]string, 0, len(clients))
+	for _, client := range clients {
+		lowerClients = append(lowerClients, strings.ToLower(strings.TrimSpace(client)))
+	}
+
 	dateField := trigger.ParamString("date_field", "previous_start_date")
 	if !plotPlanDateFields[dateField] {
-		return fmt.Errorf("invalid Plot Plan reference date %q", dateField)
+		return fmt.Errorf("invalid Fieldwire alert reference date %q", dateField)
 	}
 	offsetMonths, offsetDays := 0, 0
 	if trigger.ParamString("offset_unit", "months") == "months" {
@@ -98,30 +113,47 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		offsetDays = trigger.ParamInt("offset_value", 60)
 	}
 
+	// A document counts as missing when its row is absent or its status is
+	// neither completed nor dispensed — the same two states the screen shows
+	// as done. Jobs with nothing missing produce no row and no e-mail.
 	today := forecastEasternDay(now)
 	rows, err := cfg.DB.Query(ctx, fmt.Sprintf(`
-		SELECT id,
-		       COALESCE(NULLIF(name, ''), NULLIF(lote_bld, ''), id),
-		       COALESCE(address, ''),
-		       %[1]s
-		FROM forecast_core
-		WHERE lower(trim(cliente)) = $2
-		  AND %[1]s IS NOT NULL
-		  AND %[1]s > $1
-		  AND (%[1]s - make_interval(months => $3, days => $4))::date <= $1
-		  AND lower(COALESCE(status, '')) NOT IN ('closed', 'cancelled')
-		ORDER BY %[1]s, id
-	`, dateField), today, client, offsetMonths, offsetDays)
+		SELECT c.id,
+		       COALESCE(NULLIF(c.name, ''), NULLIF(c.lote_bld, ''), c.id),
+		       COALESCE(c.address, ''),
+		       COALESCE(c.cliente, ''),
+		       c.%[1]s,
+		       ARRAY(
+		           SELECT d.document FROM unnest($5::text[]) AS d(document)
+		           WHERE NOT EXISTS (
+		               SELECT 1 FROM forecast_fieldwire f
+		               WHERE f.project_id = c.id
+		                 AND lower(trim(f.document)) = lower(trim(d.document))
+		                 AND lower(COALESCE(f.status, '')) IN ('completed', 'dispensed')
+		           )
+		       ) AS missing
+		FROM forecast_core c
+		WHERE lower(trim(c.cliente)) = ANY($2::text[])
+		  AND c.%[1]s IS NOT NULL
+		  AND c.%[1]s > $1
+		  AND (c.%[1]s - make_interval(months => $3, days => $4))::date <= $1
+		  AND lower(COALESCE(c.status, '')) NOT IN ('closed', 'cancelled')
+		ORDER BY c.%[1]s, c.id
+	`, dateField), today, lowerClients, offsetMonths, offsetDays, documents)
 	if err != nil {
-		return fmt.Errorf("fetch Plot Plan alerts: %w", err)
+		return fmt.Errorf("fetch Fieldwire missing-document alerts: %w", err)
 	}
 	defer rows.Close()
 
 	var projects []plotPlanProject
 	for rows.Next() {
 		var project plotPlanProject
-		if err := rows.Scan(&project.ID, &project.Name, &project.Address, &project.StartDate); err != nil {
+		if err := rows.Scan(&project.ID, &project.Name, &project.Address, &project.Client,
+			&project.StartDate, &project.Missing); err != nil {
 			return err
+		}
+		if len(project.Missing) == 0 {
+			continue
 		}
 		projects = append(projects, project)
 	}
@@ -153,22 +185,28 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 			continue
 		}
 
-		subject := "Plot Plan due — " + project.Name
-		text := fmt.Sprintf("Prepare the Plot Plan for %s.\nAddress: %s\nForecast date: %s\nAlert target: %s",
-			project.Name, project.Address, project.StartDate.Format("Jan 02, 2006"), targetDate.Format("Jan 02, 2006"))
-		htmlBody := fmt.Sprintf("<p>Prepare the <strong>Plot Plan</strong> for <strong>%s</strong>.</p><p>Address: %s<br>Forecast date: %s<br>Alert target: %s</p>",
-			html.EscapeString(project.Name), html.EscapeString(project.Address), project.StartDate.Format("Jan 02, 2006"), targetDate.Format("Jan 02, 2006"))
-		delivery, err := cfg.Email.Send(ctx, service.EmailMessage{To: to, CC: cc, Subject: subject, Text: text, HTML: htmlBody})
+		body := service.BuildFieldwireMissingEmail(service.FieldwireMissingProject{
+			Name:             project.Name,
+			Address:          project.Address,
+			Client:           project.Client,
+			ReferenceLabel:   service.ReferenceLabel(dateField),
+			ReferenceDate:    project.StartDate,
+			TargetDate:       targetDate,
+			MissingDocuments: project.Missing,
+		})
+		delivery, err := cfg.Email.Send(ctx, service.EmailMessage{
+			To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
+		})
 		if err != nil {
 			cfg.Triggers.LogDelivery(ctx, service.TriggerDelivery{
-				TriggerKey: service.TriggerForecastPlotPlan, Subject: subject, To: to, CC: cc,
+				TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
 				Context: project.Name, Status: "failed", Error: err.Error(),
 			})
-			return fmt.Errorf("send Plot Plan alert for %s: %w", project.ID, err)
+			return fmt.Errorf("send Fieldwire missing-document alert for %s: %w", project.ID, err)
 		}
 		cfg.Triggers.LogDelivery(ctx, service.TriggerDelivery{
-			TriggerKey: service.TriggerForecastPlotPlan, Subject: subject, To: to, CC: cc,
-			Context: project.Name,
+			TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
+			Context: fmt.Sprintf("%s — %d missing", project.Name, len(project.Missing)),
 		})
 		if _, err := cfg.DB.Exec(ctx, `
 			INSERT INTO forecast_email_deliveries (project_id, alert_type, target_date, delivery_id)
