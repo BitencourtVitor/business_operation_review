@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
-  AlertCircle, CalendarIcon, CalendarX, Check, Clock, Eye, FileText, History, Loader2, Mail,
-  ShieldAlert, Users,
+  AlertCircle, CalendarIcon, CalendarX, Check, ChevronDown, Clock, Eye, FileText, History,
+  Loader2, Mail, Plus, Search, ShieldAlert, Users, X,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -67,52 +67,120 @@ function TriggerIcon({ icon, className }: { icon: string; className?: string }) 
   return <Glyph className={className} />
 }
 
-/** Groups parameters into rows: an inline param shares the previous one's row. */
-function paramRows(params: TriggerParamDef[]): TriggerParamDef[][] {
-  const rows: TriggerParamDef[][] = []
-  for (const param of params) {
-    if (param.inline && rows.length > 0) {
-      rows[rows.length - 1].push(param)
-    } else {
-      rows.push([param])
-    }
-  }
-  return rows
+// ─── Blocks ───────────────────────────────────────────────────────────────────
+
+function Block({ title, icon, children }: {
+  title?: string
+  icon?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <div className="rounded-lg border border-border/40 bg-muted/30">
+      {title && (
+        <div className="flex items-center gap-1.5 border-b border-border/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {icon}
+          {title}
+        </div>
+      )}
+      <div className="p-3">{children}</div>
+    </div>
+  )
 }
 
-/** Chips that toggle: the option lists are short and fully visible at a glance. */
-function MultiSelect({
-  param, selected, onToggle,
-}: {
-  param: TriggerParamDef
-  selected: string[]
-  onToggle: (value: string) => void
+/** Collapsed it states how much it holds; the contents only load on expand. */
+function CollapsibleBlock({ title, icon, summary, open, onToggle, children }: {
+  title: string
+  icon?: React.ReactNode
+  summary: string
+  open: boolean
+  onToggle: () => void
+  children: React.ReactNode
 }) {
-  if (!param.options?.length) {
-    return <p className="text-[11px] text-muted-foreground">No options available.</p>
-  }
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {param.options.map(option => {
-        const active = selected.includes(option.value)
-        return (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => onToggle(option.value)}
-            className={cn(
-              "flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition-colors",
-              active
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border/40 text-muted-foreground hover:bg-muted/60",
-            )}
-          >
-            {active && <Check className="h-3 w-3" />}
-            {option.label}
-          </button>
-        )
-      })}
+    <div className="rounded-lg border border-border/40 bg-muted/30">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-1.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
+      >
+        {icon}
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {title}
+        </span>
+        <span className="flex-1 text-xs text-muted-foreground">— {summary}</span>
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
+      </button>
+      {open && <div className="border-t border-border/40 p-3">{children}</div>}
     </div>
+  )
+}
+
+/** Add-picker: lists only what is not selected yet, with a search box, because
+ *  some of these lists (documents, users) are long. */
+function AddPicker({ label, options, onAdd }: {
+  label: string
+  options: { value: string; label: string; hint?: string }[]
+  onAdd: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [term, setTerm] = useState("")
+
+  const filtered = options.filter(option =>
+    `${option.label} ${option.hint ?? ""}`.toLowerCase().includes(term.trim().toLowerCase()),
+  )
+
+  if (options.length === 0) return null
+
+  return (
+    <Popover open={open} onOpenChange={value => { setOpen(value); if (!value) setTerm("") }}>
+      <PopoverTrigger className="flex items-center gap-1 rounded-md border border-dashed border-border/60 px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+        <Plus className="h-3 w-3" />
+        {label}
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-0" align="start">
+        <div className="flex items-center gap-2 border-b border-border/40 px-2.5 py-2">
+          <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <input
+            autoFocus
+            value={term}
+            onChange={event => setTerm(event.target.value)}
+            placeholder="Search…"
+            className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+        <div className="max-h-56 overflow-y-auto p-1">
+          {filtered.length === 0 ? (
+            <p className="px-2 py-3 text-center text-[11px] text-muted-foreground">Nothing found.</p>
+          ) : (
+            filtered.map(option => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => { onAdd(option.value); setTerm("") }}
+                className="flex w-full flex-col rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted/70"
+              >
+                <span className="truncate text-xs">{option.label}</span>
+                {option.hint && (
+                  <span className="truncate text-[10px] text-muted-foreground">{option.hint}</span>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+/** A selected value: visible because it is in play, removable in one click. */
+function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] text-primary">
+      {label}
+      <button type="button" onClick={onRemove} className="opacity-60 transition-opacity hover:opacity-100">
+        <X className="h-3 w-3" />
+      </button>
+    </span>
   )
 }
 
@@ -120,13 +188,14 @@ export function EmailTriggersModal({ open, onClose }: Props) {
   const { data: triggers, isLoading } = useEmailTriggers(open)
   const { data: users } = useUsers()
   const update = useUpdateEmailTrigger()
+  const preview = usePreviewEmailTrigger()
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const [showRecipients, setShowRecipients] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const preview = usePreviewEmailTrigger()
   const [previewBody, setPreviewBody] = useState<{ subject: string; html: string } | null>(null)
 
   const selected = useMemo(
@@ -151,30 +220,11 @@ export function EmailTriggersModal({ open, onClose }: Props) {
       setDraft(draftOf(selected))
       setError(null)
       setSaved(false)
+      setShowRecipients(false)
       setShowHistory(false)
       setPreviewBody(null)
     }
   }, [selected])
-
-  async function runPreview() {
-    if (!selected || !draft) return
-    setError(null)
-    try {
-      const body = await preview.mutateAsync({
-        key: selected.key,
-        body: {
-          enabled: draft.enabled,
-          run_hour_utc: selected.schedulable ? draft.runHour : null,
-          values: draft.values,
-          to_user_ids: draft.to,
-          cc_user_ids: draft.cc,
-        },
-      })
-      setPreviewBody({ subject: body.subject, html: body.html })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not render the preview")
-    }
-  }
 
   const dirty = useMemo(() => {
     if (!selected || !draft) return false
@@ -186,38 +236,43 @@ export function EmailTriggersModal({ open, onClose }: Props) {
     setSaved(false)
   }
 
-  function toggleRecipient(kind: "to" | "cc", userID: string) {
+  function setValue(key: string, value: unknown) {
     if (!draft) return
-    const current = draft[kind]
-    const other = kind === "to" ? "cc" : "to"
-    if (current.includes(userID)) {
-      patch({ [kind]: current.filter(id => id !== userID) } as Partial<Draft>)
-      return
+    patch({ values: { ...draft.values, [key]: value } })
+  }
+
+  function body() {
+    if (!selected || !draft) return null
+    return {
+      enabled: draft.enabled,
+      run_hour_utc: selected.schedulable ? draft.runHour : null,
+      values: draft.values,
+      to_user_ids: draft.to,
+      cc_user_ids: draft.cc,
     }
-    // A user is either To or CC, never both — the sender would duplicate them.
-    patch({
-      [kind]: [...current, userID],
-      [other]: draft[other].filter(id => id !== userID),
-    } as Partial<Draft>)
   }
 
   async function save() {
-    if (!selected || !draft) return
+    const payload = body()
+    if (!selected || !payload) return
     setError(null)
     try {
-      await update.mutateAsync({
-        key: selected.key,
-        body: {
-          enabled: draft.enabled,
-          run_hour_utc: selected.schedulable ? draft.runHour : null,
-          values: draft.values,
-          to_user_ids: draft.to,
-          cc_user_ids: draft.cc,
-        },
-      })
+      await update.mutateAsync({ key: selected.key, body: payload })
       setSaved(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save this trigger")
+    }
+  }
+
+  async function runPreview() {
+    const payload = body()
+    if (!selected || !payload) return
+    setError(null)
+    try {
+      const rendered = await preview.mutateAsync({ key: selected.key, body: payload })
+      setPreviewBody({ subject: rendered.subject, html: rendered.html })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not render the preview")
     }
   }
 
@@ -228,6 +283,92 @@ export function EmailTriggersModal({ open, onClose }: Props) {
     }
     return [...map.entries()]
   }, [triggers])
+
+  const timingParams = selected?.params.filter(p => p.group === "timing") ?? []
+  const otherParams = selected?.params.filter(p => p.group !== "timing") ?? []
+
+  const userById = useMemo(
+    () => new Map((users ?? []).map(user => [user.id, user])),
+    [users],
+  )
+
+  function renderField(param: TriggerParamDef, narrow: boolean) {
+    if (!draft) return null
+    const value = draft.values[param.key]
+    const width = narrow ? "w-28" : "w-56"
+
+    if (param.type === "select") {
+      return (
+        <Select value={value === undefined ? "" : String(value)} onValueChange={next => setValue(param.key, next)}>
+          <SelectTrigger className={width}>
+            <SelectValue>
+              {param.options?.find(option => option.value === String(value))?.label ?? (
+                <span className="text-muted-foreground">Select</span>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {param.options?.map(option => (
+              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    }
+    if (param.type === "date") {
+      return (
+        <Popover>
+          <PopoverTrigger className={cn(
+            "flex h-9 items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm transition-colors hover:bg-muted/60",
+            width,
+          )}>
+            <CalendarIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            {value ? String(value) : <span className="text-muted-foreground">Select a date</span>}
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={value ? parseISO(String(value)) : undefined}
+              onSelect={date => date && setValue(param.key, format(date, "yyyy-MM-dd"))}
+            />
+          </PopoverContent>
+        </Popover>
+      )
+    }
+    return (
+      <Input
+        className={width}
+        type={param.type === "int" ? "number" : "text"}
+        min={param.min}
+        max={param.max}
+        value={value === undefined || value === null ? "" : String(value)}
+        onChange={event =>
+          setValue(param.key, param.type === "int" ? Number(event.target.value) : event.target.value)
+        }
+      />
+    )
+  }
+
+  function renderRows(params: TriggerParamDef[]) {
+    const rows: TriggerParamDef[][] = []
+    for (const param of params) {
+      if (param.inline && rows.length > 0) rows[rows.length - 1].push(param)
+      else rows.push([param])
+    }
+    return rows.map((row, index) => (
+      <div key={index} className="flex flex-wrap items-start gap-3">
+        {row.map(param => (
+          <div key={param.key} className="flex flex-col gap-1.5">
+            <Label className="text-xs">{param.label}</Label>
+            {renderField(param, row.length > 1)}
+            {param.help && <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>}
+          </div>
+        ))}
+      </div>
+    ))
+  }
+
+  const recipientCount = (draft?.to.length ?? 0) + (draft?.cc.length ?? 0)
 
   return (
     <Dialog open={open} onOpenChange={value => !value && onClose()}>
@@ -290,222 +431,221 @@ export function EmailTriggersModal({ open, onClose }: Props) {
 
             {selected && draft && (
               <div className="flex min-w-0 flex-1 flex-col">
-                <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-5">
+                <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-5">
                   <div>
                     <p className="text-sm font-medium">{selected.label}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">{selected.description}</p>
-                    <p className="mt-1 text-xs text-muted-foreground/70">{selected.when}</p>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3 py-2.5">
-                    <div>
-                      <p className="text-sm font-medium">Enabled</p>
-                      <p className="text-xs text-muted-foreground">
-                        Turned off, nothing is sent and no delivery is recorded.
-                      </p>
+                  <Block>
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium">Enabled</p>
+                        <p className="text-xs text-muted-foreground">
+                          Turned off, nothing is sent and no delivery is recorded.
+                        </p>
+                      </div>
+                      <Switch checked={draft.enabled} onCheckedChange={value => patch({ enabled: value })} />
                     </div>
-                    <Switch
-                      checked={draft.enabled}
-                      onCheckedChange={value => patch({ enabled: value })}
-                    />
-                  </div>
+                  </Block>
 
-                  {selected.schedulable ? (
-                    <div className="flex flex-col gap-1.5">
-                      <Label className="flex items-center gap-1.5 text-xs">
-                        <Clock className="h-3.5 w-3.5" />
-                        Run hour (UTC)
-                      </Label>
-                      <Select
-                        value={draft.runHour === null ? "" : String(draft.runHour)}
-                        onValueChange={value => patch({ runHour: Number(value) })}
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue>
-                            {draft.runHour === null ? (
-                              <span className="text-muted-foreground">Select an hour</span>
-                            ) : (
-                              `${String(draft.runHour).padStart(2, "0")}:00 UTC`
-                            )}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {HOURS.map(hour => (
-                            <SelectItem key={hour} value={String(hour)}>
-                              {String(hour).padStart(2, "0")}:00 UTC
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <p className="rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                      This trigger has no schedule of its own — it runs right after the job that feeds it.
-                    </p>
-                  )}
-
-                  {selected.params.length > 0 && (
+                  <Block title="When it fires" icon={<Clock className="h-3.5 w-3.5" />}>
                     <div className="flex flex-col gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Parameters
-                      </p>
-                      {paramRows(selected.params).map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex flex-wrap items-start gap-3">
-                          {row.map(param => {
-                            const value = draft.values[param.key]
-                            const grouped = row.length > 1
-                            const controlWidth = grouped ? "w-28" : "w-56"
+                      <p className="text-[11px] text-muted-foreground">{selected.when}</p>
+                      {renderRows(timingParams)}
+                      {selected.schedulable ? (
+                        <div className="flex flex-col gap-1.5">
+                          <Label className="text-xs">Run hour (UTC)</Label>
+                          <Select
+                            value={draft.runHour === null ? "" : String(draft.runHour)}
+                            onValueChange={value => patch({ runHour: Number(value) })}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue>
+                                {draft.runHour === null
+                                  ? <span className="text-muted-foreground">Select an hour</span>
+                                  : `${String(draft.runHour).padStart(2, "0")}:00 UTC`}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {HOURS.map(hour => (
+                                <SelectItem key={hour} value={String(hour)}>
+                                  {String(hour).padStart(2, "0")}:00 UTC
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          No schedule of its own — it runs right after the job that feeds it.
+                        </p>
+                      )}
+                    </div>
+                  </Block>
+
+                  {otherParams.length > 0 && (
+                    <Block title="Parameters">
+                      <div className="flex flex-col gap-4">
+                        {otherParams.map(param => {
+                          if (param.type !== "multiselect") {
                             return (
                               <div key={param.key} className="flex flex-col gap-1.5">
                                 <Label className="text-xs">{param.label}</Label>
-
-                                {param.type === "multiselect" ? (
-                                  <MultiSelect
-                                    param={param}
-                                    selected={asList(value)}
-                                    onToggle={option => {
-                                      const current = asList(value)
-                                      patch({
-                                        values: {
-                                          ...draft.values,
-                                          [param.key]: current.includes(option)
-                                            ? current.filter(item => item !== option)
-                                            : [...current, option],
-                                        },
-                                      })
-                                    }}
-                                  />
-                                ) : param.type === "select" ? (
-                                  <Select
-                                    value={value === undefined ? "" : String(value)}
-                                    onValueChange={next =>
-                                      patch({ values: { ...draft.values, [param.key]: next } })
-                                    }
-                                  >
-                                    <SelectTrigger className={controlWidth}>
-                                      <SelectValue>
-                                        {param.options?.find(option => option.value === String(value))?.label ?? (
-                                          <span className="text-muted-foreground">Select</span>
-                                        )}
-                                      </SelectValue>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {param.options?.map(option => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                          {option.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                ) : param.type === "date" ? (
-                                  <Popover>
-                                    <PopoverTrigger className={cn(
-                                      "flex h-9 items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm transition-colors hover:bg-muted/60",
-                                      controlWidth,
-                                    )}>
-                                      <CalendarIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                      {value ? String(value) : <span className="text-muted-foreground">Select a date</span>}
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                      <Calendar
-                                        mode="single"
-                                        selected={value ? parseISO(String(value)) : undefined}
-                                        onSelect={date =>
-                                          date &&
-                                          patch({
-                                            values: { ...draft.values, [param.key]: format(date, "yyyy-MM-dd") },
-                                          })
-                                        }
-                                      />
-                                    </PopoverContent>
-                                  </Popover>
-                                ) : (
-                                  <Input
-                                    className={controlWidth}
-                                    type={param.type === "int" ? "number" : "text"}
-                                    min={param.min}
-                                    max={param.max}
-                                    value={value === undefined || value === null ? "" : String(value)}
-                                    onChange={event =>
-                                      patch({
-                                        values: {
-                                          ...draft.values,
-                                          [param.key]:
-                                            param.type === "int"
-                                              ? Number(event.target.value)
-                                              : event.target.value,
-                                        },
-                                      })
-                                    }
-                                  />
-                                )}
-
+                                {renderField(param, false)}
                                 {param.help && (
                                   <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>
                                 )}
                               </div>
                             )
-                          })}
-                        </div>
-                      ))}
-                    </div>
+                          }
+                          const chosen = asList(draft.values[param.key])
+                          const available = (param.options ?? []).filter(o => !chosen.includes(o.value))
+                          return (
+                            <div key={param.key} className="flex flex-col gap-1.5">
+                              <Label className="text-xs">{param.label}</Label>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {chosen.map(item => (
+                                  <Chip
+                                    key={item}
+                                    label={item}
+                                    onRemove={() => setValue(param.key, chosen.filter(v => v !== item))}
+                                  />
+                                ))}
+                                {chosen.length === 0 && (
+                                  <span className="text-[11px] text-muted-foreground">None selected.</span>
+                                )}
+                                <AddPicker
+                                  label="Add"
+                                  options={available}
+                                  onAdd={item => setValue(param.key, [...chosen, item])}
+                                />
+                              </div>
+                              {param.help && (
+                                <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </Block>
                   )}
 
-                  <div className="flex flex-col gap-2">
-                    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      <Users className="h-3.5 w-3.5" />
-                      Recipients
-                    </p>
-                    <div className="overflow-hidden rounded-lg border border-border/40">
-                      <div className="flex items-center gap-2 border-b border-border/40 bg-muted/40 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
-                        <span className="flex-1">User</span>
-                        <span className="w-10 text-center">To</span>
-                        <span className="w-10 text-center">CC</span>
-                      </div>
-                      <div className="max-h-52 overflow-y-auto">
-                        {(users ?? []).map(user => (
-                          <div
-                            key={user.id}
-                            className="flex items-center gap-2 border-b border-border/20 px-3 py-1.5 text-sm last:border-b-0"
-                          >
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-xs font-medium">{user.name}</p>
-                              <p className="truncate text-[11px] text-muted-foreground">{user.email}</p>
-                            </div>
-                            {(["to", "cc"] as const).map(kind => (
+                  <CollapsibleBlock
+                    title="Recipients"
+                    icon={<Users className="h-3.5 w-3.5 text-muted-foreground" />}
+                    summary={recipientCount === 1 ? "1 person" : `${recipientCount} people`}
+                    open={showRecipients}
+                    onToggle={() => setShowRecipients(value => !value)}
+                  >
+                    <div className="flex flex-col gap-2">
+                      {recipientCount === 0 && (
+                        <p className="text-[11px] text-muted-foreground">Nobody added yet.</p>
+                      )}
+                      {(["to", "cc"] as const).map(kind =>
+                        draft[kind].map(userID => {
+                          const user = userById.get(userID)
+                          return (
+                            <div
+                              key={`${kind}-${userID}`}
+                              className="flex items-center gap-2 rounded-md border border-border/40 px-2.5 py-1.5"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-xs font-medium">{user?.name ?? userID}</p>
+                                <p className="truncate text-[10px] text-muted-foreground">{user?.email}</p>
+                              </div>
+                              <div className="flex overflow-hidden rounded-md border border-border/40">
+                                {(["to", "cc"] as const).map(target => (
+                                  <button
+                                    key={target}
+                                    type="button"
+                                    onClick={() => patch({
+                                      to: target === "to"
+                                        ? [...draft.to.filter(id => id !== userID), userID]
+                                        : draft.to.filter(id => id !== userID),
+                                      cc: target === "cc"
+                                        ? [...draft.cc.filter(id => id !== userID), userID]
+                                        : draft.cc.filter(id => id !== userID),
+                                    })}
+                                    className={cn(
+                                      "px-2 py-0.5 text-[10px] uppercase transition-colors",
+                                      kind === target
+                                        ? "bg-primary/15 text-primary"
+                                        : "text-muted-foreground hover:bg-muted/60",
+                                    )}
+                                  >
+                                    {target}
+                                  </button>
+                                ))}
+                              </div>
                               <button
-                                key={kind}
                                 type="button"
-                                onClick={() => toggleRecipient(kind, user.id)}
-                                className={cn(
-                                  "flex h-5 w-10 items-center justify-center rounded-md border text-[10px] transition-colors",
-                                  draft[kind].includes(user.id)
-                                    ? "border-primary/40 bg-primary/10 text-primary"
-                                    : "border-border/40 text-muted-foreground hover:bg-muted/60",
-                                )}
+                                onClick={() => patch({
+                                  to: draft.to.filter(id => id !== userID),
+                                  cc: draft.cc.filter(id => id !== userID),
+                                })}
+                                className="text-muted-foreground/60 transition-colors hover:text-destructive"
                               >
-                                {draft[kind].includes(user.id) ? <Check className="h-3 w-3" /> : "—"}
+                                <X className="h-3.5 w-3.5" />
                               </button>
-                            ))}
+                            </div>
+                          )
+                        }),
+                      )}
+                      <AddPicker
+                        label="Add recipient"
+                        options={(users ?? [])
+                          .filter(user => !draft.to.includes(user.id) && !draft.cc.includes(user.id))
+                          .map(user => ({ value: user.id, label: user.name, hint: user.email }))}
+                        onAdd={userID => patch({ to: [...draft.to, userID] })}
+                      />
+                      {draft.enabled && draft.to.length === 0 && (
+                        <p className="flex items-center gap-1.5 text-[11px] text-amber-500">
+                          <AlertCircle className="h-3.5 w-3.5" />
+                          An enabled trigger needs at least one primary recipient.
+                        </p>
+                      )}
+                    </div>
+                  </CollapsibleBlock>
+
+                  <CollapsibleBlock
+                    title="Delivery history"
+                    icon={<History className="h-3.5 w-3.5 text-muted-foreground" />}
+                    summary={selected.delivery_count === 1 ? "1 e-mail sent" : `${selected.delivery_count} e-mails sent`}
+                    open={showHistory}
+                    onToggle={() => setShowHistory(value => !value)}
+                  >
+                    {historyLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    ) : (history?.length ?? 0) === 0 ? (
+                      <p className="text-xs text-muted-foreground">Nothing sent yet.</p>
+                    ) : (
+                      <div className="max-h-48 overflow-y-auto">
+                        {history?.map((entry, index) => (
+                          <div
+                            key={`${entry.sent_at}-${index}`}
+                            className="flex items-center gap-2 border-b border-border/20 py-1.5 text-xs last:border-b-0"
+                          >
+                            <span className={cn(
+                              "h-1.5 w-1.5 shrink-0 rounded-full",
+                              entry.status === "sent" ? "bg-emerald-500" : "bg-destructive",
+                            )} />
+                            <span className="w-32 shrink-0 text-muted-foreground">
+                              {format(parseISO(entry.sent_at), "MMM dd, HH:mm")}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate">{entry.subject}</span>
+                            <span className="w-28 shrink-0 truncate text-right text-muted-foreground">
+                              {entry.context}
+                            </span>
                           </div>
                         ))}
                       </div>
-                    </div>
-                    {draft.enabled && draft.to.length === 0 && (
-                      <p className="flex items-center gap-1.5 text-[11px] text-amber-500">
-                        <AlertCircle className="h-3.5 w-3.5" />
-                        An enabled trigger needs at least one primary recipient.
-                      </p>
                     )}
-                  </div>
+                  </CollapsibleBlock>
 
                   {previewBody && (
-                    <div className="flex flex-col gap-1.5">
-                      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        <Eye className="h-3.5 w-3.5" />
-                        Preview — sample data
-                      </p>
-                      <div className="overflow-hidden rounded-lg border border-border/40">
+                    <Block title="Preview — sample data" icon={<Eye className="h-3.5 w-3.5" />}>
+                      <div className="overflow-hidden rounded-md border border-border/40">
                         <div className="border-b border-border/40 bg-muted/40 px-3 py-2">
                           <p className="text-[11px] text-muted-foreground">Subject</p>
                           <p className="text-xs font-medium">{previewBody.subject}</p>
@@ -517,49 +657,8 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                           dangerouslySetInnerHTML={{ __html: previewBody.html }}
                         />
                       </div>
-                    </div>
+                    </Block>
                   )}
-
-                  <div className="flex flex-col gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowHistory(value => !value)}
-                      className="flex items-center gap-1.5 self-start text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
-                    >
-                      <History className="h-3.5 w-3.5" />
-                      Delivery history
-                    </button>
-                    {showHistory && (
-                      historyLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : (history?.length ?? 0) === 0 ? (
-                        <p className="text-xs text-muted-foreground">Nothing sent yet.</p>
-                      ) : (
-                        <div className="max-h-48 overflow-y-auto rounded-lg border border-border/40">
-                          {history?.map((entry, index) => (
-                            <div
-                              key={`${entry.sent_at}-${index}`}
-                              className="flex items-center gap-2 border-b border-border/20 px-3 py-1.5 text-xs last:border-b-0"
-                            >
-                              <span
-                                className={cn(
-                                  "h-1.5 w-1.5 shrink-0 rounded-full",
-                                  entry.status === "sent" ? "bg-emerald-500" : "bg-destructive",
-                                )}
-                              />
-                              <span className="w-32 shrink-0 text-muted-foreground">
-                                {format(parseISO(entry.sent_at), "MMM dd, HH:mm")}
-                              </span>
-                              <span className="min-w-0 flex-1 truncate">{entry.subject}</span>
-                              <span className="w-28 shrink-0 truncate text-right text-muted-foreground">
-                                {entry.context}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )
-                    )}
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-3">

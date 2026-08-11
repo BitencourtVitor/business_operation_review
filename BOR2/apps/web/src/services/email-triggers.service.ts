@@ -22,6 +22,8 @@ export interface TriggerParamDef {
   max?: number
   // Renders on the same row as the previous field.
   inline?: boolean
+  /** "timing" fields live in the schedule block; the rest in Parameters. */
+  group?: string
 }
 
 export interface EmailBody {
@@ -49,6 +51,9 @@ export interface EmailTrigger {
   cc_user_ids: string[]
   updated_by: string | null
   updated_at: string
+  /** How many deliveries are on record, so the history block can say so
+   *  without loading the list. */
+  delivery_count: number
 }
 
 export interface EmailTriggerDelivery {

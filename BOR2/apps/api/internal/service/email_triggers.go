@@ -31,6 +31,9 @@ type ParamDef struct {
 	Max     *int     `json:"max,omitempty"`
 	// Inline renders the field on the same row as the previous one.
 	Inline bool `json:"inline,omitempty"`
+	// Group splits the form into blocks: "timing" is when the e-mail goes out,
+	// everything else describes what it looks at. Empty means "parameters".
+	Group string `json:"group,omitempty"`
 	// OptionsSource fills Options from live data instead of a fixed list.
 	OptionsSource string `json:"-"`
 }
@@ -71,15 +74,15 @@ var triggerDefinitions = []TriggerDefinition{
 				Help: "Only jobs of these clients are considered."},
 			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "fieldwire_documents",
 				Help: "A job is alerted when any of these is missing. A document with no row at all counts as missing."},
-			{Key: "date_field", Label: "Reference date", Type: "select", Options: []Option{
+			{Key: "offset_value", Label: "Send in advance", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(365)},
+			{Key: "offset_unit", Label: "Unit", Type: "select", Group: "timing", Inline: true, Options: []Option{
+				{Value: "days", Label: "days"},
+				{Value: "months", Label: "months"},
+			}},
+			{Key: "date_field", Label: "Reference date", Type: "select", Group: "timing", Options: []Option{
 				{Value: "previous_start_date", Label: "Start date"},
 				{Value: "previous_beams_date", Label: "Beams date"},
 				{Value: "previous_end_date", Label: "End date"},
-			}},
-			{Key: "offset_value", Label: "Send in advance", Type: "int", Min: intPtr(1), Max: intPtr(365)},
-			{Key: "offset_unit", Label: "Unit", Type: "select", Inline: true, Options: []Option{
-				{Value: "days", Label: "days"},
-				{Value: "months", Label: "months"},
 			}},
 		},
 	},
@@ -92,8 +95,8 @@ var triggerDefinitions = []TriggerDefinition{
 		When:        "On every review date derived from the anchor and the cycle length.",
 		Schedulable: true,
 		Params: []ParamDef{
-			{Key: "anchor_date", Label: "Anchor date", Type: "date", Help: "First review date. Every following cycle is counted from here."},
-			{Key: "cycle_days", Label: "Cycle length (days)", Type: "int", Min: intPtr(1), Max: intPtr(180)},
+			{Key: "anchor_date", Label: "Anchor date", Type: "date", Group: "timing", Help: "First review date. Every following cycle is counted from here."},
+			{Key: "cycle_days", Label: "Cycle length (days)", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(180)},
 		},
 	},
 	{
@@ -105,7 +108,7 @@ var triggerDefinitions = []TriggerDefinition{
 		When:        "The configured number of days after each review date.",
 		Schedulable: true,
 		Params: []ParamDef{
-			{Key: "days_after_review", Label: "Days after the review", Type: "int", Min: intPtr(1), Max: intPtr(30)},
+			{Key: "days_after_review", Label: "Days after the review", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(30)},
 		},
 	},
 	{
@@ -135,6 +138,8 @@ type TriggerConfig struct {
 	CCUserIDs  []string       `json:"cc_user_ids"`
 	UpdatedBy  *string        `json:"updated_by"`
 	UpdatedAt  time.Time      `json:"updated_at"`
+	// Lets the history block state how much it holds without loading it.
+	DeliveryCount int `json:"delivery_count"`
 }
 
 type TriggerDelivery struct {
@@ -249,7 +254,14 @@ func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConf
 			cfg.CCUserIDs = append(cfg.CCUserIDs, userID)
 		}
 	}
-	return cfg, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	_ = s.db.QueryRow(ctx, `
+		SELECT count(*) FROM email_trigger_deliveries WHERE trigger_key = $1
+	`, key).Scan(&cfg.DeliveryCount)
+	return cfg, nil
 }
 
 func (s *EmailTriggerService) List(ctx context.Context) ([]*TriggerConfig, error) {
