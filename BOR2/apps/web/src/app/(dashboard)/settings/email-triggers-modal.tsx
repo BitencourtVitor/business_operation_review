@@ -104,10 +104,10 @@ function CollapsibleBlock({ title, icon, summary, open, onToggle, children }: {
         className="flex w-full items-center gap-1.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
       >
         {icon}
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="flex-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
         </span>
-        <span className="flex-1 text-xs text-muted-foreground">— {summary}</span>
+        <span className="text-xs text-muted-foreground">{summary}</span>
         <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
       </button>
       {open && <div className="border-t border-border/40 p-3">{children}</div>}
