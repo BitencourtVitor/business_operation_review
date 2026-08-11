@@ -356,7 +356,9 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
                   </span>
                 </div>
               )}
-              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+              {/* Tracks size themselves to the space: no breakpoint leaves a
+                  lone cell orphaned on a second row. */}
+              <div className="grid min-w-0 flex-1 grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2">
                 {divisionTypes.map(type => (
                   <DocCell key={`${division}-${type.key}`} contractorId={ctr.id} division={division} typeInfo={type}
                     record={recordsByDivisionAndType[`${division}\u0000${type.key}`] ?? EMPTY_RECORD(type.key, division)} />
