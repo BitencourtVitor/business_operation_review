@@ -51,10 +51,12 @@ export interface WorkersCompReviewCheck {
 export interface WorkersCompReviewCycle {
   id: string
   review_date: string
-  status: "open" | "closed"
+  status: "open" | "closed" | "not_opened"
   review_email_sent_at: string | null
   closed_at: string | null
   checks: WorkersCompReviewCheck[]
+  prev_review_date: string
+  next_review_date: string
 }
 
 export interface SubDocEmailRecipientsData {
@@ -105,8 +107,11 @@ export const subcontractorDocsService = {
   sendEmailRecipientsTest: (body: { to_user_ids: string[]; cc_user_ids: string[] }) =>
     api.post<EmailDeliveryResult>(`/api/v1/subcontractor-docs/email-recipients/test`, body, getToken()),
 
-  getWorkersCompReview: () =>
-    api.get<WorkersCompReviewCycle>(`/api/v1/subcontractor-docs/workers-comp-review`, getToken()),
+  getWorkersCompReview: (date?: string) =>
+    api.get<WorkersCompReviewCycle>(
+      `/api/v1/subcontractor-docs/workers-comp-review${date ? `?date=${date}` : ""}`,
+      getToken(),
+    ),
 
   updateWorkersCompCheck: (id: string, body: { status: WorkersCompCheckStatus; notes: string }) =>
     api.patch<{ ok: boolean }>(`/api/v1/subcontractor-docs/workers-comp-review/checks/${id}`, body, getToken()),
