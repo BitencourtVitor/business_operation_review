@@ -13,6 +13,17 @@ import (
 
 const emailDateLayout = "Jan 02, 2006"
 
+// usDate turns the ISO dates that travel through the system into the format
+// the people reading these e-mails actually use. Anything unparseable is left
+// alone rather than replaced with a wrong date.
+func usDate(value string) string {
+	parsed, err := time.Parse("2006-01-02", strings.TrimSpace(value))
+	if err != nil {
+		return value
+	}
+	return parsed.Format("01/02/2006")
+}
+
 // EmailBody is a composed message minus its recipients.
 type EmailBody struct {
 	Subject string `json:"subject"`
@@ -42,7 +53,10 @@ func emailTable(headers []string, rows [][]string) string {
 // ── Fieldwire documents missing ───────────────────────────────────────────────
 
 type FieldwireMissingProject struct {
-	Name             string
+	// JobSite is the community; Unit is the lot or building inside it. Both
+	// are needed to identify a job: the unit number repeats across sites.
+	JobSite          string
+	Unit             string
 	Address          string
 	Client           string
 	ReferenceLabel   string
@@ -51,32 +65,46 @@ type FieldwireMissingProject struct {
 	MissingDocuments []string
 }
 
+// FieldwireSubject is also what the delivery history shows, so both name a job
+// the same way.
+func FieldwireSubject(jobSite, unit string) string {
+	label := strings.TrimSpace(jobSite)
+	if unit = strings.TrimSpace(unit); unit != "" {
+		if label == "" {
+			label = unit
+		} else {
+			label += " - " + unit
+		}
+	}
+	return "Fieldwire Documents Alert | " + label
+}
+
 func BuildFieldwireMissingEmail(project FieldwireMissingProject) EmailBody {
-	subject := fmt.Sprintf("Fieldwire documents missing — %s", project.Name)
+	subject := FieldwireSubject(project.JobSite, project.Unit)
 
 	var textRows strings.Builder
 	rows := make([][]string, 0, len(project.MissingDocuments))
 	for _, document := range project.MissingDocuments {
 		textRows.WriteString("- " + document + "\n")
-		rows = append(rows, []string{document, "Missing"})
+		rows = append(rows, []string{document})
 	}
 
 	text := fmt.Sprintf(
-		"%s (%s) is approaching its %s and the documents below are still missing in Fieldwire.\n\n"+
+		"%s at %s (%s) is approaching its %s and the documents below are still missing in Fieldwire.\n\n"+
 			"Address: %s\n%s: %s\nAlert target: %s\n\nMissing documents:\n%s",
-		project.Name, project.Client, strings.ToLower(project.ReferenceLabel),
+		project.Unit, project.JobSite, project.Client, strings.ToLower(project.ReferenceLabel),
 		project.Address, project.ReferenceLabel, project.ReferenceDate.Format(emailDateLayout),
 		project.TargetDate.Format(emailDateLayout), textRows.String(),
 	)
 
 	htmlBody := fmt.Sprintf(
-		`<p><strong>%s</strong> (%s) is approaching its %s and the documents below are still missing in Fieldwire.</p>`+
+		`<p><strong>%s</strong> at <strong>%s</strong> (%s) is approaching its %s and the documents below are still missing in Fieldwire.</p>`+
 			`<p style="color:#555;font-size:13px">Address: %s<br>%s: <strong>%s</strong><br>Alert target: %s</p>%s`,
-		html.EscapeString(project.Name), html.EscapeString(project.Client),
-		html.EscapeString(strings.ToLower(project.ReferenceLabel)),
+		html.EscapeString(project.Unit), html.EscapeString(project.JobSite),
+		html.EscapeString(project.Client), html.EscapeString(strings.ToLower(project.ReferenceLabel)),
 		html.EscapeString(project.Address), html.EscapeString(project.ReferenceLabel),
 		project.ReferenceDate.Format(emailDateLayout), project.TargetDate.Format(emailDateLayout),
-		emailTable([]string{"Document", "Status"}, rows),
+		emailTable([]string{"Missing document"}, rows),
 	)
 
 	return EmailBody{Subject: subject, Text: text, HTML: htmlBody}
@@ -87,21 +115,22 @@ func BuildFieldwireMissingEmail(project FieldwireMissingProject) EmailBody {
 type WorkersCompRow struct {
 	ContractorName string
 	Divisions      string
-	Status         string
 }
 
+// The list is what has to be checked, so every row is pending by definition —
+// a status column would carry the same word on every line.
 func BuildWorkersCompReviewEmail(reviewDate string, checks []WorkersCompRow) EmailBody {
 	var textRows strings.Builder
 	rows := make([][]string, 0, len(checks))
 	for _, check := range checks {
-		textRows.WriteString(fmt.Sprintf("- %s | %s | %s\n", check.ContractorName, check.Divisions, strings.ToUpper(check.Status)))
-		rows = append(rows, []string{check.ContractorName, check.Divisions, strings.ToUpper(check.Status)})
+		textRows.WriteString(fmt.Sprintf("- %s | %s\n", check.ContractorName, check.Divisions))
+		rows = append(rows, []string{check.ContractorName, check.Divisions})
 	}
 	return EmailBody{
-		Subject: "Workers' Compensation review — " + reviewDate,
+		Subject: "Workers' Compensation Review — " + usDate(reviewDate),
 		Text:    "Review each eligible subcontractor below and record Regular or Irregular in BOR.\n\n" + textRows.String(),
 		HTML: `<p>Review each eligible subcontractor below and record <strong>Regular</strong> or <strong>Irregular</strong> in BOR.</p>` +
-			emailTable([]string{"Subcontractor", "Divisions", "Status"}, rows),
+			emailTable([]string{"Subcontractor", "Divisions"}, rows),
 	}
 }
 
@@ -119,9 +148,10 @@ func BuildAbsenceEmail(company string, alertDays int, events []AbsenceRow) Email
 	var textRows strings.Builder
 	rows := make([][]string, 0, len(events))
 	for _, event := range events {
+		since := usDate(event.StartDate)
 		textRows.WriteString(fmt.Sprintf("%s (%s) — %d business days, since %s\n",
-			event.EmployeeName, event.TeamName, event.DaysCount, event.StartDate))
-		rows = append(rows, []string{event.EmployeeName, event.TeamName, fmt.Sprint(event.DaysCount), event.StartDate})
+			event.EmployeeName, event.TeamName, event.DaysCount, since))
+		rows = append(rows, []string{event.EmployeeName, event.TeamName, fmt.Sprint(event.DaysCount), since})
 	}
 	subject := fmt.Sprintf("%s — %d employee(s) without clock-in", label, len(events))
 	return EmailBody{
@@ -157,7 +187,8 @@ func previewSample(key string, cfg *TriggerConfig) EmailBody {
 			client = clients[0]
 		}
 		return BuildFieldwireMissingEmail(FieldwireMissingProject{
-			Name:             "SAMPLE — Lot 128 / BLD 4",
+			JobSite:          "SAMPLE — Willow Ridge at Sample, MA",
+			Unit:             "Lot 128",
 			Address:          "1420 Sample Ridge Dr, Sample City",
 			Client:           client,
 			ReferenceLabel:   ReferenceLabel(cfg.ParamString("date_field", "previous_start_date")),
@@ -168,8 +199,8 @@ func previewSample(key string, cfg *TriggerConfig) EmailBody {
 
 	case TriggerWorkersCompReview:
 		return BuildWorkersCompReviewEmail(sampleDate.Format(workersCompDateLayout), []WorkersCompRow{
-			{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing", Status: "pending"},
-			{ContractorName: "SAMPLE — Northline Concrete", Divisions: "HVAC, PCG", Status: "pending"},
+			{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing"},
+			{ContractorName: "SAMPLE — Northline Concrete", Divisions: "HVAC, PCG"},
 		})
 
 	case TriggerQBTimeAbsence:

@@ -227,7 +227,6 @@ func workersCompRows(checks []WorkersCompReviewCheck) []WorkersCompRow {
 		rows = append(rows, WorkersCompRow{
 			ContractorName: check.ContractorName,
 			Divisions:      strings.Join(check.Divisions, ", "),
-			Status:         check.Status,
 		})
 	}
 	return rows
