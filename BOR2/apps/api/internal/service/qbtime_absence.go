@@ -15,6 +15,9 @@ import (
 )
 
 const (
+	// Fallbacks used until the trigger row is read. Both are editable in
+	// Settings → Email Triggers; these values are what shipped before it.
+	//
 	// How far back the detector recomputes. Kept under the 30 days the period
 	// report re-syncs, so every day it looks at has settled timesheet data.
 	absenceWindowDays = 21
@@ -35,6 +38,7 @@ type QBTimeAbsenceService struct {
 	notifSvc   *NotificationService
 	email      EmailSender
 	recipients *AlertRecipientDirectory
+	triggers   *EmailTriggerService
 }
 
 func NewQBTimeAbsenceService(repo repository.QBTimeAbsenceRepository, notifSvc *NotificationService, deps ...any) *QBTimeAbsenceService {
@@ -43,13 +47,43 @@ func NewQBTimeAbsenceService(repo repository.QBTimeAbsenceRepository, notifSvc *
 		svc.email, _ = deps[0].(EmailSender)
 		svc.recipients, _ = deps[1].(*AlertRecipientDirectory)
 	}
-	if svc.email == nil || svc.recipients == nil {
+	if len(deps) >= 3 {
+		svc.triggers, _ = deps[2].(*EmailTriggerService)
+	}
+	if svc.email == nil || svc.recipients == nil || svc.triggers == nil {
 		if provider, ok := repo.(interface{ Pool() *pgxpool.Pool }); ok {
-			svc.email = NewGmailAPISenderFromEnv()
-			svc.recipients = NewAlertRecipientDirectory(provider.Pool())
+			if svc.email == nil {
+				svc.email = NewGmailAPISenderFromEnv()
+			}
+			if svc.recipients == nil {
+				svc.recipients = NewAlertRecipientDirectory(provider.Pool())
+			}
+			if svc.triggers == nil {
+				svc.triggers = NewEmailTriggerService(provider.Pool())
+			}
 		}
 	}
 	return svc
+}
+
+// absenceParams reads the configured thresholds. On any failure it falls back
+// to the shipped constants — a settings problem must not stop detection.
+func (s *QBTimeAbsenceService) absenceParams(ctx context.Context) (alertDays, windowDays int) {
+	alertDays, windowDays = absenceAlertDays, absenceWindowDays
+	if s.triggers == nil {
+		return
+	}
+	cfg, err := s.triggers.Get(ctx, TriggerQBTimeAbsence)
+	if err != nil {
+		return
+	}
+	if value := cfg.ParamInt("alert_days", alertDays); value > 0 {
+		alertDays = value
+	}
+	if value := cfg.ParamInt("window_days", windowDays); value > 0 {
+		windowDays = value
+	}
+	return
 }
 
 func easternNow() time.Time {
@@ -78,7 +112,8 @@ func candidateDays(now time.Time, windowDays int) []time.Time {
 // evaluatedDays drops any candidate day the company as a whole did not punch on.
 // A holiday or a failed sync would otherwise read as everybody being absent.
 func (s *QBTimeAbsenceService) evaluatedDays(ctx context.Context, company string, now time.Time) ([]time.Time, error) {
-	candidates := candidateDays(now, absenceWindowDays)
+	_, windowDays := s.absenceParams(ctx)
+	candidates := candidateDays(now, windowDays)
 	active, err := s.repo.DaysWithActivity(ctx, company, candidates)
 	if err != nil {
 		return nil, err
@@ -163,7 +198,8 @@ func (s *QBTimeAbsenceService) DetectCompany(ctx context.Context, company string
 // NotifyCompany announces every event that crossed the threshold and has not
 // been announced yet — one notification per company per run, not per person.
 func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string) error {
-	pending, err := s.repo.PendingNotification(ctx, company, absenceAlertDays)
+	alertDays, _ := s.absenceParams(ctx)
+	pending, err := s.repo.PendingNotification(ctx, company, alertDays)
 	if err != nil {
 		return err
 	}
@@ -194,7 +230,7 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 	title := fmt.Sprintf("%s — %d employee(s) without clock-in", label, len(pending))
 	content := fmt.Sprintf(
 		"No punch for %d+ business days:\n\n%s",
-		absenceAlertDays, strings.Join(lines, "\n"),
+		alertDays, strings.Join(lines, "\n"),
 	)
 
 	if _, err := s.notifSvc.Create(ctx, &domain.Notification{
@@ -207,25 +243,38 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 		return fmt.Errorf("create absence notification: %w", err)
 	}
 
-	if s.email == nil || s.recipients == nil {
+	if s.email == nil || s.triggers == nil {
 		return fmt.Errorf("absence email dependencies are not configured")
 	}
-	to, cc, err := s.recipients.Resolve(ctx)
+	// Only the e-mail is gated by the trigger. The in-app notification above
+	// follows the absence_control permission and stays independent of it.
+	emailDue, _, err := s.triggers.ShouldRun(ctx, TriggerQBTimeAbsence, time.Now())
 	if err != nil {
 		return err
 	}
-	if len(to) > 0 {
+	to, cc, err := s.triggers.Recipients(ctx, TriggerQBTimeAbsence)
+	if err != nil {
+		return err
+	}
+	if emailDue && len(to) > 0 {
 		var htmlRows strings.Builder
 		for _, event := range pending {
 			htmlRows.WriteString("<tr><td>" + html.EscapeString(event.EmployeeName) + "</td><td>" + html.EscapeString(event.TeamName) + "</td><td>" + fmt.Sprint(event.DaysCount) + "</td><td>" + html.EscapeString(event.StartDate) + "</td></tr>")
 		}
 		delivery, err := s.email.Send(ctx, EmailMessage{
 			To: to, CC: cc, Subject: title, Text: content,
-			HTML: "<p>No clock-in was found for two consecutive evaluated business days.</p><table style=\"border-collapse:collapse;width:100%\"><thead><tr><th align=\"left\">Employee</th><th align=\"left\">Team</th><th align=\"left\">Days</th><th align=\"left\">Since</th></tr></thead><tbody>" + htmlRows.String() + "</tbody></table>",
+			HTML: fmt.Sprintf("<p>No clock-in was found for %d consecutive evaluated business days.</p>", alertDays) + "<table style=\"border-collapse:collapse;width:100%\"><thead><tr><th align=\"left\">Employee</th><th align=\"left\">Team</th><th align=\"left\">Days</th><th align=\"left\">Since</th></tr></thead><tbody>" + htmlRows.String() + "</tbody></table>",
 		})
 		if err != nil {
+			s.triggers.LogDelivery(ctx, TriggerDelivery{
+				TriggerKey: TriggerQBTimeAbsence, Subject: title, To: to, CC: cc,
+				Context: label, Status: "failed", Error: err.Error(),
+			})
 			return fmt.Errorf("send absence email: %w", err)
 		}
+		s.triggers.LogDelivery(ctx, TriggerDelivery{
+			TriggerKey: TriggerQBTimeAbsence, Subject: title, To: to, CC: cc, Context: label,
+		})
 		logger.Info("absence email accepted", "company", company, "delivery_id", delivery.ID, "events", len(pending))
 	}
 
@@ -293,6 +342,9 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 	// Sunday. The weekend is shown because people do work it sometimes, but it
 	// is never judged — only weekdays can produce an absence.
 	weekEnd := weekStart.AddDate(0, 0, 6)
+	// The grid flags on the same threshold the alert uses, so the screen and
+	// the e-mail never disagree about who is flagged.
+	flagAtDays, _ := s.absenceParams(ctx)
 
 	lookbackStart := weekStart.AddDate(0, 0, -attendanceLookbackDays)
 	span := businessDaysBetween(lookbackStart, weekEnd)
@@ -417,7 +469,7 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 				weekStreak = d.Streak
 			}
 		}
-		if weekStreak >= absenceAlertDays {
+		if weekStreak >= flagAtDays {
 			totalFlagged++
 		}
 
@@ -471,8 +523,9 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 
 // Get builds the screen payload: events grouped by team, open ones first.
 func (s *QBTimeAbsenceService) Get(ctx context.Context, company string, days int) (*domain.QBTimeAbsenceResponse, error) {
-	if days <= 0 || days > absenceWindowDays {
-		days = absenceWindowDays
+	_, windowDays := s.absenceParams(ctx)
+	if days <= 0 || days > windowDays {
+		days = windowDays
 	}
 	now := easternNow()
 	since := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).AddDate(0, 0, -days)
