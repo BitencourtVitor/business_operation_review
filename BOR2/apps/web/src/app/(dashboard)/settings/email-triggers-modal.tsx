@@ -292,10 +292,9 @@ export function EmailTriggersModal({ open, onClose }: Props) {
     [users],
   )
 
-  function renderField(param: TriggerParamDef, narrow: boolean) {
+  function renderField(param: TriggerParamDef, width: string) {
     if (!draft) return null
     const value = draft.values[param.key]
-    const width = narrow ? "w-28" : "w-56"
 
     if (param.type === "select") {
       return (
@@ -349,23 +348,12 @@ export function EmailTriggersModal({ open, onClose }: Props) {
     )
   }
 
-  function renderRows(params: TriggerParamDef[]) {
-    const rows: TriggerParamDef[][] = []
-    for (const param of params) {
-      if (param.inline && rows.length > 0) rows[rows.length - 1].push(param)
-      else rows.push([param])
-    }
-    return rows.map((row, index) => (
-      <div key={index} className="flex flex-wrap items-start gap-3">
-        {row.map(param => (
-          <div key={param.key} className="flex flex-col gap-1.5">
-            <Label className="text-xs">{param.label}</Label>
-            {renderField(param, row.length > 1)}
-            {param.help && <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>}
-          </div>
-        ))}
-      </div>
-    ))
+  /** Schedule fields sit on one wrapping row: read together they form a single
+   *  sentence ("2 months before the start date, at 12:00 UTC"). */
+  function timingWidth(param: TriggerParamDef) {
+    if (param.type === "int") return "w-24"
+    if (param.type === "date") return "w-40"
+    return param.key === "offset_unit" ? "w-28" : "w-40"
   }
 
   const recipientCount = (draft?.to.length ?? 0) + (draft?.cc.length ?? 0)
@@ -452,31 +440,48 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                   <Block title="When it fires" icon={<Clock className="h-3.5 w-3.5" />}>
                     <div className="flex flex-col gap-3">
                       <p className="text-[11px] text-muted-foreground">{selected.when}</p>
-                      {renderRows(timingParams)}
-                      {selected.schedulable ? (
-                        <div className="flex flex-col gap-1.5">
-                          <Label className="text-xs">Run hour (UTC)</Label>
-                          <Select
-                            value={draft.runHour === null ? "" : String(draft.runHour)}
-                            onValueChange={value => patch({ runHour: Number(value) })}
-                          >
-                            <SelectTrigger className="w-40">
-                              <SelectValue>
-                                {draft.runHour === null
-                                  ? <span className="text-muted-foreground">Select an hour</span>
-                                  : `${String(draft.runHour).padStart(2, "0")}:00 UTC`}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {HOURS.map(hour => (
-                                <SelectItem key={hour} value={String(hour)}>
-                                  {String(hour).padStart(2, "0")}:00 UTC
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      <div className="flex flex-wrap items-start gap-3">
+                        {timingParams.map(param => (
+                          <div key={param.key} className="flex flex-col gap-1.5">
+                            <Label className="text-xs">{param.label}</Label>
+                            {renderField(param, timingWidth(param))}
+                          </div>
+                        ))}
+                        {selected.schedulable && (
+                          <div className="flex flex-col gap-1.5">
+                            <Label className="text-xs">Run hour (UTC)</Label>
+                            <Select
+                              value={draft.runHour === null ? "" : String(draft.runHour)}
+                              onValueChange={value => patch({ runHour: Number(value) })}
+                            >
+                              <SelectTrigger className="w-36">
+                                <SelectValue>
+                                  {draft.runHour === null
+                                    ? <span className="text-muted-foreground">Select</span>
+                                    : `${String(draft.runHour).padStart(2, "0")}:00 UTC`}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {HOURS.map(hour => (
+                                  <SelectItem key={hour} value={String(hour)}>
+                                    {String(hour).padStart(2, "0")}:00 UTC
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                      {timingParams.some(param => param.help) && (
+                        <div className="flex flex-col gap-0.5">
+                          {timingParams.filter(param => param.help).map(param => (
+                            <p key={param.key} className="text-[11px] text-muted-foreground">
+                              <span className="font-medium">{param.label}:</span> {param.help}
+                            </p>
+                          ))}
                         </div>
-                      ) : (
+                      )}
+                      {!selected.schedulable && (
                         <p className="text-xs text-muted-foreground">
                           No schedule of its own — it runs right after the job that feeds it.
                         </p>
@@ -492,7 +497,7 @@ export function EmailTriggersModal({ open, onClose }: Props) {
                             return (
                               <div key={param.key} className="flex flex-col gap-1.5">
                                 <Label className="text-xs">{param.label}</Label>
-                                {renderField(param, false)}
+                                {renderField(param, "w-56")}
                                 {param.help && (
                                   <p className="max-w-md text-[11px] text-muted-foreground">{param.help}</p>
                                 )}
