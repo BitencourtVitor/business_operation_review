@@ -17,7 +17,6 @@ const workersCompDateLayout = "2006-01-02"
 var (
 	workersCompDefaultAnchor    = time.Date(2026, time.August, 13, 0, 0, 0, 0, time.UTC)
 	workersCompDefaultCycleDays = 14
-	workersCompDefaultDaysAfter = 1
 )
 
 type WorkersCompReviewCheck struct {
@@ -33,13 +32,12 @@ type WorkersCompReviewCheck struct {
 }
 
 type WorkersCompReviewCycle struct {
-	ID                  string                   `json:"id"`
-	ReviewDate          string                   `json:"review_date"`
-	CommunicationDate   string                   `json:"communication_date"`
-	Status              string                   `json:"status"`
-	ReviewEmailSentAt   *time.Time               `json:"review_email_sent_at"`
-	CommunicationSentAt *time.Time               `json:"communication_sent_at"`
-	Checks              []WorkersCompReviewCheck `json:"checks"`
+	ID                string                   `json:"id"`
+	ReviewDate        string                   `json:"review_date"`
+	Status            string                   `json:"status"`
+	ReviewEmailSentAt *time.Time               `json:"review_email_sent_at"`
+	ClosedAt          *time.Time               `json:"closed_at"`
+	Checks            []WorkersCompReviewCheck `json:"checks"`
 }
 
 type WorkersCompReviewService struct {
@@ -59,14 +57,12 @@ func NewWorkersCompReviewService(db *pgxpool.Pool, email EmailSender, triggers *
 type workersCompSchedule struct {
 	anchor    time.Time
 	cycleDays int
-	daysAfter int
 }
 
 func (s *WorkersCompReviewService) schedule(ctx context.Context) (workersCompSchedule, error) {
 	out := workersCompSchedule{
 		anchor:    workersCompDefaultAnchor,
 		cycleDays: workersCompDefaultCycleDays,
-		daysAfter: workersCompDefaultDaysAfter,
 	}
 	review, err := s.triggers.Get(ctx, TriggerWorkersCompReview)
 	if err != nil {
@@ -77,9 +73,6 @@ func (s *WorkersCompReviewService) schedule(ctx context.Context) (workersCompSch
 	}
 	if days := review.ParamInt("cycle_days", out.cycleDays); days > 0 {
 		out.cycleDays = days
-	}
-	if days := review.ParamInt("days_after_review", out.daysAfter); days > 0 {
-		out.daysAfter = days
 	}
 	return out, nil
 }
@@ -107,16 +100,26 @@ func nextWorkersCompReviewDate(date time.Time, sched workersCompSchedule) time.T
 	return candidate
 }
 
-func (s *WorkersCompReviewService) ensureCycle(ctx context.Context, reviewDate time.Time, daysAfter int) (string, error) {
+func (s *WorkersCompReviewService) ensureCycle(ctx context.Context, reviewDate time.Time) (string, error) {
 	var cycleID string
 	err := s.db.QueryRow(ctx, `
-		INSERT INTO sub_doc_workers_comp_cycles (review_date, communication_date)
-		VALUES ($1, $2)
+		INSERT INTO sub_doc_workers_comp_cycles (review_date)
+		VALUES ($1)
 		ON CONFLICT (review_date) DO UPDATE SET updated_at = now()
 		RETURNING id
-	`, reviewDate, reviewDate.AddDate(0, 0, daysAfter)).Scan(&cycleID)
+	`, reviewDate).Scan(&cycleID)
 	if err != nil {
 		return "", fmt.Errorf("ensure workers comp cycle: %w", err)
+	}
+
+	// Opening a cycle ends every older one: a cycle lives until the next
+	// review, which is the whole cadence.
+	if _, err := s.db.Exec(ctx, `
+		UPDATE sub_doc_workers_comp_cycles
+		SET status='closed', closed_at=now(), updated_at=now()
+		WHERE review_date < $1 AND status <> 'closed'
+	`, reviewDate); err != nil {
+		return "", fmt.Errorf("close previous workers comp cycles: %w", err)
 	}
 
 	_, err = s.db.Exec(ctx, `
@@ -145,7 +148,7 @@ func (s *WorkersCompReviewService) Current(ctx context.Context, now time.Time) (
 	}
 	date := workersCompEasternDate(now)
 	reviewDate := nextWorkersCompReviewDate(date, sched)
-	cycleID, err := s.ensureCycle(ctx, reviewDate, sched.daysAfter)
+	cycleID, err := s.ensureCycle(ctx, reviewDate)
 	if err != nil {
 		return nil, err
 	}
@@ -154,16 +157,15 @@ func (s *WorkersCompReviewService) Current(ctx context.Context, now time.Time) (
 
 func (s *WorkersCompReviewService) getCycle(ctx context.Context, cycleID string) (*WorkersCompReviewCycle, error) {
 	cycle := &WorkersCompReviewCycle{ID: cycleID, Checks: []WorkersCompReviewCheck{}}
-	var reviewDate, communicationDate time.Time
+	var reviewDate time.Time
 	err := s.db.QueryRow(ctx, `
-		SELECT review_date, communication_date, status, review_email_sent_at, communication_sent_at
+		SELECT review_date, status, review_email_sent_at, closed_at
 		FROM sub_doc_workers_comp_cycles WHERE id = $1
-	`, cycleID).Scan(&reviewDate, &communicationDate, &cycle.Status, &cycle.ReviewEmailSentAt, &cycle.CommunicationSentAt)
+	`, cycleID).Scan(&reviewDate, &cycle.Status, &cycle.ReviewEmailSentAt, &cycle.ClosedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get workers comp cycle: %w", err)
 	}
 	cycle.ReviewDate = reviewDate.Format(workersCompDateLayout)
-	cycle.CommunicationDate = communicationDate.Format(workersCompDateLayout)
 
 	rows, err := s.db.Query(ctx, `
 		SELECT ch.id, c.id, c.name, c.email,
@@ -264,28 +266,6 @@ func (s *WorkersCompReviewService) sendReview(ctx context.Context, cycle *Worker
 	return err
 }
 
-// closeCycle ends the cycle on its follow-up date. No e-mail goes out: the
-// system asks for the survey once, and chasing the irregular subcontractors
-// from there is a person's job, not a second notification.
-func (s *WorkersCompReviewService) closeCycle(ctx context.Context, cycle *WorkersCompReviewCycle) error {
-	if cycle.CommunicationSentAt != nil {
-		return nil
-	}
-	irregular := 0
-	for _, check := range cycle.Checks {
-		if check.Status == "irregular" {
-			irregular++
-		}
-	}
-	_, err := s.db.Exec(ctx, `
-		UPDATE sub_doc_workers_comp_cycles
-		SET status='closed', communication_sent_at=now(), updated_at=now()
-		WHERE id=$1
-	`, cycle.ID)
-	logger.Info("workers comp cycle closed", "cycle", cycle.ID, "irregular", irregular)
-	return err
-}
-
 // RunDaily is called hourly. Each of the two e-mails checks its own trigger:
 // either can be switched off or moved to another hour without touching the
 // other, and the cycle itself keeps being opened either way.
@@ -304,7 +284,7 @@ func (s *WorkersCompReviewService) RunDaily(ctx context.Context, now time.Time) 
 		if !reviewDue {
 			return nil
 		}
-		cycleID, err := s.ensureCycle(ctx, today, sched.daysAfter)
+		cycleID, err := s.ensureCycle(ctx, today)
 		if err != nil {
 			return err
 		}
@@ -313,21 +293,6 @@ func (s *WorkersCompReviewService) RunDaily(ctx context.Context, now time.Time) 
 			return err
 		}
 		return s.sendReview(ctx, cycle)
-	}
-
-	// Closing is bookkeeping, not a notification, so it does not consult the
-	// trigger: a disabled review e-mail must still let open cycles close.
-	reviewDate := today.AddDate(0, 0, -sched.daysAfter)
-	if reviewDate.Equal(nextWorkersCompReviewDate(reviewDate, sched)) {
-		var cycleID string
-		if err := s.db.QueryRow(ctx, `SELECT id FROM sub_doc_workers_comp_cycles WHERE review_date=$1`, reviewDate).Scan(&cycleID); err != nil {
-			return fmt.Errorf("find workers comp cycle to close: %w", err)
-		}
-		cycle, err := s.getCycle(ctx, cycleID)
-		if err != nil {
-			return err
-		}
-		return s.closeCycle(ctx, cycle)
 	}
 	return nil
 }

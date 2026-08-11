@@ -98,8 +98,6 @@ var triggerDefinitions = []TriggerDefinition{
 		Params: []ParamDef{
 			{Key: "anchor_date", Label: "Anchor date", Type: "date", Group: "timing", Help: "First review date. Every following cycle is counted from here."},
 			{Key: "cycle_days", Label: "Cycle length (days)", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(180)},
-			{Key: "days_after_review", Label: "Follow-up after (days)", Type: "int", Group: "timing", Min: intPtr(1), Max: intPtr(30),
-				Help: "When the cycle closes and whoever is responsible chases the irregular subcontractors. No e-mail is sent on this date."},
 		},
 	},
 	{
@@ -111,8 +109,8 @@ var triggerDefinitions = []TriggerDefinition{
 		When:        "Right after the QB Time sync, which sets its own schedule.",
 		Schedulable: false,
 		Params: []ParamDef{
-			{Key: "alert_days", Label: "Consecutive days to alert", Type: "int", Min: intPtr(1), Max: intPtr(30)},
-			{Key: "window_days", Label: "Lookback window (days)", Type: "int", Min: intPtr(1), Max: intPtr(180)},
+			{Key: "alert_days", Label: "Consecutive days to alert", Type: "int", Min: intPtr(1), Max: intPtr(30),
+				Help: "Each absence is announced once. While the same person keeps missing, no new e-mail is sent — only a new absence is."},
 		},
 	},
 }
