@@ -142,7 +142,9 @@ func main() {
 	// Shared transactional delivery is composed once and injected into every feature that sends mail.
 	emailSender := service.NewGmailAPISenderFromEnv()
 	alertRecipients := service.NewAlertRecipientDirectory(db)
-	workersCompReviewService := service.NewWorkersCompReviewService(db, emailSender)
+	emailTriggerService := service.NewEmailTriggerService(db)
+	emailTriggersHandler := handler.NewEmailTriggersHandler(emailTriggerService)
+	workersCompReviewService := service.NewWorkersCompReviewService(db, emailSender, emailTriggerService)
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db, emailSender)
 	workersCompReviewHandler := handler.NewWorkersCompReviewHandler(workersCompReviewService)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
@@ -560,6 +562,14 @@ func main() {
 	subDocs.Post("/email-recipients/test", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), subcontractorDocsHandler.SendEmailRecipientsTest)
 	subDocs.Get("/workers-comp-review", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.Current)
 	subDocs.Patch("/workers-comp-review/checks/:id", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.UpdateCheck)
+	// Email Triggers — every automatic e-mail in the system, in one place.
+	emailTriggers := api.Group("/email-triggers",
+		middleware.RequireAuthFull(authService),
+		middleware.RequireRole("dev", "owner", "manager"))
+	emailTriggers.Get("/", emailTriggersHandler.List)
+	emailTriggers.Put("/:key", emailTriggersHandler.Update)
+	emailTriggers.Get("/:key/history", emailTriggersHandler.History)
+
 	subDocs.Post("/contractors", subcontractorDocsHandler.CreateContractor)
 	subDocs.Put("/contractors/:id", subcontractorDocsHandler.UpdateContractor)
 	subDocs.Delete("/contractors/:id", subcontractorDocsHandler.DeleteContractor)

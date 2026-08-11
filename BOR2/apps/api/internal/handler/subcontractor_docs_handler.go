@@ -68,14 +68,15 @@ func (h *SubcontractorDocsHandler) ListEmailRecipients(c *fiber.Ctx) error {
 		users = append(users, user)
 	}
 
+	// Reads the central registry, so this modal and Settings → Email Triggers
+	// can never disagree about who gets the Workers' Comp review.
 	var settings SubDocEmailRecipientSettings
 	err = h.db.QueryRow(c.Context(), `
-		SELECT COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'to'), '{}'),
-		       COALESCE(array_agg(r.user_id) FILTER (WHERE r.recipient_type = 'cc'), '{}')
-		FROM sub_doc_email_recipient_settings s
-		LEFT JOIN sub_doc_email_recipients r ON r.alert_type = s.alert_type
-		WHERE s.alert_type = 'workers_comp'
-	`).Scan(&settings.ToUserIDs, &settings.CCUserIDs)
+		SELECT COALESCE(array_agg(user_id) FILTER (WHERE recipient_type = 'to'), '{}'),
+		       COALESCE(array_agg(user_id) FILTER (WHERE recipient_type = 'cc'), '{}')
+		FROM email_trigger_recipients
+		WHERE trigger_key = $1
+	`, service.TriggerWorkersCompReview).Scan(&settings.ToUserIDs, &settings.CCUserIDs)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -85,6 +86,14 @@ func (h *SubcontractorDocsHandler) ListEmailRecipients(c *fiber.Ctx) error {
 type updateSubDocEmailRecipientsReq struct {
 	ToUserIDs []string `json:"to_user_ids"`
 	CCUserIDs []string `json:"cc_user_ids"`
+}
+
+// nullableString keeps an unauthenticated actor out of a NOT NULL FK.
+func nullableString(value string) any {
+	if strings.TrimSpace(value) == "" {
+		return nil
+	}
+	return value
 }
 
 func uniqueUserIDs(ids []string) []string {
@@ -143,25 +152,30 @@ func (h *SubcontractorDocsHandler) UpdateEmailRecipients(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer tx.Rollback(c.Context())
-	if _, err = tx.Exec(c.Context(), `
-		INSERT INTO sub_doc_email_recipient_settings (alert_type, updated_by, updated_at)
-		VALUES ($1, $2, now())
-		ON CONFLICT (alert_type) DO UPDATE SET updated_by = EXCLUDED.updated_by, updated_at = EXCLUDED.updated_at
-	`, "workers_comp", actorID); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	if _, err = tx.Exec(c.Context(), `DELETE FROM sub_doc_email_recipients WHERE alert_type = $1`, "workers_comp"); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	for _, recipient := range []struct {
-		kind string
-		ids  []string
-	}{{"to", toIDs}, {"cc", ccIDs}} {
-		for _, userID := range recipient.ids {
-			if _, err = tx.Exec(c.Context(), `
-				INSERT INTO sub_doc_email_recipients (alert_type, recipient_type, user_id) VALUES ($1, $2, $3)
-			`, "workers_comp", recipient.kind, userID); err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	// This modal treats Workers' Comp as one audience, so it writes the same
+	// list to both of its triggers. Splitting review from irregularities is
+	// done in Settings → Email Triggers — and saving here flattens it again.
+	keys := []string{service.TriggerWorkersCompReview, service.TriggerWorkersCompCommunication}
+	for _, key := range keys {
+		if _, err = tx.Exec(c.Context(), `
+			UPDATE email_triggers SET updated_by = $2, updated_at = now() WHERE key = $1
+		`, key, nullableString(actorID)); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		if _, err = tx.Exec(c.Context(), `DELETE FROM email_trigger_recipients WHERE trigger_key = $1`, key); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		for _, recipient := range []struct {
+			kind string
+			ids  []string
+		}{{"to", toIDs}, {"cc", ccIDs}} {
+			for _, userID := range recipient.ids {
+				if _, err = tx.Exec(c.Context(), `
+					INSERT INTO email_trigger_recipients (trigger_key, recipient_type, user_id)
+					VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
+				`, key, recipient.kind, userID); err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
 			}
 		}
 	}

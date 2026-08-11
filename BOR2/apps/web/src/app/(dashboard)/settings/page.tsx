@@ -4,9 +4,10 @@ import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { usePermission } from "@/hooks/use-permission"
 import Link from "next/link"
-import { Bell, ChevronRight, KeyRound, Loader2, Network, ShieldAlert, ShieldCheck, Users } from "lucide-react"
+import { Bell, ChevronRight, KeyRound, Loader2, Mail, Network, ShieldAlert, ShieldCheck, Users } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
 import { PermissionsModal } from "./permissions-modal"
+import { EmailTriggersModal } from "./email-triggers-modal"
 import { TeamsModal } from "@/components/features/qbtime-teams-modal"
 
 // Dev/Owner/Manager can always see every settings page, same tier the
@@ -21,6 +22,7 @@ export default function SettingsPage() {
   const [resetOpen, setResetOpen]   = useState(false)
   const [permsOpen, setPermsOpen]   = useState(false)
   const [teamsOpen, setTeamsOpen]   = useState(false)
+  const [emailsOpen, setEmailsOpen] = useState(false)
 
   if (authLoading || permsLoading) {
     return (
@@ -70,6 +72,14 @@ export default function SettingsPage() {
       title:       "Teams",
       description: "Manage QB Time team assignments per employee, with manual override when QB Time is wrong.",
       onClick:     () => setTeamsOpen(true),
+    },
+    // Same always-access tier as Edit Permissions: these triggers decide what
+    // leaves the company by e-mail.
+    hasFullAccess && {
+      icon:        Mail,
+      title:       "Email Triggers",
+      description: "Configure every automatic e-mail: schedule, thresholds and who receives each one.",
+      onClick:     () => setEmailsOpen(true),
     },
     canManageNotifications && {
       icon:        Bell,
@@ -141,6 +151,12 @@ export default function SettingsPage() {
         <TeamsModal
           open={teamsOpen}
           onClose={() => setTeamsOpen(false)}
+        />
+      )}
+      {hasFullAccess && (
+        <EmailTriggersModal
+          open={emailsOpen}
+          onClose={() => setEmailsOpen(false)}
         />
       )}
     </>
