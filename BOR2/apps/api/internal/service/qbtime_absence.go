@@ -85,14 +85,18 @@ func (s *QBTimeAbsenceService) absenceParams(ctx context.Context) (alertDays, wi
 	return
 }
 
-// excludedFromEmail lists, lowercased, the employees this company never
-// announces by e-mail. It is deliberately the last filter in the chain: the
-// absence is still detected, still recorded, and still shows on the Absences
-// screen and in the in-app notification — it just does not leave the building.
+// excludedFromEmail lists, lowercased, the employees never announced by
+// e-mail. The list is per person, not per company: someone who should not be
+// chased should not be chased anywhere, and the same name appears across all
+// three companies.
+//
+// It is deliberately the last filter in the chain: the absence is still
+// detected, still recorded, and still shows on the Absences screen and in the
+// in-app notification — it just does not leave the building.
 //
 // Not to be confused with qbtime_whos_working_exceptions, which cuts before
 // detection and makes the person vanish from the absence history entirely.
-func (s *QBTimeAbsenceService) excludedFromEmail(ctx context.Context, company string) map[string]bool {
+func (s *QBTimeAbsenceService) excludedFromEmail(ctx context.Context) map[string]bool {
 	out := map[string]bool{}
 	if s.triggers == nil {
 		return out
@@ -101,11 +105,15 @@ func (s *QBTimeAbsenceService) excludedFromEmail(ctx context.Context, company st
 	if err != nil {
 		return out
 	}
-	prefix := strings.ToLower(company) + "|"
 	for _, entry := range cfg.ParamStrings("excluded_employees") {
-		lower := strings.ToLower(strings.TrimSpace(entry))
-		if strings.HasPrefix(lower, prefix) {
-			out[strings.TrimSpace(strings.TrimPrefix(lower, prefix))] = true
+		name := strings.ToLower(strings.TrimSpace(entry))
+		// Tolerates the earlier "company|name" shape so a value saved before
+		// the list was unified still excludes the person it names.
+		if index := strings.LastIndex(name, "|"); index >= 0 {
+			name = strings.TrimSpace(name[index+1:])
+		}
+		if name != "" {
+			out[name] = true
 		}
 	}
 	return out
@@ -282,7 +290,7 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 		return err
 	}
 	if emailDue && len(to) > 0 {
-		excluded := s.excludedFromEmail(ctx, company)
+		excluded := s.excludedFromEmail(ctx)
 		rows := make([]AbsenceRow, 0, len(pending))
 		for _, event := range pending {
 			if excluded[strings.ToLower(strings.TrimSpace(event.EmployeeName))] {

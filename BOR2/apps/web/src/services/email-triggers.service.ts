@@ -10,6 +10,9 @@ export type TriggerParamType = "int" | "text" | "date" | "select" | "multiselect
 export interface TriggerParamOption {
   value: string
   label: string
+  // Extra context rendered next to the label — for employees, the companies
+  // the person is registered in, so one unified name still shows where it lives.
+  tags?: string[]
 }
 
 export interface TriggerParamDef {

@@ -23,6 +23,9 @@ import {
 } from "@/hooks/use-email-triggers"
 import type { EmailTrigger, TriggerParamDef } from "@/services/email-triggers.service"
 import { cn } from "@/lib/utils"
+import { CompanyLogo } from "@/components/common/company-logo"
+import { COMPANIES, COMPANY_LABEL } from "@/lib/company"
+import type { Company } from "@/lib/company"
 
 type Props = {
   open: boolean
@@ -129,11 +132,33 @@ function CollapsibleBlock({ title, icon, summary, open, onToggle, children }: {
   )
 }
 
+/** The companies a tagged option belongs to. An employee is listed once by
+ *  name, and these say where that name is registered — an unknown company
+ *  falls back to its own text so nothing disappears silently. */
+function OptionTags({ tags, className }: { tags?: string[]; className?: string }) {
+  if (!tags?.length) return null
+  return (
+    <span className={cn("flex shrink-0 items-center gap-1", className)}>
+      {tags.map(tag =>
+        COMPANIES.includes(tag as Company) ? (
+          <span key={tag} title={COMPANY_LABEL[tag as Company]} className="flex">
+            <CompanyLogo company={tag as Company} className="h-3 w-auto" />
+          </span>
+        ) : (
+          <span key={tag} className="rounded bg-muted px-1 text-[9px] uppercase text-muted-foreground">
+            {tag}
+          </span>
+        ),
+      )}
+    </span>
+  )
+}
+
 /** Add-picker: lists only what is not selected yet, with a search box, because
  *  some of these lists (documents, users) are long. */
 function AddPicker({ label, options, onAdd }: {
   label: string
-  options: { value: string; label: string; hint?: string }[]
+  options: { value: string; label: string; hint?: string; tags?: string[] }[]
   onAdd: (value: string) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -173,7 +198,10 @@ function AddPicker({ label, options, onAdd }: {
                 onClick={() => { onAdd(option.value); setTerm("") }}
                 className="flex w-full flex-col rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted/70"
               >
-                <span className="truncate text-xs">{option.label}</span>
+                <span className="flex w-full items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate text-xs">{option.label}</span>
+                  <OptionTags tags={option.tags} />
+                </span>
                 {option.hint && (
                   <span className="truncate text-[10px] text-muted-foreground">{option.hint}</span>
                 )}
@@ -187,10 +215,11 @@ function AddPicker({ label, options, onAdd }: {
 }
 
 /** A selected value: visible because it is in play, removable in one click. */
-function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+function Chip({ label, tags, onRemove }: { label: string; tags?: string[]; onRemove: () => void }) {
   return (
     <span className="flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] text-primary">
       {label}
+      <OptionTags tags={tags} />
       <button type="button" onClick={onRemove} className="opacity-60 transition-opacity hover:opacity-100">
         <X className="h-3 w-3" />
       </button>
@@ -553,8 +582,8 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                           // The stored value is not always readable — an employee
                           // is keyed by company and name, so show the option's
                           // label and fall back to the value only if it is gone.
-                          const labelFor = (value: string) =>
-                            param.options?.find(option => option.value === value)?.label ?? value
+                          const optionFor = (value: string) =>
+                            param.options?.find(option => option.value === value)
                           return (
                             <div key={param.key} className="flex flex-col gap-1.5">
                               <Label className="text-xs">{param.label}</Label>
@@ -562,7 +591,8 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                                 {chosen.map(item => (
                                   <Chip
                                     key={item}
-                                    label={labelFor(item)}
+                                    label={optionFor(item)?.label ?? item}
+                                    tags={optionFor(item)?.tags}
                                     onRemove={() => setValue(param.key, chosen.filter(v => v !== item))}
                                   />
                                 ))}
