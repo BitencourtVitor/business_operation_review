@@ -43,6 +43,10 @@ type ParamDef struct {
 type Option struct {
 	Value string `json:"value"`
 	Label string `json:"label"`
+	// Tags is extra context the picker renders next to the label — today the
+	// companies an employee is registered in, so one unified name still shows
+	// where that name exists.
+	Tags []string `json:"tags,omitempty"`
 }
 
 // TriggerDefinition is the static half of a trigger: what it is and which
@@ -134,7 +138,7 @@ var triggerDefinitions = []TriggerDefinition{
 				Help: "Each absence is announced once. While the same person keeps missing, no new e-mail is sent — only a new absence is."},
 			{Key: "excluded_employees", Label: "Never announce by e-mail", Type: "multiselect",
 				OptionsSource: "absence_employees",
-				Help: "Everyone else goes through the criteria normally. Whoever is picked here still has their absence detected and visible on the Absences screen — it just never goes out in the e-mail."},
+				Help: "One entry per person, across every company. Everyone else goes through the criteria normally. Whoever is picked here still has their absence detected and visible on the Absences screen — it just never goes out in the e-mail."},
 		},
 	},
 }
@@ -197,26 +201,30 @@ func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDe
 		if param.OptionsSource == "" {
 			continue
 		}
-		// Every source returns (value, label) — most repeat the same column
-		// twice, but a stored value is not always what the reader should see.
+		// Every source returns (value, label, tags). Most repeat the column and
+		// carry no tags, but a stored value is not always what the reader
+		// should see, and a label is not always enough on its own.
 		var query string
 		switch param.OptionsSource {
 		case "clients":
-			query = `SELECT name, name FROM catalog_clients ORDER BY name`
+			query = `SELECT name, name, NULL::text[] FROM catalog_clients ORDER BY name`
 		case "fieldwire_documents":
-			query = `SELECT DISTINCT trim(document), trim(document) FROM forecast_fieldwire
+			query = `SELECT DISTINCT trim(document), trim(document), NULL::text[] FROM forecast_fieldwire
 			         WHERE trim(document) <> '' AND upper(trim(document)) <> 'N/A'
 			         ORDER BY 1`
 		case "absence_employees":
-			// Everyone absence control has ever seen, deduplicated. Keyed by
-			// company and name rather than qbt_user_id on purpose: the same
-			// person can hold two QB Time registrations, and excluding one of
-			// them while the other keeps alerting is not what "exclude" means.
-			query = `SELECT DISTINCT lower(company) || '|' || trim(employee_name),
-			                trim(employee_name) || ' — ' || upper(company)
+			// One entry per person, not per person per company. The same name
+			// shows up in three companies and holds more than one QB Time
+			// registration, and excluding one of those while the others keep
+			// alerting is not what "exclude" means to anyone reading the list.
+			// The companies ride along as tags so the unified name still says
+			// where that person exists.
+			query = `SELECT trim(employee_name), trim(employee_name),
+			                array_agg(DISTINCT lower(company) ORDER BY lower(company))
 			         FROM qbtime_absence_events
 			         WHERE trim(employee_name) <> ''
-			         ORDER BY 2`
+			         GROUP BY trim(employee_name)
+			         ORDER BY 1`
 		default:
 			continue
 		}
@@ -227,8 +235,9 @@ func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDe
 		options := []Option{}
 		for rows.Next() {
 			var value, label string
-			if err := rows.Scan(&value, &label); err == nil {
-				options = append(options, Option{Value: value, Label: label})
+			var tags []string
+			if err := rows.Scan(&value, &label, &tags); err == nil {
+				options = append(options, Option{Value: value, Label: label, Tags: tags})
 			}
 		}
 		rows.Close()
