@@ -410,10 +410,17 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 	}
 	defer tx.Rollback(ctx)
 
+	// Upsert, not update: a definition can exist in code before any migration
+	// seeded its row, and saving from the screen is a perfectly good way to
+	// create it. A plain UPDATE silently matched nothing, and the recipients
+	// below then failed on the foreign key pointing at the row that was never
+	// written.
 	if _, err := tx.Exec(ctx, `
-		UPDATE email_triggers
-		SET enabled=$2, run_hour_local=$3, params=$4, updated_by=$5, updated_at=now()
-		WHERE key=$1
+		INSERT INTO email_triggers (key, enabled, run_hour_local, params, updated_by, updated_at)
+		VALUES ($1,$2,$3,$4,$5,now())
+		ON CONFLICT (key) DO UPDATE SET
+			enabled=EXCLUDED.enabled, run_hour_local=EXCLUDED.run_hour_local,
+			params=EXCLUDED.params, updated_by=EXCLUDED.updated_by, updated_at=now()
 	`, key, req.Enabled, req.RunHourLocal, encoded, nullableActor(actor)); err != nil {
 		return nil, err
 	}
