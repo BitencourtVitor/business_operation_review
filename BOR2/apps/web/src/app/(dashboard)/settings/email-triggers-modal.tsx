@@ -23,8 +23,7 @@ import {
 } from "@/hooks/use-email-triggers"
 import type { EmailTrigger, TriggerParamDef } from "@/services/email-triggers.service"
 import { cn } from "@/lib/utils"
-import { CompanyLogo } from "@/components/common/company-logo"
-import { COMPANIES, COMPANY_LABEL } from "@/lib/company"
+import { COMPANY_LABEL } from "@/lib/company"
 import type { Company } from "@/lib/company"
 
 type Props = {
@@ -132,6 +131,15 @@ function CollapsibleBlock({ title, icon, summary, open, onToggle, children }: {
   )
 }
 
+// PCG uses the square mark here, not the wordmark lockup that COMPANY_LOGO
+// carries — same call the sidebar and Subcontractor Docs already make, because
+// the lockup is unreadable at this size.
+const TAG_IMAGES: Record<string, string> = {
+  framing: "/images/sublogo_framing.png",
+  hvac: "/images/sublogo_hvac.png",
+  pcg: "/images/icon_pcg.png",
+}
+
 /** The companies a tagged option belongs to. An employee is listed once by
  *  name, and these say where that name is registered — an unknown company
  *  falls back to its own text so nothing disappears silently. */
@@ -140,10 +148,11 @@ function OptionTags({ tags, className }: { tags?: string[]; className?: string }
   return (
     <span className={cn("flex shrink-0 items-center gap-1", className)}>
       {tags.map(tag =>
-        COMPANIES.includes(tag as Company) ? (
-          <span key={tag} title={COMPANY_LABEL[tag as Company]} className="flex">
-            <CompanyLogo company={tag as Company} className="h-3 w-auto" />
-          </span>
+        TAG_IMAGES[tag] ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={tag} src={TAG_IMAGES[tag]} alt={COMPANY_LABEL[tag as Company] ?? tag}
+            title={COMPANY_LABEL[tag as Company] ?? tag}
+            className="h-3.5 w-auto max-w-5 shrink-0 object-contain" />
         ) : (
           <span key={tag} className="rounded bg-muted px-1 text-[9px] uppercase text-muted-foreground">
             {tag}
