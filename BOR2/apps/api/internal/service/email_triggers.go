@@ -15,6 +15,7 @@ import (
 const (
 	TriggerForecastPlotPlan  = "forecast_plot_plan"
 	TriggerWorkersCompReview = "workers_comp_review"
+	TriggerWorkersCompResult = "workers_comp_result"
 	TriggerQBTimeAbsence     = "qbtime_absence"
 )
 
@@ -101,6 +102,24 @@ var triggerDefinitions = []TriggerDefinition{
 		},
 	},
 	{
+		Key:   TriggerWorkersCompResult,
+		Label: "Workers' Comp result",
+		// Distinct from the review's glyph: two triggers of the same module sit
+		// side by side in the list, and the icon is what tells them apart.
+		Icon: "sub_docs_alert",
+		// Same module as the review, so both show up wherever the module is
+		// filtered — the Settings modal and the button on Subcontractor Docs.
+		Module:      "Subcontractor Docs",
+		Description: "Reports how the review cycle came out: irregular first, then anyone still unchecked, then regular. Each line carries its note when there is one.",
+		When:        "The configured number of days after each review date.",
+		Schedulable: true,
+		Params: []ParamDef{
+			{Key: "days_after_review", Label: "Days after the review", Type: "int", Group: "timing",
+				Min: intPtr(1), Max: intPtr(30),
+				Help: "Counted from the review date, so it follows the cycle instead of a fixed weekday."},
+		},
+	},
+	{
 		Key:         TriggerQBTimeAbsence,
 		Label:       "Absence alert",
 		Icon:        "absence",
@@ -111,6 +130,9 @@ var triggerDefinitions = []TriggerDefinition{
 		Params: []ParamDef{
 			{Key: "alert_days", Label: "Consecutive days to alert", Type: "int", Min: intPtr(1), Max: intPtr(30),
 				Help: "Each absence is announced once. While the same person keeps missing, no new e-mail is sent — only a new absence is."},
+			{Key: "excluded_employees", Label: "Never announce by e-mail", Type: "multiselect",
+				OptionsSource: "absence_employees",
+				Help: "Everyone else goes through the criteria normally. Whoever is picked here still has their absence detected and visible on the Absences screen — it just never goes out in the e-mail."},
 		},
 	},
 }
@@ -173,14 +195,26 @@ func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDe
 		if param.OptionsSource == "" {
 			continue
 		}
+		// Every source returns (value, label) — most repeat the same column
+		// twice, but a stored value is not always what the reader should see.
 		var query string
 		switch param.OptionsSource {
 		case "clients":
-			query = `SELECT name FROM catalog_clients ORDER BY name`
+			query = `SELECT name, name FROM catalog_clients ORDER BY name`
 		case "fieldwire_documents":
-			query = `SELECT DISTINCT trim(document) FROM forecast_fieldwire
+			query = `SELECT DISTINCT trim(document), trim(document) FROM forecast_fieldwire
 			         WHERE trim(document) <> '' AND upper(trim(document)) <> 'N/A'
 			         ORDER BY 1`
+		case "absence_employees":
+			// Everyone absence control has ever seen, deduplicated. Keyed by
+			// company and name rather than qbt_user_id on purpose: the same
+			// person can hold two QB Time registrations, and excluding one of
+			// them while the other keeps alerting is not what "exclude" means.
+			query = `SELECT DISTINCT lower(company) || '|' || trim(employee_name),
+			                trim(employee_name) || ' — ' || upper(company)
+			         FROM qbtime_absence_events
+			         WHERE trim(employee_name) <> ''
+			         ORDER BY 2`
 		default:
 			continue
 		}
@@ -190,9 +224,9 @@ func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDe
 		}
 		options := []Option{}
 		for rows.Next() {
-			var value string
-			if err := rows.Scan(&value); err == nil {
-				options = append(options, Option{Value: value, Label: value})
+			var value, label string
+			if err := rows.Scan(&value, &label); err == nil {
+				options = append(options, Option{Value: value, Label: label})
 			}
 		}
 		rows.Close()

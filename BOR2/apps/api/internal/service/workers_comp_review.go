@@ -36,6 +36,7 @@ type WorkersCompReviewCycle struct {
 	ReviewDate        string                   `json:"review_date"`
 	Status            string                   `json:"status"`
 	ReviewEmailSentAt *time.Time               `json:"review_email_sent_at"`
+	ResultEmailSentAt *time.Time               `json:"result_email_sent_at"`
 	ClosedAt          *time.Time               `json:"closed_at"`
 	Checks            []WorkersCompReviewCheck `json:"checks"`
 	// Neighbours on the cadence, so the screen can walk cycles without
@@ -212,9 +213,9 @@ func (s *WorkersCompReviewService) getCycle(ctx context.Context, cycleID string)
 	cycle := &WorkersCompReviewCycle{ID: cycleID, Checks: []WorkersCompReviewCheck{}}
 	var reviewDate time.Time
 	err := s.db.QueryRow(ctx, `
-		SELECT review_date, status, review_email_sent_at, closed_at
+		SELECT review_date, status, review_email_sent_at, result_email_sent_at, closed_at
 		FROM sub_doc_workers_comp_cycles WHERE id = $1
-	`, cycleID).Scan(&reviewDate, &cycle.Status, &cycle.ReviewEmailSentAt, &cycle.ClosedAt)
+	`, cycleID).Scan(&reviewDate, &cycle.Status, &cycle.ReviewEmailSentAt, &cycle.ResultEmailSentAt, &cycle.ClosedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get workers comp cycle: %w", err)
 	}
@@ -318,6 +319,61 @@ func (s *WorkersCompReviewService) sendReview(ctx context.Context, cycle *Worker
 	return err
 }
 
+// sendResult reports how a cycle came out. It only reads: the cycle it reports
+// on was opened by the review days earlier, and reporting must never move the
+// cadence forward or reopen anything.
+func (s *WorkersCompReviewService) sendResult(ctx context.Context, cycle *WorkersCompReviewCycle) error {
+	if cycle.ResultEmailSentAt != nil {
+		return nil
+	}
+	to, cc, err := s.recipients(ctx, TriggerWorkersCompResult)
+	if err != nil {
+		return err
+	}
+	if len(to) == 0 {
+		logger.Info("workers-comp-result: no primary recipients, skipping", "cycle", cycle.ID)
+		return nil
+	}
+
+	var irregular, pending, regular []WorkersCompResultRow
+	for _, check := range cycle.Checks {
+		row := WorkersCompResultRow{
+			ContractorName: check.ContractorName,
+			Divisions:      strings.Join(check.Divisions, ", "),
+			Notes:          check.Notes,
+		}
+		switch check.Status {
+		case "irregular":
+			irregular = append(irregular, row)
+		case "regular":
+			regular = append(regular, row)
+		default:
+			pending = append(pending, row)
+		}
+	}
+
+	body := BuildWorkersCompResultEmail(cycle.ReviewDate, irregular, pending, regular)
+	summary := fmt.Sprintf("%d irregular, %d not checked, %d regular", len(irregular), len(pending), len(regular))
+	delivery, err := s.email.Send(ctx, EmailMessage{
+		To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
+	})
+	if err != nil {
+		s.triggers.LogDelivery(ctx, TriggerDelivery{
+			TriggerKey: TriggerWorkersCompResult, Subject: body.Subject, To: to, CC: cc,
+			Context: summary, Status: "failed", Error: err.Error(),
+		})
+		return err
+	}
+	s.triggers.LogDelivery(ctx, TriggerDelivery{
+		TriggerKey: TriggerWorkersCompResult, Subject: body.Subject, To: to, CC: cc, Context: summary,
+	})
+	_, err = s.db.Exec(ctx,
+		`UPDATE sub_doc_workers_comp_cycles SET result_email_sent_at=now(), updated_at=now() WHERE id=$1`, cycle.ID)
+	logger.Info("workers comp result email accepted", "cycle", cycle.ID, "delivery_id", delivery.ID,
+		"irregular", len(irregular), "pending", len(pending), "regular", len(regular))
+	return err
+}
+
 // RunDaily is called hourly. Each of the two e-mails checks its own trigger:
 // either can be switched off or moved to another hour without touching the
 // other, and the cycle itself keeps being opened either way.
@@ -346,5 +402,40 @@ func (s *WorkersCompReviewService) RunDaily(ctx context.Context, now time.Time) 
 		}
 		return s.sendReview(ctx, cycle)
 	}
-	return nil
+
+	return s.runResult(ctx, now, today, sched)
+}
+
+// runResult fires on review date + N. The offset is counted backwards from
+// today and the result only goes out if that lands exactly on a review date —
+// so the e-mail follows the cycle rather than a weekday, and changing the
+// anchor moves both e-mails together.
+func (s *WorkersCompReviewService) runResult(ctx context.Context, now, today time.Time, sched workersCompSchedule) error {
+	resultDue, _, err := s.triggers.ShouldRun(ctx, TriggerWorkersCompResult, now)
+	if err != nil {
+		return err
+	}
+	if !resultDue {
+		return nil
+	}
+
+	offset := 1
+	if cfg, err := s.triggers.Get(ctx, TriggerWorkersCompResult); err == nil {
+		if days := cfg.ParamInt("days_after_review", offset); days > 0 {
+			offset = days
+		}
+	}
+
+	origin := today.AddDate(0, 0, -offset)
+	if origin.Before(sched.anchor) || !origin.Equal(nextWorkersCompReviewDate(origin, sched)) {
+		return nil
+	}
+
+	cycle, err := s.ByDate(ctx, origin)
+	if err != nil || cycle == nil || cycle.ID == "" {
+		// ByDate answers "not_opened" with an empty ID when no cycle exists on
+		// that date — the review never ran, so there is no result to report.
+		return nil
+	}
+	return s.sendResult(ctx, cycle)
 }

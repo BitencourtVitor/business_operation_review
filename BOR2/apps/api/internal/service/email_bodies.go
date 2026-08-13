@@ -134,6 +134,61 @@ func BuildWorkersCompReviewEmail(reviewDate string, checks []WorkersCompRow) Ema
 	}
 }
 
+// WorkersCompResultRow is one subcontractor as the cycle left it.
+type WorkersCompResultRow struct {
+	ContractorName string
+	Divisions      string
+	Notes          string
+}
+
+// The blocks read in the order the reader needs them: what demands action, then
+// what was never answered, then what is fine. Pending is skipped when empty —
+// nobody should be left unchecked, so its presence is itself the message.
+func BuildWorkersCompResultEmail(reviewDate string, irregular, pending, regular []WorkersCompResultRow) EmailBody {
+	blocks := []struct {
+		title string
+		rows  []WorkersCompResultRow
+	}{
+		{"Irregular", irregular},
+		{"Not checked", pending},
+		{"Regular", regular},
+	}
+
+	var text, htmlOut strings.Builder
+	for _, block := range blocks {
+		if len(block.rows) == 0 {
+			continue
+		}
+		text.WriteString(fmt.Sprintf("%s (%d)\n", block.title, len(block.rows)))
+		table := make([][]string, 0, len(block.rows))
+		for _, row := range block.rows {
+			line := fmt.Sprintf("- %s | %s", row.ContractorName, row.Divisions)
+			if note := strings.TrimSpace(row.Notes); note != "" {
+				line += " — " + note
+			}
+			text.WriteString(line + "\n")
+			table = append(table, []string{row.ContractorName, row.Divisions, strings.TrimSpace(row.Notes)})
+		}
+		text.WriteString("\n")
+		htmlOut.WriteString(fmt.Sprintf(`<h3 style="margin:16px 0 8px;font-size:15px">%s (%d)</h3>`,
+			html.EscapeString(block.title), len(block.rows)))
+		htmlOut.WriteString(emailTable([]string{"Subcontractor", "Divisions", "Notes"}, table))
+	}
+
+	total := len(irregular) + len(pending) + len(regular)
+	if total == 0 {
+		text.WriteString("No subcontractor was eligible for this cycle.\n")
+		htmlOut.WriteString(`<p>No subcontractor was eligible for this cycle.</p>`)
+	}
+
+	return EmailBody{
+		Subject: fmt.Sprintf("Workers' Compensation Result — %s (%d irregular)", usDate(reviewDate), len(irregular)),
+		Text:    fmt.Sprintf("Result of the review opened on %s.\n\n%s", usDate(reviewDate), text.String()),
+		HTML: fmt.Sprintf(`<p>Result of the review opened on <strong>%s</strong>.</p>`, html.EscapeString(usDate(reviewDate))) +
+			htmlOut.String(),
+	}
+}
+
 // ── Absence ───────────────────────────────────────────────────────────────────
 
 type AbsenceRow struct {
@@ -202,6 +257,18 @@ func previewSample(key string, cfg *TriggerConfig) EmailBody {
 			{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing"},
 			{ContractorName: "SAMPLE — Northline Concrete", Divisions: "HVAC, PCG"},
 		})
+
+	case TriggerWorkersCompResult:
+		return BuildWorkersCompResultEmail(sampleDate.Format(workersCompDateLayout),
+			[]WorkersCompResultRow{
+				{ContractorName: "SAMPLE — Northline Concrete", Divisions: "HVAC, PCG", Notes: "Policy expired 09/30"},
+			},
+			[]WorkersCompResultRow{
+				{ContractorName: "SAMPLE — Ridge Framing Co", Divisions: "Framing"},
+			},
+			[]WorkersCompResultRow{
+				{ContractorName: "SAMPLE — Ace Drywall LLC", Divisions: "Framing", Notes: "Certificate on file"},
+			})
 
 	case TriggerQBTimeAbsence:
 		return BuildAbsenceEmail("framing", cfg.ParamInt("alert_days", 2), []AbsenceRow{

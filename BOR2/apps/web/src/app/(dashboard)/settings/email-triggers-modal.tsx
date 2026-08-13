@@ -550,6 +550,11 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                           }
                           const chosen = asList(draft.values[param.key])
                           const available = (param.options ?? []).filter(o => !chosen.includes(o.value))
+                          // The stored value is not always readable — an employee
+                          // is keyed by company and name, so show the option's
+                          // label and fall back to the value only if it is gone.
+                          const labelFor = (value: string) =>
+                            param.options?.find(option => option.value === value)?.label ?? value
                           return (
                             <div key={param.key} className="flex flex-col gap-1.5">
                               <Label className="text-xs">{param.label}</Label>
@@ -557,7 +562,7 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                                 {chosen.map(item => (
                                   <Chip
                                     key={item}
-                                    label={item}
+                                    label={labelFor(item)}
                                     onRemove={() => setValue(param.key, chosen.filter(v => v !== item))}
                                   />
                                 ))}

@@ -24,6 +24,10 @@ type SubDocType struct {
 	Key       string `json:"key"`
 	Label     string `json:"label"`
 	HasExpiry bool   `json:"has_expiry"`
+	// Which status vocabulary this document speaks: "document" is the original
+	// missing/requested/received/not_applicable, "condition" is the Workers'
+	// Comp one (pending/regular/irregular).
+	StatusModel string `json:"status_model"`
 	// Which divisions require this document. The catalog is shared, the list of
 	// what each division asks for is not.
 	Divisions []string `json:"divisions"`
@@ -32,11 +36,15 @@ type SubDocType struct {
 type SubDocDivision struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`
+	// The division this one hangs under, for display only. A subcontractor in a
+	// subdivision is not a member of the parent, and the parent's document
+	// catalog is not inherited — never expand a lookup through this.
+	ParentKey *string `json:"parent_key"`
 }
 
 // GET /subcontractor-docs/divisions
 func (h *SubcontractorDocsHandler) ListDivisions(c *fiber.Ctx) error {
-	rows, err := h.db.Query(c.Context(), `SELECT key, label FROM sub_doc_divisions ORDER BY sort_order`)
+	rows, err := h.db.Query(c.Context(), `SELECT key, label, parent_key FROM sub_doc_divisions ORDER BY sort_order`)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -44,7 +52,7 @@ func (h *SubcontractorDocsHandler) ListDivisions(c *fiber.Ctx) error {
 	out := []SubDocDivision{}
 	for rows.Next() {
 		var d SubDocDivision
-		rows.Scan(&d.Key, &d.Label)
+		rows.Scan(&d.Key, &d.Label, &d.ParentKey)
 		out = append(out, d)
 	}
 	return c.JSON(fiber.Map{"data": out})
@@ -53,10 +61,11 @@ func (h *SubcontractorDocsHandler) ListDivisions(c *fiber.Ctx) error {
 // GET /subcontractor-docs/types
 func (h *SubcontractorDocsHandler) ListTypes(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
-		SELECT t.key, t.label, t.has_expiry, COALESCE(array_agg(d.division) FILTER (WHERE d.division IS NOT NULL), '{}')
+		SELECT t.key, t.label, t.has_expiry, t.status_model,
+		       COALESCE(array_agg(d.division) FILTER (WHERE d.division IS NOT NULL), '{}')
 		FROM sub_doc_types t
 		LEFT JOIN sub_doc_type_divisions d ON d.doc_type = t.key
-		GROUP BY t.key, t.label, t.has_expiry, t.sort_order
+		GROUP BY t.key, t.label, t.has_expiry, t.status_model, t.sort_order
 		ORDER BY t.sort_order
 	`)
 	if err != nil {
@@ -66,7 +75,7 @@ func (h *SubcontractorDocsHandler) ListTypes(c *fiber.Ctx) error {
 	out := []SubDocType{}
 	for rows.Next() {
 		t := SubDocType{Divisions: []string{}}
-		rows.Scan(&t.Key, &t.Label, &t.HasExpiry, &t.Divisions)
+		rows.Scan(&t.Key, &t.Label, &t.HasExpiry, &t.StatusModel, &t.Divisions)
 		out = append(out, t)
 	}
 	return c.JSON(fiber.Map{"data": out})
@@ -143,7 +152,15 @@ const (
 // and (for dated docs) not past expiry. Missing/requested/expired counts against
 // the sub being fully Active — matching "eles ficam inativos até mandar todos os
 // documentos".
-func docSatisfied(rec SubDocRecord, hasExpiry bool, today time.Time) bool {
+//
+// A document on the condition model answers a different question — not "did the
+// paper arrive" but "is the register in order" — so only `regular` satisfies it.
+// Irregular is a live problem and pending is an unanswered check; both hold the
+// sub short of Active.
+func docSatisfied(rec SubDocRecord, hasExpiry bool, statusModel string, today time.Time) bool {
+	if statusModel == "condition" {
+		return rec.Status == "regular"
+	}
 	if rec.Status == "not_applicable" {
 		return true
 	}
@@ -172,16 +189,18 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	// Required doc types — needed to tell "fully in order" (Active) from a sub
 	// with an outstanding/expired doc (Pending), including doc types with no
 	// record row at all (implicitly Missing).
-	typeRows, err := h.db.Query(c.Context(), `SELECT key, has_expiry FROM sub_doc_types`)
+	typeRows, err := h.db.Query(c.Context(), `SELECT key, has_expiry, status_model FROM sub_doc_types`)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	docTypeHasExpiry := map[string]bool{}
+	docTypeStatusModel := map[string]string{}
 	for typeRows.Next() {
-		var key string
+		var key, statusModel string
 		var hasExpiry bool
-		typeRows.Scan(&key, &hasExpiry)
+		typeRows.Scan(&key, &hasExpiry, &statusModel)
 		docTypeHasExpiry[key] = hasExpiry
+		docTypeStatusModel[key] = statusModel
 	}
 	typeRows.Close()
 
@@ -295,7 +314,7 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 			for _, division := range divisions {
 				for _, key := range requiredBy[division] {
 					rec, ok := recByType[division+"\x00"+key]
-					if !ok || !docSatisfied(rec, docTypeHasExpiry[key], today) {
+					if !ok || !docSatisfied(rec, docTypeHasExpiry[key], docTypeStatusModel[key], today) {
 						outstanding = true
 						break
 					}
