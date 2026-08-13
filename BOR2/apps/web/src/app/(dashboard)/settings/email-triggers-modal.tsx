@@ -426,7 +426,7 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
             {(triggers?.length ?? 0) > 1 && (
             <aside className="flex w-60 shrink-0 flex-col overflow-y-auto border-r border-border bg-muted/20 p-2">
               {grouped.map(([module, items]) => (
-                <div key={module} className="mb-2">
+                <div key={module} className="mb-2 flex flex-col gap-1">
                   <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     {module}
                   </p>
