@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -249,7 +251,15 @@ func (s *EmailTriggerService) Get(ctx context.Context, key string) (*TriggerConf
 		SELECT enabled, run_hour_local, params, updated_by, updated_at
 		FROM email_triggers WHERE key = $1
 	`, key).Scan(&cfg.Enabled, &cfg.RunHourLocal, &raw, &cfg.UpdatedBy, &cfg.UpdatedAt)
-	if err != nil {
+	switch {
+	// A definition can reach production before the migration that seeds its
+	// row — the code deploys, the migration runs after. Erroring here took the
+	// whole registry down with it, because List walks every definition. An
+	// unseeded trigger is simply off, which is what the comment above always
+	// claimed and the query never delivered.
+	case errors.Is(err, pgx.ErrNoRows):
+		cfg.Enabled = false
+	case err != nil:
 		return nil, fmt.Errorf("load email trigger %s: %w", key, err)
 	}
 	if len(raw) > 0 {
