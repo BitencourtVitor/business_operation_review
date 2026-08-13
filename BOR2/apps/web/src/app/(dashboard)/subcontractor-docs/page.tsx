@@ -5,9 +5,9 @@ import * as XLSX from "xlsx"
 import { toast } from "sonner"
 import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
-  Clock, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
+  Clock, Clock3, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore, ExternalLink, ShieldCheck,
+  Download, Building2, Archive, ArchiveRestore, ExternalLink, ShieldCheck, ShieldAlert,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -26,8 +26,9 @@ import {
   useUpdateSubDocContractor, useDeleteSubDocContractor, useSetSubDocRecord,
   useArchiveSubDocContractor, useSubDocDivisions,
 } from "@/hooks/use-subcontractor-docs"
-import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
+import type { SubDocContractor, SubDocRecord, SubDocType, SubDocDivision, DocStatus, ConditionStatus, RecordStatus, Urgency, Lifecycle } from "@/services/subcontractor-docs.service"
 import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import { WorkersCompReviewDialog } from "./workers-comp-review-dialog"
 import { EmailTriggersModal } from "../settings/email-triggers-modal"
 
@@ -60,6 +61,26 @@ const STATUS_META: Record<DocStatus, { label: string; icon: React.ElementType; c
   not_applicable: { label: "N/A",       icon: X,           color: "text-muted-foreground/30" },
 }
 
+// Documents on the "condition" model answer whether the register is in order,
+// not whether the paper arrived — so they speak the Workers' Comp vocabulary.
+// Same three states, same icons and colors, on purpose.
+const CONDITION_META: Record<ConditionStatus, { label: string; icon: React.ElementType; color: string }> = {
+  pending:   { label: "Pending",   icon: Clock3,      color: "text-amber-500" },
+  regular:   { label: "Regular",   icon: ShieldCheck, color: "text-emerald-500" },
+  irregular: { label: "Irregular", icon: ShieldAlert, color: "text-red-500" },
+}
+
+const CONDITION_ORDER = Object.keys(CONDITION_META) as ConditionStatus[]
+
+const isCondition = (type: SubDocType) => type.status_model === "condition"
+
+// A record can be holding either vocabulary; the type says which one is real.
+// Falling back keeps a mid-migration row from rendering as a blank cell.
+function metaFor(status: RecordStatus, type: SubDocType) {
+  if (isCondition(type)) return CONDITION_META[status as ConditionStatus] ?? CONDITION_META.pending
+  return STATUS_META[status as DocStatus] ?? STATUS_META.missing
+}
+
 const DIVISION_IMAGES: Record<string, string> = {
   framing: "/images/sublogo_framing.png",
   hvac: "/images/sublogo_hvac.png",
@@ -75,8 +96,24 @@ function DivisionLogo({ division, label, className }: { division: string; label:
   return <img src={src} alt={label} className={cn("h-4 w-auto object-contain", className)} />
 }
 
-const EMPTY_RECORD = (docType: string, division: string): SubDocRecord => ({
-  doc_type: docType, division, status: "missing", start_date: null, expiry_date: null, requested_date: null,
+// A subdivision reads as "PCG › Pleasant Park" wherever it is listed, so the tie
+// to the parent is visible. That is all the parent does here: it is a label,
+// never a relationship. Selecting Pleasant Park does not select PCG, and
+// Pleasant Park does not inherit PCG's document list.
+//
+// Parents first, each immediately followed by its own subdivisions. Anything
+// whose parent is missing falls to the end rather than disappearing.
+function orderDivisions(divisions: SubDocDivision[]): SubDocDivision[] {
+  const byKey = Object.fromEntries(divisions.map(d => [d.key, d]))
+  const roots = divisions.filter(d => !d.parent_key)
+  const ordered = roots.flatMap(root => [root, ...divisions.filter(d => d.parent_key === root.key)])
+  const placed = new Set(ordered.map(d => d.key))
+  return [...ordered, ...divisions.filter(d => !placed.has(d.key) && !byKey[d.parent_key ?? ""])]
+}
+
+const EMPTY_RECORD = (type: SubDocType, division: string): SubDocRecord => ({
+  doc_type: type.key, division, status: isCondition(type) ? "pending" : "missing",
+  start_date: null, expiry_date: null, requested_date: null,
   notes: "", url: "",
 })
 
@@ -120,10 +157,13 @@ function formatPhone(raw: string): string {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
 }
 
-function docSummary(record: SubDocRecord | undefined, hasExpiry: boolean): string {
+function docSummary(record: SubDocRecord | undefined, type: SubDocType): string {
+  if (isCondition(type)) {
+    return CONDITION_META[(record?.status ?? "pending") as ConditionStatus]?.label ?? "Pending"
+  }
   if (!record || record.status === "missing") return "Missing"
   if (record.status === "not_applicable") return "N/A"
-  if (record.status === "received") return hasExpiry ? `Received (exp ${fmtDate(record.expiry_date)})` : "Received"
+  if (record.status === "received") return type.has_expiry ? `Received (exp ${fmtDate(record.expiry_date)})` : "Received"
   return record.requested_date ? `Requested (${fmtDate(record.requested_date)})` : "Requested"
 }
 
@@ -155,8 +195,9 @@ function DocCell({ contractorId, division, typeInfo, record }: {
   contractorId: number; division: string; typeInfo: SubDocType; record: SubDocRecord
 }) {
   const setRecord = useSetSubDocRecord()
+  const condition = isCondition(typeInfo)
   const [open, setOpen] = useState(false)
-  const [status, setStatus] = useState<DocStatus>(record.status)
+  const [status, setStatus] = useState<RecordStatus>(record.status)
   const [startDate, setStartDate] = useState(record.start_date ?? "")
   const [expiryDate, setExpiryDate] = useState(record.expiry_date ?? "")
   const [requestedDate, setRequestedDate] = useState(record.requested_date ?? "")
@@ -180,11 +221,14 @@ function DocCell({ contractorId, division, typeInfo, record }: {
     }, { onSuccess: () => setOpen(false) })
   }
 
-  const meta = STATUS_META[record.status]
+  const meta = metaFor(record.status, typeInfo)
   const Icon = meta.icon
-  const dateLabel = typeInfo.has_expiry
-    ? (record.status === "received" ? fmtDate(record.expiry_date) : meta.label)
-    : (record.status === "requested" && record.requested_date ? fmtDate(record.requested_date) : meta.label)
+  // A condition document has no date to show — the state itself is the answer.
+  const dateLabel = condition
+    ? meta.label
+    : typeInfo.has_expiry
+      ? (record.status === "received" ? fmtDate(record.expiry_date) : meta.label)
+      : (record.status === "requested" && record.requested_date ? fmtDate(record.requested_date) : meta.label)
   const urgency = docUrgency(record, typeInfo.has_expiry)
   const flagged = urgency === "expired" || urgency === "urgent"
   const urgMeta = URGENCY_META[urgency]
@@ -211,34 +255,57 @@ function DocCell({ contractorId, division, typeInfo, record }: {
         <p className="mb-2 text-xs font-semibold">{typeInfo.label}</p>
 
         <div className="mb-2 flex flex-col gap-1">
-          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Status</span>
-          <Select value={status} onValueChange={v => v && setStatus(v as DocStatus)}>
-            <SelectTrigger className="h-8 w-full text-xs">
-              <span className={cn("flex items-center gap-1.5", STATUS_META[status].color)}>
-                {(() => { const I = STATUS_META[status].icon; return <I className="h-3 w-3" /> })()}
-                {STATUS_META[status].label}
-              </span>
-            </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
-              {(Object.keys(STATUS_META) as DocStatus[]).map(s => (
-                <SelectItem key={s} value={s}>
-                  <span className="flex items-center gap-1.5">
-                    {(() => { const I = STATUS_META[s].icon; return <I className={cn("h-3 w-3", STATUS_META[s].color)} /> })()}
-                    {STATUS_META[s].label}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">
+            {condition ? "Condition" : "Status"}
+          </span>
+          {condition ? (
+            <div className="flex w-fit items-center gap-0.5 rounded-lg border border-input p-0.5">
+              {CONDITION_ORDER.map(s => {
+                const m = CONDITION_META[s]
+                const I = m.icon
+                const active = status === s
+                return (
+                  <button key={s} type="button" title={m.label} aria-pressed={active}
+                    onClick={() => setStatus(s)}
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-md px-2 text-xs transition-colors",
+                      active ? cn("bg-muted font-medium", m.color) : "text-muted-foreground hover:bg-muted/60",
+                    )}>
+                    <I className="h-3.5 w-3.5" />
+                    {active && <span>{m.label}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <Select value={status} onValueChange={v => v && setStatus(v as DocStatus)}>
+              <SelectTrigger className="h-8 w-full text-xs">
+                <span className={cn("flex items-center gap-1.5", STATUS_META[status as DocStatus].color)}>
+                  {(() => { const I = STATUS_META[status as DocStatus].icon; return <I className="h-3 w-3" /> })()}
+                  {STATUS_META[status as DocStatus].label}
+                </span>
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {(Object.keys(STATUS_META) as DocStatus[]).map(s => (
+                  <SelectItem key={s} value={s}>
+                    <span className="flex items-center gap-1.5">
+                      {(() => { const I = STATUS_META[s].icon; return <I className={cn("h-3 w-3", STATUS_META[s].color)} /> })()}
+                      {STATUS_META[s].label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
-        {typeInfo.has_expiry && (
+        {!condition && typeInfo.has_expiry && (
           <div className="mb-2 grid grid-cols-2 gap-2">
             <MiniDatePicker label="Start" value={startDate} onSelect={setStartDate} />
             <MiniDatePicker label="Expiry" value={expiryDate} onSelect={setExpiryDate} />
           </div>
         )}
-        {!typeInfo.has_expiry && status === "requested" && (
+        {!condition && !typeInfo.has_expiry && status === "requested" && (
           <div className="mb-2">
             <MiniDatePicker label="Requested on" value={requestedDate} onSelect={setRequestedDate} />
           </div>
@@ -250,29 +317,32 @@ function DocCell({ contractorId, division, typeInfo, record }: {
         </div>
 
         {/* The record already said the document exists and when it expires. This
-            is where it is — so nobody has to go hunting for the file. */}
-        <div className="mb-3 flex flex-col gap-1">
-          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">
-            SharePoint link
-          </span>
-          <Input
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            placeholder="https://…"
-            className="h-7 text-xs"
-          />
-          {url.trim() && (
-            <a
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              className="flex w-fit items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ExternalLink className="h-2.5 w-2.5" />
-              Open document
-            </a>
-          )}
-        </div>
+            is where it is — so nobody has to go hunting for the file. A condition
+            document has no file to point at: the navbar above is the whole record. */}
+        {!condition && (
+          <div className="mb-3 flex flex-col gap-1">
+            <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">
+              SharePoint link
+            </span>
+            <Input
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              placeholder="https://…"
+              className="h-7 text-xs"
+            />
+            {url.trim() && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex w-fit items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ExternalLink className="h-2.5 w-2.5" />
+                Open document
+              </a>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end gap-2">
           <button onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
@@ -351,6 +421,11 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
               {isMultiDivision && (
                 <div className="flex w-12 shrink-0 flex-col items-center justify-center gap-1 text-center">
                   <DivisionLogo division={division} label={divisionInfo?.label ?? division} className="max-h-7 max-w-10" />
+                  {divisionInfo?.parent_key && (
+                    <span className="max-w-full text-[8px] leading-tight text-muted-foreground/60">
+                      {divisionByKey[divisionInfo.parent_key]?.label ?? divisionInfo.parent_key} ›
+                    </span>
+                  )}
                   <span className="max-w-full text-[9px] font-medium leading-tight text-muted-foreground">
                     {divisionInfo?.label ?? division}
                   </span>
@@ -361,7 +436,7 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
               <div className="grid min-w-0 flex-1 grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2">
                 {divisionTypes.map(type => (
                   <DocCell key={`${division}-${type.key}`} contractorId={ctr.id} division={division} typeInfo={type}
-                    record={recordsByDivisionAndType[`${division}\u0000${type.key}`] ?? EMPTY_RECORD(type.key, division)} />
+                    record={recordsByDivisionAndType[`${division}\u0000${type.key}`] ?? EMPTY_RECORD(type, division)} />
                 ))}
               </div>
             </div>
@@ -384,6 +459,7 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>([])
+  const divisionByKey = Object.fromEntries(divisions.map(d => [d.key, d]))
   const company = selectedDivisions[0] as Company | ""
   const create = useCreateSubDocContractor()
   const update = useUpdateSubDocContractor()
@@ -429,17 +505,22 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Division</label>
             <div className="grid grid-cols-2 gap-1.5 rounded-md border border-input p-1.5">
-              {divisions.map(division => {
+              {orderDivisions(divisions).map(division => {
                 const checked = selectedDivisions.includes(division.key)
+                const parent = division.parent_key ? divisionByKey[division.parent_key] : undefined
                 return (
                   <button key={division.key} type="button"
+                    title={parent ? `Subdivision of ${parent.label} — selecting it does not select ${parent.label}` : undefined}
                     onClick={() => setSelectedDivisions(current => checked ? current.filter(key => key !== division.key) : [...current, division.key])}
                     className={cn("flex h-8 items-center gap-2 rounded px-2 text-left text-xs transition-colors", checked ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60")}>
                     <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", checked ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
                       {checked && <Check className="h-3 w-3" />}
                     </span>
                     <DivisionLogo division={division.key} label={division.label} className="h-3.5 max-w-5" />
-                    <span className="truncate">{division.label}</span>
+                    <span className="min-w-0 truncate">
+                      {parent && <span className="text-muted-foreground/60">{parent.label} › </span>}
+                      {division.label}
+                    </span>
                   </button>
                 )
               })}
@@ -604,13 +685,15 @@ function CompanyFilterDropdown({ contractors, divisions, selected, setSelected }
           </button>
         )}
         <div className="flex flex-col">
-          {divisions.map(division => {
+          {orderDivisions(divisions).map(division => {
             const co = division.key
             const on = selected.has(co)
+            // Counted on the exact division: a subdivision never borrows the
+            // parent's subs, and the parent never borrows the subdivision's.
             const count = contractors.filter(c => c.divisions.includes(co)).length
             return (
               <button key={co} onClick={() => toggle(co)}
-                className="flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent">
+                className={cn("flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent", division.parent_key && "pl-4")}>
                 <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
                   {on && <Check className="h-3 w-3" />}
                 </span>
@@ -651,7 +734,7 @@ function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocTy
     const data = [header, ...rows.map(c => {
       const byType = Object.fromEntries(c.records.map(r => [r.doc_type, r]))
       return [c.name, c.email, c.phone, LIFECYCLE_META[c.status].label, URGENCY_META[c.urgency].label,
-        ...types.map(t => docSummary(byType[t.key], t.has_expiry))]
+        ...types.map(t => docSummary(byType[t.key], t))]
     })]
     const ws = XLSX.utils.aoa_to_sheet(data)
     const wb = XLSX.utils.book_new()
@@ -667,7 +750,7 @@ function ExportMenu({ rows, types }: { rows: SubDocContractor[]; types: SubDocTy
         <td>${c.name}</td><td>${c.email || "—"}</td><td>${c.phone || "—"}</td>
         <td>${LIFECYCLE_META[c.status].label}</td>
         <td>${URGENCY_META[c.urgency].label}</td>
-        ${types.map(t => `<td>${docSummary(byType[t.key], t.has_expiry)}</td>`).join("")}
+        ${types.map(t => `<td>${docSummary(byType[t.key], t)}</td>`).join("")}
       </tr>`
     }).join("")
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Subcontractor Docs</title>
@@ -720,6 +803,7 @@ const URGENCY_RANK: Record<Urgency, number> = { expired: 0, urgent: 1, soon: 2, 
 
 export default function SubcontractorDocsPage() {
   const { user } = useAuth()
+  const { canView } = usePermission()
   const { data: types, isLoading: typesLoading } = useSubDocTypes()
   const { data: divisions, isLoading: divisionsLoading } = useSubDocDivisions()
   const [showArchived, setShowArchived] = useState(false)
@@ -735,7 +819,12 @@ export default function SubcontractorDocsPage() {
   const [deleting, setDeleting] = useState<SubDocContractor | null>(null)
   const [emailTriggersOpen, setEmailTriggersOpen] = useState(false)
   const [workersCompReviewOpen, setWorkersCompReviewOpen] = useState(false)
+  // Two different questions. Configuring e-mail triggers is a settings-level
+  // action and stays with the senior roles. The Workers' Comp review is the
+  // page's own workflow and is open to everyone who can open the page —
+  // recording a verdict still needs write, which the backend enforces.
   const canManageEmailAlerts = !!user && ["dev", "owner", "manager"].includes(user.role)
+  const canReviewWorkersComp = canView("subcontractor_docs")
 
   const rows = (contractors ?? [])
     .filter(c => (!search || c.name.toLowerCase().includes(search.toLowerCase())) &&
@@ -783,7 +872,7 @@ export default function SubcontractorDocsPage() {
             <Mail className="h-3.5 w-3.5" /> Email alerts
           </button>}
 
-          {canManageEmailAlerts && <button onClick={() => setWorkersCompReviewOpen(true)} title="Review Workers' Compensation regularity"
+          {canReviewWorkersComp && <button onClick={() => setWorkersCompReviewOpen(true)} title="Review Workers' Compensation regularity"
             className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
             <ShieldCheck className="h-3.5 w-3.5" /> WC review
           </button>}

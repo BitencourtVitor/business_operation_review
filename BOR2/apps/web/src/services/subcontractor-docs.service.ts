@@ -6,6 +6,11 @@ function getToken() {
 }
 
 export type DocStatus = "missing" | "requested" | "received" | "not_applicable"
+// The Workers' Comp vocabulary, reused by documents whose question is "is this
+// in order?" rather than "did the paper arrive?".
+export type ConditionStatus = "pending" | "regular" | "irregular"
+export type RecordStatus = DocStatus | ConditionStatus
+export type StatusModel = "document" | "condition"
 export type Urgency = "expired" | "urgent" | "soon" | "ok" | "none"
 export type Lifecycle = "active" | "pending" | "inactive"
 
@@ -13,12 +18,16 @@ export interface SubDocType {
   key: string
   label: string
   has_expiry: boolean
+  status_model: StatusModel
   divisions: string[]
 }
 
 export interface SubDocDivision {
   key: string
   label: string
+  // Display-only parent. A sub in a subdivision is not in the parent division,
+  // and the parent's document catalog is not inherited.
+  parent_key: string | null
 }
 
 export type WorkersCompCheckStatus = "pending" | "regular" | "irregular"
@@ -49,7 +58,7 @@ export interface WorkersCompReviewCycle {
 export interface SubDocRecord {
   doc_type: string
   division: string
-  status: DocStatus
+  status: RecordStatus
   start_date: string | null
   expiry_date: string | null
   requested_date: string | null
@@ -108,7 +117,7 @@ export const subcontractorDocsService = {
     api.patch(`/api/v1/subcontractor-docs/contractors/${id}/archive`, { archived }, getToken()),
 
   setRecord: (body: {
-    contractor_id: number; doc_type: string; division: string; status: DocStatus
+    contractor_id: number; doc_type: string; division: string; status: RecordStatus
     start_date?: string; expiry_date?: string; requested_date?: string; notes?: string
     url?: string
   }) =>

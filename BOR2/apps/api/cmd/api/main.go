@@ -557,8 +557,13 @@ func main() {
 	subDocs.Get("/contractors", subcontractorDocsHandler.ListContractors)
 	// Recipient administration and test delivery are restricted server-side as
 	// well as in the UI, so a direct API request cannot bypass the role rule.
-	subDocs.Get("/workers-comp-review", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.Current)
-	subDocs.Patch("/workers-comp-review/checks/:id", middleware.RequireAuthFull(authService), middleware.RequireRole("dev", "owner", "manager"), workersCompReviewHandler.UpdateCheck)
+	// The review is the page's own work, not an administrative action, so it
+	// follows the module's permission instead of a role: reading it is open to
+	// anyone who can open the page, and recording a verdict needs write. The
+	// role check that was here locked out the very person the review e-mail is
+	// addressed to.
+	subDocs.Get("/workers-comp-review", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "read"), workersCompReviewHandler.Current)
+	subDocs.Patch("/workers-comp-review/checks/:id", middleware.RequireAuthFull(authService), middleware.RequirePermission(db, "subcontractor_docs", "write"), workersCompReviewHandler.UpdateCheck)
 	// Email Triggers — every automatic e-mail in the system, in one place.
 	emailTriggers := api.Group("/email-triggers",
 		middleware.RequireAuthFull(authService),
