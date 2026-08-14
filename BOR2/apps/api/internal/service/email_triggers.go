@@ -380,18 +380,46 @@ func (s *EmailTriggerService) Update(ctx context.Context, key string, req Trigge
 				return nil, fmt.Errorf("%s must be a list", param.Label)
 			}
 			allowed := map[string]bool{}
+			tagsOf := map[string]map[string]bool{}
 			for _, option := range param.Options {
 				allowed[option.Value] = true
+				set := map[string]bool{}
+				for _, tag := range option.Tags {
+					set[tag] = true
+				}
+				tagsOf[option.Value] = set
 			}
 			selected := []string{}
 			for _, item := range list {
 				text := strings.TrimSpace(fmt.Sprint(item))
+				// A value may narrow itself to some of the option's tags —
+				// "name::hvac,pcg" excludes that person in two companies and
+				// leaves the third alerting. Option and scope are checked
+				// apart, or the scoped value reads as an option that no longer
+				// exists and is dropped on save.
+				base, scope := text, ""
+				if index := strings.Index(text, "::"); index >= 0 {
+					base, scope = strings.TrimSpace(text[:index]), text[index+2:]
+				}
 				// An option can disappear from the catalogue after being
 				// selected; rejecting the whole save would strand the screen.
-				if text == "" || !allowed[text] {
+				if base == "" || !allowed[base] {
 					continue
 				}
-				selected = append(selected, text)
+				kept := []string{}
+				for _, tag := range strings.Split(scope, ",") {
+					tag = strings.TrimSpace(tag)
+					if tagsOf[base][tag] {
+						kept = append(kept, tag)
+					}
+				}
+				// No scope, or one that covers every tag anyway, is stored bare:
+				// the plain name is what "everywhere" has always meant.
+				if len(kept) == 0 || len(kept) == len(tagsOf[base]) {
+					selected = append(selected, base)
+					continue
+				}
+				selected = append(selected, base+"::"+strings.Join(kept, ","))
 			}
 			if len(selected) == 0 {
 				return nil, fmt.Errorf("%s needs at least one option", param.Label)
