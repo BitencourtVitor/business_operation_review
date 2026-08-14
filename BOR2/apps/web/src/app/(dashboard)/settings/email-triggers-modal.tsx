@@ -142,23 +142,53 @@ const TAG_IMAGES: Record<string, string> = {
 
 /** The companies a tagged option belongs to. An employee is listed once by
  *  name, and these say where that name is registered — an unknown company
- *  falls back to its own text so nothing disappears silently. */
-function OptionTags({ tags, className }: { tags?: string[]; className?: string }) {
+ *  falls back to its own text so nothing disappears silently.
+ *
+ *  On a selected chip they also carry the scope: `active` marks the companies
+ *  the entry applies to, and the rest are drawn greyed out. Clicking one flips
+ *  it, so a person registered in three companies can stay excluded in two and
+ *  keep being alerted in the one they actually punch in. */
+function OptionTags({ tags, active, onToggle, className }: {
+  tags?: string[]
+  active?: string[]
+  onToggle?: (tag: string) => void
+  className?: string
+}) {
   if (!tags?.length) return null
   return (
     <span className={cn("flex shrink-0 items-center gap-1", className)}>
-      {tags.map(tag =>
-        TAG_IMAGES[tag] ? (
+      {tags.map(tag => {
+        const label = COMPANY_LABEL[tag as Company] ?? tag
+        const on = !active || active.includes(tag)
+        const body = TAG_IMAGES[tag] ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img key={tag} src={TAG_IMAGES[tag]} alt={COMPANY_LABEL[tag as Company] ?? tag}
-            title={COMPANY_LABEL[tag as Company] ?? tag}
-            className="h-3.5 w-auto max-w-5 shrink-0 object-contain" />
+          <img src={TAG_IMAGES[tag]} alt={label}
+            className={cn("h-3.5 w-auto max-w-5 shrink-0 object-contain transition-opacity",
+              !on && "opacity-25 grayscale contrast-75")} />
         ) : (
-          <span key={tag} className="rounded bg-muted px-1 text-[9px] uppercase text-muted-foreground">
+          <span className={cn("rounded bg-muted px-1 text-[9px] uppercase text-muted-foreground",
+            !on && "opacity-25 grayscale contrast-75")}>
             {tag}
           </span>
-        ),
-      )}
+        )
+        if (!onToggle) return <span key={tag} title={label} className="flex">{body}</span>
+        // The only one left on has nowhere to go: an entry that excludes no
+        // company is just not an entry.
+        const locked = on && tags.filter(t => !active || active.includes(t)).length === 1
+        return (
+          <button
+            key={tag}
+            type="button"
+            title={locked ? `${label} — the only one left; remove the person with the ×`
+              : on ? `${label} — excluded, no e-mail`
+              : `${label} — still alerts`}
+            onClick={() => onToggle(tag)}
+            className={cn("flex transition-opacity", locked ? "cursor-default" : "hover:opacity-80")}
+          >
+            {body}
+          </button>
+        )
+      })}
     </span>
   )
 }
@@ -224,16 +254,46 @@ function AddPicker({ label, options, onAdd }: {
 }
 
 /** A selected value: visible because it is in play, removable in one click. */
-function Chip({ label, tags, onRemove }: { label: string; tags?: string[]; onRemove: () => void }) {
+function Chip({ label, tags, active, onToggleTag, onRemove }: {
+  label: string
+  tags?: string[]
+  active?: string[]
+  onToggleTag?: (tag: string) => void
+  onRemove: () => void
+}) {
   return (
     <span className="flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] text-primary">
       {label}
-      <OptionTags tags={tags} />
-      <button type="button" onClick={onRemove} className="opacity-60 transition-opacity hover:opacity-100">
+      <OptionTags tags={tags} active={active} onToggle={onToggleTag} />
+      {/* Separated from the logos on purpose: they are targets now, and this
+          one deletes the whole entry. */}
+      <button type="button" onClick={onRemove}
+        className="ml-1 border-l border-primary/30 pl-1.5 opacity-60 transition-opacity hover:opacity-100">
         <X className="h-3 w-3" />
       </button>
     </span>
   )
+}
+
+// A multiselect value can be narrowed to a subset of the option's tags:
+// "vitor::hvac,pcg" excludes that person in HVAC and PCG only. A bare value
+// means every tag the option carries, which is what adding one gives you.
+const SCOPE_MARK = "::"
+
+function scopeOf(value: string): { base: string; only: string[] | null } {
+  const index = value.indexOf(SCOPE_MARK)
+  if (index < 0) return { base: value, only: null }
+  return {
+    base: value.slice(0, index),
+    only: value.slice(index + SCOPE_MARK.length).split(",").filter(Boolean),
+  }
+}
+
+/** Rebuilds the stored value, dropping the scope again once every tag is back
+ *  on so the common case stays a plain name. */
+function withScope(base: string, only: string[], all: string[]): string {
+  const kept = all.filter(tag => only.includes(tag))
+  return kept.length === all.length ? base : `${base}${SCOPE_MARK}${kept.join(",")}`
 }
 
 export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Props) {
@@ -587,12 +647,28 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                             )
                           }
                           const chosen = asList(draft.values[param.key])
-                          const available = (param.options ?? []).filter(o => !chosen.includes(o.value))
-                          // The stored value is not always readable — an employee
-                          // is keyed by company and name, so show the option's
-                          // label and fall back to the value only if it is gone.
+                          const bases = chosen.map(item => scopeOf(item).base)
+                          const available = (param.options ?? []).filter(o => !bases.includes(o.value))
+                          // The stored value is not always readable — it may
+                          // carry a scope — so show the option's label and fall
+                          // back to the value only if the option is gone.
                           const optionFor = (value: string) =>
-                            param.options?.find(option => option.value === value)
+                            param.options?.find(option => option.value === scopeOf(value).base)
+                          // The last lit company cannot be turned off: that would
+                          // leave nothing excluded, and dropping the person off
+                          // the list is what the × is for — a click this close to
+                          // the × must never be the one that deletes the entry.
+                          const toggleTag = (item: string, tag: string) => {
+                            const { base, only } = scopeOf(item)
+                            const tags = optionFor(item)?.tags ?? []
+                            const current = only ?? tags
+                            const next = current.includes(tag)
+                              ? current.filter(t => t !== tag)
+                              : [...current, tag]
+                            if (next.length === 0) return
+                            setValue(param.key, chosen.map(v =>
+                              v === item ? withScope(base, next, tags) : v))
+                          }
                           return (
                             <div key={param.key} className="flex flex-col gap-1.5">
                               <Label className="text-xs">{param.label}</Label>
@@ -600,8 +676,10 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
                                 {chosen.map(item => (
                                   <Chip
                                     key={item}
-                                    label={optionFor(item)?.label ?? item}
+                                    label={optionFor(item)?.label ?? scopeOf(item).base}
                                     tags={optionFor(item)?.tags}
+                                    active={scopeOf(item).only ?? undefined}
+                                    onToggleTag={tag => toggleTag(item, tag)}
                                     onRemove={() => setValue(param.key, chosen.filter(v => v !== item))}
                                   />
                                 ))}
