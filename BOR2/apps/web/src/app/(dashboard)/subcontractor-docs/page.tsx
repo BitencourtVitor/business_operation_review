@@ -167,24 +167,81 @@ function docSummary(record: SubDocRecord | undefined, type: SubDocType): string 
   return record.requested_date ? `Requested (${fmtDate(record.requested_date)})` : "Requested"
 }
 
-// ── Mini date picker (Calendar + Popover) ──────────────────────────────────────
+// ── Mini date picker (typed MM/DD/YYYY + Calendar popover) ────────────────────
+
+const isoToInput = (iso: string) => {
+  if (!iso) return ""
+  const [y, m, d] = iso.split("-")
+  return `${m}/${d}/${y}`
+}
+
+// Digits only, punctuation inserted as the user types: 05 → 05/1 → 05/12/2026
+function maskDate(raw: string): string {
+  const d = raw.replace(/\D/g, "").slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`
+}
+
+// A typed date only becomes a value once it is complete AND real — 02/31/2026
+// round-trips to March, so the round-trip is the validation.
+function parseTyped(text: string): string | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text)
+  if (!m) return null
+  const [, mm, dd, yyyy] = m
+  const month = Number(mm), day = Number(dd), year = Number(yyyy)
+  if (month < 1 || month > 12 || day < 1 || year < 1900 || year > 2999) return null
+  const d = new Date(year, month - 1, day)
+  if (d.getMonth() !== month - 1 || d.getDate() !== day) return null
+  return toISO(d)
+}
 
 function MiniDatePicker({ label, value, onSelect }: { label: string; value: string; onSelect: (iso: string) => void }) {
   const [open, setOpen] = useState(false)
+  const [text, setText] = useState(() => isoToInput(value))
+
+  useEffect(() => { setText(isoToInput(value)) }, [value])
+
+  const type = (raw: string) => {
+    const masked = maskDate(raw)
+    setText(masked)
+    if (!masked) { onSelect(""); return }
+    const iso = parseTyped(masked)
+    if (iso) onSelect(iso)
+  }
+
+  // Half-typed or impossible dates never commit — leaving the field restores
+  // whatever is actually stored rather than stranding invalid text on screen.
+  const blur = () => setText(isoToInput(value))
+
   return (
     <div className="flex flex-col gap-1">
       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">{label}</span>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger className="flex h-7 items-center gap-1.5 rounded-md border border-input bg-transparent px-2 text-[11px] text-muted-foreground transition-colors hover:text-foreground dark:bg-input/30">
-          <CalendarIcon className="h-3 w-3 shrink-0" />
-          {value ? fmtDate(value) : "Set date"}
-        </PopoverTrigger>
-        <PopoverContent align="start" side="bottom" sideOffset={4} className="w-auto p-0">
-          <Calendar mode="single" selected={value ? toDate(value) : undefined}
-            onSelect={d => { if (d) { onSelect(toISO(d)); setOpen(false) } }}
-            defaultMonth={value ? toDate(value) : undefined} />
-        </PopoverContent>
-      </Popover>
+      <div className="flex h-7 items-center rounded-md border border-input bg-transparent transition-colors focus-within:border-ring dark:bg-input/30">
+        <input
+          value={text}
+          onChange={e => type(e.target.value)}
+          onBlur={blur}
+          onClick={e => e.stopPropagation()}
+          inputMode="numeric"
+          placeholder="MM/DD/YYYY"
+          className="h-full w-full min-w-0 bg-transparent px-2 text-[11px] tabular-nums outline-none placeholder:text-muted-foreground/60"
+        />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger
+            type="button"
+            title="Pick from calendar"
+            className="flex h-full shrink-0 items-center border-l border-input px-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <CalendarIcon className="h-3 w-3" />
+          </PopoverTrigger>
+          <PopoverContent align="start" side="bottom" sideOffset={4} className="w-auto p-0">
+            <Calendar mode="single" selected={value ? toDate(value) : undefined}
+              onSelect={d => { if (d) { onSelect(toISO(d)); setOpen(false) } }}
+              defaultMonth={value ? toDate(value) : undefined} />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   )
 }
