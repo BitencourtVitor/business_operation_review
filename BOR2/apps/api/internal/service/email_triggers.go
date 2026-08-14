@@ -138,7 +138,7 @@ var triggerDefinitions = []TriggerDefinition{
 				Help: "Each absence is announced once. While the same person keeps missing, no new e-mail is sent — only a new absence is."},
 			{Key: "excluded_employees", Label: "Never announce by e-mail", Type: "multiselect",
 				OptionsSource: "absence_employees",
-				Help: "One entry per person, across every company. Everyone else goes through the criteria normally. Whoever is picked here still has their absence detected and visible on the Absences screen — it just never goes out in the e-mail."},
+				Help: "One entry per person. The logos are the companies the person is registered in — click one to grey it out and let that company keep alerting, while the lit ones stay silent. Everyone else goes through the criteria normally, and whoever is picked here still has their absence detected and visible on the Absences screen."},
 		},
 	},
 }
