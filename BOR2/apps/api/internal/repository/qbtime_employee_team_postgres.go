@@ -17,6 +17,9 @@ type QBTimeEmployeeTeamSyncRow struct {
 	EmployeeName string
 	QBTeamID     *int
 	QBTeamName   *string
+	// Archived in QB Time — the person was let go. The row survives for the
+	// timesheet history behind it, but every roster read drops them.
+	Archived bool
 }
 
 type QBTimeEmployeeTeamRepository interface {
@@ -63,6 +66,7 @@ func (r *PostgresQBTimeEmployeeTeamRepository) List(ctx context.Context, company
 		SELECT `+employeeTeamCols+`
 		FROM qbtime_employee_teams
 		WHERE LOWER(company) = $1
+		  AND NOT archived
 		ORDER BY employee_name ASC
 	`, company)
 	if err != nil {
@@ -93,15 +97,22 @@ func (r *PostgresQBTimeEmployeeTeamRepository) UpsertFromSync(ctx context.Contex
 
 	now := time.Now()
 	for _, row := range rows {
+		// archived_at stamps the first sync that saw the person archived and is
+		// cleared if they come back, so it always describes the current state.
 		_, err := tx.Exec(ctx, `
-			INSERT INTO qbtime_employee_teams (company, qbt_user_id, employee_name, qbt_team_id, qbt_team_name, last_synced_at)
-			VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO qbtime_employee_teams (company, qbt_user_id, employee_name, qbt_team_id, qbt_team_name, last_synced_at, archived, archived_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, CASE WHEN $7 THEN $6 END)
 			ON CONFLICT (company, qbt_user_id) DO UPDATE
 			SET employee_name  = EXCLUDED.employee_name,
 			    qbt_team_id    = EXCLUDED.qbt_team_id,
 			    qbt_team_name  = EXCLUDED.qbt_team_name,
-			    last_synced_at = EXCLUDED.last_synced_at
-		`, company, row.QBTUserID, row.EmployeeName, row.QBTeamID, row.QBTeamName, now)
+			    last_synced_at = EXCLUDED.last_synced_at,
+			    archived       = EXCLUDED.archived,
+			    archived_at    = CASE
+			                       WHEN NOT EXCLUDED.archived THEN NULL
+			                       ELSE COALESCE(qbtime_employee_teams.archived_at, EXCLUDED.last_synced_at)
+			                     END
+		`, company, row.QBTUserID, row.EmployeeName, row.QBTeamID, row.QBTeamName, now, row.Archived)
 		if err != nil {
 			return fmt.Errorf("upsert qbtime employee team (user_id=%d): %w", row.QBTUserID, err)
 		}

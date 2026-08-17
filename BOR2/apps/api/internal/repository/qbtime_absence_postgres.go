@@ -31,8 +31,9 @@ type QBTimeAbsenceRepository interface {
 	// company actually punched on. Used to drop holidays and failed syncs.
 	DaysWithActivity(ctx context.Context, company string, days []time.Time) (map[string]bool, error)
 	AbsentOn(ctx context.Context, company string, day time.Time) ([]AbsentEmployee, error)
-	// Roster is everyone on the company's QB Time roster, minus the exception
-	// list — the people the grid always shows, punched or not.
+	// Roster is everyone on the company's QB Time roster, minus the archived
+	// (terminated) and the exception list — the people the grid always shows,
+	// punched or not.
 	Roster(ctx context.Context, company string) ([]AbsentEmployee, error)
 	// PunchedDays maps qbt_user_id → set of YYYY-MM-DD they clocked in on.
 	PunchedDays(ctx context.Context, company string, from, to time.Time) (map[int64]map[string]bool, error)
@@ -88,8 +89,10 @@ func (r *PostgresQBTimeAbsenceRepository) DaysWithActivity(ctx context.Context, 
 	return out, nil
 }
 
-// AbsentOn is the whole definition of a missed day: on the company roster, no
-// timesheet row that date, and not on the Who's Working exception list.
+// AbsentOn is the whole definition of a missed day: on the company roster, not
+// archived, no timesheet row that date, and not on the Who's Working exception
+// list. Somebody who was let go is archived in QB Time and stops being a person
+// who could have shown up — they are not absent, they are gone.
 func (r *PostgresQBTimeAbsenceRepository) AbsentOn(ctx context.Context, company string, day time.Time) ([]AbsentEmployee, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT et.qbt_user_id,
@@ -101,6 +104,7 @@ func (r *PostgresQBTimeAbsenceRepository) AbsentOn(ctx context.Context, company 
 		       ) AS team_name
 		FROM qbtime_employee_teams et
 		WHERE LOWER(et.company) = LOWER($1)
+		  AND NOT et.archived
 		  AND NOT EXISTS (
 		      SELECT 1 FROM qbtime_timesheets ts
 		      WHERE LOWER(ts.company) = LOWER($1)
@@ -141,6 +145,7 @@ func (r *PostgresQBTimeAbsenceRepository) Roster(ctx context.Context, company st
 		       ) AS team_name
 		FROM qbtime_employee_teams et
 		WHERE LOWER(et.company) = LOWER($1)
+		  AND NOT et.archived
 		  AND NOT EXISTS (
 		      SELECT 1 FROM qbtime_whos_working_exceptions ex
 		      WHERE LOWER(ex.company) = LOWER($1)
