@@ -101,7 +101,7 @@ func (r *PostgresQBTimeEmployeeTeamRepository) UpsertFromSync(ctx context.Contex
 		// cleared if they come back, so it always describes the current state.
 		_, err := tx.Exec(ctx, `
 			INSERT INTO qbtime_employee_teams (company, qbt_user_id, employee_name, qbt_team_id, qbt_team_name, last_synced_at, archived, archived_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, CASE WHEN $7 THEN $6 END)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, CASE WHEN $7 THEN $6::timestamptz END)
 			ON CONFLICT (company, qbt_user_id) DO UPDATE
 			SET employee_name  = EXCLUDED.employee_name,
 			    qbt_team_id    = EXCLUDED.qbt_team_id,
