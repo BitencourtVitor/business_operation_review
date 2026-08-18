@@ -78,3 +78,21 @@ func (s *ForecastService) DeleteContractTeam(ctx context.Context, projectID stri
 func (s *ForecastService) AddContractTeam(ctx context.Context, projectID string, team string) error {
 	return s.repo.AddContractTeam(ctx, projectID, team)
 }
+
+func (s *ForecastService) AppendObs(ctx context.Context, projectID, body, authorID, authorName, authorRole string) (*domain.ForecastObsEntry, error) {
+	e := &domain.ForecastObsEntry{
+		ProjectID:  projectID,
+		Body:       body,
+		AuthorID:   authorID,
+		AuthorName: authorName,
+		AuthorRole: authorRole,
+	}
+	if err := s.repo.AppendObs(ctx, e); err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+
+func (s *ForecastService) ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error) {
+	return s.repo.ListObs(ctx, projectID)
+}

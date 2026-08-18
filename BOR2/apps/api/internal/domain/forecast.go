@@ -49,6 +49,9 @@ type ForecastProject struct {
 	LoteBld           string         `json:"loteBld"`
 	Address           string         `json:"address"`
 	Obs               string         `json:"obs"`
+	ObsAuthor         string         `json:"obsAuthor"`
+	ObsRole           string         `json:"obsRole"`
+	ObsAt             *time.Time     `json:"obsAt,omitempty"`
 	Hvac              bool           `json:"hvac"`
 	Buildertrend      bool           `json:"buildertrend"`
 	Storage           bool           `json:"storage"`
@@ -62,6 +65,17 @@ type ForecastProject struct {
 	ContractSteps     []ForecastContractStepDoc `json:"contractSteps,omitempty"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
+}
+
+// ForecastObsEntry is one append-only observation written against a project.
+type ForecastObsEntry struct {
+	ID         int64     `json:"id"`
+	ProjectID  string    `json:"projectId"`
+	Body       string    `json:"body"`
+	AuthorID   string    `json:"authorId"`
+	AuthorName string    `json:"authorName"`
+	AuthorRole string    `json:"authorRole"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type ForecastFilters struct {

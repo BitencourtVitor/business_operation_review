@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import type { ForecastFilters, ForecastProject } from "@bor2/shared"
+import type { ForecastFilters, ForecastObsEntry, ForecastProject } from "@bor2/shared"
 import { useAuthStore } from "@/store/auth.store"
 
 function getToken() {
@@ -18,6 +18,9 @@ export const forecastService = {
 
   get: (id: string) =>
     api.get<ForecastProject>(`/api/v1/forecast/${id}`, getToken()),
+
+  listObs: (id: string) =>
+    api.get<ForecastObsEntry[]>(`/api/v1/forecast/${id}/obs`, getToken()),
 
   create: (data: Omit<ForecastProject, "id" | "createdAt" | "updatedAt" | "startDate" | "endDate">) =>
     api.post<ForecastProject>("/api/v1/forecast", data, getToken()),

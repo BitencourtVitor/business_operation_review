@@ -22,6 +22,13 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 const REMEMBER_EMAIL_KEY = "bor2-remember-email"
 
+// Local dev types the same address every reload; skip it.
+const DEV_EMAIL = "vitor@premiumgrpinc.com"
+
+function isLocalhost() {
+  return ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname)
+}
+
 export function LoginForm() {
   const { login, isLoggingIn, loginError } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
@@ -38,6 +45,8 @@ export function LoginForm() {
     if (saved) {
       form.setValue("email", saved)
       setRemember(true)
+    } else if (isLocalhost()) {
+      form.setValue("email", DEV_EMAIL)
     }
   }, [form])
 

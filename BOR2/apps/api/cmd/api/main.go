@@ -297,6 +297,7 @@ func main() {
 	forecast.Put("/:id", forecastHandler.Update)
 	forecast.Delete("/:id", forecastHandler.Delete)
 	forecast.Get("/:id", forecastHandler.Get)
+	forecast.Get("/:id/obs", forecastHandler.ListObs)
 
 	// Accounting
 	accounting := api.Group("/accounting")

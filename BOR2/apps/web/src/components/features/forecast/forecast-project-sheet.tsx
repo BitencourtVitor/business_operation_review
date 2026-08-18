@@ -15,6 +15,7 @@ import {
   Clock,
   FileText,
   Flag,
+  History,
   Info,
   MapPin,
   Package,
@@ -25,6 +26,8 @@ import {
   XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
+import { ObsCredit, ObsHistoryPanel } from "./obs-history"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -45,7 +48,7 @@ function fmtDate(d?: string | null) {
 function isTruthy(v?: string | boolean | null): boolean {
   if (typeof v === "boolean") return v
   if (!v) return false
-  return ["yes", "sim", "true", "1", "y", "scheduled", "dispensed"]
+  return ["yes", "sim", "true", "1", "y", "scheduled", "dispensed", "completed", "complete"]
     .includes(v.toString().toLowerCase().trim())
 }
 
@@ -150,6 +153,9 @@ export interface ForecastProjectSheetProps {
 }
 
 export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: ForecastProjectSheetProps) {
+  const [historyOpen, setHistoryOpen] = useState(false)
+  useEffect(() => { if (!open) setHistoryOpen(false) }, [open])
+
   const ds       = getForecastDisplayStatus(p, dateMode)
   const cfg      = STATUS_CFG[ds]
   const pct      = getCompletionPct(p)
@@ -169,7 +175,16 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="flex max-h-[85vh] w-[min(92vw,460px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[460px]">
+      <DialogContent
+        className={cn(
+          "flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:flex-row",
+          historyOpen
+            ? "w-[min(92vw,460px)] sm:w-[780px] sm:max-w-[780px] sm:[&>[data-slot=dialog-close]]:right-[328px]"
+            : "w-[min(92vw,460px)] sm:max-w-[460px]"
+        )}
+      >
+        {/* ── Main column ───────────────────────────────────────────────────── */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 
         {/* Accessible title */}
         <DialogTitle className="sr-only">{p.cliente || p.name}</DialogTitle>
@@ -265,6 +280,22 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             {p.obs?.trim() && (
               <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
                 {p.obs}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
+                  <button
+                    type="button"
+                    onClick={() => setHistoryOpen(v => !v)}
+                    className={cn(
+                      "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                      historyOpen
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <History className="h-3 w-3" />
+                    History
+                  </button>
+                </div>
               </div>
             )}
           </section>
@@ -281,9 +312,9 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               <div className="flex flex-col gap-2">
                 {p.fieldwire?.slice()
                   .sort((a, b) => {
-                    const aLast = a.document === "Shared with subcontractor" ? 1 : 0
-                    const bLast = b.document === "Shared with subcontractor" ? 1 : 0
-                    return aLast - bLast
+                    const rank = (doc?: string) =>
+                      doc === "Markup" ? 2 : doc === "Shared with subcontractor" ? 1 : 0
+                    return rank(a.document) - rank(b.document)
                   })
                   .map((fw, i) => (
                     <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
@@ -425,6 +456,12 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
           <div className="h-4" />
         </div>
+        </div>
+
+        {/* ── Observation history, side-by-side with the body ──────────────── */}
+        {historyOpen && (
+          <ObsHistoryPanel projectId={p.id} open={historyOpen} onClose={() => setHistoryOpen(false)} />
+        )}
       </DialogContent>
     </Dialog>
   )
