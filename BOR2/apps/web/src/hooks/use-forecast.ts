@@ -17,6 +17,14 @@ export function useForecastProject(id: string) {
   })
 }
 
+export function useForecastObs(id: string, enabled = true) {
+  return useQuery({
+    queryKey: ["forecast", id, "obs"],
+    queryFn: () => forecastService.listObs(id),
+    enabled: !!id && enabled,
+  })
+}
+
 export function useCreateForecast() {
   const qc = useQueryClient()
   return useMutation({

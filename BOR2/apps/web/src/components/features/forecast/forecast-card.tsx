@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { ForecastProjectSheet } from "./forecast-project-sheet"
+import { ObsCredit } from "./obs-history"
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -422,10 +423,15 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
           <DateCell icon={CalendarCheck2} value={p.endDate}           label="End"   />
         </div>
 
-        {/* ── Observations ── */}
+        {/* ── Observations (latest entry) ── */}
         {p.obs && (
           <div className="rounded-lg border bg-muted/60 px-2.5 py-2 text-[11px] leading-relaxed text-muted-foreground">
             {p.obs}
+            {(p.obsAuthor || p.obsAt) && (
+              <div className="mt-1.5 flex justify-end">
+                <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
+              </div>
+            )}
           </div>
         )}
 

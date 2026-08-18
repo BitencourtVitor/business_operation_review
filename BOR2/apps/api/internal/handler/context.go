@@ -9,3 +9,9 @@ func actor(c *fiber.Ctx) (userID, userName string) {
 	userName, _ = c.Locals("userName").(string)
 	return
 }
+
+// actorRole is the authenticated user's role at the time of the request.
+func actorRole(c *fiber.Ctx) string {
+	role, _ := c.Locals("userRole").(string)
+	return role
+}

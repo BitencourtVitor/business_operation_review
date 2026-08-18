@@ -52,6 +52,13 @@ func (h *ForecastHandler) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
+	if obs := strings.TrimSpace(created.Obs); obs != "" {
+		if entry, err := h.svc.AppendObs(c.Context(), created.ID, obs, uid, uname, actorRole(c)); err == nil {
+			created.ObsAuthor = entry.AuthorName
+			created.ObsRole = entry.AuthorRole
+			created.ObsAt = &entry.CreatedAt
+		}
+	}
 	h.audit.Log(c.Context(), uid, uname, "create", "forecast", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
@@ -61,6 +68,7 @@ func (h *ForecastHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	previousObs := existing.Obs
 	if err := json.Unmarshal(c.Body(), existing); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
 	}
@@ -69,6 +77,13 @@ func (h *ForecastHandler) Update(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
+	if obs := strings.TrimSpace(updated.Obs); obs != "" && obs != strings.TrimSpace(previousObs) {
+		if entry, err := h.svc.AppendObs(c.Context(), updated.ID, obs, uid, uname, actorRole(c)); err == nil {
+			updated.ObsAuthor = entry.AuthorName
+			updated.ObsRole = entry.AuthorRole
+			updated.ObsAt = &entry.CreatedAt
+		}
+	}
 	h.audit.Log(c.Context(), uid, uname, "update", "forecast", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
@@ -214,4 +229,12 @@ func (h *ForecastHandler) AddContractTeam(c *fiber.Ctx) error {
 	uid, uname := actor(c)
 	h.audit.Log(c.Context(), uid, uname, "create", "forecast", body.ProjectID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"ok": true})
+}
+
+func (h *ForecastHandler) ListObs(c *fiber.Ctx) error {
+	entries, err := h.svc.ListObs(c.Context(), c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"data": entries})
 }

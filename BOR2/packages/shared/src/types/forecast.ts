@@ -42,6 +42,9 @@ export interface ForecastProject {
   loteBld: string
   address: string
   obs: string
+  obsAuthor?: string
+  obsRole?: string
+  obsAt?: string | null
   hvac: boolean
   buildertrend: boolean
   storage: boolean
@@ -55,6 +58,16 @@ export interface ForecastProject {
   contractSteps?: ForecastContractStep[]
   createdAt: string
   updatedAt: string
+}
+
+export interface ForecastObsEntry {
+  id: number
+  projectId: string
+  body: string
+  authorId: string
+  authorName: string
+  authorRole: string
+  createdAt: string
 }
 
 export interface ForecastFilters {

@@ -23,6 +23,8 @@ type ForecastRepository interface {
 	CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error)
 	DeleteContractTeam(ctx context.Context, projectID string, team string) error
 	AddContractTeam(ctx context.Context, projectID string, team string) error
+	AppendObs(ctx context.Context, e *domain.ForecastObsEntry) error
+	ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error)
 }
 
 type PostgresForecastRepository struct {
@@ -82,6 +84,9 @@ SELECT
 	m.id, m.company, m.name, m.status,
 	m.start_date, m.end_date, m.contract_value, m.team, m.qb_time,
 	m.cliente, m.job_site, m.type, m.lote_bld, m.address, m.obs,
+	COALESCE((SELECT h.author_name FROM forecast_obs_history h WHERE LOWER(h.project_id) = LOWER(m.id) ORDER BY h.created_at DESC, h.id DESC LIMIT 1), '') AS obs_author,
+	COALESCE((SELECT h.author_role FROM forecast_obs_history h WHERE LOWER(h.project_id) = LOWER(m.id) ORDER BY h.created_at DESC, h.id DESC LIMIT 1), '') AS obs_role,
+	(SELECT h.created_at FROM forecast_obs_history h WHERE LOWER(h.project_id) = LOWER(m.id) ORDER BY h.created_at DESC, h.id DESC LIMIT 1) AS obs_at,
 	m.hvac, m.buildertrend, m.storage, m.has_orders, m.machine_provider,
 	m.previous_beams_date, m.previous_start_date, m.previous_end_date,
 	m.created_at, m.updated_at,
@@ -119,6 +124,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.ID, &p.Company, &p.Name, &p.Status,
 		&p.StartDate, &p.EndDate, &p.ContractValue, &p.Team, &p.QBTime,
 		&p.Cliente, &p.JobSite, &p.Type, &p.LoteBld, &p.Address, &p.Obs,
+		&p.ObsAuthor, &p.ObsRole, &p.ObsAt,
 		&p.Hvac, &p.Buildertrend, &p.Storage, &p.HasOrders, &p.MachineProvider,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
@@ -205,8 +211,8 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 // first time — backfills whatever docs weren't seeded yet, without ever
 // inserting the same document twice for one project:
 // - client+type specific entries (matched by project cliente and type)
-// - client-level entries (client matches, type = '' → apply to any type for that client)
-// - universal entries (client = '' and type = '' → apply to all projects)
+// - client-level entries (client matches, type = ” → apply to any type for that client)
+// - universal entries (client = ” and type = ” → apply to all projects)
 func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, projectID, cliente, projType string) error {
 	if _, err := r.db.Exec(ctx, `
 		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_fieldwire)
@@ -400,4 +406,35 @@ func nullTime(t time.Time) any {
 		return nil
 	}
 	return t
+}
+
+func (r *PostgresForecastRepository) AppendObs(ctx context.Context, e *domain.ForecastObsEntry) error {
+	return r.db.QueryRow(ctx, `
+		INSERT INTO forecast_obs_history (project_id, body, author_id, author_name, author_role)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, created_at
+	`, e.ProjectID, e.Body, e.AuthorID, e.AuthorName, e.AuthorRole).Scan(&e.ID, &e.CreatedAt)
+}
+
+func (r *PostgresForecastRepository) ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, project_id, body, author_id, author_name, author_role, created_at
+		FROM forecast_obs_history
+		WHERE LOWER(project_id) = LOWER($1)
+		ORDER BY created_at ASC, id ASC
+	`, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("list forecast obs: %w", err)
+	}
+	defer rows.Close()
+
+	entries := []*domain.ForecastObsEntry{}
+	for rows.Next() {
+		e := &domain.ForecastObsEntry{}
+		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Body, &e.AuthorID, &e.AuthorName, &e.AuthorRole, &e.CreatedAt); err != nil {
+			return nil, fmt.Errorf("scan forecast obs: %w", err)
+		}
+		entries = append(entries, e)
+	}
+	return entries, nil
 }
