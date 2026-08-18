@@ -8,11 +8,14 @@ WORKDIR /app
 # Copy dependency manifests first so this layer is cached until go.mod/go.sum
 # change — modules are not re-downloaded on every code change.
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=cache,id=s/2ed6d89d-a8c1-4991-9bfe-3239d0b24c11-gomod,target=/go/pkg/mod \
     go mod download
 
 COPY . .
 
+# Railway's builders require an id on every cache mount, and only persist the
+# cache across builds when that id carries the service prefix below.
+#
 # The three binaries are built in one invocation so the packages they share are
 # compiled once instead of three times. The cache mounts carry the module cache
 # and the compiled-package cache across builds, so a deploy that touches a
@@ -24,8 +27,8 @@ COPY . .
 #
 # The cron binaries live here (rather than in their own Railway builds) because
 # Railpack auto-detection would run ./api on those services and crash.
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
+RUN --mount=type=cache,id=s/2ed6d89d-a8c1-4991-9bfe-3239d0b24c11-gomod,target=/go/pkg/mod \
+    --mount=type=cache,id=s/2ed6d89d-a8c1-4991-9bfe-3239d0b24c11-gobuild,target=/root/.cache/go-build \
     mkdir -p /out && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /out/ \
       ./cmd/api ./cmd/qbtime-sync-cron ./cmd/ofi-cron
