@@ -1,16 +1,23 @@
 import { create } from "zustand"
-import { persist, createJSONStorage } from "zustand/middleware"
 import type {
   LeadTimeUnit, PaymentMilestone, Project, ProjectTrade, ProjectType, Trade, TradeEvent,
   TradeEventEdit, TradeEventType,
 } from "./types"
 import { clampEventDate, clampNewEventDate, compareEvents, lastEvent, SETS_SCHEDULE } from "./events"
 import { projectTypeQuestionId } from "./trades-seed"
+import { pcgProjectsService } from "@/services/pcg-projects.service"
 
-// Local-only while the page is being designed — moves to the Railway API once
-// the shape settles.
+// O estado vive no Railway. Cada ação escreve na API e atualiza a cópia local
+// na mesma chamada, para a tela responder na hora — mas a verdade é o banco.
+//
+// Até 19/08/2026 isto era localStorage, e um contrato assinado com
+// subcontratado existia no navegador de uma pessoa só, sem cópia e sem rastro.
 interface ProjectsState {
   projects: Project[]
+  loaded: boolean
+  loading: boolean
+  // Carrega tudo do banco. Idempotente: chamada repetida não duplica requisição.
+  load: (force?: boolean) => Promise<void>
   // How many demo projects this store has been handed. Not persist's `version`
   // — see DEMO_SEED_REVISION.
   addProject: (project: Project) => void
@@ -104,119 +111,146 @@ function legacyLeadTime(event: TradeEvent & { leadTime?: string }): TradeEvent {
   }
 }
 
-export const useProjectsStore = create<ProjectsState>()(
-  persist(
-    (set) => ({
-      projects: [],
-      addProject: (project) => set(s => ({ projects: [project, ...s.projects] })),
-      updateProject: (id, patch) => set(s => ({
-        projects: s.projects.map(p => (p.id === id ? { ...p, ...patch } : p)),
-      })),
-      deleteProject: (id) => set(s => ({ projects: s.projects.filter(p => p.id !== id) })),
-      updateProjectTrade: (projectId, tradeId, patch) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => ({ ...t, ...patch })),
-      })),
-      setContractNumber: (projectId, tradeId, number) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => (
-          t.contractNumber === number ? t : { ...t, contractNumber: number }
-        )),
-      })),
-      // Kept in chronological order of the fact, not of the typing — a bid logged
-      // late still belongs where it happened.
-      addTradeEvent: (projectId, tradeId, event) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => ({
-          ...t,
-          events: [...t.events, { ...event, at: clampNewEventDate(t.events, event.at, event.type) }]
-            .sort(compareEvents),
-        })),
-      })),
-      // A correction, not a re-telling: the step, the frozen params and who
-      // logged it stay put. The date can only move between the neighbouring
-      // events, so fixing one day never rewrites the order things happened in.
-      updateTradeEvent: (projectId, tradeId, eventId, patch) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => {
-          if (!t.events.some(e => e.id === eventId)) return t
-          const at = patch.at ? clampEventDate(t.events, eventId, patch.at) : undefined
-          const events = t.events
-            .map(e => (e.id === eventId ? { ...e, ...patch, at: at ?? e.at } : e))
-            .sort(compareEvents)
-          return { ...t, events }
-        }),
-      })),
-      // Written straight onto the event that settled it — the approval keeps
-      // what was approved, an adjustment keeps what was renegotiated.
-      setEventSchedule: (projectId, tradeId, eventId, schedule) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => ({
-          ...t,
-          events: t.events.map(e => (e.id === eventId ? { ...e, paymentSchedule: schedule } : e)),
-        })),
-      })),
-      deleteTradeEvent: (projectId, tradeId, eventId) => set(s => ({
-        projects: patchTrade(s.projects, projectId, tradeId, t => ({
-          ...t,
-          events: t.events.filter(e => e.id !== eventId),
-        })),
-      })),
-    }),
-    {
-      name: "pcg-bid-requests-projects",
-      storage: createJSONStorage(() => localStorage),
-      // v2 turned the stored status into an event history, v3 seeded the demo
-      // project, v4 re-sorted histories that a timestamp comparison had left in
-      // the wrong order within a day, v5 split the free-text lead time into a
-      // count and a unit.
-      // v6 gave each trade its own overrides map for the standing contract text.
-      // v7 moved project type off Foundation/Excavation and onto the project.
-      // v8 moved the payment schedule off the trade and onto the event that
-      // settled it — one schedule per trade meant a contract adjustment silently
-      // rewrote what the approval had agreed.
-      version: 9,
-      migrate: (state, version) => {
-        const s = state as ProjectsState
-        const projects = version >= 2
-          ? (s?.projects ?? [])
-          : (s?.projects ?? []).map(p => ({ ...p, trades: p.trades.map(legacyTrade) }))
-        const sorted = projects.map(p => ({
-          ...p,
-          // The answer already given on Foundation or Excavation is the project's
-          // type: carrying it over beats defaulting every existing job to new
-          // construction and making somebody re-answer what they answered.
-          type: p.type ?? projectTypeFromAnswers(p),
-          trades: p.trades.map(t => ({
-            ...t,
-            moduleOverrides: t.moduleOverrides ?? {},
-            events: legacySchedule(t).map(legacyLeadTime).sort(compareEvents),
-          })),
-        }))
-        // Seeding the demos is merge's job now — it runs on every rehydration,
-        // so a seed added after this store was last migrated still arrives.
-        return { ...s, projects: withoutLegacyDemos(sorted) }
-      },
-      // Same lesson as the catalog store: a version bump fires once, and if it
-      // lands before the code it was delivering has compiled, the field it was
-      // meant to fill stays empty forever. Both fields are idempotent, so they
-      // are filled on every rehydration instead.
-      merge: (persisted, current) => {
-        const s = (persisted ?? {}) as Partial<ProjectsState>
-        const stored = (s.projects ?? []).map(p => ({
+export const useProjectsStore = create<ProjectsState>()((set, get) => ({
+  projects: [],
+  loaded: false,
+  loading: false,
+
+  load: async (force = false) => {
+    if (get().loading) return
+    if (get().loaded && !force) return
+    set({ loading: true })
+    try {
+      const projects = await pcgProjectsService.list()
+      set({
+        // O banco guarda o que foi gravado; as normalizações antigas continuam
+        // valendo na leitura, para dado escrito antes da migração não quebrar.
+        projects: (projects ?? []).map(p => ({
           ...p,
           type: p.type ?? projectTypeFromAnswers(p),
           trades: (p.trades ?? []).map(t => ({
             ...t,
+            answers: t.answers ?? {},
             moduleOverrides: t.moduleOverrides ?? {},
-            events: legacySchedule(t),
+            events: legacySchedule(t).map(legacyLeadTime).sort(compareEvents),
           })),
-        }))
-        const projects = withoutLegacyDemos(stored)
-        return {
-          ...current,
-          ...s,
-          projects,
-        }
-      },
+        })),
+        loaded: true,
+      })
+    } finally {
+      set({ loading: false })
     }
-  )
-)
+  },
+
+  addProject: (project) => {
+    set(s => ({ projects: [project, ...s.projects] }))
+    void pcgProjectsService.create(project)
+  },
+
+  updateProject: (id, patch) => {
+    set(s => ({ projects: s.projects.map(p => (p.id === id ? { ...p, ...patch } : p)) }))
+    // A lista de trades não vai neste endpoint: trade é recurso próprio, com a
+    // sua rota. Mandar aqui gravaria o array inteiro a cada tecla.
+    const { trades, ...rest } = patch
+    if (Object.keys(rest).length) void pcgProjectsService.update(id, rest)
+    for (const trade of trades ?? []) {
+      void pcgProjectsService.upsertTrade(id, {
+        tradeId: trade.tradeId,
+        answers: trade.answers ?? {},
+        moduleOverrides: trade.moduleOverrides ?? {},
+      })
+    }
+  },
+
+  deleteProject: (id) => {
+    set(s => ({ projects: s.projects.filter(p => p.id !== id) }))
+    void pcgProjectsService.remove(id)
+  },
+
+  updateProjectTrade: (projectId, tradeId, patch) => {
+    set(s => ({ projects: patchTrade(s.projects, projectId, tradeId, t => ({ ...t, ...patch })) }))
+    const trade = get().projects.find(p => p.id === projectId)?.trades.find(t => t.tradeId === tradeId)
+    if (!trade) return
+    void pcgProjectsService.upsertTrade(projectId, {
+      tradeId,
+      answers: trade.answers ?? {},
+      moduleOverrides: trade.moduleOverrides ?? {},
+      contractNumber: trade.contractNumber,
+    })
+  },
+
+  setContractNumber: (projectId, tradeId, number) => {
+    set(s => ({
+      projects: patchTrade(s.projects, projectId, tradeId, t => (
+        t.contractNumber === number ? t : { ...t, contractNumber: number }
+      )),
+    }))
+    // O número já foi emitido e gravado pela própria API que o gerou; aqui só se
+    // garante que o trade existe no banco carregando o mesmo valor.
+    const trade = get().projects.find(p => p.id === projectId)?.trades.find(t => t.tradeId === tradeId)
+    if (trade) {
+      void pcgProjectsService.upsertTrade(projectId, {
+        tradeId,
+        answers: trade.answers ?? {},
+        moduleOverrides: trade.moduleOverrides ?? {},
+        contractNumber: number,
+      })
+    }
+  },
+
+  // Mantido em ordem cronológica do fato, não da digitação — um bid registrado
+  // atrasado continua no lugar em que aconteceu.
+  addTradeEvent: (projectId, tradeId, event) => {
+    let saved: TradeEvent | null = null
+    set(s => ({
+      projects: patchTrade(s.projects, projectId, tradeId, t => {
+        saved = { ...event, at: clampNewEventDate(t.events, event.at, event.type) }
+        return { ...t, events: [...t.events, saved].sort(compareEvents) }
+      }),
+    }))
+    if (saved) void pcgProjectsService.addEvent(projectId, tradeId, saved)
+  },
+
+  // Uma correção, não uma reescrita: o passo, os params congelados e quem
+  // registrou ficam. A data só anda entre os eventos vizinhos.
+  updateTradeEvent: (projectId, tradeId, eventId, patch) => {
+    let saved: Partial<TradeEvent> | null = null
+    set(s => ({
+      projects: patchTrade(s.projects, projectId, tradeId, t => {
+        if (!t.events.some(e => e.id === eventId)) return t
+        const at = patch.at ? clampEventDate(t.events, eventId, patch.at) : undefined
+        saved = { ...patch, ...(at ? { at } : {}) }
+        const events = t.events
+          .map(e => (e.id === eventId ? { ...e, ...patch, at: at ?? e.at } : e))
+          .sort(compareEvents)
+        return { ...t, events }
+      }),
+    }))
+    if (saved) void pcgProjectsService.updateEvent(projectId, tradeId, eventId, saved)
+  },
+
+  // Escrito direto no evento que a firmou — a aprovação guarda o que foi
+  // aprovado, um ajuste guarda o que foi renegociado.
+  setEventSchedule: (projectId, tradeId, eventId, schedule) => {
+    set(s => ({
+      projects: patchTrade(s.projects, projectId, tradeId, t => ({
+        ...t,
+        events: t.events.map(e => (e.id === eventId ? { ...e, paymentSchedule: schedule } : e)),
+      })),
+    }))
+    void pcgProjectsService.updateEvent(projectId, tradeId, eventId, { paymentSchedule: schedule })
+  },
+
+  deleteTradeEvent: (projectId, tradeId, eventId) => {
+    set(s => ({
+      projects: patchTrade(s.projects, projectId, tradeId, t => ({
+        ...t,
+        events: t.events.filter(e => e.id !== eventId),
+      })),
+    }))
+    void pcgProjectsService.removeEvent(projectId, tradeId, eventId)
+  },
+}))
 
 // Old tracks carried a status field and a single timestamp. Replay them as the
 // one event that can be inferred, so nothing already recorded is lost.
