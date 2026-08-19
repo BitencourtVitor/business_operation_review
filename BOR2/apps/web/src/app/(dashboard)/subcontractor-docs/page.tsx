@@ -7,7 +7,7 @@ import {
   Search, X, Plus, Pencil, Trash2, Mail, Phone, CalendarIcon,
   Clock, Clock3, CircleCheck, HelpCircle, Loader2, FileText, FileSpreadsheet,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, Filter, Check, ChevronDown,
-  Download, Building2, Archive, ArchiveRestore, ExternalLink, ShieldCheck, ShieldAlert,
+  Download, Building2, User, Archive, ArchiveRestore, ExternalLink, ShieldCheck, ShieldAlert,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -446,6 +446,7 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
             )}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
+            {ctr.owner_name && <span className="flex items-center gap-1"><User className="h-2.5 w-2.5" />{ctr.owner_name}</span>}
             <span className="flex items-center gap-1"><Mail className="h-2.5 w-2.5" />{ctr.email || "—"}</span>
             <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{ctr.phone || "—"}</span>
           </div>
@@ -512,6 +513,7 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
   divisions: SubDocDivision[]
 }) {
   const [name, setName] = useState("")
+  const [ownerName, setOwnerName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
@@ -525,6 +527,7 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
   useEffect(() => {
     if (!open) return
     setName(initial?.name ?? "")
+    setOwnerName(initial?.owner_name ?? "")
     setEmail(initial?.email ?? "")
     setPhone(initial?.phone ?? "")
     setNotes(initial?.notes ?? "")
@@ -535,9 +538,9 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
   const save = () => {
     if (!name.trim() || selectedDivisions.length === 0) return
     if (isEdit && initial) {
-      update.mutate({ id: initial.id, name, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
+      update.mutate({ id: initial.id, name, owner_name: ownerName, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
     } else {
-      create.mutate({ name, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
+      create.mutate({ name, owner_name: ownerName, email, phone, notes, divisions: selectedDivisions }, { onSuccess: onClose })
     }
   }
 
@@ -556,6 +559,14 @@ function ContractorFormDialog({ open, onClose, initial, divisions }: {
             <div className="relative">
               <Building2 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elite Stone Works"
+                className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Owner / Responsible</label>
+            <div className="relative">
+              <User className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g. John Smith"
                 className="h-8 w-full rounded-md border border-input bg-transparent pl-8 pr-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30" />
             </div>
           </div>

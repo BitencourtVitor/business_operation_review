@@ -125,9 +125,12 @@ type SubDocContractor struct {
 	// Kept for the company filter the rest of the app still speaks. Divisions are
 	// what this page works in now: a sub can serve several, and each one asks for
 	// its own set of documents.
-	Company    *string        `json:"company"`
-	Divisions  []string       `json:"divisions"`
-	Name       string         `json:"name"`
+	Company   *string  `json:"company"`
+	Divisions []string `json:"divisions"`
+	Name      string   `json:"name"`
+	// Who signs for the sub. `name` is the company; this is the person whose name
+	// goes on the contract's "Print Name & Title" line.
+	OwnerName  string         `json:"owner_name"`
 	Email      string         `json:"email"`
 	Phone      string         `json:"phone"`
 	Notes      string         `json:"notes"`
@@ -220,14 +223,14 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	divTypeRows.Close()
 
 	query := `
-		SELECT c.id, c.company, c.name, c.email, c.phone, c.notes, c.archived,
+		SELECT c.id, c.company, c.name, c.owner_name, c.email, c.phone, c.notes, c.archived,
 		       COALESCE(array_agg(d.division ORDER BY d.division) FILTER (WHERE d.division IS NOT NULL), '{}')
 		FROM sub_doc_contractors c
 		LEFT JOIN sub_doc_contractor_divisions d ON d.contractor_id = c.id`
 	if !includeArchived {
 		query += ` WHERE c.archived = false`
 	}
-	query += ` GROUP BY c.id, c.company, c.name, c.email, c.phone, c.notes, c.archived ORDER BY c.name`
+	query += ` GROUP BY c.id, c.company, c.name, c.owner_name, c.email, c.phone, c.notes, c.archived ORDER BY c.name`
 	rows, err := h.db.Query(c.Context(), query)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -236,7 +239,7 @@ func (h *SubcontractorDocsHandler) ListContractors(c *fiber.Ctx) error {
 	byID := map[int]*SubDocContractor{}
 	for rows.Next() {
 		ctr := &SubDocContractor{Records: []SubDocRecord{}, Divisions: []string{}}
-		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.Email, &ctr.Phone, &ctr.Notes, &ctr.Archived, &ctr.Divisions)
+		rows.Scan(&ctr.ID, &ctr.Company, &ctr.Name, &ctr.OwnerName, &ctr.Email, &ctr.Phone, &ctr.Notes, &ctr.Archived, &ctr.Divisions)
 		out = append(out, ctr)
 		byID[ctr.ID] = ctr
 	}
@@ -358,10 +361,11 @@ func expiryLess(a, b *SubDocContractor) bool {
 }
 
 type contractorBody struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-	Notes string `json:"notes"`
+	Name      string `json:"name"`
+	OwnerName string `json:"owner_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Notes     string `json:"notes"`
 	// The divisions this sub serves. Several are allowed — Cruz Solutions Inc is
 	// framing and pcg. `company` is still accepted so the older single-value
 	// clients keep working.
@@ -419,9 +423,9 @@ func (h *SubcontractorDocsHandler) CreateContractor(c *fiber.Ctx) error {
 	}
 	var id int
 	err := h.db.QueryRow(c.Context(), `
-		INSERT INTO sub_doc_contractors (name, email, phone, notes, company)
-		VALUES ($1,$2,$3,$4,$5) RETURNING id
-	`, b.Name, b.Email, b.Phone, b.Notes, companyFor(b)).Scan(&id)
+		INSERT INTO sub_doc_contractors (name, owner_name, email, phone, notes, company)
+		VALUES ($1,$2,$3,$4,$5,$6) RETURNING id
+	`, b.Name, b.OwnerName, b.Email, b.Phone, b.Notes, companyFor(b)).Scan(&id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -449,9 +453,9 @@ func (h *SubcontractorDocsHandler) UpdateContractor(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "at least one division is required")
 	}
 	_, err := h.db.Exec(c.Context(), `
-		UPDATE sub_doc_contractors SET name=$1, email=$2, phone=$3, notes=$4, company=$5, updated_at=now()
-		WHERE id=$6
-	`, b.Name, b.Email, b.Phone, b.Notes, companyFor(b), id)
+		UPDATE sub_doc_contractors SET name=$1, owner_name=$2, email=$3, phone=$4, notes=$5, company=$6, updated_at=now()
+		WHERE id=$7
+	`, b.Name, b.OwnerName, b.Email, b.Phone, b.Notes, companyFor(b), id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
