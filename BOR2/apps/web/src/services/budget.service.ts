@@ -147,6 +147,7 @@ export interface BudgetProjectDetail {
   in_progress: boolean
   potentially_closed: boolean
   cost_accounts: CostAccount[]
+  contractors_cost: number // slice of cost_total already posted to the Contractors account
 
   // Forward subcontractor commitment (POs)
   labor_committed: number

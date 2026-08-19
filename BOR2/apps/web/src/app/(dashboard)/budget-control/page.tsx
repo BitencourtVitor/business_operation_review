@@ -13,7 +13,7 @@ import {
   Search, X, HandCoins, Loader2, Building2, Home, LandPlot, Settings,
   ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, HardHat, Wallet,
   AlertTriangle, OctagonAlert, CheckCircle2, MapPin, ChevronLeft, ChevronRight, ChevronDown,
-  CalendarClock, Users, Check, Layers, Hourglass,
+  CalendarClock, Users, Check, Layers, Hourglass, CircleDashed,
 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
@@ -65,6 +65,38 @@ function pendingContractors(p: BudgetProjectDetail): number {
   return Math.max(p.labor_committed - p.labor_billed, 0) + Math.max(p.labor_billed - p.labor_paid, 0)
 }
 
+// BC-32: nothing invoiced and nothing spent — the project exists in the books
+// but had no financial movement yet. Both sides at 0%, not just one.
+function notStarted(p: BudgetProjectDetail): boolean {
+  return p.income_actual <= EPS && p.cost_total <= EPS
+}
+
+// BC-33: margin over what's *expected*, not what already happened. Income is the
+// green block (the estimate); cost is red + yellow. The catch is that red already
+// carries whatever labor has been posted to the Contractors account, so that slice
+// comes out of red before yellow goes in at full contracted value — labor counted
+// once, from the side that knows the whole commitment.
+// ?? 0 because web and API deploy as separate Railway services: during the gap
+// the field is absent and a bare subtraction would paint NaN on every card.
+function costWithoutLabor(p: BudgetProjectDetail): number {
+  return Math.max(p.cost_total - (p.contractors_cost ?? 0), 0)
+}
+// Labor enters once, from the side that knows the most. Normally that's the
+// contracted total, but half the framing projects have more posted to the
+// Contractors account than any PO records (whole buildings with $400k posted
+// against a PO of zero) — there, what's already spent is the floor, and taking
+// the PO alone would erase real cost that the deduction above just removed.
+function expectedLabor(p: BudgetProjectDetail): number {
+  return Math.max(p.labor_committed, p.contractors_cost ?? 0)
+}
+function expectedCost(p: BudgetProjectDetail): number {
+  return costWithoutLabor(p) + expectedLabor(p)
+}
+function expectedMargin(p: BudgetProjectDetail): { value: number; pct: number } {
+  const value = p.projected_receive - expectedCost(p)
+  return { value, pct: p.projected_receive > 0 ? Math.round((value / p.projected_receive) * 100) : 0 }
+}
+
 // ── Persisted collapse state ─────────────────────────────────────────────────
 
 function usePersistedCollapse(key: string): [boolean, (v: boolean | ((prev: boolean) => boolean)) => void] {
@@ -90,6 +122,7 @@ const SUM_FIELDS = [
   "projected_receive", "invoiced", "income_actual", "received", "to_receive",
   "cost_total", "cost_ceiling", "paid", "open_payable", "to_pay",
   "labor_committed", "labor_budget", "labor_billed", "labor_open", "labor_paid",
+  "contractors_cost",
 ] as const satisfies readonly (keyof BudgetProjectDetail)[]
 
 function groupProjectsByJobsite(list: BudgetProjectDetail[]): (BudgetProjectDetail & { __count: number })[] {
@@ -98,10 +131,15 @@ function groupProjectsByJobsite(list: BudgetProjectDetail[]): (BudgetProjectDeta
     const key = p.customer_group || p.name
     const existing = groups.get(key)
     if (!existing) {
-      groups.set(key, { ...p, project_id: `group:${key}`, name: key, __count: 1 })
+      // Seed normalized: a field the API hasn't started sending yet (web and API
+      // deploy separately) would otherwise stay undefined here and turn the whole
+      // rolled-up card into NaN on the first addition.
+      const seed = { ...p, project_id: `group:${key}`, name: key, __count: 1 }
+      for (const f of SUM_FIELDS) (seed[f] as number) = (p[f] as number) || 0
+      groups.set(key, seed)
       continue
     }
-    for (const f of SUM_FIELDS) (existing[f] as number) += p[f] as number
+    for (const f of SUM_FIELDS) (existing[f] as number) += (p[f] as number) || 0
     existing.over_ceiling = existing.over_ceiling || p.over_ceiling
     existing.in_progress = existing.in_progress || p.in_progress
     existing.potentially_closed = existing.potentially_closed && p.potentially_closed
@@ -189,6 +227,9 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
   const profit = p.income_actual - p.cost_total
   const marginPct = p.income_actual > 0 ? Math.round((profit / p.income_actual) * 100) : 0
   const positiveMargin = profit >= 0
+  const expected = expectedMargin(p)
+  const positiveExpected = expected.value >= 0
+  const idle = notStarted(p)
 
   return (
     <button onClick={onOpen}
@@ -213,6 +254,39 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
               {marginPct}%
             </span>
           </div>
+          {/* BC-33 — expected margin: estimate vs every cost account + the
+              subcontractor commitment while Contractors is still unposted. */}
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              <TooltipTrigger render={<div className="flex cursor-help items-baseline gap-1.5" />}>
+                <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50">Expected</span>
+                <span className={cn("text-[12px] font-semibold tabular-nums", positiveExpected ? "text-primary/70" : "text-destructive/70", blur)}>
+                  {fmt(expected.value)}
+                </span>
+                {/* No estimate means no percentage to speak of — "0%" would
+                    read as a real (terrible) margin instead of "unknown". */}
+                <span className={cn("text-[11px] font-medium tabular-nums", positiveExpected ? "text-primary/50" : "text-destructive/50", blur)}>
+                  {p.projected_receive > EPS ? `${expected.pct}%` : "—"}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="flex flex-col gap-0.5">
+                  <span>Estimated income: {fmt(p.projected_receive)}</span>
+                  <span>Cost without labor: {fmt(costWithoutLabor(p))}</span>
+                  <span>
+                    Labor: {fmt(expectedLabor(p))}
+                    {expectedLabor(p) > p.labor_committed && " (posted — above the PO)"}
+                  </span>
+                  <span className="border-t border-border/40 pt-0.5">Expected cost: {fmt(expectedCost(p))}</span>
+                  {p.contractors_cost > EPS && (
+                    <span className="text-muted-foreground">
+                      {fmt(p.contractors_cost)} of labor already posted to Cost — deducted so it isn&apos;t counted twice
+                    </span>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="flex shrink-0 flex-col items-center gap-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/30">
@@ -222,8 +296,20 @@ function ProjectCard({ p, blur, onOpen, inProgressCost = 0 }: {
               ? <LandPlot  className="h-3.5 w-3.5 text-muted-foreground/70" />
               : <Home      className="h-3.5 w-3.5 text-muted-foreground/70" />}
           </div>
-          {(p.potentially_closed || p.over_ceiling || hasAmber || hasInProgress) && (
+          {(p.potentially_closed || p.over_ceiling || hasAmber || hasInProgress || idle) && (
             <div className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-border bg-background px-1.5 py-1.5">
+              {/* BC-32 — not an alert, a state: same neutral tone as the
+                  Building/Lot/Private type icon, not a warning color. */}
+              {idle && (
+                <TooltipProvider delay={0}>
+                  <Tooltip>
+                    <TooltipTrigger render={<span className="flex" />}>
+                      <CircleDashed className="h-4 w-4 text-muted-foreground/70" />
+                    </TooltipTrigger>
+                    <TooltipContent>Not started — nothing invoiced and nothing spent yet</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               {hasInProgress && (
                 <TooltipProvider delay={0}>
                   <Tooltip>
@@ -713,6 +799,7 @@ function BudgetContent() {
   const [page,      setPage]      = useState(1)
   const [alertFilter, setAlertFilter] = useState<"all" | "green" | "yellow" | "amber" | "red">("all")
   const [types,     setTypes]     = useState({ building: true, lot: true, private: true })
+  const [showNotStarted, setShowNotStarted] = useState(true)
   const [groupByJobsite, setGroupByJobsite] = useState(true)
   const [chartCollapsed, setChartCollapsed] = usePersistedCollapse("budget-control:chart-collapsed")
   const [projectsCollapsed, setProjectsCollapsed] = usePersistedCollapse("budget-control:projects-collapsed")
@@ -798,8 +885,13 @@ function BudgetContent() {
         if (alertFilter === "amber")  return contractorsNotSettled(p)
         return true
       })
+    // BC-32 — applied after grouping, unlike the filters above: the sticker
+    // reads the card that's actually on screen, so a jobsite roll-up only counts
+    // as not started when every lot under it is. Hiding lots inside a group that
+    // still shows would drop rows the user can't see and never sticker anything.
     const base: (BudgetProjectDetail & { __count?: number })[] =
-      groupByJobsite ? groupProjectsByJobsite(filtered) : filtered
+      (groupByJobsite ? groupProjectsByJobsite(filtered) : filtered)
+        .filter(p => showNotStarted || !notStarted(p))
     const sortValue = (p: BudgetProjectDetail) =>
       sortField === "margin" ? (p.income_actual > 0 ? (p.income_actual - p.cost_total) / p.income_actual : 0) : (p[sortField] as number)
     return base.slice().sort((a, b) => {
@@ -807,7 +899,7 @@ function BudgetContent() {
       if (sortField === "name") return dir * a.name.localeCompare(b.name)
       return dir * (sortValue(a) - sortValue(b))
     })
-  }, [projectFiltered, search, sortField, sortAsc, alertFilter, types, groupByJobsite])
+  }, [projectFiltered, search, sortField, sortAsc, alertFilter, types, showNotStarted, groupByJobsite])
 
   // Sum across every displayed row, not just the current page.
   const amberBacklogTotal = useMemo(() => rows.reduce((s, p) => s + contractorsBacklog(p), 0), [rows])
@@ -831,7 +923,7 @@ function BudgetContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset to page 1 whenever the filtered/sorted set changes.
-  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alertFilter, types, groupByJobsite, selectedClients, selectedProjects, periodStart, periodEnd])
+  useEffect(() => { setPage(1) }, [search, sortField, sortAsc, company, alertFilter, types, showNotStarted, groupByJobsite, selectedClients, selectedProjects, periodStart, periodEnd])
   // Keep page in range if the row count shrinks.
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   // Scroll the list back to top on page change.
@@ -966,6 +1058,27 @@ function BudgetContent() {
                   </Tooltip>
                 </TooltipProvider>
               ))}
+              {/* BC-32 — own partition between the type toggles and the alert
+                  filters: behaves like the types (hide toggle), reads as neither. */}
+              <span className="mx-0.5 h-4 w-px bg-border" />
+              <TooltipProvider delay={0}>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <button
+                        onClick={() => setShowNotStarted(v => !v)}
+                        className={cn(
+                          "flex h-full items-center px-2 transition-colors",
+                          showNotStarted ? "text-foreground" : "text-muted-foreground/25 hover:text-muted-foreground/60",
+                        )}
+                      />
+                    }
+                  >
+                    <CircleDashed className="h-3.5 w-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent>{showNotStarted ? "Showing: Not started" : "Hidden: Not started"}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="mx-0.5 h-4 w-px bg-border" />
               {([
                 { key: "green",  Icon: CheckCircle2,  on: "text-emerald-500", label: "Potentially closed" },

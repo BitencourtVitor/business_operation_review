@@ -91,7 +91,7 @@ proj_key AS (
 // $2/$3 (period window, full range = all time) are used ONLY by period_activity,
 // which decides whether a project is included in the result at all (it must have
 // had at least one dated transaction inside the window) — visibility, not value.
-const projectsQuery = `WITH ` + custProjCTE + `,
+const projectsQuery = `WITH RECURSIVE ` + custProjCTE + `,
 proj AS (
     SELECT pkey, MAX(pname) AS pname, MAX(client) AS client, MAX(customer_group) AS customer_group FROM proj_key GROUP BY pkey
 ),
@@ -171,6 +171,26 @@ exp AS (
     WHERE x.customer_id<>''
 ),
 cost AS (SELECT pkey, SUM(amount) AS total FROM exp GROUP BY pkey),
+-- BC-33: the Contractors account subtree, so the card can tell whether
+-- subcontractor cost already landed in the by-account breakdown. Mirrors the
+-- top-level "Contractors" row of costAccountTree, children included (Extra
+-- Hours, Back Charges, per-stage splits — they roll up into the parent there).
+contractor_acct AS (
+    SELECT external_id FROM qb_accounts WHERE company=$1 AND name ILIKE 'contractors'
+    UNION ALL
+    SELECT a.external_id FROM qb_accounts a
+    JOIN contractor_acct ca ON a.parent_id = ca.external_id
+    WHERE a.company=$1
+),
+contractors_cost AS (
+    SELECT pk.pkey, SUM(x.amount) AS total FROM (
+        SELECT bl.customer_id,  bl.account_ref_id,  bl.amount FROM qb_bill_lines bl          JOIN qb_bills b           ON b.id=bl.bill_id            AND b.company=$1  WHERE bl.company=$1
+        UNION ALL SELECT pl.customer_id,  pl.account_ref_id,  pl.amount FROM qb_purchase_lines pl       JOIN qb_purchases pu      ON pu.id=pl.purchase_id      AND pu.company=$1 WHERE pl.company=$1
+        UNION ALL SELECT vcl.customer_id, vcl.account_ref_id, -vcl.amount FROM qb_vendor_credit_lines vcl JOIN qb_vendor_credits vc ON vc.id=vcl.vendor_credit_id AND vc.company=$1 WHERE vcl.company=$1
+    ) x JOIN proj_key pk ON pk.customer_id = x.customer_id
+    WHERE x.customer_id<>'' AND x.account_ref_id IN (SELECT external_id FROM contractor_acct)
+    GROUP BY pk.pkey
+),
 bill_cust AS (
     SELECT pk.pkey, bl.bill_id, SUM(bl.amount) AS proj_amt
     FROM qb_bill_lines bl JOIN proj_key pk ON pk.customer_id = bl.customer_id
@@ -273,7 +293,8 @@ SELECT p.pkey, p.client, p.pname, p.customer_group,
        COALESCE(e.total,0), COALESCE(i.total,0), COALESCE(inc.received,0), COALESCE(inc.income_actual,0), COALESCE(co.total,0),
        COALESCE(op.total,0), COALESCE(pp.committed,0),
        COALESCE(lb.total,0) - COALESCE(lbc.total,0), COALESCE(pp.open_commit,0),
-       COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(ar.balance,0)
+       COALESCE(lp.total,0) - COALESCE(lbc.total,0), COALESCE(ar.balance,0),
+       COALESCE(cc.total,0)
 FROM proj p
 JOIN period_activity pa ON pa.pkey = p.pkey
 LEFT JOIN est          e  ON e.pkey  = p.pkey
@@ -286,6 +307,7 @@ LEFT JOIN po           pp ON pp.pkey = p.pkey
 LEFT JOIN lab_paid     lp ON lp.pkey = p.pkey
 LEFT JOIN lab_billed   lb ON lb.pkey = p.pkey
 LEFT JOIN lab_bc       lbc ON lbc.pkey = p.pkey
+LEFT JOIN contractors_cost cc ON cc.pkey = p.pkey
 ORDER BY COALESCE(e.total,0) DESC, COALESCE(pp.committed,0) DESC
 `
 
@@ -324,6 +346,7 @@ func (h *BudgetHandler) Projects(c *fiber.Ctx) error {
 			&d.ProjectID, &d.ClientName, &d.Name, &d.CustomerGroup,
 			&d.ProjectedReceive, &d.Invoiced, &d.Received, &d.IncomeActual, &d.CostTotal, &openPayable,
 			&d.LaborCommitted, &d.LaborBilled, &d.LaborOpen, &d.LaborPaid, &invBalance,
+			&d.ContractorsCost,
 		); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
@@ -533,6 +556,10 @@ type BudgetProjectDetail struct {
 	InProgress        bool          `json:"in_progress"`
 	PotentiallyClosed bool          `json:"potentially_closed"`
 	CostAccounts      []CostAccount `json:"cost_accounts"`
+	// Slice of CostTotal already posted to the Contractors account (subtree
+	// included). BC-33 uses it to decide whether the PO commitment is still an
+	// unaccounted forecast or is already inside CostTotal.
+	ContractorsCost float64 `json:"contractors_cost"`
 
 	// Forward subcontractor commitment (Purchase Orders)
 	LaborCommitted float64 `json:"labor_committed"` // Σ PO committed — the "anchor" (what's been done in practice)
@@ -663,6 +690,14 @@ func (h *BudgetHandler) ProjectDetail(c *fiber.Ctx) error {
 	d.CostAccounts, err = h.costAccountTree(ctx, company, customerIDs)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// BC-33: same figure the list query computes, read off the tree that's
+	// already built here (top-level Contractors rolls its children up).
+	for _, a := range d.CostAccounts {
+		if strings.EqualFold(a.Name, "Contractors") {
+			d.ContractorsCost = a.Amount
+			break
+		}
 	}
 	acctLimits := h.accountLimits(ctx, company, projectID)
 	d.CostAccounts, err = h.injectPresetCostAccounts(ctx, company, d.CostAccounts, acctLimits)
