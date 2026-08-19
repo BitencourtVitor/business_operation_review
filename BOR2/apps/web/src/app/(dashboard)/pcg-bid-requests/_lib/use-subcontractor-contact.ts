@@ -46,16 +46,16 @@ function normalize(name: string): string {
 // a reminder somebody left in the field. That is not an address and it cannot
 // reach a contract, so anything that does not read as one is absent: the paper
 // prints nothing and the amber says the contact is still missing.
-function asEmail(raw: string): string {
+export function asEmail(raw: string): string {
   const value = raw.trim()
-  return /^[^s@]+@[^s@]+.[^s@]+$/.test(value) ? value : ""
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : ""
 }
 
 // Same for the phone, judged by the only thing every format shares: enough
 // digits to dial. "(973) 474-6684" and "978.962.9247" pass; a note does not.
-function asPhone(raw: string): string {
+export function asPhone(raw: string): string {
   const value = raw.trim()
-  return (value.match(/d/g) ?? []).length >= 7 ? value : ""
+  return (value.match(/\d/g) ?? []).length >= 7 ? value : ""
 }
 
 // The event names the sub as text, because that is what the picker writes. The
