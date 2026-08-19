@@ -96,7 +96,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Finance & Analytics",
     permissions: [
-      { key: "forecast",   label: "Framing Forecast",  image: "/images/sublogo_framing.png" },
+      { key: "forecast",   label: "Forecast",  image: "/images/sublogo_framing.png" },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
     ],

@@ -2,7 +2,7 @@
 
 import { FORM_LAYOUT } from "../_lib/form-layout"
 import { SUPPLY_QUESTION_ID } from "../_lib/trades-seed"
-import { PROJECT_TYPE_LABEL, documentModules, moduleNumbers, quantityKey } from "../_lib/types"
+import { NOTES_KEY, NOTES_LABEL, PROJECT_TYPE_LABEL, documentModules, moduleNumbers, quantityKey } from "../_lib/types"
 import { formatDate } from "../_lib/format"
 import { PRINT_CSS } from "../_lib/print"
 import { useCatalogStore } from "../_lib/catalog-store"
@@ -49,6 +49,9 @@ export function BidRequestDocument({
   const leading = unplaced.filter(q => q.id === SUPPLY_QUESTION_ID)
   const trailing = unplaced.filter(q => q.id !== SUPPLY_QUESTION_ID)
 
+  const noteAnswer = projectTrade.answers[NOTES_KEY]
+  const notes = typeof noteAnswer === "string" ? noteAnswer.trim() : ""
+
   const sections = [
     ...(leading.length ? [{ title: "SCOPE OF PRICING", questions: leading }] : []),
     ...laidOut,
@@ -79,8 +82,10 @@ export function BidRequestDocument({
             </div>
           </div>
           <div className="shrink-0 whitespace-nowrap text-right text-[9pt] leading-snug text-neutral-700">
-            {/* Direct-contract trades have no BRF code — no doc number to print. */}
-            {trade.code && <p>Doc: {trade.code}-{project.id.slice(-4).toUpperCase()}</p>}
+            {/* No document number here: a bid request is a set of questions and
+                answers, not an identifiable document. Only the contract is
+                numbered — see the trade code + sequence on the Subcontract. */}
+            <p>Trade: {trade.name}</p>
             <p>Date: {formatDate(new Date().toISOString())}</p>
           </div>
         </div>
@@ -135,15 +140,21 @@ export function BidRequestDocument({
         ))}
 
         {/* ── Notes ──────────────────────────────────────────────────── */}
+        {/* Typed on the questionnaire it prints as text; left empty it stays the
+            ruled space of the printed form, for the sub to write on. */}
         <section className="mt-5 break-inside-avoid">
           <h2 className="border-b border-neutral-400 pb-1 text-[11pt] font-bold uppercase tracking-wide">
-            Additional Notes
+            {NOTES_LABEL}
           </h2>
-          <div className="mt-3 space-y-4">
-            <div className="border-b border-dotted border-neutral-500" />
-            <div className="border-b border-dotted border-neutral-500" />
-            <div className="border-b border-dotted border-neutral-500" />
-          </div>
+          {notes ? (
+            <p className="mt-2 whitespace-pre-line text-justify text-[10.5pt] leading-relaxed">{notes}</p>
+          ) : (
+            <div className="mt-3 space-y-4">
+              <div className="border-b border-dotted border-neutral-500" />
+              <div className="border-b border-dotted border-neutral-500" />
+              <div className="border-b border-dotted border-neutral-500" />
+            </div>
+          )}
         </section>
 
         <p className="mt-8 border-t border-neutral-400 pt-2 text-center text-[8.5pt] text-neutral-600">

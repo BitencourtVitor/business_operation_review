@@ -22,6 +22,37 @@ export function quantityKey(questionId: string): string {
   return `${questionId}__qty`
 }
 
+// The free-text note that closes the printed form. It is not a question — no
+// trade defines it and it never counts towards completeness — but it is part of
+// the paper the sub prices, so it rides in the answer map with the rest.
+export const NOTES_KEY = "__notes"
+export const NOTES_LABEL = "Additional Notes"
+
+// ── Contract document number ────────────────────────────────────────────────
+
+// Three letters of the trade, five digits of a single system-wide sequence:
+// PLB-00001, ELC-00002. The counter is global, so the digits say how many
+// contracts PCG has issued in all, and the letters say which trade this one is.
+export const DOC_NUMBER_DIGITS = 5
+
+export function formatDocumentNumber(code: string, seq: number): string {
+  return `${code}-${String(seq).padStart(DOC_NUMBER_DIGITS, "0")}`
+}
+
+// The trade's three letters. Trades carried a BRF- prefix that said nothing —
+// every trade was BRF — so the code is the three letters that follow it. Read
+// defensively rather than assumed: a catalog saved before the change still has
+// "BRF-PLB" stored, and a trade created by hand may have anything.
+export function tradeShortCode(trade: Pick<Trade, "code" | "name">): string {
+  const raw = (trade.code ?? "").toUpperCase()
+  const tail = raw.split("-").pop() ?? ""
+  if (/^[A-Z]{3}$/.test(tail)) return tail
+  // Never seen a code: fall back to the name's first three letters, so a trade
+  // added in the catalog still prints something meaningful.
+  const letters = trade.name.toUpperCase().replace(/[^A-Z]/g, "")
+  return letters.slice(0, 3).padEnd(3, "X") || "XXX"
+}
+
 export type Trade = {
   id: string
   name: string
@@ -200,6 +231,12 @@ export type ProjectTrade = {
   tradeId: string
   events: TradeEvent[]
   answers: Record<string, string | string[]>
+  // Stamped the first time a contract is generated and never recomputed: the
+  // number printed on the paper somebody signed cannot move because another
+  // contract was created, deleted or reordered afterwards. Absent on trades
+  // whose contract was never generated. Bid requests have no number — they are
+  // a set of questions and answers, not an identifiable document.
+  contractNumber?: string
   // Standing text rewritten for this contract alone: module id -> body. A sub who
   // argues one clause — $35.00 an hour against their $40.00 — changes their own
   // paper, never PCG's catalog or anybody else's contract.

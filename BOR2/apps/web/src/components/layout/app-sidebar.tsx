@@ -67,6 +67,8 @@ type SubItem = {
   icon?: React.ElementType
   image?: string
   permKey?: string       // permission key required to VIEW this sub-item
+  devOnly?: boolean      // visible to everyone, but only the dev role can open it
+  metricsHref?: string   // if set, shows a "See Metrics" action button linking here
 }
 
 type NavItem = {
@@ -93,10 +95,12 @@ const activeGroup: NavGroup = {
     { title: "Monthly Execution",          href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
     { title: "Operational Forecast Index", href: "/ofi",               icon: BarChart2,     permKey: "ofi"              },
     {
-      title: "Framing Forecast", href: "/forecast",
-      image: "/images/sublogo_framing.png",
+      title: "Forecast", href: "/forecast", icon: CalendarDays,
       permKey: "forecast",
-      metricsHref: "/forecast/metrics",
+      children: [
+        { title: "Framing", href: "/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/forecast/metrics"      },
+        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics", devOnly: true },
+      ],
     },
     {
       title: "Workforce Productivity", href: "/workforce-productivity", icon: Users,
@@ -195,7 +199,7 @@ function NavItemBadge({ item }: { item: NavItem }) {
   )
 }
 
-function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavItem; isActive: (href: string) => boolean; canEdit: (k: string) => boolean; onEditOpen: (item: NavItem) => void }) {
+function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item: NavItem; isActive: (href: string) => boolean; canEdit: (k: string) => boolean; isDev: boolean; onEditOpen: (item: NavItem) => void }) {
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -238,24 +242,40 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
           onMouseLeave={leave}
         >
           <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{item.title}</div>
-          {item.children.map((child) => (
-            <Link
-              key={child.href + child.title}
-              href={child.href}
-              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
-                isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
-              }`}
-              onClick={() => setShow(false)}
-            >
-              {child.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-              ) : child.icon ? (
-                <child.icon className="h-3.5 w-3.5" />
-              ) : null}
-              {child.title}
-            </Link>
-          ))}
+          {item.children.map((child) => {
+            const icon = child.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+            ) : child.icon ? (
+              <child.icon className="h-3.5 w-3.5" />
+            ) : null
+
+            if (child.devOnly && !isDev) {
+              return (
+                <span
+                  key={child.href + child.title}
+                  className="flex cursor-not-allowed items-center gap-2 rounded-md px-2 py-1.5 text-sm text-popover-foreground opacity-40"
+                >
+                  {icon}
+                  {child.title}
+                </span>
+              )
+            }
+
+            return (
+              <Link
+                key={child.href + child.title}
+                href={child.href}
+                className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
+                  isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
+                }`}
+                onClick={() => setShow(false)}
+              >
+                {icon}
+                {child.title}
+              </Link>
+            )
+          })}
           {item.editPermKey && canEdit(item.editPermKey) && (
             <>
               <div className="my-1 h-px bg-border/60" />
@@ -318,33 +338,55 @@ function NavGroupItems({
           )
         }
 
+        // Gear and metrics share the same right-hand slot; the chevron shifts left when one is present
+        const hasGear    = !!item.editPermKey && canEdit(item.editPermKey)
+        const hasMetrics = !!item.metricsHref
+        const hasRightAction = hasGear || hasMetrics
+
         return item.children ? (
           <SidebarMenuItem key={item.title}>
             {!open ? (
-              <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} onEditOpen={onEditOpen} />
+              <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} isDev={isDev} onEditOpen={onEditOpen} />
             ) : (
               <>
                 <SidebarMenuButton
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}
+                  className={hasRightAction ? "peer !pr-14" : ""}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
-                  {/* Chevron inside button for no-gear items — no nested-button issue */}
-                  {!(item.editPermKey && canEdit(item.editPermKey)) && (
+                  {/* Chevron inside button when nothing else claims the right slot — no nested-button issue */}
+                  {!hasRightAction && (
                     <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
                   )}
                 </SidebarMenuButton>
-                {/* Chevron sibling for gear items — mirrors button color via peer classes */}
-                {item.editPermKey && canEdit(item.editPermKey) && (
+                {/* Chevron sibling when the right slot is taken — mirrors button color via peer classes */}
+                {hasRightAction && (
                   <span className="pointer-events-none absolute right-1 top-0 flex h-8 w-6 items-center justify-center peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground">
                     <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
                   </span>
                 )}
+                {/* See Metrics — right-7 (28px from right), starts exactly where chevron ends */}
+                {hasMetrics && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger render={
+                        <SidebarMenuAction
+                          showOnHover
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); router.push(item.metricsHref!) }}
+                          className="right-7 hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
+                        />
+                      }>
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">See Metrics</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 {/* Manage Data gear — right-7 (28px from right), starts exactly where chevron ends */}
-                {item.editPermKey && canEdit(item.editPermKey) && (
+                {hasGear && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger render={
@@ -366,7 +408,9 @@ function NavGroupItems({
                       <SidebarMenuSubItem key={child.title + child.href}>
                         <SidebarMenuSubButton
                           isActive={isActive(child.href)}
-                          render={<Link href={child.href} />}
+                          {...(child.devOnly && !isDev
+                            ? { "aria-disabled": true, className: "cursor-not-allowed opacity-40" }
+                            : { render: <Link href={child.href} /> })}
                         >
                           {child.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -376,6 +420,22 @@ function NavGroupItems({
                           ) : null}
                           <span>{child.title}</span>
                         </SidebarMenuSubButton>
+                        {child.metricsHref && !(child.devOnly && !isDev) && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger render={
+                                <button
+                                  type="button"
+                                  onClick={e => { e.preventDefault(); e.stopPropagation(); router.push(child.metricsHref!) }}
+                                  className="absolute right-1 top-0.5 flex h-5 w-5 items-center justify-center rounded-md text-sidebar-foreground opacity-0 transition-opacity hover:bg-primary/15 hover:text-primary focus-visible:opacity-100 group-hover/menu-sub-item:opacity-100"
+                                />
+                              }>
+                                <TrendingUp className="h-3 w-3" />
+                              </TooltipTrigger>
+                              <TooltipContent side="right">See Metrics</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>

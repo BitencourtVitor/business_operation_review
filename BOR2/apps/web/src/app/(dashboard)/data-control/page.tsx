@@ -3,7 +3,8 @@
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastStatus } from "@bor2/shared"
 import { useMemo, useState } from "react"
-import type { DCSection, SidebarTable, IntegFilters } from "./types"
+import type { DCDivision, DCSection, SidebarTable, IntegFilters } from "./types"
+import { usePermission } from "@/hooks/use-permission"
 import { DEFAULT_INTEG } from "./types"
 import { DataControlSidebar }   from "./components/data-control-sidebar"
 import { NewProjectSection }     from "./components/new-project-section"
@@ -15,6 +16,8 @@ import { CatalogSection }        from "./components/catalog-section"
 import type { CatalogTable }     from "@/services/catalog.service"
 
 export default function DataControlPage() {
+  const { isDev } = usePermission()
+  const [division, setDivision]       = useState<DCDivision>("framing")
   const [section, setSection]         = useState<DCSection>("edit-project")
   const [catalogTable, setCatalogTable] = useState<SidebarTable>("clients")
   const { data: projects } = useForecast()
@@ -68,16 +71,32 @@ export default function DataControlPage() {
         onStatusFilter={setStatusFilter}
         catalogTable={catalogTable}
         onCatalogTable={setCatalogTable}
+        division={division}
+        onDivision={setDivision}
+        hvacEnabled={isDev}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        {section === "new-project" && (
+        {division === "hvac" && (
+          <div className="flex flex-1 items-center justify-center p-6">
+            <div className="text-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/icon_forecast_hvac.png" alt="HVAC" className="mx-auto h-10 w-10 object-contain opacity-20 dark:hidden" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/icon_forecast_hvac_dark.png" alt="HVAC" className="mx-auto hidden h-10 w-10 object-contain opacity-20 dark:block" />
+              <p className="mt-3 text-sm font-medium text-muted-foreground">HVAC data controls under construction</p>
+              <p className="mt-1 text-xs text-muted-foreground/50">HVAC projects use a different data structure.</p>
+            </div>
+          </div>
+        )}
+
+        {division === "framing" && section === "new-project" && (
           <div className="flex-1 overflow-y-auto p-6">
             <NewProjectSection onCreated={() => setSection("edit-project")} />
           </div>
         )}
 
-        {section === "edit-project" && (
+        {division === "framing" && section === "edit-project" && (
           <div className="flex-1 overflow-y-auto p-6">
             <EditProjectSection
               clientFilter={clientFilter}
@@ -92,7 +111,7 @@ export default function DataControlPage() {
           </div>
         )}
 
-        {section === "catalog" && (
+        {division === "framing" && section === "catalog" && (
           catalogTable === "clients"   ? <ClientsSection />   :
           catalogTable === "fieldwire" ? <FieldwireSection /> :
           catalogTable === "machines"  ? <MachinesSection />  :

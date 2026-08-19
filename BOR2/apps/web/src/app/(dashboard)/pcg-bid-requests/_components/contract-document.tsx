@@ -66,7 +66,10 @@ export function ContractDocument({
           Subcontract Agreement
         </h1>
         <p className="mt-1 text-center text-[9.5pt] text-neutral-700">
-          Trade: <span className="font-bold">{trade.name}</span> | Document No.: ____________
+          Trade: <span className="font-bold">{trade.name}</span> | Document No.:{" "}
+          {projectTrade.contractNumber
+            ? <span className="font-bold">{projectTrade.contractNumber}</span>
+            : "____________"}
         </p>
         <p className="mt-2 text-center text-[10.5pt]">
           This Agreement is entered into as of {formatDate(new Date().toISOString())}

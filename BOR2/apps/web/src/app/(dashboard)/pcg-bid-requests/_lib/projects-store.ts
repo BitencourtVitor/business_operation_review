@@ -17,6 +17,10 @@ interface ProjectsState {
   updateProject: (id: string, patch: Partial<Project>) => void
   deleteProject: (id: string) => void
   updateProjectTrade: (projectId: string, tradeId: string, patch: Partial<ProjectTrade>) => void
+  // Caches the number the API issued for a contract. The API owns it — this is
+  // only so the document can print it without asking again, and so another
+  // machine's number shows up here once it has been fetched.
+  setContractNumber: (projectId: string, tradeId: string, number: string) => void
   addTradeEvent: (projectId: string, tradeId: string, event: TradeEvent) => void
   updateTradeEvent: (projectId: string, tradeId: string, eventId: string, patch: TradeEventEdit) => void
   setEventSchedule: (projectId: string, tradeId: string, eventId: string, schedule: PaymentMilestone[]) => void
@@ -112,6 +116,11 @@ export const useProjectsStore = create<ProjectsState>()(
       updateProjectTrade: (projectId, tradeId, patch) => set(s => ({
         projects: patchTrade(s.projects, projectId, tradeId, t => ({ ...t, ...patch })),
       })),
+      setContractNumber: (projectId, tradeId, number) => set(s => ({
+        projects: patchTrade(s.projects, projectId, tradeId, t => (
+          t.contractNumber === number ? t : { ...t, contractNumber: number }
+        )),
+      })),
       // Kept in chronological order of the fact, not of the typing — a bid logged
       // late still belongs where it happened.
       addTradeEvent: (projectId, tradeId, event) => set(s => ({
@@ -198,10 +207,11 @@ export const useProjectsStore = create<ProjectsState>()(
             events: legacySchedule(t),
           })),
         }))
+        const projects = withoutLegacyDemos(stored)
         return {
           ...current,
           ...s,
-          projects: withoutLegacyDemos(stored),
+          projects,
         }
       },
     }

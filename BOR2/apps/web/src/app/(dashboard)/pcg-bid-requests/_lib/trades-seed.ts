@@ -60,7 +60,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "foundation",
     name: "Foundation",
-    code: null,
+    code: "FDN",
     icon: "foundation",
     hasBidForm: false,
     standardNote: "",
@@ -110,7 +110,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "excavation",
     name: "Excavation",
-    code: null,
+    code: "EXC",
     icon: "excavation",
     hasBidForm: false,
     standardNote: "",
@@ -166,7 +166,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "framing",
     name: "Framing",
-    code: null,
+    code: "FRM",
     icon: "framing",
     hasBidForm: false,
     standardNote: "",
@@ -219,7 +219,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "deck-and-porch",
     name: "Deck & Porch",
-    code: null,
+    code: "DCK",
     icon: "deck",
     hasBidForm: false,
     standardNote: "",
@@ -271,7 +271,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "shower-glass-and-mirrors",
     name: "Shower Glass & Mirrors",
-    code: null,
+    code: "SGM",
     icon: "glass",
     hasBidForm: false,
     standardNote: "",
@@ -313,7 +313,7 @@ const TRADES_RAW: Trade[] = [
     // The xlsx index calls this a direct contract, but the PDF carries a full
     // BRF-LND form and the platform summary lists it among the 14 with a bid
     // form — two sources against one.
-    code: "BRF-LND",
+    code: "LND",
     icon: "landscaping",
     hasBidForm: true,
     standardNote: "",
@@ -359,7 +359,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "plumbing",
     name: "Plumbing",
-    code: "BRF-PLB",
+    code: "PLB",
     icon: "plumbing",
     hasBidForm: true,
     standardNote: "",
@@ -422,7 +422,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "electrical",
     name: "Electrical",
-    code: "BRF-ELC",
+    code: "ELC",
     icon: "electrical",
     hasBidForm: true,
     standardNote: "",
@@ -502,7 +502,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "hvac",
     name: "HVAC",
-    code: "BRF-HVC",
+    code: "HVC",
     icon: "hvac",
     hasBidForm: true,
     standardNote: "",
@@ -557,7 +557,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "insulation",
     name: "Insulation",
-    code: "BRF-INS",
+    code: "INS",
     icon: "insulation",
     hasBidForm: true,
     standardNote: "",
@@ -607,7 +607,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "roofing",
     name: "Roofing",
-    code: "BRF-ROF",
+    code: "ROF",
     icon: "roofing",
     hasBidForm: true,
     standardNote: "",
@@ -661,7 +661,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "gutters",
     name: "Gutters",
-    code: "BRF-GUT",
+    code: "GUT",
     icon: "gutters",
     hasBidForm: true,
     standardNote: "",
@@ -707,7 +707,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "siding",
     name: "Siding",
-    code: "BRF-SDG",
+    code: "SDG",
     icon: "siding",
     hasBidForm: true,
     standardNote: "",
@@ -774,7 +774,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "masonry",
     name: "Masonry",
-    code: "BRF-MAS",
+    code: "MAS",
     icon: "masonry",
     hasBidForm: true,
     standardNote: "",
@@ -836,7 +836,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "drywall",
     name: "Drywall",
-    code: "BRF-DRY",
+    code: "DRY",
     icon: "drywall",
     hasBidForm: true,
     standardNote: "1/2\" main house, 5/8\" garage (fire rated), smooth finish Level 5.",
@@ -877,7 +877,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "painting",
     name: "Painting",
-    code: "BRF-PNT",
+    code: "PNT",
     icon: "painting",
     hasBidForm: true,
     standardNote: "Sub provides labor and materials. 5 colors per project. Scaffolding & step ladder by sub. Scope: interior walls, ceilings, trim, doors, closets, exterior body, trim, and doors. Caulking and primer included.",
@@ -925,7 +925,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "tile",
     name: "Tile",
-    code: "BRF-TIL",
+    code: "TIL",
     icon: "tile",
     hasBidForm: true,
     standardNote: "",
@@ -984,7 +984,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "flooring",
     name: "Flooring",
-    code: "BRF-FLR",
+    code: "FLR",
     icon: "flooring",
     hasBidForm: true,
     standardNote: "Labor only. PCG supplies all flooring materials.",
@@ -1030,7 +1030,7 @@ const TRADES_RAW: Trade[] = [
   {
     id: "interior-trim",
     name: "Interior Trim",
-    code: "BRF-TRM",
+    code: "TRM",
     icon: "trim",
     hasBidForm: true,
     standardNote: "Labor only. PCG provides all materials and fixtures. Scaffolding and step ladder by sub.",

@@ -209,7 +209,7 @@ export default function ForecastMetricsPage() {
             </Link>
             <div className="h-8 w-px bg-border" />
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">Forecast Metrics</h1>
+              <h1 className="text-xl font-semibold tracking-tight">Framing Forecast Metrics</h1>
               <p className="text-sm text-muted-foreground">
                 Preparation scores across all planned projects
               </p>

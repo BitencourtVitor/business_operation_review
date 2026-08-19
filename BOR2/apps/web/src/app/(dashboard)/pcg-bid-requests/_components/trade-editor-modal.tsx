@@ -55,7 +55,9 @@ export function TradeEditorModal({
   }
 
   const Icon = tradeIcon(draft.icon)
-  const canSave = draft.name.trim().length > 0
+  // The code is required now: every trade issues contract numbers, and the
+  // number opens with these three letters.
+  const canSave = draft.name.trim().length > 0 && /^[A-Z]{3}$/.test(draft.code ?? "")
 
   return (
     <Dialog open onOpenChange={v => { if (!v) onClose() }}>
@@ -148,8 +150,11 @@ export function TradeEditorModal({
                 <Input
                   id="trade-code"
                   value={draft.code ?? ""}
-                  onChange={e => patch({ code: e.target.value.trim() || null })}
-                  placeholder="e.g. BRF-PLB"
+                  // Three letters, upper case, no spaces: it is the prefix of
+                  // every contract number this trade issues.
+                  onChange={e => patch({ code: e.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) || null })}
+                  placeholder="e.g. PLB"
+                  maxLength={3}
                 />
               </div>
             </div>

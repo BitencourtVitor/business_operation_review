@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 import type { DocumentBlock, Trade, TradeRevision } from "./types"
+import { tradeShortCode } from "./types"
 import { TRADES_SEED, withSupplyQuestion } from "./trades-seed"
 import { DOCUMENT_BLOCKS_SEED } from "./document-blocks-seed"
 import { makeRevision } from "./events"
@@ -88,6 +89,17 @@ function fillScopeGaps(trade: Trade): Trade {
       ? trade.responsibilityMatrix
       : seed.responsibilityMatrix,
   }
+}
+
+// Codes used to read BRF-PLB, where the prefix said nothing — every trade was
+// BRF. They are now the three letters alone, because they open the contract
+// number: PLB-00001. Trades that never had a code get one from the seed, or from
+// their own name if the catalog invented them. Idempotent and run on every
+// rehydration, for the reason written on `merge` below.
+function withShortCode(trade: Trade): Trade {
+  const seed = TRADES_SEED.find(s => s.id === trade.id)
+  const code = tradeShortCode({ code: trade.code ?? seed?.code ?? null, name: trade.name })
+  return trade.code === code ? trade : { ...trade, code }
 }
 
 // One-off reorders are counted here rather than left to persist's `version`.
@@ -226,7 +238,7 @@ export const useCatalogStore = create<CatalogState>()(
             // before the code it was delivering has compiled — which is exactly
             // what happened to v12, and happened again to v15 in development.
             // Here it is idempotent and runs on every rehydration.
-            ...trades.map(fillScopeGaps).map(withSupplyQuestion),
+            ...trades.map(fillScopeGaps).map(withSupplyQuestion).map(withShortCode),
             ...TRADES_SEED.filter(t => !knownTrade.has(t.id)),
           ],
           // The reorder runs once and records itself, so moving the block by hand
