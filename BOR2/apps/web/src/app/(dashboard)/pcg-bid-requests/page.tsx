@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { Building2, Plus, Search, SearchX, Settings2, X } from "lucide-react"
+import { Building2, Loader2, Plus, Search, SearchX, Settings2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -23,7 +23,11 @@ const FILTERS: Filter[] = ["all", "active", "on_hold", "completed"]
 
 export default function PCGBidRequestsPage() {
   const trades = useCatalogStore(s => s.trades)
-  const { projects, addProject, deleteProject } = useProjectsStore()
+  const { projects, addProject, deleteProject, load, loaded, loading } = useProjectsStore()
+
+  // Os projetos vivem no Railway: buscar ao abrir a página é o que faz o mesmo
+  // trabalho aparecer em qualquer navegador, e não só no de quem o criou.
+  useEffect(() => { void load() }, [load])
   const canEdit = useCanEditBidRequests()
 
   const [search, setSearch] = useState("")
@@ -113,7 +117,12 @@ export default function PCGBidRequestsPage() {
         </div>
 
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-          {projects.length === 0 ? (
+          {!loaded && loading ? (
+            <div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading projects…
+            </div>
+          ) : projects.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                 <Building2 className="h-5 w-5 text-muted-foreground" />
