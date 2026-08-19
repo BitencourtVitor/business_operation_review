@@ -25,7 +25,7 @@ export function TradeCard({
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium leading-tight">{trade.name}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {trade.code ?? "Contract generated from scope"}
+            {trade.code}{!trade.hasBidForm && " · Contract generated from scope"}
           </p>
         </div>
         {(onEdit || onDelete) && (

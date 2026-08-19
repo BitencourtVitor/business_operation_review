@@ -174,3 +174,11 @@ export const VIEW_TABS: { key: ViewTab; label: string; icon: React.ReactNode }[]
   { key: "contract",  label: "Contract",     icon: React.createElement(FileText,          { className: "h-3.5 w-3.5" }) },
   { key: "optionals", label: "Optionals",    icon: React.createElement(SlidersHorizontal, { className: "h-3.5 w-3.5" }) },
 ]
+
+// ─── Forecast division selector (Framing vs HVAC — different data structures) ──
+export type DCDivision = "framing" | "hvac"
+
+export const DC_DIVISIONS: { key: DCDivision; label: string; image: string }[] = [
+  { key: "framing", label: "Framing", image: "/images/sublogo_framing.png" },
+  { key: "hvac",    label: "HVAC",    image: "/images/sublogo_hvac.png"    },
+]

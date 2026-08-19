@@ -1,12 +1,13 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ArrowDown01, ArrowDownAZ, ArrowLeft, ArrowUp01, ArrowUpZA, Check, ChevronDown,
   ChevronRight, FileOutput, FileSignature, HardHat, ListChecks, Loader2, Moon, Plus,
   Search, Sun, Trash2, Users, X,
 } from "lucide-react"
 import { useTheme } from "next-themes"
+import { toast } from "sonner"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -20,6 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
+import { pcgContractNumbersService } from "@/services/pcg-contract-numbers.service"
 import { useCatalogStore } from "../_lib/catalog-store"
 import { useCanEditBidRequests } from "../_lib/use-can-edit"
 import { useProjectsStore, newProjectTrade, answerProgress } from "../_lib/projects-store"
@@ -33,6 +35,7 @@ import {
 } from "../_lib/events"
 import {
   PROJECT_STATUS_LABEL, PROJECT_TYPE_LABEL, PROJECT_TYPES, TRADE_STATUS_LABEL,
+  tradeShortCode,
 } from "../_lib/types"
 import type {
   DocumentParams, PaymentMilestone, Project, ProjectStatus, ProjectTrade, Trade, TradeEvent,
@@ -51,6 +54,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const documentBlocks = useCatalogStore(s => s.documentBlocks)
   const project = useProjectsStore(s => s.projects.find(p => p.id === projectId))
   const updateProject = useProjectsStore(s => s.updateProject)
+  const setContractNumber = useProjectsStore(s => s.setContractNumber)
   const updateProjectTrade = useProjectsStore(s => s.updateProjectTrade)
   const addTradeEvent = useProjectsStore(s => s.addTradeEvent)
   const updateTradeEvent = useProjectsStore(s => s.updateTradeEvent)
@@ -69,6 +73,26 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const [sortAsc, setSortAsc] = useState(true)
   const [previewing, setPreviewing] = useState<"bid" | "contract" | null>(null)
   const [editingTerms, setEditingTerms] = useState(false)
+  const [issuingNumber, setIssuingNumber] = useState(false)
+
+  // The numbers live in the database, so a contract issued on another machine
+  // has one this browser has never seen. Read them when the project opens and
+  // cache them locally — reading never issues.
+  useEffect(() => {
+    let cancelled = false
+    pcgContractNumbersService.listByProject(projectId)
+      .then(issued => {
+        if (cancelled) return
+        for (const [tradeId, n] of Object.entries(issued)) {
+          if (n?.number) setContractNumber(projectId, tradeId, n.number)
+        }
+      })
+      .catch(() => {
+        // Offline or the endpoint is down: the contract simply cannot be
+        // generated until it answers, and anything already cached still prints.
+      })
+    return () => { cancelled = true }
+  }, [projectId, setContractNumber])
 
   if (!project) return null
 
@@ -93,6 +117,29 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
     updateProject(projectId, { trades: project!.trades.filter(t => t.tradeId !== tradeId) })
     if (openTradeId === tradeId) setOpenTradeId(null)
     setPendingRemove(null)
+  }
+
+  // The contract carries an identifier issued by the API — the browser cannot
+  // mint one, because two machines would both hand out PLB-00001. A bid request
+  // has no number to fetch: it is a set of questions and answers.
+  async function generate(kind: "bid" | "contract", trade: ProjectTrade, catalog: Trade) {
+    if (kind === "bid") {
+      setPreviewing("bid")
+      return
+    }
+    setIssuingNumber(true)
+    try {
+      const issued = await pcgContractNumbersService.issue(projectId, trade.tradeId, tradeShortCode(catalog))
+      if (issued?.number) setContractNumber(projectId, trade.tradeId, issued.number)
+      setPreviewing("contract")
+    } catch {
+      // Printing a contract with a blank identifier is worse than not printing
+      // it: the paper would go out unidentifiable and a number would be written
+      // by hand, which is exactly what the number replaces.
+      toast.error("Could not issue the contract number. The contract was not generated.")
+    } finally {
+      setIssuingNumber(false)
+    }
   }
 
   // Nothing answered means nothing to lose — only ask when there's work in it.
@@ -183,7 +230,8 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
             isSaving={isSaving}
             stateOf={stateOf}
             onPatch={(key, p) => patchTrade(openTrade.tradeId, key, p)}
-            onGenerate={kind => setPreviewing(kind)}
+            onGenerate={kind => generate(kind, openTrade, openCatalog)}
+            issuingNumber={issuingNumber}
             onEditTerms={() => setEditingTerms(true)}
             onLogEvent={event => addTradeEvent(projectId, openTrade.tradeId, event)}
             onUpdateEvent={(eventId, patch) => updateTradeEvent(projectId, openTrade.tradeId, eventId, patch)}
@@ -383,7 +431,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate text-sm">{trade.name}</span>
                                   <span className="block truncate text-[11px] text-muted-foreground">
-                                    {trade.code ?? "Direct contract"}
+                                    {trade.code}{!trade.hasBidForm && " · Direct contract"}
                                   </span>
                                 </span>
                               </button>
@@ -539,7 +587,7 @@ function TradeRow({
         <span className="flex items-baseline gap-1.5">
           <span className="truncate font-medium leading-tight">{trade.name}</span>
           <span className="shrink-0 text-xs text-muted-foreground/50">|</span>
-          <span className="truncate text-xs text-muted-foreground">{trade.code ?? "Direct contract"}</span>
+          <span className="truncate text-xs text-muted-foreground">{trade.code}{!trade.hasBidForm && " · Direct contract"}</span>
         </span>
         <span className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
           <HardHat className="h-3 w-3 shrink-0" />
@@ -584,17 +632,18 @@ function TradeRow({
 // A disabled button explains itself — the reason is never obvious from the
 // button alone, and a native title does not fire on a disabled control.
 function DocButton({
-  label, icon: Icon, variant, blocked, onClick,
+  label, icon: Icon, variant, blocked, busy, onClick,
 }: {
   label: string
   icon: React.ElementType
   variant?: "outline"
   blocked: string | null
+  busy?: boolean
   onClick: () => void
 }) {
   const button = (
-    <Button size="sm" variant={variant} disabled={!!blocked} onClick={onClick}>
-      <Icon className="h-3.5 w-3.5" />
+    <Button size="sm" variant={variant} disabled={!!blocked || busy} onClick={onClick}>
+      {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Icon className="h-3.5 w-3.5" />}
       {label}
     </Button>
   )
@@ -616,7 +665,7 @@ function DocButton({
 // ── Trade view inside the modal ─────────────────────────────────────────────
 
 function TradeView({
-  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, onEditTerms,
+  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, issuingNumber, onEditTerms,
   onLogEvent, onUpdateEvent, onDeleteEvent, onSaveSchedule,
 }: {
   projectTrade: ProjectTrade
@@ -626,6 +675,7 @@ function TradeView({
   stateOf: (key: string) => "idle" | "saving" | "saved"
   onPatch: (key: string, patch: Partial<ProjectTrade>) => void
   onGenerate: (kind: "bid" | "contract") => void
+  issuingNumber: boolean
   onEditTerms: () => void
   onLogEvent: (event: TradeEvent) => void
   onUpdateEvent: (eventId: string, patch: TradeEventEdit) => void
@@ -858,6 +908,7 @@ function TradeView({
               : !approved ? "The bid has to be approved first"
               : "Set the payment schedule on the approved bid first"
             }
+            busy={issuingNumber}
             onClick={() => onGenerate("contract")}
           />
           <button

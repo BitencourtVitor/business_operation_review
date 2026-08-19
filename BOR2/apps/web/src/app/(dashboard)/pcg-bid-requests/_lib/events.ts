@@ -1,5 +1,5 @@
 import { formatLeadTime } from "./format"
-import { EVENT_STATUS } from "./types"
+import { EVENT_STATUS, NOTES_KEY, NOTES_LABEL } from "./types"
 import type {
   DocumentParams, DocumentBlock, LeadTimeUnit, PaymentMilestone, ProjectTrade, Trade, TradeEvent,
   TradeEventType, TradeRevision,
@@ -340,7 +340,8 @@ export function diffParams(trade: Trade, approved: DocumentParams, current: Docu
     const after = show(current.answers[id])
     if (before === after) continue
     const q = trade.questions.find(x => x.id === id)
-    out.push({ questionId: id, label: q?.label ?? id, approved: before, current: after })
+    const label = id === NOTES_KEY ? NOTES_LABEL : q?.label ?? id
+    out.push({ questionId: id, label, approved: before, current: after })
   }
   return out
 }

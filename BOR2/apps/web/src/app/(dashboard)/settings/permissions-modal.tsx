@@ -38,7 +38,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "workforce",         label: "Workforce Productivity",     icon: Users         },
       { key: "inventory",         label: "Inventory Control",          icon: Package       },
       { key: "permits",           label: "Permit Control",             icon: FileCheck     },
-      { key: "forecast",          label: "Framing Forecast",           image: "/images/sublogo_framing.png" },
+      { key: "forecast",          label: "Forecast",           image: "/images/sublogo_framing.png" },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },

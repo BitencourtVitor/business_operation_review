@@ -148,6 +148,7 @@ func main() {
 	subcontractorDocsHandler := handler.NewSubcontractorDocsHandler(db)
 	workersCompReviewHandler := handler.NewWorkersCompReviewHandler(workersCompReviewService)
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
+	pcgContractNumberHandler := handler.NewPCGContractNumberHandler(db)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -199,6 +200,10 @@ func main() {
 	app.Get("/health", healthHandler.Health)
 
 	v1 := app.Group("/api/v1")
+	// Every state-changing request under /api/v1 is audited from here, including
+	// routes written after this line. Auditing used to be a manual call inside
+	// each handler and only half of them made it.
+	v1.Use(middleware.Audit(auditService))
 
 	// Auth
 	auth := v1.Group("/auth")
@@ -605,6 +610,12 @@ func main() {
 	buildings.Delete("/:id/events/:eventId", buildingsHandler.DeleteBuildingEvent)
 	buildings.Get("/:id/trades", buildingsHandler.GetTradeOwnership)
 	buildings.Put("/:id/trades", buildingsHandler.UpsertTradeOwnership)
+
+	// PCG Bids and Contracts — the contract document number lives here, not in
+	// the browser: it is printed on paper somebody signs.
+	pcg := api.Group("/pcg")
+	pcg.Get("/contract-numbers", pcgContractNumberHandler.List)
+	pcg.Post("/contract-numbers", pcgContractNumberHandler.Issue)
 
 	// AI Chat (Aria)
 	ai := api.Group("/ai")

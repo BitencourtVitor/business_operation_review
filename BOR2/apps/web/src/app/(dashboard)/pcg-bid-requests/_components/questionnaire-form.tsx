@@ -2,9 +2,10 @@
 
 import { Check, Loader2, Minus, Plus } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { isAnswered } from "../_lib/projects-store"
-import { quantityKey } from "../_lib/types"
+import { NOTES_KEY, NOTES_LABEL, quantityKey } from "../_lib/types"
 import type { SaveState } from "../_lib/use-async-save"
 import type { Question, ProjectTrade } from "../_lib/types"
 
@@ -73,7 +74,11 @@ export function QuestionnaireForm({
     )
   }
 
+  const notes = answers[NOTES_KEY]
+  const notesSaving = saveStateOf(NOTES_KEY) === "saving"
+
   return (
+    <>
     <ol className="flex flex-col gap-2">
       {questions.map((q, i) => {
         const value = answers[q.id]
@@ -179,5 +184,37 @@ export function QuestionnaireForm({
         )
       })}
     </ol>
+
+    {/* Closes the form the same way the printed one does: free text, no number,
+        never required — the sub prices the questions, not this. */}
+    <div className={`mt-2 rounded-lg border bg-muted/40 p-3 transition-colors ${
+      isAnswered(notes) ? "border-emerald-500/40" : "border-dashed"
+    }`}>
+      <div className="flex items-start gap-3">
+        <span className="w-6 shrink-0" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-2">
+            <p className="min-w-0 flex-1 text-sm font-medium leading-tight">{NOTES_LABEL}</p>
+            <Badge variant="outline" className="shrink-0 text-[10px] text-muted-foreground">
+              Optional
+            </Badge>
+            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
+              {notesSaving
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                : isAnswered(notes) && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+            </span>
+          </div>
+          <Textarea
+            value={typeof notes === "string" ? notes : ""}
+            onChange={e => onChange(NOTES_KEY, e.target.value)}
+            disabled={readOnly}
+            rows={3}
+            placeholder="Anything else the subcontractor should price for"
+            className={`mt-2 text-sm transition-opacity ${notesSaving ? "opacity-60" : ""}`}
+          />
+        </div>
+      </div>
+    </div>
+    </>
   )
 }
