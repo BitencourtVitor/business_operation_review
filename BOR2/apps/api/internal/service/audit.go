@@ -44,3 +44,17 @@ func (s *AuditService) Log(ctx context.Context, userID, userName, action, resour
 		)
 	}
 }
+
+// Write persists an entry the auditing middleware already assembled. It runs
+// off the request goroutine: the audit trail must never be what makes a write
+// slower, and never what makes it fail.
+func (s *AuditService) Write(entry *domain.AuditLog) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := s.repo.Create(ctx, entry); err != nil {
+			logger.Warn("audit log write failed",
+				"error", err, "method", entry.Method, "path", entry.Path)
+		}
+	}()
+}
