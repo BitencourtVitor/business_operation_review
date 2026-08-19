@@ -626,6 +626,8 @@ func main() {
 	pcg.Post("/projects/:id/trades/:tradeId/events", pcgProjectsHandler.AddEvent)
 	pcg.Patch("/projects/:id/trades/:tradeId/events/:eventId", pcgProjectsHandler.UpdateEvent)
 	pcg.Delete("/projects/:id/trades/:tradeId/events/:eventId", pcgProjectsHandler.DeleteEvent)
+	pcg.Get("/subcontractor-contacts", pcgProjectsHandler.ListSubcontractorContacts)
+	pcg.Put("/subcontractor-contacts/:name", pcgProjectsHandler.UpsertSubcontractorContact)
 
 	// AI Chat (Aria)
 	ai := api.Group("/ai")

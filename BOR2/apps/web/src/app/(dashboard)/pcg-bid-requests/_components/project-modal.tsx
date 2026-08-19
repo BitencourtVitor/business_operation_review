@@ -43,6 +43,7 @@ import type {
 } from "../_lib/types"
 import { QuestionnaireForm } from "./questionnaire-form"
 import { SubcontractorPicker } from "./subcontractor-picker"
+import { SubcontractorContactButton } from "./subcontractor-contact-button"
 import { ContractTermsModal } from "./contract-terms-modal"
 import { DocumentPreviewModal } from "./document-preview-modal"
 import { EventTimeline } from "./event-timeline"
@@ -758,6 +759,8 @@ function TradeView({
   // The round opens off the condition field, so the popup takes its width and
   // its side from the field rather than from the icon that triggers it.
   const conditionRef = useRef<HTMLDivElement>(null)
+  // Same for the contact: it opens off the subcontractor field.
+  const subcontractorRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-5 py-4">
@@ -846,11 +849,21 @@ function TradeView({
           <div className="flex flex-col gap-1.5">
             {/* Read-only: the sub is whoever the last paper went to. */}
             <FieldLabel label="Subcontractor" saving={false} />
-            <div className="flex h-8 items-center gap-1.5 rounded-lg border border-input px-2.5 text-sm dark:bg-input/30">
+            <div
+              ref={subcontractorRef}
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-input px-2.5 text-sm dark:bg-input/30"
+            >
               <HardHat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className={`truncate ${subcontractor ? "" : "text-muted-foreground"}`}>
+              <span className={`min-w-0 flex-1 truncate ${subcontractor ? "" : "text-muted-foreground"}`}>
                 {subcontractor || "Not assigned yet"}
               </span>
+              {/* The contact the contract prints. Amber while the roster has a
+                  gap nobody filled — the paper would go out with a blank line. */}
+              <SubcontractorContactButton
+                subcontractor={subcontractor}
+                canEdit={canEdit}
+                anchor={subcontractorRef}
+              />
             </div>
           </div>
 

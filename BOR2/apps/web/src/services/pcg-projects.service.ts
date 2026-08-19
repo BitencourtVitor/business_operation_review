@@ -34,3 +34,24 @@ export const pcgProjectsService = {
   removeEvent: (projectId: string, tradeId: string, eventId: string) =>
     api.delete(`${base}/${projectId}/trades/${tradeId}/events/${eventId}`, getToken()),
 }
+
+// O contato do sub como o PCG o imprime: cobre a lacuna da roster do
+// Subcontractor Docs sem escrever de volta nela.
+export interface PCGSubcontractorContact {
+  subcontractor: string
+  owner_name: string
+  email: string
+  phone: string
+}
+
+export const pcgSubcontractorContactsService = {
+  list: () =>
+    api.get<PCGSubcontractorContact[]>(`${base}/subcontractor-contacts`, getToken()).then(r => r ?? []),
+
+  save: (contact: PCGSubcontractorContact) =>
+    api.put(
+      `${base}/subcontractor-contacts/${encodeURIComponent(contact.subcontractor)}`,
+      contact,
+      getToken(),
+    ),
+}

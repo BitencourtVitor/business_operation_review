@@ -70,6 +70,8 @@ export interface SubDocRecord {
 export interface SubDocContractor {
   id: number
   name: string
+  // Who signs for the sub. `name` is the company; this is the person.
+  owner_name: string
   email: string
   phone: string
   notes: string
@@ -104,10 +106,10 @@ export const subcontractorDocsService = {
       getToken(),
     ).then(r => r ?? []),
 
-  createContractor: (body: { name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
+  createContractor: (body: { name: string; owner_name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
     api.post<{ id: number }>(`/api/v1/subcontractor-docs/contractors`, body, getToken()),
 
-  updateContractor: (id: number, body: { name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
+  updateContractor: (id: number, body: { name: string; owner_name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
     api.put(`/api/v1/subcontractor-docs/contractors/${id}`, body, getToken()),
 
   deleteContractor: (id: number) =>

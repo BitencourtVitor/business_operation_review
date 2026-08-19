@@ -10,6 +10,8 @@ import { resolveSpecs } from "../_lib/specs"
 import { bidAmountOf, scheduleInForce, subcontractorOf } from "../_lib/events"
 import { PRINT_CSS } from "../_lib/print"
 import { useCatalogStore } from "../_lib/catalog-store"
+import { useSubcontractorContact } from "../_lib/use-subcontractor-contact"
+import type { SubcontractorContact } from "../_lib/use-subcontractor-contact"
 import type { DocumentBlock, Project, ProjectTrade, ScopeSection, Trade } from "../_lib/types"
 
 const SCOPE_ORDER: ScopeSection[] = ["workIncluded", "exclusions", "responsibilityMatrix"]
@@ -33,6 +35,19 @@ const GC = {
   address: "1b Landing Lane, Hopedale, MA, 01747",
   license: "License No.: 203050",
   phone:   "Phone: (774) 804-3190",
+  // Who signs for PCG. Printed on the Contractor side of the signature block,
+  // the same way the sub's owner is printed on theirs.
+  signer:  "Guilherme Costa",
+}
+
+// The sub's contact, as the party box prints it. A field the roster has not
+// been given is left out rather than printed as a labelled blank.
+function contactLines(sub: SubcontractorContact): string[] {
+  return [
+    sub.owner && `Attn.: ${sub.owner}`,
+    sub.email && `Email: ${sub.email}`,
+    sub.phone && `Phone: ${sub.phone}`,
+  ].filter((line): line is string => !!line)
 }
 
 // The body is a sequence of modules, ordered and cadastrated in Document
@@ -48,6 +63,7 @@ export function ContractDocument({
   const documentBlocks = useCatalogStore(s => s.documentBlocks)
   const modules = documentModules(documentBlocks, "contract")
   const numbers = moduleNumbers(modules)
+  const subcontractor = useSubcontractorContact(subcontractorOf(projectTrade))
 
   return (
     <>
@@ -85,7 +101,7 @@ export function ContractDocument({
             rounded boxes, and the only rounded containers in the document. */}
         <div className="mt-5 flex gap-4">
           <Party role="Contractor (GC)" name={GC.name} lines={[GC.address, GC.license, GC.phone]} />
-          <Party role="Subcontractor" name={subcontractorOf(projectTrade)} lines={[]} />
+          <Party role="Subcontractor" name={subcontractor.name} lines={contactLines(subcontractor)} />
         </div>
 
         <dl className={`${BOX} mt-4 text-[10.5pt]`}>
@@ -105,6 +121,7 @@ export function ContractDocument({
             project={project}
             projectTrade={projectTrade}
             trade={trade}
+            subcontractor={subcontractor}
           />
         ))}
 
@@ -117,19 +134,20 @@ export function ContractDocument({
 }
 
 function Module({
-  block, number, project, projectTrade, trade,
+  block, number, project, projectTrade, trade, subcontractor,
 }: {
   block: DocumentBlock
   number: number | undefined
   project: Project
   projectTrade: ProjectTrade
   trade: Trade
+  subcontractor: SubcontractorContact
 }) {
   if (block.generated === "scope_of_work") {
     return <ScopeOfWork project={project} projectTrade={projectTrade} trade={trade} />
   }
   if (block.generated === "signatures") {
-    return <Signatures projectTrade={projectTrade} />
+    return <Signatures subcontractor={subcontractor} />
   }
   if (block.generated === "payment_schedule") {
     return <PaymentSchedule projectTrade={projectTrade} />
@@ -317,7 +335,7 @@ function Td({ children, className = "" }: { children?: React.ReactNode; classNam
   return <td className={`border-b border-neutral-200 px-2 py-1.5 align-top ${className}`}>{children}</td>
 }
 
-function Signatures({ projectTrade }: { projectTrade: ProjectTrade }) {
+function Signatures({ subcontractor }: { subcontractor: SubcontractorContact }) {
   return (
     <section className="mt-8 break-inside-avoid">
       <p className="border-t border-neutral-300 pt-3 text-center text-[10pt] italic leading-relaxed">
@@ -325,30 +343,35 @@ function Signatures({ projectTrade }: { projectTrade: ProjectTrade }) {
         date first written above.
       </p>
       <div className="mt-4 flex gap-10">
-        <SignatureBlock role="Contractor" name={GC.name} />
-        <SignatureBlock role="Subcontractor" name={subcontractorOf(projectTrade)} />
+        <SignatureBlock role="Contractor" name={GC.name} signer={GC.signer} />
+        <SignatureBlock role="Subcontractor" name={subcontractor.name} signer={subcontractor.owner} />
       </div>
     </section>
   )
 }
 
-function SignatureBlock({ role, name }: { role: string; name: string }) {
+function SignatureBlock({ role, name, signer }: { role: string; name: string; signer: string }) {
   return (
     <div className="flex-1">
       <p className={FIELD_LABEL}>{role}</p>
       <p className="mt-1 text-[10.5pt] font-bold">{name || " "}</p>
       <SignatureLine label="Authorized Signature" />
-      <SignatureLine label="Print Name & Title" />
+      <SignatureLine label="Print Name & Title" value={signer} />
       <SignatureLine label="Date" />
     </div>
   )
 }
 
-function SignatureLine({ label }: { label: string }) {
+// A ruled blank to sign on. The rule stays empty — it is what gets written on —
+// and `value` rides in the caption beside the label: "Print Name & Title •
+// Vitor Bitencourt". A sub with nobody registered keeps the bare label.
+function SignatureLine({ label, value = "" }: { label: string; value?: string }) {
   return (
     <>
       <div className="mt-9 border-b border-neutral-500" />
-      <p className="mt-1 text-[8.5pt] text-neutral-600">{label}</p>
+      <p className="mt-1 text-[8.5pt] text-neutral-600">
+        {label}{value ? ` • ${value}` : ""}
+      </p>
     </>
   )
 }

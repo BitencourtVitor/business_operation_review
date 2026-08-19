@@ -53,7 +53,7 @@ export function useCreateSubDocContractor() {
 export function useUpdateSubDocContractor() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number; name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
+    mutationFn: ({ id, ...body }: { id: number; name: string; owner_name: string; email: string; phone: string; notes: string; divisions: string[] }) =>
       subcontractorDocsService.updateContractor(id, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sub-doc-contractors"] }),
   })
