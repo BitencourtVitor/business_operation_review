@@ -4,11 +4,8 @@ import { useState } from "react"
 import type { RefObject } from "react"
 import { Loader2, UserPen } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import {
-  usePCGContactOverride, useSavePCGSubcontractorContact, useSubcontractorContact,
-} from "../_lib/use-subcontractor-contact"
+import { useSavePCGSubcontractorContact, useSubcontractorContact } from "../_lib/use-subcontractor-contact"
 import type { SubcontractorContact } from "../_lib/use-subcontractor-contact"
-import type { PCGSubcontractorContact } from "@/services/pcg-projects.service"
 
 const FIELD_LABEL = "text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60"
 const INPUT = "h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
@@ -26,7 +23,6 @@ export function SubcontractorContactButton({
   anchor: RefObject<HTMLDivElement | null>
 }) {
   const contact = useSubcontractorContact(subcontractor)
-  const stored = usePCGContactOverride(subcontractor)
   const [open, setOpen] = useState(false)
 
   if (!subcontractor) return null
@@ -61,13 +57,13 @@ export function SubcontractorContactButton({
             Kept in Bids and Contracts only. Subcontractor Docs is not changed.
           </p>
         </div>
-        {/* Keyed on what is stored: the form is seeded from it, so a save — or an
-            override that only arrives after the popup is already open — starts it
-            over instead of leaving the old text on screen. */}
+        {/* Keyed on what the fields are seeded with, so a save — or roster data
+            that only lands after the popup is already open — starts the form over
+            instead of leaving stale text on screen. */}
         <ContactForm
-          key={`${stored.owner_name}|${stored.email}|${stored.phone}`}
-          stored={stored}
-          resolved={contact}
+          key={`${contact.owner}|${contact.email}|${contact.phone}`}
+          contact={contact}
+          subcontractor={subcontractor}
           canEdit={canEdit}
           onDone={() => setOpen(false)}
         />
@@ -76,23 +72,26 @@ export function SubcontractorContactButton({
   )
 }
 
+// The fields open filled with what the contract would print — the cadastro's own
+// answer, typed in and editable, not a ghost placeholder. Correcting one here
+// writes the correction to this module alone; Subcontractor Docs is untouched.
 function ContactForm({
-  stored, resolved, canEdit, onDone,
+  contact, subcontractor, canEdit, onDone,
 }: {
-  stored: PCGSubcontractorContact
-  resolved: SubcontractorContact
+  contact: SubcontractorContact
+  subcontractor: string
   canEdit: boolean
   onDone: () => void
 }) {
   const save = useSavePCGSubcontractorContact()
-  const [owner, setOwner] = useState(stored.owner_name)
-  const [email, setEmail] = useState(stored.email)
-  const [phone, setPhone] = useState(stored.phone)
+  const [owner, setOwner] = useState(contact.owner)
+  const [email, setEmail] = useState(contact.email)
+  const [phone, setPhone] = useState(contact.phone)
 
   const commit = () => {
     save.mutate(
       {
-        subcontractor: stored.subcontractor,
+        subcontractor,
         owner_name: owner.trim(),
         email: email.trim(),
         phone: phone.trim(),
@@ -103,12 +102,9 @@ function ContactForm({
 
   return (
     <div className="flex flex-col gap-2.5 p-3">
-      <Field label="Owner / Responsible" value={owner} onChange={setOwner}
-        fallback={resolved.owner} disabled={!canEdit} />
-      <Field label="Email" value={email} onChange={setEmail}
-        fallback={resolved.email} disabled={!canEdit} />
-      <Field label="Phone" value={phone} onChange={setPhone}
-        fallback={resolved.phone} disabled={!canEdit} />
+      <Field label="Owner / Responsible" value={owner} onChange={setOwner} disabled={!canEdit} />
+      <Field label="Email" value={email} onChange={setEmail} disabled={!canEdit} />
+      <Field label="Phone" value={phone} onChange={setPhone} disabled={!canEdit} />
 
       {canEdit && (
         <div className="flex items-center justify-end gap-2 pt-0.5">
@@ -127,25 +123,22 @@ function ContactForm({
   )
 }
 
-// An empty field means "whatever the roster says", so the roster's own answer is
-// the placeholder — typing replaces it, clearing gives it back.
+// Empty means the contract has nothing to print on this line, so the field
+// carries the same amber the button does.
 function Field({
-  label, value, onChange, fallback, disabled,
+  label, value, onChange, disabled,
 }: {
   label: string
   value: string
   onChange: (next: string) => void
-  fallback: string
   disabled: boolean
 }) {
   return (
     <div className="flex flex-col gap-1">
       <label className={FIELD_LABEL}>{label}</label>
-      {/* Nothing typed and nothing in the roster: the contract prints a blank
-          here, so the field carries the same amber the button does. */}
       <input value={value} onChange={e => onChange(e.target.value)} disabled={disabled}
-        placeholder={fallback || "Not registered"}
-        className={`${INPUT} ${!value && !fallback ? "border-amber-500/60" : ""}`} />
+        placeholder="Not registered"
+        className={`${INPUT} ${value.trim() ? "" : "border-amber-500/60"}`} />
     </div>
   )
 }

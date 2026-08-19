@@ -42,6 +42,22 @@ function normalize(name: string): string {
   return name.trim().toLowerCase()
 }
 
+// The cadastro's contact boxes get used as notepads — "need to request", "TBD",
+// a reminder somebody left in the field. That is not an address and it cannot
+// reach a contract, so anything that does not read as one is absent: the paper
+// prints nothing and the amber says the contact is still missing.
+function asEmail(raw: string): string {
+  const value = raw.trim()
+  return /^[^s@]+@[^s@]+.[^s@]+$/.test(value) ? value : ""
+}
+
+// Same for the phone, judged by the only thing every format shares: enough
+// digits to dial. "(973) 474-6684" and "978.962.9247" pass; a note does not.
+function asPhone(raw: string): string {
+  const value = raw.trim()
+  return (value.match(/d/g) ?? []).length >= 7 ? value : ""
+}
+
 // The event names the sub as text, because that is what the picker writes. The
 // contact is read from the Subcontractor Docs roster by that same name —
 // archived subs included, since a contract signed with one of them still prints
@@ -60,9 +76,9 @@ export function useSubcontractorContact(name: string): SubcontractorContact {
       ? (overrides ?? []).find(contact => normalize(contact.subcontractor) === key)
       : undefined
 
-    const owner = override?.owner_name || registered?.owner_name || ""
-    const email = override?.email || registered?.email || ""
-    const phone = override?.phone || registered?.phone || ""
+    const owner = (override?.owner_name || registered?.owner_name || "").trim()
+    const email = asEmail(override?.email || registered?.email || "")
+    const phone = asPhone(override?.phone || registered?.phone || "")
 
     const missing: SubcontractorContact["missing"] = []
     if (!owner) missing.push("owner")
@@ -71,21 +87,4 @@ export function useSubcontractorContact(name: string): SubcontractorContact {
 
     return { name, owner, email, phone, missing }
   }, [roster, overrides, name])
-}
-
-// What the editor starts on: only what this module itself wrote, so an empty
-// field reads as "the roster answers this one" rather than as the roster's
-// value typed in again.
-export function usePCGContactOverride(name: string): PCGSubcontractorContact {
-  const { data: overrides } = usePCGSubcontractorContacts()
-  return useMemo(() => {
-    const key = normalize(name)
-    const found = key ? (overrides ?? []).find(c => normalize(c.subcontractor) === key) : undefined
-    return {
-      subcontractor: name,
-      owner_name: found?.owner_name ?? "",
-      email: found?.email ?? "",
-      phone: found?.phone ?? "",
-    }
-  }, [overrides, name])
 }
