@@ -55,7 +55,10 @@ const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3 w-3" /> },
 ]
 
-const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders" | "hvac"; label: string; desc: string; icon: React.ReactNode }[] = [
+// HVAC saiu daqui de propósito: deixou de ser marcação e virou consequência do
+// vínculo entre empresas na mesma obra física (forecast_sites). Quem edita isso
+// agora é o cadastro da obra, não um checkbox por projeto.
+const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders"; label: string; desc: string; icon: React.ReactNode }[] = [
   {
     key: "buildertrend", label: "Buildertrend", desc: "Project tracked in Buildertrend",
     icon: (
@@ -82,10 +85,14 @@ const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders" | "hva
     key: "hasOrders", label: "Has Orders", desc: "Orders page has this project's dates",
     icon: <FileText className="h-4 w-4 text-muted-foreground" />,
   },
-  {
-    key: "hvac", label: "HVAC", desc: "HVAC work included",
-    icon: <img src="/images/sublogo_hvac.png" alt="" className="h-4 w-4 object-contain" />,
-  },
+]
+
+// As quatro etapas do ciclo de HVAC, na ordem em que acontecem na obra.
+const HVAC_STAGE_FIELDS = [
+  { key: "hvacRoughDate"      as const, label: "Rough" },
+  { key: "hvacAirHandlerDate" as const, label: "Air Handler" },
+  { key: "hvacCondenserDate"  as const, label: "Condenser" },
+  { key: "hvacFinishDate"     as const, label: "Finish" },
 ]
 
 // Shared trigger className — matches SelectTrigger anatomy exactly
@@ -314,10 +321,22 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
           onChange={e => setObs(e.target.value)} onBlur={() => onSave("obs", obs)}
           placeholder="Observations..." />
       </div>
+      {/* A HVAC edita as quatro etapas do ciclo; início e fim da obra são
+          derivados delas no banco, então não são editáveis aqui. */}
       <div className="flex w-36 flex-col gap-2">
-        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
-        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
-        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
+        {p.company === "hvac" ? (
+          HVAC_STAGE_FIELDS.map(({ key, label }) => (
+            <DatePickerField key={key} label={label} value={dateVal(p[key])}
+              onBlur={v => onSave(key, v ? `${v}T00:00:00Z` : null)}
+              isSaving={savingField === key} />
+          ))
+        ) : (
+          <>
+            <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
+            <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
+            <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
+          </>
+        )}
       </div>
     </div>
   )
@@ -1124,7 +1143,9 @@ export function ProjectCard({
       {/* Tab bar */}
       <div className="flex items-center justify-end">
         <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor }}>
-          {TABS.map(t => (
+          {/* Fieldwire, Machines e Contract não existem para a HVAC — abas
+              vazias só dariam a impressão de dado faltando. */}
+          {TABS.filter(t => project.company !== "hvac" || t.key === "info" || t.key === "optionals").map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 transition-colors ${activeTab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
               {t.icon}

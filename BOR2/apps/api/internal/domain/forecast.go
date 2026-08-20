@@ -53,10 +53,22 @@ type ForecastProject struct {
 	ObsRole           string         `json:"obsRole"`
 	ObsAt             *time.Time     `json:"obsAt,omitempty"`
 	Hvac              bool           `json:"hvac"`
+	// SiteID aponta para a obra física (forecast_sites). Nulo enquanto a obra
+	// não tiver endereço que permita identificá-la.
+	SiteID *string `json:"siteId,omitempty"`
+	// LinkedCompanies são as outras empresas que atuam na mesma obra. Deriva o
+	// selo "HVAC work included" — antes um booleano marcado à mão.
+	LinkedCompanies []string `json:"linkedCompanies"`
 	Buildertrend      bool           `json:"buildertrend"`
 	Storage           bool           `json:"storage"`
 	HasOrders         bool           `json:"hasOrders"`
 	MachineProvider   string         `json:"machineProvider"`
+	// Etapas do ciclo de HVAC. Só a company 'hvac' as usa; para a Framing o
+	// ciclo continua sendo beams/start/end.
+	HvacRoughDate       *time.Time `json:"hvacRoughDate,omitempty"`
+	HvacAirHandlerDate  *time.Time `json:"hvacAirHandlerDate,omitempty"`
+	HvacCondenserDate   *time.Time `json:"hvacCondenserDate,omitempty"`
+	HvacFinishDate      *time.Time `json:"hvacFinishDate,omitempty"`
 	PreviousBeamsDate *time.Time     `json:"previousBeamsDate,omitempty"`
 	PreviousStartDate *time.Time     `json:"previousStartDate,omitempty"`
 	PreviousEndDate   *time.Time     `json:"previousEndDate,omitempty"`
@@ -118,4 +130,19 @@ type ForecastContractStep struct {
 	CompletedDate *time.Time `json:"completedDate,omitempty"`
 	CreatedAt     time.Time  `json:"createdAt"`
 	UpdatedAt     time.Time  `json:"updatedAt"`
+}
+
+// ForecastDateEntry é uma mudança de data registrada pelo banco. O histórico
+// existe porque as datas andam a cada ciclo de atualização do portal, e saber
+// de onde veio cada valor é o que decide se ele pode ser sobrescrito.
+type ForecastDateEntry struct {
+	ID        int64      `json:"id"`
+	ProjectID string     `json:"projectId"`
+	Company   string     `json:"company"`
+	Field     string     `json:"field"`
+	OldValue  *time.Time `json:"oldValue,omitempty"`
+	NewValue  *time.Time `json:"newValue,omitempty"`
+	Source    string     `json:"source"`
+	ChangedBy string     `json:"changedBy"`
+	ChangedAt time.Time  `json:"changedAt"`
 }

@@ -45,7 +45,17 @@ export interface ForecastProject {
   obsAuthor?: string
   obsRole?: string
   obsAt?: string | null
+  /** @deprecated marcação manual legada — o selo agora vem de linkedCompanies */
   hvac: boolean
+  /** Etapas do ciclo de HVAC — só a company 'hvac' as usa. */
+  hvacRoughDate?: string | null
+  hvacAirHandlerDate?: string | null
+  hvacCondenserDate?: string | null
+  hvacFinishDate?: string | null
+  /** Obra física compartilhada entre empresas (forecast_sites). */
+  siteId?: string
+  /** Outras empresas que atuam nesta mesma obra. Origem do selo de HVAC. */
+  linkedCompanies?: string[]
   buildertrend: boolean
   storage: boolean
   hasOrders: boolean
@@ -103,4 +113,17 @@ export function getForecastDisplayStatus(
     if (dates.some(date => date <= today)) return "overdue"
   }
   return p.status
+}
+
+/** Uma mudança de data registrada pelo banco (trigger da migração 000117). */
+export interface ForecastDateEntry {
+  id: number
+  projectId: string
+  company: string
+  field: string
+  oldValue?: string | null
+  newValue?: string | null
+  source: string
+  changedBy: string
+  changedAt: string
 }

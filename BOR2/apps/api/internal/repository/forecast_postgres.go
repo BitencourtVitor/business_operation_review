@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -25,6 +26,7 @@ type ForecastRepository interface {
 	AddContractTeam(ctx context.Context, projectID string, team string) error
 	AppendObs(ctx context.Context, e *domain.ForecastObsEntry) error
 	ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error)
+	ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error)
 }
 
 type PostgresForecastRepository struct {
@@ -70,6 +72,11 @@ WITH mapped AS (
 		COALESCE(storage,       false)    AS storage,
 		COALESCE(has_orders,    false)    AS has_orders,
 		COALESCE(machine_provider, '')    AS machine_provider,
+		site_id,
+		hvac_rough_date,
+		hvac_air_handler_date,
+		hvac_condenser_date,
+		hvac_finish_date,
 		previous_beams_date,
 		previous_start_date,
 		previous_end_date,
@@ -88,6 +95,16 @@ SELECT
 	COALESCE((SELECT h.author_role FROM forecast_obs_history h WHERE LOWER(h.project_id) = LOWER(m.id) ORDER BY h.created_at DESC, h.id DESC LIMIT 1), '') AS obs_role,
 	(SELECT h.created_at FROM forecast_obs_history h WHERE LOWER(h.project_id) = LOWER(m.id) ORDER BY h.created_at DESC, h.id DESC LIMIT 1) AS obs_at,
 	m.hvac, m.buildertrend, m.storage, m.has_orders, m.machine_provider,
+	m.site_id,
+	-- Empresas que atuam nesta mesma obra, fora a dona da linha. É daqui que sai
+	-- o selo de HVAC no Framing (e o de Framing na HVAC): vínculo, não checkbox.
+	COALESCE(
+		(SELECT array_agg(sc.company ORDER BY sc.company)
+		 FROM forecast_site_companies sc
+		 WHERE sc.site_id = m.site_id AND sc.company <> m.company),
+		'{}'
+	) AS linked_companies,
+	m.hvac_rough_date, m.hvac_air_handler_date, m.hvac_condenser_date, m.hvac_finish_date,
 	m.previous_beams_date, m.previous_start_date, m.previous_end_date,
 	m.created_at, m.updated_at,
 	COALESCE(
@@ -126,6 +143,8 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.Cliente, &p.JobSite, &p.Type, &p.LoteBld, &p.Address, &p.Obs,
 		&p.ObsAuthor, &p.ObsRole, &p.ObsAt,
 		&p.Hvac, &p.Buildertrend, &p.Storage, &p.HasOrders, &p.MachineProvider,
+		&p.SiteID, &p.LinkedCompanies,
+		&p.HvacRoughDate, &p.HvacAirHandlerDate, &p.HvacCondenserDate, &p.HvacFinishDate,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
 		&fieldwireJSON, &machinesJSON, &contractStepsJSON,
@@ -181,17 +200,25 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		   contract_value, team, qb_time,
 		   cliente, job_site, type, lote_bld, address, obs,
 		   hvac, buildertrend, storage, has_orders, machine_provider,
+		   hvac_rough_date, hvac_air_handler_date, hvac_condenser_date, hvac_finish_date,
 		   create_datetime, lastupdate_datetimez)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$22)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$26)
 	`,
 		p.ID, p.Name, p.Company, statusToBOR1(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
 		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
+		p.HvacRoughDate, p.HvacAirHandlerDate, p.HvacCondenserDate, p.HvacFinishDate,
 		now,
 	); err != nil {
 		return err
+	}
+
+	// A HVAC não usa Fieldwire nem Machines — semear catálogo lá daria uma obra
+	// nascida com pendência que ninguém vai fechar.
+	if strings.EqualFold(p.Company, "hvac") {
+		return nil
 	}
 
 	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
@@ -274,6 +301,8 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		  cliente=$9, job_site=$10, type=$11, lote_bld=$12,
 		  address=$13, obs=$14,
 		  hvac=$15, buildertrend=$16, storage=$17, has_orders=$18, machine_provider=$19,
+		  hvac_rough_date=$21, hvac_air_handler_date=$22,
+		  hvac_condenser_date=$23, hvac_finish_date=$24,
 		  lastupdate_datetimez=NOW()
 		WHERE id=$20
 	`,
@@ -284,6 +313,7 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		p.Address, p.Obs,
 		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		p.ID,
+		p.HvacRoughDate, p.HvacAirHandlerDate, p.HvacCondenserDate, p.HvacFinishDate,
 	)
 	if err != nil {
 		return err
@@ -433,6 +463,33 @@ func (r *PostgresForecastRepository) ListObs(ctx context.Context, projectID stri
 		e := &domain.ForecastObsEntry{}
 		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Body, &e.AuthorID, &e.AuthorName, &e.AuthorRole, &e.CreatedAt); err != nil {
 			return nil, fmt.Errorf("scan forecast obs: %w", err)
+		}
+		entries = append(entries, e)
+	}
+	return entries, nil
+}
+
+// ListDateHistory devolve o histórico de datas em ordem cronológica. O registro
+// é feito por trigger no banco (migração 000117), então cobre qualquer caminho
+// de escrita — API, script de importação ou SQL na mão.
+func (r *PostgresForecastRepository) ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, project_id, company, field, old_value, new_value, source, changed_by, changed_at
+		FROM forecast_date_history
+		WHERE LOWER(project_id) = LOWER($1)
+		ORDER BY changed_at ASC, id ASC
+	`, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("list forecast date history: %w", err)
+	}
+	defer rows.Close()
+
+	entries := []*domain.ForecastDateEntry{}
+	for rows.Next() {
+		e := &domain.ForecastDateEntry{}
+		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Company, &e.Field,
+			&e.OldValue, &e.NewValue, &e.Source, &e.ChangedBy, &e.ChangedAt); err != nil {
+			return nil, fmt.Errorf("scan forecast date history: %w", err)
 		}
 		entries = append(entries, e)
 	}

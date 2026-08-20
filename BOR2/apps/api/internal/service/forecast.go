@@ -93,6 +93,10 @@ func (s *ForecastService) AppendObs(ctx context.Context, projectID, body, author
 	return e, nil
 }
 
+func (s *ForecastService) ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error) {
+	return s.repo.ListDateHistory(ctx, projectID)
+}
+
 func (s *ForecastService) ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error) {
 	return s.repo.ListObs(ctx, projectID)
 }
