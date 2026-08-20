@@ -72,11 +72,16 @@ var workTypeCanonical = map[string]string{
 	"lunch break office":    "Lunch Break Office",
 	"lunch break es":        "Lunch Break",
 	"lunch break paid":      "Lunch Break",
+	"lunck break paid":      "Lunch Break",
 	"doors":                 "Doors",
 	"extra":                 "Extra",
 	"transport":             "Transport",
 	"holiday":               "Holiday",
 	"holiday paid":          "Holiday",
+	"holiday unpaid":        "Holiday Unpaid",
+	"unpaid holiday":        "Holiday Unpaid",
+	"vacation":              "Vacation",
+	"vacation not paid":     "Vacation Unpaid",
 	"sick":                  "Sick",
 	"maintenance":           "Maintenance",
 	"shift total":           "Shift Total",
@@ -225,6 +230,16 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 			if len(w) > 2 {
 				lotBuilding = strings.Join(w[2:], " > ")
 			}
+			return
+		}
+	}
+
+	// Categoria sem obra: Sick, Holiday, Vacation e afins vêm do QB Time como
+	// caminho de um segmento só. É worktype, não jobsite — sem isso a hora
+	// viraria um "jobsite" chamado Sick nas telas de workforce.
+	if len(w) == 1 {
+		if wt := canonicalWorktype(w[0]); wt != "" {
+			worktype = wt
 			return
 		}
 	}
@@ -492,7 +507,11 @@ func (s *QBTimeWorkforceImportService) Import(
 	skipped := 0
 
 	for _, ts := range agg.Results.Timesheets {
-		if ts.Type != "regular" || ts.Duration <= 0 {
+		// Aceita "regular" (bate ponto) e "manual" (Sick, Holiday, Vacation).
+		// Manual é hora paga lançada à mão e sempre foi descartada aqui, o que
+		// deixava as categorias de ausência sem nenhuma hora vinda da API —
+		// mesmo com "sick"/"holiday" já mapeadas em workTypeCanonical.
+		if ts.Duration <= 0 {
 			skipped++
 			continue
 		}
