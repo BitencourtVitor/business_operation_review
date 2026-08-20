@@ -29,6 +29,21 @@ func TestParseJobcodePathSkipsAddressFolder(t *testing.T) {
 			client:  "Pulte Homes (NEW)",
 			jobsite: "Job Sites > Emerald Run, Shrewsbury",
 		},
+		{
+			name:     "absence category has no jobsite",
+			path:     []string{"Sick"},
+			worktype: "Sick",
+		},
+		{
+			name:     "absence category variant",
+			path:     []string{"Vacation Not Paid"},
+			worktype: "Vacation Unpaid",
+		},
+		{
+			name:    "unknown single segment stays a jobsite",
+			path:    []string{"Premium HVAC"},
+			jobsite: "Premium Hvac",
+		},
 	}
 
 	for _, tt := range tests {
