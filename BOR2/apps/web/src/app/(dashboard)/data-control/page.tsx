@@ -20,7 +20,7 @@ export default function DataControlPage() {
   const [division, setDivision]       = useState<DCDivision>("framing")
   const [section, setSection]         = useState<DCSection>("edit-project")
   const [catalogTable, setCatalogTable] = useState<SidebarTable>("clients")
-  const { data: projects } = useForecast()
+  const { data: projects } = useForecast({ company: division })
 
   const [clientFilter, setClientFilter]   = useState("all")
   const [jobSiteFilter, setJobSiteFilter] = useState("all")
@@ -77,15 +77,35 @@ export default function DataControlPage() {
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        {division === "hvac" && (
+        {/* A HVAC edita as mesmas obras, com as quatro datas do ciclo no lugar
+            dos três marcos. Cadastro novo e catálogos seguem só na Framing: a
+            obra de HVAC nasce da importação do portal, e catálogo de Fieldwire e
+            Machines não existe para ela. */}
+        {division === "hvac" && section === "edit-project" && (
+          <div className="flex-1 overflow-y-auto p-6">
+            <EditProjectSection
+              company="hvac"
+              clientFilter={clientFilter}
+              jobSiteFilter={jobSiteFilter}
+              statusFilter={statusFilter}
+              onClientFilter={handleClientFilter}
+              onJobSiteFilter={setJobSiteFilter}
+              onStatusFilter={setStatusFilter}
+              integ={integ}
+              onInteg={handleInteg}
+            />
+          </div>
+        )}
+
+        {division === "hvac" && section !== "edit-project" && (
           <div className="flex flex-1 items-center justify-center p-6">
             <div className="text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/icon_forecast_hvac.png" alt="HVAC" className="mx-auto h-10 w-10 object-contain opacity-20 dark:hidden" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/icon_forecast_hvac_dark.png" alt="HVAC" className="mx-auto hidden h-10 w-10 object-contain opacity-20 dark:block" />
-              <p className="mt-3 text-sm font-medium text-muted-foreground">HVAC data controls under construction</p>
-              <p className="mt-1 text-xs text-muted-foreground/50">HVAC projects use a different data structure.</p>
+              <p className="mt-3 text-sm font-medium text-muted-foreground">Not available for HVAC</p>
+              <p className="mt-1 text-xs text-muted-foreground/50">HVAC projects come from the client portal import.</p>
             </div>
           </div>
         )}

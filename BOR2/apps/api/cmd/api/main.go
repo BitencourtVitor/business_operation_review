@@ -304,6 +304,7 @@ func main() {
 	forecast.Delete("/:id", forecastHandler.Delete)
 	forecast.Get("/:id", forecastHandler.Get)
 	forecast.Get("/:id/obs", forecastHandler.ListObs)
+	forecast.Get("/:id/date-history", forecastHandler.ListDateHistory)
 
 	// Accounting
 	accounting := api.Group("/accounting")

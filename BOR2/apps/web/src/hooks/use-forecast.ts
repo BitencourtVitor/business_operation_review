@@ -25,6 +25,14 @@ export function useForecastObs(id: string, enabled = true) {
   })
 }
 
+export function useForecastDateHistory(id: string, enabled = true) {
+  return useQuery({
+    queryKey: ["forecast", id, "date-history"],
+    queryFn: () => forecastService.listDateHistory(id),
+    enabled: !!id && enabled,
+  })
+}
+
 export function useCreateForecast() {
   const qc = useQueryClient()
   return useMutation({

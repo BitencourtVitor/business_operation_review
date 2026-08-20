@@ -8,13 +8,16 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  Fan,
   FileText,
   Flag,
   MapPin,
   Package,
   PlayCircle,
+  Thermometer,
   Truck,
   Users,
+  Wrench,
 } from "lucide-react"
 import { useState } from "react"
 import { ForecastProjectSheet } from "./forecast-project-sheet"
@@ -81,6 +84,13 @@ function isTruthy(v?: string | boolean | null): boolean {
 
 function getCompletionMetrics(p: ForecastProject) {
   let done = 0, total = 0
+
+  // A HVAC não usa Fieldwire, Buildertrend, Storage, Machines nem Contract.
+  // Contar esses itens daria uma obra eternamente em 0%, medindo integração que
+  // não existe — o único preparo que a HVAC tem hoje é o QB Time.
+  if (p.company === "hvac") {
+    return { pct: p.qbTime ? 100 : 0, done: p.qbTime ? 1 : 0, total: 1 }
+  }
 
   // Fieldwire docs
   if (p.fieldwire?.length) {
@@ -220,6 +230,21 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const colors = hovered ? cfg.vivid : cfg.muted
   const barColor = getBarColor(displayStatus, pct, hovered)
 
+  // Empresa parceira: outra empresa do grupo que atua nesta mesma obra física.
+  // Vem do vínculo por endereço (forecast_sites), com fallback na marcação
+  // manual antiga enquanto houver obra sem vínculo — antes disso o selo era um
+  // checkbox que alguém precisava lembrar de marcar.
+  const isHvac = p.company === "hvac"
+  const linked = p.linkedCompanies ?? []
+  const linkedCompany =
+    p.company !== "hvac" && (linked.includes("hvac") || p.hvac)
+      ? { label: "HVAC", title: "HVAC work included",
+          icon: "/images/icon_forecast_hvac.png", iconDark: "/images/icon_forecast_hvac_dark.png" }
+      : p.company === "hvac" && linked.includes("framing")
+      ? { label: "Framing", title: "Framing work included",
+          icon: "/images/sublogo_framing.png", iconDark: "" }
+      : null
+
   // Toll Brothers only: Orders page doesn't have this project's dates yet.
   const showNoOrders = p.cliente?.toLowerCase().startsWith("toll brothers") && !p.hasOrders
   const noOrdersColors = hovered
@@ -352,49 +377,63 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
 
           {/* Right column: 2×3 icon grid */}
           <div className="flex flex-col items-center gap-1.5">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 28px)", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isHvac ? "28px" : "repeat(2, 28px)", gap: 6 }}>
+              {/* A HVAC só tem QB Time — os outros slots seriam pendência que
+                  nunca fecha, porque a integração não existe para ela. */}
+              {isHvac ? (
+                <IconSlot done={p.qbTime} title="QuickBooks Time">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_qbtime.png"      alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_qbtime_dark.png" alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
+                </IconSlot>
+              ) : (
+                <>
 
-              {/* Fieldwire */}
-              <IconSlot done={fwDone > 0} pct={fwPct} complete={fwComplete} withProgress title="Fieldwire">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_fieldwire.png" alt="Fieldwire" style={{ width: 16, height: 16, objectFit: "contain" }} />
-              </IconSlot>
-
-              {/* BuilderTrend */}
-              <IconSlot done={p.buildertrend} title="BuilderTrend">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_buildertrend.png"      alt="BT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_buildertrend_dark.png" alt="BT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
-              </IconSlot>
-
-              {/* QB Time */}
-              <IconSlot done={p.qbTime} title="QuickBooks Time">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_qbtime.png"      alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_qbtime_dark.png" alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
-              </IconSlot>
-
-              {/* Storage */}
-              <IconSlot done={p.storage} title="Storage">
-                <Package className="h-3.5 w-3.5 text-foreground" />
-              </IconSlot>
-
-              {/* Machines */}
-              <IconSlot done={isPrivate || mDone > 0} pct={mPct} complete={mComplete} withProgress title={isPrivate ? "Machines & Attachments (not required)" : "Machines & Attachments"}>
-                <Truck className="h-3.5 w-3.5 text-foreground" />
-              </IconSlot>
-
-              {/* Contract */}
-              <IconSlot done={cDone > 0} pct={cPct} complete={cComplete} withProgress title="Contract Steps">
-                <FileText className="h-3.5 w-3.5 text-foreground" />
-              </IconSlot>
-
+                {/* Fieldwire */}
+                <IconSlot done={fwDone > 0} pct={fwPct} complete={fwComplete} withProgress title="Fieldwire">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_fieldwire.png" alt="Fieldwire" style={{ width: 16, height: 16, objectFit: "contain" }} />
+                </IconSlot>
+  
+                {/* BuilderTrend */}
+                <IconSlot done={p.buildertrend} title="BuilderTrend">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_buildertrend.png"      alt="BT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_buildertrend_dark.png" alt="BT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
+                </IconSlot>
+  
+                {/* QB Time */}
+                <IconSlot done={p.qbTime} title="QuickBooks Time">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_qbtime.png"      alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_qbtime_dark.png" alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
+                </IconSlot>
+  
+                {/* Storage */}
+                <IconSlot done={p.storage} title="Storage">
+                  <Package className="h-3.5 w-3.5 text-foreground" />
+                </IconSlot>
+  
+                {/* Machines */}
+                <IconSlot done={isPrivate || mDone > 0} pct={mPct} complete={mComplete} withProgress title={isPrivate ? "Machines & Attachments (not required)" : "Machines & Attachments"}>
+                  <Truck className="h-3.5 w-3.5 text-foreground" />
+                </IconSlot>
+  
+                {/* Contract */}
+                <IconSlot done={cDone > 0} pct={cPct} complete={cComplete} withProgress title="Contract Steps">
+                  <FileText className="h-3.5 w-3.5 text-foreground" />
+                </IconSlot>
+                </>
+              )}
             </div>
 
-            {/* HVAC — below grid with separator, only when true */}
-            {p.hvac && (
+            {/* Empresa parceira na mesma obra — derivado do vínculo por
+                endereço (forecast_sites), não mais de um checkbox. A Framing
+                mostra HVAC; a HVAC mostra Framing. */}
+            {linkedCompany && (
               <>
                 <div className="w-full border-t" />
                 <div
@@ -403,12 +442,14 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}
                   className="bg-muted"
-                  title="HVAC"
+                  title={linkedCompany.title}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/icon_forecast_hvac.png"      alt="HVAC" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/icon_forecast_hvac_dark.png" alt="HVAC" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
+                  <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} className={linkedCompany.iconDark ? "dark:hidden" : undefined} />
+                  {linkedCompany.iconDark && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={linkedCompany.iconDark} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
+                  )}
                 </div>
               </>
             )}
@@ -416,11 +457,26 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
 
         </div>
 
-        {/* ── Date row ── */}
+        {/* ── Date row ──
+            A HVAC acompanha quatro etapas em vez dos três marcos da Framing:
+            o início da obra é o Rough e o fim é o Finish, então start/end não
+            precisam de célula própria — estariam repetindo a primeira e a
+            última. */}
         <div className="flex gap-1.5 border-t pt-2.5">
-          <DateCell icon={Flag}           value={p.previousBeamsDate} label="Beams" />
-          <DateCell icon={CalendarDays}   value={p.startDate}         label="Start" />
-          <DateCell icon={CalendarCheck2} value={p.endDate}           label="End"   />
+          {isHvac ? (
+            <>
+              <DateCell icon={Wrench}         value={p.hvacRoughDate}      label="Rough"     />
+              <DateCell icon={Fan}            value={p.hvacAirHandlerDate} label="Air Hdlr"  />
+              <DateCell icon={Thermometer}    value={p.hvacCondenserDate}  label="Condenser" />
+              <DateCell icon={CalendarCheck2} value={p.hvacFinishDate}     label="Finish"    />
+            </>
+          ) : (
+            <>
+              <DateCell icon={Flag}           value={p.previousBeamsDate} label="Beams" />
+              <DateCell icon={CalendarDays}   value={p.startDate}         label="Start" />
+              <DateCell icon={CalendarCheck2} value={p.endDate}           label="End"   />
+            </>
+          )}
         </div>
 
         {/* ── Observations (latest entry) ── */}

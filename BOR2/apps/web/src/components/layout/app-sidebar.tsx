@@ -258,6 +258,9 @@ function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item
                 >
                   {icon}
                   {child.title}
+                  <span className="ml-auto rounded-sm border px-1 text-[9px] font-semibold uppercase tracking-wide">
+                    Soon
+                  </span>
                 </span>
               )
             }
@@ -419,6 +422,11 @@ function NavGroupItems({
                             <child.icon className="h-3.5 w-3.5" />
                           ) : null}
                           <span>{child.title}</span>
+                          {child.devOnly && !isDev && (
+                            <span className="ml-auto rounded-sm border px-1 text-[9px] font-semibold uppercase tracking-wide">
+                              Soon
+                            </span>
+                          )}
                         </SidebarMenuSubButton>
                         {child.metricsHref && !(child.devOnly && !isDev) && (
                           <TooltipProvider>

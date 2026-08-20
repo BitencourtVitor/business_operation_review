@@ -231,6 +231,14 @@ func (h *ForecastHandler) AddContractTeam(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"ok": true})
 }
 
+func (h *ForecastHandler) ListDateHistory(c *fiber.Ctx) error {
+	entries, err := h.svc.ListDateHistory(c.Context(), c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"data": entries})
+}
+
 func (h *ForecastHandler) ListObs(c *fiber.Ctx) error {
 	entries, err := h.svc.ListObs(c.Context(), c.Params("id"))
 	if err != nil {

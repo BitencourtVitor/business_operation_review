@@ -12,7 +12,9 @@ const fmt = (n: number) =>
 
 export default function DashboardPage() {
   const year = new Date().getFullYear()
-  const { data: projects, isLoading } = useForecast({ year })
+  // Framing: a HVAC ainda não está liberada e entraria nos números sem que
+  // ninguém pudesse abrir a tela dela para conferir.
+  const { data: projects, isLoading } = useForecast({ year, company: "framing" })
   const { data: summary } = useAccountingSummary(undefined, year)
   const { data: subs } = useSubcontractors()
 

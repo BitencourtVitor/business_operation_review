@@ -70,6 +70,7 @@ interface EditProjectSectionProps {
   onStatusFilter:  (v: ForecastStatus | "all") => void
   integ:           IntegFilters
   onInteg:         (k: keyof IntegFilters, v: IntegMode) => void
+  company?:        "framing" | "hvac"
 }
 
 export function EditProjectSection({
@@ -81,8 +82,11 @@ export function EditProjectSection({
   onStatusFilter,
   integ,
   onInteg,
+  company = "framing",
 }: EditProjectSectionProps) {
-  const { data: projects, isLoading } = useForecast()
+  // Sem empresa, a lista da Framing passaria a mostrar obra de HVAC — são
+  // divisões separadas na barra lateral justamente por não se misturarem.
+  const { data: projects, isLoading } = useForecast({ company })
   const deleteMutation = useDeleteForecast()
 
   const [search, setSearch]                 = useState("")

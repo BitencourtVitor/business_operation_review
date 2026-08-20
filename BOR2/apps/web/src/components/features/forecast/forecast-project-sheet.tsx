@@ -10,9 +10,11 @@ import {
 import {
   AlertTriangle,
   CalendarCheck2,
+  CalendarClock,
   CalendarDays,
   CheckCircle2,
   Clock,
+  Fan,
   FileText,
   Flag,
   History,
@@ -21,13 +23,16 @@ import {
   Package,
   PlayCircle,
   Puzzle,
+  Thermometer,
   Truck,
   Users,
+  Wrench,
   XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { ObsCredit, ObsHistoryPanel } from "./obs-history"
+import { DateHistoryPanel } from "./date-history"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -154,6 +159,8 @@ export interface ForecastProjectSheetProps {
 
 export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: ForecastProjectSheetProps) {
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [datesOpen, setDatesOpen] = useState(false)
+  const isHvac = p.company === "hvac"
   useEffect(() => { if (!open) setHistoryOpen(false) }, [open])
 
   const ds       = getForecastDisplayStatus(p, dateMode)
@@ -260,12 +267,17 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               Overview
             </SectionLabel>
 
-            <div className="mb-4 grid grid-cols-3 gap-2">
-              {([
+            <div className={cn("mb-2 grid gap-2", isHvac ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
+              {(isHvac ? [
+                { Icon: Wrench,         label: "Rough",     value: p.hvacRoughDate      },
+                { Icon: Fan,            label: "Air Hdlr",  value: p.hvacAirHandlerDate },
+                { Icon: Thermometer,    label: "Condenser", value: p.hvacCondenserDate  },
+                { Icon: CalendarCheck2, label: "Finish",    value: p.hvacFinishDate     },
+              ] : [
                 { Icon: Flag,           label: "Beams", value: p.previousBeamsDate },
                 { Icon: CalendarDays,   label: "Start", value: p.startDate         },
                 { Icon: CalendarCheck2, label: "End",   value: p.endDate           },
-              ] as const).map(({ Icon, label, value }) => (
+              ]).map(({ Icon, label, value }) => (
                 <div
                   key={label}
                   className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
@@ -277,6 +289,22 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               ))}
             </div>
 
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => { setDatesOpen(v => !v); setHistoryOpen(false) }}
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                  datesOpen
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <CalendarClock className="h-3 w-3" />
+                Date history
+              </button>
+            </div>
+
             {p.obs?.trim() && (
               <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
                 {p.obs}
@@ -284,7 +312,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                   <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
                   <button
                     type="button"
-                    onClick={() => setHistoryOpen(v => !v)}
+                    onClick={() => { setHistoryOpen(v => !v); setDatesOpen(false) }}
                     className={cn(
                       "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
                       historyOpen
@@ -459,6 +487,9 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
         </div>
 
         {/* ── Observation history, side-by-side with the body ──────────────── */}
+        {datesOpen && (
+          <DateHistoryPanel projectId={p.id} open={datesOpen} onClose={() => setDatesOpen(false)} />
+        )}
         {historyOpen && (
           <ObsHistoryPanel projectId={p.id} open={historyOpen} onClose={() => setHistoryOpen(false)} />
         )}

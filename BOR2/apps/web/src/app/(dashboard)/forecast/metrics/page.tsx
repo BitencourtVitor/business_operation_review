@@ -120,8 +120,12 @@ export default function ForecastMetricsPage() {
   const [month,         setMonth]        = useState("")
   const [selectedMonth, setSelectedMonth] = useState("")
 
+  // Fixo na Framing: os scores medem Fieldwire, Machines, Contract, QB Time e
+  // Storage, e a HVAC não usa nenhum deles. Sem o filtro, cada obra de HVAC
+  // entraria como 0% e puxaria a média de preparação para baixo medindo o que
+  // não existe.
   const { data: projects = [], isLoading } = useForecast(
-    year ? { year: Number(year) } : undefined
+    year ? { year: Number(year), company: "framing" } : { company: "framing" }
   )
 
   // ── Group by month ────────────────────────────────────────────────────────
