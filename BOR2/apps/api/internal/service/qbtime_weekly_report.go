@@ -218,7 +218,10 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 	empShifts := make(map[string]map[string][]domain.WeeklyReportShift)
 
 	for _, ts := range qbtResp.Results.Timesheets {
-		if ts.Type != "regular" {
+		// QB Time has two timesheet types: "regular" (clock in/out) and "manual"
+		// (lançado à mão — Sick, Holiday, Vacation). Manual carrega horas pagas
+		// reais e precisa contar; só não tem start/end para virar shift.
+		if ts.Type != "regular" && ts.Type != "manual" {
 			continue
 		}
 		name, ok := userByID[ts.UserID]
@@ -241,13 +244,15 @@ func (s *WeeklyReportService) GetWeeklyReport(ctx context.Context, company strin
 		e.hours += hours
 		empHours[name][ts.Date][pathKey] = e
 
-		if empShifts[name] == nil {
-			empShifts[name] = make(map[string][]domain.WeeklyReportShift)
+		if ts.Start != "" || ts.End != "" {
+			if empShifts[name] == nil {
+				empShifts[name] = make(map[string][]domain.WeeklyReportShift)
+			}
+			empShifts[name][ts.Date] = append(empShifts[name][ts.Date], domain.WeeklyReportShift{
+				Start: ts.Start,
+				End:   ts.End,
+			})
 		}
-		empShifts[name][ts.Date] = append(empShifts[name][ts.Date], domain.WeeklyReportShift{
-			Start: ts.Start,
-			End:   ts.End,
-		})
 	}
 
 	// ── Build domain employees ────────────────────────────────────────────────
