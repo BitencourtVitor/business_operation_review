@@ -43,7 +43,7 @@ function parseLocalDate(d: string): Date {
 }
 
 function fmtDate(d?: string | null) {
-  if (!d) return "N/A"
+  if (!d) return "—"
   return parseLocalDate(d).toLocaleDateString("en-US", {
     month: "2-digit",
     day: "2-digit",
@@ -293,7 +293,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                 não tem espaço para mostrar. */}
             {isHvac ? (
               <div className="mb-2 flex flex-col gap-1.5">
-                {HVAC_STAGES.map(({ Icon, label, start, end }) => {
+                {HVAC_STAGES.map(({ Icon, label, start, end }, i) => {
                   const from = start(p)
                   const to   = end(p)
                   return (
@@ -302,18 +302,35 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                       from || to ? "border bg-muted/40" : "border border-dashed opacity-50",
                     )}>
                       <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 truncate text-xs">{label}</span>
-                      <span className="shrink-0 text-xs font-semibold tabular-nums">
-                        {from || to ? (
-                          <>
-                            {fmtDate(from)}
-                            <span className="mx-1 font-normal text-muted-foreground">→</span>
-                            {fmtDate(to)}
-                          </>
-                        ) : (
-                          <span className="font-normal text-muted-foreground">not in orders</span>
-                        )}
+                      <span className="flex-1 truncate text-xs">
+                        <span className="font-semibold text-muted-foreground/70">S{i + 1} </span>
+                        {label}
                       </span>
+                      {from || to ? (
+                        // Orçamento da linha: 396px úteis = ícone 14 + gap 10 +
+                        // rótulo 216 + bloco de datas 156. O bloco é 68+4+12+4+68,
+                        // onde 68 é a data cheia (66px a 11px) mais folga, e cada
+                        // lado tem a mesma largura com ou sem data — é o que
+                        // mantém setas e dias alinhados entre as quatro etapas.
+                        // O rótulo mais longo mede 211px, então cabe inteiro.
+                        <span className="flex shrink-0 items-center gap-1">
+                          <span className={cn(
+                            "w-[68px] text-[11px] font-semibold tabular-nums",
+                            from ? "text-right" : "text-center font-normal text-muted-foreground/40",
+                          )}>
+                            {from ? fmtDate(from) : "—"}
+                          </span>
+                          <span className="text-xs text-muted-foreground/50">→</span>
+                          <span className={cn(
+                            "w-[68px] text-[11px] font-semibold tabular-nums",
+                            to ? "text-left" : "text-center font-normal text-muted-foreground/40",
+                          )}>
+                            {to ? fmtDate(to) : "—"}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-[11px] font-normal text-muted-foreground">not in orders</span>
+                      )}
                     </div>
                   )
                 })}
@@ -330,7 +347,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                     className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
                   >
                     <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold tabular-nums">{fmtDate(value)}</span>
+                    <span className={cn("text-xs font-semibold tabular-nums", !value && "font-normal text-muted-foreground/40")}>{fmtDate(value)}</span>
                     <span className="text-[9px] text-muted-foreground">{label}</span>
                   </div>
                 ))}
@@ -406,16 +423,20 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             <SectionLabel>Integrations</SectionLabel>
             <div className="flex flex-col gap-2">
 
-              <CheckRow done={!!p.buildertrend}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_buildertrend.png"      alt="" className="h-5 w-5 shrink-0 object-contain dark:hidden" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-5 w-5 shrink-0 object-contain dark:block" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">BuilderTrend</p>
-                  <p className="text-xs text-muted-foreground">Project management &amp; scheduling</p>
-                </div>
-              </CheckRow>
+              {/* A HVAC não usa BuilderTrend nem Storage: listá-los daria uma
+                  pendência permanente de integração que ninguém vai fechar. */}
+              {!isHvac && (
+                <CheckRow done={!!p.buildertrend}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_buildertrend.png"      alt="" className="h-5 w-5 shrink-0 object-contain dark:hidden" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-5 w-5 shrink-0 object-contain dark:block" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">BuilderTrend</p>
+                    <p className="text-xs text-muted-foreground">Project management &amp; scheduling</p>
+                  </div>
+                </CheckRow>
+              )}
 
               <CheckRow done={!!p.qbTime}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -428,13 +449,15 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                 </div>
               </CheckRow>
 
-              <CheckRow done={!!p.storage}>
-                <Package className="h-5 w-5 shrink-0 text-muted-foreground" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">Storage</p>
-                  <p className="text-xs text-muted-foreground">Inventory &amp; materials control</p>
-                </div>
-              </CheckRow>
+              {!isHvac && (
+                <CheckRow done={!!p.storage}>
+                  <Package className="h-5 w-5 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">Storage</p>
+                    <p className="text-xs text-muted-foreground">Inventory &amp; materials control</p>
+                  </div>
+                </CheckRow>
+              )}
 
             </div>
           </section>
