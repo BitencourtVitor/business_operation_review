@@ -99,7 +99,7 @@ const activeGroup: NavGroup = {
       permKey: "forecast",
       children: [
         { title: "Framing", href: "/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/forecast/metrics"      },
-        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics", devOnly: true },
+        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics" },
       ],
     },
     {
