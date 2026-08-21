@@ -8,10 +8,10 @@ import { useForecast, useDeleteForecast } from "@/hooks/use-forecast"
 import { useClients, useJobSites } from "@/hooks/use-clients"
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { FileText, Package, Search, SlidersHorizontal, Truck, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { DeleteDialog } from "./delete-dialog"
-import { VIEW_TABS, STATUS_SEARCH, DEFAULT_INTEG } from "../types"
+import { VIEW_TABS, VIEW_TABS_HVAC, STATUS_SEARCH, DEFAULT_INTEG } from "../types"
 import type { ViewTab, IntegFilters, IntegMode } from "../types"
 import { dateSearchStr } from "../lib"
 
@@ -91,6 +91,14 @@ export function EditProjectSection({
 
   const [search, setSearch]                 = useState("")
   const [viewMode, setViewMode]             = useState<ViewTab>("info")
+  const isHvac  = company === "hvac"
+  const viewTabs = isHvac ? VIEW_TABS_HVAC : VIEW_TABS
+
+  // Trocar de empresa com uma aba inexistente selecionada deixaria o card em
+  // branco — Fieldwire não existe na HVAC.
+  useEffect(() => {
+    if (!viewTabs.some(t => t.key === viewMode)) setViewMode("info")
+  }, [viewTabs, viewMode])
   const [deletingProject, setDeletingProject] = useState<ForecastProject | null>(null)
 
   const integActiveCount = useMemo(
@@ -104,12 +112,16 @@ export function EditProjectSection({
       if (clientFilter  !== "all" && p.cliente !== clientFilter)  return false
       if (jobSiteFilter !== "all" && p.jobSite !== jobSiteFilter) return false
       if (statusFilter  !== "all" && p.status  !== statusFilter)  return false
-      if (!applyInteg(integ.fieldwire,    isFieldwireDone(p)))  return false
-      if (!applyInteg(integ.buildertrend, p.buildertrend))      return false
-      if (!applyInteg(integ.qbTime,       p.qbTime))            return false
-      if (!applyInteg(integ.machines,     isMachinesDone(p)))   return false
-      if (!applyInteg(integ.storage,      p.storage))           return false
-      if (!applyInteg(integ.contract,     isContractDone(p)))   return false
+      // Na HVAC só QB Time existe; filtrar pelo resto excluiria toda obra por
+      // uma integração que a empresa não tem.
+      if (!applyInteg(integ.qbTime, p.qbTime)) return false
+      if (!isHvac) {
+        if (!applyInteg(integ.fieldwire,    isFieldwireDone(p)))  return false
+        if (!applyInteg(integ.buildertrend, p.buildertrend))      return false
+        if (!applyInteg(integ.machines,     isMachinesDone(p)))   return false
+        if (!applyInteg(integ.storage,      p.storage))           return false
+        if (!applyInteg(integ.contract,     isContractDone(p)))   return false
+      }
       if (search) {
         const q = search.toLowerCase()
         const haystack = [
@@ -134,7 +146,7 @@ export function EditProjectSection({
       if (numA !== numB) return numA - numB
       return (a.loteBld ?? "").localeCompare(b.loteBld ?? "")
     })
-  }, [projects, clientFilter, jobSiteFilter, statusFilter, integ, search])
+  }, [projects, clientFilter, jobSiteFilter, statusFilter, integ, search, isHvac])
 
   const { data: catalogClients  = [] } = useClients()
   const { data: catalogJobSites = [] } = useJobSites()
@@ -156,7 +168,7 @@ export function EditProjectSection({
             {filtered.length} project{filtered.length !== 1 ? "s" : ""}
           </span>
           <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
-            {VIEW_TABS.map(t => (
+            {viewTabs.map(t => (
               <button
                 key={t.key}
                 title={t.label}
@@ -216,23 +228,31 @@ export function EditProjectSection({
               <div className="flex flex-col gap-4 p-4">
                 <div className="flex flex-col gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">External Integrations</p>
-                  <IntegRow label="Fieldwire"    value={integ.fieldwire}    onChange={v => onInteg("fieldwire", v)}
-                    icon={<img src="/images/icon_fieldwire.png" alt="" className="h-4 w-4 object-contain" />} />
-                  <IntegRow label="Buildertrend" value={integ.buildertrend} onChange={v => onInteg("buildertrend", v)}
-                    icon={<><img src="/images/icon_buildertrend.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
+                  {!isHvac && (
+                    <>
+                      <IntegRow label="Fieldwire"    value={integ.fieldwire}    onChange={v => onInteg("fieldwire", v)}
+                        icon={<img src="/images/icon_fieldwire.png" alt="" className="h-4 w-4 object-contain" />} />
+                      <IntegRow label="Buildertrend" value={integ.buildertrend} onChange={v => onInteg("buildertrend", v)}
+                        icon={<><img src="/images/icon_buildertrend.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
+                    </>
+                  )}
                   <IntegRow label="QBTime"       value={integ.qbTime}       onChange={v => onInteg("qbTime", v)}
                     icon={<><img src="/images/icon_qbtime.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_qbtime_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
                 </div>
-                <div className="h-px bg-border" />
-                <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Internal Resources</p>
-                  <IntegRow label="Machines" value={integ.machines} onChange={v => onInteg("machines", v)}
-                    icon={<Truck    className="h-4 w-4 text-muted-foreground" />} />
-                  <IntegRow label="Storage"  value={integ.storage}  onChange={v => onInteg("storage", v)}
-                    icon={<Package  className="h-4 w-4 text-muted-foreground" />} />
-                  <IntegRow label="Contract" value={integ.contract} onChange={v => onInteg("contract", v)}
-                    icon={<FileText className="h-4 w-4 text-muted-foreground" />} />
-                </div>
+                {!isHvac && (
+                  <>
+                    <div className="h-px bg-border" />
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Internal Resources</p>
+                      <IntegRow label="Machines" value={integ.machines} onChange={v => onInteg("machines", v)}
+                        icon={<Truck    className="h-4 w-4 text-muted-foreground" />} />
+                      <IntegRow label="Storage"  value={integ.storage}  onChange={v => onInteg("storage", v)}
+                        icon={<Package  className="h-4 w-4 text-muted-foreground" />} />
+                      <IntegRow label="Contract" value={integ.contract} onChange={v => onInteg("contract", v)}
+                        icon={<FileText className="h-4 w-4 text-muted-foreground" />} />
+                    </div>
+                  </>
+                )}
               </div>
             </PopoverContent>
           </Popover>

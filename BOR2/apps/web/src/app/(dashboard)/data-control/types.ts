@@ -166,6 +166,15 @@ export const DC_GROUPS: {
   },
 ]
 
+// A HVAC só edita obra existente: a obra nasce da importação do portal, e não há
+// catálogo de Fieldwire nem de Machines para ela.
+export const DC_GROUPS_HVAC: typeof DC_GROUPS = [
+  {
+    label: "Options",
+    items: [{ key: "edit-project", label: "Edit Project", icon: Pencil }],
+  },
+]
+
 // ─── View-mode tabs (used inside EditProjectSection) ──────────────────────────
 export const VIEW_TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "info",      label: "Info & Dates", icon: React.createElement(Info,              { className: "h-3.5 w-3.5" }) },
@@ -174,6 +183,10 @@ export const VIEW_TABS: { key: ViewTab; label: string; icon: React.ReactNode }[]
   { key: "contract",  label: "Contract",     icon: React.createElement(FileText,          { className: "h-3.5 w-3.5" }) },
   { key: "optionals", label: "Optionals",    icon: React.createElement(SlidersHorizontal, { className: "h-3.5 w-3.5" }) },
 ]
+
+// A HVAC não usa Fieldwire, Machines nem Contract: sobram os dados da obra e os
+// opcionais. Abas dessas integrações abririam sempre vazias.
+export const VIEW_TABS_HVAC = VIEW_TABS.filter(t => t.key === "info" || t.key === "optionals")
 
 // ─── Forecast division selector (Framing vs HVAC — different data structures) ──
 export type DCDivision = "framing" | "hvac"

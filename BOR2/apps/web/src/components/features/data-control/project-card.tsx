@@ -87,6 +87,10 @@ const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders"; label
   },
 ]
 
+// A HVAC não usa Buildertrend nem Storage. Mostrar o toggle sugeriria que basta
+// ligar — quando a integração não existe para essa empresa.
+const HVAC_TOGGLES = new Set(["qbTime", "hasOrders"])
+
 // As quatro etapas do ciclo de HVAC, na ordem em que acontecem na obra.
 const HVAC_STAGE_FIELDS = [
   { key: "hvacRoughDate"      as const, label: "Rough" },
@@ -323,21 +327,23 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
       </div>
       {/* A HVAC edita as quatro etapas do ciclo; início e fim da obra são
           derivados delas no banco, então não são editáveis aqui. */}
-      <div className="flex w-36 flex-col gap-2">
-        {p.company === "hvac" ? (
-          HVAC_STAGE_FIELDS.map(({ key, label }) => (
+      {p.company === "hvac" ? (
+        // Duas colunas: empilhadas, a quarta etapa não cabia na altura fixa do
+        // card e ficava cortada.
+        <div className="grid w-64 grid-cols-2 content-start gap-x-3 gap-y-2">
+          {HVAC_STAGE_FIELDS.map(({ key, label }) => (
             <DatePickerField key={key} label={label} value={dateVal(p[key])}
               onBlur={v => onSave(key, v ? `${v}T00:00:00Z` : null)}
               isSaving={savingField === key} />
-          ))
-        ) : (
-          <>
-            <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
-            <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
-            <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
-          </>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex w-36 flex-col gap-2">
+          <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
+          <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
+          <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
+        </div>
+      )}
     </div>
   )
 }
@@ -809,9 +815,12 @@ function ContractTab({ p }: { p: ForecastProject }) {
 }
 
 function OptionalsTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: string, v: unknown) => void; savingField: string | null }) {
+  const toggles = p.company === "hvac"
+    ? TOGGLES.filter(t => HVAC_TOGGLES.has(t.key))
+    : TOGGLES
   return (
     <div className="grid h-full grid-cols-2 gap-2 content-center">
-      {TOGGLES.map(({ key, label, desc, icon }) => {
+      {toggles.map(({ key, label, desc, icon }) => {
         const isSaving = savingField === key
         return (
           <div key={key} className="flex items-center gap-2.5 rounded-lg border border-border px-2.5 py-2">
