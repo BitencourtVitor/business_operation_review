@@ -80,6 +80,17 @@ function getProjectMonth(p: ForecastProject, mode: DateMode) {
   return { year: d.getFullYear(), month: d.getMonth() }
 }
 
+/**
+ * Obra sem pedido e sem data alguma.
+ *
+ * Obra sem pedido mas com data de calendário fica ancorada nela e entra no mês
+ * normalmente. Só cai aqui quem não tem nem isso — aí não há mês a que
+ * pertencer, e jogá-la no mês corrente a misturaria com quem tem cronograma.
+ */
+function isAwaitingOrders(p: ForecastProject): boolean {
+  return p.company === "hvac" && !p.hasOrders && !p.jobOpenedDate
+}
+
 function isTruthy(v?: string | boolean | null): boolean {
   if (typeof v === "boolean") return v
   if (!v) return false
@@ -447,9 +458,14 @@ export function ForecastBoard({ company, title, metricsHref }: {
     const hasOnly = Object.entries(status).find(([, v]) => v === "only")?.[0] as ForecastDisplayStatus | undefined
 
     const filtered = projects.filter((p) => {
-      const pm = getProjectMonth(p, dateMode)
-      if (year !== "all" && pm.year !== year) return false
-      if (month !== "all" && pm.month !== month) return false
+      if (isAwaitingOrders(p)) {
+        // Sem data, só faz sentido na visão sem recorte de período.
+        if (year !== "all" || month !== "all") return false
+      } else {
+        const pm = getProjectMonth(p, dateMode)
+        if (year !== "all" && pm.year !== year) return false
+        if (month !== "all" && pm.month !== month) return false
+      }
 
       const ds = getForecastDisplayStatus(p, dateMode)
 
@@ -482,7 +498,9 @@ export function ForecastBoard({ company, title, metricsHref }: {
     })
 
     const map = new Map<string, ForecastProject[]>()
+    const awaiting: ForecastProject[] = []
     for (const p of filtered) {
+      if (isAwaitingOrders(p)) { awaiting.push(p); continue }
       const pm = getProjectMonth(p, dateMode)
       const key = `${pm.year}-${String(pm.month + 1).padStart(2, "0")}`
       if (!map.has(key)) map.set(key, [])
@@ -500,6 +518,17 @@ export function ForecastBoard({ company, title, metricsHref }: {
         }, {} as Partial<Record<ForecastDisplayStatus, number>>)
         return { key, label: `${MONTHS[mo - 1].label} ${y}`, items, statusCounts }
       })
+
+    // Sempre no fim, e fora da ordenação por data: não é um mês, é a fila de
+    // quem ainda não entrou no calendário.
+    if (awaiting.length > 0) {
+      grouped.push({
+        key: "awaiting-orders",
+        label: "Awaiting orders",
+        items: awaiting,
+        statusCounts: {} as Partial<Record<ForecastDisplayStatus, number>>,
+      })
+    }
 
     return { grouped, metrics: m }
   }, [projects, year, month, dateMode, status, integ, client, location, type, sortOrder])

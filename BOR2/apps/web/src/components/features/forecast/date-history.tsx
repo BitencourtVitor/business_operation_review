@@ -27,6 +27,8 @@ const SOURCE_STYLE: Record<string, { label: string; className: string }> = {
   manual:   { label: "Manual",   className: "text-primary" },
 }
 
+const DERIVED_ON_HVAC = new Set(["previous_start_date", "previous_end_date"])
+
 function fmtDate(value?: string | null): string {
   if (!value) return "—"
   const [y, m, d] = value.slice(0, 10).split("-").map(Number)
@@ -44,14 +46,23 @@ function fmtDate(value?: string | null): string {
  */
 export function DateHistoryPanel({
   projectId,
+  company,
   open,
   onClose,
 }: {
   projectId: string
+  company?: string
   open: boolean
   onClose: () => void
 }) {
-  const { data: entries = [], isLoading } = useForecastDateHistory(projectId, open)
+  const { data: all = [], isLoading } = useForecastDateHistory(projectId, open)
+
+  // Na HVAC, início e fim são derivados das etapas pelo banco: mostrar os três
+  // seria contar a mesma remarcação três vezes. O que aconteceu de fato é a
+  // etapa ter mudado.
+  const entries = company === "hvac"
+    ? all.filter(e => !DERIVED_ON_HVAC.has(e.field))
+    : all
 
   return (
     <div className="flex max-h-[85vh] w-full shrink-0 flex-col border-t bg-muted/20 sm:w-[320px] sm:border-l sm:border-t-0">

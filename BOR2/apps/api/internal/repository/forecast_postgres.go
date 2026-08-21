@@ -77,6 +77,11 @@ WITH mapped AS (
 		hvac_air_handler_date,
 		hvac_condenser_date,
 		hvac_finish_date,
+		hvac_rough_end_date,
+		hvac_air_handler_end_date,
+		hvac_condenser_end_date,
+		hvac_finish_end_date,
+		job_opened_date,
 		previous_beams_date,
 		previous_start_date,
 		previous_end_date,
@@ -105,6 +110,8 @@ SELECT
 		'{}'
 	) AS linked_companies,
 	m.hvac_rough_date, m.hvac_air_handler_date, m.hvac_condenser_date, m.hvac_finish_date,
+	m.hvac_rough_end_date, m.hvac_air_handler_end_date, m.hvac_condenser_end_date, m.hvac_finish_end_date,
+	m.job_opened_date,
 	m.previous_beams_date, m.previous_start_date, m.previous_end_date,
 	m.created_at, m.updated_at,
 	COALESCE(
@@ -145,6 +152,8 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.Hvac, &p.Buildertrend, &p.Storage, &p.HasOrders, &p.MachineProvider,
 		&p.SiteID, &p.LinkedCompanies,
 		&p.HvacRoughDate, &p.HvacAirHandlerDate, &p.HvacCondenserDate, &p.HvacFinishDate,
+		&p.HvacRoughEndDate, &p.HvacAirHandlerEndDate, &p.HvacCondenserEndDate, &p.HvacFinishEndDate,
+		&p.JobOpenedDate,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
 		&fieldwireJSON, &machinesJSON, &contractStepsJSON,
@@ -201,8 +210,10 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		   cliente, job_site, type, lote_bld, address, obs,
 		   hvac, buildertrend, storage, has_orders, machine_provider,
 		   hvac_rough_date, hvac_air_handler_date, hvac_condenser_date, hvac_finish_date,
+		   hvac_rough_end_date, hvac_air_handler_end_date,
+		   hvac_condenser_end_date, hvac_finish_end_date,
 		   create_datetime, lastupdate_datetimez)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$26)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$30)
 	`,
 		p.ID, p.Name, p.Company, statusToBOR1(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
@@ -210,6 +221,7 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
 		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		p.HvacRoughDate, p.HvacAirHandlerDate, p.HvacCondenserDate, p.HvacFinishDate,
+		p.HvacRoughEndDate, p.HvacAirHandlerEndDate, p.HvacCondenserEndDate, p.HvacFinishEndDate,
 		now,
 	); err != nil {
 		return err
@@ -303,6 +315,8 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		  hvac=$15, buildertrend=$16, storage=$17, has_orders=$18, machine_provider=$19,
 		  hvac_rough_date=$21, hvac_air_handler_date=$22,
 		  hvac_condenser_date=$23, hvac_finish_date=$24,
+		  hvac_rough_end_date=$25, hvac_air_handler_end_date=$26,
+		  hvac_condenser_end_date=$27, hvac_finish_end_date=$28,
 		  lastupdate_datetimez=NOW()
 		WHERE id=$20
 	`,
@@ -314,6 +328,7 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		p.Hvac, p.Buildertrend, p.Storage, p.HasOrders, p.MachineProvider,
 		p.ID,
 		p.HvacRoughDate, p.HvacAirHandlerDate, p.HvacCondenserDate, p.HvacFinishDate,
+		p.HvacRoughEndDate, p.HvacAirHandlerEndDate, p.HvacCondenserEndDate, p.HvacFinishEndDate,
 	)
 	if err != nil {
 		return err

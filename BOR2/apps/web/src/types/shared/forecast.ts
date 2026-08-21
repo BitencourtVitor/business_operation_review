@@ -52,6 +52,13 @@ export interface ForecastProject {
   hvacAirHandlerDate?: string | null
   hvacCondenserDate?: string | null
   hvacFinishDate?: string | null
+  /** Fim de cada etapa — as Orders trazem RS e RE por task. */
+  hvacRoughEndDate?: string | null
+  hvacAirHandlerEndDate?: string | null
+  hvacCondenserEndDate?: string | null
+  hvacFinishEndDate?: string | null
+  /** Abertura do job na conta do cliente — referência, não cronograma. */
+  jobOpenedDate?: string | null
   /** Obra física compartilhada entre empresas (forecast_sites). */
   siteId?: string
   /** Outras empresas que atuam nesta mesma obra. Origem do selo de HVAC. */

@@ -14,12 +14,14 @@ import {
   MapPin,
   Package,
   PlayCircle,
+  Snowflake,
   Thermometer,
   Truck,
   Users,
   Wrench,
 } from "lucide-react"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 import { ForecastProjectSheet } from "./forecast-project-sheet"
 import { ObsCredit } from "./obs-history"
 
@@ -206,13 +208,32 @@ function IconSlot({
 
 // ─── Date cell ────────────────────────────────────────────────────────────────
 
-function DateCell({ icon: Icon, value, label }: { icon: React.ElementType; value?: string | null; label: string }) {
+function DateCell({ icon: Icon, value, label, strong }: {
+  icon: React.ElementType
+  value?: string | null
+  label: string
+  /** Fim da obra: fecha o ciclo, então ganha peso em vez de virar mais uma data. */
+  strong?: boolean
+}) {
+  const missing = !value
   return (
-    <div className="flex flex-1 items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1.5">
-      <Icon className="h-3 w-3 shrink-0 text-muted-foreground" />
+    <div className={cn(
+      "flex min-w-0 items-center gap-1.5 rounded-md px-2 py-1.5",
+      // Data ausente é lacuna, não valor: fundo vazio e traço no lugar de "N/A",
+      // que se lia como se houvesse algo escrito ali.
+      missing ? "border border-dashed bg-transparent opacity-50" : "border bg-muted/50",
+      strong && !missing && "border-primary/40 bg-primary/5",
+    )}>
+      <Icon className={cn("h-3 w-3 shrink-0", strong && !missing ? "text-primary" : "text-muted-foreground")} />
       <div className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-[10px] font-medium tabular-nums">{fmt(value)}</span>
-        <span className="text-[9px] text-muted-foreground">{label}</span>
+        <span className={cn(
+          "truncate text-[10px] tabular-nums",
+          missing ? "font-normal text-muted-foreground" : "font-medium",
+          strong && !missing && "text-primary",
+        )}>
+          {value ? fmt(value) : "—"}
+        </span>
+        <span className="truncate text-[9px] text-muted-foreground">{label}</span>
       </div>
     </div>
   )
@@ -238,11 +259,9 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const linked = p.linkedCompanies ?? []
   const linkedCompany =
     p.company !== "hvac" && (linked.includes("hvac") || p.hvac)
-      ? { label: "HVAC", title: "HVAC work included",
-          icon: "/images/icon_forecast_hvac.png", iconDark: "/images/icon_forecast_hvac_dark.png" }
+      ? { label: "HVAC", title: "HVAC work included", icon: "/images/icon_forecast_hvac.png" }
       : p.company === "hvac" && linked.includes("framing")
-      ? { label: "Framing", title: "Framing work included",
-          icon: "/images/sublogo_framing.png", iconDark: "" }
+      ? { label: "Framing", title: "Framing work included", icon: "/images/sublogo_framing.png" }
       : null
 
   // Toll Brothers only: Orders page doesn't have this project's dates yet.
@@ -444,12 +463,10 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
                   className="bg-muted"
                   title={linkedCompany.title}
                 >
+                  {/* Mesmo selo colorido nos dois temas — é marca de empresa,
+                      não ícone de interface. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} className={linkedCompany.iconDark ? "dark:hidden" : undefined} />
-                  {linkedCompany.iconDark && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={linkedCompany.iconDark} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
-                  )}
+                  <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
                 </div>
               </>
             )}
@@ -462,22 +479,43 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
             o início da obra é o Rough e o fim é o Finish, então start/end não
             precisam de célula própria — estariam repetindo a primeira e a
             última. */}
-        <div className="flex gap-1.5 border-t pt-2.5">
-          {isHvac ? (
-            <>
-              <DateCell icon={Wrench}         value={p.hvacRoughDate}      label="Rough"     />
-              <DateCell icon={Fan}            value={p.hvacAirHandlerDate} label="Air Hdlr"  />
-              <DateCell icon={Thermometer}    value={p.hvacCondenserDate}  label="Condenser" />
-              <DateCell icon={CalendarCheck2} value={p.hvacFinishDate}     label="Finish"    />
-            </>
+        {isHvac ? (
+          // Cinco datas: o início de cada uma das quatro etapas e o fim da obra,
+          // que é o fim da etapa 4. Em duas linhas de três e duas — as quatro
+          // numa linha só espremiam a data até cortar.
+          !p.hasOrders ? (
+            // Sem pedido não existe etapa: a obra tem uma data só, a do
+            // calendário do cliente. Mostrar quatro campos vazios sugeriria dado
+            // faltando, quando na verdade não há o que faltar ainda.
+            <div className="flex flex-col gap-1.5 border-t pt-2.5">
+              <div className="grid grid-cols-2 gap-1.5">
+                <DateCell icon={CalendarDays} value={p.jobOpenedDate} label="Job schedule" />
+                <div className="flex min-w-0 items-center justify-center gap-1.5 rounded-md border border-dashed border-amber-500/40 bg-amber-500/5 px-2 py-1.5 text-[9px] font-semibold uppercase leading-tight tracking-wide text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="h-3 w-3 shrink-0" />
+                  No order issued
+                </div>
+              </div>
+            </div>
           ) : (
-            <>
-              <DateCell icon={Flag}           value={p.previousBeamsDate} label="Beams" />
-              <DateCell icon={CalendarDays}   value={p.startDate}         label="Start" />
-              <DateCell icon={CalendarCheck2} value={p.endDate}           label="End"   />
-            </>
-          )}
-        </div>
+            <div className="flex flex-col gap-1.5 border-t pt-2.5">
+              <div className="grid grid-cols-3 gap-1.5">
+                <DateCell icon={Wrench}      value={p.hvacRoughDate}      label="Rough"     />
+                <DateCell icon={Fan}         value={p.hvacAirHandlerDate} label="Air Hdlr"  />
+                <DateCell icon={Thermometer} value={p.hvacCondenserDate}  label="Condenser" />
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <DateCell icon={Snowflake}      value={p.hvacFinishDate}    label="Finish"     />
+                <DateCell icon={CalendarCheck2} value={p.hvacFinishEndDate} label="End of job" strong />
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="grid grid-cols-3 gap-1.5 border-t pt-2.5">
+            <DateCell icon={Flag}           value={p.previousBeamsDate} label="Beams" />
+            <DateCell icon={CalendarDays}   value={p.startDate}         label="Start" />
+            <DateCell icon={CalendarCheck2} value={p.endDate}           label="End"   />
+          </div>
+        )}
 
         {/* ── Observations (latest entry) ── */}
         {p.obs && (
