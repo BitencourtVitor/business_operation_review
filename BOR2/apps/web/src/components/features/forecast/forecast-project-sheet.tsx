@@ -553,7 +553,6 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             </section>
           )}
 
-          <div className="h-4" />
         </div>
         </div>
 
