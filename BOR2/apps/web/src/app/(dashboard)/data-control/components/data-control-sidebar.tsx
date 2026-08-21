@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/select"
 import type { ForecastStatus } from "@bor2/shared"
 import { Building2, CircleDot, MapPin, X } from "lucide-react"
-import { CATALOG_TABS, DC_DIVISIONS, DC_GROUPS, STATUS_OPTS } from "../types"
+import { CATALOG_TABS, DC_DIVISIONS, DC_GROUPS,
+  DC_GROUPS_HVAC, STATUS_OPTS } from "../types"
 import type { DCDivision, DCSection, SidebarTable } from "../types"
 
 interface DataControlSidebarProps {
@@ -85,7 +86,7 @@ export function DataControlSidebar({
 
       {/* Nav groups */}
       <div className="flex-1 overflow-y-auto py-2">
-        {division === "framing" && DC_GROUPS.map(g => (
+        {(division === "hvac" ? DC_GROUPS_HVAC : DC_GROUPS).map(g => (
           <div key={g.label} className="mb-1">
             <p className="mb-0.5 px-4 pt-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
               {g.label}
@@ -114,7 +115,7 @@ export function DataControlSidebar({
         ))}
 
         {/* Edit Filters — only visible in edit-project mode */}
-        {division === "framing" && active === "edit-project" && (
+        {active === "edit-project" && (
           <>
             <div className="my-3 border-t border-sidebar-border" />
             <div className="px-3 space-y-3">
