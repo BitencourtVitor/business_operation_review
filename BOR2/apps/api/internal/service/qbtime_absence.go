@@ -244,10 +244,26 @@ func (s *QBTimeAbsenceService) DetectCompany(ctx context.Context, company string
 	return len(events), nil
 }
 
-// NotifyCompany announces every event that crossed the threshold and has not
-// been announced yet — one notification per company per run, not per person.
+// NotifyCompany does two independent things, on purpose:
+//
+//   - the in-app notification is news — it fires once per absence, when the
+//     block first crosses the threshold, and notified_at keeps it from
+//     repeating while the same absence drags on;
+//   - the e-mail is a state report — every run it lists everyone still missing
+//     on the last evaluated day, so somebody who stopped punching a week ago
+//     stays on the list until they come back, instead of being mentioned once
+//     and silently dropping off it.
 func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string) error {
 	alertDays, _ := s.absenceParams(ctx)
+	if err := s.notifyInApp(ctx, company, alertDays); err != nil {
+		return err
+	}
+	return s.emailOpenAbsences(ctx, company, alertDays)
+}
+
+// notifyInApp raises the bell for absences that crossed the threshold and were
+// never announced — one notification per company per run, not per person.
+func (s *QBTimeAbsenceService) notifyInApp(ctx context.Context, company string, alertDays int) error {
 	pending, err := s.repo.PendingNotification(ctx, company, alertDays)
 	if err != nil {
 		return err
@@ -276,15 +292,9 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 
 	label := strings.ToUpper(company)
 	link := "/qbtime/absences?company=" + company
-	title := fmt.Sprintf("%s — %d employee(s) without clock-in", label, len(pending))
-	content := fmt.Sprintf(
-		"No punch for %d+ business days:\n\n%s",
-		alertDays, strings.Join(lines, "\n"),
-	)
-
 	if _, err := s.notifSvc.Create(ctx, &domain.Notification{
-		Title:      title,
-		Content:    content,
+		Title:      fmt.Sprintf("%s — %d employee(s) without clock-in", label, len(pending)),
+		Content:    fmt.Sprintf("No punch for %d+ business days:\n\n%s", alertDays, strings.Join(lines, "\n")),
 		Recipients: recipients,
 		Link:       &link,
 		CreatedBy:  "system",
@@ -292,60 +302,87 @@ func (s *QBTimeAbsenceService) NotifyCompany(ctx context.Context, company string
 		return fmt.Errorf("create absence notification: %w", err)
 	}
 
+	return s.repo.MarkNotified(ctx, ids)
+}
+
+// emailOpenAbsences sends the day's list: everyone on the active roster whose
+// absence is still open on the last evaluated day and already at or over the
+// threshold, minus the people the trigger never announces by e-mail.
+func (s *QBTimeAbsenceService) emailOpenAbsences(ctx context.Context, company string, alertDays int) error {
 	if s.email == nil || s.triggers == nil {
 		return fmt.Errorf("absence email dependencies are not configured")
 	}
-	// Only the e-mail is gated by the trigger. The in-app notification above
-	// follows the absence_control permission and stays independent of it.
+	// Only the e-mail is gated by the trigger. The in-app notification follows
+	// the absence_control permission and stays independent of it.
 	emailDue, _, err := s.triggers.ShouldRun(ctx, TriggerQBTimeAbsence, time.Now())
 	if err != nil {
 		return err
+	}
+	if !emailDue {
+		return nil
 	}
 	to, cc, err := s.triggers.Recipients(ctx, TriggerQBTimeAbsence)
 	if err != nil {
 		return err
 	}
-	if emailDue && len(to) > 0 {
-		excluded := s.excludedFromEmail(ctx, company)
-		rows := make([]AbsenceRow, 0, len(pending))
-		for _, event := range pending {
-			if excluded[strings.ToLower(strings.TrimSpace(event.EmployeeName))] {
-				continue
-			}
-			rows = append(rows, AbsenceRow{
-				EmployeeName: event.EmployeeName,
-				TeamName:     event.TeamName,
-				DaysCount:    event.DaysCount,
-				StartDate:    event.StartDate,
-			})
-		}
-		// Everyone who crossed the threshold is on the exclusion list: there is
-		// nothing to announce, and an e-mail saying so would be noise. The
-		// events are still marked notified below, so they do not queue up.
-		if len(rows) == 0 {
-			logger.Info("absence email skipped: every pending employee is excluded",
-				"company", company, "events", len(pending))
-			return s.repo.MarkNotified(ctx, ids)
-		}
-		body := BuildAbsenceEmail(company, alertDays, rows)
-		delivery, err := s.email.Send(ctx, EmailMessage{
-			To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
-		})
-		if err != nil {
-			s.triggers.LogDelivery(ctx, TriggerDelivery{
-				TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc,
-				Context: label, Status: "failed", Error: err.Error(),
-			})
-			return fmt.Errorf("send absence email: %w", err)
-		}
-		s.triggers.LogDelivery(ctx, TriggerDelivery{
-			TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc, Context: label,
-		})
-		logger.Info("absence email accepted", "company", company, "delivery_id", delivery.ID,
-			"announced", len(rows), "excluded", len(pending)-len(rows))
+	if len(to) == 0 {
+		return nil
 	}
 
-	return s.repo.MarkNotified(ctx, ids)
+	// "Still absent" is measured against the last day the company actually
+	// punched on: today is still running, and a holiday proves nothing.
+	evaluated, err := s.evaluatedDays(ctx, company, easternNow())
+	if err != nil {
+		return err
+	}
+	if len(evaluated) == 0 {
+		logger.Info("absence email skipped: no evaluated day in the window", "company", company)
+		return nil
+	}
+
+	open, err := s.repo.OpenAtOrOver(ctx, company, alertDays, evaluated[len(evaluated)-1])
+	if err != nil {
+		return err
+	}
+
+	excluded := s.excludedFromEmail(ctx, company)
+	rows := make([]AbsenceRow, 0, len(open))
+	for _, event := range open {
+		if excluded[strings.ToLower(strings.TrimSpace(event.EmployeeName))] {
+			continue
+		}
+		rows = append(rows, AbsenceRow{
+			EmployeeName: event.EmployeeName,
+			TeamName:     event.TeamName,
+			DaysCount:    event.DaysCount,
+			StartDate:    event.StartDate,
+		})
+	}
+	// Nobody is missing, or everyone missing is on the exclusion list. Either
+	// way, an e-mail saying so would be noise.
+	if len(rows) == 0 {
+		logger.Info("absence email skipped: nothing to announce", "company", company, "open", len(open))
+		return nil
+	}
+
+	label := strings.ToUpper(company)
+	body := BuildAbsenceEmail(company, alertDays, rows)
+	delivery, err := s.email.Send(ctx, EmailMessage{
+		To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
+	})
+	if err != nil {
+		s.triggers.LogDelivery(ctx, TriggerDelivery{
+			TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc,
+			Context: label, Status: "failed", Error: err.Error(),
+		})
+		return fmt.Errorf("send absence email: %w", err)
+	}
+	s.triggers.LogDelivery(ctx, TriggerDelivery{
+		TriggerKey: TriggerQBTimeAbsence, Subject: body.Subject, To: to, CC: cc, Context: label,
+	})
+	logger.Info("absence email accepted", "company", company, "delivery_id", delivery.ID,
+		"announced", len(rows), "excluded", len(open)-len(rows))
+	return nil
 }
 
 // Run is the daily entry point: detect then notify, every company.
@@ -564,13 +601,8 @@ func (s *QBTimeAbsenceService) Attendance(ctx context.Context, company string, w
 	for _, name := range teamNames {
 		list := byTeam[name]
 		sort.Slice(list, func(i, j int) bool {
-			// Worst first, so the eye lands on who needs attention.
-			if list[i].MaxStreak != list[j].MaxStreak {
-				return list[i].MaxStreak > list[j].MaxStreak
-			}
-			if list[i].AbsentCount != list[j].AbsentCount {
-				return list[i].AbsentCount > list[j].AbsentCount
-			}
+			// Alphabetical inside the team: the grid is read to look somebody
+			// up, and a row that moves as the streak changes is hard to find.
 			return list[i].Name < list[j].Name
 		})
 		teams = append(teams, domain.AttendanceTeam{Team: name, Employees: list})
