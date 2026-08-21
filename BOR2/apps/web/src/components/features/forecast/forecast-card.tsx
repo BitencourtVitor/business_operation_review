@@ -208,12 +208,10 @@ function IconSlot({
 
 // ─── Date cell ────────────────────────────────────────────────────────────────
 
-function DateCell({ icon: Icon, value, label, strong }: {
+function DateCell({ icon: Icon, value, label }: {
   icon: React.ElementType
   value?: string | null
   label: string
-  /** Fim da obra: fecha o ciclo, então ganha peso em vez de virar mais uma data. */
-  strong?: boolean
 }) {
   const missing = !value
   return (
@@ -222,14 +220,12 @@ function DateCell({ icon: Icon, value, label, strong }: {
       // Data ausente é lacuna, não valor: fundo vazio e traço no lugar de "N/A",
       // que se lia como se houvesse algo escrito ali.
       missing ? "border border-dashed bg-transparent opacity-50" : "border bg-muted/50",
-      strong && !missing && "border-primary/40 bg-primary/5",
     )}>
-      <Icon className={cn("h-3 w-3 shrink-0", strong && !missing ? "text-primary" : "text-muted-foreground")} />
+      <Icon className="h-3 w-3 shrink-0 text-muted-foreground" />
       <div className="flex min-w-0 flex-col leading-tight">
         <span className={cn(
           "truncate text-[10px] tabular-nums",
           missing ? "font-normal text-muted-foreground" : "font-medium",
-          strong && !missing && "text-primary",
         )}>
           {value ? fmt(value) : "—"}
         </span>
@@ -505,7 +501,9 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 <DateCell icon={Snowflake}      value={p.hvacFinishDate}    label="Finish"     />
-                <DateCell icon={CalendarCheck2} value={p.hvacFinishEndDate} label="End of job" strong />
+                {/* Fim da obra. O que o separa das etapas é a posição — sozinho
+                    na segunda linha, ao lado do Finish — não cor. */}
+                <DateCell icon={CalendarCheck2} value={p.hvacFinishEndDate} label="End of job" />
               </div>
             </div>
           )
