@@ -7,7 +7,7 @@ import type { UserWithPermissions, PermissionLevel } from "@/services/settings.s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarX,
+  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
@@ -38,7 +38,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "workforce",         label: "Workforce Productivity",     icon: Users         },
       { key: "inventory",         label: "Inventory Control",          icon: Package       },
       { key: "permits",           label: "Permit Control",             icon: FileCheck     },
-      { key: "forecast",          label: "Forecast",           image: "/images/sublogo_framing.png" },
+      { key: "forecast",          label: "Forecast",                   icon: CalendarDays  },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
