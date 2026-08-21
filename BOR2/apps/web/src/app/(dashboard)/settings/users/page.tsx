@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/tooltip"
 import {
   Activity, ArrowLeft, BarChart2, Banknote, Bell,
-  CalendarCheck, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
+  CalendarCheck, CalendarDays, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
   Eye, FileCheck, Gauge,
   Gem, KeyRound, Loader2,
   Network, Package, Pencil, Plus, Ruler, Search,
@@ -96,7 +96,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Finance & Analytics",
     permissions: [
-      { key: "forecast",   label: "Forecast",  image: "/images/sublogo_framing.png" },
+      { key: "forecast",   label: "Forecast",          icon: CalendarDays },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
     ],
