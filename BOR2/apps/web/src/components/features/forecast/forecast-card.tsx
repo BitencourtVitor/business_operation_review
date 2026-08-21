@@ -208,10 +208,12 @@ function IconSlot({
 
 // ─── Date cell ────────────────────────────────────────────────────────────────
 
-function DateCell({ icon: Icon, value, label }: {
+function DateCell({ icon: Icon, value, label, stage }: {
   icon: React.ElementType
   value?: string | null
   label: string
+  /** Número da etapa no ciclo. O fim da obra não é etapa, então vai sem. */
+  stage?: number
 }) {
   const missing = !value
   return (
@@ -229,7 +231,10 @@ function DateCell({ icon: Icon, value, label }: {
         )}>
           {value ? fmt(value) : "—"}
         </span>
-        <span className="truncate text-[9px] text-muted-foreground">{label}</span>
+        <span className="truncate text-[9px] text-muted-foreground">
+          {stage && <span className="font-semibold text-muted-foreground/70">S{stage} </span>}
+          {label}
+        </span>
       </div>
     </div>
   )
@@ -495,12 +500,12 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
           ) : (
             <div className="flex flex-col gap-1.5 border-t pt-2.5">
               <div className="grid grid-cols-3 gap-1.5">
-                <DateCell icon={Wrench}      value={p.hvacRoughDate}      label="Rough"     />
-                <DateCell icon={Fan}         value={p.hvacAirHandlerDate} label="Air Hdlr"  />
-                <DateCell icon={Thermometer} value={p.hvacCondenserDate}  label="Condenser" />
+                <DateCell icon={Wrench}      value={p.hvacRoughDate}      label="Rough"     stage={1} />
+                <DateCell icon={Fan}         value={p.hvacAirHandlerDate} label="Air Hdlr"  stage={2} />
+                <DateCell icon={Thermometer} value={p.hvacCondenserDate}  label="Condenser" stage={3} />
               </div>
               <div className="grid grid-cols-2 gap-1.5">
-                <DateCell icon={Snowflake}      value={p.hvacFinishDate}    label="Finish"     />
+                <DateCell icon={Snowflake}      value={p.hvacFinishDate}    label="Finish"     stage={4} />
                 {/* Fim da obra. O que o separa das etapas é a posição — sozinho
                     na segunda linha, ao lado do Finish — não cor. */}
                 <DateCell icon={CalendarCheck2} value={p.hvacFinishEndDate} label="End of job" />
