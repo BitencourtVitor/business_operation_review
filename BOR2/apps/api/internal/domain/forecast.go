@@ -69,6 +69,16 @@ type ForecastProject struct {
 	HvacAirHandlerDate  *time.Time `json:"hvacAirHandlerDate,omitempty"`
 	HvacCondenserDate   *time.Time `json:"hvacCondenserDate,omitempty"`
 	HvacFinishDate      *time.Time `json:"hvacFinishDate,omitempty"`
+	// Fim de cada etapa. As Orders trazem RS e RE por task; sem o fim, a última
+	// etapa não teria como dizer quando a obra acaba.
+	HvacRoughEndDate      *time.Time `json:"hvacRoughEndDate,omitempty"`
+	HvacAirHandlerEndDate *time.Time `json:"hvacAirHandlerEndDate,omitempty"`
+	HvacCondenserEndDate  *time.Time `json:"hvacCondenserEndDate,omitempty"`
+	HvacFinishEndDate     *time.Time `json:"hvacFinishEndDate,omitempty"`
+	// Quando o job foi aberto na conta do cliente. Não é cronograma: a primeira
+	// Order costuma vir meses depois. Serve de referência para obra que ainda
+	// não tem pedido e, por isso, não tem data nenhuma.
+	JobOpenedDate *time.Time `json:"jobOpenedDate,omitempty"`
 	PreviousBeamsDate *time.Time     `json:"previousBeamsDate,omitempty"`
 	PreviousStartDate *time.Time     `json:"previousStartDate,omitempty"`
 	PreviousEndDate   *time.Time     `json:"previousEndDate,omitempty"`

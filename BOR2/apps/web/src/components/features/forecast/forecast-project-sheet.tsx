@@ -23,6 +23,7 @@ import {
   Package,
   PlayCircle,
   Puzzle,
+  Snowflake,
   Thermometer,
   Truck,
   Users,
@@ -157,11 +158,31 @@ export interface ForecastProjectSheetProps {
   dateMode?: "start" | "beams"
 }
 
+// As quatro etapas do ciclo de HVAC, cada uma com seu par de datas vindo das
+// Orders (RS e RE da task).
+const HVAC_STAGES: {
+  Icon: React.ElementType
+  label: string
+  start: (p: ForecastProject) => string | null | undefined
+  end:   (p: ForecastProject) => string | null | undefined
+}[] = [
+  { Icon: Wrench,      label: "Rough HVAC",
+    start: p => p.hvacRoughDate,      end: p => p.hvacRoughEndDate      },
+  { Icon: Fan,         label: "Air Handler / Gas Furnace Set",
+    start: p => p.hvacAirHandlerDate, end: p => p.hvacAirHandlerEndDate },
+  { Icon: Thermometer, label: "Install Condenser and Thermostat",
+    start: p => p.hvacCondenserDate,  end: p => p.hvacCondenserEndDate  },
+  { Icon: Snowflake,   label: "HVAC Finish Set A/C",
+    start: p => p.hvacFinishDate,     end: p => p.hvacFinishEndDate     },
+]
+
 export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: ForecastProjectSheetProps) {
-  const [historyOpen, setHistoryOpen] = useState(false)
-  const [datesOpen, setDatesOpen] = useState(false)
+  // Painel lateral: os dois ocupam a mesma coluna, então só um por vez. Estado
+  // único porque a largura do modal depende de ter painel aberto, não de qual —
+  // com um booleano por painel, esquecer de somar um deles esmaga o conteúdo.
+  const [panel, setPanel] = useState<"obs" | "dates" | null>(null)
   const isHvac = p.company === "hvac"
-  useEffect(() => { if (!open) setHistoryOpen(false) }, [open])
+  useEffect(() => { if (!open) setPanel(null) }, [open])
 
   const ds       = getForecastDisplayStatus(p, dateMode)
   const cfg      = STATUS_CFG[ds]
@@ -185,7 +206,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
       <DialogContent
         className={cn(
           "flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:flex-row",
-          historyOpen
+          panel
             ? "w-[min(92vw,460px)] sm:w-[780px] sm:max-w-[780px] sm:[&>[data-slot=dialog-close]]:right-[328px]"
             : "w-[min(92vw,460px)] sm:max-w-[460px]"
         )}
@@ -267,35 +288,62 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               Overview
             </SectionLabel>
 
-            <div className={cn("mb-2 grid gap-2", isHvac ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
-              {(isHvac ? [
-                { Icon: Wrench,         label: "Rough",     value: p.hvacRoughDate      },
-                { Icon: Fan,            label: "Air Hdlr",  value: p.hvacAirHandlerDate },
-                { Icon: Thermometer,    label: "Condenser", value: p.hvacCondenserDate  },
-                { Icon: CalendarCheck2, label: "Finish",    value: p.hvacFinishDate     },
-              ] : [
-                { Icon: Flag,           label: "Beams", value: p.previousBeamsDate },
-                { Icon: CalendarDays,   label: "Start", value: p.startDate         },
-                { Icon: CalendarCheck2, label: "End",   value: p.endDate           },
-              ]).map(({ Icon, label, value }) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
-                >
-                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold tabular-nums">{fmtDate(value)}</span>
-                  <span className="text-[9px] text-muted-foreground">{label}</span>
-                </div>
-              ))}
-            </div>
+            {/* No detalhe cabe o intervalo inteiro de cada etapa — é aqui que
+                se vê quanto tempo cada uma leva e a folga entre elas, que o card
+                não tem espaço para mostrar. */}
+            {isHvac ? (
+              <div className="mb-2 flex flex-col gap-1.5">
+                {HVAC_STAGES.map(({ Icon, label, start, end }) => {
+                  const from = start(p)
+                  const to   = end(p)
+                  return (
+                    <div key={label} className={cn(
+                      "flex items-center gap-2.5 rounded-lg px-3 py-2",
+                      from || to ? "border bg-muted/40" : "border border-dashed opacity-50",
+                    )}>
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="flex-1 truncate text-xs">{label}</span>
+                      <span className="shrink-0 text-xs font-semibold tabular-nums">
+                        {from || to ? (
+                          <>
+                            {fmtDate(from)}
+                            <span className="mx-1 font-normal text-muted-foreground">→</span>
+                            {fmtDate(to)}
+                          </>
+                        ) : (
+                          <span className="font-normal text-muted-foreground">not in orders</span>
+                        )}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="mb-2 grid grid-cols-3 gap-2">
+                {([
+                  { Icon: Flag,           label: "Beams", value: p.previousBeamsDate },
+                  { Icon: CalendarDays,   label: "Start", value: p.startDate         },
+                  { Icon: CalendarCheck2, label: "End",   value: p.endDate           },
+                ] as const).map(({ Icon, label, value }) => (
+                  <div
+                    key={label}
+                    className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold tabular-nums">{fmtDate(value)}</span>
+                    <span className="text-[9px] text-muted-foreground">{label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="mb-4 flex justify-end">
               <button
                 type="button"
-                onClick={() => { setDatesOpen(v => !v); setHistoryOpen(false) }}
+                onClick={() => setPanel(v => (v === "dates" ? null : "dates"))}
                 className={cn(
                   "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
-                  datesOpen
+                  panel === "dates"
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
@@ -312,10 +360,10 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                   <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
                   <button
                     type="button"
-                    onClick={() => { setHistoryOpen(v => !v); setDatesOpen(false) }}
+                    onClick={() => setPanel(v => (v === "obs" ? null : "obs"))}
                     className={cn(
                       "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
-                      historyOpen
+                      panel === "obs"
                         ? "bg-muted text-foreground"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
@@ -487,11 +535,11 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
         </div>
 
         {/* ── Observation history, side-by-side with the body ──────────────── */}
-        {datesOpen && (
-          <DateHistoryPanel projectId={p.id} open={datesOpen} onClose={() => setDatesOpen(false)} />
+        {panel === "dates" && (
+          <DateHistoryPanel projectId={p.id} company={p.company} open onClose={() => setPanel(null)} />
         )}
-        {historyOpen && (
-          <ObsHistoryPanel projectId={p.id} open={historyOpen} onClose={() => setHistoryOpen(false)} />
+        {panel === "obs" && (
+          <ObsHistoryPanel projectId={p.id} open onClose={() => setPanel(null)} />
         )}
       </DialogContent>
     </Dialog>
