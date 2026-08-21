@@ -131,7 +131,7 @@ var triggerDefinitions = []TriggerDefinition{
 		Icon:        "absence",
 		Module:      "Absence Control",
 		Description: "Lists everyone still without a clock-in for consecutive business days, grouped by team. One consolidated e-mail per company.",
-		When:        "Right after the QB Time sync, which sets its own schedule.",
+		When:        "Right after the QB Time sync, on weekdays only — the weekend is never evaluated, so its e-mail would repeat Friday's list.",
 		Schedulable: false,
 		Params: []ParamDef{
 			{Key: "alert_days", Label: "Consecutive days to alert", Type: "int", Min: intPtr(1), Max: intPtr(30),

@@ -321,6 +321,14 @@ func (s *QBTimeAbsenceService) emailOpenAbsences(ctx context.Context, company st
 	if !emailDue {
 		return nil
 	}
+	// Weekends are never evaluated, so a Saturday or Sunday e-mail would repeat
+	// Friday's list word for word. Friday's absences reach the inbox on Monday.
+	now := easternNow()
+	if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+		logger.Info("absence email skipped: weekend", "company", company, "weekday", now.Weekday().String())
+		return nil
+	}
+
 	to, cc, err := s.triggers.Recipients(ctx, TriggerQBTimeAbsence)
 	if err != nil {
 		return err
@@ -331,7 +339,7 @@ func (s *QBTimeAbsenceService) emailOpenAbsences(ctx context.Context, company st
 
 	// "Still absent" is measured against the last day the company actually
 	// punched on: today is still running, and a holiday proves nothing.
-	evaluated, err := s.evaluatedDays(ctx, company, easternNow())
+	evaluated, err := s.evaluatedDays(ctx, company, now)
 	if err != nil {
 		return err
 	}
