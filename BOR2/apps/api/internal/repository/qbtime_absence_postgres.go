@@ -43,6 +43,10 @@ type QBTimeAbsenceRepository interface {
 	List(ctx context.Context, company string, since time.Time) ([]*domain.QBTimeAbsenceEvent, error)
 	// PendingNotification returns events at or over minDays never announced yet.
 	PendingNotification(ctx context.Context, company string, minDays int) ([]*domain.QBTimeAbsenceEvent, error)
+	// OpenAtOrOver returns the absences still running on the last evaluated day
+	// and already at or over minDays — the people who are missing right now,
+	// announced or not. It is what the daily e-mail reports.
+	OpenAtOrOver(ctx context.Context, company string, minDays int, lastEvaluated time.Time) ([]*domain.QBTimeAbsenceEvent, error)
 	MarkNotified(ctx context.Context, ids []string) error
 	// RecipientsFor returns user IDs holding the given permission key at any level.
 	RecipientsFor(ctx context.Context, permKey string) ([]string, error)
@@ -59,6 +63,20 @@ func NewPostgresQBTimeAbsenceRepository(db *pgxpool.Pool) *PostgresQBTimeAbsence
 func (r *PostgresQBTimeAbsenceRepository) Pool() *pgxpool.Pool { return r.db }
 
 const dateLayout = "2006-01-02"
+
+// countBusinessDays counts the weekdays in [from,to] inclusive. Used to extend
+// a rebuilt block back over the days that fell out of the detection window.
+func countBusinessDays(from, to time.Time) int {
+	count := 0
+	for d := from; !d.After(to); d = d.AddDate(0, 0, 1) {
+		switch d.Weekday() {
+		case time.Saturday, time.Sunday:
+			continue
+		}
+		count++
+	}
+	return count
+}
 
 func (r *PostgresQBTimeAbsenceRepository) DaysWithActivity(ctx context.Context, company string, days []time.Time) (map[string]bool, error) {
 	out := make(map[string]bool, len(days))
@@ -209,6 +227,35 @@ func (r *PostgresQBTimeAbsenceRepository) ReplaceWindow(ctx context.Context, com
 	// person would be announced again every single day they keep missing.
 	// Keyed by the start date: a longer streak is the same absence, while a
 	// new absence starts on a new date and is news worth sending.
+	// An absence older than the window would restart on the window's first day
+	// every run: the edge moves daily, so the block got a new start date, a new
+	// key, and was announced all over again — while its "since" date lied by
+	// naming the edge instead of the day the person actually stopped punching.
+	// Whatever start we already recorded for a block that crosses the edge is
+	// carried into the rebuilt one, which pins it for good.
+	carried := map[int64]time.Time{}
+	carryRows, err := tx.Query(ctx, `
+		SELECT qbt_user_id, MIN(start_date)
+		FROM qbtime_absence_events
+		WHERE LOWER(company) = LOWER($1)
+		  AND end_date >= $2
+		  AND start_date < $2
+		GROUP BY qbt_user_id
+	`, company, from)
+	if err != nil {
+		return fmt.Errorf("read absences crossing the window edge: %w", err)
+	}
+	for carryRows.Next() {
+		var userID int64
+		var start time.Time
+		if err := carryRows.Scan(&userID, &start); err != nil {
+			carryRows.Close()
+			return fmt.Errorf("scan carried absence start: %w", err)
+		}
+		carried[userID] = start
+	}
+	carryRows.Close()
+
 	notified := map[string]time.Time{}
 	announcedRows, err := tx.Query(ctx, `
 		SELECT qbt_user_id, start_date, notified_at
@@ -242,6 +289,13 @@ func (r *PostgresQBTimeAbsenceRepository) ReplaceWindow(ctx context.Context, com
 	}
 
 	for _, e := range events {
+		// Only a block that opens on the window's first day can be the tail of
+		// an older absence; anything starting later began inside the window and
+		// already carries its true date.
+		if start, ok := carried[e.QBTUserID]; ok && e.StartDate.Equal(from) {
+			e.DaysCount += countBusinessDays(start, from.AddDate(0, 0, -1))
+			e.StartDate = start
+		}
 		var announcedAt any
 		if at, ok := notified[fmt.Sprintf("%d|%s", e.QBTUserID, e.StartDate.Format("2006-01-02"))]; ok {
 			announcedAt = at
@@ -313,6 +367,21 @@ func (r *PostgresQBTimeAbsenceRepository) PendingNotification(ctx context.Contex
 	`, company, minDays)
 	if err != nil {
 		return nil, fmt.Errorf("list pending absence notifications: %w", err)
+	}
+	return scanAbsenceRows(rows)
+}
+
+func (r *PostgresQBTimeAbsenceRepository) OpenAtOrOver(ctx context.Context, company string, minDays int, lastEvaluated time.Time) ([]*domain.QBTimeAbsenceEvent, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT `+absenceCols+`
+		FROM qbtime_absence_events
+		WHERE LOWER(company) = LOWER($1)
+		  AND days_count >= $2
+		  AND end_date >= $3
+		ORDER BY team_name ASC, employee_name ASC
+	`, company, minDays, lastEvaluated)
+	if err != nil {
+		return nil, fmt.Errorf("list open absences: %w", err)
 	}
 	return scanAbsenceRows(rows)
 }
