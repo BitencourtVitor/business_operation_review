@@ -95,6 +95,24 @@ var triggerDefinitions = []TriggerDefinition{
 			}},
 		},
 	},
+	// A ordem desta lista é a ordem dos módulos na tela: Framing Forecast,
+	// HVAC Forecast, e depois os demais.
+	{
+		Key:   TriggerForecastPermit,
+		Label: "Permit Missing",
+		Icon:  "permit",
+		// Só a HVAC tem etapa de Permit. A obra da Framing nunca entra aqui,
+		// do mesmo jeito que a da HVAC nunca entra no Fieldwire Docs Missing.
+		Module:      "HVAC Forecast",
+		Description: "Warns that an HVAC job is approaching its Rough date with a Permit step still open — Manual J, Application Submitted or Permit Approved. One e-mail per job, never repeated for the same target date.",
+		When:        "Daily, at the chosen hour, for every HVAC job whose Rough starts within the configured window. Framing jobs never enter — that company has no Permit steps.",
+		Schedulable: true,
+		Params: []ParamDef{
+			{Key: "offset_days", Label: "Days ahead", Type: "int", Group: "timing",
+				Min: intPtr(1), Max: intPtr(180),
+				Help: "How many days before the Rough start a job enters the warning."},
+		},
+	},
 	{
 		Key:         TriggerWorkersCompReview,
 		Label:       "Workers' Comp review",
@@ -124,22 +142,6 @@ var triggerDefinitions = []TriggerDefinition{
 			{Key: "days_after_review", Label: "Days after the review", Type: "int", Group: "timing",
 				Min: intPtr(1), Max: intPtr(30),
 				Help: "Counted from the review date, so it follows the cycle instead of a fixed weekday."},
-		},
-	},
-	{
-		Key:   TriggerForecastPermit,
-		Label: "Permit Missing",
-		Icon:  "permit",
-		// Só a HVAC tem etapa de Permit. A obra da Framing nunca entra aqui,
-		// do mesmo jeito que a da HVAC nunca entra no Fieldwire Docs Missing.
-		Module:      "HVAC Forecast",
-		Description: "Lists the HVAC jobs approaching their Rough date with a Permit step still open — Manual J, Application Submitted or Permit Approved. One consolidated e-mail per day.",
-		When:        "Daily, at the chosen hour, for every HVAC job whose Rough starts within the configured window. Framing jobs never enter — that company has no Permit steps.",
-		Schedulable: true,
-		Params: []ParamDef{
-			{Key: "offset_days", Label: "Days ahead", Type: "int", Group: "timing",
-				Min: intPtr(1), Max: intPtr(180),
-				Help: "How many days before the Rough start a job enters the warning."},
 		},
 	},
 	{
