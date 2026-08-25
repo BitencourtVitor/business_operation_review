@@ -268,6 +268,10 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
 
   // Toll Brothers only: Orders page doesn't have this project's dates yet.
   const showNoOrders = p.cliente?.toLowerCase().startsWith("toll brothers") && !p.hasOrders
+  // O que decide mostrar o ciclo de quatro etapas é ter etapa, não ter pedido.
+  // Obra sem Order passou a receber as datas do Job Schedule do Hyphen, que as
+  // tem para todas as obras — esconder o ciclo dela era esconder dado real.
+  const hasStageDates = !!(p.hvacRoughDate || p.hvacAirHandlerDate || p.hvacCondenserDate || p.hvacFinishDate)
   const noOrdersColors = hovered
     ? { border: "#eab308", bg: "rgba(234,179,8,0.12)", text: "#eab308" }
     : { border: "rgba(234,179,8,0.22)", bg: "rgba(234,179,8,0.06)", text: "rgba(234,179,8,0.6)" }
@@ -499,10 +503,10 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
           // Cinco datas: o início de cada uma das quatro etapas e o fim da obra,
           // que é o fim da etapa 4. Em duas linhas de três e duas — as quatro
           // numa linha só espremiam a data até cortar.
-          !p.hasOrders ? (
-            // Sem pedido não existe etapa: a obra tem uma data só, a do
-            // calendário do cliente. Mostrar quatro campos vazios sugeriria dado
-            // faltando, quando na verdade não há o que faltar ainda.
+          !hasStageDates ? (
+            // Sem etapa nenhuma a obra tem uma data só, a do calendário do
+            // cliente. Mostrar quatro campos vazios sugeriria dado faltando,
+            // quando não há o que faltar ainda.
             <div className="flex flex-col gap-1.5 border-t pt-2.5">
               <div className="grid grid-cols-2 gap-1.5">
                 <DateCell icon={CalendarDays} value={p.jobOpenedDate} label="Job schedule" />
