@@ -266,12 +266,16 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
       ? { label: "Framing", title: "Framing work included", icon: "/images/sublogo_framing.png" }
       : null
 
-  // Toll Brothers only: Orders page doesn't have this project's dates yet.
-  const showNoOrders = p.cliente?.toLowerCase().startsWith("toll brothers") && !p.hasOrders
   // O que decide mostrar o ciclo de quatro etapas é ter etapa, não ter pedido.
   // Obra sem Order passou a receber as datas do Job Schedule do Hyphen, que as
   // tem para todas as obras — esconder o ciclo dela era esconder dado real.
   const hasStageDates = !!(p.hvacRoughDate || p.hvacAirHandlerDate || p.hvacCondenserDate || p.hvacFinishDate)
+  // O aviso é sobre falta de cronograma, não sobre a Order em si: com as quatro
+  // etapas na tela, ele contradizia o próprio card — dizia que não havia pedido
+  // logo acima das datas do serviço, e ainda repetia a mesma frase no lugar do
+  // cronograma. Obra que já tem etapa não carrega mais nenhum dos dois.
+  const showNoOrders =
+    p.cliente?.toLowerCase().startsWith("toll brothers") && !p.hasOrders && !hasStageDates
   const noOrdersColors = hovered
     ? { border: "#eab308", bg: "rgba(234,179,8,0.12)", text: "#eab308" }
     : { border: "rgba(234,179,8,0.22)", bg: "rgba(234,179,8,0.06)", text: "rgba(234,179,8,0.6)" }
