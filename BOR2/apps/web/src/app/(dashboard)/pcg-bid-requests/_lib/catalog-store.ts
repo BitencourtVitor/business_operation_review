@@ -102,6 +102,15 @@ function withShortCode(trade: Trade): Trade {
   return trade.code === code ? trade : { ...trade, code }
 }
 
+// Todo serviço passa por cotação. Não existe mais contrato gerado direto do
+// escopo padrão, então a chave deixou de ser uma escolha do catálogo e virou
+// regra da empresa. Fica aqui, e não num bump de `version`, pelo mesmo motivo
+// das outras normalizações: roda em toda rehidratação e é idempotente, então
+// catálogo salvo antes desta decisão se corrige sozinho no próximo load.
+function withBidForm(trade: Trade): Trade {
+  return trade.hasBidForm ? trade : { ...trade, hasBidForm: true }
+}
+
 // One-off reorders are counted here rather than left to persist's `version`.
 // That number is stamped on every save, so a save can land before the bump ever
 // rehydrates and migrate is then skipped forever — which is what happened to v15
@@ -238,7 +247,7 @@ export const useCatalogStore = create<CatalogState>()(
             // before the code it was delivering has compiled — which is exactly
             // what happened to v12, and happened again to v15 in development.
             // Here it is idempotent and runs on every rehydration.
-            ...trades.map(fillScopeGaps).map(withSupplyQuestion).map(withShortCode),
+            ...trades.map(fillScopeGaps).map(withSupplyQuestion).map(withShortCode).map(withBidForm),
             ...TRADES_SEED.filter(t => !knownTrade.has(t.id)),
           ],
           // The reorder runs once and records itself, so moving the block by hand
