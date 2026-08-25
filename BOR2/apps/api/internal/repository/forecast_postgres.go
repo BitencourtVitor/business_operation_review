@@ -18,6 +18,7 @@ type ForecastRepository interface {
 	Update(ctx context.Context, p *domain.ForecastProject) error
 	Delete(ctx context.Context, id string) error
 	UpdateFieldwireStatus(ctx context.Context, fwID int64, status string) error
+	UpdatePermitStatus(ctx context.Context, permitID int64, status string) error
 	UpdateMachineStatus(ctx context.Context, machID int64, status string) error
 	UpdateMachineUnit(ctx context.Context, machID int64, unit string) error
 	UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error
@@ -133,7 +134,16 @@ SELECT
 		(SELECT json_agg(json_build_object('id', cs.id, 'team', cs.team, 'step', cs.step, 'status', cs.status::text))
 		 FROM forecast_contract_steps cs WHERE LOWER(cs.project_id) = LOWER(m.id)),
 		'[]'::json
-	) AS contract_steps
+	) AS contract_steps,
+	COALESCE(
+		(SELECT json_agg(json_build_object(
+			'id',     pm.id,
+			'step',   pm.step,
+			'status', pm.status
+		) ORDER BY pm.position, pm.id)
+		 FROM forecast_permit pm WHERE LOWER(pm.project_id) = LOWER(m.id)),
+		'[]'::json
+	) AS permit
 FROM mapped m
 `
 
@@ -143,6 +153,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		fieldwireJSON     []byte
 		machinesJSON      []byte
 		contractStepsJSON []byte
+		permitJSON        []byte
 	)
 	if err := scan(
 		&p.ID, &p.Company, &p.Name, &p.Status,
@@ -156,13 +167,14 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.JobOpenedDate,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
-		&fieldwireJSON, &machinesJSON, &contractStepsJSON,
+		&fieldwireJSON, &machinesJSON, &contractStepsJSON, &permitJSON,
 	); err != nil {
 		return nil, err
 	}
 	json.Unmarshal(fieldwireJSON, &p.Fieldwire)         //nolint:errcheck
 	json.Unmarshal(machinesJSON, &p.Machines)           //nolint:errcheck
 	json.Unmarshal(contractStepsJSON, &p.ContractSteps) //nolint:errcheck
+	json.Unmarshal(permitJSON, &p.Permit)               //nolint:errcheck
 	return p, nil
 }
 
@@ -228,7 +240,9 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	}
 
 	// A HVAC não usa Fieldwire nem Machines — semear catálogo lá daria uma obra
-	// nascida com pendência que ninguém vai fechar.
+	// nascida com pendência que ninguém vai fechar. As etapas de Permit, que só
+	// ela tem, são semeadas por trigger no banco (000122), porque o carregador
+	// do portal escreve em forecast_core sem passar por aqui.
 	if strings.EqualFold(p.Company, "hvac") {
 		return nil
 	}
@@ -334,6 +348,12 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		return err
 	}
 
+	// Mesma divisão do Create: editar uma obra da HVAC não pode fazer aparecer
+	// documento de Fieldwire nela.
+	if strings.EqualFold(p.Company, "hvac") {
+		return nil
+	}
+
 	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
@@ -342,6 +362,18 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 	}
 
 	return nil
+}
+
+func (r *PostgresForecastRepository) UpdatePermitStatus(ctx context.Context, permitID int64, status string) error {
+	var value *string
+	if status != "" {
+		value = &status
+	}
+	_, err := r.db.Exec(ctx,
+		"UPDATE forecast_permit SET status=$1, updated_at=NOW() WHERE id=$2",
+		value, permitID,
+	)
+	return err
 }
 
 func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) error {

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
   AlertCircle, CalendarIcon, CalendarX, Check, ChevronDown, Clock, Eye, FileText, History,
-  Loader2, Mail, Plus, Search, Send, ShieldAlert, Users, X,
+  Loader2, Mail, Plus, Search, Send, ShieldAlert, ShieldCheck, Users, X,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -79,6 +79,7 @@ function TriggerIcon({ icon, className }: { icon: string; className?: string }) 
   const Glyph = icon === "sub_docs" ? FileText
     : icon === "sub_docs_alert" ? ShieldAlert
     : icon === "absence" ? CalendarX
+    : icon === "permit" ? ShieldCheck
     : Mail
   return <Glyph className={className} />
 }

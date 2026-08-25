@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
+import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, ShieldCheck, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -29,6 +29,7 @@ interface StatusToggles {
 
 interface IntegFilters {
   fieldwire:    IntegMode
+  permit:       IntegMode
   buildertrend: IntegMode
   qbTime:       IntegMode
   machines:     IntegMode
@@ -57,7 +58,7 @@ const STATUS_ROWS: { key: keyof StatusToggles; label: string; color: string }[] 
 ]
 
 const DEFAULT_STATUS: StatusToggles = { overdue: "on", planned: "on", active: "off", completed: "off" }
-const DEFAULT_INTEG: IntegFilters   = { fieldwire: "all", buildertrend: "all", qbTime: "all", machines: "all", storage: "all", contract: "all" }
+const DEFAULT_INTEG: IntegFilters   = { fieldwire: "all", buildertrend: "all", qbTime: "all", machines: "all", storage: "all", contract: "all", permit: "all" }
 
 const STATUS_METRIC_COLORS: Record<ForecastDisplayStatus, string> = {
   active:    "text-green-600 dark:text-green-400",
@@ -98,6 +99,7 @@ function isTruthy(v?: string | boolean | null): boolean {
 }
 
 function isFieldwireDone(p: ForecastProject)   { return !!p.fieldwire?.length && p.fieldwire.every(f => isTruthy(f.status)) }
+function isPermitDone(p: ForecastProject)      { return !!p.permit?.length && p.permit.every(s => isTruthy(s.status)) }
 function isMachinesDone(p: ForecastProject)    { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)    { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }
 
@@ -355,6 +357,11 @@ function FiltersPopover(props: FiltersPopoverProps) {
               )}
               <IntegRow label="QBTime"       value={integ.qbTime}       onChange={v => onInteg("qbTime", v)}
                 icon={<><img src="/images/icon_qbtime.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_qbtime_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
+              {/* Permit existe só na HVAC, como o Fieldwire só na Framing. */}
+              {props.hvacOnly && (
+                <IntegRow label="Permit" value={integ.permit} onChange={v => onInteg("permit", v)}
+                  icon={<ShieldCheck className="h-4 w-4 text-muted-foreground" />} />
+              )}
             </div>
 
             {!props.hvacOnly && (
@@ -484,13 +491,18 @@ export function ForecastBoard({ company, title, metricsHref }: {
         if (type === "building" && t.includes("lot")) return false
       }
 
-      // Integration filters
-      if (!applyInteg(integ.fieldwire,    isFieldwireDone(p)))  return false
-      if (!applyInteg(integ.buildertrend, p.buildertrend))      return false
+      // Integration filters. Os da Framing não se aplicam à HVAC — filtrar por
+      // integração que a empresa não tem excluiria toda obra dela.
       if (!applyInteg(integ.qbTime,       p.qbTime))            return false
-      if (!applyInteg(integ.machines,     isMachinesDone(p)))   return false
-      if (!applyInteg(integ.storage,      p.storage))           return false
-      if (!applyInteg(integ.contract,     isContractDone(p)))   return false
+      if (isHvac) {
+        if (!applyInteg(integ.permit,     isPermitDone(p)))     return false
+      } else {
+        if (!applyInteg(integ.fieldwire,    isFieldwireDone(p))) return false
+        if (!applyInteg(integ.buildertrend, p.buildertrend))     return false
+        if (!applyInteg(integ.machines,     isMachinesDone(p)))  return false
+        if (!applyInteg(integ.storage,      p.storage))          return false
+        if (!applyInteg(integ.contract,     isContractDone(p)))  return false
+      }
 
       m.total++
       m[ds]++

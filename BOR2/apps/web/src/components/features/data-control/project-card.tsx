@@ -20,13 +20,13 @@ import { useCatalogTable } from "@/hooks/use-catalog"
 
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
+import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, ShieldCheck, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
+import { useToggleFieldwire, useTogglePermit, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ViewTab = "info" | "fieldwire" | "machines" | "contract" | "optionals"
+export type ViewTab = "info" | "fieldwire" | "permit" | "machines" | "contract" | "optionals"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,7 @@ const PROJECT_TYPES = ["Building", "Lot", "House"]
 const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "info",      label: "Info & Dates", icon: <Info             className="h-3 w-3" /> },
   { key: "fieldwire", label: "Fieldwire",    icon: <img src="/images/icon_fieldwire.png" alt="" className="h-3 w-3 object-contain" /> },
+  { key: "permit",    label: "Permit",       icon: <ShieldCheck      className="h-3 w-3" /> },
   { key: "machines",  label: "Machines",     icon: <Truck            className="h-3 w-3" /> },
   { key: "contract",  label: "Contract",     icon: <FileText         className="h-3 w-3" /> },
   { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3 w-3" /> },
@@ -442,6 +443,75 @@ function isDispensedUnit(unit: string | null | undefined): boolean {
 }
 
 type MachineState = "none" | "yes" | "dispensed"
+
+// PermitTab é o equivalente do Fieldwire para a HVAC: as três etapas do alvará,
+// com o mesmo tri-estado. Sem data — o que se controla é se já foi feito.
+function PermitTab({ p }: { p: ForecastProject }) {
+  const steps  = p.permit ?? []
+  const toggle = useTogglePermit()
+  type PermitState = "none" | "completed" | "dispensed"
+  const getState = (s: typeof steps[0]): PermitState => {
+    const value = String(s.status ?? "").toLowerCase()
+    if (value === "dispensed") return "dispensed"
+    if (["completed", "complete", "true", "t", "1", "yes"].includes(value)) return "completed"
+    return "none"
+  }
+  const done = steps.filter(s => getState(s) !== "none").length
+
+  return (
+    <div className="flex h-full flex-col gap-2 overflow-hidden">
+      <div className="flex items-center">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Permit</span>
+        <span className={`ml-auto text-xs font-semibold ${done === steps.length && steps.length > 0 ? "text-green-600" : "text-muted-foreground"}`}>
+          {done} / {steps.length}
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
+        {steps.length === 0 && (
+          <span className="py-4 text-center text-xs text-muted-foreground">No permit steps linked</span>
+        )}
+        {steps.map((s, i) => {
+          const state      = getState(s)
+          const isToggling = toggle.isPending && toggle.variables?.permitId === s.id
+          return (
+            <div
+              key={s.id ?? i}
+              className={`flex items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
+            >
+              {isToggling
+                ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                : <div className="flex shrink-0 overflow-hidden rounded-md border bg-background">
+                    {([
+                      ["none", <X key="none" className="h-3 w-3" />, "Pending"],
+                      ["completed", <Check key="completed" className="h-3 w-3" />, "Completed"],
+                      ["dispensed", <Ban key="dispensed" className="h-3 w-3" />, "Dispensed"],
+                    ] as const).map(([value, icon, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        title={label}
+                        aria-label={`${label}: ${s.step ?? "step"}`}
+                        className={`grid h-6 w-7 place-items-center border-r last:border-r-0 transition-colors ${
+                          state === value
+                            ? value === "completed" ? "bg-emerald-600 text-white" : value === "dispensed" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+                            : "text-muted-foreground hover:bg-muted"
+                        }`}
+                        onClick={() => s.id != null && toggle.mutate({ permitId: s.id, status: value === "none" ? "" : value })}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+              }
+              <span className="truncate text-xs">{s.step}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
   const mach       = p.machines ?? []
@@ -1153,8 +1223,11 @@ export function ProjectCard({
       <div className="flex items-center justify-end">
         <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor }}>
           {/* Fieldwire, Machines e Contract não existem para a HVAC — abas
-              vazias só dariam a impressão de dado faltando. */}
-          {TABS.filter(t => project.company !== "hvac" || t.key === "info" || t.key === "optionals").map(t => (
+              vazias só dariam a impressão de dado faltando. Permit é o
+              contrário: só a HVAC tem, então some para a Framing. */}
+          {TABS.filter(t => t.key === "permit"
+            ? project.company === "hvac"
+            : project.company !== "hvac" || t.key === "info" || t.key === "optionals").map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 transition-colors ${activeTab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
               {t.icon}
@@ -1190,6 +1263,7 @@ export function ProjectCard({
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
           {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
           {activeTab === "fieldwire" && <FieldwireTab p={project} />}
+          {activeTab === "permit"    && <PermitTab    p={project} />}
           {activeTab === "machines"  && <MachinesTab  p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} />}
           {activeTab === "contract"  && <ContractTab  p={project} />}
           {activeTab === "optionals" && <OptionalsTab p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}

@@ -19,6 +19,7 @@ const (
 	TriggerWorkersCompReview = "workers_comp_review"
 	TriggerWorkersCompResult = "workers_comp_result"
 	TriggerQBTimeAbsence     = "qbtime_absence"
+	TriggerForecastPermit    = "forecast_permit"
 )
 
 // ParamDef describes one editable parameter so the settings screen can render
@@ -73,7 +74,7 @@ var triggerDefinitions = []TriggerDefinition{
 		Icon:        "fieldwire",
 		Module:      "Framing Forecast",
 		Description: "Warns that a job is approaching its date with Fieldwire documents still missing. Only the selected documents count, and a document marked completed or dispensed is not missing. One e-mail per job, never repeated for the same target date.",
-		When:        "Daily, for every job of the selected clients whose chosen date is within the configured window.",
+		When:        "Daily, for every Framing job of the selected clients whose chosen date is within the configured window. HVAC jobs never enter — that company does not use Fieldwire.",
 		Schedulable: true,
 		Params: []ParamDef{
 			{Key: "clients", Label: "Clients", Type: "multiselect", OptionsSource: "clients",
@@ -123,6 +124,22 @@ var triggerDefinitions = []TriggerDefinition{
 			{Key: "days_after_review", Label: "Days after the review", Type: "int", Group: "timing",
 				Min: intPtr(1), Max: intPtr(30),
 				Help: "Counted from the review date, so it follows the cycle instead of a fixed weekday."},
+		},
+	},
+	{
+		Key:   TriggerForecastPermit,
+		Label: "Permit Missing",
+		Icon:  "permit",
+		// Só a HVAC tem etapa de Permit. A obra da Framing nunca entra aqui,
+		// do mesmo jeito que a da HVAC nunca entra no Fieldwire Docs Missing.
+		Module:      "HVAC Forecast",
+		Description: "Lists the HVAC jobs approaching their Rough date with a Permit step still open — Manual J, Application Submitted or Permit Approved. One consolidated e-mail per day.",
+		When:        "Daily, at the chosen hour, for every HVAC job whose Rough starts within the configured window. Framing jobs never enter — that company has no Permit steps.",
+		Schedulable: true,
+		Params: []ParamDef{
+			{Key: "offset_days", Label: "Days ahead", Type: "int", Group: "timing",
+				Min: intPtr(1), Max: intPtr(180),
+				Help: "How many days before the Rough start a job enters the warning."},
 		},
 	},
 	{
