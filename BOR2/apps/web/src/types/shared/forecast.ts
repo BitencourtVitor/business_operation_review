@@ -9,6 +9,12 @@ export interface ForecastFieldwireDoc {
   document?: string
 }
 
+export interface ForecastPermitStep {
+  id?: number
+  step?: string
+  status?: string | null
+}
+
 export interface ForecastMachineItem {
   id?: number
   title?: string | null
@@ -74,6 +80,7 @@ export interface ForecastProject {
   fieldwire?: ForecastFieldwireDoc[]
   machines?: ForecastMachineItem[]
   contractSteps?: ForecastContractStep[]
+  permit?: ForecastPermitStep[]
   createdAt: string
   updatedAt: string
 }

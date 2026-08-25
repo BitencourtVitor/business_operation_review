@@ -55,6 +55,10 @@ func (s *ForecastService) ToggleFieldwire(ctx context.Context, fwID int64, statu
 	return s.repo.UpdateFieldwireStatus(ctx, fwID, status)
 }
 
+func (s *ForecastService) TogglePermit(ctx context.Context, permitID int64, status string) error {
+	return s.repo.UpdatePermitStatus(ctx, permitID, status)
+}
+
 func (s *ForecastService) ToggleMachine(ctx context.Context, machID int64, status string) error {
 	return s.repo.UpdateMachineStatus(ctx, machID, status)
 }

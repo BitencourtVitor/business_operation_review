@@ -84,11 +84,12 @@ export interface IntegFilters {
   machines:     IntegMode
   storage:      IntegMode
   contract:     IntegMode
+  permit:       IntegMode
 }
 
 export const DEFAULT_INTEG: IntegFilters = {
   fieldwire: "all", buildertrend: "all", qbTime: "all",
-  machines: "all", storage: "all", contract: "all",
+  machines: "all", storage: "all", contract: "all", permit: "all",
 }
 
 // ─── Status constants ─────────────────────────────────────────────────────────

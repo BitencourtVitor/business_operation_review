@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useForecast, useDeleteForecast } from "@/hooks/use-forecast"
 import { useClients, useJobSites } from "@/hooks/use-clients"
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
-import { FileText, Package, Search, SlidersHorizontal, Truck, X } from "lucide-react"
+import { FileText, Package, Search, ShieldCheck, SlidersHorizontal, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { DeleteDialog } from "./delete-dialog"
@@ -26,6 +26,7 @@ function isTruthy(v?: string | boolean | null): boolean {
 function isFieldwireDone(p: ForecastProject)  { return !!p.fieldwire?.length && p.fieldwire.every(f => isTruthy(f.status)) }
 function isMachinesDone(p: ForecastProject)   { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)   { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }
+function isPermitDone(p: ForecastProject)     { return !!p.permit?.length && p.permit.every(s => isTruthy(s.status)) }
 
 function applyInteg(mode: IntegMode, done: boolean) {
   if (mode === "all") return true
@@ -115,6 +116,7 @@ export function EditProjectSection({
       // Na HVAC só QB Time existe; filtrar pelo resto excluiria toda obra por
       // uma integração que a empresa não tem.
       if (!applyInteg(integ.qbTime, p.qbTime)) return false
+      if (isHvac && !applyInteg(integ.permit, isPermitDone(p))) return false
       if (!isHvac) {
         if (!applyInteg(integ.fieldwire,    isFieldwireDone(p)))  return false
         if (!applyInteg(integ.buildertrend, p.buildertrend))      return false
@@ -238,6 +240,11 @@ export function EditProjectSection({
                   )}
                   <IntegRow label="QBTime"       value={integ.qbTime}       onChange={v => onInteg("qbTime", v)}
                     icon={<><img src="/images/icon_qbtime.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_qbtime_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
+                  {/* Permit é o contrário do Fieldwire: existe só na HVAC. */}
+                  {isHvac && (
+                    <IntegRow label="Permit" value={integ.permit} onChange={v => onInteg("permit", v)}
+                      icon={<ShieldCheck className="h-4 w-4 text-muted-foreground" />} />
+                  )}
                 </div>
                 {!isHvac && (
                   <>

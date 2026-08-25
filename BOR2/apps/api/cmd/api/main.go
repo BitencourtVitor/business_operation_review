@@ -294,6 +294,7 @@ func main() {
 	forecast.Get("/", forecastHandler.List)
 	forecast.Post("/", forecastHandler.Create)
 	forecast.Patch("/fieldwire/:fwid", forecastHandler.ToggleFieldwire)
+	forecast.Patch("/permit/:pmid", forecastHandler.TogglePermit)
 	forecast.Patch("/machine/:mid", forecastHandler.ToggleMachine)
 	forecast.Patch("/machine/:mid/unit", forecastHandler.UpdateMachineUnit)
 	forecast.Patch("/contract/:stepid", forecastHandler.ToggleContractStep)
@@ -649,6 +650,11 @@ func main() {
 		Email:      emailSender,
 		Recipients: alertRecipients,
 	})
+	permitAlertsJob := jobs.NewForecastPermitAlertsJob(jobs.ForecastAlertsConfig{
+		DB:         db,
+		Email:      emailSender,
+		Recipients: alertRecipients,
+	})
 	workersCompReviewJob := jobs.NewWorkersCompReviewJob(workersCompReviewService)
 
 	qbSyncJob := jobs.NewQBSyncJob(jobs.QBSyncConfig{
@@ -657,7 +663,7 @@ func main() {
 		Sandbox:  cfg.App.Env != "production",
 	})
 
-	scheduler := jobs.NewScheduler(alertsJob, workersCompReviewJob, qbSyncJob)
+	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────

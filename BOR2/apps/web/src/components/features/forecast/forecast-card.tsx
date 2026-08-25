@@ -14,6 +14,7 @@ import {
   MapPin,
   Package,
   PlayCircle,
+  ShieldCheck,
   Snowflake,
   Thermometer,
   Truck,
@@ -277,6 +278,12 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
   const fwComplete = fwTotal > 0 && fwDone === fwTotal
 
+  // Permit progress — só a HVAC tem etapas de alvará.
+  const pmTotal    = p.permit?.length ?? 0
+  const pmDone     = p.permit?.filter((s) => isTruthy(s.status)).length ?? 0
+  const pmPct      = pmTotal > 0 ? Math.round((pmDone / pmTotal) * 100) : 0
+  const pmComplete = pmTotal > 0 && pmDone === pmTotal
+
   // Machines progress — Private obras never need machines (no catalog entries
   // for that client), so treat them as complete instead of perpetually pending.
   const isPrivate = p.cliente?.toLowerCase().trim() === "private"
@@ -397,16 +404,24 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
 
           {/* Right column: 2×3 icon grid */}
           <div className="flex flex-col items-center gap-1.5">
-            <div style={{ display: "grid", gridTemplateColumns: isHvac ? "28px" : "repeat(2, 28px)", gap: 6 }}>
-              {/* A HVAC só tem QB Time — os outros slots seriam pendência que
-                  nunca fecha, porque a integração não existe para ela. */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 28px)", gap: 6 }}>
+              {/* A HVAC não tem BuilderTrend, Storage, Fieldwire nem Machines —
+                  esses slots seriam pendência que nunca fecha. O que ela tem, e
+                  a Framing não, é o Permit. */}
               {isHvac ? (
+                <>
                 <IconSlot done={p.qbTime} title="QuickBooks Time">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/images/icon_qbtime.png"      alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/images/icon_qbtime_dark.png" alt="QBT" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
                 </IconSlot>
+
+                <IconSlot done={pmDone > 0} pct={pmPct} complete={pmComplete} withProgress
+                  title={`Permit — ${pmDone}/${pmTotal}`}>
+                  <ShieldCheck style={{ width: 16, height: 16 }} />
+                </IconSlot>
+                </>
               ) : (
                 <>
 

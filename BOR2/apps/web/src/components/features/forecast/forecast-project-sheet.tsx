@@ -23,6 +23,7 @@ import {
   Package,
   PlayCircle,
   Puzzle,
+  ShieldCheck,
   Snowflake,
   Thermometer,
   Truck,
@@ -61,6 +62,7 @@ function isTruthy(v?: string | boolean | null): boolean {
 function getCompletionPct(p: ForecastProject): number {
   let done = 0, total = 0
   if (p.fieldwire?.length)     { total += p.fieldwire.length;     done += p.fieldwire.filter(f => isTruthy(f.status)).length }
+  if (p.permit?.length)        { total += p.permit.length;        done += p.permit.filter(s => isTruthy(s.status)).length }
   total++; if (p.buildertrend) done++
   total++; if (p.qbTime)       done++
   total++; if (p.storage)      done++
@@ -190,6 +192,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   const barColor = getBarColor(ds, pct)
 
   const hasFieldwire = (p.fieldwire?.length ?? 0) > 0
+  const hasPermit    = (p.permit?.length ?? 0) > 0
   const hasContract  = (p.contractSteps?.length ?? 0) > 0
   const hasMachines  = (p.machines?.length ?? 0) > 0
 
@@ -414,6 +417,22 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                       <span className="flex-1 text-sm">{fw.document || fw.category || "—"}</span>
                     </CheckRow>
                   ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Permit ───────────────────────────────────────────────────────── */}
+          {hasPermit && (
+            <section>
+              <SectionLabel icon={<ShieldCheck className="h-3.5 w-3.5" />}>
+                Permit
+              </SectionLabel>
+              <div className="flex flex-col gap-2">
+                {p.permit?.map((step, i) => (
+                  <CheckRow key={step.id ?? i} done={isTruthy(step.status)}>
+                    <span className="flex-1 text-sm">{step.step || "—"}</span>
+                  </CheckRow>
+                ))}
               </div>
             </section>
           )}

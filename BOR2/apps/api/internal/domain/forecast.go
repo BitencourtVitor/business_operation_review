@@ -19,6 +19,14 @@ type ForecastFieldwireDoc struct {
 	Document string  `json:"document"`
 }
 
+// ForecastPermitStep é uma etapa do Permit da obra da HVAC. Não tem data: o
+// que se controla é se a etapa foi cumprida, dispensada ou continua pendente.
+type ForecastPermitStep struct {
+	ID     int64   `json:"id"`
+	Step   string  `json:"step"`
+	Status *string `json:"status"`
+}
+
 type ForecastMachineDoc struct {
 	ID     int64   `json:"id"`
 	Title  *string `json:"title"`
@@ -85,6 +93,7 @@ type ForecastProject struct {
 	Fieldwire         []ForecastFieldwireDoc   `json:"fieldwire,omitempty"`
 	Machines          []ForecastMachineDoc     `json:"machines,omitempty"`
 	ContractSteps     []ForecastContractStepDoc `json:"contractSteps,omitempty"`
+	Permit            []ForecastPermitStep     `json:"permit,omitempty"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
 }

@@ -53,6 +53,9 @@ const MONTH_NAMES = [
 // A lista fica como lista para o dia em que houver o segundo critério.
 const ASPECTS = [
   { key: "qbTime", label: "QuickBooks", short: "QB", check: (p: ForecastProject) => !!p.qbTime },
+  { key: "permit", label: "Permit", short: "PMT", check: (p: ForecastProject) =>
+      (p.permit?.length ?? 0) > 0 &&
+      (p.permit ?? []).every(step => ["completed", "dispensed"].includes(String(step.status ?? "").toLowerCase())) },
 ] as const
 
 type AspectKey = (typeof ASPECTS)[number]["key"]
@@ -90,7 +93,7 @@ interface MonthData {
   avgCompletion: number          // 0–100 average across the aspects above
 }
 
-const EMPTY_DONE: Record<AspectKey, number> = { qbTime: 0 }
+const EMPTY_DONE: Record<AspectKey, number> = { qbTime: 0, permit: 0 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -197,7 +200,7 @@ export default function HvacForecastMetricsPage() {
             <div>
               <h1 className="text-xl font-semibold tracking-tight">HVAC Forecast Metrics</h1>
               <p className="text-sm text-muted-foreground">
-                QuickBooks presence across all planned projects
+                QuickBooks presence and Permit completion across all planned projects
               </p>
             </div>
           </div>

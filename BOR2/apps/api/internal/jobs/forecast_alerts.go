@@ -74,6 +74,10 @@ type plotPlanProject struct {
 	Client    string
 	StartDate time.Time
 	Missing   []string
+	// Documentos já resolvidos. O e-mail imprime a lista inteira, com o estado
+	// de cada um, e não só o que falta.
+	Done      []string
+	Dispensed []string
 }
 
 func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.Time) error {
@@ -134,9 +138,32 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		                 AND lower(trim(f.document)) = lower(trim(d.document))
 		                 AND lower(COALESCE(f.status, '')) IN ('completed', 'dispensed')
 		           )
-		       ) AS missing
+		       ) AS missing,
+		       ARRAY(
+		           SELECT d.document FROM unnest($5::text[]) AS d(document)
+		           WHERE EXISTS (
+		               SELECT 1 FROM forecast_fieldwire f
+		               WHERE f.project_id = c.id
+		                 AND lower(trim(f.document)) = lower(trim(d.document))
+		                 AND lower(COALESCE(f.status, '')) = 'completed'
+		           )
+		       ) AS done,
+		       ARRAY(
+		           SELECT d.document FROM unnest($5::text[]) AS d(document)
+		           WHERE EXISTS (
+		               SELECT 1 FROM forecast_fieldwire f
+		               WHERE f.project_id = c.id
+		                 AND lower(trim(f.document)) = lower(trim(d.document))
+		                 AND lower(COALESCE(f.status, '')) = 'dispensed'
+		           )
+		       ) AS dispensed
 		FROM forecast_core c
-		WHERE lower(trim(c.cliente)) = ANY($2::text[])
+		-- Fieldwire é da Framing. Desde que a obra da HVAC virou linha própria
+		-- em forecast_core, ela entrava aqui sem nenhum registro em
+		-- forecast_fieldwire — e obra sem registro tem todo documento faltando,
+		-- então o alerta disparava para uma empresa que não usa Fieldwire.
+		WHERE lower(trim(c.company)) = 'framing'
+		  AND lower(trim(c.cliente)) = ANY($2::text[])
 		  AND c.%[1]s IS NOT NULL
 		  AND c.%[1]s > $1
 		  AND (c.%[1]s - make_interval(months => $3, days => $4))::date <= $1
@@ -152,7 +179,8 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 	for rows.Next() {
 		var project plotPlanProject
 		if err := rows.Scan(&project.ID, &project.JobSite, &project.Unit, &project.Address,
-			&project.Client, &project.StartDate, &project.Missing); err != nil {
+			&project.Client, &project.StartDate, &project.Missing,
+			&project.Done, &project.Dispensed); err != nil {
 			return err
 		}
 		if len(project.Missing) == 0 {
@@ -188,15 +216,33 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 			continue
 		}
 
+		// A ordem é a que a pessoa escolheu em Settings, não a do estado: a
+		// lista tem que se ler igual todo dia, com o estado mudando ao lado.
+		state := map[string]service.ChecklistItem{}
+		for _, document := range project.Done {
+			state[document] = service.ChecklistItem{Name: document, Done: true}
+		}
+		for _, document := range project.Dispensed {
+			state[document] = service.ChecklistItem{Name: document, Dispensed: true}
+		}
+		checklist := make([]service.ChecklistItem, 0, len(documents))
+		for _, document := range documents {
+			if item, ok := state[document]; ok {
+				checklist = append(checklist, item)
+				continue
+			}
+			checklist = append(checklist, service.ChecklistItem{Name: document})
+		}
+
 		body := service.BuildFieldwireMissingEmail(service.FieldwireMissingProject{
-			JobSite:          project.JobSite,
-			Unit:             project.Unit,
-			Address:          project.Address,
-			Client:           project.Client,
-			ReferenceLabel:   service.ReferenceLabel(dateField),
-			ReferenceDate:    project.StartDate,
-			TargetDate:       targetDate,
-			MissingDocuments: project.Missing,
+			JobSite:        project.JobSite,
+			Unit:           project.Unit,
+			Address:        project.Address,
+			Client:         project.Client,
+			ReferenceLabel: service.ReferenceLabel(dateField),
+			ReferenceDate:  project.StartDate,
+			TargetDate:     targetDate,
+			Documents:      checklist,
 		})
 		delivery, err := cfg.Email.Send(ctx, service.EmailMessage{
 			To: to, CC: cc, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
