@@ -62,7 +62,7 @@ const TRADES_RAW: Trade[] = [
     name: "Foundation",
     code: "FDN",
     icon: "foundation",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Project type", type: "select", options: ["New Construction", "Addition", "Renovation"], hint: "", tag: null, needsQuantity: false },
@@ -112,7 +112,7 @@ const TRADES_RAW: Trade[] = [
     name: "Excavation",
     code: "EXC",
     icon: "excavation",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Project type", type: "select", options: ["New Construction", "Addition", "Renovation"], hint: "", tag: null, needsQuantity: false },
@@ -168,7 +168,7 @@ const TRADES_RAW: Trade[] = [
     name: "Framing",
     code: "FRM",
     icon: "framing",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Number of stories", type: "select", options: ["1", "1.5 Cape", "2", "2.5", "3"], hint: "", tag: null, needsQuantity: false },
@@ -221,7 +221,7 @@ const TRADES_RAW: Trade[] = [
     name: "Deck & Porch",
     code: "DCK",
     icon: "deck",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Deck / porch type", type: "select", options: ["Attached Deck", "Screened Porch", "Front Porch", "Covered Porch", "Multiple"], hint: "", tag: null, needsQuantity: false },
@@ -273,7 +273,7 @@ const TRADES_RAW: Trade[] = [
     name: "Shower Glass & Mirrors",
     code: "SGM",
     icon: "glass",
-    hasBidForm: false,
+    hasBidForm: true,
     standardNote: "",
     questions: [
       { id: "q1", label: "Frameless shower enclosures", type: "yn", options: ["Yes", "No", "To Be Defined"], hint: "", tag: null, needsQuantity: true },

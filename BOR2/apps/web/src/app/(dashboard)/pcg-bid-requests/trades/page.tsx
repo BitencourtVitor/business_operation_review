@@ -16,20 +16,11 @@ import { TradeCard } from "../_components/trade-card"
 import { TradeEditorModal } from "../_components/trade-editor-modal"
 import { DocumentBlocksModal } from "../_components/document-blocks-modal"
 
-type Filter = "all" | "bid_form" | "direct"
-
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: "all",      label: "All" },
-  { value: "bid_form", label: "Bid form" },
-  { value: "direct",   label: "Direct contract" },
-]
-
 export default function TradeCatalogPage() {
   const { trades, documentBlocks, addTrade, updateTrade, deleteTrade, setDocumentBlocks } = useCatalogStore()
   const canEdit = useCanEditBidRequests()
 
   const [search, setSearch] = useState("")
-  const [filter, setFilter] = useState<Filter>("all")
   const [editing, setEditing] = useState<Trade | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Trade | null>(null)
@@ -38,12 +29,10 @@ export default function TradeCatalogPage() {
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase()
     return trades.filter(t => {
-      if (filter === "bid_form" && !t.hasBidForm) return false
-      if (filter === "direct" && t.hasBidForm) return false
       if (!term) return true
       return t.name.toLowerCase().includes(term) || (t.code ?? "").toLowerCase().includes(term)
     })
-  }, [trades, search, filter])
+  }, [trades, search])
 
   function saveTrade(trade: Trade) {
     if (isNew) addTrade(trade)
@@ -93,19 +82,6 @@ export default function TradeCatalogPage() {
           )}
         </div>
 
-        <div className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
-          {FILTERS.map(f => (
-            <button
-              key={f.value}
-              onClick={() => setFilter(f.value)}
-              className={`flex h-7 items-center rounded-md px-2.5 text-xs font-medium transition-colors ${
-                filter === f.value ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
 
         {canEdit && (
           <>

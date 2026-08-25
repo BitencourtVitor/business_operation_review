@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -42,7 +43,15 @@ func (h *PCGProjectsHandler) ListSubcontractorContacts(c *fiber.Ctx) error {
 // Três campos em branco apagam a linha: sem nada escrito, o contrato volta a ler
 // a roster inteira, que é o padrão.
 func (h *PCGProjectsHandler) UpsertSubcontractorContact(c *fiber.Ctx) error {
+	// O Fiber roda com UnescapePath desligado, então o parâmetro chega como veio
+	// na URL: "W%20Silva%20Construction%20Inc". Gravado assim, o contato existe
+	// no banco sob um nome que a tela nunca encontra — o evento guarda o nome do
+	// sub como texto puro. Quem escreveu o nome via a tela continuar vazia e
+	// concluía que o salvamento não funcionou.
 	name := strings.TrimSpace(c.Params("name"))
+	if decoded, err := url.PathUnescape(name); err == nil {
+		name = strings.TrimSpace(decoded)
+	}
 	if name == "" {
 		return badRequest(c, "subcontractor is required")
 	}

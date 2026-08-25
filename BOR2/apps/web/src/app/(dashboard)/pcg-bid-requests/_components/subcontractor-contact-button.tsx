@@ -106,6 +106,15 @@ function ContactForm({
       <Field label="Email" value={email} onChange={setEmail} disabled={!canEdit} />
       <Field label="Phone" value={phone} onChange={setPhone} disabled={!canEdit} />
 
+      {/* Um PUT que falha não pode ser indistinguível de um clique que não fez
+          nada: sem isto, o popover ficava aberto e a pessoa concluía que salvar
+          não funciona. */}
+      {save.isError && (
+        <p className="rounded-md bg-destructive/10 px-2 py-1 text-[11px] leading-snug text-destructive">
+          Não foi possível salvar: {(save.error as Error)?.message || "erro desconhecido"}
+        </p>
+      )}
+
       {canEdit && (
         <div className="flex items-center justify-end gap-2 pt-0.5">
           <button onClick={onDone}

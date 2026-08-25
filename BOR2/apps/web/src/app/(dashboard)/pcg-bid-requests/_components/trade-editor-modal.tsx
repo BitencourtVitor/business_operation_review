@@ -159,20 +159,6 @@ export function TradeEditorModal({
               </div>
             </div>
 
-            <div className="flex shrink-0 items-start justify-between gap-4 rounded-lg border p-3">
-              <div>
-                <p className="text-sm font-medium">Requires a bid form</p>
-                <p className="text-xs text-muted-foreground">
-                  Off means the contract is generated straight from the standard scope, with no bid round.
-                </p>
-              </div>
-              <Switch
-                checked={draft.hasBidForm}
-                onCheckedChange={v => patch({ hasBidForm: v })}
-                className="mt-1 shrink-0"
-              />
-            </div>
-
             <div className="flex shrink-0 flex-col gap-1.5">
               <Label htmlFor="trade-standard">Standard note</Label>
               <Textarea
