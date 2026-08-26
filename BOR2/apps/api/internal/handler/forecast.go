@@ -112,7 +112,7 @@ func (h *ForecastHandler) ToggleFieldwire(c *fiber.Ctx) error {
 	if status != "" && status != "completed" && status != "dispensed" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "status must be completed, dispensed, or empty", "code": "BAD_REQUEST"})
 	}
-	if err := h.svc.ToggleFieldwire(c.Context(), fwID, status); err != nil {
+	if err := h.svc.ToggleFieldwire(c.UserContext(), fwID, status); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
@@ -135,7 +135,7 @@ func (h *ForecastHandler) TogglePermit(c *fiber.Ctx) error {
 	if status != "" && status != "completed" && status != "dispensed" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "status must be completed, dispensed, or empty", "code": "BAD_REQUEST"})
 	}
-	if err := h.svc.TogglePermit(c.Context(), permitID, status); err != nil {
+	if err := h.svc.TogglePermit(c.UserContext(), permitID, status); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
@@ -154,7 +154,7 @@ func (h *ForecastHandler) ToggleMachine(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
 	}
-	if err := h.svc.ToggleMachine(c.Context(), machID, body.Status); err != nil {
+	if err := h.svc.ToggleMachine(c.UserContext(), machID, body.Status); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
@@ -192,7 +192,7 @@ func (h *ForecastHandler) ToggleContractStep(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
 	}
-	if err := h.svc.ToggleContractStep(c.Context(), stepID, body.Status); err != nil {
+	if err := h.svc.ToggleContractStep(c.UserContext(), stepID, body.Status); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
