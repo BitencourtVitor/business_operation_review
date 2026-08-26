@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bitencourtVitor/bor2-api/internal/service"
+	"github.com/bitencourtVitor/bor2-api/pkg/dbactor"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -45,6 +46,12 @@ func RequireAuthFull(authSvc *service.AuthService) fiber.Handler {
 		c.Locals("userID", user.ID)
 		c.Locals("userName", user.Name)
 		c.Locals("userRole", string(user.Role))
+		// A identidade também segue no contexto do request, e não só nos
+		// Locals: é dela que a auditoria de linha tira o autor, e o repositório
+		// não enxerga o Fiber.
+		c.SetUserContext(dbactor.With(c.UserContext(), dbactor.Actor{
+			ID: user.ID, Name: user.Name, Source: "api",
+		}))
 		return c.Next()
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
+	"github.com/bitencourtVitor/bor2-api/pkg/dbactor"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -369,11 +371,12 @@ func (r *PostgresForecastRepository) UpdatePermitStatus(ctx context.Context, per
 	if status != "" {
 		value = &status
 	}
-	_, err := r.db.Exec(ctx,
-		"UPDATE forecast_permit SET status=$1, updated_at=NOW() WHERE id=$2",
-		value, permitID,
-	)
-	return err
+	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx,
+			"UPDATE forecast_permit SET status=$1, updated_at=NOW() WHERE id=$2",
+			value, permitID)
+		return err
+	})
 }
 
 func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) error {
@@ -386,11 +389,12 @@ func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, 
 	if status != "" {
 		value = &status
 	}
-	_, err := r.db.Exec(ctx,
-		"UPDATE forecast_fieldwire SET status=$1 WHERE id=$2",
-		value, fwID,
-	)
-	return err
+	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx,
+			"UPDATE forecast_fieldwire SET status=$1 WHERE id=$2",
+			value, fwID)
+		return err
+	})
 }
 
 func (r *PostgresForecastRepository) UpdateMachineStatus(ctx context.Context, machID int64, status string) error {
@@ -398,11 +402,12 @@ func (r *PostgresForecastRepository) UpdateMachineStatus(ctx context.Context, ma
 	if status != "" {
 		val = &status
 	}
-	_, err := r.db.Exec(ctx,
-		"UPDATE forecast_machines SET status=$1 WHERE id=$2",
-		val, machID,
-	)
-	return err
+	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx,
+			"UPDATE forecast_machines SET status=$1 WHERE id=$2",
+			val, machID)
+		return err
+	})
 }
 
 func (r *PostgresForecastRepository) UpdateMachineUnit(ctx context.Context, machID int64, unit string) error {
@@ -414,11 +419,12 @@ func (r *PostgresForecastRepository) UpdateMachineUnit(ctx context.Context, mach
 }
 
 func (r *PostgresForecastRepository) UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error {
-	_, err := r.db.Exec(ctx,
-		"UPDATE forecast_contract_steps SET status=$1 WHERE id=$2",
-		status, stepID,
-	)
-	return err
+	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx,
+			"UPDATE forecast_contract_steps SET status=$1 WHERE id=$2",
+			status, stepID)
+		return err
+	})
 }
 
 func (r *PostgresForecastRepository) CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error) {
