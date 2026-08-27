@@ -221,6 +221,9 @@ func (s *WorkersCompReviewService) getCycle(ctx context.Context, cycleID string)
 	}
 	cycle.ReviewDate = reviewDate.Format(workersCompDateLayout)
 
+	// Off-boarding happens after the cycle was populated, so the archived
+	// filter has to live here too — otherwise a subcontractor we no longer
+	// work with keeps showing up in the review and in its e-mails.
 	rows, err := s.db.Query(ctx, `
 		SELECT ch.id, c.id, c.name, c.email,
 		       COALESCE(array_agg(DISTINCT d.division) FILTER (WHERE d.division IS NOT NULL), '{}'),
@@ -230,6 +233,7 @@ func (s *WorkersCompReviewService) getCycle(ctx context.Context, cycleID string)
 		LEFT JOIN sub_doc_contractor_divisions d ON d.contractor_id = c.id
 		LEFT JOIN users u ON u.id = ch.checked_by
 		WHERE ch.cycle_id = $1
+		  AND c.archived = false
 		GROUP BY ch.id, c.id, c.name, c.email, ch.status, ch.notes, u.name, ch.checked_at
 		ORDER BY CASE ch.status WHEN 'irregular' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END, c.name
 	`, cycleID)
