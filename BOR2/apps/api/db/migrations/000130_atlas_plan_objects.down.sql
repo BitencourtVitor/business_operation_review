@@ -1,0 +1,1 @@
+ALTER TABLE atlas_sheet DROP COLUMN IF EXISTS r2_key, DROP COLUMN IF EXISTS byte_size;

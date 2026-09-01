@@ -9,9 +9,12 @@ import { useRef, useState } from "react"
 
 const STEP_LABEL = {
   opening: "Opening the version…",
-  uploading: "Uploading to storage…",
+  uploading: "Uploading the set…",
   confirming: "Checking the file…",
+  splitting: "Splitting into plans…",
 } as const
+
+type Step = keyof typeof STEP_LABEL
 
 /**
  * O PDF vai direto do navegador para o R2 pela URL assinada — não passa pela
@@ -23,16 +26,23 @@ export function VersionUpload({ documentId }: { documentId: string }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [revision, setRevision] = useState("")
-  const [step, setStep] = useState<keyof typeof STEP_LABEL | null>(null)
+  const [step, setStep] = useState<Step | null>(null)
+  // O corte é a etapa longa e a única com contagem: 51 páginas dão 51 uploads,
+  // e ficar sem número na tela é o que faz parecer travado.
+  const [detail, setDetail] = useState("")
   const [error, setError] = useState("")
 
   function submit() {
     if (!file || !revision.trim()) return
     setError("")
     upload.mutate(
-      { file, revision: revision.trim(), onProgress: setStep },
       {
-        onSuccess: () => { setFile(null); setRevision(""); setStep(null) },
+        file,
+        revision: revision.trim(),
+        onProgress: (next: Step, info?: string) => { setStep(next); setDetail(info ?? "") },
+      },
+      {
+        onSuccess: () => { setFile(null); setRevision(""); setStep(null); setDetail("") },
         onError: (e: unknown) => {
           setStep(null)
           setError(e instanceof Error ? e.message : "upload failed")
@@ -78,7 +88,11 @@ export function VersionUpload({ documentId }: { documentId: string }) {
         </Button>
       </div>
 
-      {step && <p className="text-xs text-muted-foreground">{STEP_LABEL[step]}</p>}
+      {step && (
+        <p className="text-xs text-muted-foreground">
+          {STEP_LABEL[step]}{detail ? ` ${detail}` : ""}
+        </p>
+      )}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   )

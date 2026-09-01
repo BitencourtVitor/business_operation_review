@@ -221,7 +221,6 @@ export default function DocumentPage() {
           sheet={openSheet}
           sheets={sheets}
           jobsiteId={jobsiteId}
-          versionId={versionId}
           canAnnotate={!!canAnnotate}
           onClose={() => setOpenSheet(null)}
           onNavigate={setOpenSheet}

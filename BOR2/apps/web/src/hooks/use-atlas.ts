@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
+import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
@@ -38,7 +39,7 @@ export function useForecastJobsites(params?: { q?: string; company?: string; sta
 export function useImportAtlasJobsites() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (forecastIds: number[]) => atlasService.importJobsites(forecastIds),
+    mutationFn: (forecastIds: string[]) => atlasService.importJobsites(forecastIds),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.jobsites })
       qc.invalidateQueries({ queryKey: ["atlas", "forecast-jobsites"] })
@@ -177,7 +178,7 @@ export function useUploadAtlasVersion(documentId: string) {
       file: File
       revision: string
       notes?: string
-      onProgress?: (step: "opening" | "uploading" | "confirming") => void
+      onProgress?: (step: "opening" | "uploading" | "splitting" | "confirming", detail?: string) => void
     }) => {
       const contentType = file.type || "application/pdf"
       onProgress?.("opening")
@@ -201,17 +202,33 @@ export function useUploadAtlasVersion(documentId: string) {
       const confirmed = await atlasService.confirmVersion(ticket.versionId, {
         pageCount: outline?.pageCount ?? 0,
       })
-      if (outline) {
-        await atlasService.replaceSheets(
-          ticket.versionId,
-          Array.from({ length: outline.pageCount }, (_, i) => ({
-            pageIndex: i,
-            widthPt: outline!.width,
-            heightPt: outline!.height,
-            needsReview: true,
-          })),
-        )
+      if (!outline) return confirmed
+
+      // Corte em um PDF por página, subindo cada um direto no bucket. É o que
+      // faz abrir um plano custar 1,66 MB de mediana em vez dos 107 MB do set.
+      onProgress?.("splitting", `0/${outline.pageCount}`)
+      let parts: PlanPart[] = []
+      try {
+        parts = await splitAndUploadPlans(file, ticket.versionId, (done, count) => {
+          onProgress?.("splitting", `${done}/${count}`)
+        })
+      } catch {
+        // Corte que falha não invalida a versão: o original está no bucket e as
+        // folhas abrem por ele. O recorte pode ser refeito depois.
       }
+
+      const byIndex = new Map(parts.map(p => [p.pageIndex, p]))
+      await atlasService.replaceSheets(
+        ticket.versionId,
+        Array.from({ length: outline.pageCount }, (_, i) => ({
+          pageIndex: i,
+          widthPt: byIndex.get(i)?.widthPt ?? outline.width,
+          heightPt: byIndex.get(i)?.heightPt ?? outline.height,
+          r2Key: byIndex.get(i)?.r2Key ?? "",
+          byteSize: byIndex.get(i)?.byteSize ?? 0,
+          needsReview: true,
+        })),
+      )
       return confirmed
     },
     onSuccess: () => {

@@ -11,7 +11,7 @@ export type AtlasLevel = "read" | "annotate" | "manage"
 
 /** Uma obra do Forecast, candidata a virar obra do Atlas. */
 export interface ForecastJobsite {
-  forecastId: number
+  forecastId: string
   client: string
   community: string
   type: string
@@ -35,7 +35,7 @@ export interface AtlasJobsite {
   community: string
   unit: string
   company: string
-  forecastId: number | null
+  forecastId: string | null
   catalogJobSiteId: number | null
   createdBy: string
   createdAt: string
@@ -77,6 +77,12 @@ export interface AtlasVersion {
   sheets: number
 }
 
+export interface PlanUploadTicket {
+  pageIndex: number
+  r2Key: string
+  uploadUrl: string
+}
+
 export interface AtlasSheet {
   id: string
   versionId: string
@@ -89,6 +95,8 @@ export interface AtlasSheet {
   thumbKey: string
   widthPt: number | null
   heightPt: number | null
+  r2Key: string
+  byteSize: number
   confidence: number
   needsReview: boolean
   annotations: number
@@ -210,7 +218,7 @@ export const atlasService = {
     return api.get<ForecastJobsite[]>(`${base}/forecast-jobsites${suffix}`, getToken())
       .then(r => r ?? [])
   },
-  importJobsites: (forecastIds: number[]) =>
+  importJobsites: (forecastIds: string[]) =>
     api.post<{ imported: number; skipped: number }>(
       `${base}/jobsites/import`, { forecastIds }, getToken()),
 
@@ -263,6 +271,14 @@ export const atlasService = {
     api.get<AtlasSheet[]>(`${base}/versions/${versionId}/sheets`, getToken()).then(r => r ?? []),
   replaceSheets: (versionId: string, sheets: Partial<AtlasSheet>[]) =>
     api.put(`${base}/versions/${versionId}/sheets`, { sheets }, getToken()),
+  planUploadUrls: (versionId: string, pageIndexes: number[]) =>
+    api.post<PlanUploadTicket[]>(
+      `${base}/versions/${versionId}/plan-uploads`, { pageIndexes }, getToken(),
+    ).then(r => r ?? []),
+  sheetUrl: (sheetId: string) =>
+    api.get<{ url: string; whole: boolean; pageIndex: number }>(
+      `${base}/sheets/${sheetId}/url`, getToken()),
+
   updateSheet: (sheetId: string, patch: Record<string, unknown>) =>
     api.patch(`${base}/sheets/${sheetId}`, patch, getToken()),
 

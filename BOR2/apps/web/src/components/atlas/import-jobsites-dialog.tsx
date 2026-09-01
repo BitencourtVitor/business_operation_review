@@ -28,7 +28,7 @@ export function ImportJobsitesDialog() {
   const [query, setQuery] = useState("")
   const [company, setCompany] = useState("framing")
   const [status, setStatus] = useState("open")
-  const [picked, setPicked] = useState<Set<number>>(new Set())
+  const [picked, setPicked] = useState<Set<string>>(new Set())
 
   const { data: rows, isLoading } = useForecastJobsites({ q: query, company, status })
   const importer = useImportAtlasJobsites()
@@ -36,7 +36,7 @@ export function ImportJobsitesDialog() {
   const available = useMemo(() => (rows ?? []).filter(r => !r.imported), [rows])
   const alreadyIn = (rows ?? []).length - available.length
 
-  function toggle(id: number) {
+  function toggle(id: string) {
     setPicked(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)

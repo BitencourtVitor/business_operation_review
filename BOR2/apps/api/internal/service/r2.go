@@ -152,6 +152,16 @@ func ThumbKey(jobsiteID, versionID string, pageIndex int) string {
 		jobsiteID, versionID, pageIndex)
 }
 
+// PlanKey é o PDF de uma página só, recortado do original na ingestão.
+//
+// O original continua sendo a verdade; isto é derivado dele e existe pela
+// leitura: 1,66 MB de mediana por página contra 107 MB do set inteiro. Se o
+// objeto sumir, a folha ainda abre pelo original e o recorte pode ser refeito.
+func PlanKey(jobsiteID, versionID string, pageIndex int) string {
+	return fmt.Sprintf("jobsites/%s/versions/%s/plans/%04d.pdf",
+		jobsiteID, versionID, pageIndex)
+}
+
 // PageCacheKey é o endereço do render sob demanda de uma folha (AT-13). O
 // mecanismo que produz a imagem ainda não foi decidido; a convenção de onde ela
 // mora, sim — e sai daqui para os dois lados da decisão poderem conviver.

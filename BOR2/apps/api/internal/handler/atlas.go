@@ -115,7 +115,7 @@ type atlasJobsite struct {
 	Community     string  `json:"community"`
 	Unit          string  `json:"unit"`
 	Company       string  `json:"company"`
-	ForecastID    *int64  `json:"forecastId"`
+	ForecastID    *string `json:"forecastId"`
 	CatalogSiteID *int64  `json:"catalogJobSiteId"`
 	CreatedBy     string  `json:"createdBy"`
 	CreatedAt     string  `json:"createdAt"`
@@ -228,7 +228,7 @@ func (h *AtlasHandler) ListForecastJobsites(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	type forecastJobsite struct {
-		ForecastID int64  `json:"forecastId"`
+		ForecastID string `json:"forecastId"`
 		Client     string `json:"client"`
 		Community  string `json:"community"`
 		Type       string `json:"type"`
@@ -292,7 +292,9 @@ func (h *AtlasHandler) ImportJobsites(c *fiber.Ctx) error {
 		return atlasForbidden(c)
 	}
 	var in struct {
-		ForecastIDs []int64 `json:"forecastIds"`
+		// Id do Forecast é TEXT e vem misturado: hash curto em obra antiga, UUID
+		// em obra nova. Tratar como número quebraria na primeira importação.
+		ForecastIDs []string `json:"forecastIds"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
@@ -312,7 +314,7 @@ func (h *AtlasHandler) ImportJobsites(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	type source struct {
-		id                                                    int64
+		id                                              string
 		client, community, kind, unit, address, company string
 	}
 	sources := []source{}
@@ -951,6 +953,8 @@ type atlasSheet struct {
 	ThumbKey    string   `json:"thumbKey"`
 	WidthPt     *float64 `json:"widthPt"`
 	HeightPt    *float64 `json:"heightPt"`
+	R2Key       string   `json:"r2Key"`
+	ByteSize    int64    `json:"byteSize"`
 	Confidence  float64  `json:"confidence"`
 	NeedsReview bool     `json:"needsReview"`
 	Annotations int      `json:"annotations"`
@@ -969,7 +973,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT s.id, s.version_id, s.page_index, s.sheet_number, s.discipline, s.level,
 		       s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
-		       s.confidence, s.needs_review,
+		       s.r2_key, s.byte_size, s.confidence, s.needs_review,
 		       (SELECT count(*) FROM atlas_annotation a
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL)
 		FROM atlas_sheet s WHERE s.version_id = $1 ORDER BY s.page_index`, versionID)
@@ -983,7 +987,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		var s atlasSheet
 		if err := rows.Scan(&s.ID, &s.VersionID, &s.PageIndex, &s.SheetNumber, &s.Discipline,
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
-			&s.Confidence, &s.NeedsReview, &s.Annotations); err != nil {
+			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview, &s.Annotations); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, s)
@@ -1029,8 +1033,9 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 		if _, err := tx.Exec(c.Context(), `
 			INSERT INTO atlas_sheet
 				(id, version_id, page_index, sheet_number, discipline, level, title,
-				 revision, thumb_key, width_pt, height_pt, confidence, needs_review)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+				 revision, thumb_key, width_pt, height_pt, confidence, needs_review,
+				 r2_key, byte_size)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
 			ON CONFLICT (version_id, page_index) DO UPDATE SET
 				sheet_number = EXCLUDED.sheet_number,
 				discipline   = EXCLUDED.discipline,
@@ -1041,9 +1046,14 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 				width_pt     = COALESCE(EXCLUDED.width_pt, atlas_sheet.width_pt),
 				height_pt    = COALESCE(EXCLUDED.height_pt, atlas_sheet.height_pt),
 				confidence   = EXCLUDED.confidence,
-				needs_review = EXCLUDED.needs_review`,
+				needs_review = EXCLUDED.needs_review,
+				-- Chave de plano vazia não apaga a que existe: reprocessar o
+				-- metadado não pode derrubar o recorte já no bucket.
+				r2_key       = COALESCE(NULLIF(EXCLUDED.r2_key,''), atlas_sheet.r2_key),
+				byte_size    = GREATEST(EXCLUDED.byte_size, atlas_sheet.byte_size)`,
 			id, versionID, s.PageIndex, s.SheetNumber, s.Discipline, s.Level, s.Title,
 			s.Revision, s.ThumbKey, s.WidthPt, s.HeightPt, s.Confidence, s.NeedsReview,
+			s.R2Key, s.ByteSize,
 		); err != nil {
 			return internalErr(c, err)
 		}
@@ -1059,6 +1069,88 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"versionId": versionID, "sheets": len(in.Sheets)}})
+}
+
+// POST /atlas/versions/:id/plan-uploads — assina de uma vez o PUT de cada
+// página.
+//
+// Um set de 51 páginas viraria 51 idas à API só para pedir assinatura. Aqui é
+// uma ida só: o cliente diz quantas páginas tem, recebe as URLs e sobe todas em
+// paralelo, direto no bucket.
+func (h *AtlasHandler) PlanUploadURLs(c *fiber.Ctx) error {
+	versionID := c.Params("id")
+	jobsiteID, _, err := h.versionContext(c, versionID)
+	if err != nil {
+		return atlasNotFound(c, "versão")
+	}
+	if err := h.require(c, jobsiteID, "manage"); err != nil {
+		return atlasForbidden(c)
+	}
+	if !h.r2.Configured() {
+		return atlasNoStorage(c)
+	}
+	var in struct {
+		PageIndexes []int `json:"pageIndexes"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if len(in.PageIndexes) == 0 || len(in.PageIndexes) > 2000 {
+		return badRequest(c, "pageIndexes must have between 1 and 2000 entries")
+	}
+
+	type ticket struct {
+		PageIndex int    `json:"pageIndex"`
+		Key       string `json:"r2Key"`
+		UploadURL string `json:"uploadUrl"`
+	}
+	out := make([]ticket, 0, len(in.PageIndexes))
+	for _, index := range in.PageIndexes {
+		key := service.PlanKey(jobsiteID, versionID, index)
+		url, err := h.r2.UploadURL(c.Context(), key, "application/pdf", 2*time.Hour)
+		if err != nil {
+			return internalErr(c, err)
+		}
+		out = append(out, ticket{PageIndex: index, Key: key, UploadURL: url})
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// GET /atlas/sheets/:id/url — o PDF de uma página só.
+//
+// Cai no original quando a página ainda não foi recortada: versão antiga, ou
+// recorte que falhou. A folha abre de um jeito ou de outro, e a resposta diz
+// qual dos dois veio para o leitor saber que precisa pular para a página certa.
+func (h *AtlasHandler) SheetURL(c *fiber.Ctx) error {
+	sheetID := c.Params("id")
+	var jobsiteID, planKey, originalKey string
+	var pageIndex int
+	err := h.db.QueryRow(c.Context(), `
+		SELECT d.jobsite_id, s.r2_key, v.r2_key, s.page_index
+		FROM atlas_sheet s
+		JOIN atlas_document_version v ON v.id = s.version_id
+		JOIN atlas_document d ON d.id = v.document_id
+		WHERE s.id = $1`, sheetID).Scan(&jobsiteID, &planKey, &originalKey, &pageIndex)
+	if err != nil {
+		return atlasNotFound(c, "folha")
+	}
+	if err := h.require(c, jobsiteID, "read"); err != nil {
+		return atlasForbidden(c)
+	}
+	if !h.r2.Configured() {
+		return atlasNoStorage(c)
+	}
+	key, whole := planKey, false
+	if key == "" {
+		key, whole = originalKey, true
+	}
+	url, err := h.r2.DownloadURL(c.Context(), key, 30*time.Minute)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"url": url, "whole": whole, "pageIndex": pageIndex, "expiresIn": 1800,
+	}})
 }
 
 // PATCH /atlas/sheets/:id — a correção manual do que o carimbo não entregou.
