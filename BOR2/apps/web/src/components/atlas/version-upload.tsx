@@ -8,9 +8,9 @@ import { CloudUpload, FileUp } from "lucide-react"
 import { useRef, useState } from "react"
 
 const STEP_LABEL = {
-  opening: "Abrindo a versão…",
-  uploading: "Enviando para o storage…",
-  confirming: "Conferindo o arquivo…",
+  opening: "Opening the version…",
+  uploading: "Uploading to storage…",
+  confirming: "Checking the file…",
 } as const
 
 /**
@@ -35,19 +35,19 @@ export function VersionUpload({ documentId }: { documentId: string }) {
         onSuccess: () => { setFile(null); setRevision(""); setStep(null) },
         onError: (e: unknown) => {
           setStep(null)
-          setError(e instanceof Error ? e.message : "falha ao enviar")
+          setError(e instanceof Error ? e.message : "upload failed")
         },
       },
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4">
-      <p className="text-sm font-medium">Nova revisão</p>
+    <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4">
+      <p className="text-sm font-medium">New revision</p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex flex-col gap-1.5 sm:w-40">
-          <Label htmlFor="revision">Revisão</Label>
+          <Label htmlFor="revision">Revision</Label>
           <Input
             id="revision"
             value={revision}
@@ -57,7 +57,7 @@ export function VersionUpload({ documentId }: { documentId: string }) {
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <Label htmlFor="version-file">Arquivo</Label>
+          <Label htmlFor="version-file">File</Label>
           <input
             id="version-file"
             ref={inputRef}
@@ -68,13 +68,13 @@ export function VersionUpload({ documentId }: { documentId: string }) {
           />
           <Button variant="outline" className="justify-start" onClick={() => inputRef.current?.click()}>
             <FileUp className="h-4 w-4" />
-            <span className="truncate">{file ? file.name : "Escolher PDF"}</span>
+            <span className="truncate">{file ? file.name : "Choose PDF"}</span>
           </Button>
         </div>
 
         <Button onClick={submit} disabled={!file || !revision.trim() || upload.isPending}>
           <CloudUpload className="h-4 w-4" />
-          {upload.isPending ? "Enviando…" : "Enviar"}
+          {upload.isPending ? "Uploading…" : "Upload"}
         </Button>
       </div>
 

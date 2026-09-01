@@ -1,9 +1,12 @@
 "use client"
 
 import { AtlasHeader } from "@/components/atlas/atlas-header"
+import { CalendarPanel } from "@/components/atlas/calendar-panel"
 import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteAccessPanel } from "@/components/atlas/jobsite-access-panel"
+import { JobsiteSettingsDialog } from "@/components/atlas/jobsite-settings-dialog"
+import { MediaPanel } from "@/components/atlas/media-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,15 +24,15 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 
 const KINDS = [
-  ["drawing", "Planta"], ["spec", "Especificação"], ["permit", "Alvará"],
-  ["submittal", "Submittal"], ["other", "Outro"],
+  ["drawing", "Drawing"], ["spec", "Specification"], ["permit", "Permit"],
+  ["submittal", "Submittal"], ["other", "Other"],
 ] as const
 
 const VERSION_STATUS: Record<string, { label: string; className: string }> = {
-  pending:   { label: "Aguardando upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
-  uploaded:  { label: "Em revisão",        className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
-  published: { label: "Publicado",         className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
-  failed:    { label: "Falhou",            className: "border-destructive/40 text-destructive" },
+  pending:   { label: "Awaiting upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
+  uploaded:  { label: "In review",       className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
+  published: { label: "Published",       className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
+  failed:    { label: "Failed",          className: "border-destructive/40 text-destructive" },
 }
 
 function NewDocumentDialog({ jobsiteId }: { jobsiteId: string }) {
@@ -42,24 +45,24 @@ function NewDocumentDialog({ jobsiteId }: { jobsiteId: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" variant="outline" />}>
         <Plus className="h-4 w-4" />
-        Novo documento
+        New document
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Novo documento</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New document</DialogTitle></DialogHeader>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-name">Nome</Label>
+            <Label htmlFor="doc-name">Name</Label>
             <Input id="doc-name" value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-discipline">Disciplina</Label>
+            <Label htmlFor="doc-discipline">Discipline</Label>
             <Input id="doc-discipline" value={form.discipline}
               placeholder="Architectural, Structural, MEP…"
               onChange={e => setForm({ ...form, discipline: e.target.value })} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-kind">Tipo</Label>
+            <Label htmlFor="doc-kind">Kind</Label>
             <NativeSelect id="doc-kind" value={form.kind}
               onChange={e => setForm({ ...form, kind: e.target.value as AtlasDocument["kind"] })}>
               {KINDS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -67,12 +70,12 @@ function NewDocumentDialog({ jobsiteId }: { jobsiteId: string }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button
             disabled={!form.name.trim() || create.isPending}
             onClick={() => create.mutate(form, { onSuccess: () => setOpen(false) })}
           >
-            {create.isPending ? "Criando…" : "Criar"}
+            {create.isPending ? "Creating…" : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -100,10 +103,10 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
       )}
 
       {!documents?.length ? (
-        <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">Nenhum documento nesta obra</p>
+        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+          <p className="text-sm font-medium">No documents in this jobsite</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Um documento guarda as revisões de um mesmo set. O PDF entra como versão dele.
+            A document holds the revisions of one set. The PDF comes in as a version of it.
           </p>
         </div>
       ) : (
@@ -122,7 +125,7 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium leading-tight">{d.name}</p>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {[d.discipline, `${d.versions} ${d.versions === 1 ? "versão" : "versões"}`,
+                    {[d.discipline, `${d.versions} ${d.versions === 1 ? "version" : "versions"}`,
                       d.latestRevision && `rev ${d.latestRevision}`]
                       .filter(Boolean).join(" · ")}
                   </p>
@@ -167,8 +170,8 @@ export default function JobsiteRoomPage() {
       <>
         <AtlasHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-3">
-          <p className="text-sm text-muted-foreground">Obra não encontrada, ou sem acesso.</p>
-          <Button variant="outline" size="sm" onClick={() => history.back()}>Voltar</Button>
+          <p className="text-sm text-muted-foreground">Jobsite not found, or no access.</p>
+          <Button variant="outline" size="sm" onClick={() => history.back()}>Back</Button>
         </div>
       </>
     )
@@ -186,23 +189,26 @@ export default function JobsiteRoomPage() {
             <p className="truncate text-xs text-muted-foreground">{jobsite.address}</p>
           )}
         </div>
+        {canManage && <JobsiteSettingsDialog jobsite={jobsite} />}
       </AtlasHeader>
 
       <main className="min-h-0 flex-1 overflow-y-auto p-6">
         <div className="mx-auto flex max-w-5xl flex-col gap-5">
           <Tabs defaultValue="documents">
             <TabsList>
-              <TabsTrigger value="documents">Documentos</TabsTrigger>
-              <TabsTrigger value="diary">Diário</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="diary">Diary</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
               <TabsTrigger value="events">
-                Eventos
+                Events
                 {jobsite.openEvents > 0 && (
                   <span className="ml-1.5 rounded-full bg-amber-500/15 px-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                     {jobsite.openEvents}
                   </span>
                 )}
               </TabsTrigger>
-              {canManage && <TabsTrigger value="access">Acessos</TabsTrigger>}
+              <TabsTrigger value="media">Media</TabsTrigger>
+              {canManage && <TabsTrigger value="access">Access</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="documents" className="pt-4">
@@ -211,8 +217,14 @@ export default function JobsiteRoomPage() {
             <TabsContent value="diary" className="pt-4">
               <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />
             </TabsContent>
+            <TabsContent value="calendar" className="pt-4">
+              <CalendarPanel jobsiteId={jobsiteId} />
+            </TabsContent>
             <TabsContent value="events" className="pt-4">
               <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />
+            </TabsContent>
+            <TabsContent value="media" className="pt-4">
+              <MediaPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />
             </TabsContent>
             {canManage && (
               <TabsContent value="access" className="pt-4">

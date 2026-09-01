@@ -34,10 +34,10 @@ func NewAtlasHandler(db *pgxpool.Pool, r2 *service.R2Service) *AtlasHandler {
 
 // ── Permissão por obra ──────────────────────────────────────────────────────
 
-// Papéis que enxergam qualquer obra sem precisar de concessão. Espelha o
-// `fullAccessRoles` do middleware: quem administra a plataforma não depende de
-// alguém lembrar de conceder acesso a si mesmo.
-var atlasFullAccess = map[string]bool{"dev": true, "owner": true, "admin": true, "manager": true}
+// Quem enxerga qualquer obra sem precisar de concessão. Enquanto o Atlas é só
+// do desenvolvedor, é ele e mais ninguém: abrir para owner/admin/manager aqui
+// deixaria a porta mais larga que a da rota, que exige o papel dev.
+var atlasFullAccess = map[string]bool{"dev": true}
 
 // Ordem dos níveis. Ler é o piso, gerenciar é o teto; anotar fica no meio
 // porque é o que o subcontratado precisa e não deve ir além.
@@ -1295,9 +1295,9 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
 	}
-	if in.EventID == nil && in.DailyLogID == nil {
-		return badRequest(c, "eventId or dailyLogId is required")
-	}
+	// Mídia sem evento e sem dia é válida: é a foto que alguém tirou na obra e
+	// mandou antes de saber onde ela se encaixa. Ela pertence à obra, que é o
+	// dono que sempre existe.
 	userID, _ := actor(c)
 	id := uuid.NewString()
 	key := service.MediaKey(jobsiteID, id, in.FileName)

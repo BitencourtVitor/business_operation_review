@@ -1,20 +1,23 @@
 "use client"
 
+import { PdfPage } from "@/components/atlas/pdf-page"
 import { Button } from "@/components/ui/button"
 import {
   useAtlasAnnotations, useAtlasEvents, useCreateAtlasAnnotation,
   useCreateAtlasEvent, useDeleteAtlasAnnotation,
 } from "@/hooks/use-atlas"
-import type { AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
-import { Eraser, Highlighter, MapPin, Minus, Pen, Plus, X } from "lucide-react"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { atlasService, type AtlasSheet, type AtlasStrokeGeometry } from "@/services/atlas.service"
+import {
+  ChevronLeft, ChevronRight, Eraser, Highlighter, MapPin, Minus, Pen, Plus, X,
+} from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 type Tool = "pen" | "highlighter" | "pin" | "erase"
 
 const COLORS = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#111827"]
 
-// Opacidade é o que separa caneta de marca-texto: opaco simula tinta, translúcido
-// simula o traço largo por cima do desenho (AT-14).
+// Opacidade é o que separa caneta de marca-texto: opaca simula tinta,
+// translúcida simula o traço largo por cima do desenho (AT-14).
 const TOOL_DEFAULTS: Record<"pen" | "highlighter", { width: number; opacity: number }> = {
   pen: { width: 2, opacity: 1 },
   highlighter: { width: 14, opacity: 0.35 },
@@ -28,22 +31,22 @@ function pointsToPath(points: [number, number][], w: number, h: number): string 
 }
 
 /**
- * Leitor de folha com a camada de anotação.
+ * Leitor de folha: a página do PDF renderizada por baixo, a camada de anotação
+ * por cima.
  *
- * A imagem da folha ainda não entra aqui: renderizar a página sob demanda a
- * partir do original — no servidor ou no cliente — é a decisão mais cara ainda
- * aberta do Atlas (AT-13), e ela muda a arquitetura do leitor inteiro. O que
- * está pronto é tudo o que não depende dela: a superfície com zoom, as
- * coordenadas normalizadas, as ferramentas, a persistência traço a traço e o
- * pin de evento. Quando o render existir, ele entra como um `<image>` atrás do
- * `<g>` de anotações — sem mexer em coordenada nenhuma, porque nada aqui
- * depende da resolução.
+ * O render é no cliente, a partir do original (AT-13). Não existe cópia cortada
+ * nem imagem pré-gerada: o navegador desenha a página aberta na escala aberta.
+ * A camada de anotação trabalha em coordenada normalizada (0..1), então o traço
+ * vale para qualquer zoom e não depende da resolução do render.
  */
-export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
+export function SheetViewer({ sheet, sheets, jobsiteId, versionId, canAnnotate, onClose, onNavigate }: {
   sheet: AtlasSheet
+  sheets: AtlasSheet[]
   jobsiteId: string
+  versionId: string
   canAnnotate: boolean
   onClose: () => void
+  onNavigate: (sheet: AtlasSheet) => void
 }) {
   const { data: annotations } = useAtlasAnnotations(sheet.id)
   const { data: events } = useAtlasEvents(jobsiteId, sheet.id)
@@ -55,14 +58,27 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
   const [color, setColor] = useState(COLORS[0])
   const [zoom, setZoom] = useState(1)
   const [drawing, setDrawing] = useState<[number, number][]>([])
-  const surfaceRef = useRef<SVGSVGElement>(null)
+  const [pdfUrl, setPdfUrl] = useState("")
+  const surfaceRef = useRef<HTMLDivElement>(null)
 
-  // Proporção da folha: ARCH E1 é 42×30 quando o PDF não disse outra coisa.
-  const { width, height } = useMemo(() => {
-    const w = Number(sheet.widthPt) || 3024
-    const h = Number(sheet.heightPt) || 2160
-    return { width: w, height: h }
-  }, [sheet.widthPt, sheet.heightPt])
+  // A URL assinada é curta e vale para a leitura de agora; o pdf.js baixa o
+  // documento uma vez e serve todas as folhas dele.
+  useEffect(() => {
+    let alive = true
+    atlasService.versionDownloadUrl(versionId)
+      .then(r => { if (alive) setPdfUrl(r.url) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [versionId])
+
+  const { width, height } = useMemo(() => ({
+    width: Number(sheet.widthPt) || 3024,
+    height: Number(sheet.heightPt) || 2160,
+  }), [sheet.widthPt, sheet.heightPt])
+
+  const index = sheets.findIndex(s => s.id === sheet.id)
+  const prev = index > 0 ? sheets[index - 1] : null
+  const next = index >= 0 && index < sheets.length - 1 ? sheets[index + 1] : null
 
   const toNormalized = useCallback((e: React.PointerEvent): [number, number] => {
     const box = surfaceRef.current?.getBoundingClientRect()
@@ -78,7 +94,7 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
     const point = toNormalized(e)
 
     if (tool === "pin") {
-      const title = window.prompt("O que aconteceu neste ponto da planta?")
+      const title = window.prompt("What happened at this point of the drawing?")
       if (title?.trim()) {
         createEvent.mutate({
           kind: "issue", title: title.trim(), sheetId: sheet.id,
@@ -95,7 +111,7 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
 
   function handlePointerMove(e: React.PointerEvent) {
     if (!drawing.length) return
-    setDrawing(prev => [...prev, toNormalized(e)])
+    setDrawing(prevPoints => [...prevPoints, toNormalized(e)])
   }
 
   function handlePointerUp() {
@@ -103,7 +119,7 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
     const stroke = tool === "highlighter" ? "highlighter" : "pen"
     const defaults = TOOL_DEFAULTS[stroke]
     createAnnotation.mutate({
-      // O id nasce no cliente porque o traço precisa existir antes da rede
+      // O id nasce no cliente porque o traço precisa existir antes de a rede
       // responder — é o que permite anotar em obra sem sinal e sincronizar
       // depois sem duplicar (AT-14).
       id: crypto.randomUUID(),
@@ -131,19 +147,28 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
+        <Button size="icon" variant="ghost" disabled={!prev} onClick={() => prev && onNavigate(prev)}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <Button size="icon" variant="ghost" disabled={!next} onClick={() => next && onNavigate(next)}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium leading-tight">
-            {sheet.sheetNumber || `Página ${sheet.pageIndex + 1}`}
+            {sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}
           </p>
-          <p className="truncate text-xs text-muted-foreground">{sheet.title}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {sheet.title || `${index + 1} of ${sheets.length}`}
+          </p>
         </div>
 
         {canAnnotate && (
           <div className="flex items-center gap-1">
-            {toolButton("pen", Pen, "Caneta")}
-            {toolButton("highlighter", Highlighter, "Marca-texto")}
-            {toolButton("pin", MapPin, "Pin de evento")}
-            {toolButton("erase", Eraser, "Apagar traço")}
+            {toolButton("pen", Pen, "Pen")}
+            {toolButton("highlighter", Highlighter, "Highlighter")}
+            {toolButton("pin", MapPin, "Event pin")}
+            {toolButton("erase", Eraser, "Erase stroke")}
             <div className="mx-1 flex items-center gap-1">
               {COLORS.map(c => (
                 <button
@@ -177,72 +202,61 @@ export function SheetViewer({ sheet, jobsiteId, canAnnotate, onClose }: {
 
       <div className="min-h-0 flex-1 overflow-auto bg-muted/30 p-6">
         <div
-          className="mx-auto bg-background shadow-sm"
-          style={{ width: `${Math.min(1400, width) * zoom}px`, maxWidth: "none" }}
+          ref={surfaceRef}
+          className="relative mx-auto border border-border/60 bg-white"
+          style={{ width: `${1100 * zoom}px`, aspectRatio: `${width} / ${height}` }}
         >
+          {pdfUrl && (
+            <PdfPage url={pdfUrl} pageIndex={sheet.pageIndex} scale={1.5} />
+          )}
+
           <svg
-            ref={surfaceRef}
             viewBox={`0 0 ${width} ${height}`}
-            className="h-auto w-full touch-none select-none border border-border/60"
+            className="absolute inset-0 h-full w-full touch-none select-none"
             style={{ cursor: canAnnotate && tool !== "erase" ? "crosshair" : "default" }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerLeave={handlePointerUp}
           >
-            {/* Lugar do render da folha (AT-13). Enquanto ele não existe, a
-                superfície mantém a proporção real da prancha, para o traço
-                nascer com a coordenada certa desde já. */}
-            <rect x={0} y={0} width={width} height={height} fill="transparent" />
-            <text
-              x={width / 2} y={height / 2}
-              textAnchor="middle"
-              className="fill-muted-foreground"
-              style={{ fontSize: Math.round(height / 40) }}
-            >
-              render da folha pendente — anotações já são gravadas
-            </text>
+            {annotations?.map(a => (
+              <path
+                key={a.id}
+                d={pointsToPath(a.geometry?.points ?? [], width, height)}
+                fill="none"
+                stroke={a.color}
+                strokeWidth={Number(a.width) * (height / 400)}
+                strokeOpacity={Number(a.opacity)}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                onClick={() => {
+                  if (tool === "erase" && canAnnotate) deleteAnnotation.mutate(a.id)
+                }}
+                style={{ cursor: tool === "erase" ? "pointer" : "inherit" }}
+              />
+            ))}
 
-            <g>
-              {annotations?.map(a => (
-                <path
-                  key={a.id}
-                  d={pointsToPath(a.geometry?.points ?? [], width, height)}
-                  fill="none"
-                  stroke={a.color}
-                  strokeWidth={Number(a.width) * (height / 400)}
-                  strokeOpacity={Number(a.opacity)}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  onClick={() => {
-                    if (tool === "erase" && canAnnotate) deleteAnnotation.mutate(a.id)
-                  }}
-                  style={{ cursor: tool === "erase" ? "pointer" : "inherit" }}
+            {drawing.length > 1 && (
+              <path
+                d={pointsToPath(drawing, width, height)}
+                fill="none"
+                stroke={color}
+                strokeWidth={TOOL_DEFAULTS[tool === "highlighter" ? "highlighter" : "pen"].width * (height / 400)}
+                strokeOpacity={TOOL_DEFAULTS[tool === "highlighter" ? "highlighter" : "pen"].opacity}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
+
+            {events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
+              <g key={e.id} transform={`translate(${(e.pageX ?? 0) * width} ${(e.pageY ?? 0) * height})`}>
+                <circle
+                  r={height / 60}
+                  className={e.status === "resolved" ? "fill-emerald-500/80" : "fill-amber-500/80"}
                 />
-              ))}
-
-              {drawing.length > 1 && (
-                <path
-                  d={pointsToPath(drawing, width, height)}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={TOOL_DEFAULTS[tool === "highlighter" ? "highlighter" : "pen"].width * (height / 400)}
-                  strokeOpacity={TOOL_DEFAULTS[tool === "highlighter" ? "highlighter" : "pen"].opacity}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-
-              {events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
-                <g key={e.id} transform={`translate(${(e.pageX ?? 0) * width} ${(e.pageY ?? 0) * height})`}>
-                  <circle
-                    r={height / 60}
-                    className={e.status === "resolved" ? "fill-emerald-500/80" : "fill-amber-500/80"}
-                  />
-                  <title>{e.title || e.body}</title>
-                </g>
-              ))}
-            </g>
+                <title>{e.title || e.body}</title>
+              </g>
+            ))}
           </svg>
         </div>
       </div>

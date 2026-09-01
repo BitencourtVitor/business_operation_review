@@ -15,13 +15,13 @@ import { CheckCircle2, MapPin, MessageSquare, Plus, Send } from "lucide-react"
 import { useState } from "react"
 
 const KINDS = [
-  ["comment", "Comentário"], ["issue", "Pendência"], ["task", "Tarefa"], ["rfi", "RFI"],
+  ["comment", "Comment"], ["issue", "Issue"], ["task", "Task"], ["rfi", "RFI"],
 ] as const
 
 const STATUS: Record<string, { label: string; className: string }> = {
-  open:     { label: "Aberto",     className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
-  answered: { label: "Respondido", className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
-  resolved: { label: "Resolvido",  className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
+  open:     { label: "Open",       className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
+  answered: { label: "Answered",   className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
+  resolved: { label: "Resolved",   className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
 }
 
 function Thread({ event, jobsiteId, canWrite, sheetId }: {
@@ -49,7 +49,7 @@ function Thread({ event, jobsiteId, canWrite, sheetId }: {
           <Input
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder="Responder"
+            placeholder="Reply"
             onKeyDown={e => {
               if (e.key === "Enter" && text.trim()) {
                 reply.mutate(text.trim(), { onSuccess: () => setText("") })
@@ -71,7 +71,7 @@ function Thread({ event, jobsiteId, canWrite, sheetId }: {
               onClick={() => update.mutate({ eventId: event.id, patch: { status: "resolved" } })}
             >
               <CheckCircle2 className="h-4 w-4" />
-              Resolver
+              Resolve
             </Button>
           )}
         </div>
@@ -106,35 +106,35 @@ export function EventsPanel({ jobsiteId, canWrite, sheetId }: {
         <div className="flex justify-end">
           <Button size="sm" variant={open ? "ghost" : "outline"} onClick={() => setOpen(!open)}>
             <Plus className="h-4 w-4" />
-            {open ? "Cancelar" : "Novo evento"}
+            {open ? "Cancel" : "New event"}
           </Button>
         </div>
       )}
 
       {open && canWrite && (
-        <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="event-kind">Tipo</Label>
+              <Label htmlFor="event-kind">Kind</Label>
               <NativeSelect id="event-kind" value={form.kind}
                 onChange={e => setForm({ ...form, kind: e.target.value })}>
                 {KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </NativeSelect>
             </div>
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label htmlFor="event-title">Título</Label>
+              <Label htmlFor="event-title">Title</Label>
               <Input id="event-title" value={form.title}
                 onChange={e => setForm({ ...form, title: e.target.value })} />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-body">Descrição</Label>
+            <Label htmlFor="event-body">Description</Label>
             <Textarea id="event-body" rows={3} value={form.body}
               onChange={e => setForm({ ...form, body: e.target.value })} />
           </div>
           <div className="flex justify-end">
             <Button onClick={submit} disabled={create.isPending}>
-              {create.isPending ? "Abrindo…" : "Abrir evento"}
+              {create.isPending ? "Opening…" : "Open event"}
             </Button>
           </div>
         </div>
@@ -145,11 +145,11 @@ export function EventsPanel({ jobsiteId, canWrite, sheetId }: {
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
         </div>
       ) : !events?.length ? (
-        <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">Nenhum evento</p>
+        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+          <p className="text-sm font-medium">No events</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Pendência, RFI e comentário de campo aparecem aqui — e na planta, quando
-            ancorados numa folha.
+            Issues, RFIs and field comments show up here — and on the drawing, when
+            anchored to a sheet.
           </p>
         </div>
       ) : (
@@ -158,21 +158,21 @@ export function EventsPanel({ jobsiteId, canWrite, sheetId }: {
             const status = STATUS[e.status]
             const isOpen = expanded === e.id
             return (
-              <div key={e.id} className="rounded-xl border border-border/60 bg-card p-4">
+              <div key={e.id} className="rounded-lg border border-border/60 bg-card p-4">
                 <button
                   className="flex w-full items-start gap-3 text-left"
                   onClick={() => setExpanded(isOpen ? null : e.id)}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium leading-tight">
-                      {e.title || e.body.slice(0, 60) || "Sem título"}
+                      {e.title || e.body.slice(0, 60) || "Untitled"}
                     </p>
                     <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <span>{new Date(e.createdAt).toLocaleDateString()}</span>
                       {e.pageX != null && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
-                          ancorado na planta
+                          pinned on the drawing
                         </span>
                       )}
                       {e.replies > 0 && (

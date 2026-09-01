@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAtlasJobsites, useCreateAtlasJobsite } from "@/hooks/use-atlas"
-import { usePermission } from "@/hooks/use-permission"
 import { FileText, MapPin, MessageSquareWarning, Plus, Search } from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
@@ -21,20 +20,22 @@ function NewJobsiteDialog() {
 
   function submit() {
     if (!form.name.trim()) return
-    create.mutate(form, { onSuccess: () => { setOpen(false); setForm({ name: "", address: "", client: "", code: "" }) } })
+    create.mutate(form, {
+      onSuccess: () => { setOpen(false); setForm({ name: "", address: "", client: "", code: "" }) },
+    })
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
         <Plus className="h-4 w-4" />
-        Nova obra
+        New jobsite
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Nova obra</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New jobsite</DialogTitle></DialogHeader>
         <div className="flex flex-col gap-3">
           {([
-            ["name", "Nome"], ["address", "Endereço"], ["client", "Cliente"], ["code", "Código"],
+            ["name", "Name"], ["address", "Address"], ["client", "Client"], ["code", "Code"],
           ] as const).map(([field, label]) => (
             <div key={field} className="flex flex-col gap-1.5">
               <Label htmlFor={`jobsite-${field}`}>{label}</Label>
@@ -47,9 +48,9 @@ function NewJobsiteDialog() {
           ))}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={submit} disabled={!form.name.trim() || create.isPending}>
-            {create.isPending ? "Criando…" : "Criar"}
+            {create.isPending ? "Creating…" : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -59,7 +60,6 @@ function NewJobsiteDialog() {
 
 export default function AtlasJobsitesPage() {
   const { data: jobsites, isLoading } = useAtlasJobsites()
-  const { canEdit } = usePermission()
   const [query, setQuery] = useState("")
 
   const filtered = useMemo(() => {
@@ -78,7 +78,7 @@ export default function AtlasJobsitesPage() {
           <Input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Buscar obra"
+            placeholder="Search jobsites"
             className="h-8 pl-8"
           />
         </div>
@@ -88,12 +88,12 @@ export default function AtlasJobsitesPage() {
         <div className="mx-auto flex max-w-5xl flex-col gap-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h1 className="text-lg font-semibold">Obras</h1>
+              <h1 className="text-lg font-semibold">Jobsites</h1>
               <p className="text-sm text-muted-foreground">
-                Cada obra é uma sala: documentos, plantas e diário no mesmo lugar.
+                Every jobsite is a room: documents, drawings and diary in one place.
               </p>
             </div>
-            {canEdit("atlas") && <NewJobsiteDialog />}
+            <NewJobsiteDialog />
           </div>
 
           {isLoading ? (
@@ -101,12 +101,12 @@ export default function AtlasJobsitesPage() {
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
-              <p className="text-sm font-medium">Nenhuma obra por aqui</p>
+            <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+              <p className="text-sm font-medium">No jobsites here</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {jobsites?.length
-                  ? "Nenhuma obra bate com a busca."
-                  : "Crie a primeira obra para começar a subir documentos."}
+                  ? "Nothing matches this search."
+                  : "Create the first jobsite to start uploading documents."}
               </p>
             </div>
           ) : (
@@ -115,11 +115,11 @@ export default function AtlasJobsitesPage() {
                 <Link
                   key={j.id}
                   href={`/atlas/${j.id}`}
-                  className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/30"
+                  className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/30"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-semibold leading-tight">{j.name}</span>
-                    {j.status === "archived" && <Badge variant="outline">Arquivada</Badge>}
+                    {j.status === "archived" && <Badge variant="outline">Archived</Badge>}
                   </div>
                   {j.address && (
                     <span className="flex items-start gap-1.5 text-xs text-muted-foreground">
