@@ -435,11 +435,15 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 		QBTime       bool
 		BuilderTrend bool
 	}
+	// Framing only. HVAC obras live in the same table but have no rows in
+	// forecast_fieldwire, forecast_contract_steps or forecast_machines, so every
+	// component scores zero and they only drag the month's average down.
 	obraRows, err := tx.Query(ctx, `
 		SELECT id, COALESCE(cliente,''), COALESCE(storage,false),
 		       COALESCE(qb_time,false), COALESCE(buildertrend,false)
 		FROM forecast_core
-		WHERE previous_start_date >= $1 AND previous_start_date <= $2`, startOfMonth, endOfMonth)
+		WHERE company = 'framing'
+		  AND previous_start_date >= $1 AND previous_start_date <= $2`, startOfMonth, endOfMonth)
 	if err != nil {
 		return ofiInternalErr(c, "load obras for planning", err)
 	}
