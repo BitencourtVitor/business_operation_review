@@ -23,7 +23,7 @@ export function useAuth() {
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token, data.remember)
-      router.push("/monthly-execution")
+      router.push("/select")
     },
   })
 

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import {
   BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
-  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
+  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Map, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -53,6 +53,13 @@ const PERMISSION_GROUPS: PermGroup[] = [
       {
         key: "pcg_bid_requests", label: "PCG Bids and Contracts", image: "/images/icon_pcg.png",
         writeLabel: "Edit projects & trade catalog",
+      },
+      // Acesso a produto, um eixo acima das outras chaves: `atlas` decide se a
+      // pessoa vê o Atlas na tela de seleção. Dentro dele, o que ela pode fazer
+      // é decidido obra a obra, na própria obra.
+      {
+        key: "atlas", label: "Atlas", icon: Map,
+        writeLabel: "Create jobsites",
       },
     ],
   },
