@@ -10,9 +10,9 @@ import { ShieldOff, UserPlus } from "lucide-react"
 import { useMemo, useState } from "react"
 
 const LEVELS: { value: AtlasLevel; label: string; hint: string }[] = [
-  { value: "read",     label: "Leitura",   hint: "Abre documentos e plantas" },
-  { value: "annotate", label: "Anotação",  hint: "Marca a planta, abre evento, escreve no diário" },
-  { value: "manage",   label: "Gestão",    hint: "Sobe documento, publica versão e concede acesso" },
+  { value: "read",     label: "Read",     hint: "Opens documents and drawings" },
+  { value: "annotate", label: "Annotate", hint: "Marks up drawings, opens events, writes the diary" },
+  { value: "manage",   label: "Manage",   hint: "Uploads documents, publishes versions and grants access" },
 ]
 
 const LEVEL_LABEL: Record<string, string> = Object.fromEntries(
@@ -51,15 +51,15 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4">
-        <p className="text-sm font-medium">Conceder acesso</p>
+      <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4">
+        <p className="text-sm font-medium">Grant access</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <NativeSelect
             value={userId}
             onChange={e => setUserId(e.target.value)}
             className="flex-1"
           >
-            <option value="">Selecione a pessoa</option>
+            <option value="">Select a person</option>
             {candidates.map(u => (
               <option key={u.id} value={u.id}>{u.name} — {u.email}</option>
             ))}
@@ -76,7 +76,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
             onClick={() => grant.mutate({ userId, level }, { onSuccess: () => setUserId("") })}
           >
             <UserPlus className="h-4 w-4" />
-            Conceder
+            Grant
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
@@ -87,8 +87,8 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
       <div className="flex flex-col gap-2">
         {active.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Ninguém tem acesso concedido a esta obra ainda. Quem administra a plataforma
-            enxerga todas as obras sem precisar de concessão.
+            Nobody has been granted access to this jobsite yet. Platform administrators
+            see every jobsite without a grant.
           </p>
         ) : active.map(a => (
           <div key={a.userId} className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3">
@@ -98,7 +98,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
             </div>
             {a.expiresAt && (
               <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400">
-                expira {new Date(a.expiresAt).toLocaleDateString()}
+                expires {new Date(a.expiresAt).toLocaleDateString()}
               </Badge>
             )}
             <Badge variant="outline">{LEVEL_LABEL[a.level] ?? a.level}</Badge>
@@ -117,7 +117,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
       {revoked.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Revogados
+            Revoked
           </p>
           {/* A linha revogada continua aqui de propósito: concessão e revogação
               fazem parte da trilha (AT-7), e apagar a linha apagaria a prova de
@@ -127,7 +127,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm leading-tight">{a.userName}</p>
                 <p className="truncate text-xs text-muted-foreground">
-                  revogado em {new Date(a.revokedAt!).toLocaleDateString()}
+                  revoked on {new Date(a.revokedAt!).toLocaleDateString()}
                 </p>
               </div>
               <Button
@@ -135,7 +135,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
                 size="sm"
                 onClick={() => grant.mutate({ userId: a.userId, level: a.level })}
               >
-                Restaurar
+                Restore
               </Button>
             </div>
           ))}

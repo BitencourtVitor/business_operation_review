@@ -11,16 +11,16 @@ import {
   usePublishAtlasVersion, useUpdateAtlasSheet,
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
-import { ArrowLeft, Check, Download, FileWarning, Layers } from "lucide-react"
+import { ArrowLeft, Check, Download, Layers } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 const STATUS: Record<string, { label: string; className: string }> = {
-  pending:   { label: "Aguardando upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
-  uploaded:  { label: "Em revisão",        className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
-  published: { label: "Publicado",         className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
-  failed:    { label: "Falhou",            className: "border-destructive/40 text-destructive" },
+  pending:   { label: "Awaiting upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
+  uploaded:  { label: "In review",       className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
+  published: { label: "Published",       className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
+  failed:    { label: "Failed",          className: "border-destructive/40 text-destructive" },
 }
 
 function bytes(n: number) {
@@ -50,26 +50,26 @@ function SheetRow({ sheet, versionId, canManage, onOpen }: {
         <>
           <Input
             value={draft.sheetNumber}
-            placeholder="Nº da folha"
+            placeholder="Sheet no."
             className="h-8 w-32"
             onChange={e => setDraft({ ...draft, sheetNumber: e.target.value })}
           />
           <Input
             value={draft.title}
-            placeholder="Título"
+            placeholder="Title"
             className="h-8 flex-1"
             onChange={e => setDraft({ ...draft, title: e.target.value })}
           />
         </>
       ) : (
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{sheet.sheetNumber || `Página ${sheet.pageIndex + 1}`}</p>
+          <p className="truncate text-sm font-medium">{sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}</p>
           <p className="truncate text-xs text-muted-foreground">{sheet.title}</p>
         </div>
       )}
       {sheet.needsReview && !dirty && (
         <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400">
-          revisar
+          review
         </Badge>
       )}
       {canManage && dirty && (
@@ -81,11 +81,11 @@ function SheetRow({ sheet, versionId, canManage, onOpen }: {
           })}
         >
           <Check className="h-3.5 w-3.5" />
-          Salvar
+          Save
         </Button>
       )}
       {sheet.annotations > 0 && (
-        <span className="text-xs text-muted-foreground">{sheet.annotations} anotações</span>
+        <span className="text-xs text-muted-foreground">{sheet.annotations} marks</span>
       )}
     </div>
   )
@@ -124,7 +124,7 @@ export default function DocumentPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium leading-tight">{doc?.name ?? "Documento"}</p>
+          <p className="truncate text-sm font-medium leading-tight">{doc?.name ?? "Document"}</p>
           <p className="truncate text-xs text-muted-foreground">{jobsite?.name}</p>
         </div>
       </AtlasHeader>
@@ -134,15 +134,15 @@ export default function DocumentPage() {
           {canManage && <VersionUpload documentId={documentId} />}
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold">Versões</h2>
+            <h2 className="text-sm font-semibold">Versions</h2>
             {isLoading ? (
               <div className="flex h-24 items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
               </div>
             ) : !versions?.length ? (
               <p className="text-sm text-muted-foreground">
-                Nenhuma revisão ainda. O PDF original é imutável: revisão nova é sempre
-                versão nova, nunca sobrescrita.
+                No revisions yet. The original PDF is immutable: a new revision is always a new
+                version, never an overwrite.
               </p>
             ) : versions.map(v => {
               const status = STATUS[v.status]
@@ -157,7 +157,7 @@ export default function DocumentPage() {
                   <button className="min-w-0 flex-1 text-left" onClick={() => setVersionId(v.id)}>
                     <p className="text-sm font-medium leading-tight">rev {v.revision}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {[bytes(v.byteSize), v.pageCount ? `${v.pageCount} páginas` : null,
+                      {[bytes(v.byteSize), v.pageCount ? `${v.pageCount} pages` : null,
                         new Date(v.uploadedAt).toLocaleDateString()].filter(Boolean).join(" · ")}
                     </p>
                   </button>
@@ -165,12 +165,12 @@ export default function DocumentPage() {
                   {selected && v.status !== "pending" && (
                     <Button size="sm" variant="outline" onClick={download}>
                       <Download className="h-3.5 w-3.5" />
-                      Baixar
+                      Download
                     </Button>
                   )}
                   {canManage && v.status === "uploaded" && (
                     <Button size="sm" onClick={() => publish.mutate(v.id)} disabled={publish.isPending}>
-                      Publicar
+                      Publish
                     </Button>
                   )}
                 </div>
@@ -183,27 +183,18 @@ export default function DocumentPage() {
               <div className="flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
-                  Folhas da rev {version.revision}
+                  Sheets in rev {version.revision}
                 </h2>
                 <span className="text-xs text-muted-foreground">{sheets?.length ?? 0}</span>
               </div>
 
               {!sheets?.length ? (
-                // O mecanismo que quebra o PDF em folhas ainda está em discussão
-                // (AT-10). O que existe pronto é o destino: o endpoint que recebe
-                // a lista e a tabela que a guarda, com as anotações já presas a
-                // ela. Falta só quem produz a lista.
-                <div className="flex items-start gap-3 rounded-xl border border-dashed border-border/60 p-5">
-                  <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Folhas ainda não geradas</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      A fragmentação do PDF — o que conta como folha, e como o número e a
-                      disciplina saem do carimbo — ainda está em definição. Quando a regra
-                      existir, as folhas entram por <code className="text-xs">PUT /atlas/versions/{"{id}"}/sheets</code> e
-                      aparecem aqui, com as anotações presas a esta revisão.
-                    </p>
-                  </div>
+                <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
+                  <p className="text-sm font-medium">No sheets yet</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Sheets are created from the PDF when a revision is uploaded — one per page.
+                    Sheet number and discipline stay blank until the stamp-reading rule exists.
+                  </p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -223,12 +214,15 @@ export default function DocumentPage() {
         </div>
       </main>
 
-      {openSheet && (
+      {openSheet && sheets && (
         <SheetViewer
           sheet={openSheet}
+          sheets={sheets}
           jobsiteId={jobsiteId}
+          versionId={versionId}
           canAnnotate={!!canAnnotate}
           onClose={() => setOpenSheet(null)}
+          onNavigate={setOpenSheet}
         />
       )}
     </>

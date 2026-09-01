@@ -74,39 +74,39 @@ export function DailyLogPanel({ jobsiteId, canWrite }: { jobsiteId: string; canW
   return (
     <div className="flex flex-col gap-5">
       {canWrite && (
-        <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4">
-          <p className="text-sm font-medium">Registro do dia</p>
+        <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4">
+          <p className="text-sm font-medium">Daily entry</p>
           <div className="grid gap-3 sm:grid-cols-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="log-date">Data</Label>
+              <Label htmlFor="log-date">Date</Label>
               <Input id="log-date" type="date" value={form.logDate}
                 onChange={e => setForm({ ...form, logDate: e.target.value })} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="log-weather">Clima</Label>
-              <Input id="log-weather" placeholder="Ensolarado, chuva…" value={form.weather}
+              <Label htmlFor="log-weather">Weather</Label>
+              <Input id="log-weather" placeholder="Sunny, rain…" value={form.weather}
                 onChange={e => setForm({ ...form, weather: e.target.value })} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="log-temp">Temperatura (°F)</Label>
+              <Label htmlFor="log-temp">Temperature (°F)</Label>
               <Input id="log-temp" type="number" value={form.temperature}
                 onChange={e => setForm({ ...form, temperature: e.target.value })} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="log-crew">Equipe</Label>
+              <Label htmlFor="log-crew">Crew</Label>
               <Input id="log-crew" type="number" value={form.crewSize}
                 onChange={e => setForm({ ...form, crewSize: e.target.value })} />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="log-summary">Executado</Label>
+            <Label htmlFor="log-summary">Work performed</Label>
             <Textarea id="log-summary" rows={3} value={form.summary}
-              placeholder="O que a equipe executou hoje"
+              placeholder="What the crew did today"
               onChange={e => setForm({ ...form, summary: e.target.value })} />
           </div>
           <div className="flex justify-end">
             <Button onClick={submit} disabled={create.isPending || !form.logDate}>
-              {create.isPending ? "Salvando…" : "Registrar dia"}
+              {create.isPending ? "Saving…" : "Record day"}
             </Button>
           </div>
         </div>
@@ -117,16 +117,16 @@ export function DailyLogPanel({ jobsiteId, canWrite }: { jobsiteId: string; canW
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
         </div>
       ) : !logs?.length ? (
-        <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">Diário vazio</p>
+        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+          <p className="text-sm font-medium">Diary is empty</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Cada dia registrado vira uma linha do calendário da obra.
+            Every recorded day becomes a line on the jobsite calendar.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {logs.map(l => (
-            <div key={l.id} className="flex flex-col gap-2 rounded-xl border border-border/60 bg-card p-4">
+            <div key={l.id} className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card p-4">
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                   <CalendarDays className="h-3.5 w-3.5" />
@@ -163,7 +163,7 @@ export function DailyLogPanel({ jobsiteId, canWrite }: { jobsiteId: string; canW
                       disabled={upload.isPending}
                     >
                       <ImagePlus className="h-3.5 w-3.5" />
-                      Anexar
+                      Attach
                     </Button>
                   </>
                 )}

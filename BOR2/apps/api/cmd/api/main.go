@@ -637,9 +637,11 @@ func main() {
 
 	// Atlas — documentos, plantas e diário de obra.
 	//
-	// A chave `atlas` é o acesso ao produto; o acesso por obra é cobrado dentro
-	// do handler, porque só ele sabe de qual obra cada recurso é filho.
-	atlas := api.Group("/atlas", middleware.RequirePermission(db, "atlas", "read"))
+	// Enquanto o Atlas está em construção o produto inteiro é do desenvolvedor.
+	// Quando abrir, esta linha vira RequirePermission(db, "atlas", "read") — o
+	// acesso por obra já é cobrado dentro do handler, que é quem sabe de qual
+	// obra cada recurso é filho.
+	atlas := api.Group("/atlas", middleware.RequireRole("dev"))
 	atlas.Get("/jobsites", atlasHandler.ListJobsites)
 	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
 	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)

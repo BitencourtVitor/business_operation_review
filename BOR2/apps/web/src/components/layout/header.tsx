@@ -202,18 +202,17 @@ export function Header() {
 
           {/* Salto para o outro braço da plataforma, sem passar de novo pelo
               login: a sessão é da plataforma e os produtos são destinos dela. */}
-          {hasAtlas && (
-            <Tip label="Ir para o Atlas">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.push("/atlas")}
-                className="hidden md:inline-flex"
-              >
-                <Map className="h-4 w-4" />
-              </Button>
-            </Tip>
-          )}
+          <Tip label={hasAtlas ? "Go to Atlas" : "Atlas — under construction"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              disabled={!hasAtlas}
+              onClick={() => router.push("/atlas")}
+              className="hidden md:inline-flex"
+            >
+              <Map className="h-4 w-4" />
+            </Button>
+          </Tip>
 
           <Tip label="Sign out">
             <Button

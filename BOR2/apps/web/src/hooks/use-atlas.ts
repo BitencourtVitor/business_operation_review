@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { readPdfOutline } from "@/components/atlas/pdf-page"
 import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
@@ -133,8 +134,33 @@ export function useUploadAtlasVersion(documentId: string) {
       })
       onProgress?.("uploading")
       await uploadToR2(ticket.uploadUrl, file, contentType)
+
       onProgress?.("confirming")
-      return atlasService.confirmVersion(ticket.versionId, {})
+      // A estrutura sai do próprio arquivo, no navegador: contagem de páginas e
+      // tamanho da prancha. Uma linha de folha por página, sem número nem
+      // disciplina — isso é leitura de carimbo (AT-12) e continua fora.
+      let outline: { pageCount: number; width: number; height: number } | null = null
+      try {
+        outline = await readPdfOutline(file)
+      } catch {
+        // PDF que o pdf.js não abre não pode travar o upload: a versão fica
+        // gravada e as folhas entram depois, pelo mesmo endpoint idempotente.
+      }
+      const confirmed = await atlasService.confirmVersion(ticket.versionId, {
+        pageCount: outline?.pageCount ?? 0,
+      })
+      if (outline) {
+        await atlasService.replaceSheets(
+          ticket.versionId,
+          Array.from({ length: outline.pageCount }, (_, i) => ({
+            pageIndex: i,
+            widthPt: outline!.width,
+            heightPt: outline!.height,
+            needsReview: true,
+          })),
+        )
+      }
+      return confirmed
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.versions(documentId) })

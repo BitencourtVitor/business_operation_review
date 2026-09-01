@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 import { useProducts, type Product } from "@/lib/products"
-import { ArrowRight, LayoutDashboard, LogOut, Map } from "lucide-react"
+import { ArrowRight, LayoutDashboard, Lock, LogOut, Map } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
@@ -18,19 +18,25 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
   const Icon = PRODUCT_ICON[product.id]
   return (
     <button
-      onClick={() => onPick(product)}
-      className="group flex w-full max-w-sm flex-col gap-4 rounded-xl border border-border/60 bg-card p-6 text-left transition-colors hover:border-primary/50 hover:bg-accent/40"
+      onClick={() => product.enabled && onPick(product)}
+      disabled={!product.enabled}
+      className="group flex w-full items-center gap-4 rounded-lg border border-border/60 bg-card p-4 text-left transition-colors enabled:hover:border-primary/50 enabled:hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-border/60 bg-muted/40 text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary">
-        <Icon className="h-5 w-5" />
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground transition-colors group-enabled:group-hover:border-primary/40 group-enabled:group-hover:text-primary">
+        <Icon className="h-4.5 w-4.5" />
       </span>
-      <span className="flex flex-col gap-1">
-        <span className="text-base font-semibold leading-tight">{product.name}</span>
-        <span className="text-sm text-muted-foreground">{product.tagline}</span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-sm font-semibold leading-tight">{product.name}</span>
+        <span className="truncate text-sm text-muted-foreground">{product.tagline}</span>
       </span>
-      <span className="mt-auto flex items-center gap-1.5 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-        Entrar <ArrowRight className="h-3.5 w-3.5" />
-      </span>
+      {product.enabled ? (
+        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+      ) : (
+        <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+          <Lock className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">{product.reason}</span>
+        </span>
+      )}
     </button>
   )
 }
@@ -38,11 +44,11 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
 function SelectProduct() {
   const router = useRouter()
   const { user, logout } = useAuth()
-  const { available, isLoading } = useProducts()
+  const { products, available, isLoading } = useProducts()
 
-  // Quem só tem um destino não deveria escolher entre uma opção só (AT-2,
-  // ponto 3): a tela existe para bifurcar, e sem bifurcação ela é um clique a
-  // mais entre a pessoa e o trabalho.
+  // Quem só tem um destino não deveria escolher entre uma opção só (AT-2): a
+  // tela existe para bifurcar, e sem bifurcação é um clique a mais entre a
+  // pessoa e o trabalho.
   useEffect(() => {
     if (!isLoading && available.length === 1) {
       router.replace(available[0].href)
@@ -72,23 +78,23 @@ function SelectProduct() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/logo_white.png" alt="Premium Group" className="hidden h-8 object-contain dark:block" />
         <div className="text-center">
-          <h1 className="text-xl font-semibold">Onde você quer trabalhar?</h1>
+          <h1 className="text-xl font-semibold">Where do you want to work?</h1>
           <p className="text-sm text-muted-foreground">
-            {user?.name ? `${user.name} · ` : ""}escolha o destino
+            {user?.name ? `${user.name} · ` : ""}pick a destination
           </p>
         </div>
       </div>
 
-      <div className="flex w-full max-w-3xl flex-col items-center justify-center gap-4 sm:flex-row sm:items-stretch">
-        {available.map(product => (
+      <div className="flex w-full max-w-xl flex-col gap-3">
+        {products.map(product => (
           <ProductCard key={product.id} product={product} onPick={p => router.push(p.href)} />
         ))}
       </div>
 
       {available.length === 0 && (
         <p className="max-w-md text-center text-sm text-muted-foreground">
-          Sua conta ainda não tem acesso liberado a nenhum produto. Peça a um administrador
-          para conceder as permissões em Settings.
+          Your account has no product access yet. Ask an administrator to grant permissions
+          in Settings.
         </p>
       )}
     </main>

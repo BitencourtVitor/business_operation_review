@@ -4,7 +4,8 @@ Segundo braço da plataforma Premium. BOR de um lado (dados corporativos, foreca
 financeiro), Atlas do outro (documento, planta, campo). Missão: aposentar o **Fieldwire**
 primeiro e o **Buildertrend** depois.
 
-Este documento descreve o que **existe implementado** em 01/09/2026. As decisões de produto
+Este documento descreve o que **existe implementado** em 01/09/2026. A interface é toda
+em inglês; os comentários e este documento seguem em português. As decisões de produto
 e a justificativa de cada escolha estão no backlog do dia (`backlog/2026-09-01/AT-*.md`);
 aqui está a forma como elas viraram código.
 
@@ -24,14 +25,18 @@ permissão libera, e quem tem um só entra direto nele.
 | Salto BOR → Atlas | `apps/web/src/components/layout/header.tsx` |
 | Salto Atlas → BOR | `apps/web/src/components/atlas/atlas-header.tsx` |
 
-**Acesso a produto** é a chave `atlas` no `user_permissions` — um eixo acima das outras
-chaves, que são features. Ter Atlas e não ter BOR é um estado válido. O BOR não tem chave
-própria: tê-lo é ter qualquer permissão que não seja a do Atlas.
+**Acesso a produto.** Enquanto o Atlas está em construção ele é **só do papel `dev`**:
+a rota da API exige `RequireRole("dev")` e o card na tela de seleção aparece desabilitado
+para todo mundo — visível de propósito, porque esconder faria a plataforma parecer ter um
+produto só. Quando abrir, volta a ser a chave `atlas` no `user_permissions` — um eixo acima
+das outras chaves, que são features. Ter Atlas e não ter BOR é um estado válido. O BOR não
+tem chave própria: tê-lo é ter qualquer permissão que não seja a do Atlas.
 
 **Acesso por obra** é outra coisa, e mora em `atlas_jobsite_access`: `read` (abre),
 `annotate` (marca a planta, abre evento, escreve no diário) e `manage` (sobe documento,
-publica versão, concede acesso). Papéis que administram a plataforma — dev, owner, admin,
-manager — enxergam todas as obras sem concessão.
+publica versão, concede acesso). Enquanto o produto é do desenvolvedor, só ele enxerga
+todas as obras sem concessão — a lista de bypass do handler acompanha a da rota, senão a
+porta de dentro ficaria mais larga que a de fora.
 
 ---
 
@@ -101,8 +106,9 @@ tabelas do Atlas nasceram auditadas — conferível em `SELECT * FROM audit_cobe
 
 ## API
 
-Tudo sob `/api/v1/atlas`, atrás da permissão `atlas`. O acesso por obra é cobrado dentro do
-handler (`internal/handler/atlas.go`), porque só ele sabe de qual obra cada recurso é filho.
+Tudo sob `/api/v1/atlas`, atrás de `RequireRole("dev")` enquanto o produto está em
+construção. O acesso por obra é cobrado dentro do handler (`internal/handler/atlas.go`),
+porque só ele sabe de qual obra cada recurso é filho.
 
 | Recurso | Rotas |
 |---|---|
@@ -131,11 +137,20 @@ Route group `(atlas)`, fora de `(dashboard)`: o Atlas não herda sidebar nem hea
 | Rota | O que é |
 |---|---|
 | `/atlas` | Obras — busca, contadores de documento e evento aberto |
-| `/atlas/[jobsiteId]` | Sala da obra: Documentos · Diário · Eventos · Acessos |
+| `/atlas/[jobsiteId]` | Sala da obra: Documents · Diary · Calendar · Events · Media · Access |
 | `/atlas/[jobsiteId]/documents/[documentId]` | Versões, upload de revisão, folhas |
 
-O leitor de folha (`components/atlas/sheet-viewer.tsx`) tem caneta, marca-texto, cor, zoom,
-pin de evento e borracha, gravando traço a traço em coordenada normalizada.
+O leitor de folha (`components/atlas/sheet-viewer.tsx`) desenha a página do PDF por baixo e
+a camada de anotação por cima: caneta, marca-texto, cor, zoom, pin de evento, borracha e
+navegação entre folhas, gravando traço a traço em coordenada normalizada.
+
+O render é no cliente, com pdf.js (`components/atlas/pdf-page.tsx`), a partir do original —
+sem cópia cortada e sem imagem pré-gerada. O documento é baixado uma vez por versão e serve
+todas as folhas dela; a página desenhada é a que está sendo olhada.
+
+O calendário (`calendar-panel.tsx`) põe diário e eventos no mesmo mês — é ele que mostra o
+buraco dos dias em que ninguém registrou nada. A galeria (`media-panel.tsx`) junta tudo o
+que o campo mandou, de qualquer origem.
 
 ---
 
@@ -152,25 +167,45 @@ poppler/pdfium. O material de referência é vetorial com texto extraível — `
 conta —, então a leitura do carimbo é viável **sem OCR** neste set. Set escaneado vai exigir
 OCR ou digitação.
 
-**2. Render da folha (AT-13).** A decisão mais cara ainda aberta: renderizar no servidor
-(Go + poppler/pdfium) ou no cliente (pdf.js). O original não é linearizado, o que dificulta
-pedir uma página por byte-range — daí a pergunta de linearizar na ingestão. O leitor já
-mantém a proporção real da prancha e grava as anotações; quando o render existir, ele entra
-como um `<image>` atrás da camada de anotação, sem mexer em coordenada nenhuma.
+O que **já existe** é o esqueleto: ao subir uma revisão, o navegador lê o PDF (pdf.js) e
+grava uma folha por página, com o tamanho real da prancha. Número, disciplina e revisão da
+folha ficam em branco, marcados como `needs_review`, esperando a regra. É o mínimo para o
+leitor e as anotações funcionarem — e é reescrito sem perda quando a regra chegar, porque o
+endpoint casa por `(version_id, page_index)`.
+
+**2. Render no servidor (AT-13).** O leitor renderiza no cliente, e para o caso de uso de
+hoje isso basta. Fica em aberto se vale render no servidor com cache no R2 — a convenção de
+chave já existe — e se vale linearizar o original na ingestão para pedir página por
+byte-range em vez de baixar o set inteiro. É a diferença entre abrir uma folha em 4G de obra
+e esperar 112 MB.
 
 **3. Miniaturas.** `atlas_sheet.thumb_key` existe e a convenção de chave está definida; nada
-gera as imagens ainda.
+gera as imagens ainda. A grade de folhas hoje mostra o número da página, não a imagem.
 
 **4. Usuários externos (AT-6).** O acesso por obra já cobre "quem entra e até onde vai", mas
 convite por e-mail com expiração, e a decisão de o externo viver na mesma tabela `users` ou
-em tabela separada, continuam em aberto.
+em tabela separada, continuam em aberto. O portal externo do BD-10 também não existe.
 
-**5. Variáveis do R2 em produção (AT-8).** Estão no `.env` local, **não** no Railway. Push
-não resolve: é a única parte da configuração que o auto-deploy da `main` não carrega. Sem
-elas, a API sobe normalmente e o Atlas responde `503 R2_NOT_CONFIGURED` em qualquer rota que
-toque arquivo — o resto do Atlas funciona. Continua valendo rotacionar a credencial antes de
-gravá-la em produção.
+**5. Rotação da credencial do R2 (AT-8).** As quatro variáveis foram gravadas no serviço
+`[Go] Backend` em produção (01/09), então a pendência 1 caiu. Continua valendo gerar
+credencial nova e revogar a atual, que passou por chat.
 
 **6. Tempo real e offline (AT-14).** Dois usuários na mesma folha sincronizam por refresh. O
 id de anotação já nasce no cliente, que é a metade difícil do offline; falta a fila local e a
 política de reconciliação.
+
+---
+
+## Importação fora da API
+
+`apps/web/scripts/atlas-import.ts` coloca um PDF no Atlas sem passar pela API — sobe para o
+R2, grava a versão como publicada e cria uma folha por página, na mesma convenção de chave
+dos endpoints. Existe porque o produto precisou receber arquivo antes do deploy.
+
+```bash
+cd BOR2/apps/web
+bun scripts/atlas-import.ts "<caminho.pdf>" --jobsite "East Point" --document "Building 2" --revision 2
+```
+
+Primeira carga (01/09): set East Point Building 2, 51 folhas de 3024×2160 pt, 112 MB no
+bucket, obra **East Point**.
