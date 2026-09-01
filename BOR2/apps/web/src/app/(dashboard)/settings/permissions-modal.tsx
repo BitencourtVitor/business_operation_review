@@ -38,7 +38,13 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "workforce",         label: "Workforce Productivity",     icon: Users         },
       { key: "inventory",         label: "Inventory Control",          icon: Package       },
       { key: "permits",           label: "Permit Control",             icon: FileCheck     },
-      { key: "forecast",          label: "Forecast",                   icon: CalendarDays  },
+      {
+        label: "Forecast", icon: CalendarDays,
+        children: [
+          { key: "forecast",      label: "Framing", image: "/images/sublogo_framing.png" },
+          { key: "forecast_hvac", label: "HVAC",    image: "/images/sublogo_hvac.png"    },
+        ],
+      },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
@@ -53,7 +59,13 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Data Management",
     permissions: [
-      { key: "data_control",       label: "Forecast Data Control", icon: ClipboardList },
+      {
+        label: "Forecast Data Control", icon: ClipboardList,
+        children: [
+          { key: "data_control",      label: "Framing", image: "/images/sublogo_framing.png" },
+          { key: "data_control_hvac", label: "HVAC",    image: "/images/sublogo_hvac.png"    },
+        ],
+      },
       { key: "wex_categorization", label: "WEX Categorization",    icon: CreditCard    },
       {
         label: "QBTime Reports",

@@ -2,7 +2,8 @@
 
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastStatus } from "@bor2/shared"
-import { useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import type { DCDivision, DCSection, SidebarTable, IntegFilters } from "./types"
 import { usePermission } from "@/hooks/use-permission"
 import { DEFAULT_INTEG } from "./types"
@@ -16,8 +17,33 @@ import { CatalogSection }        from "./components/catalog-section"
 import type { CatalogTable }     from "@/services/catalog.service"
 
 export default function DataControlPage() {
-  const { isDev } = usePermission()
-  const [division, setDivision]       = useState<DCDivision>("framing")
+  return (
+    <Suspense>
+      <DataControlContent />
+    </Suspense>
+  )
+}
+
+function DataControlContent() {
+  const { canView } = usePermission()
+  const searchParams = useSearchParams()
+
+  // Each division is its own permission, so a user may be allowed into one and
+  // not the other. The URL picks the division (the sidebar links carry it); we
+  // fall back to whichever the user can actually open.
+  const canFraming = canView("data_control")
+  const canHvac    = canView("data_control_hvac")
+  const requested  = searchParams.get("division") === "hvac" ? "hvac" : "framing"
+  const allowed: DCDivision =
+    requested === "hvac"
+      ? (canHvac ? "hvac" : "framing")
+      : (canFraming ? "framing" : "hvac")
+
+  const [division, setDivision]       = useState<DCDivision>(allowed)
+
+  // The sidebar links to the same route with a different ?division, so the page
+  // is not remounted — the initial useState value alone would never update.
+  useEffect(() => { setDivision(allowed) }, [allowed])
   const [section, setSection]         = useState<DCSection>("edit-project")
   const [catalogTable, setCatalogTable] = useState<SidebarTable>("clients")
   const { data: projects } = useForecast({ company: division })
@@ -73,7 +99,8 @@ export default function DataControlPage() {
         onCatalogTable={setCatalogTable}
         division={division}
         onDivision={setDivision}
-        hvacEnabled={isDev}
+        framingEnabled={canFraming}
+        hvacEnabled={canHvac}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">

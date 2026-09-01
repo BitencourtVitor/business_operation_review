@@ -28,6 +28,7 @@ interface DataControlSidebarProps {
   onCatalogTable:  (t: SidebarTable) => void
   division:        DCDivision
   onDivision:      (d: DCDivision) => void
+  framingEnabled:  boolean
   hvacEnabled:     boolean
 }
 
@@ -46,6 +47,7 @@ export function DataControlSidebar({
   onCatalogTable,
   division,
   onDivision,
+  framingEnabled,
   hvacEnabled,
 }: DataControlSidebarProps) {
   return (
@@ -61,7 +63,7 @@ export function DataControlSidebar({
       <div className="border-b border-sidebar-border p-2">
         <div className="grid grid-cols-2 gap-1 rounded-lg bg-foreground/5 p-1">
           {DC_DIVISIONS.map(d => {
-            const disabled = d.key === "hvac" && !hvacEnabled
+            const disabled = d.key === "hvac" ? !hvacEnabled : !framingEnabled
             return (
               <button
                 key={d.key}
