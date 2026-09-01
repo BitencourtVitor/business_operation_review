@@ -254,7 +254,7 @@ func (h *PCGProjectsHandler) AddEvent(c *fiber.Ctx) error {
 			 lead_time_value, lead_time_unit, note, logged_by, params, payment_schedule,
 			 recorded_at, url)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
-		ON CONFLICT (id) DO UPDATE SET
+		ON CONFLICT (project_trade_id, id) DO UPDATE SET
 			type=EXCLUDED.type, at=EXCLUDED.at, subcontractor=EXCLUDED.subcontractor,
 			amount=EXCLUDED.amount, lead_time_value=EXCLUDED.lead_time_value,
 			lead_time_unit=EXCLUDED.lead_time_unit, note=EXCLUDED.note,
@@ -279,6 +279,9 @@ func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 	if !e.At.IsZero() {
 		at = e.At
 	}
+	// O id do evento é sequencial por trade, não global: sem o project_trade_id
+	// na cláusula, uma correção aqui editava o evento de outra obra.
+	tradeRow := tradeRowID(c.Params("id"), c.Params("tradeId"))
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE pcg_trade_events SET
 			at               = COALESCE($2, at),
@@ -288,9 +291,9 @@ func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 			lead_time_unit   = COALESCE($6, lead_time_unit),
 			note             = COALESCE($7, note),
 			payment_schedule = COALESCE($8, payment_schedule)
-		WHERE id = $1`,
+		WHERE project_trade_id = $9 AND id = $1`,
 		c.Params("eventId"), at, nilIfEmpty(e.Subcontractor), e.Amount,
-		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), nilIfEmpty(e.Note), rawOrNil(e.PaymentSchedule))
+		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), nilIfEmpty(e.Note), rawOrNil(e.PaymentSchedule), tradeRow)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -299,7 +302,9 @@ func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 
 // DELETE /api/v1/pcg/projects/:id/trades/:tradeId/events/:eventId
 func (h *PCGProjectsHandler) DeleteEvent(c *fiber.Ctx) error {
-	if _, err := h.db.Exec(c.Context(), `DELETE FROM pcg_trade_events WHERE id=$1`, c.Params("eventId")); err != nil {
+	if _, err := h.db.Exec(c.Context(),
+		`DELETE FROM pcg_trade_events WHERE project_trade_id=$1 AND id=$2`,
+		tradeRowID(c.Params("id"), c.Params("tradeId")), c.Params("eventId")); err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"deleted": c.Params("eventId")}})
