@@ -7,6 +7,9 @@ function getToken() {
 }
 
 const base = "/api/v1/pcg/projects"
+// Rota irmã de `projects`, não filha: o backend expõe /api/v1/pcg/subcontractor-contacts.
+// Pendurada em `base`, a chamada casava com PATCH|DELETE /projects/:id e voltava 405.
+const contactsBase = "/api/v1/pcg/subcontractor-contacts"
 
 export const pcgProjectsService = {
   list: () => api.get<Project[]>(base, getToken()).then(r => r ?? []),
@@ -46,11 +49,11 @@ export interface PCGSubcontractorContact {
 
 export const pcgSubcontractorContactsService = {
   list: () =>
-    api.get<PCGSubcontractorContact[]>(`${base}/subcontractor-contacts`, getToken()).then(r => r ?? []),
+    api.get<PCGSubcontractorContact[]>(contactsBase, getToken()).then(r => r ?? []),
 
   save: (contact: PCGSubcontractorContact) =>
     api.put(
-      `${base}/subcontractor-contacts/${encodeURIComponent(contact.subcontractor)}`,
+      `${contactsBase}/${encodeURIComponent(contact.subcontractor)}`,
       contact,
       getToken(),
     ),
