@@ -109,6 +109,13 @@ type atlasJobsite struct {
 	Client        string  `json:"client"`
 	Code          string  `json:"code"`
 	Status        string  `json:"status"`
+	// Vocabulário do Forecast: lot, building ou house, mais a comunidade e o
+	// número. É como a obra é chamada em reunião.
+	Kind          string  `json:"kind"`
+	Community     string  `json:"community"`
+	Unit          string  `json:"unit"`
+	Company       string  `json:"company"`
+	ForecastID    *int64  `json:"forecastId"`
 	CatalogSiteID *int64  `json:"catalogJobSiteId"`
 	CreatedBy     string  `json:"createdBy"`
 	CreatedAt     string  `json:"createdAt"`
@@ -126,6 +133,7 @@ func (h *AtlasHandler) ListJobsites(c *fiber.Ctx) error {
 
 	rows, err := h.db.Query(c.Context(), `
 		SELECT j.id, j.name, j.address, j.client, j.code, j.status,
+		       j.kind, j.community, j.unit, j.company, j.forecast_id,
 		       j.catalog_job_site_id, j.created_by, j.created_at,
 		       (SELECT count(*) FROM atlas_document d
 		         WHERE d.jobsite_id = j.id AND d.archived_at IS NULL),
@@ -150,6 +158,7 @@ func (h *AtlasHandler) ListJobsites(c *fiber.Ctx) error {
 		var j atlasJobsite
 		var created time.Time
 		if err := rows.Scan(&j.ID, &j.Name, &j.Address, &j.Client, &j.Code, &j.Status,
+			&j.Kind, &j.Community, &j.Unit, &j.Company, &j.ForecastID,
 			&j.CatalogSiteID, &j.CreatedBy, &created,
 			&j.Documents, &j.OpenEvents, &j.Level); err != nil {
 			return internalErr(c, err)
@@ -188,6 +197,154 @@ func (h *AtlasHandler) CreateJobsite(c *fiber.Ctx) error {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
+}
+
+// GET /atlas/forecast-jobsites — as obras do Forecast, para importar.
+//
+// O Forecast tem a lista mais completa que existe: 486 obras com cliente,
+// comunidade, tipo, número e endereço. Redigitar isso no Atlas seria criar uma
+// segunda lista para envelhecer em paralelo.
+//
+// Devolve também o que já foi importado, marcado — some da tela de importação
+// sem precisar de uma segunda consulta.
+func (h *AtlasHandler) ListForecastJobsites(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(), `
+		SELECT f.id, COALESCE(f.cliente,''), COALESCE(f.job_site,''), COALESCE(f.type,''),
+		       COALESCE(f.lote_bld,''), COALESCE(f.address,''), COALESCE(f.status,''),
+		       COALESCE(f.company,''),
+		       EXISTS (SELECT 1 FROM atlas_jobsite j WHERE j.forecast_id = f.id)
+		FROM forecast_core f
+		WHERE ($1 = '' OR f.company = $1)
+		  AND ($2 = '' OR f.status = $2)
+		  AND ($3 = '' OR
+		       COALESCE(f.job_site,'') || ' ' || COALESCE(f.cliente,'') || ' ' ||
+		       COALESCE(f.lote_bld,'') || ' ' || COALESCE(f.address,'') ILIKE '%' || $3 || '%')
+		ORDER BY f.job_site, f.type, f.lote_bld
+		LIMIT 500`,
+		c.Query("company"), c.Query("status"), c.Query("q"))
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	type forecastJobsite struct {
+		ForecastID int64  `json:"forecastId"`
+		Client     string `json:"client"`
+		Community  string `json:"community"`
+		Type       string `json:"type"`
+		Unit       string `json:"unit"`
+		Address    string `json:"address"`
+		Status     string `json:"status"`
+		Company    string `json:"company"`
+		Imported   bool   `json:"imported"`
+		Name       string `json:"name"`
+	}
+	out := []forecastJobsite{}
+	for rows.Next() {
+		var f forecastJobsite
+		if err := rows.Scan(&f.ForecastID, &f.Client, &f.Community, &f.Type, &f.Unit,
+			&f.Address, &f.Status, &f.Company, &f.Imported); err != nil {
+			return internalErr(c, err)
+		}
+		f.Name = jobsiteName(f.Community, f.Type, f.Unit)
+		out = append(out, f)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// O nome da obra segue a convenção do Forecast: comunidade, tipo e número —
+// "Willis Brook at Lynnfield, MA · Lot 46". É como a obra é chamada em reunião,
+// e é o que faz duas obras da mesma comunidade não virarem a mesma coisa.
+func jobsiteName(community, kind, unit string) string {
+	name := strings.TrimSpace(community)
+	label := strings.TrimSpace(kind)
+	unit = strings.TrimSpace(unit)
+	if label != "" && unit != "" {
+		suffix := label + " " + unit
+		if name == "" {
+			return suffix
+		}
+		return name + " · " + suffix
+	}
+	if unit != "" && name != "" {
+		return name + " · " + unit
+	}
+	return name
+}
+
+func atlasKind(forecastType string) string {
+	switch strings.ToLower(strings.TrimSpace(forecastType)) {
+	case "building":
+		return "building"
+	case "house":
+		return "house"
+	case "lot":
+		return "lot"
+	default:
+		return "other"
+	}
+}
+
+// POST /atlas/jobsites/import — traz as obras escolhidas do Forecast.
+func (h *AtlasHandler) ImportJobsites(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	var in struct {
+		ForecastIDs []int64 `json:"forecastIds"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if len(in.ForecastIDs) == 0 {
+		return badRequest(c, "forecastIds is required")
+	}
+	userID, _ := actor(c)
+
+	rows, err := h.db.Query(c.Context(), `
+		SELECT id, COALESCE(cliente,''), COALESCE(job_site,''), COALESCE(type,''),
+		       COALESCE(lote_bld,''), COALESCE(address,''), COALESCE(company,'')
+		FROM forecast_core WHERE id = ANY($1)`, in.ForecastIDs)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	type source struct {
+		id                                                    int64
+		client, community, kind, unit, address, company string
+	}
+	sources := []source{}
+	for rows.Next() {
+		var s source
+		if err := rows.Scan(&s.id, &s.client, &s.community, &s.kind, &s.unit,
+			&s.address, &s.company); err != nil {
+			return internalErr(c, err)
+		}
+		sources = append(sources, s)
+	}
+	rows.Close()
+
+	imported := 0
+	for _, s := range sources {
+		// ON CONFLICT DO NOTHING sobre `forecast_id`: importar duas vezes é o
+		// caso normal — alguém volta na tela e marca tudo de novo.
+		tag, err := h.db.Exec(c.Context(), `
+			INSERT INTO atlas_jobsite
+				(id, name, address, client, community, unit, kind, company, forecast_id, created_by)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+			ON CONFLICT (forecast_id) WHERE forecast_id IS NOT NULL DO NOTHING`,
+			uuid.NewString(), jobsiteName(s.community, s.kind, s.unit), s.address, s.client,
+			s.community, s.unit, atlasKind(s.kind), s.company, s.id, userID)
+		if err != nil {
+			return internalErr(c, err)
+		}
+		imported += int(tag.RowsAffected())
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"imported": imported, "skipped": len(sources) - imported,
+	}})
 }
 
 // PATCH /atlas/jobsites/:id
@@ -452,17 +609,21 @@ func (h *AtlasHandler) UpdateDocument(c *fiber.Ctx) error {
 // exige não é o que a Toll Brothers exige.
 func (h *AtlasHandler) ListDocumentCategories(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
-		SELECT DISTINCT COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
+		-- min(id) porque o catálogo tem duplicata histórica do mesmo documento
+		-- para o mesmo cliente; a tela mostra um, e apagar apaga aquele.
+		SELECT min(id), COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
 		FROM catalog_forecast_fieldwire
 		WHERE document <> '' AND document <> 'N/A'
 		  AND ($1 = '' OR lower(COALESCE(client,'')) = lower($1))
-		ORDER BY 1, 2, 3`, c.Query("client"))
+		GROUP BY COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
+		ORDER BY 2, 3, 4`, c.Query("client"))
 	if err != nil {
 		return internalErr(c, err)
 	}
 	defer rows.Close()
 
 	type category struct {
+		ID       int64  `json:"id"`
 		Client   string `json:"client"`
 		Type     string `json:"type"`
 		Document string `json:"document"`
@@ -470,12 +631,64 @@ func (h *AtlasHandler) ListDocumentCategories(c *fiber.Ctx) error {
 	out := []category{}
 	for rows.Next() {
 		var cat category
-		if err := rows.Scan(&cat.Client, &cat.Type, &cat.Document); err != nil {
+		if err := rows.Scan(&cat.ID, &cat.Client, &cat.Type, &cat.Document); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, cat)
 	}
 	return c.JSON(fiber.Map{"data": out})
+}
+
+// POST /atlas/document-categories — acrescenta um documento ao catálogo.
+//
+// Escreve no catálogo do Forecast de propósito: é a mesma lista, e ter uma
+// segunda seria ter duas respostas para a mesma pergunta. Quem define o que uma
+// casa ou um prédio precisa ter é a operação, e ela agora tem uma tela.
+func (h *AtlasHandler) CreateDocumentCategory(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	var in struct {
+		Client   string `json:"client"`
+		Type     string `json:"type"`
+		Document string `json:"document"`
+		Notes    string `json:"notes"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if strings.TrimSpace(in.Document) == "" || strings.TrimSpace(in.Client) == "" {
+		return badRequest(c, "client and document are required")
+	}
+	var id int64
+	err := h.db.QueryRow(c.Context(), `
+		INSERT INTO catalog_forecast_fieldwire (client, type, document, where_location, notes)
+		VALUES ($1,$2,$3,'-',COALESCE(NULLIF($4,''),'-'))
+		RETURNING id`,
+		strings.TrimSpace(in.Client), strings.TrimSpace(in.Type),
+		strings.TrimSpace(in.Document), in.Notes).Scan(&id)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
+}
+
+// DELETE /atlas/document-categories/:id
+func (h *AtlasHandler) DeleteDocumentCategory(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return badRequest(c, "invalid id")
+	}
+	if _, err := h.db.Exec(c.Context(),
+		`DELETE FROM catalog_forecast_fieldwire WHERE id = $1`, id); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"deleted": id}})
 }
 
 func (h *AtlasHandler) documentJobsite(c *fiber.Ctx, docID string) (string, error) {
@@ -1333,9 +1546,20 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 		ContentType string  `json:"contentType"`
 		ByteSize    int64   `json:"byteSize"`
 		Caption     string  `json:"caption"`
+		// Pasta da foto e hora em que ela foi tirada. A hora vem do arquivo, não
+		// do upload: quem fotografa em obra manda tudo à noite, e um álbum
+		// ordenado pelo upload conta a história errada.
+		Album   string  `json:"album"`
+		TakenAt *string `json:"takenAt"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
+	}
+	var takenAt any
+	if in.TakenAt != nil && *in.TakenAt != "" {
+		if t, err := time.Parse(time.RFC3339, *in.TakenAt); err == nil {
+			takenAt = t
+		}
 	}
 	// Mídia sem evento e sem dia é válida: é a foto que alguém tirou na obra e
 	// mandou antes de saber onde ela se encaixa. Ela pertence à obra, que é o
@@ -1350,10 +1574,10 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_media
 			(id, jobsite_id, event_id, daily_log_id, kind, r2_key, file_name,
-			 content_type, byte_size, caption, uploaded_by)
-		VALUES ($1,$2,$3,$4,COALESCE(NULLIF($5,''),'photo'),$6,$7,$8,$9,$10,$11)`,
+			 content_type, byte_size, caption, uploaded_by, album, taken_at)
+		VALUES ($1,$2,$3,$4,COALESCE(NULLIF($5,''),'photo'),$6,$7,$8,$9,$10,$11,$12,$13)`,
 		id, jobsiteID, in.EventID, in.DailyLogID, in.Kind, key, in.FileName,
-		in.ContentType, in.ByteSize, in.Caption, userID)
+		in.ContentType, in.ByteSize, in.Caption, userID, strings.TrimSpace(in.Album), takenAt)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1413,6 +1637,49 @@ func (h *AtlasHandler) MediaURL(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": fiber.Map{"url": url, "expiresIn": 1800}})
 }
 
+// GET /atlas/jobsites/:id/albums — as pastas de foto da obra, com contagem e
+// o intervalo de datas do que está dentro.
+//
+// A foto de obra é guardada por pasta, e o álbum sem nome é a pasta em que cai
+// o que ninguém classificou — ele existe na listagem em vez de virar um monte
+// invisível.
+func (h *AtlasHandler) ListAlbums(c *fiber.Ctx) error {
+	jobsiteID := c.Params("id")
+	if err := h.require(c, jobsiteID, "read"); err != nil {
+		return atlasForbidden(c)
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT album, count(*)::int,
+		       min(COALESCE(taken_at, uploaded_at)), max(COALESCE(taken_at, uploaded_at))
+		FROM atlas_media
+		WHERE jobsite_id = $1 AND status = 'uploaded'
+		GROUP BY album
+		ORDER BY max(COALESCE(taken_at, uploaded_at)) DESC`, jobsiteID)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	type album struct {
+		Album string `json:"album"`
+		Count int    `json:"count"`
+		First string `json:"first"`
+		Last  string `json:"last"`
+	}
+	out := []album{}
+	for rows.Next() {
+		var a album
+		var first, last time.Time
+		if err := rows.Scan(&a.Album, &a.Count, &first, &last); err != nil {
+			return internalErr(c, err)
+		}
+		a.First = first.Format(time.RFC3339)
+		a.Last = last.Format(time.RFC3339)
+		out = append(out, a)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // GET /atlas/jobsites/:id/media — o que está pendurado em eventos e no diário,
 // já com URL assinada, para a galeria da sala da obra não pedir uma por uma.
 func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
@@ -1426,13 +1693,17 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT id, event_id, daily_log_id, kind, r2_key, file_name, content_type,
-		       byte_size, caption, uploaded_by, uploaded_at
+		       byte_size, caption, uploaded_by, uploaded_at, album,
+		       COALESCE(taken_at, uploaded_at)
 		FROM atlas_media
 		WHERE jobsite_id = $1 AND status = 'uploaded'
 		  AND ($2 = '' OR event_id = $2)
 		  AND ($3 = '' OR daily_log_id = $3)
-		ORDER BY uploaded_at DESC LIMIT $4`,
-		jobsiteID, c.Query("eventId"), c.Query("dailyLogId"), limit)
+		  AND ($5 = '' OR album = $5)
+		-- Ordenado pela hora da captura, não pela do upload: o álbum tem que
+		-- contar o dia da obra, não a hora em que alguém lembrou de mandar.
+		ORDER BY COALESCE(taken_at, uploaded_at) DESC LIMIT $4`,
+		jobsiteID, c.Query("eventId"), c.Query("dailyLogId"), limit, c.Query("album"))
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1449,6 +1720,8 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		Caption     string  `json:"caption"`
 		UploadedBy  string  `json:"uploadedBy"`
 		UploadedAt  string  `json:"uploadedAt"`
+		Album       string  `json:"album"`
+		TakenAt     string  `json:"takenAt"`
 		URL         string  `json:"url"`
 	}
 	out := []media{}
@@ -1457,11 +1730,14 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		var m media
 		var key string
 		var uploaded time.Time
+		var taken time.Time
 		if err := rows.Scan(&m.ID, &m.EventID, &m.DailyLogID, &m.Kind, &key, &m.FileName,
-			&m.ContentType, &m.ByteSize, &m.Caption, &m.UploadedBy, &uploaded); err != nil {
+			&m.ContentType, &m.ByteSize, &m.Caption, &m.UploadedBy, &uploaded,
+			&m.Album, &taken); err != nil {
 			return internalErr(c, err)
 		}
 		m.UploadedAt = uploaded.Format(time.RFC3339)
+		m.TakenAt = taken.Format(time.RFC3339)
 		out = append(out, m)
 		keys = append(keys, key)
 	}
@@ -1490,6 +1766,7 @@ func (h *AtlasHandler) GetJobsite(c *fiber.Ctx) error {
 	var created time.Time
 	err = h.db.QueryRow(c.Context(), `
 		SELECT j.id, j.name, j.address, j.client, j.code, j.status,
+		       j.kind, j.community, j.unit, j.company, j.forecast_id,
 		       j.catalog_job_site_id, j.created_by, j.created_at,
 		       (SELECT count(*) FROM atlas_document d
 		         WHERE d.jobsite_id = j.id AND d.archived_at IS NULL),
@@ -1497,6 +1774,7 @@ func (h *AtlasHandler) GetJobsite(c *fiber.Ctx) error {
 		         WHERE e.jobsite_id = j.id AND e.status <> 'resolved')
 		FROM atlas_jobsite j WHERE j.id = $1`, id).
 		Scan(&j.ID, &j.Name, &j.Address, &j.Client, &j.Code, &j.Status,
+			&j.Kind, &j.Community, &j.Unit, &j.Company, &j.ForecastID,
 			&j.CatalogSiteID, &j.CreatedBy, &created, &j.Documents, &j.OpenEvents)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return atlasNotFound(c, "obra")

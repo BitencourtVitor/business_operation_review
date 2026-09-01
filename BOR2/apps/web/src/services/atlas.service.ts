@@ -9,6 +9,20 @@ const base = "/api/v1/atlas"
 
 export type AtlasLevel = "read" | "annotate" | "manage"
 
+/** Uma obra do Forecast, candidata a virar obra do Atlas. */
+export interface ForecastJobsite {
+  forecastId: number
+  client: string
+  community: string
+  type: string
+  unit: string
+  address: string
+  status: string
+  company: string
+  imported: boolean
+  name: string
+}
+
 export interface AtlasJobsite {
   id: string
   name: string
@@ -16,6 +30,12 @@ export interface AtlasJobsite {
   client: string
   code: string
   status: "active" | "archived"
+  /** Vocabulário do Forecast: lot, building, house. */
+  kind: "lot" | "building" | "house" | "other"
+  community: string
+  unit: string
+  company: string
+  forecastId: number | null
   catalogJobSiteId: number | null
   createdBy: string
   createdAt: string
@@ -132,6 +152,13 @@ export interface AtlasDailyLog {
   media: number
 }
 
+export interface AtlasAlbum {
+  album: string
+  count: number
+  first: string
+  last: string
+}
+
 export interface AtlasMedia {
   id: string
   eventId: string | null
@@ -143,11 +170,14 @@ export interface AtlasMedia {
   caption: string
   uploadedBy: string
   uploadedAt: string
+  album: string
+  takenAt: string
   url: string
 }
 
 /** Uma linha do catálogo de documentos do Forecast, por cliente. */
 export interface AtlasDocumentCategory {
+  id: number
   client: string
   type: string
   document: string
@@ -171,6 +201,19 @@ interface UploadTicket {
 }
 
 export const atlasService = {
+  listForecastJobsites: (params?: { q?: string; company?: string; status?: string }) => {
+    const qs = new URLSearchParams()
+    if (params?.q) qs.set("q", params.q)
+    if (params?.company) qs.set("company", params.company)
+    if (params?.status) qs.set("status", params.status)
+    const suffix = qs.toString() ? `?${qs}` : ""
+    return api.get<ForecastJobsite[]>(`${base}/forecast-jobsites${suffix}`, getToken())
+      .then(r => r ?? [])
+  },
+  importJobsites: (forecastIds: number[]) =>
+    api.post<{ imported: number; skipped: number }>(
+      `${base}/jobsites/import`, { forecastIds }, getToken()),
+
   listJobsites: () => api.get<AtlasJobsite[]>(`${base}/jobsites`, getToken()).then(r => r ?? []),
   getJobsite: (id: string) => api.get<AtlasJobsite>(`${base}/jobsites/${id}`, getToken()),
   createJobsite: (body: Partial<AtlasJobsite>) =>
@@ -190,6 +233,11 @@ export const atlasService = {
       `${base}/document-categories${client ? `?client=${encodeURIComponent(client)}` : ""}`,
       getToken(),
     ).then(r => r ?? []),
+
+  createDocumentCategory: (body: { client: string; type: string; document: string; notes?: string }) =>
+    api.post<{ id: number }>(`${base}/document-categories`, body, getToken()),
+  deleteDocumentCategory: (id: number) =>
+    api.delete(`${base}/document-categories/${id}`, getToken()),
 
   listDocuments: (jobsiteId: string) =>
     api.get<AtlasDocument[]>(`${base}/jobsites/${jobsiteId}/documents`, getToken()).then(r => r ?? []),
@@ -253,10 +301,14 @@ export const atlasService = {
   updateDailyLog: (logId: string, patch: Record<string, unknown>) =>
     api.patch(`${base}/daily-logs/${logId}`, patch, getToken()),
 
-  listMedia: (jobsiteId: string, filter?: { eventId?: string; dailyLogId?: string }) => {
+  listAlbums: (jobsiteId: string) =>
+    api.get<AtlasAlbum[]>(`${base}/jobsites/${jobsiteId}/albums`, getToken()).then(r => r ?? []),
+
+  listMedia: (jobsiteId: string, filter?: { eventId?: string; dailyLogId?: string; album?: string }) => {
     const qs = new URLSearchParams()
     if (filter?.eventId) qs.set("eventId", filter.eventId)
     if (filter?.dailyLogId) qs.set("dailyLogId", filter.dailyLogId)
+    if (filter?.album !== undefined) qs.set("album", filter.album)
     const suffix = qs.toString() ? `?${qs}` : ""
     return api.get<AtlasMedia[]>(`${base}/jobsites/${jobsiteId}/media${suffix}`, getToken())
       .then(r => r ?? [])
@@ -264,6 +316,7 @@ export const atlasService = {
   openMedia: (jobsiteId: string, body: {
     eventId?: string; dailyLogId?: string; kind: string
     fileName: string; contentType: string; byteSize: number; caption?: string
+    album?: string; takenAt?: string
   }) => api.post<UploadTicket & { mediaId: string }>(
     `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
   confirmMedia: (mediaId: string) =>

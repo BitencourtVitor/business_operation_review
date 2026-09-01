@@ -643,6 +643,10 @@ func main() {
 	// obra cada recurso é filho.
 	atlas := api.Group("/atlas", middleware.RequireRole("dev"))
 	atlas.Get("/document-categories", atlasHandler.ListDocumentCategories)
+	atlas.Post("/document-categories", atlasHandler.CreateDocumentCategory)
+	atlas.Delete("/document-categories/:id", atlasHandler.DeleteDocumentCategory)
+	atlas.Get("/forecast-jobsites", atlasHandler.ListForecastJobsites)
+	atlas.Post("/jobsites/import", atlasHandler.ImportJobsites)
 	atlas.Get("/jobsites", atlasHandler.ListJobsites)
 	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
 	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)
@@ -672,6 +676,7 @@ func main() {
 	atlas.Get("/jobsites/:id/daily-logs", atlasHandler.ListDailyLogs)
 	atlas.Post("/jobsites/:id/daily-logs", atlasHandler.CreateDailyLog)
 	atlas.Patch("/daily-logs/:id", atlasHandler.UpdateDailyLog)
+	atlas.Get("/jobsites/:id/albums", atlasHandler.ListAlbums)
 	atlas.Get("/jobsites/:id/media", atlasHandler.ListMedia)
 	atlas.Post("/jobsites/:id/media", atlasHandler.CreateMedia)
 	atlas.Post("/media/:id/confirm", atlasHandler.ConfirmMedia)

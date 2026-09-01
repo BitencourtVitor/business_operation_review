@@ -26,6 +26,26 @@ export function useAtlasJobsites() {
   return useQuery({ queryKey: KEY.jobsites, queryFn: atlasService.listJobsites })
 }
 
+/** As obras do Forecast que ainda podem virar obra do Atlas. */
+export function useForecastJobsites(params?: { q?: string; company?: string; status?: string }) {
+  return useQuery({
+    queryKey: ["atlas", "forecast-jobsites", params?.q ?? "", params?.company ?? "", params?.status ?? ""],
+    queryFn: () => atlasService.listForecastJobsites(params),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useImportAtlasJobsites() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (forecastIds: number[]) => atlasService.importJobsites(forecastIds),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY.jobsites })
+      qc.invalidateQueries({ queryKey: ["atlas", "forecast-jobsites"] })
+    },
+  })
+}
+
 export function useAtlasJobsite(id: string) {
   return useQuery({
     queryKey: KEY.jobsite(id),
@@ -79,6 +99,23 @@ export function useAtlasDocumentCategories(client?: string) {
     queryKey: ["atlas", "document-categories", client ?? ""],
     queryFn: () => atlasService.listDocumentCategories(client),
     staleTime: 10 * 60 * 1000,
+  })
+}
+
+export function useCreateDocumentCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { client: string; type: string; document: string; notes?: string }) =>
+      atlasService.createDocumentCategory(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "document-categories"] }),
+  })
+}
+
+export function useDeleteDocumentCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => atlasService.deleteDocumentCategory(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "document-categories"] }),
   })
 }
 
@@ -282,9 +319,21 @@ export function useCreateAtlasDailyLog(jobsiteId: string) {
   })
 }
 
-export function useAtlasMedia(jobsiteId: string, filter?: { eventId?: string; dailyLogId?: string }) {
+export function useAtlasAlbums(jobsiteId: string) {
   return useQuery({
-    queryKey: [...KEY.media(jobsiteId), filter?.eventId ?? "", filter?.dailyLogId ?? ""],
+    queryKey: ["atlas", "albums", jobsiteId],
+    queryFn: () => atlasService.listAlbums(jobsiteId),
+    enabled: !!jobsiteId,
+  })
+}
+
+export function useAtlasMedia(
+  jobsiteId: string,
+  filter?: { eventId?: string; dailyLogId?: string; album?: string },
+) {
+  return useQuery({
+    queryKey: [...KEY.media(jobsiteId), filter?.eventId ?? "", filter?.dailyLogId ?? "",
+      filter?.album ?? "*"],
     queryFn: () => atlasService.listMedia(jobsiteId, filter),
     enabled: !!jobsiteId,
   })
@@ -294,8 +343,8 @@ export function useAtlasMedia(jobsiteId: string, filter?: { eventId?: string; da
 export function useUploadAtlasMedia(jobsiteId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, eventId, dailyLogId, caption }: {
-      file: File; eventId?: string; dailyLogId?: string; caption?: string
+    mutationFn: async ({ file, eventId, dailyLogId, caption, album }: {
+      file: File; eventId?: string; dailyLogId?: string; caption?: string; album?: string
     }) => {
       const contentType = file.type || "application/octet-stream"
       const kind = contentType.startsWith("image/") ? "photo"
@@ -304,12 +353,17 @@ export function useUploadAtlasMedia(jobsiteId: string) {
         : "file"
       const ticket = await atlasService.openMedia(jobsiteId, {
         eventId, dailyLogId, kind, fileName: file.name, contentType, byteSize: file.size, caption,
+        album,
+        // A data do arquivo é o mais perto da hora da foto que dá para saber sem
+        // ler EXIF; melhor que a hora do upload, que é sempre a da noite.
+        takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : undefined,
       })
       await uploadToR2(ticket.uploadUrl, file, contentType)
       return atlasService.confirmMedia(ticket.mediaId)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
+      qc.invalidateQueries({ queryKey: ["atlas", "albums", jobsiteId] })
       qc.invalidateQueries({ queryKey: KEY.dailyLogs(jobsiteId) })
       qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
     },

@@ -1,5 +1,6 @@
 "use client"
 
+import { ImportJobsitesDialog } from "@/components/atlas/import-jobsites-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -88,6 +89,7 @@ export default function AtlasJobsitesPage() {
               className="pl-8"
             />
           </div>
+          <ImportJobsitesDialog />
           <NewJobsiteDialog />
         </div>
       </div>
@@ -102,7 +104,7 @@ export default function AtlasJobsitesPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 {jobsites?.length
                   ? "Nothing matches this search."
-                  : "Create the first jobsite to start uploading documents."}
+                  : "Import from the Forecast, or create one by hand, to start uploading documents."}
               </p>
             </div>
           ) : (
@@ -115,7 +117,12 @@ export default function AtlasJobsitesPage() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-semibold leading-tight">{j.name}</span>
-                    {j.status === "archived" && <Badge variant="outline">Archived</Badge>}
+                    <span className="flex shrink-0 gap-1">
+                      {j.kind && j.kind !== "other" && (
+                        <Badge variant="outline" className="capitalize">{j.kind}</Badge>
+                      )}
+                      {j.status === "archived" && <Badge variant="outline">Archived</Badge>}
+                    </span>
                   </div>
                   {j.address && (
                     <span className="flex items-start gap-1.5 text-xs text-muted-foreground">

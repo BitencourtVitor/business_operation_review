@@ -5,7 +5,7 @@ import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteAccessPanel } from "@/components/atlas/jobsite-access-panel"
 import { JobsiteSettingsDialog } from "@/components/atlas/jobsite-settings-dialog"
-import { MediaPanel } from "@/components/atlas/media-panel"
+import { PhotosPanel } from "@/components/atlas/photos-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,11 +31,11 @@ const VERSION_STATUS: Record<string, { label: string; className: string }> = {
 }
 
 const TAB_TITLE: Record<string, string> = {
-  documents: "Documents",
+  documents: "Plans",
+  photos: "Photos",
+  tasks: "Tasks",
   diary: "Diary",
   calendar: "Calendar",
-  events: "Events",
-  media: "Media",
   access: "Access",
 }
 
@@ -261,8 +261,8 @@ export default function JobsiteRoomPage() {
       )}
       {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "calendar" && <CalendarPanel jobsiteId={jobsiteId} />}
-      {tab === "events" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
-      {tab === "media" && <MediaPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
+      {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
+      {tab === "photos" && <PhotosPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "access" && canManage && <JobsiteAccessPanel jobsiteId={jobsiteId} />}
     </div>
   )
