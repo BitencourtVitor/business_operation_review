@@ -3,15 +3,20 @@
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenuLabel, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useProducts } from "@/lib/products"
-import { ArrowLeftRight, LayoutDashboard, LogOut, Moon, Sun, User } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import {
+  Award, Compass, Ellipsis, Gem, LayoutDashboard, LogOut, Menu, Moon,
+  RefreshCw, Sun, User,
+} from "lucide-react"
 import { useTheme } from "next-themes"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 function Tip({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -22,77 +27,149 @@ function Tip({ label, children }: { label: string; children: React.ReactNode }) 
   )
 }
 
+const roleBadges: Record<string, { label: string; icon: React.ElementType; light: string; dark: string }> = {
+  dev:     { label: "Developer", icon: Gem,     light: "border-yellow-500 bg-yellow-500/10 text-yellow-600", dark: "border-yellow-400 bg-yellow-400/10 text-yellow-400" },
+  admin:   { label: "Admin",     icon: Award,   light: "border-primary bg-primary/10 text-primary",          dark: "border-primary bg-primary/10 text-primary" },
+  manager: { label: "Manager",   icon: Award,   light: "border-primary bg-primary/10 text-primary",          dark: "border-primary bg-primary/10 text-primary" },
+  owner:   { label: "Owner",     icon: Compass, light: "border-emerald-600 bg-emerald-600/10 text-emerald-600", dark: "border-emerald-400 bg-emerald-400/10 text-emerald-400" },
+  user:    { label: "User",      icon: User,    light: "border-border bg-secondary text-foreground",         dark: "border-border bg-secondary text-foreground" },
+  viewer:  { label: "Viewer",    icon: User,    light: "border-border bg-secondary text-foreground",         dark: "border-border bg-secondary text-foreground" },
+}
+
 /**
- * A casca do Atlas é dele: nada de sidebar do BOR.
- *
- * O leitor de planta em tablet compete por espaço com qualquer cromo de
- * navegação (AT-5), então o cabeçalho é uma faixa só — identidade à esquerda,
- * contexto no meio, e à direita os mesmos botões-ícone do header do BOR, para
- * os dois produtos não parecerem sistemas diferentes.
+ * O cabeçalho do Atlas é o do BOR: mesma altura, mesma divisão, mesmos
+ * controles à direita. São produtos diferentes, mas da mesma casa — trocar de
+ * braço não deveria parecer trocar de sistema.
  */
-export function AtlasHeader({ children }: { children?: React.ReactNode }) {
+export function AtlasHeader() {
+  const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
   const { hasBOR } = useProducts()
   const { resolvedTheme, setTheme } = useTheme()
+  const queryClient = useQueryClient()
   const router = useRouter()
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      await queryClient.invalidateQueries()
+    } finally {
+      setTimeout(() => setRefreshing(false), 600)
+    }
+  }
+
+  const role = user?.role ?? "viewer"
+  const badge = roleBadges[role] ?? roleBadges.viewer
+  const BadgeIcon = badge.icon
+  const badgeStyle = resolvedTheme === "dark" ? badge.dark : badge.light
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
-      <Link href="/atlas" className="flex shrink-0 items-center gap-2">
-        <span className="text-base font-semibold tracking-tight">Atlas</span>
-      </Link>
+    <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b bg-background px-4">
 
-      <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
-
-      {/* Salto para o outro braço da plataforma, sem passar de novo pelo login:
-          a sessão é da plataforma e os produtos são destinos dela (AT-2). */}
-      {hasBOR && (
-        <Tip label="Go to BOR">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/monthly-execution")}
-            className="hidden md:inline-flex"
-          >
-            <LayoutDashboard className="h-4 w-4" />
-          </Button>
-        </Tip>
-      )}
-
-      <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="hidden md:inline-flex"
-        >
-          {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+      {/* Mobile: hambúrguer + mini logo + título */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 md:hidden">
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="-ml-2 shrink-0">
+          <Menu className="h-5 w-5" />
         </Button>
-      </Tip>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/minilogo_black.png" alt="Premium" className="h-6 w-6 shrink-0 object-contain dark:hidden" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/minilogo_white.png" alt="Premium" className="hidden h-6 w-6 shrink-0 object-contain dark:block" />
+        <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Atlas</span>
+      </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
-          <User className="h-4 w-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
-          {/* O label é parte de um grupo no Base UI; solto, o menu quebra em runtime. */}
-          {user && <DropdownMenuGroup><DropdownMenuLabel>{user.name}</DropdownMenuLabel></DropdownMenuGroup>}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push("/select")}>
-            <ArrowLeftRight className="h-4 w-4" />
-            Switch product
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-            {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onClick={() => logout()}>
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* Desktop: título + frase */}
+      <div className="hidden flex-1 flex-col justify-center md:flex">
+        <h1 className="text-base font-medium tracking-tight text-primary">Atlas</h1>
+        <p className="text-[10px] text-muted-foreground">
+          A drawing is only worth what the field can read on it.
+        </p>
+      </div>
+
+      <TooltipProvider>
+        <div className="flex items-center gap-2">
+          {user && (
+            <span className="hidden text-sm text-muted-foreground lg:inline">{user.name}</span>
+          )}
+
+          {user && (
+            <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide md:inline-flex ${badgeStyle}`}>
+              <BadgeIcon className="h-3 w-3" />
+              {badge.label}
+            </span>
+          )}
+
+          <div className="mx-1.5 w-px self-stretch bg-border" />
+
+          <Tip label="Refresh data">
+            <Button variant="ghost" size="icon" onClick={handleRefresh} className="hidden md:inline-flex">
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            </Button>
+          </Tip>
+
+          {/* Salto para o outro braço da plataforma, sem passar de novo pelo
+              login: a sessão é da plataforma e os produtos são destinos dela. */}
+          {hasBOR && (
+            <Tip label="Go to BOR">
+              <Button
+                variant="ghost" size="icon"
+                onClick={() => router.push("/monthly-execution")}
+                className="hidden md:inline-flex"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+              </Button>
+            </Tip>
+          )}
+
+          <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
+            <Button
+              variant="ghost" size="icon"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="hidden md:inline-flex"
+            >
+              {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
+          </Tip>
+
+          <Tip label="Sign out">
+            <Button
+              variant="ghost" size="icon" onClick={() => logout()}
+              className="hidden text-destructive hover:bg-destructive/10 hover:text-destructive md:inline-flex"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </Tip>
+
+          {/* Mobile: as mesmas ações num menu só */}
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="md:hidden" />}>
+              <Ellipsis className="h-5 w-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="w-52">
+              {user && <DropdownMenuGroup><DropdownMenuLabel>{user.name}</DropdownMenuLabel></DropdownMenuGroup>}
+              <DropdownMenuItem onClick={handleRefresh}>
+                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                Refresh data
+              </DropdownMenuItem>
+              {hasBOR && (
+                <DropdownMenuItem onClick={() => router.push("/monthly-execution")}>
+                  <LayoutDashboard className="h-4 w-4" />
+                  Go to BOR
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+                {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={() => logout()}>
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </TooltipProvider>
     </header>
   )
 }

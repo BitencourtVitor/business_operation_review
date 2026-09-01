@@ -1,6 +1,5 @@
 "use client"
 
-import { AtlasHeader } from "@/components/atlas/atlas-header"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
 import { VersionUpload } from "@/components/atlas/version-upload"
 import { Badge } from "@/components/ui/badge"
@@ -119,18 +118,22 @@ export default function DocumentPage() {
 
   return (
     <>
-      <AtlasHeader>
-        <Link href={`/atlas/${jobsiteId}`} className="ml-1 text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium leading-tight">{doc?.name ?? "Document"}</p>
-          <p className="truncate text-xs text-muted-foreground">{jobsite?.name}</p>
-        </div>
-      </AtlasHeader>
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+          <div className="flex items-start gap-3">
+            <Link
+              href={`/atlas/${jobsiteId}`}
+              className="mt-1 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold">{doc?.name ?? "Document"}</h1>
+              <p className="truncate text-sm text-muted-foreground">
+                {[jobsite?.name, doc?.discipline].filter(Boolean).join(" · ")}
+              </p>
+            </div>
+          </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto p-6">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6">
           {canManage && <VersionUpload documentId={documentId} />}
 
           <section className="flex flex-col gap-3">
@@ -211,8 +214,7 @@ export default function DocumentPage() {
               )}
             </section>
           )}
-        </div>
-      </main>
+      </div>
 
       {openSheet && sheets && (
         <SheetViewer
