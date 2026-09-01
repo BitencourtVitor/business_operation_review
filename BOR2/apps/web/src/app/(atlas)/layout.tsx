@@ -1,12 +1,30 @@
+import { AtlasHeader } from "@/components/atlas/atlas-header"
+import { AtlasSidebar } from "@/components/atlas/atlas-sidebar"
 import { AuthGuard } from "@/components/auth/auth-guard"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { cookies } from "next/headers"
 
-// Route group próprio, fora de `(dashboard)`: o Atlas não herda a sidebar nem o
-// header do BOR (AT-5). O que os dois compartilham é a sessão, e ela vem do
-// AuthGuard — o mesmo dos dois lados, porque a autorização é da plataforma.
-export default function AtlasLayout({ children }: { children: React.ReactNode }) {
+// Mesma casca do BOR — sidebar com a logo, colapso, header com título e frase —
+// e conteúdo diferente, porque são produtos diferentes. O que os dois
+// compartilham de verdade é a sessão: o AuthGuard é o mesmo dos dois lados,
+// porque a autorização é da plataforma.
+//
+// Route group próprio ainda assim: as opções do menu do Atlas não têm nada a ver
+// com as do BOR, e herdar a sidebar de lá traria as páginas erradas junto.
+export default async function AtlasLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false"
   return (
     <AuthGuard>
-      <div className="flex h-screen flex-col overflow-hidden">{children}</div>
+      <SidebarProvider defaultOpen={sidebarOpen}>
+        <AtlasSidebar />
+        <SidebarInset className="min-w-0 overflow-x-hidden">
+          <AtlasHeader />
+          <main className="h-[calc(100vh-3.5rem)] overflow-y-auto p-6">
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
     </AuthGuard>
   )
 }

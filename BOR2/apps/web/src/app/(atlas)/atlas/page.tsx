@@ -1,6 +1,5 @@
 "use client"
 
-import { AtlasHeader } from "@/components/atlas/atlas-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,7 +26,7 @@ function NewJobsiteDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>
+      <DialogTrigger render={<Button />}>
         <Plus className="h-4 w-4" />
         New jobsite
       </DialogTrigger>
@@ -71,30 +70,27 @@ export default function AtlasJobsitesPage() {
   }, [jobsites, query])
 
   return (
-    <>
-      <AtlasHeader>
-        <div className="relative ml-2 hidden max-w-xs flex-1 md:block">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search jobsites"
-            className="h-8 pl-8"
-          />
+    <div className="mx-auto flex max-w-5xl flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-lg font-semibold">Jobsites</h1>
+          <p className="text-sm text-muted-foreground">
+            Every jobsite is a room: documents, drawings and diary in one place.
+          </p>
         </div>
-      </AtlasHeader>
-
-      <main className="min-h-0 flex-1 overflow-y-auto p-6">
-        <div className="mx-auto flex max-w-5xl flex-col gap-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h1 className="text-lg font-semibold">Jobsites</h1>
-              <p className="text-sm text-muted-foreground">
-                Every jobsite is a room: documents, drawings and diary in one place.
-              </p>
-            </div>
-            <NewJobsiteDialog />
+        <div className="flex items-center gap-2">
+          <div className="relative w-56">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search jobsites"
+              className="pl-8"
+            />
           </div>
+          <NewJobsiteDialog />
+        </div>
+      </div>
 
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
@@ -142,8 +138,6 @@ export default function AtlasJobsitesPage() {
               ))}
             </div>
           )}
-        </div>
-      </main>
-    </>
+    </div>
   )
 }
