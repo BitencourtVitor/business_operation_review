@@ -14,17 +14,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect } from "@/components/ui/native-select"
-import { useAtlasDocuments, useAtlasJobsite, useCreateAtlasDocument } from "@/hooks/use-atlas"
-import type { AtlasDocument } from "@/services/atlas.service"
-import { FileText, Layers, MapPin, Plus } from "lucide-react"
+import {
+  useAtlasDocumentCategories, useAtlasDocuments, useAtlasJobsite, useCreateAtlasDocument,
+} from "@/hooks/use-atlas"
+
+import { FolderOpen, Layers, MapPin, Plus } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import { useState } from "react"
-
-const KINDS = [
-  ["drawing", "Drawing"], ["spec", "Specification"], ["permit", "Permit"],
-  ["submittal", "Submittal"], ["other", "Other"],
-] as const
 
 const VERSION_STATUS: Record<string, { label: string; className: string }> = {
   pending:   { label: "Awaiting upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
@@ -42,38 +39,66 @@ const TAB_TITLE: Record<string, string> = {
   access: "Access",
 }
 
-function NewDocumentDialog({ jobsiteId }: { jobsiteId: string }) {
+function NewDocumentDialog({ jobsiteId, client }: { jobsiteId: string; client: string }) {
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState<{ name: string; discipline: string; kind: AtlasDocument["kind"] }>(
-    { name: "", discipline: "", kind: "drawing" })
+  const [form, setForm] = useState({ name: "", category: "", discipline: "" })
   const create = useCreateAtlasDocument(jobsiteId)
+
+  // As opções são as do cliente da obra, e só caem para a lista inteira quando
+  // o cliente não tem catálogo próprio: o que a Pulte exige não é o que a Toll
+  // Brothers exige.
+  const { data: byClient } = useAtlasDocumentCategories(client)
+  const { data: all } = useAtlasDocumentCategories()
+  const options = (byClient?.length ? byClient : all) ?? []
+
+  // Nomear a pasta é trabalho repetido quando ela é "House Plan" e o documento
+  // é o House Plan. O nome acompanha a categoria até alguém digitar outro.
+  const [nameTouched, setNameTouched] = useState(false)
+  function pickCategory(category: string) {
+    setForm(f => ({ ...f, category, name: nameTouched ? f.name : category }))
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" variant="outline" />}>
+      <DialogTrigger render={<Button variant="outline" />}>
         <Plus className="h-4 w-4" />
-        New document
+        New folder
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New document</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New document folder</DialogTitle></DialogHeader>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-name">Name</Label>
-            <Input id="doc-name" value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })} />
+            <Label htmlFor="doc-category">Category</Label>
+            <NativeSelect
+              id="doc-category"
+              value={options.some(o => o.document === form.category) ? form.category : ""}
+              onChange={e => pickCategory(e.target.value)}
+            >
+              <option value="">Not in the catalog</option>
+              {options.map(o => (
+                <option key={`${o.client}-${o.type}-${o.document}`} value={o.document}>
+                  {o.type ? `${o.type} · ${o.document}` : o.document}
+                </option>
+              ))}
+            </NativeSelect>
+            <p className="text-xs text-muted-foreground">
+              Same list the Forecast checks for Fieldwire{client ? ` — ${client}` : ""}.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="doc-name">Folder name</Label>
+            <Input
+              id="doc-name"
+              value={form.name}
+              placeholder="Permit Set, House Plan…"
+              onChange={e => { setNameTouched(true); setForm({ ...form, name: e.target.value }) }}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="doc-discipline">Discipline</Label>
             <Input id="doc-discipline" value={form.discipline}
               placeholder="Architectural, Structural, MEP…"
               onChange={e => setForm({ ...form, discipline: e.target.value })} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-kind">Kind</Label>
-            <NativeSelect id="doc-kind" value={form.kind}
-              onChange={e => setForm({ ...form, kind: e.target.value as AtlasDocument["kind"] })}>
-              {KINDS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </NativeSelect>
           </div>
         </div>
         <DialogFooter>
@@ -90,8 +115,19 @@ function NewDocumentDialog({ jobsiteId }: { jobsiteId: string }) {
   )
 }
 
-function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage: boolean }) {
+function DocumentsPanel({ jobsiteId, client, canManage }: {
+  jobsiteId: string; client: string; canManage: boolean
+}) {
   const { data: documents, isLoading } = useAtlasDocuments(jobsiteId)
+  const { data: catalog } = useAtlasDocumentCategories(client)
+
+  // O que o Forecast cobra deste cliente e ainda não tem pasta nesta obra.
+  // Aparece como lacuna, não como erro: a obra pode não precisar do documento,
+  // mas quem olha a tela merece ver que ele não está aqui.
+  const missing = (catalog ?? [])
+    .map(c => c.document)
+    .filter((doc, i, arr) => arr.indexOf(doc) === i)
+    .filter(doc => !(documents ?? []).some(d => d.category === doc))
 
   if (isLoading) {
     return (
@@ -105,15 +141,16 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
     <div className="flex flex-col gap-4">
       {canManage && (
         <div className="flex justify-end">
-          <NewDocumentDialog jobsiteId={jobsiteId} />
+          <NewDocumentDialog jobsiteId={jobsiteId} client={client} />
         </div>
       )}
 
       {!documents?.length ? (
         <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">No documents in this jobsite</p>
+          <p className="text-sm font-medium">No document folders in this jobsite</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            A document holds the revisions of one set. The PDF comes in as a version of it.
+            A folder holds one document and its revisions. Each page of the PDF becomes a
+            plan inside it.
           </p>
         </div>
       ) : (
@@ -127,12 +164,13 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
                 className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground">
-                  <FileText className="h-4 w-4" />
+                  <FolderOpen className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium leading-tight">{d.name}</p>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {[d.discipline, `${d.versions} ${d.versions === 1 ? "version" : "versions"}`,
+                    {[d.category, d.discipline,
+                      `${d.versions} ${d.versions === 1 ? "revision" : "revisions"}`,
                       d.latestRevision && `rev ${d.latestRevision}`]
                       .filter(Boolean).join(" · ")}
                   </p>
@@ -140,7 +178,7 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
                 {d.sheets > 0 && (
                   <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
                     <Layers className="h-3.5 w-3.5" />
-                    {d.sheets}
+                    {d.sheets} {d.sheets === 1 ? "plan" : "plans"}
                   </span>
                 )}
                 {status && (
@@ -149,6 +187,19 @@ function DocumentsPanel({ jobsiteId, canManage }: { jobsiteId: string; canManage
               </Link>
             )
           })}
+        </div>
+      )}
+
+      {missing.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/60 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Not here yet {client && `· ${client}`}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {missing.map(doc => (
+              <Badge key={doc} variant="outline" className="text-muted-foreground">{doc}</Badge>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -205,7 +256,9 @@ export default function JobsiteRoomPage() {
         </div>
       </div>
 
-      {tab === "documents" && <DocumentsPanel jobsiteId={jobsiteId} canManage={!!canManage} />}
+      {tab === "documents" && (
+        <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} canManage={!!canManage} />
+      )}
       {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "calendar" && <CalendarPanel jobsiteId={jobsiteId} />}
       {tab === "events" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}

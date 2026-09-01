@@ -16,7 +16,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useAtlasJobsite, useAtlasJobsites } from "@/hooks/use-atlas"
 import {
-  CalendarDays, FileText, Images, MessageSquareWarning, Notebook,
+  CalendarDays, FolderOpen, Images, MessageSquareWarning, Notebook,
   PanelLeftClose, PanelLeftOpen, ShieldCheck, Map,
 } from "lucide-react"
 import Link from "next/link"
@@ -26,7 +26,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 // Atlas é a mesma do BOR — sidebar à esquerda, conteúdo à direita. A aba entra
 // na URL (`?tab=`) para o link do menu ser um link de verdade, com histórico.
 const ROOM_TABS = [
-  { key: "documents", title: "Documents", icon: FileText },
+  { key: "documents", title: "Documents", icon: FolderOpen },
   { key: "diary",     title: "Diary",     icon: Notebook },
   { key: "calendar",  title: "Calendar",  icon: CalendarDays },
   { key: "events",    title: "Events",    icon: MessageSquareWarning },

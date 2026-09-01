@@ -67,6 +67,21 @@ export function useRevokeAtlasAccess(jobsiteId: string) {
   })
 }
 
+/**
+ * O catálogo de documentos do Forecast, filtrado pelo cliente da obra.
+ *
+ * Mesma lista que o score de Fieldwire cobra — o Atlas não inventa taxonomia
+ * própria, senão a empresa passa a ter duas respostas para "quais documentos
+ * esta obra precisa ter".
+ */
+export function useAtlasDocumentCategories(client?: string) {
+  return useQuery({
+    queryKey: ["atlas", "document-categories", client ?? ""],
+    queryFn: () => atlasService.listDocumentCategories(client),
+    staleTime: 10 * 60 * 1000,
+  })
+}
+
 export function useAtlasDocuments(jobsiteId: string) {
   return useQuery({
     queryKey: KEY.documents(jobsiteId),

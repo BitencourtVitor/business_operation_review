@@ -329,7 +329,11 @@ type atlasDocument struct {
 	JobsiteID  string `json:"jobsiteId"`
 	Name       string `json:"name"`
 	Discipline string `json:"discipline"`
-	Kind       string `json:"kind"`
+	// A categoria vem do catálogo do Forecast (`catalog_forecast_fieldwire`): é a
+	// mesma lista de documentos que o score de Fieldwire cobra por cliente, e
+	// usar a mesma taxonomia é o que vai permitir o Forecast perguntar ao Atlas
+	// se o documento existe, em vez de alguém marcar a caixinha à mão.
+	Category   string `json:"category"`
 	CreatedBy  string `json:"createdBy"`
 	CreatedAt  string `json:"createdAt"`
 	Versions   int    `json:"versions"`
@@ -347,7 +351,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		return atlasForbidden(c)
 	}
 	rows, err := h.db.Query(c.Context(), `
-		SELECT d.id, d.jobsite_id, d.name, d.discipline, d.kind, d.created_by, d.created_at,
+		SELECT d.id, d.jobsite_id, d.name, d.discipline, d.category, d.created_by, d.created_at,
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
 		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0)
@@ -360,7 +364,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 			LIMIT 1
 		) u ON true
 		WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
-		ORDER BY d.discipline, d.name`, id)
+		ORDER BY d.category, d.name`, id)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -370,7 +374,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 	for rows.Next() {
 		var d atlasDocument
 		var created time.Time
-		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Kind,
+		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Category,
 			&d.CreatedBy, &created, &d.Versions,
 			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets); err != nil {
 			return internalErr(c, err)
@@ -397,9 +401,9 @@ func (h *AtlasHandler) CreateDocument(c *fiber.Ctx) error {
 	userID, _ := actor(c)
 	docID := uuid.NewString()
 	_, err := h.db.Exec(c.Context(), `
-		INSERT INTO atlas_document (id, jobsite_id, name, discipline, kind, created_by)
-		VALUES ($1,$2,$3,$4,COALESCE(NULLIF($5,''),'drawing'),$6)`,
-		docID, id, strings.TrimSpace(in.Name), in.Discipline, in.Kind, userID)
+		INSERT INTO atlas_document (id, jobsite_id, name, discipline, category, created_by)
+		VALUES ($1,$2,$3,$4,$5,$6)`,
+		docID, id, strings.TrimSpace(in.Name), in.Discipline, in.Category, userID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -425,15 +429,53 @@ func (h *AtlasHandler) UpdateDocument(c *fiber.Ctx) error {
 		UPDATE atlas_document SET
 			name        = COALESCE($2, name),
 			discipline  = COALESCE($3, discipline),
-			kind        = COALESCE($4, kind),
+			category    = COALESCE($4, category),
 			archived_at = CASE WHEN $5 THEN now() ELSE archived_at END,
 			updated_at  = now()
 		WHERE id = $1`,
-		docID, strPtr(patch, "name"), strPtr(patch, "discipline"), strPtr(patch, "kind"), archived)
+		docID, strPtr(patch, "name"), strPtr(patch, "discipline"), strPtr(patch, "category"), archived)
 	if err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": docID}})
+}
+
+// GET /atlas/document-categories — a lista de documentos que a empresa já
+// reconhece, por cliente.
+//
+// Vem de `catalog_forecast_fieldwire`, o mesmo catálogo que o score de Fieldwire
+// do Forecast usa para dizer se uma obra tem a papelada em dia. Duplicar essa
+// lista aqui criaria duas verdades sobre a mesma coisa — e a segunda ficaria
+// desatualizada em silêncio.
+//
+// Aceita ?client= para trazer só o que interessa àquele cliente: o que a Pulte
+// exige não é o que a Toll Brothers exige.
+func (h *AtlasHandler) ListDocumentCategories(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(), `
+		SELECT DISTINCT COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
+		FROM catalog_forecast_fieldwire
+		WHERE document <> '' AND document <> 'N/A'
+		  AND ($1 = '' OR lower(COALESCE(client,'')) = lower($1))
+		ORDER BY 1, 2, 3`, c.Query("client"))
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	type category struct {
+		Client   string `json:"client"`
+		Type     string `json:"type"`
+		Document string `json:"document"`
+	}
+	out := []category{}
+	for rows.Next() {
+		var cat category
+		if err := rows.Scan(&cat.Client, &cat.Type, &cat.Document); err != nil {
+			return internalErr(c, err)
+		}
+		out = append(out, cat)
+	}
+	return c.JSON(fiber.Map{"data": out})
 }
 
 func (h *AtlasHandler) documentJobsite(c *fiber.Ctx, docID string) (string, error) {

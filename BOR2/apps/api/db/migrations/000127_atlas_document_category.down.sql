@@ -1,0 +1,2 @@
+ALTER TABLE atlas_document DROP COLUMN IF EXISTS category;
+ALTER TABLE atlas_document ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'drawing';

@@ -29,7 +29,8 @@ export interface AtlasDocument {
   jobsiteId: string
   name: string
   discipline: string
-  kind: "drawing" | "spec" | "permit" | "submittal" | "other"
+  /** Nome do documento no catálogo do Forecast — "House Plan", "Trusses Plans"… */
+  category: string
   createdBy: string
   createdAt: string
   versions: number
@@ -145,6 +146,13 @@ export interface AtlasMedia {
   url: string
 }
 
+/** Uma linha do catálogo de documentos do Forecast, por cliente. */
+export interface AtlasDocumentCategory {
+  client: string
+  type: string
+  document: string
+}
+
 export interface AtlasAccess {
   userId: string
   userName: string
@@ -176,6 +184,12 @@ export const atlasService = {
     api.put(`${base}/jobsites/${jobsiteId}/access/${userId}`, { level, expiresAt }, getToken()),
   revokeAccess: (jobsiteId: string, userId: string) =>
     api.delete(`${base}/jobsites/${jobsiteId}/access/${userId}`, getToken()),
+
+  listDocumentCategories: (client?: string) =>
+    api.get<AtlasDocumentCategory[]>(
+      `${base}/document-categories${client ? `?client=${encodeURIComponent(client)}` : ""}`,
+      getToken(),
+    ).then(r => r ?? []),
 
   listDocuments: (jobsiteId: string) =>
     api.get<AtlasDocument[]>(`${base}/jobsites/${jobsiteId}/documents`, getToken()).then(r => r ?? []),

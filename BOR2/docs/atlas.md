@@ -98,6 +98,29 @@ Três decisões que o esquema carrega:
 render raster por folha em resolução legível custa mais que o original inteiro. Guarda-se só
 o PDF original; a folha é um índice de página com o metadado do carimbo.
 
+## O que o Fieldwire faz, e que o Atlas faz igual
+
+Esclarecido em 01/09, e é mais simples do que a modelagem supunha: **o Fieldwire divide o
+PDF em uma página por plan.** Um set de 51 páginas vira 51 plans. Não há corte inteligente,
+nem agrupamento, nem leitura de carimbo — a divisão é a paginação do arquivo.
+
+O documento anexado é a **pasta**, com o nome que o usuário quiser dar ("Permit Set", "House
+Plan"), e os plans vivem dentro dela. Uma obra tem várias pastas, uma por documento anexado.
+
+No esquema isso já era o que estava montado: `atlas_document` é a pasta, `atlas_sheet` é o
+plan, um por página. A ingestão gera essas linhas no upload — o navegador lê o PDF com
+pdf.js, conta as páginas e grava uma por página com o tamanho real da prancha.
+
+**Categoria do documento.** A taxonomia não é inventada aqui: `catalog_forecast_fieldwire`
+já lista, por cliente, quais documentos uma obra precisa ter — "House Plan" para Private,
+"Architecture Plans", "Trusses Plans" e "Wall Panels" para Pulte, "Plot Plan" e "SPF" para
+Toll Brothers. É a mesma lista que o score de Fieldwire do Forecast cobra hoje, servida por
+`GET /atlas/document-categories?client=`. A tela de documentos mostra também o que o
+catálogo do cliente pede e a obra ainda não tem.
+
+Usar a mesma taxonomia é o que abre o caminho para o Forecast perguntar ao Atlas se o
+documento existe, em vez de alguém marcar a caixinha à mão.
+
 **Auditoria** não tem tabela própria: a migração 000124 instala o trigger `zz_audit` em toda
 tabela nova por event trigger, e o middleware `Audit` já registra a requisição. As dez
 tabelas do Atlas nasceram auditadas — conferível em `SELECT * FROM audit_cobertura`.
@@ -156,22 +179,10 @@ que o campo mandou, de qualquer origem.
 
 ## O que ainda não existe
 
-**1. Fragmentação (AT-10/AT-11/AT-12).** O que conta como folha no padrão do Fieldwire ainda
-não foi estudado, e é pré-requisito da Fase 1. O destino está pronto: `PUT
-/atlas/versions/:id/sheets` recebe a lista e é idempotente — reprocessar a mesma versão
-corrige o metadado sem duplicar folha e sem derrubar as anotações presas a ela. Falta quem
-produz a lista, e onde roda (API, worker ou job pós-upload).
-
-Também em aberto: qual biblioteca lê a estrutura do PDF em Go, ou se vale um sidecar com
-poppler/pdfium. O material de referência é vetorial com texto extraível — `pdftotext` deu
-conta —, então a leitura do carimbo é viável **sem OCR** neste set. Set escaneado vai exigir
-OCR ou digitação.
-
-O que **já existe** é o esqueleto: ao subir uma revisão, o navegador lê o PDF (pdf.js) e
-grava uma folha por página, com o tamanho real da prancha. Número, disciplina e revisão da
-folha ficam em branco, marcados como `needs_review`, esperando a regra. É o mínimo para o
-leitor e as anotações funcionarem — e é reescrito sem perda quando a regra chegar, porque o
-endpoint casa por `(version_id, page_index)`.
+**1. Leitura do carimbo (AT-12).** A fragmentação em si está resolvida — ver abaixo. O que
+não existe é a inferência: número da folha, disciplina e revisão saem em branco e alguém
+preenche. O set de referência é vetorial com texto extraível (`pdftotext` deu conta), então
+dá para inferir sem OCR quando isso virar prioridade.
 
 **2. Render no servidor (AT-13).** O leitor renderiza no cliente, e para o caso de uso de
 hoje isso basta. Fica em aberto se vale render no servidor com cache no R2 — a convenção de
