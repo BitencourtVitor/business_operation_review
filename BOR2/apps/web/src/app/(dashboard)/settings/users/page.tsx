@@ -96,7 +96,8 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Finance & Analytics",
     permissions: [
-      { key: "forecast",   label: "Forecast",          icon: CalendarDays },
+      { key: "forecast",      label: "Forecast Framing", icon: CalendarDays },
+      { key: "forecast_hvac", label: "Forecast HVAC",    icon: CalendarDays },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
     ],
@@ -108,7 +109,8 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "weekly_hours",     label: "Weekly Hours Control",   icon: CalendarCheck },
       { key: "whos_working",     label: "Who's Working Report",   icon: UserCheck     },
       { key: "absence_control",  label: "Absence Control",        icon: CalendarX     },
-      { key: "data_control",     label: "Forecast Data Control", icon: ClipboardList },
+      { key: "data_control",      label: "Forecast Data Control Framing", icon: ClipboardList },
+      { key: "data_control_hvac", label: "Forecast Data Control HVAC",    icon: ClipboardList },
       { key: "permits",          label: "Permit Control",        icon: FileCheck     },
       { key: "service_requests", label: "Service Requests",      icon: Wrench        },
       { key: "takeoff",          label: "Takeoff Works",         icon: Ruler         },

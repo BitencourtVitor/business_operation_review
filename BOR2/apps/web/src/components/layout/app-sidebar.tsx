@@ -95,11 +95,11 @@ const activeGroup: NavGroup = {
     { title: "Monthly Execution",          href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
     { title: "Operational Forecast Index", href: "/ofi",               icon: BarChart2,     permKey: "ofi"              },
     {
+      // No direct permKey — visibility driven by children, one per division
       title: "Forecast", href: "/forecast", icon: CalendarDays,
-      permKey: "forecast",
       children: [
-        { title: "Framing", href: "/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/forecast/metrics"      },
-        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics" },
+        { title: "Framing", href: "/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/forecast/metrics",      permKey: "forecast"      },
+        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics", permKey: "forecast_hvac" },
       ],
     },
     {
@@ -147,7 +147,13 @@ const activeGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control",  href: "/data-control",                icon: ClipboardList, permKey: "data_control"         },
+    {
+      title: "Forecast Data Control", href: "/data-control", icon: ClipboardList,
+      children: [
+        { title: "Framing", href: "/data-control?division=framing", image: "/images/sublogo_framing.png", permKey: "data_control"      },
+        { title: "HVAC",    href: "/data-control?division=hvac",    image: "/images/sublogo_hvac.png",    permKey: "data_control_hvac" },
+      ],
+    },
     { title: "Schedule Management",    href: "/building-schedule/manage",    icon: Building2,     permKey: "building_schedule"    },
     { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
     {
