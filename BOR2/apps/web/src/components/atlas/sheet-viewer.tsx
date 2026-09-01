@@ -1,6 +1,6 @@
 "use client"
 
-import { PdfPage } from "@/components/atlas/pdf-page"
+import { PdfPage, downloadPlan } from "@/components/atlas/pdf-page"
 import { Button } from "@/components/ui/button"
 import {
   useAtlasAnnotations, useAtlasEvents, useCreateAtlasAnnotation,
@@ -8,7 +8,7 @@ import {
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet, type AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
-  ChevronLeft, ChevronRight, Eraser, Highlighter, MapPin, Minus, Pen, Plus, X,
+  ChevronLeft, ChevronRight, Download, Eraser, Highlighter, MapPin, Minus, Pen, Plus, X,
 } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -194,6 +194,19 @@ export function SheetViewer({ sheet, sheets, jobsiteId, versionId, canAnnotate, 
           <Button size="icon" variant="ghost" onClick={() => setZoom(z => Math.min(4, z + 0.25))}>
             <Plus className="h-4 w-4" />
           </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            disabled={!pdfUrl}
+            title="Download this plan"
+            onClick={() => pdfUrl && downloadPlan(
+              pdfUrl,
+              sheet.pageIndex,
+              sheet.sheetNumber || `plan-${String(sheet.pageIndex + 1).padStart(3, "0")}`,
+            )}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
           <Button size="icon" variant="ghost" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
@@ -207,7 +220,10 @@ export function SheetViewer({ sheet, sheets, jobsiteId, versionId, canAnnotate, 
           style={{ width: `${1100 * zoom}px`, aspectRatio: `${width} / ${height}` }}
         >
           {pdfUrl && (
-            <PdfPage url={pdfUrl} pageIndex={sheet.pageIndex} scale={1.5} />
+            // A escala do render acompanha o zoom: ampliar redesenha o vetor em
+            // vez de esticar o bitmap, que é o que mantém a cota legível numa
+            // prancha de 42 polegadas.
+            <PdfPage url={pdfUrl} pageIndex={sheet.pageIndex} scale={1.5 * zoom} />
           )}
 
           <svg

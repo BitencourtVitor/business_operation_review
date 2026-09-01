@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react"
 // um set de 51 páginas é um download só, e trocar de folha não baixa de novo.
 type PDFDocument = {
   numPages: number
+  getData: () => Promise<Uint8Array>
   getPage: (n: number) => Promise<{
     getViewport: (o: { scale: number }) => { width: number; height: number }
     render: (o: { canvasContext: CanvasRenderingContext2D; viewport: unknown }) => { promise: Promise<void>; cancel: () => void }
@@ -56,6 +57,33 @@ export async function readPdfOutline(file: File): Promise<{
   const page = await pdf.getPage(1)
   const viewport = page.getViewport({ scale: 1 })
   return { pageCount: pdf.numPages, width: viewport.width, height: viewport.height }
+}
+
+/**
+ * Salva um plano como PDF de uma página só.
+ *
+ * A extração é no navegador, sobre os bytes que o pdf.js já tem em memória — o
+ * set não é baixado de novo, e o original no bucket não é tocado. O que sai é o
+ * vetor da página, não uma imagem dela: dá para imprimir em escala e medir em
+ * cima.
+ */
+export async function downloadPlan(url: string, pageIndex: number, fileName: string) {
+  const [{ PDFDocument }, pdf] = await Promise.all([import("pdf-lib"), loadPdf(url)])
+  const source = await PDFDocument.load(await pdf.getData())
+  const out = await PDFDocument.create()
+  const [page] = await out.copyPages(source, [pageIndex])
+  out.addPage(page)
+
+  // `slice()` devolve um ArrayBuffer próprio: o Blob não aceita a view que o
+  // pdf-lib entrega, e copiar uma página é barato.
+  const bytes = await out.save()
+  const blob = new Blob([bytes.slice().buffer], { type: "application/pdf" })
+  const href = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = href
+  link.download = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`
+  link.click()
+  URL.revokeObjectURL(href)
 }
 
 /**

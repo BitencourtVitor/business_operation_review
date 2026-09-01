@@ -13,11 +13,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useAtlasJobsite, useAtlasJobsites } from "@/hooks/use-atlas"
 import {
-  CalendarDays, FolderOpen, Images, MessageSquareWarning, Notebook,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, Map,
+  Bot, CalendarDays, ClipboardList, FileSpreadsheet, FolderOpen, Images, ListChecks,
+  Map, Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
+  SlidersHorizontal,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -26,11 +28,24 @@ import { usePathname, useSearchParams } from "next/navigation"
 // Atlas é a mesma do BOR — sidebar à esquerda, conteúdo à direita. A aba entra
 // na URL (`?tab=`) para o link do menu ser um link de verdade, com histórico.
 const ROOM_TABS = [
-  { key: "documents", title: "Documents", icon: FolderOpen },
-  { key: "diary",     title: "Diary",     icon: Notebook },
-  { key: "calendar",  title: "Calendar",  icon: CalendarDays },
-  { key: "events",    title: "Events",    icon: MessageSquareWarning },
-  { key: "media",     title: "Media",     icon: Images },
+  { key: "documents", title: "Plans",    icon: FolderOpen },
+  { key: "photos",    title: "Photos",   icon: Images },
+  { key: "tasks",     title: "Tasks",    icon: ListChecks },
+  { key: "diary",     title: "Diary",    icon: Notebook },
+  { key: "calendar",  title: "Calendar", icon: CalendarDays },
+] as const
+
+// O que o Fieldwire e o Buildertrend fazem e o Atlas ainda não faz.
+//
+// Ficam visíveis e desabilitados de propósito: é o mapa do que falta, à vista de
+// quem usa e de quem prioriza. Escondido, vira lista em documento que ninguém
+// abre.
+const SOON = [
+  { title: "Specifications", icon: ScrollText,      note: "Spec book tied to the plan set" },
+  { title: "Forms",          icon: FileSpreadsheet, note: "Checklists and inspections filled in the field" },
+  { title: "Reports",        icon: ClipboardList,   note: "What happened on site, exported" },
+  { title: "AI insights",    icon: Bot,             note: "Reads the plan set and answers about it" },
+  { title: "Takeoff",        icon: Ruler,           note: "Measures wood framing straight off the drawing" },
 ] as const
 
 export function AtlasSidebar() {
@@ -40,7 +55,8 @@ export function AtlasSidebar() {
   const params = useSearchParams()
 
   // A obra em foco sai da própria rota: /atlas/<id> e tudo abaixo dela.
-  const jobsiteId = pathname.startsWith("/atlas/") ? pathname.split("/")[2] : ""
+  const inJobsiteRoute = pathname.startsWith("/atlas/") && !pathname.startsWith("/atlas/definitions")
+  const jobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: jobsites } = useAtlasJobsites()
 
@@ -80,6 +96,16 @@ export function AtlasSidebar() {
                 >
                   <Map />
                   <span>Jobsites</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith("/atlas/definitions")}
+                  tooltip="Definitions"
+                  render={<Link href="/atlas/definitions" />}
+                >
+                  <SlidersHorizontal />
+                  <span>Definitions</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -143,14 +169,34 @@ export function AtlasSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+        <SidebarGroup>
+          {(open || isMobile) && <SidebarGroupLabel>Soon</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SOON.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <Tooltip>
+                    <TooltipTrigger render={<span className="block" />}>
+                      <SidebarMenuButton disabled className="cursor-not-allowed opacity-50">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{item.note}</TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="gap-0 overflow-x-hidden p-0">
         <div className="h-px bg-sidebar-border" />
         {isMobile ? (
           <div className="px-4 py-3 text-xs leading-relaxed text-muted-foreground/70">
-            The drawing reader is built for tablet and desktop. On a phone, expect the
-            documents to be hard to read.
+            The plan reader is built for tablet and desktop. On a phone, expect the drawings
+            to be hard to read.
           </div>
         ) : (
           <SidebarMenu className="p-2">
