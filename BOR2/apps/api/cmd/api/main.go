@@ -642,6 +642,7 @@ func main() {
 	// acesso por obra já é cobrado dentro do handler, que é quem sabe de qual
 	// obra cada recurso é filho.
 	atlas := api.Group("/atlas", middleware.RequireRole("dev"))
+	atlas.Get("/document-categories", atlasHandler.ListDocumentCategories)
 	atlas.Get("/jobsites", atlasHandler.ListJobsites)
 	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
 	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)

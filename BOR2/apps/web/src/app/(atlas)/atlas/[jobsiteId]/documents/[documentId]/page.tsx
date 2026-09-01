@@ -49,7 +49,7 @@ function SheetRow({ sheet, versionId, canManage, onOpen }: {
         <>
           <Input
             value={draft.sheetNumber}
-            placeholder="Sheet no."
+            placeholder="Plan no."
             className="h-8 w-32"
             onChange={e => setDraft({ ...draft, sheetNumber: e.target.value })}
           />
@@ -186,17 +186,17 @@ export default function DocumentPage() {
               <div className="flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
-                  Sheets in rev {version.revision}
+                  Plans in rev {version.revision}
                 </h2>
                 <span className="text-xs text-muted-foreground">{sheets?.length ?? 0}</span>
               </div>
 
               {!sheets?.length ? (
                 <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
-                  <p className="text-sm font-medium">No sheets yet</p>
+                  <p className="text-sm font-medium">No plans yet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Sheets are created from the PDF when a revision is uploaded — one per page.
-                    Sheet number and discipline stay blank until the stamp-reading rule exists.
+                    Plans are created from the PDF when a revision is uploaded — one per page, the
+                    way Fieldwire does it. The sheet number is yours to fill in.
                   </p>
                 </div>
               ) : (
