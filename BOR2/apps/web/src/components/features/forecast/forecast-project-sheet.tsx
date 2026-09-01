@@ -36,6 +36,10 @@ import { useEffect, useState } from "react"
 import { ObsCredit, ObsHistoryPanel } from "./obs-history"
 import { DateHistoryPanel } from "./date-history"
 
+// Date history stays built but hidden: nobody asked for it and it adds noise to the modal.
+// Flip to true to bring the button and the panel back.
+const SHOW_DATE_HISTORY = false
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function parseLocalDate(d: string): Date {
@@ -357,6 +361,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               </div>
             )}
 
+            {SHOW_DATE_HISTORY && (
             <div className="mb-4 flex justify-end">
               <button
                 type="button"
@@ -372,6 +377,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                 Date history
               </button>
             </div>
+            )}
 
             {p.obs?.trim() && (
               <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
@@ -576,7 +582,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
         </div>
 
         {/* ── Observation history, side-by-side with the body ──────────────── */}
-        {panel === "dates" && (
+        {SHOW_DATE_HISTORY && panel === "dates" && (
           <DateHistoryPanel projectId={p.id} company={p.company} open onClose={() => setPanel(null)} />
         )}
         {panel === "obs" && (
