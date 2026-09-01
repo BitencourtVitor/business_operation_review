@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS atlas_media;
+DROP TABLE IF EXISTS atlas_daily_log;
+DROP TABLE IF EXISTS atlas_event_reply;
+DROP TABLE IF EXISTS atlas_event;
+DROP TABLE IF EXISTS atlas_annotation;
+DROP TABLE IF EXISTS atlas_sheet;
+DROP TABLE IF EXISTS atlas_document_version;
+DROP TABLE IF EXISTS atlas_document;
+DROP TABLE IF EXISTS atlas_jobsite_access;
+DROP TABLE IF EXISTS atlas_jobsite;

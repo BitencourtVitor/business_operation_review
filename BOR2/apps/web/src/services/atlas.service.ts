@@ -1,0 +1,277 @@
+import { api } from "@/lib/api"
+import { useAuthStore } from "@/store/auth.store"
+
+function getToken() {
+  return useAuthStore.getState().token ?? ""
+}
+
+const base = "/api/v1/atlas"
+
+export type AtlasLevel = "read" | "annotate" | "manage"
+
+export interface AtlasJobsite {
+  id: string
+  name: string
+  address: string
+  client: string
+  code: string
+  status: "active" | "archived"
+  catalogJobSiteId: number | null
+  createdBy: string
+  createdAt: string
+  documents: number
+  openEvents: number
+  level: AtlasLevel | ""
+}
+
+export interface AtlasDocument {
+  id: string
+  jobsiteId: string
+  name: string
+  discipline: string
+  kind: "drawing" | "spec" | "permit" | "submittal" | "other"
+  createdBy: string
+  createdAt: string
+  versions: number
+  latestVersionId: string
+  latestRevision: string
+  latestStatus: string
+  sheets: number
+}
+
+export interface AtlasVersion {
+  id: string
+  documentId: string
+  revision: string
+  r2Key: string
+  byteSize: number
+  pageCount: number
+  checksum: string
+  contentType: string
+  status: "pending" | "uploaded" | "published" | "failed"
+  notes: string
+  uploadedBy: string
+  uploadedAt: string
+  publishedAt: string | null
+  sheets: number
+}
+
+export interface AtlasSheet {
+  id: string
+  versionId: string
+  pageIndex: number
+  sheetNumber: string
+  discipline: string
+  level: string
+  title: string
+  revision: string
+  thumbKey: string
+  widthPt: number | null
+  heightPt: number | null
+  confidence: number
+  needsReview: boolean
+  annotations: number
+}
+
+// Pontos normalizados (0..1) em relação à página, para o traço acompanhar
+// qualquer zoom sem depender da resolução em que a folha foi renderizada.
+export interface AtlasStrokeGeometry {
+  points: [number, number][]
+}
+
+export interface AtlasAnnotation {
+  id: string
+  sheetId: string
+  authorId: string
+  tool: "pen" | "highlighter"
+  color: string
+  width: number
+  opacity: number
+  geometry: AtlasStrokeGeometry
+  createdAt: string
+}
+
+export interface AtlasEvent {
+  id: string
+  jobsiteId: string
+  sheetId: string | null
+  kind: "comment" | "issue" | "task" | "rfi"
+  title: string
+  body: string
+  status: "open" | "answered" | "resolved"
+  pageX: number | null
+  pageY: number | null
+  region: unknown
+  createdBy: string
+  createdAt: string
+  resolvedBy: string | null
+  resolvedAt: string | null
+  replies: number
+  media: number
+}
+
+export interface AtlasReply {
+  id: string
+  authorId: string
+  authorName: string
+  body: string
+  createdAt: string
+}
+
+export interface AtlasDailyLog {
+  id: string
+  jobsiteId: string
+  logDate: string
+  weather: string
+  temperature: number | null
+  crewSize: number | null
+  summary: string
+  createdBy: string
+  createdAt: string
+  media: number
+}
+
+export interface AtlasMedia {
+  id: string
+  eventId: string | null
+  dailyLogId: string | null
+  kind: "photo" | "audio" | "video" | "file"
+  fileName: string
+  contentType: string
+  byteSize: number
+  caption: string
+  uploadedBy: string
+  uploadedAt: string
+  url: string
+}
+
+export interface AtlasAccess {
+  userId: string
+  userName: string
+  userEmail: string
+  level: AtlasLevel
+  grantedBy: string
+  grantedAt: string
+  expiresAt: string | null
+  revokedAt: string | null
+}
+
+interface UploadTicket {
+  uploadUrl: string
+  r2Key: string
+  expiresIn: number
+}
+
+export const atlasService = {
+  listJobsites: () => api.get<AtlasJobsite[]>(`${base}/jobsites`, getToken()).then(r => r ?? []),
+  getJobsite: (id: string) => api.get<AtlasJobsite>(`${base}/jobsites/${id}`, getToken()),
+  createJobsite: (body: Partial<AtlasJobsite>) =>
+    api.post<{ id: string }>(`${base}/jobsites`, body, getToken()),
+  updateJobsite: (id: string, patch: Partial<AtlasJobsite>) =>
+    api.patch(`${base}/jobsites/${id}`, patch, getToken()),
+
+  listAccess: (jobsiteId: string) =>
+    api.get<AtlasAccess[]>(`${base}/jobsites/${jobsiteId}/access`, getToken()).then(r => r ?? []),
+  grantAccess: (jobsiteId: string, userId: string, level: AtlasLevel, expiresAt?: string) =>
+    api.put(`${base}/jobsites/${jobsiteId}/access/${userId}`, { level, expiresAt }, getToken()),
+  revokeAccess: (jobsiteId: string, userId: string) =>
+    api.delete(`${base}/jobsites/${jobsiteId}/access/${userId}`, getToken()),
+
+  listDocuments: (jobsiteId: string) =>
+    api.get<AtlasDocument[]>(`${base}/jobsites/${jobsiteId}/documents`, getToken()).then(r => r ?? []),
+  createDocument: (jobsiteId: string, body: Partial<AtlasDocument>) =>
+    api.post<{ id: string }>(`${base}/jobsites/${jobsiteId}/documents`, body, getToken()),
+  updateDocument: (documentId: string, patch: Record<string, unknown>) =>
+    api.patch(`${base}/documents/${documentId}`, patch, getToken()),
+
+  listVersions: (documentId: string) =>
+    api.get<AtlasVersion[]>(`${base}/documents/${documentId}/versions`, getToken()).then(r => r ?? []),
+  openVersion: (documentId: string, body: {
+    revision: string; fileName: string; contentType: string; byteSize: number; notes?: string
+  }) => api.post<UploadTicket & { versionId: string }>(
+    `${base}/documents/${documentId}/versions`, body, getToken()),
+  confirmVersion: (versionId: string, body: { checksum?: string; pageCount?: number }) =>
+    api.post<{ id: string; byteSize: number }>(`${base}/versions/${versionId}/confirm`, body, getToken()),
+  publishVersion: (versionId: string) =>
+    api.post(`${base}/versions/${versionId}/publish`, {}, getToken()),
+  versionDownloadUrl: (versionId: string) =>
+    api.get<{ url: string }>(`${base}/versions/${versionId}/download`, getToken()),
+
+  listSheets: (versionId: string) =>
+    api.get<AtlasSheet[]>(`${base}/versions/${versionId}/sheets`, getToken()).then(r => r ?? []),
+  replaceSheets: (versionId: string, sheets: Partial<AtlasSheet>[]) =>
+    api.put(`${base}/versions/${versionId}/sheets`, { sheets }, getToken()),
+  updateSheet: (sheetId: string, patch: Record<string, unknown>) =>
+    api.patch(`${base}/sheets/${sheetId}`, patch, getToken()),
+
+  listAnnotations: (sheetId: string) =>
+    api.get<AtlasAnnotation[]>(`${base}/sheets/${sheetId}/annotations`, getToken()).then(r => r ?? []),
+  createAnnotation: (sheetId: string, body: Partial<AtlasAnnotation>) =>
+    api.post(`${base}/sheets/${sheetId}/annotations`, body, getToken()),
+  deleteAnnotation: (annotationId: string) =>
+    api.delete(`${base}/annotations/${annotationId}`, getToken()),
+
+  listEvents: (jobsiteId: string, sheetId?: string) =>
+    api.get<AtlasEvent[]>(
+      `${base}/jobsites/${jobsiteId}/events${sheetId ? `?sheetId=${sheetId}` : ""}`,
+      getToken(),
+    ).then(r => r ?? []),
+  createEvent: (jobsiteId: string, body: Partial<AtlasEvent>) =>
+    api.post<{ id: string }>(`${base}/jobsites/${jobsiteId}/events`, body, getToken()),
+  updateEvent: (eventId: string, patch: Record<string, unknown>) =>
+    api.patch(`${base}/events/${eventId}`, patch, getToken()),
+  listReplies: (eventId: string) =>
+    api.get<AtlasReply[]>(`${base}/events/${eventId}/replies`, getToken()).then(r => r ?? []),
+  createReply: (eventId: string, body: string) =>
+    api.post(`${base}/events/${eventId}/replies`, { body }, getToken()),
+
+  listDailyLogs: (jobsiteId: string, range?: { from?: string; to?: string }) => {
+    const qs = new URLSearchParams()
+    if (range?.from) qs.set("from", range.from)
+    if (range?.to) qs.set("to", range.to)
+    const suffix = qs.toString() ? `?${qs}` : ""
+    return api.get<AtlasDailyLog[]>(
+      `${base}/jobsites/${jobsiteId}/daily-logs${suffix}`, getToken(),
+    ).then(r => r ?? [])
+  },
+  createDailyLog: (jobsiteId: string, body: Partial<AtlasDailyLog>) =>
+    api.post<{ id: string }>(`${base}/jobsites/${jobsiteId}/daily-logs`, body, getToken()),
+  updateDailyLog: (logId: string, patch: Record<string, unknown>) =>
+    api.patch(`${base}/daily-logs/${logId}`, patch, getToken()),
+
+  listMedia: (jobsiteId: string, filter?: { eventId?: string; dailyLogId?: string }) => {
+    const qs = new URLSearchParams()
+    if (filter?.eventId) qs.set("eventId", filter.eventId)
+    if (filter?.dailyLogId) qs.set("dailyLogId", filter.dailyLogId)
+    const suffix = qs.toString() ? `?${qs}` : ""
+    return api.get<AtlasMedia[]>(`${base}/jobsites/${jobsiteId}/media${suffix}`, getToken())
+      .then(r => r ?? [])
+  },
+  openMedia: (jobsiteId: string, body: {
+    eventId?: string; dailyLogId?: string; kind: string
+    fileName: string; contentType: string; byteSize: number; caption?: string
+  }) => api.post<UploadTicket & { mediaId: string }>(
+    `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
+  confirmMedia: (mediaId: string) =>
+    api.post(`${base}/media/${mediaId}/confirm`, {}, getToken()),
+}
+
+/**
+ * Sobe o arquivo direto no R2 pela URL assinada.
+ *
+ * O arquivo não passa pela API de propósito (AT-9): um set de plantas de 112 MB
+ * atravessando o serviço Go seria banda e memória jogadas fora. Por isso este
+ * `fetch` é o único do app que não usa o cliente `api` — ele fala com o bucket,
+ * não com o backend, e mandar o header de Authorization aqui invalidaria a
+ * assinatura.
+ */
+export async function uploadToR2(url: string, file: File, contentType: string): Promise<void> {
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": contentType || "application/octet-stream" },
+    body: file,
+  })
+  if (!res.ok) {
+    throw new Error(`upload falhou (${res.status})`)
+  }
+}

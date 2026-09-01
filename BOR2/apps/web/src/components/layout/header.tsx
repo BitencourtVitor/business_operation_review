@@ -15,10 +15,11 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
+import { useProducts } from "@/lib/products"
 import { permitService } from "@/services/permit.service"
 import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Award,
   Bell,
@@ -28,6 +29,7 @@ import {
   EyeOff,
   Gem,
   LogOut,
+  Map,
   Menu,
   Moon,
   RefreshCw,
@@ -96,6 +98,8 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
 export function Header() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
+  const { hasAtlas } = useProducts()
+  const router = useRouter()
   const { data: notifications = [] } = useNotifications()
   const { showFinancialData, toggleFinancialData } = useFinancialStore()
   const { resolvedTheme, setTheme } = useTheme()
@@ -195,6 +199,21 @@ export function Header() {
               {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
           </Tip>
+
+          {/* Salto para o outro braço da plataforma, sem passar de novo pelo
+              login: a sessão é da plataforma e os produtos são destinos dela. */}
+          {hasAtlas && (
+            <Tip label="Ir para o Atlas">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push("/atlas")}
+                className="hidden md:inline-flex"
+              >
+                <Map className="h-4 w-4" />
+              </Button>
+            </Tip>
+          )}
 
           <Tip label="Sign out">
             <Button
