@@ -70,6 +70,38 @@ func ofiInternalErr(c *fiber.Ctx, op string, err error) error {
 	})
 }
 
+// calcFieldwireScore scores forecast_fieldwire documents. The column is text
+// carrying the three states from BD-07 (pending, completed, dispensed), not a
+// boolean — a dispensed document is satisfied, same rule the e-mail trigger and
+// the HVAC metrics page already apply. NULL and "none" mean still pending.
+func calcFieldwireScore(ctx context.Context, db pgx.Tx, id string, weight float64) (float64, error) {
+	rows, err := db.Query(ctx,
+		`SELECT COALESCE(status, '') FROM forecast_fieldwire WHERE project_id = $1`, id)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+	var total, done int
+	for rows.Next() {
+		var status string
+		if err := rows.Scan(&status); err != nil {
+			return 0, err
+		}
+		total++
+		switch strings.ToLower(strings.TrimSpace(status)) {
+		case "completed", "dispensed":
+			done++
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	if total == 0 {
+		return 0, nil
+	}
+	return round2(float64(done) / float64(total) * weight), nil
+}
+
 // calcBoolScore queries a boolean-status table and returns (done/total)*weight.
 func calcBoolScore(ctx context.Context, db pgx.Tx, query, id string, weight float64) (float64, error) {
 	rows, err := db.Query(ctx, query, id)
@@ -436,8 +468,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 	totalScore := 0.0
 	captureDate := now.Format("2006-01-02")
 	for _, o := range obras {
-		fwScore, err := calcBoolScore(ctx, tx,
-			`SELECT status FROM forecast_fieldwire WHERE project_id = $1`, o.ID, 2.0)
+		fwScore, err := calcFieldwireScore(ctx, tx, o.ID, 2.0)
 		if err != nil {
 			return ofiInternalErr(c, "calculate Fieldwire score", err)
 		}
