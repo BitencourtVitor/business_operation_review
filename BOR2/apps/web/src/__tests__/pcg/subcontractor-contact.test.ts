@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   asEmail, asPhone,
-} from "@/app/(dashboard)/pcg-bid-requests/_lib/use-subcontractor-contact"
+} from "@/app/bor/pcg-bid-requests/_lib/use-subcontractor-contact"
 
 // The cadastro's contact boxes double as a notepad, and whatever is in them is
 // what the subcontract prints. "need to request" reached a real contract once.

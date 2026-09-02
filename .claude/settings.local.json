@@ -20,7 +20,10 @@
       "Bash(cmd /c \"taskkill /F /IM node.exe /T & taskkill /F /IM bun.exe /T\")",
       "Bash(find 'C:\\\\Users\\\\Ryzen\\\\Documents\\\\trae_projects\\\\Premium - BOR\\\\BOR2\\\\apps\\\\web\\\\src\\\\app\\\\\\(dashboard\\)\\\\autolog' -type f)",
       "Bash(curl -s 'https://zsqbejfmbyuanetoxewt.supabase.co/rest/v1/forecast_data?select=id' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWJlamZtYnl1YW5ldG94ZXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDk5MjQsImV4cCI6MjA2NjQyNTkyNH0.YB7OWzXXX7B9moO6rTmcQA2AvnJNAO_VoGEpPHC-AQ0' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWJlamZtYnl1YW5ldG94ZXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDk5MjQsImV4cCI6MjA2NjQyNTkyNH0.YB7OWzXXX7B9moO6rTmcQA2AvnJNAO_VoGEpPHC-AQ0')",
-      "Bash(netstat -ano)"
+      "Bash(netstat -ano)",
+      "Bash(rm -f \"internal/handler/qbtime.go\")",
+      "Bash(rm -f \"internal/service/qbtime.go\")",
+      "Bash(rm -f \"internal/repository/qbtime_postgres.go\")"
     ]
   }
 }

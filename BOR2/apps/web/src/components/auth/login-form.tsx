@@ -77,8 +77,8 @@ export function LoginForm() {
       {/* Sem nome de produto: esta tela é a porta da plataforma, e o destino
           — BOR ou Atlas — se escolhe depois de autenticar (AT-2). */}
       <div className="text-center">
-        <h1 className="text-xl font-semibold text-primary">Plataforma Premium</h1>
-        <p className="text-sm text-muted-foreground">Entre com a sua conta</p>
+        <h1 className="text-xl font-semibold text-primary">Data Intelligence Platform</h1>
+        <p className="text-sm text-muted-foreground">Sign in to your account</p>
       </div>
 
       <Card className="w-full max-w-md py-0">

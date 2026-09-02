@@ -53,7 +53,7 @@ export function useProducts() {
       id: "bor",
       name: "Business Operations Review",
       tagline: "Every number the operation runs on: money, people, schedule and execution, measured in one place.",
-      href: "/monthly-execution",
+      href: "/bor/monthly-execution",
       enabled: hasBOR,
       reason: hasBOR ? undefined : "No access granted",
     },

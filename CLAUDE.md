@@ -83,6 +83,15 @@ Ou exportar antes de usar: `export RAILWAY_TOKEN=362db99a-4f60-431e-85f0-264744a
 - Permissões: por usuário, gerenciável em Settings (Admin/Developer only)
 - DataControl: edição de dados do Forecast pelo admin
 
+### Integrações do Forecast (Storage e Machines)
+Vínculo com o Premium Storage (Supabase, repo separado), convenção de `house_model` por
+comunidade, e a exceção de cliente Private no catálogo de Machines (nunca tem entrada,
+e todo consumidor de `machines` precisa tratar isso como "não aplicável", não "pendente") —
+documentado em [`BOR2/docs/forecast-integrations.md`](BOR2/docs/forecast-integrations.md).
+Ler antes de cadastrar obra no Storage, corrigir a flag `storage`, ou tocar em
+score/exibição de Machines. Rotina de atualização de datas (Toll Brothers/Pulte Homes)
+é assunto separado — ver `Premium - Data Att Forecast/PROCESSO_ATUALIZACAO.md`.
+
 ### Páginas BOR2
 
 **Forecast & Projetos**

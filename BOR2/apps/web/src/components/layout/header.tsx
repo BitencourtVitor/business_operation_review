@@ -111,10 +111,10 @@ export function Header() {
   async function handleRefresh() {
     setRefreshing(true)
     try {
-      if (pathname === "/permits") {
+      if (pathname === "/bor/permits") {
         await permitService.syncFromSheet()
       }
-      if (pathname === "/qbtime/period-reports") {
+      if (pathname === "/bor/qbtime/period-reports") {
         await periodReportService.sync(14)
       }
       await queryClient.invalidateQueries()

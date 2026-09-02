@@ -76,7 +76,7 @@ export function PasswordResetModal({ open, onSuccess, onClose }: PasswordResetMo
       await api.post("/api/v1/auth/change-password", { newPassword: password }, token ?? undefined)
       onSuccess()
     } catch {
-      setError("Erro ao alterar senha. Tente novamente.")
+      setError("Could not change the password. Try again.")
     }
     setLoading(false)
   }

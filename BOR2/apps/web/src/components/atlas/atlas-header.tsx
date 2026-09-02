@@ -139,7 +139,7 @@ export function AtlasHeader() {
             <Tip label="Go to BOR">
               <Button
                 variant="ghost" size="icon"
-                onClick={() => router.push("/monthly-execution")}
+                onClick={() => router.push("/bor/monthly-execution")}
                 className="hidden md:inline-flex"
               >
                 <CircleGauge className="h-4 w-4" />
@@ -178,7 +178,7 @@ export function AtlasHeader() {
                 Refresh data
               </DropdownMenuItem>
               {hasBOR && (
-                <DropdownMenuItem onClick={() => router.push("/monthly-execution")}>
+                <DropdownMenuItem onClick={() => router.push("/bor/monthly-execution")}>
                   <CircleGauge className="h-4 w-4" />
                   Go to BOR
                 </DropdownMenuItem>
