@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useCreateUser, useUpdateUserPermissions, useUsers } from "@/hooks/use-settings"
+import { useUpdateUserPermissions, useUsers } from "@/hooks/use-settings"
 import type { UserWithPermissions } from "@/services/settings.service"
-import { Check, HardHat, Loader2, Search, UserPlus } from "lucide-react"
+import { Check, Loader2, Search, UserPlus } from "lucide-react"
 import { useMemo, useState } from "react"
 
 // O subcontratado é papel do Atlas, não da plataforma. O `role` do banco é um
@@ -135,108 +135,6 @@ export function ImportUserDialog({ open, onClose }: { open: boolean; onClose: ()
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-// ─── Subcontratado ───────────────────────────────────────────────────────────
-
-export function SubcontractorDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const createUser = useCreateUser()
-  const updatePerms = useUpdateUserPermissions()
-  const [form, setForm] = useState({ name: "", email: "", company: "" })
-  const [provisional, setProvisional] = useState<string | null>(null)
-
-  function close() {
-    setForm({ name: "", email: "", company: "" })
-    setProvisional(null)
-    onClose()
-  }
-
-  async function submit() {
-    if (!form.name.trim() || !form.email.trim()) return
-    const res = await createUser.mutateAsync({
-      // O nome carrega a empresa porque o subcontratado não é da Premium, e
-      // "João" sozinho numa lista de acesso não diz de quem ele é.
-      name: form.company.trim() ? `${form.name.trim()} · ${form.company.trim()}` : form.name.trim(),
-      email: form.email.trim(),
-      role: "user",
-    })
-    await updatePerms.mutateAsync({
-      userId: res.id,
-      permissions: { atlas: "read", [SUBCONTRACTOR_KEY]: "read" },
-    })
-    setProvisional(res.provisionalPassword)
-  }
-
-  const pending = createUser.isPending || updatePerms.isPending
-
-  return (
-    <Dialog open={open} onOpenChange={v => { if (!v) close() }}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <HardHat className="h-4 w-4" />
-            Add Subcontractor
-          </DialogTitle>
-        </DialogHeader>
-
-        {provisional ? (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                Subcontractor created!
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Share this provisional password. They will change it on first sign in, and they
-                only see the jobsites you grant them.
-              </p>
-              <div className="mt-3 flex items-center gap-2 rounded-md border bg-background px-3 py-2">
-                <code className="flex-1 font-mono text-sm tracking-wide">{provisional}</code>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button size="sm" onClick={close}>
-                <Check className="h-3.5 w-3.5" />
-                Done
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Full Name</label>
-              <input className={inputCls} placeholder="John Carter" value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Company</label>
-              <input className={inputCls} placeholder="JF Drywall & Plastering LLC" value={form.company}
-                onChange={e => setForm({ ...form, company: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Email</label>
-              <input type="email" className={inputCls} placeholder="john@jfdrywall.com" value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })} />
-            </div>
-
-            <p className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-              Outside the company: no BOR access, and inside the Atlas they only reach the
-              jobsites granted to them, one by one.
-            </p>
-
-            <div className="flex justify-end gap-2 pt-1">
-              <Button variant="ghost" size="sm" onClick={close} disabled={pending}>Cancel</Button>
-              <Button size="sm" onClick={submit}
-                disabled={!form.name.trim() || !form.email.trim() || pending}>
-                {pending
-                  ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving…</>
-                  : <><HardHat className="h-3.5 w-3.5" />Create</>}
-              </Button>
-            </div>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   )
