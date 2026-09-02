@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import {
   BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
-  Gauge, Gem, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
+  Gauge, CodeXml, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
 } from "lucide-react"
 
@@ -113,7 +113,7 @@ const ALL_PERMS = PERMISSION_GROUPS.flatMap(g =>
 // ─── Role meta ────────────────────────────────────────────────────────────────
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
-  dev:     { label: "Developer", icon: Gem,      className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  dev:     { label: "Developer", icon: CodeXml,      className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
   owner:   { label: "Owner",     icon: Gauge,    className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   manager: { label: "Manager",   icon: Users,    className: "border-primary/40 bg-primary/10 text-primary" },
   user:    { label: "User",      icon: User,        className: "border-border bg-secondary text-foreground" },

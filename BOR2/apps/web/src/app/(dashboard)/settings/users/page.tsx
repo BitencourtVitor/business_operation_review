@@ -26,7 +26,7 @@ import {
   Activity, ArrowLeft, BarChart2, Banknote, Bell,
   CalendarCheck, CalendarDays, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
   Eye, FileCheck, Gauge,
-  Gem, KeyRound, Loader2,
+  CodeXml, KeyRound, Loader2,
   Network, Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
   User, UserCheck, UserCog, UserPlus, Users, Wrench,
@@ -53,7 +53,7 @@ function canManage(myRole: string, targetRole: string): boolean {
 }
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
-  dev:     { label: "Developer", icon: Gem,   className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  dev:     { label: "Developer", icon: CodeXml,   className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
   owner:   { label: "Owner",     icon: Gauge, className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   manager: { label: "Manager",   icon: Users, className: "border-primary/40 bg-primary/10 text-primary" },
   user:    { label: "User",      icon: User,  className: "border-border bg-secondary text-foreground" },
