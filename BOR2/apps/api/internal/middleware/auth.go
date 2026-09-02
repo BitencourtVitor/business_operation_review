@@ -128,13 +128,14 @@ func RequirePermission(db *pgxpool.Pool, key string, level string) fiber.Handler
 
 // RequireAtlas guarda o Atlas enquanto ele está em construção.
 //
-// Entra quem é dev, e quem recebeu a chave `atlas` — e mais ninguém. É de
-// propósito mais estreito que RequirePermission: lá, dev, owner, admin e
-// manager passam por serem quem são. Aqui, produto em construção só abre para
-// quem foi convidado, mesmo que a pessoa administre a plataforma inteira.
+// Entra quem tem cargo acima de `user` — dev, owner, admin, manager — e o
+// `user` que recebeu a chave `atlas` na tela de usuários do Atlas. Quem manda
+// na obra já manda no Atlas por definição; o `user` é convidado um a um,
+// porque é ele que pode ser um subcontratado.
 func RequireAtlas(db *pgxpool.Pool) fiber.Handler {
+	privileged := map[string]bool{"dev": true, "owner": true, "admin": true, "manager": true, "gestor": true}
 	return func(c *fiber.Ctx) error {
-		if role, _ := c.Locals("userRole").(string); role == "dev" {
+		if role, _ := c.Locals("userRole").(string); privileged[role] {
 			return c.Next()
 		}
 		userID, _ := c.Locals("userID").(string)

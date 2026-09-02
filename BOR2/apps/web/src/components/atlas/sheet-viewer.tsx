@@ -271,19 +271,6 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         )}
 
         <div className="flex items-center gap-1">
-          <Button size="icon" variant="ghost" onClick={() => setZoom(z => clampZoom(z - 0.25))}>
-            <Minus className="h-4 w-4" />
-          </Button>
-          <button
-            onClick={() => setZoom(1)}
-            title="Reset zoom"
-            className="w-12 text-center text-xs text-muted-foreground hover:text-foreground"
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          <Button size="icon" variant="ghost" onClick={() => setZoom(z => clampZoom(z + 0.25))}>
-            <Plus className="h-4 w-4" />
-          </Button>
           <Button
             size="icon"
             variant="ghost"
@@ -375,6 +362,35 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             </div>
           )}
         </div>
+      </div>
+
+      {/* Zoom flutuante no canto inferior direito, onde o Fieldwire o coloca:
+          é onde o polegar chega sem soltar o tablet, e é o lugar que a equipe
+          já procura sem pensar. */}
+      <div className="pointer-events-none absolute bottom-6 right-6 flex flex-col items-center gap-px">
+        <Button
+          size="icon"
+          variant="secondary"
+          className="pointer-events-auto h-10 w-10 rounded-t-lg rounded-b-none border border-border/60 shadow-lg"
+          onClick={() => setZoom(z => clampZoom(z + 0.25))}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <button
+          onClick={() => setZoom(1)}
+          title="Reset zoom"
+          className="pointer-events-auto w-10 border-x border-border/60 bg-secondary py-1 text-[11px] text-muted-foreground shadow-lg hover:text-foreground"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <Button
+          size="icon"
+          variant="secondary"
+          className="pointer-events-auto h-10 w-10 rounded-b-lg rounded-t-none border border-border/60 shadow-lg"
+          onClick={() => setZoom(z => clampZoom(z - 0.25))}
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   )
