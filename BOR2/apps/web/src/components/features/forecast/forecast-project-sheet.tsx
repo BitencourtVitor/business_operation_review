@@ -381,7 +381,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
             {p.obs?.trim() && (
               <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
-                {p.obs}
+                <p className="whitespace-pre-wrap">{p.obs}</p>
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
                   <button

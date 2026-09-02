@@ -546,7 +546,9 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
         {/* ── Observations (latest entry) ── */}
         {p.obs && (
           <div className="rounded-lg border bg-muted/60 px-2.5 py-2 text-[11px] leading-relaxed text-muted-foreground">
-            {p.obs}
+            {/* A obs guarda quebra de linha de propósito: cada linha é uma
+                anotação de um momento. Sem preservar, viram um parágrafo só. */}
+            <p className="whitespace-pre-wrap">{p.obs}</p>
             {(p.obsAuthor || p.obsAt) && (
               <div className="mt-1.5 flex justify-end">
                 <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
