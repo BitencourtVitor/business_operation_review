@@ -19,7 +19,7 @@ import { useAtlasJobsite, useAtlasJobsites } from "@/hooks/use-atlas"
 import {
   Bot, CalendarDays, ClipboardList, FileSpreadsheet, FolderOpen, Images, ListChecks,
   Map, Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
-  SlidersHorizontal, Users,
+  Settings,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -55,9 +55,9 @@ export function AtlasSidebar() {
   const params = useSearchParams()
 
   // A obra em foco sai da própria rota: /atlas/<id> e tudo abaixo dela.
+  const config = ["/atlas/settings", "/atlas/definitions", "/atlas/users"]
   const inJobsiteRoute = pathname.startsWith("/atlas/")
-    && !pathname.startsWith("/atlas/definitions")
-    && !pathname.startsWith("/atlas/users")
+    && !config.some(route => pathname.startsWith(route))
   const jobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: jobsites } = useAtlasJobsites()
@@ -98,26 +98,6 @@ export function AtlasSidebar() {
                 >
                   <Map />
                   <span>Plans</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/atlas/definitions")}
-                  tooltip="Definitions"
-                  render={<Link href="/atlas/definitions" />}
-                >
-                  <SlidersHorizontal />
-                  <span>Definitions</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/atlas/users")}
-                  tooltip="Users"
-                  render={<Link href="/atlas/users" />}
-                >
-                  <Users />
-                  <span>Users</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -213,6 +193,24 @@ export function AtlasSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="gap-0 overflow-x-hidden p-0">
+        <div className="h-px bg-sidebar-border" />
+        {/* Configuração no fim da lista, como no BOR: ela não divide espaço com
+            a navegação de quem está trabalhando. Definitions e Users vivem
+            dentro dela. */}
+        <SidebarMenu className="p-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={pathname.startsWith("/atlas/settings")
+                || pathname.startsWith("/atlas/definitions")
+                || pathname.startsWith("/atlas/users")}
+              tooltip="Settings"
+              render={<Link href="/atlas/settings" />}
+            >
+              <Settings />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <div className="h-px bg-sidebar-border" />
         {isMobile ? (
           <div className="px-4 py-3 text-xs leading-relaxed text-muted-foreground/70">
