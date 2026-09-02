@@ -173,10 +173,10 @@ export function AtlasSidebar() {
             colapsar no rodapé: é uma seção de outra natureza, não mais um grupo
             de páginas. O rótulo em caixa alta e peso leve reforça que ele
             anuncia, em vez de navegar. */}
-        <div className="mt-2 h-px bg-sidebar-border" />
+        <div className="h-px bg-sidebar-border" />
         <SidebarGroup>
           {(open || isMobile) && (
-            <SidebarGroupLabel className="font-normal uppercase tracking-wide">
+            <SidebarGroupLabel className="font-light uppercase tracking-wide">
               Soon
             </SidebarGroupLabel>
           )}
