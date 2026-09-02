@@ -23,16 +23,15 @@ import {
 } from "@/components/ui/select"
 import { useAtlasJobsites, useCreateAtlasJobsite } from "@/hooks/use-atlas"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { PersonRow } from "@/components/atlas/person-row"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building, Building2, Check, ChevronDown, Eye, EyeOff, Hash,
-  Home, MapPin, Pencil, Plus, Search, X,
+  ChevronRight, Home, MapPin, Pencil, Plus, Search, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 
-// Ou é prédio ou é casa. "Lot" é como o Forecast chama a casa, e exibi-lo
-// aqui inventava um terceiro tipo de obra que não existe.
 // Ou é prédio ou é casa. "Lot" é como a casa se chama quando ela é numerada
 // dentro do loteamento, e é assim que a obra é falada no dia a dia. Por isso
 // vale na linha de identificação, e não como um terceiro tipo de obra.
@@ -167,75 +166,109 @@ function ClientField({ value, onChange, clients }: {
 }
 
 // Quem não vê o projeto. O campo carrega só a contagem; a lista abre num painel
-// ao lado do diálogo, para não empurrar um dropdown do tamanho do cadastro no
-// meio do formulário.
-function HiddenFromField({ blocked, onChange, people }: {
+// colado à direita do diálogo, o mesmo formato do histórico de observação do
+// Forecast. Popover em cima do formulário tapava os campos que a pessoa acabou
+// de preencher.
+function HiddenFromField({ blocked, open, onToggle }: {
   blocked: string[]
-  onChange: (ids: string[]) => void
-  people: { id: string; name: string }[]
+  open: boolean
+  onToggle: () => void
 }) {
-  const [open, setOpen] = useState(false)
-  const available = people.filter(u => !blocked.includes(u.id))
-
   return (
     <div className="flex flex-col gap-1.5">
       <Label className="text-xs text-muted-foreground">Hidden from</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger
-          render={<button type="button" />}
-          className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted dark:bg-input/30 dark:hover:bg-input/50"
-        >
-          <span className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted dark:bg-input/30 dark:hover:bg-input/50"
+      >
+        <span className="flex items-center gap-2">
+          {blocked.length === 0
+            ? <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+            : <EyeOff className="h-3.5 w-3.5 text-destructive" />}
+          <span className={blocked.length === 0 ? "text-muted-foreground" : "text-destructive"}>
             {blocked.length === 0
-              ? <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-              : <EyeOff className="h-3.5 w-3.5 text-destructive" />}
-            <span className={blocked.length === 0 ? "text-muted-foreground" : "text-destructive"}>
-              {blocked.length === 0
-                ? "Visible to everyone"
-                : `${blocked.length} ${blocked.length === 1 ? "person" : "people"} blocked`}
-            </span>
+              ? "Visible to everyone"
+              : `${blocked.length} ${blocked.length === 1 ? "person" : "people"} blocked`}
           </span>
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        </PopoverTrigger>
-        <PopoverContent side="right" align="start" sideOffset={12} className="w-64 p-1.5">
-          <p className="px-1.5 pb-1.5 text-xs text-muted-foreground">
-            Everyone with Atlas access sees this project unless listed here.
+        </span>
+        <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+    </div>
+  )
+}
+
+function HiddenFromPanel({ blocked, onChange, people, onClose }: {
+  blocked: string[]
+  onChange: (ids: string[]) => void
+  people: { id: string; name: string }[]
+  onClose: () => void
+}) {
+  // Dois toques também aqui: escolher a pessoa e depois agir. Vale só para esta
+  // lista; endereço e os outros campos continuam sendo só escrever.
+  const [armed, setArmed] = useState<string | null>(null)
+  const available = people.filter(u => !blocked.includes(u.id))
+
+  return (
+    <div className="flex max-h-[85vh] w-full shrink-0 flex-col overflow-hidden border-t bg-muted/20 sm:w-[300px] sm:border-l sm:border-t-0">
+      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-3">
+        <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="flex-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Hidden From
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label="Close the hidden from list"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <div className="min-h-0 max-h-[20rem] flex-1 overflow-y-auto p-2">
+        <p className="px-1.5 pb-2 text-xs leading-snug text-muted-foreground">
+          Everyone with Atlas access sees this project unless listed here.
+        </p>
+
+        {people.length === 0 && (
+          <p className="px-1.5 py-1 text-sm text-muted-foreground">
+            Nobody has Atlas access yet.
           </p>
-          <div className="flex max-h-56 flex-col gap-0.5 overflow-y-auto pr-1">
-            {people.length === 0 && (
-              <p className="px-1.5 py-1 text-sm text-muted-foreground">
-                Nobody has Atlas access yet.
-              </p>
-            )}
-            {blocked.map(id => {
-              const person = people.find(u => u.id === id)
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => onChange(blocked.filter(v => v !== id))}
-                  className="flex items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
-                >
-                  <EyeOff className="h-3.5 w-3.5 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{person?.name ?? id}</span>
-                  <X className="h-3 w-3 shrink-0" />
-                </button>
-              )
-            })}
-            {available.map(u => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => onChange([...blocked, u.id])}
-                className="flex items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm transition-colors hover:bg-accent"
-              >
-                <Eye className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">{u.name}</span>
-              </button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+        )}
+
+        <div className="flex flex-col gap-0.5">
+          {blocked.map(id => {
+            const person = people.find(u => u.id === id)
+            return (
+              <PersonRow
+                key={id}
+                name={person?.name ?? id}
+                hidden
+                armed={armed === id}
+                onSelect={() => setArmed(armed === id ? null : id)}
+                onAct={() => { onChange(blocked.filter(v => v !== id)); setArmed(null) }}
+              />
+            )
+          })}
+
+          {blocked.length > 0 && available.length > 0 && (
+            <div className="my-1 border-t border-border/60" />
+          )}
+
+          {available.map(u => (
+            <PersonRow
+              key={u.id}
+              name={u.name}
+              hidden={false}
+              armed={armed === u.id}
+              onSelect={() => setArmed(armed === u.id ? null : u.id)}
+              onAct={() => { onChange([...blocked, u.id]); setArmed(null) }}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -249,6 +282,7 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
 }) {
   const [form, setForm] = useState(EMPTY)
   const [blocked, setBlocked] = useState<string[]>([])
+  const [panel, setPanel] = useState(false)
   // Só quem tem a chave do Atlas. Oferecer o cadastro inteiro deixava a tela
   // prometer um bloqueio que não acontece: cargo privilegiado vê tudo antes de
   // a regra ser consultada.
@@ -299,6 +333,7 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
     onOpenChange(false)
     setForm(EMPTY)
     setBlocked([])
+    setPanel(false)
   }
 
   function submit() {
@@ -320,11 +355,16 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
 
   return (
     <Dialog open={open} onOpenChange={o => { if (!o) close(); else onOpenChange(true) }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent
+        className={panel
+          ? "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:w-[820px] sm:max-w-[820px] sm:flex-row sm:[&>[data-slot=dialog-close]]:right-[308px]"
+          : "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:max-w-lg sm:flex-row"}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
         <DialogHeader><DialogTitle>{editing ? "Edit project" : "New project"}</DialogTitle></DialogHeader>
 
         <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-[3fr_7fr]">
             <ClientField
               value={form.client}
               onChange={v => set({ client: v })}
@@ -383,7 +423,7 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
 
           {/* Só na edição: um projeto que ainda não existe não tem quem bloquear. */}
           {editing && (
-            <HiddenFromField blocked={blocked} onChange={setBlocked} people={people} />
+            <HiddenFromField blocked={blocked} open={panel} onToggle={() => setPanel(v => !v)} />
           )}
         </div>
 
@@ -393,6 +433,16 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
             {saving ? "Saving…" : editing ? "Save changes" : "Create project"}
           </Button>
         </DialogFooter>
+        </div>
+
+        {editing && panel && (
+          <HiddenFromPanel
+            blocked={blocked}
+            onChange={setBlocked}
+            people={people}
+            onClose={() => setPanel(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
