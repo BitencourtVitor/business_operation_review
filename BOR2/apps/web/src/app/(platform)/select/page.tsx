@@ -33,9 +33,20 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
     <button
       onClick={() => product.enabled && onPick(product)}
       disabled={!product.enabled}
-      className="group flex w-full items-center gap-4 rounded-lg border border-border/60 bg-card p-4 text-left transition-colors enabled:hover:border-primary/50 enabled:hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
+      className={`group flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors enabled:hover:border-primary/50 enabled:hover:bg-accent/40 disabled:cursor-not-allowed ${
+        // Fundo e borda continuam apagados no card travado, como antes; o que
+        // saiu do esmaecido foi só o texto, que é o que precisa ser lido.
+        product.enabled ? "border-border/60 bg-card" : "border-border/30 bg-card/50"
+      }`}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground transition-colors group-enabled:group-hover:border-primary/40 group-enabled:group-hover:text-primary">
+      {/* O esmaecido vive no ícone e no cadeado, nunca no texto: o card travado
+          é justamente o que precisa ser lido, e opacidade em cima de letra é
+          contraste perdido de graça. */}
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground transition-colors group-enabled:group-hover:border-primary/40 group-enabled:group-hover:text-primary ${
+          product.enabled ? "" : "opacity-50"
+        }`}
+      >
         <Icon className="h-4.5 w-4.5" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
