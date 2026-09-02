@@ -83,7 +83,7 @@ export function AtlasHeader() {
       <div className="hidden flex-1 flex-col justify-center md:flex">
         <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
         <p className="text-[10px] text-muted-foreground">
-          Unless commitment is made, there are only promises and hopes; but no plans.
+          Unless commitment is made, there are only promises and hopes, but no plans.
         </p>
       </div>
 
