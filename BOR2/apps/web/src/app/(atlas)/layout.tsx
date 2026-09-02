@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { AtlasHeader } from "@/components/atlas/atlas-header"
 import { AtlasSidebar } from "@/components/atlas/atlas-sidebar"
 import { AuthGuard } from "@/components/auth/auth-guard"
@@ -11,6 +12,10 @@ import { cookies } from "next/headers"
 //
 // Route group próprio ainda assim: as opções do menu do Atlas não têm nada a ver
 // com as do BOR, e herdar a sidebar de lá traria as páginas erradas junto.
+export const metadata: Metadata = {
+  title: "Atlas Project Control",
+}
+
 export default async function AtlasLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false"

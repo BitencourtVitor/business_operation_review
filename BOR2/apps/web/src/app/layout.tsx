@@ -10,8 +10,10 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: "Business Operations Review",
-  description: "Operational intelligence platform",
+  // Título da plataforma. Cada produto sobrescreve no layout do seu route
+  // group — o que sobra aqui é o que /login e /select mostram.
+  title: "Data Intelligence Platform",
+  description: "Premium Group — operational intelligence platform",
   icons: {
     icon: "/favicon.png",
   },
