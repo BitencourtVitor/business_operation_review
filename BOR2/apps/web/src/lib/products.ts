@@ -46,7 +46,7 @@ export function useProducts() {
     {
       id: "bor",
       name: "Business Operations Review",
-      tagline: "Every metric the operation runs on — forecast, cost, workforce and execution, under one source of truth.",
+      tagline: "Every number the operation runs on: money, people, schedule and execution, measured in one place.",
       href: "/monthly-execution",
       enabled: hasBOR,
       reason: hasBOR ? undefined : "No access granted",
@@ -54,7 +54,7 @@ export function useProducts() {
     {
       id: "atlas",
       name: "Atlas Project Control",
-      tagline: "Jobsite drawings, the record of how the work was built, and material measured off the plan.",
+      tagline: "Every drawing, every mark, every measurement. The jobsite exactly as it was built.",
       href: "/atlas",
       enabled: isDev,
       reason: isDev ? undefined : "Under construction — developer only",

@@ -6,7 +6,7 @@ import {
   CalendarX,
   CloudRain,
   Compass,
-  Gem,
+  CodeXml,
   Info,
   Snowflake,
   TriangleAlert,
@@ -116,7 +116,7 @@ export function applyEventsToSchedule(
 // ─── Comment role helpers ─────────────────────────────────────────────────────
 
 export function commentRoleIcon(role: string): LucideIcon {
-  if (role === "dev")                                              return Gem
+  if (role === "dev")                                              return CodeXml
   if (role === "owner")                                            return Compass
   if (role === "admin" || role === "manager" || role === "gestor") return Award
   return User

@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, CircleGauge, Compass, Ellipsis, Gem, LogOut, Menu, Moon,
+  Award, CircleGauge, Compass, Ellipsis, CodeXml, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -28,7 +28,7 @@ function Tip({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 const roleBadges: Record<string, { label: string; icon: React.ElementType; light: string; dark: string }> = {
-  dev:     { label: "Developer", icon: Gem,     light: "border-yellow-500 bg-yellow-500/10 text-yellow-600", dark: "border-yellow-400 bg-yellow-400/10 text-yellow-400" },
+  dev:     { label: "Developer", icon: CodeXml,     light: "border-yellow-500 bg-yellow-500/10 text-yellow-600", dark: "border-yellow-400 bg-yellow-400/10 text-yellow-400" },
   admin:   { label: "Admin",     icon: Award,   light: "border-primary bg-primary/10 text-primary",          dark: "border-primary bg-primary/10 text-primary" },
   manager: { label: "Manager",   icon: Award,   light: "border-primary bg-primary/10 text-primary",          dark: "border-primary bg-primary/10 text-primary" },
   owner:   { label: "Owner",     icon: Compass, light: "border-emerald-600 bg-emerald-600/10 text-emerald-600", dark: "border-emerald-400 bg-emerald-400/10 text-emerald-400" },

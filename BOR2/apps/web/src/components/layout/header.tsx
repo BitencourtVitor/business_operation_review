@@ -27,7 +27,7 @@ import {
   Ellipsis,
   Eye,
   EyeOff,
-  Gem,
+  CodeXml,
   LogOut,
   Map,
   Menu,
@@ -53,7 +53,7 @@ function Tip({ label, children }: { label: string; children: React.ReactNode }) 
 const roleBadges: Record<string, { label: string; icon: React.ElementType; light: string; dark: string }> = {
   dev: {
     label: "Developer",
-    icon: Gem,
+    icon: CodeXml,
     light: "border-yellow-500 bg-yellow-500/10 text-yellow-600",
     dark:  "border-yellow-400 bg-yellow-400/10 text-yellow-400",
   },

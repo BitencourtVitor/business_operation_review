@@ -1,12 +1,12 @@
 "use client"
 
 import { useForecastObs } from "@/hooks/use-forecast"
-import { FileClock, Gauge, Gem, Loader2, MessageSquareText, User, Users, X } from "lucide-react"
+import { FileClock, Gauge, CodeXml, Loader2, MessageSquareText, User, Users, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 /** Same role iconography as Settings › Users, so a badge means the same thing everywhere. */
 const ROLE_ICON: Record<string, { Icon: React.ElementType; className: string }> = {
-  dev:     { Icon: Gem,   className: "text-yellow-600 dark:text-yellow-400" },
+  dev:     { Icon: CodeXml,   className: "text-yellow-600 dark:text-yellow-400" },
   owner:   { Icon: Gauge, className: "text-emerald-600 dark:text-emerald-400" },
   manager: { Icon: Users, className: "text-primary" },
   user:    { Icon: User,  className: "text-muted-foreground" },
