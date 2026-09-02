@@ -13,7 +13,7 @@ import { useMemo, useState } from "react"
 /**
  * Importa obra do Forecast em vez de redigitar.
  *
- * O Forecast tem a lista mais completa que existe — comunidade, cliente, tipo,
+ * O Forecast tem a lista mais completa que existe: comunidade, cliente, tipo,
  * número e endereço de todas as obras. Digitar de novo aqui criaria uma segunda
  * lista para divergir da primeira no mês seguinte.
  *
