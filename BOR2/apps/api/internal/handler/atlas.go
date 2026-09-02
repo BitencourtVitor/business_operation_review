@@ -219,6 +219,10 @@ type atlasJobsite struct {
 	Unit          string  `json:"unit"`
 	Company       string  `json:"company"`
 	ForecastID    *string `json:"forecastId"`
+	// Quantos andares o prédio tem e quais letras de unidade ele usa: é daqui
+	// que as subcategorias de documento saem.
+	Floors     int      `json:"floors"`
+	UnitLabels []string `json:"unitLabels"`
 	CatalogSiteID *int64  `json:"catalogJobSiteId"`
 	CreatedBy     string  `json:"createdBy"`
 	CreatedAt     string  `json:"createdAt"`
@@ -292,14 +296,26 @@ func (h *AtlasHandler) CreateJobsite(c *fiber.Ctx) error {
 	}
 	userID, _ := actor(c)
 	id := uuid.NewString()
+	if in.UnitLabels == nil {
+		in.UnitLabels = []string{}
+	}
 	_, err := h.db.Exec(c.Context(), `
-		INSERT INTO atlas_jobsite (id, name, address, client, code, catalog_job_site_id, created_by)
-		VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		id, strings.TrimSpace(in.Name), in.Address, in.Client, in.Code, in.CatalogSiteID, userID)
+		INSERT INTO atlas_jobsite
+			(id, name, address, client, code, catalog_job_site_id, created_by,
+			 kind, community, unit, company, floors, unit_labels)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+		id, strings.TrimSpace(in.Name), in.Address, in.Client, in.Code, in.CatalogSiteID, userID,
+		atlasKind(in.Kind), in.Community, in.Unit, in.Company, in.Floors, in.UnitLabels)
 	if err != nil {
 		return internalErr(c, err)
 	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
+	// A obra nasce com as vagas que a taxonomia manda: sem isso, quem cadastra
+	// teria de criar pasta por pasta antes de anexar o primeiro documento.
+	slots, err := h.seedJobsiteSlots(c.Context(), id, userID)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": id, "slots": slots}})
 }
 
 // GET /atlas/forecast-jobsites — as obras do Forecast, para importar.
@@ -435,15 +451,24 @@ func (h *AtlasHandler) ImportJobsites(c *fiber.Ctx) error {
 	for _, s := range sources {
 		// ON CONFLICT DO NOTHING sobre `forecast_id`: importar duas vezes é o
 		// caso normal — alguém volta na tela e marca tudo de novo.
+		newID := uuid.NewString()
 		tag, err := h.db.Exec(c.Context(), `
 			INSERT INTO atlas_jobsite
 				(id, name, address, client, community, unit, kind, company, forecast_id, created_by)
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 			ON CONFLICT (forecast_id) WHERE forecast_id IS NOT NULL DO NOTHING`,
-			uuid.NewString(), jobsiteName(s.community, s.kind, s.unit), s.address, s.client,
+			newID, jobsiteName(s.community, s.kind, s.unit), s.address, s.client,
 			s.community, s.unit, atlasKind(s.kind), s.company, s.id, userID)
 		if err != nil {
 			return internalErr(c, err)
+		}
+		if tag.RowsAffected() > 0 {
+			// A obra importada já nasce com as vagas que não dependem de andar
+			// nem de unidade. As demais aparecem quando alguém informar quantos
+			// andares o prédio tem — o Forecast não guarda isso.
+			if _, err := h.seedJobsiteSlots(c.Context(), newID, userID); err != nil {
+				return internalErr(c, err)
+			}
 		}
 		imported += int(tag.RowsAffected())
 	}
@@ -462,6 +487,25 @@ func (h *AtlasHandler) UpdateJobsite(c *fiber.Ctx) error {
 	if err := c.BodyParser(&patch); err != nil {
 		return badRequest(c, "invalid body")
 	}
+	// Andares e letras de unidade entram aqui porque quase nunca se sabem na
+	// hora do cadastro: a obra é importada do Forecast, que não guarda isso, e
+	// alguém completa depois. Mudá-los muda quais vagas a obra espera.
+	var floors *int
+	if v, ok := patch["floors"].(float64); ok {
+		n := int(v)
+		floors = &n
+	}
+	var units *[]string
+	if raw, ok := patch["unitLabels"].([]any); ok {
+		list := make([]string, 0, len(raw))
+		for _, v := range raw {
+			if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
+				list = append(list, strings.TrimSpace(s))
+			}
+		}
+		units = &list
+	}
+
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_jobsite SET
 			name    = COALESCE($2, name),
@@ -469,12 +513,22 @@ func (h *AtlasHandler) UpdateJobsite(c *fiber.Ctx) error {
 			client  = COALESCE($4, client),
 			code    = COALESCE($5, code),
 			status  = COALESCE($6, status),
+			floors      = COALESCE($7, floors),
+			unit_labels = COALESCE($8, unit_labels),
 			updated_at = now()
 		WHERE id = $1`,
 		id, strPtr(patch, "name"), strPtr(patch, "address"), strPtr(patch, "client"),
-		strPtr(patch, "code"), strPtr(patch, "status"))
+		strPtr(patch, "code"), strPtr(patch, "status"), floors, units)
 	if err != nil {
 		return internalErr(c, err)
+	}
+	// Mudou andar ou unidade, as vagas novas passam a existir na mesma hora. Só
+	// acrescenta: o que já tem documento anexado não se toca.
+	if floors != nil || units != nil {
+		userID, _ := actor(c)
+		if _, err := h.seedJobsiteSlots(c.Context(), id, userID); err != nil {
+			return internalErr(c, err)
+		}
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
 }
@@ -591,11 +645,13 @@ type atlasDocument struct {
 	JobsiteID  string `json:"jobsiteId"`
 	Name       string `json:"name"`
 	Discipline string `json:"discipline"`
-	// A categoria vem do catálogo do Forecast (`catalog_forecast_fieldwire`): é a
-	// mesma lista de documentos que o score de Fieldwire cobra por cliente, e
-	// usar a mesma taxonomia é o que vai permitir o Forecast perguntar ao Atlas
-	// se o documento existe, em vez de alguém marcar a caixinha à mão.
-	Category  string `json:"category"`
+	// A categoria vem da taxonomia do Atlas (`atlas_doc_category`), que é
+	// particular deste produto: o catálogo do Forecast segue intocado, e mexer
+	// aqui não muda nota de Fieldwire de obra nenhuma.
+	Category string `json:"category"`
+	// Ligação com a taxonomia e o valor do eixo — o andar, a letra da unidade.
+	CategoryID  int64  `json:"categoryId"`
+	Subcategory string `json:"subcategory"`
 	CreatedBy string `json:"createdBy"`
 	CreatedAt string `json:"createdAt"`
 	Versions  int    `json:"versions"`
@@ -613,7 +669,8 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		return atlasForbidden(c)
 	}
 	rows, err := h.db.Query(c.Context(), `
-		SELECT d.id, d.jobsite_id, d.name, d.discipline, d.category, d.created_by, d.created_at,
+		SELECT d.id, d.jobsite_id, d.name, d.discipline, d.category,
+		       COALESCE(d.category_id, 0), COALESCE(d.subcategory,''), d.created_by, d.created_at,
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
 		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0)
@@ -626,7 +683,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 			LIMIT 1
 		) u ON true
 		WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
-		ORDER BY d.category, d.name`, id)
+		ORDER BY d.category, d.subcategory, d.name`, id)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -637,7 +694,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		var d atlasDocument
 		var created time.Time
 		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Category,
-			&d.CreatedBy, &created, &d.Versions,
+			&d.CategoryID, &d.Subcategory, &d.CreatedBy, &created, &d.Versions,
 			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets); err != nil {
 			return internalErr(c, err)
 		}
@@ -700,103 +757,6 @@ func (h *AtlasHandler) UpdateDocument(c *fiber.Ctx) error {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": docID}})
-}
-
-// GET /atlas/document-categories — a lista de documentos que a empresa já
-// reconhece, por cliente.
-//
-// Vem de `catalog_forecast_fieldwire`, o mesmo catálogo que o score de Fieldwire
-// do Forecast usa para dizer se uma obra tem a papelada em dia. Duplicar essa
-// lista aqui criaria duas verdades sobre a mesma coisa — e a segunda ficaria
-// desatualizada em silêncio.
-//
-// Aceita ?client= para trazer só o que interessa àquele cliente: o que a Pulte
-// exige não é o que a Toll Brothers exige.
-func (h *AtlasHandler) ListDocumentCategories(c *fiber.Ctx) error {
-	rows, err := h.db.Query(c.Context(), `
-		-- min(id) porque o catálogo tem duplicata histórica do mesmo documento
-		-- para o mesmo cliente; a tela mostra um, e apagar apaga aquele.
-		SELECT min(id), COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
-		FROM catalog_forecast_fieldwire
-		WHERE document <> '' AND document <> 'N/A'
-		  AND ($1 = '' OR lower(COALESCE(client,'')) = lower($1))
-		GROUP BY COALESCE(client,''), COALESCE(NULLIF(type,''),''), document
-		ORDER BY 2, 3, 4`, c.Query("client"))
-	if err != nil {
-		return internalErr(c, err)
-	}
-	defer rows.Close()
-
-	type category struct {
-		ID       int64  `json:"id"`
-		Client   string `json:"client"`
-		Type     string `json:"type"`
-		Document string `json:"document"`
-	}
-	out := []category{}
-	for rows.Next() {
-		var cat category
-		if err := rows.Scan(&cat.ID, &cat.Client, &cat.Type, &cat.Document); err != nil {
-			return internalErr(c, err)
-		}
-		out = append(out, cat)
-	}
-	return c.JSON(fiber.Map{"data": out})
-}
-
-// POST /atlas/document-categories — acrescenta um documento ao catálogo.
-//
-// Escreve no catálogo do Forecast de propósito: é a mesma lista, e ter uma
-// segunda seria ter duas respostas para a mesma pergunta. Quem define o que uma
-// casa ou um prédio precisa ter é a operação, e ela agora tem uma tela.
-func (h *AtlasHandler) CreateDocumentCategory(c *fiber.Ctx) error {
-	role, _ := c.Locals("userRole").(string)
-	if !atlasFullAccess[role] {
-		return atlasForbidden(c)
-	}
-	var in struct {
-		Client   string `json:"client"`
-		Type     string `json:"type"`
-		Document string `json:"document"`
-		Notes    string `json:"notes"`
-	}
-	if err := c.BodyParser(&in); err != nil {
-		return badRequest(c, "invalid body")
-	}
-	if strings.TrimSpace(in.Document) == "" || strings.TrimSpace(in.Client) == "" {
-		return badRequest(c, "client and document are required")
-	}
-	var id int64
-	// A tabela do catálogo não tem sequence no `id` — ela nasceu como carga de
-	// planilha. Sem calcular o próximo aqui, todo INSERT quebra no not-null.
-	err := h.db.QueryRow(c.Context(), `
-		INSERT INTO catalog_forecast_fieldwire (id, client, type, document, where_location, notes)
-		SELECT COALESCE(MAX(id), 0) + 1, $1, $2, $3, '-', COALESCE(NULLIF($4,''),'-')
-		FROM catalog_forecast_fieldwire
-		RETURNING id`,
-		strings.TrimSpace(in.Client), strings.TrimSpace(in.Type),
-		strings.TrimSpace(in.Document), in.Notes).Scan(&id)
-	if err != nil {
-		return internalErr(c, err)
-	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
-}
-
-// DELETE /atlas/document-categories/:id
-func (h *AtlasHandler) DeleteDocumentCategory(c *fiber.Ctx) error {
-	role, _ := c.Locals("userRole").(string)
-	if !atlasFullAccess[role] {
-		return atlasForbidden(c)
-	}
-	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
-	if err != nil {
-		return badRequest(c, "invalid id")
-	}
-	if _, err := h.db.Exec(c.Context(),
-		`DELETE FROM catalog_forecast_fieldwire WHERE id = $1`, id); err != nil {
-		return internalErr(c, err)
-	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"deleted": id}})
 }
 
 func (h *AtlasHandler) documentJobsite(c *fiber.Ctx, docID string) (string, error) {

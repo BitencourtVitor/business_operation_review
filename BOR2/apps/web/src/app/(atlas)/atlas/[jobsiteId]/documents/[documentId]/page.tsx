@@ -73,7 +73,7 @@ function SheetRow({ sheet, versionId, canManage, onOpen }: {
       )}
       {canManage && dirty && (
         <Button
-          size="sm"
+         
           onClick={() => update.mutate({
             sheetId: sheet.id,
             patch: { ...draft, needsReview: false } as Partial<AtlasSheet>,
@@ -166,13 +166,13 @@ export default function DocumentPage() {
                   </button>
                   {status && <Badge variant="outline" className={status.className}>{status.label}</Badge>}
                   {selected && v.status !== "pending" && (
-                    <Button size="sm" variant="outline" onClick={download}>
+                    <Button variant="outline" onClick={download}>
                       <Download className="h-3.5 w-3.5" />
                       Download
                     </Button>
                   )}
                   {canManage && v.status === "uploaded" && (
-                    <Button size="sm" onClick={() => publish.mutate(v.id)} disabled={publish.isPending}>
+                    <Button onClick={() => publish.mutate(v.id)} disabled={publish.isPending}>
                       Publish
                     </Button>
                   )}

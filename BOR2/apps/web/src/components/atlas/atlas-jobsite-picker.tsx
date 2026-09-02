@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useSidebar } from "@/components/ui/sidebar"
+import { clearLastJobsite } from "@/components/atlas/last-jobsite"
 import { useAtlasJobsites } from "@/hooks/use-atlas"
 import type { AtlasJobsite } from "@/services/atlas.service"
 import { Building, Check, Home, LandPlot, Loader2, MapPinned, Search, X } from "lucide-react"
@@ -105,8 +106,15 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
                   <span className="block truncate text-[10px] uppercase tracking-wide text-muted-foreground">
                     {current.client || "No client"}
                   </span>
+                  {/* Em tablet a barra é estreita e o nome inteiro da
+                      comunidade comeria quatro linhas: fica só o trecho até a
+                      primeira vírgula, que é o nome dela — o resto é cidade e
+                      estado, e isso o cabeçalho da obra já diz. */}
                   <span className="block text-xs leading-snug text-muted-foreground">
-                    {current.community || current.name}
+                    <span className="md:max-lg:hidden">{current.community || current.name}</span>
+                    <span className="hidden md:max-lg:inline">
+                      {(current.community || current.name).split(",")[0]}
+                    </span>
                   </span>
                   <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium">
                     <CurrentIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -129,7 +137,7 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
                 <button
                   type="button"
                   title="Clear selected jobsite"
-                  onClick={() => router.push("/atlas")}
+                  onClick={() => { clearLastJobsite(); router.push("/atlas") }}
                   className="flex flex-1 items-center justify-center border-b border-sidebar-border px-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
                 >
                   <X className="h-3.5 w-3.5" />

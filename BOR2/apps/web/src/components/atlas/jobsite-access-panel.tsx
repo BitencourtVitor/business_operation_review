@@ -132,7 +132,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
               </div>
               <Button
                 variant="outline"
-                size="sm"
+               
                 onClick={() => grant.mutate({ userId: a.userId, level: a.level })}
               >
                 Restore
