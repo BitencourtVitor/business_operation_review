@@ -23,6 +23,12 @@ export interface ForecastJobsite {
   name: string
 }
 
+export interface AtlasBlockedUser {
+  userId: string
+  name: string
+  email: string
+}
+
 export interface AtlasJobsite {
   id: string
   name: string
@@ -262,6 +268,16 @@ export const atlasService = {
     api.get<Record<string, string>>(`${base}/user-companies`, getToken()).then(r => r ?? {}),
   setUserCompany: (userId: string, company: string) =>
     api.patch(`${base}/users/${userId}`, { company }, getToken()),
+
+  // Quem NÃO vê o projeto. O padrão do Atlas é ver, então o que se guarda é a
+  // exceção, e a lista vai inteira no PUT para não divergir do que a tela mostra.
+  // Quem pode ser ocultado: só quem entra no Atlas pela chave de permissão.
+  listBlockableUsers: () =>
+    api.get<AtlasBlockedUser[]>(`${base}/blockable-users`, getToken()).then(r => r ?? []),
+  listBlocked: (jobsiteId: string) =>
+    api.get<AtlasBlockedUser[]>(`${base}/jobsites/${jobsiteId}/blocked`, getToken()).then(r => r ?? []),
+  setBlocked: (jobsiteId: string, userIds: string[]) =>
+    api.put(`${base}/jobsites/${jobsiteId}/blocked`, { userIds }, getToken()),
 
   listAccess: (jobsiteId: string) =>
     api.get<AtlasAccess[]>(`${base}/jobsites/${jobsiteId}/access`, getToken()).then(r => r ?? []),
