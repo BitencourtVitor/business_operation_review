@@ -686,7 +686,9 @@ export default function UsersPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-auto rounded-xl border bg-card" style={{ maxHeight: "calc(100vh - 16rem)" }}>
+        {/* A altura vai no contêiner da tabela, não neste <div>: é ele que
+            rola, e é contra ele que o cabeçalho congela. */}
+        <div className="overflow-hidden rounded-xl border bg-card">
           {ul ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -696,8 +698,11 @@ export default function UsersPage() {
               {users.length === 0 ? "No users yet" : "No users match your search"}
             </p>
           ) : (
-              <Table className="[&_th]:py-2.5 [&_td]:py-2">
-                <TableHeader className="bg-muted/40 sticky top-0 z-10">
+              <Table
+                containerClassName="max-h-[calc(100vh-16rem)]"
+                className="[&_th]:py-2.5 [&_td]:py-2"
+              >
+                <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-full border-r border-border">
                       <button onClick={() => toggleSort("name")}

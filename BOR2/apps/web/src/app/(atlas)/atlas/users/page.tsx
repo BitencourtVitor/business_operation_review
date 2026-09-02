@@ -9,7 +9,7 @@ import {
 } from "@/hooks/use-settings"
 import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "@/components/atlas/atlas-permissions-modal"
 import {
-  ImportUserDialog, SubcontractorDialog, isSubcontractor,
+  ImportUserDialog, SUBCONTRACTOR_KEY, isSubcontractor,
 } from "@/components/atlas/atlas-user-dialogs"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -39,7 +39,10 @@ import type { UserWithPermissions } from "@/services/settings.service"
 const inputCls =
   "h-8 w-full rounded-lg border border-input bg-transparent px-3 py-0 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 
-const ROLES = ["owner", "manager", "user"] as const
+// Subcontratado é o quarto cargo do seletor. No banco ele é um `user`; o que
+// o separa é a chave `atlas_subcontractor`, porque o enum de `role` é
+// compartilhado com o BOR e mexer nele mudaria a hierarquia do outro produto.
+const ROLES = ["owner", "manager", "user", "subcontractor"] as const
 
 const ROLE_RANK: Record<string, number> = { dev: 4, owner: 3, manager: 2, user: 1 }
 
@@ -49,6 +52,7 @@ function canManage(myRole: string, targetRole: string): boolean {
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
   dev:     { label: "Developer", icon: CodeXml, className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  subcontractor: { label: "Subcontractor", icon: HardHat, className: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   owner:   { label: "Owner",     icon: Gauge,   className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   manager: { label: "Manager",   icon: Users,   className: "border-primary/40 bg-primary/10 text-primary" },
   user:    { label: "User",      icon: User,    className: "border-border bg-secondary text-foreground" },
@@ -58,14 +62,8 @@ const roleMeta: Record<string, { label: string; icon: React.ElementType; classNa
 // RequireAtlas deixa passar sem convite.
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager", "gestor"]
 
-const subcontractorMeta = {
-  label: "Subcontractor",
-  icon: HardHat,
-  className: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-}
-
 function RoleBadge({ role, subcontractor }: { role: string; subcontractor?: boolean }) {
-  const m = subcontractor ? subcontractorMeta : roleMeta[role] ?? roleMeta.user
+  const m = subcontractor ? roleMeta.subcontractor : roleMeta[role] ?? roleMeta.user
   return (
     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${m.className}`}>
       <m.icon className="h-3 w-3" />
@@ -88,13 +86,14 @@ function UserFormModal({ open, onClose, existing }: {
 
   const [name, setName] = useState(existing?.name ?? "")
   const [email, setEmail] = useState(existing?.email ?? "")
-  const [role, setRole] = useState<string>(existing?.role ?? "user")
+  const [role, setRole] = useState<string>(
+    existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
   const [provisional, setProvisional] = useState<string | null>(null)
 
   useEffect(() => {
     setName(existing?.name ?? "")
     setEmail(existing?.email ?? "")
-    setRole(existing?.role ?? "user")
+    setRole(existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
     setProvisional(null)
   }, [existing])
 
@@ -104,16 +103,32 @@ function UserFormModal({ open, onClose, existing }: {
 
   async function handleSubmit() {
     if (!name.trim() || !email.trim()) return
+    // Subcontratado não existe no enum do banco: ele é um `user` marcado.
+    const sub = role === "subcontractor"
+    const dbRole = sub ? "user" : role
+
     if (isEdit) {
-      await updateUser.mutateAsync({ id: existing!.id, data: { name, email, role } })
+      await updateUser.mutateAsync({ id: existing!.id, data: { name, email, role: dbRole } })
+      // Virar ou deixar de ser subcontratado é acrescentar ou tirar a marca, com
+      // o resto das permissões intacto.
+      const perms = { ...(existing!.permissions ?? {}) }
+      if (sub) { perms.atlas = perms.atlas ?? "read"; perms[SUBCONTRACTOR_KEY] = "read" }
+      else delete perms[SUBCONTRACTOR_KEY]
+      await updatePerms.mutateAsync({ userId: existing!.id, permissions: perms })
       onClose()
       return
     }
-    const res = await createUser.mutateAsync({ name, email, role })
+
+    const res = await createUser.mutateAsync({ name, email, role: dbRole })
     // Quem nasce nesta tela nasce para o Atlas: a chave do produto entra junto,
     // em leitura. As demais se concedem no modal de permissões.
-    if (!FULL_ACCESS_ROLES.includes(role)) {
-      await updatePerms.mutateAsync({ userId: res.id, permissions: { atlas: "read" } })
+    if (!FULL_ACCESS_ROLES.includes(dbRole)) {
+      await updatePerms.mutateAsync({
+        userId: res.id,
+        permissions: sub
+          ? { atlas: "read", [SUBCONTRACTOR_KEY]: "read" }
+          : { atlas: "read" },
+      })
     }
     setProvisional(res.provisionalPassword)
   }
@@ -189,6 +204,13 @@ function UserFormModal({ open, onClose, existing }: {
                 </SelectContent>
               </Select>
             </div>
+            {role === "subcontractor" && (
+              <p className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                Outside the company: no BOR access, and inside the Atlas they only reach the
+                jobsites granted to them, one by one.
+              </p>
+            )}
+
             <div className="flex justify-end gap-2 pt-1">
               <Button variant="ghost" size="sm" onClick={handleClose} disabled={pending}>Cancel</Button>
               <Button size="sm" onClick={handleSubmit} disabled={!canSubmit || pending}>
@@ -350,7 +372,6 @@ export default function AtlasUsersPage() {
   const [resetTarget, setResetTarget] = useState<UserWithPermissions | null>(null)
   const [permsTarget, setPermsTarget] = useState<UserWithPermissions | null>(null)
   const [importOpen, setImportOpen] = useState(false)
-  const [subOpen, setSubOpen] = useState(false)
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
@@ -434,13 +455,6 @@ export default function AtlasUsersPage() {
                   <span className="text-xs text-muted-foreground">Somebody who already has an account</span>
                 </span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSubOpen(true)}>
-                <HardHat className="h-4 w-4" />
-                <span className="flex flex-col">
-                  <span>Add subcontractor</span>
-                  <span className="text-xs text-muted-foreground">Outside the company, Atlas only</span>
-                </span>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -482,12 +496,7 @@ export default function AtlasUsersPage() {
           </Select>
         </div>
 
-        {/* O <Table> do shadcn embrulha a tabela num contêiner com
-            overflow-x-auto, e é esse contêiner que o sticky do <th> enxerga
-            como ancestral de rolagem. Rolar aqui fora deixaria o cabeçalho
-            preso a um elemento que não rola — por isso a rolagem vertical vai
-            para dentro dele. */}
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border bg-card [&>[data-slot=table-container]]:h-full [&>[data-slot=table-container]]:overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border bg-card">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -499,14 +508,8 @@ export default function AtlasUsersPage() {
                 : "Nobody in the Atlas yet"}
             </p>
           ) : (
-            // border-separate porque o Chrome ignora sticky em <th> quando a
-            // tabela está em border-collapse, que é o padrão do Tailwind. Com
-            // spacing zero o resultado visual é o mesmo.
-            <Table className="border-separate border-spacing-0 [&_th]:py-2.5 [&_td]:py-2 [&_td]:border-b [&_td]:border-border/60">
-              {/* Congelar cabeçalho é no <th>, não no <thead>: sticky em thead
-                  não pega em todo navegador. E o fundo precisa ser opaco, senão
-                  as linhas passam por baixo dele ao rolar. */}
-              <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-muted">
+            <Table containerClassName="h-full" className="[&_th]:py-2.5 [&_td]:py-2">
+              <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-full border-r border-border">
                     <button onClick={() => toggleSort("name")}
@@ -654,7 +657,6 @@ export default function AtlasUsersPage() {
         user={permsTarget}
       />
       <ImportUserDialog open={importOpen} onClose={() => setImportOpen(false)} />
-      <SubcontractorDialog open={subOpen} onClose={() => setSubOpen(false)} />
     </>
   )
 }
