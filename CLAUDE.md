@@ -92,7 +92,23 @@ Ler antes de cadastrar obra no Storage, corrigir a flag `storage`, ou tocar em
 score/exibição de Machines. Rotina de atualização de datas (Toll Brothers/Pulte Homes)
 é assunto separado — ver `Premium - Data Att Forecast/PROCESSO_ATUALIZACAO.md`.
 
+### Endereços da plataforma
+
+A plataforma responde em **`pg-dip.up.railway.app`** (Data Intelligence Platform). Cada produto
+tem seu prefixo: **`/bor/*`** para o Business Operation Review e **`/atlas/*`** para o Atlas.
+`/login` e `/select` são da plataforma e ficam na raiz.
+
+O endereço antigo `pg-bor.up.railway.app` é atendido pelo serviço `BOR2/apps/redirect`, que devolve
+308 para o novo preservando caminho e query. Combinado: fica no ar cerca de 30 dias a partir de
+02/09/2026, e depois some junto com o domínio.
+
+Caminho antigo (`/forecast`) redireciona para o novo (`/bor/forecast`) pelo `src/middleware.ts`.
+**A lista de segmentos do BOR vive nesse arquivo** — página nova do BOR que nasça fora de `/bor`
+precisa entrar lá, senão o link antigo dela nunca funciona.
+
 ### Páginas BOR2
+
+As rotas abaixo são relativas a `/bor` — `/forecast` significa `/bor/forecast`.
 
 **Forecast & Projetos**
 - `/forecast` — Pipeline de projetos por empresa (ex: Framing Forecast). Cards de projeto com status, team, datas, notas. Filtros: ano/mês/empresa, ordenação por start/beams, agrupamento por mês.
