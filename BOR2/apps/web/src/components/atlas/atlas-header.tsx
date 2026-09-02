@@ -7,11 +7,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSidebar } from "@/components/ui/sidebar"
+import { SUBCONTRACTOR_KEY } from "@/components/atlas/atlas-user-dialogs"
+import { useAtlasUserCompanies } from "@/hooks/use-atlas"
 import { useAuth } from "@/hooks/use-auth"
+import { useMyPermissions } from "@/hooks/use-settings"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, CircleGauge, Compass, Ellipsis, CodeXml, LogOut, Menu, Moon,
+  Award, Building2, CircleGauge, Compass, Ellipsis, CodeXml, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -45,6 +48,8 @@ export function AtlasHeader() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
   const { hasBOR } = useProducts()
+  const { data: myPerms } = useMyPermissions()
+  const { data: companies } = useAtlasUserCompanies()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -63,6 +68,8 @@ export function AtlasHeader() {
   const badge = roleBadges[role] ?? roleBadges.viewer
   const BadgeIcon = badge.icon
   const badgeStyle = resolvedTheme === "dark" ? badge.dark : badge.light
+  const isSubcontractor = !!myPerms?.permissions?.[SUBCONTRACTOR_KEY]
+  const company = user ? companies?.[user.id] : undefined
 
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b bg-background px-4">
@@ -90,7 +97,17 @@ export function AtlasHeader() {
       <TooltipProvider>
         <div className="flex items-center gap-2">
           {user && (
-            <span className="hidden text-sm text-muted-foreground lg:inline">{user.name}</span>
+            // Nome, e embaixo a empresa quando é gente de fora: numa lista de
+            // acesso, "John Carter" sozinho não diz de quem ele é.
+            <span className="hidden flex-col items-end leading-tight lg:flex">
+              <span className="text-sm text-muted-foreground">{user.name}</span>
+              {isSubcontractor && company && (
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Building2 className="h-2.5 w-2.5" />
+                  {company}
+                </span>
+              )}
+            </span>
           )}
 
           {user && (

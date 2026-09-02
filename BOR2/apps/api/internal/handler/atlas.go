@@ -122,7 +122,31 @@ type atlasUser struct {
 	ByRole bool `json:"byRole"`
 }
 
-// PATCH /atlas/users/:id — concede ou tira o acesso ao Atlas.
+// GET /atlas/user-companies — de qual empresa é cada subcontratado.
+//
+// Endpoint próprio porque a lista de usuários vem do cadastro da plataforma, e
+// a empresa é informação do Atlas: juntar as duas coisas é trabalho da tela.
+func (h *AtlasHandler) ListUserCompanies(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(),
+		`SELECT user_id, company FROM atlas_user_company WHERE company <> ''`)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	out := map[string]string{}
+	for rows.Next() {
+		var id, company string
+		if err := rows.Scan(&id, &company); err != nil {
+			return internalErr(c, err)
+		}
+		out[id] = company
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// PATCH /atlas/users/:id — concede ou tira o acesso ao Atlas, e grava de qual
+// empresa a pessoa é.
 func (h *AtlasHandler) SetAtlasUserAccess(c *fiber.Ctx) error {
 	role, _ := c.Locals("userRole").(string)
 	if !atlasFullAccess[role] {
@@ -130,10 +154,25 @@ func (h *AtlasHandler) SetAtlasUserAccess(c *fiber.Ctx) error {
 	}
 	target := c.Params("id")
 	var in struct {
-		Level string `json:"level"`
+		Level   string  `json:"level"`
+		Company *string `json:"company"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
+	}
+
+	// Empresa é campo independente do nível: muda uma coisa sem tocar na outra.
+	if in.Company != nil {
+		if _, err := h.db.Exec(c.Context(), `
+			INSERT INTO atlas_user_company (user_id, company)
+			VALUES ($1, $2)
+			ON CONFLICT (user_id) DO UPDATE SET company = EXCLUDED.company, updated_at = now()`,
+			target, strings.TrimSpace(*in.Company)); err != nil {
+			return internalErr(c, err)
+		}
+		if in.Level == "" && in.Company != nil {
+			return c.JSON(fiber.Map{"data": fiber.Map{"id": target, "company": *in.Company}})
+		}
 	}
 
 	if in.Level == "" {
