@@ -8,6 +8,12 @@ import {
   useUpdateUserPermissions,
 } from "@/hooks/use-settings"
 import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "@/components/atlas/atlas-permissions-modal"
+import {
+  ImportUserDialog, SubcontractorDialog, isSubcontractor,
+} from "@/components/atlas/atlas-user-dialogs"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
@@ -20,7 +26,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
-  ArrowLeft, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, KeyRound, Loader2,
+  ArrowLeft, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, HardHat, KeyRound, Loader2,
   Pencil, Plus, Search, Settings, ShieldAlert, ShieldCheck, Trash2, User, UserPlus, Users,
 } from "lucide-react"
 import type { UserWithPermissions } from "@/services/settings.service"
@@ -52,8 +58,14 @@ const roleMeta: Record<string, { label: string; icon: React.ElementType; classNa
 // RequireAtlas deixa passar sem convite.
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager", "gestor"]
 
-function RoleBadge({ role }: { role: string }) {
-  const m = roleMeta[role] ?? roleMeta.user
+const subcontractorMeta = {
+  label: "Subcontractor",
+  icon: HardHat,
+  className: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+}
+
+function RoleBadge({ role, subcontractor }: { role: string; subcontractor?: boolean }) {
+  const m = subcontractor ? subcontractorMeta : roleMeta[role] ?? roleMeta.user
   return (
     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${m.className}`}>
       <m.icon className="h-3 w-3" />
@@ -337,14 +349,11 @@ export default function AtlasUsersPage() {
   const [deleteTarget, setDeleteTarget] = useState<UserWithPermissions | null>(null)
   const [resetTarget, setResetTarget] = useState<UserWithPermissions | null>(null)
   const [permsTarget, setPermsTarget] = useState<UserWithPermissions | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
+  const [subOpen, setSubOpen] = useState(false)
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
-  // A lista é de quem está no Atlas, não do cadastro inteiro da empresa: cargo
-  // acima de `user` entra por definição, e o `user` só aparece depois de
-  // convidado. Ver todo mundo é o que se faz para convidar alguém — por isso
-  // continua a um clique, e não é o padrão.
-  const [scope, setScope] = useState<"atlas" | "all">("atlas")
   const [sortKey, setSortKey] = useState<SortKey>("name")
   const [sortDir, setSortDir] = useState<SortDir>("asc")
 
@@ -358,8 +367,11 @@ export default function AtlasUsersPage() {
       const q = search.toLowerCase()
       const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
       const matchRole = roleFilter === "all" || u.role === roleFilter
+      // A lista é do Atlas: cargo acima de `user` entra por definição, e o
+      // `user` só existe aqui depois de importado ou cadastrado como
+      // subcontratado. Conta do BOR sem chave nunca aparece.
       const inAtlas = FULL_ACCESS_ROLES.includes(u.role) || !!u.permissions?.atlas
-      return matchSearch && matchRole && (scope === "all" || inAtlas)
+      return matchSearch && matchRole && inAtlas
     })
     .sort((a, b) => {
       const va = a[sortKey].toLowerCase()
@@ -401,11 +413,36 @@ export default function AtlasUsersPage() {
               </p>
             </div>
           </div>
-          <Button size="sm" className="shrink-0 gap-1.5"
-            onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <Plus className="h-3.5 w-3.5" />
-            Add User
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button size="sm" className="shrink-0 gap-1.5" />}>
+              <Plus className="h-3.5 w-3.5" />
+              Add User
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuItem onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+                <UserPlus className="h-4 w-4" />
+                <span className="flex flex-col">
+                  <span>New user</span>
+                  <span className="text-xs text-muted-foreground">Create a Premium account</span>
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                <Users className="h-4 w-4" />
+                <span className="flex flex-col">
+                  <span>Import from the BOR</span>
+                  <span className="text-xs text-muted-foreground">Somebody who already has an account</span>
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSubOpen(true)}>
+                <HardHat className="h-4 w-4" />
+                <span className="flex flex-col">
+                  <span>Add subcontractor</span>
+                  <span className="text-xs text-muted-foreground">Outside the company, Atlas only</span>
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -418,24 +455,6 @@ export default function AtlasUsersPage() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-
-          <Select value={scope} onValueChange={v => v && setScope(v as "atlas" | "all")}>
-            <SelectTrigger className="w-44">
-              <span className="flex flex-1 items-center gap-1.5 text-sm text-muted-foreground">
-                {scope === "atlas"
-                  ? <><ShieldCheck className="h-3 w-3 shrink-0" />In the Atlas</>
-                  : <><Users className="h-3 w-3 shrink-0" />Everyone</>}
-              </span>
-            </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
-              <SelectItem value="atlas">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 shrink-0" />In the Atlas</span>
-              </SelectItem>
-              <SelectItem value="all">
-                <span className="flex items-center gap-1.5"><Users className="h-3 w-3 shrink-0" />Everyone</span>
-              </SelectItem>
-            </SelectContent>
-          </Select>
 
           <Select value={roleFilter} onValueChange={v => v && setRoleFilter(v)}>
             <SelectTrigger className="w-36">
@@ -475,9 +494,9 @@ export default function AtlasUsersPage() {
             </div>
           ) : filtered.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted-foreground">
-              {scope === "atlas"
-                ? "Nobody has Atlas access yet. Switch to Everyone to invite someone."
-                : users.length === 0 ? "No users yet" : "No users match your search"}
+              {filtered.length === 0 && search
+                ? "No users match your search"
+                : "Nobody in the Atlas yet"}
             </p>
           ) : (
             // border-separate porque o Chrome ignora sticky em <th> quando a
@@ -529,7 +548,7 @@ export default function AtlasUsersPage() {
                         </div>
                       </TableCell>
                       <TableCell className="border-r border-border text-center">
-                        <RoleBadge role={u.role} />
+                        <RoleBadge role={u.role} subcontractor={isSubcontractor(u)} />
                       </TableCell>
                       <TableCell className="border-r border-border text-center">
                         {byRole ? (
@@ -634,6 +653,8 @@ export default function AtlasUsersPage() {
         onClose={() => setPermsTarget(null)}
         user={permsTarget}
       />
+      <ImportUserDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      <SubcontractorDialog open={subOpen} onClose={() => setSubOpen(false)} />
     </>
   )
 }
