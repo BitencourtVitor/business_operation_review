@@ -3,8 +3,15 @@ import { useMyPermissions } from "@/hooks/use-settings"
 
 // Roles that bypass permission checks entirely for viewing/navigation.
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
-// Roles that bypass the stricter "write" check (mirrors backend's requireAdminRole).
-const ADMIN_ROLES = ["dev", "owner", "admin"]
+// Roles that bypass the stricter "write" check. Mesma lista do `fullAccessRoles`
+// do RequirePermission no backend: manager tem cargo análogo a admin e escreve
+// no que é granular. Deixá-lo de fora aqui dava a pior combinação — a tela
+// bloqueava o que a API já autorizava.
+//
+// Não é escalação: usuários e permissões têm guarda própria no backend
+// (settings.go:requireAdminRole), que exige admin/dev/owner e não olha esta
+// lista.
+const ADMIN_ROLES = ["dev", "owner", "admin", "manager"]
 
 export function usePermission() {
   const { user } = useAuth()
