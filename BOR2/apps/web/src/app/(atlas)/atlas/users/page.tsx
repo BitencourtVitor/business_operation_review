@@ -11,6 +11,7 @@ import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "@/compone
 import {
   ImportUserDialog, SUBCONTRACTOR_KEY, isSubcontractor,
 } from "@/components/atlas/atlas-user-dialogs"
+import { useAtlasUserCompanies, useSetAtlasUserCompany } from "@/hooks/use-atlas"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -74,31 +75,35 @@ function RoleBadge({ role, subcontractor }: { role: string; subcontractor?: bool
 
 // ─── User form modal ──────────────────────────────────────────────────────────
 
-function UserFormModal({ open, onClose, existing }: {
+function UserFormModal({ open, onClose, existing, companies }: {
   open: boolean
   onClose: () => void
   existing?: UserWithPermissions
+  companies: Record<string, string>
 }) {
   const isEdit = !!existing
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
   const updatePerms = useUpdateUserPermissions()
+  const setCompany = useSetAtlasUserCompany()
 
   const [name, setName] = useState(existing?.name ?? "")
   const [email, setEmail] = useState(existing?.email ?? "")
   const [role, setRole] = useState<string>(
     existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
+  const [company, setCompanyValue] = useState(existing ? companies[existing.id] ?? "" : "")
   const [provisional, setProvisional] = useState<string | null>(null)
 
   useEffect(() => {
     setName(existing?.name ?? "")
     setEmail(existing?.email ?? "")
     setRole(existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
+    setCompanyValue(existing ? companies[existing.id] ?? "" : "")
     setProvisional(null)
   }, [existing])
 
   function reset() {
-    setName(""); setEmail(""); setRole("user"); setProvisional(null)
+    setName(""); setEmail(""); setRole("user"); setCompanyValue(""); setProvisional(null)
   }
 
   async function handleSubmit() {
@@ -115,6 +120,7 @@ function UserFormModal({ open, onClose, existing }: {
       if (sub) { perms.atlas = perms.atlas ?? "read"; perms[SUBCONTRACTOR_KEY] = "read" }
       else delete perms[SUBCONTRACTOR_KEY]
       await updatePerms.mutateAsync({ userId: existing!.id, permissions: perms })
+      if (sub) await setCompany.mutateAsync({ userId: existing!.id, company })
       onClose()
       return
     }
@@ -130,12 +136,14 @@ function UserFormModal({ open, onClose, existing }: {
           : { atlas: "read" },
       })
     }
+    if (sub) await setCompany.mutateAsync({ userId: res.id, company })
     setProvisional(res.provisionalPassword)
   }
 
   function handleClose() { reset(); onClose() }
 
   const pending = createUser.isPending || updateUser.isPending || updatePerms.isPending
+    || setCompany.isPending
   const canSubmit = name.trim().length > 0 && email.trim().length > 0
 
   return (
@@ -205,10 +213,15 @@ function UserFormModal({ open, onClose, existing }: {
               </Select>
             </div>
             {role === "subcontractor" && (
-              <p className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                Outside the company: no BOR access, and inside the Atlas they only reach the
-                jobsites granted to them, one by one.
-              </p>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Company</label>
+                <input
+                  className={inputCls}
+                  placeholder="JF Drywall & Plastering LLC"
+                  value={company}
+                  onChange={e => setCompanyValue(e.target.value)}
+                />
+              </div>
             )}
 
             <div className="flex justify-end gap-2 pt-1">
@@ -365,6 +378,7 @@ type SortDir = "asc" | "desc"
 export default function AtlasUsersPage() {
   const { user: me } = useAuth()
   const { data: users = [], isLoading } = useUsers()
+  const { data: companies = {} } = useAtlasUserCompanies()
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<UserWithPermissions | undefined>()
@@ -547,6 +561,11 @@ export default function AtlasUsersPage() {
                       <TableCell className="border-r border-border">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-medium">{u.name}</span>
+                          {companies[u.id] && (
+                            <span className="rounded border border-amber-500/30 px-1.5 py-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+                              {companies[u.id]}
+                            </span>
+                          )}
                           <span className="text-xs text-muted-foreground">{u.email}</span>
                         </div>
                       </TableCell>
@@ -640,6 +659,7 @@ export default function AtlasUsersPage() {
         open={formOpen}
         onClose={() => { setFormOpen(false); setEditing(undefined) }}
         existing={editing}
+        companies={companies}
       />
       <DeleteUserModal
         open={!!deleteTarget}

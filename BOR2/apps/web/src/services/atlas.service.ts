@@ -242,6 +242,10 @@ export const atlasService = {
 
   setAtlasUserAccess: (userId: string, level: string) =>
     api.patch(`${base}/users/${userId}`, { level }, getToken()),
+  listUserCompanies: () =>
+    api.get<Record<string, string>>(`${base}/user-companies`, getToken()).then(r => r ?? {}),
+  setUserCompany: (userId: string, company: string) =>
+    api.patch(`${base}/users/${userId}`, { company }, getToken()),
 
   listAccess: (jobsiteId: string) =>
     api.get<AtlasAccess[]>(`${base}/jobsites/${jobsiteId}/access`, getToken()).then(r => r ?? []),

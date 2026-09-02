@@ -63,6 +63,23 @@ export function useCreateAtlasJobsite() {
   })
 }
 
+export function useAtlasUserCompanies() {
+  return useQuery({
+    queryKey: ["atlas", "user-companies"],
+    queryFn: atlasService.listUserCompanies,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSetAtlasUserCompany() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, company }: { userId: string; company: string }) =>
+      atlasService.setUserCompany(userId, company),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "user-companies"] }),
+  })
+}
+
 export function useSetAtlasUserAccess() {
   const qc = useQueryClient()
   return useMutation({
