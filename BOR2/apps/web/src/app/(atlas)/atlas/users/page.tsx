@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
 import {
@@ -12,6 +12,7 @@ import {
   ImportUserDialog, SUBCONTRACTOR_KEY, isSubcontractor,
 } from "@/components/atlas/atlas-user-dialogs"
 import { useAtlasUserCompanies, useSetAtlasUserCompany } from "@/hooks/use-atlas"
+import { useSubDocContractors } from "@/hooks/use-subcontractor-docs"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -53,7 +54,9 @@ function canManage(myRole: string, targetRole: string): boolean {
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
   dev:     { label: "Developer", icon: CodeXml, className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
-  subcontractor: { label: "Subcontractor", icon: HardHat, className: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  // Vermelho da logo: é o cargo de quem não é da Premium, e essa distinção
+  // merece a cor mais forte da casa em vez de mais um tom da mesma família.
+  subcontractor: { label: "Subcontractor", icon: HardHat, className: "border-brand-red/40 bg-brand-red/10 text-brand-red" },
   owner:   { label: "Owner",     icon: Gauge,   className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   manager: { label: "Manager",   icon: Users,   className: "border-primary/40 bg-primary/10 text-primary" },
   user:    { label: "User",      icon: User,    className: "border-border bg-secondary text-foreground" },
@@ -93,6 +96,17 @@ function UserFormModal({ open, onClose, existing, companies }: {
     existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
   const [company, setCompanyValue] = useState(existing ? companies[existing.id] ?? "" : "")
   const [provisional, setProvisional] = useState<string | null>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const { data: contractors = [] } = useSubDocContractors()
+  const suggestions = useMemo(() => {
+    const q = company.trim().toLowerCase()
+    return contractors
+      .filter(c => !q || c.name.toLowerCase().includes(q))
+      .filter(c => c.name.toLowerCase() !== q)
+      .slice(0, 8)
+  }, [contractors, company])
 
   useEffect(() => {
     setName(existing?.name ?? "")
@@ -100,13 +114,25 @@ function UserFormModal({ open, onClose, existing, companies }: {
     setRole(existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
     setCompanyValue(existing ? companies[existing.id] ?? "" : "")
     setProvisional(null)
+    setError(null)
   }, [existing])
 
   function reset() {
-    setName(""); setEmail(""); setRole("user"); setCompanyValue(""); setProvisional(null)
+    setName(""); setEmail(""); setRole("user"); setCompanyValue(""); setProvisional(null); setError(null)
   }
 
   async function handleSubmit() {
+    setError(null)
+    try {
+      await submit()
+    } catch (e) {
+      // Sem isto a falha some como promise rejeitada e o modal apenas congela:
+      // quem cadastrou não descobre que o cadastro não foi até o fim.
+      setError(e instanceof Error ? e.message : "Something went wrong.")
+    }
+  }
+
+  async function submit() {
     if (!name.trim() || !email.trim()) return
     // Subcontratado não existe no enum do banco: ele é um `user` marcado.
     const sub = role === "subcontractor"
@@ -215,13 +241,46 @@ function UserFormModal({ open, onClose, existing, companies }: {
             {role === "subcontractor" && (
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Company</label>
-                <input
-                  className={inputCls}
-                  placeholder="JF Drywall & Plastering LLC"
-                  value={company}
-                  onChange={e => setCompanyValue(e.target.value)}
-                />
+                {/* Sugestões vêm do cadastro do Subcontractor Docs: quem entra
+                    aqui já é empreiteiro conhecido da casa, e digitar o nome de
+                    novo à mão só cria uma segunda grafia da mesma empresa. */}
+                <div className="relative">
+                  <input
+                    className={inputCls}
+                    placeholder="JF Drywall & Plastering LLC"
+                    value={company}
+                    autoComplete="off"
+                    onChange={e => { setCompanyValue(e.target.value); setShowSuggestions(true) }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}
+                  />
+                  {showSuggestions && suggestions.length > 0 && (
+                    <ul className="absolute z-50 mt-1 max-h-44 w-full overflow-auto rounded-lg border bg-popover p-1 shadow-md">
+                      {suggestions.map(s => (
+                        <li key={s.id}>
+                          <button
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-muted"
+                            onMouseDown={e => { e.preventDefault(); setCompanyValue(s.name); setShowSuggestions(false) }}
+                          >
+                            <HardHat className="h-3 w-3 shrink-0 text-brand-red" />
+                            <span className="min-w-0 flex-1 truncate">{s.name}</span>
+                            {s.company && (
+                              <span className="shrink-0 text-[10px] uppercase text-muted-foreground">{s.company}</span>
+                            )}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
+            )}
+
+            {error && (
+              <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                {error}
+              </p>
             )}
 
             <div className="flex justify-end gap-2 pt-1">
@@ -562,7 +621,7 @@ export default function AtlasUsersPage() {
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-medium">{u.name}</span>
                           {companies[u.id] && (
-                            <span className="rounded border border-amber-500/30 px-1.5 py-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+                            <span className="rounded border border-brand-red/30 px-1.5 py-0.5 text-[11px] text-brand-red">
                               {companies[u.id]}
                             </span>
                           )}
