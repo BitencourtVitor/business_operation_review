@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 import { useProducts, type Product } from "@/lib/products"
 import {
-  ArrowRight, Award, CircleGauge, CodeXml, Compass, Lock, LogOut, Map, User,
+  Award, CircleGauge, CodeXml, Compass, Lock, LogOut, Map, User,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -42,9 +42,9 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
         <span className="truncate text-sm font-semibold leading-tight">{product.name}</span>
         <span className="line-clamp-2 text-sm text-muted-foreground">{product.tagline}</span>
       </span>
-      {product.enabled ? (
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
-      ) : (
+      {/* Card inteiro é o alvo do clique; a seta só repetia isso. O cadeado
+          fica, porque ele informa em vez de decorar. */}
+      {!product.enabled && (
         <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
           <Lock className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{product.reason}</span>
