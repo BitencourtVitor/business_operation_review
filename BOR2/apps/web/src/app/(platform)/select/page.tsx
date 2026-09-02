@@ -39,17 +39,24 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
         <Icon className="h-4.5 w-4.5" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-semibold leading-tight">{product.name}</span>
+        <span className="truncate text-sm font-semibold leading-tight">
+          {product.name}
+          {/* O "Soon!" fica em cinza dentro do próprio título: quem não tem
+              acesso lê o nome e a razão na mesma linha, sem caçar um selo. */}
+          {!product.enabled && (
+            <span className="font-normal text-muted-foreground"> | Soon!</span>
+          )}
+        </span>
         <span className="line-clamp-2 text-sm text-muted-foreground">{product.tagline}</span>
+        {!product.enabled && (
+          <span className="text-sm text-muted-foreground/70">
+            Vitor is working hard on it…
+          </span>
+        )}
       </span>
       {/* Card inteiro é o alvo do clique; a seta só repetia isso. O cadeado
-          fica, porque ele informa em vez de decorar. */}
-      {!product.enabled && (
-        <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-          <Lock className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{product.reason}</span>
-        </span>
-      )}
+          fica sem texto, porque o título já diz o porquê. */}
+      {!product.enabled && <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
     </button>
   )
 }
@@ -62,16 +69,19 @@ function SelectProduct() {
   const role = ROLE_BADGE[user?.role ?? "viewer"] ?? ROLE_BADGE.viewer
   const RoleIcon = role.icon
 
-  // Quem só tem um destino não deveria escolher entre uma opção só (AT-2): a
-  // tela existe para bifurcar, e sem bifurcação é um clique a mais entre a
-  // pessoa e o trabalho.
+  // Entrar direto só quando não há mais nada a mostrar — nem sequer um destino
+  // travado. Enquanto o Atlas está em construção ele aparece bloqueado para
+  // quem não é dev, e pular a tela esconderia justamente o aviso de que ele
+  // existe e está vindo.
+  const skip = products.length === 1 && available.length === 1
+
   useEffect(() => {
-    if (!isLoading && available.length === 1) {
+    if (!isLoading && skip) {
       router.replace(available[0].href)
     }
-  }, [isLoading, available, router])
+  }, [isLoading, skip, available, router])
 
-  if (isLoading || available.length === 1) {
+  if (isLoading || skip) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-foreground" />
