@@ -3,7 +3,8 @@
 import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
-import { JobsiteSettingsDialog } from "@/components/atlas/jobsite-settings-dialog"
+import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
+import { JobsiteFormDialog, KIND_META } from "@/components/atlas/jobsite-form-dialog"
 import { PhotosPanel } from "@/components/atlas/photos-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,9 +20,14 @@ import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
   useCreateDocCategory,
 } from "@/hooks/use-atlas"
+import { atlasService } from "@/services/atlas.service"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import type { AtlasDocument } from "@/services/atlas.service"
-import { FileQuestion, FolderOpen, Layers, MapPin, Plus } from "lucide-react"
+import {
+  Archive, ArchiveRestore, Briefcase, Building2, FileQuestion, FolderOpen, Hash, Layers,
+  MapPin, Pencil, Plus,
+} from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
@@ -39,12 +45,15 @@ const AXIS_OPTIONS = [
   { value: "unit", label: "One per unit" },
 ]
 
-const TAB_TITLE: Record<string, string> = {
-  documents: "Documents",
-  photos: "Photos",
-  tasks: "Tasks",
-  diary: "Diary",
-  access: "Access",
+// O topo diz em que seção da obra a pessoa está. Que obra é já está dito pela
+// barra lateral, e repetir o endereço aqui gastava o título com o que não muda
+// ao navegar entre as seções.
+const TAB_META: Record<string, { title: string; hint: string }> = {
+  documents: { title: "Documents", hint: "One folder per category, with every revision inside." },
+  photos:    { title: "Photos",    hint: "What the site looked like, by the day it was shot." },
+  tasks:     { title: "Tasks",     hint: "What was asked on the plan, and what got done." },
+  diary:     { title: "Diary",     hint: "What happened on site, day by day." },
+  access:    { title: "Access",    hint: "Who sees this project." },
 }
 
 function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
@@ -206,7 +215,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     )
   }
 
-  const row = (key: string, doc: AtlasDocument | undefined, label: string) => {
+  const row = (id: string, doc: AtlasDocument | undefined, label: string) => {
     const status = doc ? VERSION_STATUS[doc.latestStatus] : null
     const body = (
       <>
@@ -237,37 +246,35 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
       </>
     )
 
-    return doc ? (
+    // A pasta vazia abre igual à cheia. A vaga já existe com id próprio, e é lá
+    // dentro que se anexa a primeira revisão: sem o link, quem tinha o
+    // documento em mãos não tinha por onde entregá-lo.
+    return (
       <Link
-        key={key}
-        href={`/atlas/${jobsiteId}/documents/${doc.id}`}
-        className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
+        key={id}
+        href={`/atlas/${jobsiteId}/documents/${id}`}
+        className={`flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-accent/30 ${
+          doc ? "border-border/60 bg-card" : "border-dashed border-border/40"
+        }`}
       >
         {body}
       </Link>
-    ) : (
-      <div
-        key={key}
-        className="flex items-center gap-3 rounded-lg border border-dashed border-border/40 p-3"
-      >
-        {body}
-      </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {canManage && (
-        <div className="flex justify-end">
-          <NewDocumentDialog
-            jobsiteId={jobsiteId}
-            client={client}
-            kind={kind}
-            usedCategoryIds={new Set(slots.map(d => d.categoryId).filter((n): n is number => !!n))}
-          />
-        </div>
+    <Panel
+      title="Folders"
+      hint="Each block is a document category this project asked for."
+      action={canManage && (
+        <NewDocumentDialog
+          jobsiteId={jobsiteId}
+          client={client}
+          kind={kind}
+          usedCategoryIds={new Set(slots.map(d => d.categoryId).filter((n): n is number => !!n))}
+        />
       )}
-
+    >
       {slots.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
           <p className="text-sm font-medium">No folders yet</p>
@@ -280,6 +287,49 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           {slots.map(d => row(d.id, d.versions > 0 ? d : undefined, d.name))}
         </div>
       )}
+    </Panel>
+  )
+}
+
+// Contêiner com cabeçalho próprio. As duas partes da sala, a obra e o que está
+// guardado nela, são coisas de natureza diferente: uma se lê, a outra se
+// percorre. Numa moldura só, a segunda parecia continuação da primeira.
+function Panel({ title, hint, action, children }: {
+  title: string
+  hint?: string
+  action?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <section className="overflow-hidden rounded-lg border border-border/60 bg-card/20">
+      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 px-4 py-2.5">
+        <div className="min-w-0">
+          <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            {title}
+          </h2>
+          {hint && <p className="text-xs text-muted-foreground/80">{hint}</p>}
+        </div>
+        {action}
+      </header>
+      <div className="p-4">{children}</div>
+    </section>
+  )
+}
+
+// A obra por inteiro, sem abreviar: aqui não falta largura, e é a única tela em
+// que a pessoa confere o que está cadastrado antes de sair editando.
+function IdentityRow({ icon: Icon, label, value }: {
+  icon: React.ElementType
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="flex items-start gap-1.5 text-sm leading-snug">
+        <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="min-w-0 break-words">{value || "Not set"}</span>
+      </span>
     </div>
   )
 }
@@ -290,11 +340,24 @@ export default function JobsiteRoomPage() {
   const { data: jobsite, isLoading, isError } = useAtlasJobsite(jobsiteId)
 
   const canManage = jobsite?.level === "manage"
+  const archived = jobsite?.status === "archived"
   const canAnnotate = canManage || jobsite?.level === "annotate"
   // A seção vem da URL porque quem navega é a sidebar. Um link com a seção
   // dentro também é um link que se manda para alguém.
   const router = useRouter()
   const tab = params.get("tab") ?? "documents"
+  const meta = TAB_META[tab] ?? TAB_META.documents
+  const [editing, setEditing] = useState(false)
+  const [archiving, setArchiving] = useState(false)
+  const qc = useQueryClient()
+  const archive = useMutation({
+    mutationFn: (yes: boolean) =>
+      atlasService.updateJobsite(jobsiteId, { status: yes ? "archived" : "active" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["atlas", "jobsite", jobsiteId] })
+      qc.invalidateQueries({ queryKey: ["atlas", "jobsites"] })
+    },
+  })
 
   if (isLoading) {
     return (
@@ -317,23 +380,55 @@ export default function JobsiteRoomPage() {
     <div className="mx-auto flex max-w-5xl flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold">{jobsite.name}</h1>
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-            {jobsite.address && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5" />
-                {jobsite.address}
-              </span>
+          <h1 className="text-lg font-semibold">{meta.title}</h1>
+          <p className="text-sm text-muted-foreground">{meta.hint}</p>
+        </div>
+        {canManage && (
+          <div className="flex shrink-0 items-center gap-2">
+            {/* Ícone e palavra: um lápis sozinho obriga a passar o mouse para
+                descobrir o que faz, e arquivar é grave demais para se descobrir
+                assim. */}
+            <Button variant="outline" className="gap-1.5" onClick={() => setEditing(true)}>
+              <Pencil className="h-3.5 w-3.5" />
+              Edit project
+            </Button>
+            {archived ? (
+              <Button
+                variant="outline"
+                className="gap-1.5 text-emerald-600 dark:text-emerald-400"
+                disabled={archive.isPending}
+                onClick={() => archive.mutate(false)}
+              >
+                <ArchiveRestore className="h-3.5 w-3.5" />
+                Reactivate
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="gap-1.5 hover:text-destructive"
+                onClick={() => setArchiving(true)}
+              >
+                <Archive className="h-3.5 w-3.5" />
+                Archive
+              </Button>
             )}
-            {jobsite.client && <span>{jobsite.client}</span>}
-            <span>{TAB_TITLE[tab] ?? "Documents"}</span>
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {jobsite.status === "archived" && <Badge variant="outline">Archived</Badge>}
-          {canManage && <JobsiteSettingsDialog jobsite={jobsite} />}
-        </div>
+          </div>
+        )}
       </div>
+
+      <Panel title="Project Information">
+        <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+          <IdentityRow icon={Briefcase} label="Client" value={jobsite.client} />
+          <IdentityRow icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
+          <IdentityRow
+            icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
+            label="Build type"
+            value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
+              .filter(Boolean).join(" ")}
+          />
+          <IdentityRow icon={MapPin} label="Address" value={jobsite.address} />
+        </div>
+      </Panel>
 
       {tab === "documents" && (
         <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
@@ -341,6 +436,21 @@ export default function JobsiteRoomPage() {
       {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "photos" && <PhotosPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
+      {/* O mesmo formulário da lista de projetos: a obra se edita de um jeito
+          só, esteja quem edita na lista ou dentro dela. */}
+      <ArchiveConfirm
+        jobsite={archiving ? jobsite : null}
+        onClose={() => setArchiving(false)}
+        onConfirm={() => { archive.mutate(true); setArchiving(false) }}
+      />
+
+      <JobsiteFormDialog
+        open={editing}
+        onOpenChange={setEditing}
+        clients={jobsite.client ? [jobsite.client] : []}
+        editing={jobsite}
+      />
+
       {tab === "access" && canManage && (
         <JobsiteVisibilityDialog
           jobsite={jobsite}
