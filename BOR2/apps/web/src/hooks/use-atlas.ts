@@ -153,6 +153,21 @@ export function useAtlasSheets(versionId: string) {
   })
 }
 
+// As prévias da versão inteira, numa chamada só e guardadas por seis horas: a
+// URL assinada dura mais que a sessão de leitura, e a lista as pede todas de uma
+// vez porque é onde elas aparecem juntas.
+export function useAtlasThumbs(versionId: string) {
+  return useQuery({
+    queryKey: ["atlas", "thumbs", versionId],
+    queryFn: async () => {
+      const rows = await atlasService.versionThumbs(versionId)
+      return new Map(rows.map(r => [r.sheetId, r.url]))
+    },
+    enabled: !!versionId,
+    staleTime: 30 * 60 * 1000,
+  })
+}
+
 export function useUpdateAtlasSheet(versionId: string) {
   const qc = useQueryClient()
   return useMutation({
@@ -226,6 +241,7 @@ export function useUploadAtlasVersion(documentId: string) {
           widthPt: byIndex.get(i)?.widthPt ?? outline.width,
           heightPt: byIndex.get(i)?.heightPt ?? outline.height,
           r2Key: byIndex.get(i)?.r2Key ?? "",
+          thumbKey: byIndex.get(i)?.thumbKey ?? "",
           byteSize: byIndex.get(i)?.byteSize ?? 0,
           needsReview: true,
         })),

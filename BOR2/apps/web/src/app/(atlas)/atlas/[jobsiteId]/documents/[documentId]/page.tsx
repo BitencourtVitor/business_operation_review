@@ -1,16 +1,18 @@
 "use client"
 
+import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
 import { VersionUpload } from "@/components/atlas/version-upload"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasVersions,
+  useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
   usePublishAtlasVersion, useUpdateAtlasSheet,
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
-import { ArrowLeft, Check, Download, Layers } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { ArrowLeft, Check, Download, Images, Layers } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -30,8 +32,8 @@ function bytes(n: number) {
   return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
 }
 
-function SheetRow({ sheet, versionId, canManage, onOpen }: {
-  sheet: AtlasSheet; versionId: string; canManage: boolean; onOpen: () => void
+function SheetRow({ sheet, versionId, canManage, thumb, onOpen }: {
+  sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string; onOpen: () => void
 }) {
   const update = useUpdateAtlasSheet(versionId)
   const [draft, setDraft] = useState({ sheetNumber: sheet.sheetNumber, title: sheet.title })
@@ -39,11 +41,30 @@ function SheetRow({ sheet, versionId, canManage, onOpen }: {
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-2.5">
+      {/* A prévia é o que distingue uma folha da outra antes de abrir: numa
+          lista de 51 páginas, a coluna de números obriga a abrir uma por uma
+          para achar a prancha certa. O número fica por cima, no canto, porque
+          continua sendo como a folha é chamada. */}
       <button
         onClick={onOpen}
-        className="flex h-12 w-16 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/30 text-xs text-muted-foreground hover:border-primary/40"
+        className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded border border-border/60 bg-muted/30 text-xs text-muted-foreground hover:border-primary/40"
       >
-        {sheet.pageIndex + 1}
+        {thumb ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumb}
+              alt=""
+              loading="lazy"
+              className="h-full w-full bg-white object-cover object-top"
+            />
+            <span className="absolute bottom-0 right-0 rounded-tl bg-background/85 px-1 text-[10px] leading-tight">
+              {sheet.pageIndex + 1}
+            </span>
+          </>
+        ) : (
+          sheet.pageIndex + 1
+        )}
       </button>
       {canManage ? (
         <>
@@ -109,6 +130,28 @@ export default function DocumentPage() {
   }, [versions, versionId])
 
   const { data: sheets } = useAtlasSheets(versionId)
+  const { data: thumbs, refetch: refetchThumbs } = useAtlasThumbs(versionId)
+  const qc = useQueryClient()
+  // Prévias que faltam: as folhas cortadas antes de a miniatura existir. O
+  // botão só aparece enquanto houver alguma, e some sozinho quando acabam.
+  const [filling, setFilling] = useState("")
+  const [fillError, setFillError] = useState("")
+  const missingThumbs = (sheets ?? []).filter(s => !s.thumbKey).length
+
+  async function fillThumbs() {
+    if (!sheets?.length) return
+    setFilling(`0/${missingThumbs}`)
+    setFillError("")
+    try {
+      await backfillThumbs(versionId, sheets, (done, total) => setFilling(`${done}/${total}`))
+      await refetchThumbs()
+      await qc.invalidateQueries({ queryKey: ["atlas", "sheets", versionId] })
+    } catch (e) {
+      setFillError(e instanceof Error ? e.message : "could not make the previews")
+    } finally {
+      setFilling("")
+    }
+  }
   const version = versions?.find(v => v.id === versionId)
 
   async function download() {
@@ -188,7 +231,18 @@ export default function DocumentPage() {
                   <Layers className="h-4 w-4 text-muted-foreground" />
                   Plans in rev {version.revision}
                 </h2>
-                <span className="text-xs text-muted-foreground">{sheets?.length ?? 0}</span>
+                <div className="flex items-center gap-2">
+                  {fillError && (
+                    <span className="text-xs text-destructive">{fillError}</span>
+                  )}
+                  {canManage && missingThumbs > 0 && (
+                    <Button variant="outline" onClick={fillThumbs} disabled={!!filling}>
+                      <Images className="h-3.5 w-3.5" />
+                      {filling ? `Making previews ${filling}` : `Make ${missingThumbs} previews`}
+                    </Button>
+                  )}
+                  <span className="text-xs text-muted-foreground">{sheets?.length ?? 0}</span>
+                </div>
               </div>
 
               {!sheets?.length ? (
@@ -207,6 +261,7 @@ export default function DocumentPage() {
                       sheet={s}
                       versionId={versionId}
                       canManage={!!canManage}
+                      thumb={thumbs?.get(s.id)}
                       onOpen={() => setOpenSheet(s)}
                     />
                   ))}
