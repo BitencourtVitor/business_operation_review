@@ -14,16 +14,19 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
 import { useAtlasJobsites, useCreateAtlasJobsite } from "@/hooks/use-atlas"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, Briefcase, Building, Building2, ChevronDown, DoorOpen, Hash, Home,
-  Layers, MapPin, Pencil, Plus, Search,
+  Archive, ArchiveRestore, Briefcase, Building, Building2, Check, ChevronDown, Eye, EyeOff, Hash,
+  Home, MapPin, Pencil, Plus, Search, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
@@ -33,6 +36,16 @@ import { useEffect, useMemo, useState } from "react"
 // Ou é prédio ou é casa. "Lot" é como a casa se chama quando ela é numerada
 // dentro do loteamento, e é assim que a obra é falada no dia a dia. Por isso
 // vale na linha de identificação, e não como um terceiro tipo de obra.
+// Mesma composição do backend (jobsiteName): a obra se chama pela comunidade
+// mais o tipo e o número.
+function composeName(community: string, kind: string, unit: string): string {
+  const label = KIND_META[kind]?.label ?? ""
+  const suffix = [label, unit.trim()].filter(Boolean).join(" ")
+  const place = community.trim()
+  if (!suffix) return place
+  return place ? `${place} · ${suffix}` : suffix
+}
+
 const KIND_META: Record<string, { label: string; icon: React.ElementType }> = {
   building: { label: "Building", icon: Building },
   house:    { label: "Lot",      icon: Home },
@@ -49,9 +62,8 @@ function placeLabel(raw: string): string {
 }
 
 const EMPTY = {
-  name: "", address: "", client: "", unit: "",
+  community: "", address: "", client: "", unit: "",
   kind: "building" as "building" | "house",
-  floors: "", unitLabels: "",
 }
 
 // Um campo com ícone à esquerda. O ícone não é enfeite: diz de que natureza é o
@@ -76,6 +88,158 @@ function Field({ id, label, icon: Icon, hint, children }: {
   )
 }
 
+// Escrever e escolher no mesmo campo. O botão "New" separado obrigava a decidir
+// antes de digitar se o cliente já existia; aqui a lista filtra conforme se
+// escreve, e o nome que não casa com ninguém vira a opção de acrescentar.
+function ClientField({ value, onChange, clients }: {
+  value: string
+  onChange: (value: string) => void
+  clients: string[]
+}) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState(value)
+
+  useEffect(() => setText(value), [value])
+
+  const matches = clients.filter(c => c.toLowerCase().includes(text.trim().toLowerCase()))
+  const exact = clients.some(c => c.toLowerCase() === text.trim().toLowerCase())
+  const typed = text.trim()
+
+  function pick(name: string) {
+    onChange(name)
+    setText(name)
+    setOpen(false)
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor="jobsite-client" className="text-xs text-muted-foreground">Client</Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={<div />}
+          nativeButton={false}
+          className="relative"
+        >
+          <Briefcase className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="jobsite-client"
+            value={text}
+            onChange={e => { setText(e.target.value); onChange(e.target.value); setOpen(true) }}
+            onFocus={() => setOpen(true)}
+            placeholder="Toll Brothers"
+            className="pl-8"
+          />
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          sideOffset={4}
+          className="w-(--anchor-width) p-1"
+        >
+          {matches.map(c => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => pick(c)}
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent"
+            >
+              <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{c}</span>
+              {c === value && <Check className="ml-auto h-3.5 w-3.5 shrink-0" />}
+            </button>
+          ))}
+          {typed && !exact && (
+            <button
+              type="button"
+              onClick={() => pick(typed)}
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary transition-colors hover:bg-accent"
+            >
+              <Plus className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Add &ldquo;{typed}&rdquo; as a new client</span>
+            </button>
+          )}
+          {!typed && matches.length === 0 && (
+            <p className="px-2 py-1.5 text-sm text-muted-foreground">No clients yet.</p>
+          )}
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
+// Quem não vê o projeto. O campo carrega só a contagem; a lista abre num painel
+// ao lado do diálogo, para não empurrar um dropdown do tamanho do cadastro no
+// meio do formulário.
+function HiddenFromField({ blocked, onChange, people }: {
+  blocked: string[]
+  onChange: (ids: string[]) => void
+  people: { id: string; name: string }[]
+}) {
+  const [open, setOpen] = useState(false)
+  const available = people.filter(u => !blocked.includes(u.id))
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label className="text-xs text-muted-foreground">Hidden from</Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={<button type="button" />}
+          className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted dark:bg-input/30 dark:hover:bg-input/50"
+        >
+          <span className="flex items-center gap-2">
+            {blocked.length === 0
+              ? <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+              : <EyeOff className="h-3.5 w-3.5 text-destructive" />}
+            <span className={blocked.length === 0 ? "text-muted-foreground" : "text-destructive"}>
+              {blocked.length === 0
+                ? "Visible to everyone"
+                : `${blocked.length} ${blocked.length === 1 ? "person" : "people"} blocked`}
+            </span>
+          </span>
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        </PopoverTrigger>
+        <PopoverContent side="right" align="start" sideOffset={12} className="w-64 p-1.5">
+          <p className="px-1.5 pb-1.5 text-xs text-muted-foreground">
+            Everyone with Atlas access sees this project unless listed here.
+          </p>
+          <div className="flex max-h-56 flex-col gap-0.5 overflow-y-auto pr-1">
+            {people.length === 0 && (
+              <p className="px-1.5 py-1 text-sm text-muted-foreground">
+                Nobody has Atlas access yet.
+              </p>
+            )}
+            {blocked.map(id => {
+              const person = people.find(u => u.id === id)
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onChange(blocked.filter(v => v !== id))}
+                  className="flex items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
+                >
+                  <EyeOff className="h-3.5 w-3.5 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">{person?.name ?? id}</span>
+                  <X className="h-3 w-3 shrink-0" />
+                </button>
+              )
+            })}
+            {available.map(u => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => onChange([...blocked, u.id])}
+                className="flex items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm transition-colors hover:bg-accent"
+              >
+                <Eye className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate">{u.name}</span>
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
 function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -84,10 +248,19 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
   editing?: AtlasJobsite | null
 }) {
   const [form, setForm] = useState(EMPTY)
-  // O cliente quase sempre já existe, e digitá-lo de novo é como nascem
-  // "Pulte Homes" e "Pulte homes" na mesma base. A caixa de texto só aparece
-  // para o cliente que ainda não está na lista.
-  const [newClient, setNewClient] = useState(false)
+  const [blocked, setBlocked] = useState<string[]>([])
+  // Só quem tem a chave do Atlas. Oferecer o cadastro inteiro deixava a tela
+  // prometer um bloqueio que não acontece: cargo privilegiado vê tudo antes de
+  // a regra ser consultada.
+  const { data: users } = useQuery({
+    queryKey: ["atlas", "blockable-users"],
+    queryFn: () => atlasService.listBlockableUsers(),
+    staleTime: 5 * 60 * 1000,
+  })
+  const people = useMemo(
+    () => (users ?? []).map(u => ({ id: u.userId, name: u.name })),
+    [users],
+  )
   const create = useCreateAtlasJobsite()
   const qc = useQueryClient()
   const update = useMutation({
@@ -99,50 +272,49 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
     },
   })
 
-  // O formulário nasce com o que a obra já tem quando abre para editar, e limpo
-  // quando abre para criar.
   useEffect(() => {
     if (!open) return
-    setNewClient(false)
+    if (editing) {
+      atlasService.listBlocked(editing.id)
+        .then(rows => setBlocked(rows.map(r => r.userId)))
+        .catch(() => setBlocked([]))
+    } else {
+      setBlocked([])
+    }
     setForm(editing
       ? {
-          name: editing.name, address: editing.address, client: editing.client,
+          community: editing.community || editing.name,
+          address: editing.address,
+          client: editing.client,
           unit: editing.unit || editing.code,
           kind: editing.kind === "building" ? "building" : "house",
-          floors: editing.floors ? String(editing.floors) : "",
-          unitLabels: (editing.unitLabels ?? []).join(", "),
         }
       : EMPTY)
   }, [open, editing])
 
   const set = (patch: Partial<typeof EMPTY>) => setForm(f => ({ ...f, ...patch }))
-  const building = form.kind === "building"
+  const saving = editing ? update.isPending : create.isPending
 
   function close() {
     onOpenChange(false)
     setForm(EMPTY)
-    setNewClient(false)
+    setBlocked([])
   }
 
-  const saving = editing ? update.isPending : create.isPending
-
   function submit() {
-    if (!form.name.trim()) return
+    if (!form.community.trim()) return
     const body = {
-      name: form.name.trim(),
+      name: composeName(form.community, form.kind, form.unit),
+      community: form.community.trim(),
       address: form.address.trim(),
       client: form.client.trim(),
       unit: form.unit.trim(),
       kind: form.kind,
-      // Andares e letras de unidade são o que a taxonomia usa para gerar as
-      // pastas de documento da obra. Perguntados aqui porque depois da criação
-      // ninguém volta para preencher.
-      floors: building && form.floors ? Number(form.floors) : undefined,
-      unitLabels: building
-        ? form.unitLabels.split(",").map(v => v.trim()).filter(Boolean)
-        : undefined,
     } satisfies Partial<AtlasJobsite>
-    if (editing) update.mutate(body)
+    if (editing) {
+      atlasService.setBlocked(editing.id, blocked).catch(() => {})
+      update.mutate(body)
+    }
     else create.mutate(body, { onSuccess: close })
   }
 
@@ -152,15 +324,22 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
         <DialogHeader><DialogTitle>{editing ? "Edit project" : "New project"}</DialogTitle></DialogHeader>
 
         <div className="flex flex-col gap-3">
-          <Field id="jobsite-name" label="Identification" icon={Building2}>
-            <Input
-              id="jobsite-name"
-              value={form.name}
-              onChange={e => set({ name: e.target.value })}
-              placeholder="Riverview at East Point · Building 2"
-              className="pl-8"
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ClientField
+              value={form.client}
+              onChange={v => set({ client: v })}
+              clients={clients}
             />
-          </Field>
+            <Field id="jobsite-community" label="Jobsite" icon={Building2}>
+              <Input
+                id="jobsite-community"
+                value={form.community}
+                onChange={e => set({ community: e.target.value })}
+                placeholder="Riverview at East Point, East Providence, RI"
+                className="pl-8"
+              />
+            </Field>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
@@ -168,20 +347,20 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
               <Select value={form.kind} onValueChange={v => v && set({ kind: v as "building" | "house" })}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1 items-center gap-2 text-left text-sm">
-                    {building
-                      ? <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                    {form.kind === "building"
+                      ? <Building className="h-3.5 w-3.5 text-muted-foreground" />
                       : <Home className="h-3.5 w-3.5 text-muted-foreground" />}
-                    {building ? "Building" : "House"}
+                    {form.kind === "building" ? "Building" : "Lot"}
                   </span>
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
                   <SelectItem value="building">Building</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
+                  <SelectItem value="house">Lot</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Field id="jobsite-code" label="Lot / unit number" icon={Hash}>
+            <Field id="jobsite-code" label="Number" icon={Hash}>
               <Input
                 id="jobsite-code"
                 value={form.unit}
@@ -190,46 +369,6 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
                 className="pl-8"
               />
             </Field>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs text-muted-foreground">Client</Label>
-            {newClient || clients.length === 0 ? (
-              <div className="flex gap-1.5">
-                <div className="relative flex-1">
-                  <Briefcase className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={form.client}
-                    onChange={e => set({ client: e.target.value })}
-                    placeholder="Client name"
-                    className="pl-8"
-                  />
-                </div>
-                {clients.length > 0 && (
-                  <Button variant="outline" onClick={() => { setNewClient(false); set({ client: "" }) }}>
-                    Pick
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex gap-1.5">
-                <Select value={form.client} onValueChange={v => set({ client: v ?? "" })}>
-                  <SelectTrigger className="flex-1">
-                    <span className="flex flex-1 items-center gap-2 truncate text-left text-sm">
-                      <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      {form.client || <span className="text-muted-foreground">Select a client</span>}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
-                    {clients.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={() => { setNewClient(true); set({ client: "" }) }}>
-                  <Plus className="h-3.5 w-3.5" />
-                  New
-                </Button>
-              </div>
-            )}
           </div>
 
           <Field id="jobsite-address" label="Address" icon={MapPin}>
@@ -242,44 +381,15 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
             />
           </Field>
 
-          {building && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field
-                id="jobsite-floors"
-                label="Floors"
-                icon={Layers}
-                hint="Generates one document folder per floor"
-              >
-                <Input
-                  id="jobsite-floors"
-                  value={form.floors}
-                  onChange={e => set({ floors: e.target.value.replace(/\D/g, "") })}
-                  inputMode="numeric"
-                  placeholder="5"
-                  className="pl-8"
-                />
-              </Field>
-              <Field
-                id="jobsite-units"
-                label="Unit letters"
-                icon={DoorOpen}
-                hint="Comma separated: C, F, H, I"
-              >
-                <Input
-                  id="jobsite-units"
-                  value={form.unitLabels}
-                  onChange={e => set({ unitLabels: e.target.value })}
-                  placeholder="C, F, H, I, J"
-                  className="pl-8"
-                />
-              </Field>
-            </div>
+          {/* Só na edição: um projeto que ainda não existe não tem quem bloquear. */}
+          {editing && (
+            <HiddenFromField blocked={blocked} onChange={setBlocked} people={people} />
           )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={close}>Cancel</Button>
-          <Button onClick={submit} disabled={!form.name.trim() || saving}>
+          <Button onClick={submit} disabled={!form.community.trim() || saving}>
             {saving ? "Saving…" : editing ? "Save changes" : "Create project"}
           </Button>
         </DialogFooter>
@@ -288,10 +398,6 @@ function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
   )
 }
 
-// Arquivar tira a obra da lista de todo mundo: é quase apagar, e por isso pede
-// a mesma cerimônia. O "Yes" só acorda depois de três segundos: o intervalo
-// existe para separar o clique deliberado do clique por engano, que é o que
-// acontece quando o botão fica ao lado do de editar.
 function ArchiveConfirm({ jobsite, onClose, onConfirm }: {
   jobsite: AtlasJobsite | null
   onClose: () => void
@@ -463,7 +569,7 @@ export default function AtlasJobsitesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map(j => {
                 const Kind = (KIND_META[j.kind] ?? KIND_META.house).icon
                 const archived = j.status === "archived"

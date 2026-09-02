@@ -252,7 +252,28 @@ func (h *AtlasHandler) ListJobsites(c *fiber.Ctx) error {
 		       ON a.jobsite_id = j.id AND a.user_id = $2
 		      AND a.revoked_at IS NULL
 		      AND (a.expires_at IS NULL OR a.expires_at > now())
-		WHERE $1 OR a.user_id IS NOT NULL
+		WHERE $1 OR (
+		  -- O padrão é ver. Só sai da lista o que uma regra de deny alcança.
+		  NOT EXISTS (
+		    SELECT 1 FROM atlas_visibility_rule r
+		     WHERE r.user_id = $2 AND r.effect = 'deny'
+		       AND ((r.scope = 'jobsite' AND r.value = j.id)
+		         OR (r.scope = 'kind'    AND r.value = j.kind)
+		         OR (r.scope = 'client'  AND lower(r.value) = lower(j.client)))
+		  )
+		  -- Allow é restritivo: quem tem algum passa a ver só o que casa com ele.
+		  AND (
+		    NOT EXISTS (SELECT 1 FROM atlas_visibility_rule r
+		                 WHERE r.user_id = $2 AND r.effect = 'allow')
+		    OR EXISTS (
+		      SELECT 1 FROM atlas_visibility_rule r
+		       WHERE r.user_id = $2 AND r.effect = 'allow'
+		         AND ((r.scope = 'jobsite' AND r.value = j.id)
+		           OR (r.scope = 'kind'    AND r.value = j.kind)
+		           OR (r.scope = 'client'  AND lower(r.value) = lower(j.client)))
+		    )
+		  )
+		)
 		ORDER BY j.status, j.name`,
 		atlasFullAccess[role], userID)
 	if err != nil {
