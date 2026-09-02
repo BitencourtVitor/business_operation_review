@@ -28,7 +28,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
-  ArrowLeft, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, HardHat, KeyRound, Loader2,
+  ArrowLeft, Building2, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, HardHat, KeyRound, Loader2,
   Pencil, Plus, Search, Settings, ShieldAlert, ShieldCheck, Trash2, User, UserPlus, Users,
 } from "lucide-react"
 import type { UserWithPermissions } from "@/services/settings.service"
@@ -620,8 +620,11 @@ export default function AtlasUsersPage() {
                       <TableCell className="border-r border-border">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-medium">{u.name}</span>
+                          {/* Ícone e texto, não etiqueta: a empresa é mais um
+                              dado da pessoa, do mesmo peso do e-mail. */}
                           {companies[u.id] && (
-                            <span className="rounded border border-brand-red/30 px-1.5 py-0.5 text-[11px] text-brand-red">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Building2 className="h-3 w-3" />
                               {companies[u.id]}
                             </span>
                           )}

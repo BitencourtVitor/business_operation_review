@@ -111,7 +111,7 @@ export function AtlasHeader() {
               <span className="hidden flex-col items-end leading-tight lg:flex">
                 <span className="text-sm text-muted-foreground">{user.name}</span>
                 {company && (
-                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <span className="flex items-center gap-1 text-[10px] leading-none text-muted-foreground">
                     <Building2 className="h-2.5 w-2.5" />
                     {company}
                   </span>
