@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { useAtlasJobsite, useAtlasJobsites } from "@/hooks/use-atlas"
+import { AtlasJobsitePicker } from "@/components/atlas/atlas-jobsite-picker"
+import { useAtlasJobsite } from "@/hooks/use-atlas"
 import {
   Bot, CalendarDays, ClipboardList, FileSpreadsheet, FolderOpen, Images, ListChecks,
-  Map, Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
+  Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
   Settings,
 } from "lucide-react"
 import Link from "next/link"
@@ -60,11 +61,9 @@ export function AtlasSidebar() {
     && !config.some(route => pathname.startsWith(route))
   const jobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
-  const { data: jobsites } = useAtlasJobsites()
 
   const tab = params.get("tab") ?? "documents"
   const inRoom = !!jobsiteId
-  const recent = (jobsites ?? []).filter(j => j.id !== jobsiteId).slice(0, 6)
 
   return (
     <Sidebar collapsible="icon" className="overflow-x-hidden">
@@ -87,80 +86,49 @@ export function AtlasSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="overflow-x-hidden">
+        {/* Obra e navegação da obra num bloco só: as abas não são seções do
+            produto, são o que existe dentro daquela obra. Separá-las em outro
+            grupo obrigava a repetir o nome dela como rótulo — a mesma
+            informação duas vezes, uma delas truncada. */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname === "/atlas"}
-                  tooltip="Plans"
-                  render={<Link href="/atlas" />}
-                >
-                  <Map />
-                  <span>Plans</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+            <div className="overflow-hidden rounded-lg border border-sidebar-border">
+              <AtlasJobsitePicker currentId={jobsiteId} />
+
+              {inRoom && (
+                <div className="border-t border-sidebar-border bg-gradient-to-b from-sidebar-accent/15 to-transparent p-1">
+                  <SidebarMenu>
+                    {ROOM_TABS.map(item => (
+                      <SidebarMenuItem key={item.key}>
+                        <SidebarMenuButton
+                          isActive={pathname === `/atlas/${jobsiteId}` && tab === item.key}
+                          tooltip={item.title}
+                          render={<Link href={`/atlas/${jobsiteId}?tab=${item.key}`} />}
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                    {jobsite?.level === "manage" && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          isActive={pathname === `/atlas/${jobsiteId}` && tab === "access"}
+                          tooltip="Access"
+                          render={<Link href={`/atlas/${jobsiteId}?tab=access`} />}
+                        >
+                          <ShieldCheck />
+                          <span>Access</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                  </SidebarMenu>
+                </div>
+              )}
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* A sala da obra só existe quando há obra aberta — um menu com as abas
-            de nenhuma obra seria um menu que não leva a lugar nenhum. */}
-        {inRoom && (
-          <SidebarGroup>
-            {(open || isMobile) && (
-              <SidebarGroupLabel className="truncate">
-                {jobsite?.name ?? "Jobsite"}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {ROOM_TABS.map(item => (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton
-                      isActive={pathname === `/atlas/${jobsiteId}` && tab === item.key}
-                      tooltip={item.title}
-                      render={<Link href={`/atlas/${jobsiteId}?tab=${item.key}`} />}
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-                {jobsite?.level === "manage" && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      isActive={pathname === `/atlas/${jobsiteId}` && tab === "access"}
-                      tooltip="Access"
-                      render={<Link href={`/atlas/${jobsiteId}?tab=access`} />}
-                    >
-                      <ShieldCheck />
-                      <span>Access</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {recent.length > 0 && (
-          <SidebarGroup>
-            {(open || isMobile) && <SidebarGroupLabel>Other jobsites</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {recent.map(j => (
-                  <SidebarMenuItem key={j.id}>
-                    <SidebarMenuButton tooltip={j.name} render={<Link href={`/atlas/${j.id}`} />}>
-                      <Map />
-                      <span className="truncate">{j.name}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
         {/* O que ainda não existe fica separado por uma linha, como o botão de
             colapsar no rodapé: é uma seção de outra natureza, não mais um grupo
             de páginas. O rótulo em caixa alta e peso leve reforça que ele

@@ -92,10 +92,12 @@ export function AtlasHeader() {
         <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Atlas Project Control</span>
       </div>
 
-      {/* Desktop: título + frase */}
+      {/* Desktop: título + frase. Em tablet a frase sai: é a tela em que o
+          Atlas mais vai ser usado, e ali a barra vale mais como espaço de
+          trabalho do que como vitrine. */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
         <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[10px] text-muted-foreground md:max-lg:hidden">
           Unless commitment is made, there are only promises and hopes, but no plans.
         </p>
       </div>
@@ -108,8 +110,14 @@ export function AtlasHeader() {
             <div className="flex items-end gap-2">
               {/* Embaixo do nome, a empresa quando é gente de fora: numa lista
                   de acesso, "John Carter" sozinho não diz de quem ele é. */}
-              <span className="hidden flex-col items-end leading-tight lg:flex">
-                <span className="text-sm text-muted-foreground">{user.name}</span>
+              {/* Em tablet o nome aparece só de primeiro nome e o crachá fica
+                  no ícone: identifica quem está logado sem gastar a largura que
+                  falta para o trabalho. */}
+              <span className="hidden flex-col items-end leading-tight md:flex">
+                <span className="text-sm text-muted-foreground">
+                  <span className="lg:hidden">{user.name.split(" ")[0]}</span>
+                  <span className="hidden lg:inline">{user.name}</span>
+                </span>
                 {company && (
                   <span className="flex items-center gap-1 text-[10px] leading-none text-muted-foreground">
                     <Building2 className="h-2.5 w-2.5" />
@@ -118,9 +126,9 @@ export function AtlasHeader() {
                 )}
               </span>
 
-              <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide md:inline-flex ${badgeStyle}`}>
+              <span className={`hidden items-center gap-1.5 rounded-full border py-1 text-xs font-semibold tracking-wide md:inline-flex md:max-lg:px-1.5 lg:px-3 ${badgeStyle}`}>
                 <BadgeIcon className="h-3 w-3" />
-                {badge.label}
+                <span className="md:max-lg:hidden">{badge.label}</span>
               </span>
             </div>
           )}
