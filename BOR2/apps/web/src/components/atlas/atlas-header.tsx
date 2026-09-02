@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, Compass, Ellipsis, Gem, LayoutDashboard, LogOut, Menu, Moon,
+  Award, CircleGauge, Compass, Ellipsis, Gem, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -117,7 +117,7 @@ export function AtlasHeader() {
                 onClick={() => router.push("/monthly-execution")}
                 className="hidden md:inline-flex"
               >
-                <LayoutDashboard className="h-4 w-4" />
+                <CircleGauge className="h-4 w-4" />
               </Button>
             </Tip>
           )}
@@ -154,7 +154,7 @@ export function AtlasHeader() {
               </DropdownMenuItem>
               {hasBOR && (
                 <DropdownMenuItem onClick={() => router.push("/monthly-execution")}>
-                  <LayoutDashboard className="h-4 w-4" />
+                  <CircleGauge className="h-4 w-4" />
                   Go to BOR
                 </DropdownMenuItem>
               )}
