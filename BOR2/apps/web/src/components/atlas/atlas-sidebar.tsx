@@ -169,8 +169,17 @@ export function AtlasSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+        {/* O que ainda não existe fica separado por uma linha, como o botão de
+            colapsar no rodapé: é uma seção de outra natureza, não mais um grupo
+            de páginas. O rótulo em caixa alta e peso leve reforça que ele
+            anuncia, em vez de navegar. */}
+        <div className="mt-2 h-px bg-sidebar-border" />
         <SidebarGroup>
-          {(open || isMobile) && <SidebarGroupLabel>Soon</SidebarGroupLabel>}
+          {(open || isMobile) && (
+            <SidebarGroupLabel className="font-normal uppercase tracking-wide">
+              Soon
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {SOON.map(item => (
