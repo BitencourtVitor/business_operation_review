@@ -1,6 +1,6 @@
 import { api } from "@/lib/api"
 import { useAuthStore } from "@/store/auth.store"
-import type { Project, ProjectTrade, TradeEvent } from "@/app/(dashboard)/pcg-bid-requests/_lib/types"
+import type { Project, ProjectTrade, TradeEvent } from "@/app/bor/pcg-bid-requests/_lib/types"
 
 function getToken() {
   return useAuthStore.getState().token ?? ""

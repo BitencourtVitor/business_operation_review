@@ -108,3 +108,9 @@ BOR2/apps/web/.env.local
 # Backups
 BOR1/fuel-pipeline/backup/
 BOR1/quickbooks-pipeline/backup/
+
+# Backlog (local only, never committed)
+backlog/
+
+# Graphify (grafo reconstruído localmente pelo hook de post-commit)
+graphify-out/

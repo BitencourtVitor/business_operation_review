@@ -55,9 +55,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
 import { usePermission } from "@/hooks/use-permission"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashboard)/permits/manage-data-modal"
-import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
-import { ManageDataModal as WorkforceManageDataModal }      from "@/app/(dashboard)/workforce-productivity/manage-data-modal"
+import { ManageDataModal as PermitManageDataModal }          from "@/app/bor/permits/manage-data-modal"
+import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/bor/service-requests/manage-data-modal"
+import { ManageDataModal as WorkforceManageDataModal }      from "@/app/bor/workforce-productivity/manage-data-modal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 
@@ -92,51 +92,51 @@ type NavGroup = {
 
 const activeGroup: NavGroup = {
   items: [
-    { title: "Monthly Execution",          href: "/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
-    { title: "Operational Forecast Index", href: "/ofi",               icon: BarChart2,     permKey: "ofi"              },
+    { title: "Monthly Execution",          href: "/bor/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
+    { title: "Operational Forecast Index", href: "/bor/ofi",               icon: BarChart2,     permKey: "ofi"              },
     {
       // No direct permKey — visibility driven by children, one per division
-      title: "Forecast", href: "/forecast", icon: CalendarDays,
+      title: "Forecast", href: "/bor/forecast", icon: CalendarDays,
       children: [
-        { title: "Framing", href: "/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/forecast/metrics",      permKey: "forecast"      },
-        { title: "HVAC",    href: "/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/hvac-forecast/metrics", permKey: "forecast_hvac" },
+        { title: "Framing", href: "/bor/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/bor/forecast/metrics",      permKey: "forecast"      },
+        { title: "HVAC",    href: "/bor/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/bor/hvac-forecast/metrics", permKey: "forecast_hvac" },
       ],
     },
     {
-      title: "Workforce Productivity", href: "/workforce-productivity", icon: Users,
+      title: "Workforce Productivity", href: "/bor/workforce-productivity", icon: Users,
       permKey: "workforce",
       editPermKey: "workforce",
       children: [
-        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
-        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
-        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
+        { title: "Framing", href: "/bor/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
+        { title: "HVAC",    href: "/bor/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
+        { title: "PCG",     href: "/bor/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
       ],
     },
-    { title: "Inventory Control",  href: "/inventory",         icon: Package,      permKey: "inventory"          },
-    { title: "Permit Control",     href: "/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
-    { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
+    { title: "Inventory Control",  href: "/bor/inventory",         icon: Package,      permKey: "inventory"          },
+    { title: "Permit Control",     href: "/bor/permits",           icon: FileCheck,    permKey: "permits", editPermKey: "permits" },
+    { title: "Service Requests", href: "/bor/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
-      title: "Accounting", href: "/accounting", icon: Banknote,
+      title: "Accounting", href: "/bor/accounting", icon: Banknote,
       permKey: "accounting",
       children: [
-        { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
-        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
-        { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
+        { title: "Framing", href: "/bor/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
+        { title: "HVAC",    href: "/bor/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
+        { title: "PCG",     href: "/bor/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
       ],
     },
     {
-      title: "Budget Control", href: "/budget-control", icon: HandCoins,
+      title: "Budget Control", href: "/bor/budget-control", icon: HandCoins,
       permKey: "budget_control",
       children: [
-        { title: "Framing", href: "/budget-control?company=framing", image: "/images/sublogo_framing.png" },
-        { title: "HVAC",    href: "/budget-control?company=hvac",    image: "/images/sublogo_hvac.png"     },
-        { title: "PCG",     href: "/budget-control?company=pcg",     image: "/images/sublogo_pcg.png"      },
+        { title: "Framing", href: "/bor/budget-control?company=framing", image: "/images/sublogo_framing.png" },
+        { title: "HVAC",    href: "/bor/budget-control?company=hvac",    image: "/images/sublogo_hvac.png"     },
+        { title: "PCG",     href: "/bor/budget-control?company=pcg",     image: "/images/sublogo_pcg.png"      },
       ],
     },
-    { title: "Building Schedule", href: "/building-schedule", icon: Building2, permKey: "building_schedule" },
-    { title: "Subcontractor Docs", href: "/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
+    { title: "Building Schedule", href: "/bor/building-schedule", icon: Building2, permKey: "building_schedule" },
+    { title: "Subcontractor Docs", href: "/bor/subcontractor-docs", icon: FileText, permKey: "subcontractor_docs" },
     {
-      title: "PCG Bids and Contracts", href: "/pcg-bid-requests",
+      title: "PCG Bids and Contracts", href: "/bor/pcg-bid-requests",
       // The square mark, not the full lockup — the wordmark is unreadable at 16px.
       image: "/images/icon_pcg.png",
       permKey: "pcg_bid_requests",
@@ -148,27 +148,27 @@ const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
     {
-      title: "Forecast Data Control", href: "/data-control", icon: ClipboardList,
+      title: "Forecast Data Control", href: "/bor/data-control", icon: ClipboardList,
       children: [
-        { title: "Framing", href: "/data-control?division=framing", image: "/images/sublogo_framing.png", permKey: "data_control"      },
-        { title: "HVAC",    href: "/data-control?division=hvac",    image: "/images/sublogo_hvac.png",    permKey: "data_control_hvac" },
+        { title: "Framing", href: "/bor/data-control?division=framing", image: "/images/sublogo_framing.png", permKey: "data_control"      },
+        { title: "HVAC",    href: "/bor/data-control?division=hvac",    image: "/images/sublogo_hvac.png",    permKey: "data_control_hvac" },
       ],
     },
-    { title: "Schedule Management",    href: "/building-schedule/manage",    icon: Building2,     permKey: "building_schedule"    },
-    { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
+    { title: "Schedule Management",    href: "/bor/building-schedule/manage",    icon: Building2,     permKey: "building_schedule"    },
+    { title: "WEX Categorization",    href: "/bor/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
     {
-      title: "QBTime Reports", href: "/autolog",
+      title: "QBTime Reports", href: "/bor/autolog",
       image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
       // No direct permKey — visibility driven by children
       children: [
-        { title: "Auto Log",             href: "/autolog",                    icon: ImageIcon,     permKey: "autolog"           },
-        { title: "Weekly Hours Control", href: "/weekly-hours-control",       icon: CalendarClock, permKey: "weekly_hours"      },
-        { title: "Who's Working",        href: "/qbtime/whos-working",        icon: UserCheck,     permKey: "whos_working"      },
-        { title: "Period Reports",       href: "/qbtime/period-reports",      icon: Banknote,      permKey: "period_reports"    },
-        { title: "Absence Control",      href: "/qbtime/absences",            icon: CalendarX,     permKey: "absence_control"   },
+        { title: "Auto Log",             href: "/bor/autolog",                    icon: ImageIcon,     permKey: "autolog"           },
+        { title: "Weekly Hours Control", href: "/bor/weekly-hours-control",       icon: CalendarClock, permKey: "weekly_hours"      },
+        { title: "Who's Working",        href: "/bor/qbtime/whos-working",        icon: UserCheck,     permKey: "whos_working"      },
+        { title: "Period Reports",       href: "/bor/qbtime/period-reports",      icon: Banknote,      permKey: "period_reports"    },
+        { title: "Absence Control",      href: "/bor/qbtime/absences",            icon: CalendarX,     permKey: "absence_control"   },
       ],
     },
-    { title: "Settings", href: "/settings", icon: Settings, permKey: "settings" },
+    { title: "Settings", href: "/bor/settings", icon: Settings, permKey: "settings" },
   ],
 }
 
@@ -331,11 +331,11 @@ function NavGroupItems({
     <SidebarMenu>
       {items.map((item) => {
         // On mobile, every page except /forecast is locked — tapping redirects to /forecast
-        if (isMobile && item.href !== "/forecast") {
+        if (isMobile && item.href !== "/bor/forecast") {
           return (
             <SidebarMenuItem key={item.title + item.href}>
               <SidebarMenuButton
-                render={<Link href="/forecast" />}
+                render={<Link href="/bor/forecast" />}
                 className="opacity-40"
                 tooltip="Mobile version coming soon"
               >
@@ -582,9 +582,9 @@ export function AppSidebar() {
     onEditOpen: setEditItem,
   }
 
-  const isPermitEdit         = editItem?.href === '/permits'
-  const isServiceRequestEdit = editItem?.href === '/service-requests'
-  const isWorkforceEdit      = editItem?.href === '/workforce-productivity'
+  const isPermitEdit         = editItem?.href === '/bor/permits'
+  const isServiceRequestEdit = editItem?.href === '/bor/service-requests'
+  const isWorkforceEdit      = editItem?.href === '/bor/workforce-productivity'
 
   return (
     <>

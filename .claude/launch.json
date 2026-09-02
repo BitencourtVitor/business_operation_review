@@ -3,16 +3,42 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd \"C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR2\\apps\\web\" && set NODE_OPTIONS=--max-old-space-size=6144 && npm run dev"],
+      "runtimeExecutable": "C:\\Users\\Ryzen\\.bun\\bin\\bun.exe",
+      "runtimeArgs": [
+        "run",
+        "--cwd",
+        "C:/Users/Ryzen/Documents/trae_projects/Premium - BOR/BOR2/apps/web",
+        "next",
+        "dev",
+        "--port",
+        "3000"
+      ],
       "port": 3000,
       "autoPort": false
     },
     {
       "name": "bor1-frontend",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd \"C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR1\\frontend\" && npm run dev"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR1\\frontend"
+      ],
       "port": 3001,
+      "autoPort": false
+    },
+    {
+      "name": "storage-web",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+        "run",
+        "dev",
+        "--prefix",
+        "C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - Storage"
+      ],
+      "port": 3000,
       "autoPort": false
     }
   ]
