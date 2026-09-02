@@ -114,3 +114,9 @@ backlog/
 
 # Graphify (grafo reconstruído localmente pelo hook de post-commit)
 graphify-out/
+
+# Segredo e binário compilado do QuickBooks sync: entraram no repo por descuido
+# e seguem no histórico (ver backlog PL-1, que trata da rotação e da limpeza).
+# Daqui para a frente não voltam.
+BOR2/apps/api/.env.qbsync
+BOR2/apps/api/*.exe
