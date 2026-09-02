@@ -147,6 +147,10 @@ func DocumentKey(jobsiteID, documentID, versionID, fileName string) string {
 		jobsiteID, documentID, versionID, safeName(fileName))
 }
 
+// ThumbKey é a prévia da folha: imagem pequena, gerada no navegador junto com o
+// corte e usada onde a folha aparece em lista. Sem ela a lista de 51 páginas é
+// uma coluna de números, e achar a prancha certa vira abrir uma por uma.
+// Derivada como o recorte: pode ser refeita a qualquer momento.
 func ThumbKey(jobsiteID, versionID string, pageIndex int) string {
 	return fmt.Sprintf("jobsites/%s/versions/%s/thumbs/%04d.jpg",
 		jobsiteID, versionID, pageIndex)

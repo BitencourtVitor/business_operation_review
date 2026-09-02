@@ -214,18 +214,18 @@ type atlasJobsite struct {
 	Status  string `json:"status"`
 	// Vocabulário do Forecast: lot, building ou house, mais a comunidade e o
 	// número. É como a obra é chamada em reunião.
-	Kind          string  `json:"kind"`
-	Community     string  `json:"community"`
-	Unit          string  `json:"unit"`
-	Company       string  `json:"company"`
-	ForecastID    *string `json:"forecastId"`
+	Kind       string  `json:"kind"`
+	Community  string  `json:"community"`
+	Unit       string  `json:"unit"`
+	Company    string  `json:"company"`
+	ForecastID *string `json:"forecastId"`
 	// Quantos andares o prédio tem e quais letras de unidade ele usa: é daqui
 	// que as subcategorias de documento saem.
-	Floors     int      `json:"floors"`
-	UnitLabels []string `json:"unitLabels"`
-	CatalogSiteID *int64  `json:"catalogJobSiteId"`
-	CreatedBy     string  `json:"createdBy"`
-	CreatedAt     string  `json:"createdAt"`
+	Floors        int      `json:"floors"`
+	UnitLabels    []string `json:"unitLabels"`
+	CatalogSiteID *int64   `json:"catalogJobSiteId"`
+	CreatedBy     string   `json:"createdBy"`
+	CreatedAt     string   `json:"createdAt"`
 	// Preenchidos na listagem: é o que a sala da obra mostra no card sem
 	// precisar de uma consulta por obra na tela.
 	Documents  int    `json:"documents"`
@@ -671,9 +671,9 @@ type atlasDocument struct {
 	// Ligação com a taxonomia e o valor do eixo — o andar, a letra da unidade.
 	CategoryID  int64  `json:"categoryId"`
 	Subcategory string `json:"subcategory"`
-	CreatedBy string `json:"createdBy"`
-	CreatedAt string `json:"createdAt"`
-	Versions  int    `json:"versions"`
+	CreatedBy   string `json:"createdBy"`
+	CreatedAt   string `json:"createdAt"`
+	Versions    int    `json:"versions"`
 	// A revisão publicada mais recente — o que a sala da obra abre por padrão.
 	LatestVersionID string `json:"latestVersionId"`
 	LatestRevision  string `json:"latestRevision"`
@@ -1201,6 +1201,90 @@ func (h *AtlasHandler) PlanUploadURLs(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": out})
 }
 
+// POST /atlas/versions/:id/thumb-uploads — onde gravar a prévia de cada folha.
+func (h *AtlasHandler) ThumbUploadURLs(c *fiber.Ctx) error {
+	versionID := c.Params("id")
+	jobsiteID, _, err := h.versionContext(c, versionID)
+	if err != nil {
+		return atlasNotFound(c, "versão")
+	}
+	if err := h.require(c, jobsiteID, "manage"); err != nil {
+		return atlasForbidden(c)
+	}
+	if !h.r2.Configured() {
+		return atlasNoStorage(c)
+	}
+	var in struct {
+		PageIndexes []int `json:"pageIndexes"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if len(in.PageIndexes) == 0 || len(in.PageIndexes) > 2000 {
+		return badRequest(c, "pageIndexes must have between 1 and 2000 entries")
+	}
+
+	type ticket struct {
+		PageIndex int    `json:"pageIndex"`
+		Key       string `json:"r2Key"`
+		UploadURL string `json:"uploadUrl"`
+	}
+	out := make([]ticket, 0, len(in.PageIndexes))
+	for _, index := range in.PageIndexes {
+		key := service.ThumbKey(jobsiteID, versionID, index)
+		url, err := h.r2.UploadURL(c.Context(), key, "image/jpeg", 2*time.Hour)
+		if err != nil {
+			return internalErr(c, err)
+		}
+		out = append(out, ticket{PageIndex: index, Key: key, UploadURL: url})
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// GET /atlas/versions/:id/thumbs — as prévias da versão inteira, de uma vez.
+//
+// Em lote de propósito: uma lista de 51 folhas assinaria 51 URLs, uma ida à API
+// por linha, e a lista é justamente o lugar onde elas aparecem todas juntas.
+func (h *AtlasHandler) VersionThumbs(c *fiber.Ctx) error {
+	versionID := c.Params("id")
+	jobsiteID, _, err := h.versionContext(c, versionID)
+	if err != nil {
+		return atlasNotFound(c, "versão")
+	}
+	if err := h.require(c, jobsiteID, "read"); err != nil {
+		return atlasForbidden(c)
+	}
+	if !h.r2.Configured() {
+		return atlasNoStorage(c)
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT id, thumb_key FROM atlas_sheet
+		WHERE version_id = $1 AND thumb_key <> ''
+		ORDER BY page_index`, versionID)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	type thumb struct {
+		SheetID string `json:"sheetId"`
+		URL     string `json:"url"`
+	}
+	out := []thumb{}
+	for rows.Next() {
+		var id, key string
+		if err := rows.Scan(&id, &key); err != nil {
+			return internalErr(c, err)
+		}
+		url, err := h.r2.DownloadURL(c.Context(), key, 6*time.Hour)
+		if err != nil {
+			continue
+		}
+		out = append(out, thumb{SheetID: id, URL: url})
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // GET /atlas/sheets/:id/url — o PDF de uma página só.
 //
 // Cai no original quando a página ainda não foi recortada: versão antiga, ou
@@ -1260,10 +1344,12 @@ func (h *AtlasHandler) UpdateSheet(c *fiber.Ctx) error {
 			level        = COALESCE($4, level),
 			title        = COALESCE($5, title),
 			revision     = COALESCE($6, revision),
-			needs_review = CASE WHEN $7 THEN false ELSE needs_review END
+			needs_review = CASE WHEN $7 THEN false ELSE needs_review END,
+			thumb_key    = COALESCE($8, thumb_key)
 		WHERE id = $1`,
 		sheetID, strPtr(patch, "sheetNumber"), strPtr(patch, "discipline"),
-		strPtr(patch, "level"), strPtr(patch, "title"), strPtr(patch, "revision"), reviewed)
+		strPtr(patch, "level"), strPtr(patch, "title"), strPtr(patch, "revision"), reviewed,
+		strPtr(patch, "thumbKey"))
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1494,6 +1580,10 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 	}
 	userID, _ := actor(c)
 	status := strPtr(patch, "status")
+	// Soltar o pino do desenho não apaga o evento: ele continua em Tasks, com o
+	// que já foi respondido. O que sai é a marca sobre a prancha, que é o que a
+	// borracha do leitor promete tirar.
+	detach, _ := patch["detach"].(bool)
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_event SET
 			title  = COALESCE($2, title),
@@ -1501,10 +1591,13 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 			kind   = COALESCE($4, kind),
 			status = COALESCE($5, status),
 			resolved_by = CASE WHEN $5 = 'resolved' THEN $6 ELSE resolved_by END,
-			resolved_at = CASE WHEN $5 = 'resolved' THEN now() ELSE resolved_at END
+			resolved_at = CASE WHEN $5 = 'resolved' THEN now() ELSE resolved_at END,
+			sheet_id = CASE WHEN $7 THEN NULL ELSE sheet_id END,
+			page_x   = CASE WHEN $7 THEN NULL ELSE page_x END,
+			page_y   = CASE WHEN $7 THEN NULL ELSE page_y END
 		WHERE id = $1`,
 		eventID, strPtr(patch, "title"), strPtr(patch, "body"), strPtr(patch, "kind"),
-		status, userID)
+		status, userID, detach)
 	if err != nil {
 		return internalErr(c, err)
 	}

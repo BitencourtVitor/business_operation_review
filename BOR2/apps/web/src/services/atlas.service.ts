@@ -327,6 +327,15 @@ export const atlasService = {
     api.post<PlanUploadTicket[]>(
       `${base}/versions/${versionId}/plan-uploads`, { pageIndexes }, getToken(),
     ).then(r => r ?? []),
+  thumbUploadUrls: (versionId: string, pageIndexes: number[]) =>
+    api.post<PlanUploadTicket[]>(
+      `${base}/versions/${versionId}/thumb-uploads`, { pageIndexes }, getToken(),
+    ).then(r => r ?? []),
+  versionThumbs: (versionId: string) =>
+    api.get<{ sheetId: string; url: string }[]>(
+      `${base}/versions/${versionId}/thumbs`, getToken(),
+    ).then(r => r ?? []),
+
   sheetUrl: (sheetId: string) =>
     api.get<{ url: string; whole: boolean; pageIndex: number }>(
       `${base}/sheets/${sheetId}/url`, getToken()),
