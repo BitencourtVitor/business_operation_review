@@ -49,9 +49,9 @@ const AXIS_LABEL: Record<string, string> = {
   unit: "Per unit",
 }
 
-// A ordem padrão é a da posição na taxonomia, que é a ordem de leitura da
-// obra. Ordenar por coluna é para procurar, e por isso não substitui aquela
-// — só reordena enquanto se procura.
+// A tabela abre ordenada pelo tipo de build, A a Z. Dentro do tipo a ordem
+// continua sendo a da posição na taxonomia, que é a ordem de leitura da obra —
+// o sort é estável, então o empate preserva o que a API mandou.
 const SORTABLE = [
   { key: "buildType" as const, label: "Build type" },
   { key: "name" as const, label: "Category" },
@@ -64,6 +64,29 @@ const BUILD_LABEL: Record<string, string> = {
   "": "Any",
   building: "Building",
   house: "House",
+}
+
+// O campo tem a mesma caixa da etiqueta que ele substitui, para a linha não
+// pular de altura enquanto se digita.
+function ValueField({ value, onChange, onCommit, onCancel }: {
+  value: string
+  onChange: (v: string) => void
+  onCommit: () => void
+  onCancel: () => void
+}) {
+  return (
+    <input
+      autoFocus
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onBlur={onCommit}
+      onKeyDown={e => {
+        if (e.key === "Enter") onCommit()
+        if (e.key === "Escape") onCancel()
+      }}
+      className="h-7 w-24 rounded-md border border-primary/50 bg-background px-2.5 text-xs font-medium outline-none"
+    />
+  )
 }
 
 export default function AtlasDefinitionsPage() {
@@ -87,7 +110,7 @@ export default function AtlasDefinitionsPage() {
     })
   }
   const [search, setSearch] = useState("")
-  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortKey, setSortKey] = useState<SortKey | null>("buildType")
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
 
   function toggleSort(key: SortKey) {
@@ -95,6 +118,15 @@ export default function AtlasDefinitionsPage() {
     else { setSortKey(key); setSortDir("asc") }
   }
   const [form, setForm] = useState({ client: "", buildType: "", name: "", axis: "none", defaultSlot: true })
+  // Renomear e acrescentar acontecem na própria etiqueta. Valor vazio é o
+  // acréscimo; com valor, é a etiqueta daquele nome que virou campo.
+  const [editingValue, setEditingValue] = useState<{ id: number; value: string } | null>(null)
+  const [valueDraft, setValueDraft] = useState("")
+
+  function startValue(id: number, value: string) {
+    setEditingValue({ id, value })
+    setValueDraft(value)
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -111,6 +143,34 @@ export default function AtlasDefinitionsPage() {
       return sortDir === "asc" ? cmp : -cmp
     })
   }, [rows, search, sortKey, sortDir])
+
+  // As operações de subcategoria mandam a lista inteira: o PATCH substitui o
+  // vetor, e mandar só a diferença exigiria um endpoint por operação para
+  // ganhar nada.
+  type Row = (typeof rows)[number]
+
+  function saveValues(row: Row, axisValues: string[]) {
+    update.mutate({
+      id: row.id, name: row.name, buildType: row.buildType,
+      axis: row.axis, defaultSlot: row.defaultSlot, axisValues,
+    })
+  }
+
+  function commitValue(row: Row) {
+    const value = valueDraft.trim()
+    const target = editingValue?.value ?? ""
+    setEditingValue(null)
+    if (!value || value === target) return
+    const current = row.axisValues ?? []
+    if (current.includes(value)) return
+    saveValues(row, target
+      ? current.map(v => (v === target ? value : v))
+      : [...current, value])
+  }
+
+  function removeValue(row: Row, value: string) {
+    saveValues(row, (row.axisValues ?? []).filter(v => v !== value))
+  }
 
   function closeDialog() {
     setAddOpen(false)
@@ -294,30 +354,65 @@ export default function AtlasDefinitionsPage() {
                           <div className="flex flex-wrap items-center gap-1.5">
                             {opts.map(opt => {
                               const inUse = subs.includes(opt)
+                              if (editingValue?.id === row.id && editingValue.value === opt) {
+                                return (
+                                  <ValueField
+                                    key={opt}
+                                    value={valueDraft}
+                                    onChange={setValueDraft}
+                                    onCommit={() => commitValue(row)}
+                                    onCancel={() => setEditingValue(null)}
+                                  />
+                                )
+                              }
                               return (
                                 <span
                                   key={opt}
-                                  className={`rounded border px-1.5 py-0.5 text-[11px] ${
+                                  className={`flex h-7 items-center gap-1.5 rounded-md border pl-2.5 pr-1 text-xs font-medium ${
                                     inUse
-                                      ? "border-primary/40 bg-primary/5 text-primary"
-                                      : "border-border/60 text-muted-foreground/60"
+                                      ? "border-primary/50 bg-primary/10 text-primary"
+                                      : "border-border bg-muted/60 text-foreground/80"
                                   }`}
                                 >
                                   {row.axis === "floor" ? `${opt} Floor` : `${opt} Unit`}
+                                  <span className="flex items-center gap-0.5">
+                                    <button
+                                      type="button"
+                                      title="Rename"
+                                      onClick={() => startValue(row.id, opt)}
+                                      className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground"
+                                    >
+                                      <Pencil className="h-3 w-3" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      title={inUse ? "In use by a jobsite — cannot remove" : "Remove"}
+                                      disabled={inUse}
+                                      onClick={() => removeValue(row, opt)}
+                                      className="rounded p-0.5 text-destructive hover:bg-background/60 disabled:cursor-not-allowed disabled:opacity-30"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </span>
                                 </span>
                               )
                             })}
-                            {opts.length === 0 && (
-                              <span className="text-xs text-muted-foreground/60">
-                                No options defined for this axis yet.
-                              </span>
-                            )}
-                            {opts.length > 0 && (
-                              <span className="ml-1 text-[11px] text-muted-foreground/50">
-                                {subs.length > 0
-                                  ? `${subs.length} in use`
-                                  : "none in use yet"}
-                              </span>
+                            {editingValue?.id === row.id && editingValue.value === "" ? (
+                              <ValueField
+                                value={valueDraft}
+                                onChange={setValueDraft}
+                                onCommit={() => commitValue(row)}
+                                onCancel={() => setEditingValue(null)}
+                              />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => startValue(row.id, "")}
+                                className="flex h-7 items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                              >
+                                <Plus className="h-3 w-3" />
+                                {row.axis === "floor" ? "Floor" : "Unit"}
+                              </button>
                             )}
                           </div>
                         </TableCell>

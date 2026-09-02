@@ -185,11 +185,26 @@ func (h *AtlasHandler) UpdateDocCategory(c *fiber.Ctx) error {
 		return badRequest(c, "axis must be none, floor or unit")
 	}
 
+	// axisValues só é tocado quando vem no corpo: um PATCH que só renomeia a
+	// categoria não pode apagar as subcategorias dela por omissão.
+	var values *[]string
+	if in.AxisValues != nil {
+		clean := []string{}
+		for _, v := range in.AxisValues {
+			if v = strings.TrimSpace(v); v != "" {
+				clean = append(clean, v)
+			}
+		}
+		values = &clean
+	}
+
 	if _, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_doc_category SET
-			name = $2, build_type = $3, axis = $4, default_slot = $5, updated_at = now()
+			name = $2, build_type = $3, axis = $4, default_slot = $5,
+			axis_values = COALESCE($6, axis_values),
+			updated_at = now()
 		WHERE id = $1`,
-		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot); err != nil {
+		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot, values); err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})

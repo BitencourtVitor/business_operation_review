@@ -270,7 +270,7 @@ export const atlasService = {
     api.get<AtlasDocCategory[]>(`${base}/doc-categories`, getToken()).then(r => r ?? []),
   createDocCategory: (body: { client: string; buildType: string; name: string; axis: string; defaultSlot?: boolean; jobsiteId?: string }) =>
     api.post<{ id: number }>(`${base}/doc-categories`, body, getToken()),
-  updateDocCategory: (id: number, body: { name: string; buildType: string; axis: string; defaultSlot: boolean }) =>
+  updateDocCategory: (id: number, body: { name: string; buildType: string; axis: string; defaultSlot: boolean; axisValues?: string[] }) =>
     api.patch(`${base}/doc-categories/${id}`, body, getToken()),
   deleteDocCategory: (id: number) =>
     api.delete(`${base}/doc-categories/${id}`, getToken()),
