@@ -640,7 +640,10 @@ func main() {
 	// Em construção: entra o dev e quem recebeu a chave `atlas`, concedida na
 	// própria tela de usuários do Atlas. O acesso por obra é cobrado dentro do
 	// handler, que é quem sabe de qual obra cada recurso é filho.
-	atlas := api.Group("/atlas", middleware.RequireAtlas(db))
+	// RequireAuthFull antes: `RequireAuth` só pega o token do cabeçalho, e é
+	// este que valida a sessão e preenche userID/userRole — sem ele o cargo
+	// chega vazio e até o dev leva 403.
+	atlas := api.Group("/atlas", middleware.RequireAuthFull(authService), middleware.RequireAtlas(db))
 	atlas.Get("/user-companies", atlasHandler.ListUserCompanies)
 	atlas.Patch("/users/:id", atlasHandler.SetAtlasUserAccess)
 	atlas.Get("/document-categories", atlasHandler.ListDocumentCategories)
