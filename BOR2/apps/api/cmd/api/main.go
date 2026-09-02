@@ -269,7 +269,16 @@ func main() {
 	qb.Post("/seed", qbHandler.Seed) // internal bootstrap — no user session needed
 
 	// Protected routes
-	api := v1.Group("", middleware.RequireAuth())
+	//
+	// RequireAuthFull, e não RequireAuth: a primeira resolve a sessão e põe
+	// userID/userName/userRole nos locals, que é de onde a auditoria e o
+	// histórico de observação tiram o autor. Com RequireAuth o grupo inteiro
+	// gravava alteração sem dono — 3.875 registros de forecast, um só com nome.
+	//
+	// Ela também fecha um buraco: RequireAuth só conferia que existia um Bearer
+	// qualquer no cabeçalho, sem validá-lo. Endpoint de máquina (cron, service
+	// secret, callback do QB) não passa por aqui — mora em v1, acima do grupo.
+	api := v1.Group("", middleware.RequireAuthFull(authService))
 
 	// Clients & Job Sites catalog — registered BEFORE forecast /:id to avoid wildcard capture
 	clientsHandler := handler.NewForecastClientsHandler(db, auditService)
