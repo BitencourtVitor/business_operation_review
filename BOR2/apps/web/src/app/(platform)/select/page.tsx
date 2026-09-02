@@ -27,7 +27,7 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-sm font-semibold leading-tight">{product.name}</span>
-        <span className="truncate text-sm text-muted-foreground">{product.tagline}</span>
+        <span className="line-clamp-2 text-sm text-muted-foreground">{product.tagline}</span>
       </span>
       {product.enabled ? (
         <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
