@@ -410,7 +410,7 @@ export function useCreateDocCategory() {
 export function useUpdateDocCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number; name: string; buildType: string; axis: string; defaultSlot: boolean }) =>
+    mutationFn: ({ id, ...body }: { id: number; name: string; buildType: string; axis: string; defaultSlot: boolean; axisValues?: string[] }) =>
       atlasService.updateDocCategory(id, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "doc-categories"] }),
   })
