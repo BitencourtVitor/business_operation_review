@@ -6,7 +6,9 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { NativeSelect } from "@/components/ui/native-select"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import { useForecastJobsites, useImportAtlasJobsites } from "@/hooks/use-atlas"
 import { Check, DownloadCloud, Search } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -64,16 +66,30 @@ export function ImportJobsitesDialog() {
               className="pl-8"
             />
           </div>
-          <NativeSelect value={company} onChange={e => setCompany(e.target.value)} className="sm:w-36">
-            {COMPANIES.map(c => (
-              <option key={c || "all"} value={c}>{c ? c.toUpperCase() : "All companies"}</option>
-            ))}
-          </NativeSelect>
-          <NativeSelect value={status} onChange={e => setStatus(e.target.value)} className="sm:w-32">
-            <option value="">Any status</option>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-          </NativeSelect>
+          <Select value={company} onValueChange={v => setCompany(v ?? "")}>
+            <SelectTrigger className="sm:w-36">
+              <span className="flex-1 text-left text-sm">
+                {company ? company.toUpperCase() : "All companies"}
+              </span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {COMPANIES.map(c => (
+                <SelectItem key={c || "all"} value={c}>
+                  {c ? c.toUpperCase() : "All companies"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={v => setStatus(v ?? "")}>
+            <SelectTrigger className="sm:w-32">
+              <span className="flex-1 text-left text-sm capitalize">{status || "Any status"}</span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="">Any status</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border/60">

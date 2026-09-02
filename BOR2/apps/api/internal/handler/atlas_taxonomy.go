@@ -33,6 +33,22 @@ type docCategory struct {
 	DefaultSlot bool `json:"defaultSlot"`
 	// Só na criação: acrescenta a pasta já nesta obra.
 	JobsiteID string `json:"jobsiteId"`
+	// Os valores de eixo que já existem em obra — os andares e as letras que
+	// viraram pasta de verdade. Vazio quando a categoria não tem eixo, ou
+	// quando nenhuma obra a usou ainda.
+	Subcategories []string `json:"subcategories"`
+	// Os valores que a categoria admite no eixo — as opções, e não o que já
+	// virou pasta. É o que a tela precisa mostrar antes da primeira obra.
+	AxisValues []string `json:"axisValues"`
+}
+
+// buildTypeOf normaliza o vocabulário do Forecast para o da taxonomia: lote e
+// casa são a mesma obra, e por isso a mesma lista de documentos.
+func buildTypeOf(kind string) string {
+	if strings.EqualFold(kind, "lot") {
+		return "house"
+	}
+	return kind
 }
 
 // ordinal transforma 1 em "1st", 2 em "2nd" — é como o andar é chamado no
@@ -67,10 +83,18 @@ func slotName(category, axis, value string) string {
 // GET /atlas/doc-categories
 func (h *AtlasHandler) ListDocCategories(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
-		SELECT id, client, build_type, name, axis, position, default_slot
-		FROM atlas_doc_category
-		WHERE archived_at IS NULL
-		ORDER BY position, name`)
+		SELECT c.id, c.client, c.build_type, c.name, c.axis, c.position, c.default_slot,
+		       COALESCE(sub.values, '{}'), c.axis_values
+		FROM atlas_doc_category c
+		LEFT JOIN LATERAL (
+			-- As subcategorias que existem de fato, e não as que caberiam: é o
+			-- que responde "quais andares esta categoria já cobre".
+			SELECT array_agg(DISTINCT d.subcategory ORDER BY d.subcategory) AS values
+			FROM atlas_document d
+			WHERE d.category_id = c.id AND d.subcategory <> '' AND d.archived_at IS NULL
+		) sub ON true
+		WHERE c.archived_at IS NULL
+		ORDER BY c.position, c.name`)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -79,7 +103,7 @@ func (h *AtlasHandler) ListDocCategories(c *fiber.Ctx) error {
 	out := []docCategory{}
 	for rows.Next() {
 		var d docCategory
-		if err := rows.Scan(&d.ID, &d.Client, &d.BuildType, &d.Name, &d.Axis, &d.Position, &d.DefaultSlot); err != nil {
+		if err := rows.Scan(&d.ID, &d.Client, &d.BuildType, &d.Name, &d.Axis, &d.Position, &d.DefaultSlot, &d.Subcategories, &d.AxisValues); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, d)
@@ -136,6 +160,41 @@ func (h *AtlasHandler) CreateDocCategory(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id, "slots": slots}})
 }
 
+// PATCH /atlas/doc-categories/:id
+//
+// Renomear a categoria não renomeia as pastas que ela já criou: o nome delas
+// ficou gravado na obra, junto com o documento que alguém anexou. Mudar isso
+// retroativamente reescreveria o passado de obra em andamento.
+func (h *AtlasHandler) UpdateDocCategory(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return badRequest(c, "invalid id")
+	}
+	var in docCategory
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if strings.TrimSpace(in.Name) == "" {
+		return badRequest(c, "name is required")
+	}
+	if in.Axis != "none" && in.Axis != "floor" && in.Axis != "unit" {
+		return badRequest(c, "axis must be none, floor or unit")
+	}
+
+	if _, err := h.db.Exec(c.Context(), `
+		UPDATE atlas_doc_category SET
+			name = $2, build_type = $3, axis = $4, default_slot = $5, updated_at = now()
+		WHERE id = $1`,
+		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
+}
+
 // DELETE /atlas/doc-categories/:id
 //
 // Arquiva em vez de apagar: a categoria pode já ter virado pasta com documento
@@ -175,7 +234,7 @@ func (h *AtlasHandler) seedJobsiteSlots(ctx context.Context, jobsiteID, userID s
 		WHERE archived_at IS NULL AND default_slot
 		  AND (client = '' OR lower(client) = lower($1))
 		  AND (build_type = '' OR lower(build_type) = lower($2))
-		ORDER BY position, name`, client, kind)
+		ORDER BY position, name`, client, buildTypeOf(kind))
 	if err != nil {
 		return 0, err
 	}

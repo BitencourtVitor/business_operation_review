@@ -649,6 +649,7 @@ func main() {
 	// Taxonomia: categoria com eixo declarado, e as vagas que ela cria na obra.
 	atlas.Get("/doc-categories", atlasHandler.ListDocCategories)
 	atlas.Post("/doc-categories", atlasHandler.CreateDocCategory)
+	atlas.Patch("/doc-categories/:id", atlasHandler.UpdateDocCategory)
 	atlas.Delete("/doc-categories/:id", atlasHandler.DeleteDocCategory)
 	atlas.Post("/jobsites/:id/slots", atlasHandler.RegenerateSlots)
 	atlas.Post("/jobsites/:id/slots/:categoryId", atlasHandler.AddCategorySlot)

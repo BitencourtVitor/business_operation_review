@@ -2,7 +2,9 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { NativeSelect } from "@/components/ui/native-select"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import { useAtlasAccess, useGrantAtlasAccess, useRevokeAtlasAccess } from "@/hooks/use-atlas"
 import { useUsers } from "@/hooks/use-settings"
 import type { AtlasLevel } from "@/services/atlas.service"
@@ -54,23 +56,28 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
       <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-4">
         <p className="text-sm font-medium">Grant access</p>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <NativeSelect
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-            className="flex-1"
-          >
-            <option value="">Select a person</option>
-            {candidates.map(u => (
-              <option key={u.id} value={u.id}>{u.name} — {u.email}</option>
-            ))}
-          </NativeSelect>
-          <NativeSelect
-            value={level}
-            onChange={e => setLevel(e.target.value as AtlasLevel)}
-            className="sm:w-44"
-          >
-            {LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-          </NativeSelect>
+          <Select value={userId} onValueChange={v => setUserId(v ?? "")}>
+            <SelectTrigger className="flex-1">
+              <span className="flex-1 truncate text-left text-sm">
+                {candidates.find(u => u.id === userId)?.name ?? "Select a person"}
+              </span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {candidates.map(u => (
+                <SelectItem key={u.id} value={u.id}>{u.name} — {u.email}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={level} onValueChange={v => v && setLevel(v as AtlasLevel)}>
+            <SelectTrigger className="sm:w-44">
+              <span className="flex-1 text-left text-sm">
+                {LEVELS.find(l => l.value === level)?.label}
+              </span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {LEVELS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Button
             disabled={!userId || grant.isPending}
             onClick={() => grant.mutate({ userId, level }, { onSuccess: () => setUserId("") })}

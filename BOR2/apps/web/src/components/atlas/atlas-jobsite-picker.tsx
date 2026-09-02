@@ -2,6 +2,9 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import { useSidebar } from "@/components/ui/sidebar"
 import { clearLastJobsite } from "@/components/atlas/last-jobsite"
 import { useAtlasJobsites } from "@/hooks/use-atlas"
@@ -279,20 +282,21 @@ function FilterSelect({ label, value, options, onChange, format }: {
   format?: (value: string) => string
 }) {
   return (
-    <label className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
-      {/* Select nativo aqui de propósito: este painel já é um popover, e um
-          segundo flutuante por cima do primeiro atrapalha mais do que ajuda. */}
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        <option value="">Any</option>
-        {options.map(o => (
-          <option key={o} value={o}>{format ? format(o) : o}</option>
-        ))}
-      </select>
-    </label>
+      <Select value={value} onValueChange={v => onChange(v ?? "")}>
+        <SelectTrigger className="w-full">
+          <span className="flex-1 truncate text-left text-sm">
+            {value ? (format ? format(value) : value) : "Any"}
+          </span>
+        </SelectTrigger>
+        <SelectContent alignItemWithTrigger={false}>
+          <SelectItem value="">Any</SelectItem>
+          {options.map(o => (
+            <SelectItem key={o} value={o}>{format ? format(o) : o}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
