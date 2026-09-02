@@ -641,9 +641,6 @@ func main() {
 	// própria tela de usuários do Atlas. O acesso por obra é cobrado dentro do
 	// handler, que é quem sabe de qual obra cada recurso é filho.
 	atlas := api.Group("/atlas", middleware.RequireAtlas(db))
-	atlas.Get("/users", atlasHandler.ListAtlasUsers)
-	atlas.Post("/users", atlasHandler.CreateAtlasUser)
-	atlas.Get("/users/candidates", atlasHandler.ListAtlasUserCandidates)
 	atlas.Patch("/users/:id", atlasHandler.SetAtlasUserAccess)
 	atlas.Get("/document-categories", atlasHandler.ListDocumentCategories)
 	atlas.Post("/document-categories", atlasHandler.CreateDocumentCategory)
