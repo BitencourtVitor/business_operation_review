@@ -55,6 +55,10 @@ export interface AtlasDocCategory {
   position: number
   /** true: toda obra do tipo nasce com a pasta. false: fica de sugestão. */
   defaultSlot: boolean
+  /** Os valores de eixo que já viraram pasta em alguma obra. */
+  subcategories: string[]
+  /** As opções que a categoria admite no eixo — 1st…5th, C…M. */
+  axisValues: string[]
 }
 
 export interface AtlasDocument {
@@ -266,6 +270,8 @@ export const atlasService = {
     api.get<AtlasDocCategory[]>(`${base}/doc-categories`, getToken()).then(r => r ?? []),
   createDocCategory: (body: { client: string; buildType: string; name: string; axis: string; defaultSlot?: boolean; jobsiteId?: string }) =>
     api.post<{ id: number }>(`${base}/doc-categories`, body, getToken()),
+  updateDocCategory: (id: number, body: { name: string; buildType: string; axis: string; defaultSlot: boolean }) =>
+    api.patch(`${base}/doc-categories/${id}`, body, getToken()),
   deleteDocCategory: (id: number) =>
     api.delete(`${base}/doc-categories/${id}`, getToken()),
   addCategorySlot: (jobsiteId: string, categoryId: number) =>

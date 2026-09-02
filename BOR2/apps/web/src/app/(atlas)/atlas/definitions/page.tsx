@@ -6,14 +6,18 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { NativeSelect } from "@/components/ui/native-select"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
 import {
-  useAtlasDocCategories, useCreateDocCategory, useDeleteDocCategory,
+  useAtlasDocCategories, useCreateDocCategory, useDeleteDocCategory, useUpdateDocCategory,
 } from "@/hooks/use-atlas"
-import { ArrowLeft, Layers, Plus, Search, Trash2, X } from "lucide-react"
+import {
+  ArrowLeft, ChevronDown, ChevronRight, ChevronUp, Layers, Pencil, Plus, Search, Trash2, X,
+} from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 
@@ -30,7 +34,6 @@ import { useMemo, useState } from "react"
 const BUILD_TYPES = [
   { value: "", label: "Any build type" },
   { value: "building", label: "Building" },
-  { value: "lot", label: "Lot" },
   { value: "house", label: "House" },
 ]
 
@@ -46,38 +49,91 @@ const AXIS_LABEL: Record<string, string> = {
   unit: "Per unit",
 }
 
+// A ordem padrão é a da posição na taxonomia, que é a ordem de leitura da
+// obra. Ordenar por coluna é para procurar, e por isso não substitui aquela
+// — só reordena enquanto se procura.
+const SORTABLE = [
+  { key: "buildType" as const, label: "Build type" },
+  { key: "name" as const, label: "Category" },
+  { key: "axis" as const, label: "Subcategory" },
+]
+
+type SortKey = (typeof SORTABLE)[number]["key"]
+
 const BUILD_LABEL: Record<string, string> = {
   "": "Any",
   building: "Building",
-  lot: "Lot",
   house: "House",
 }
 
 export default function AtlasDefinitionsPage() {
   const { data: rows = [], isLoading } = useAtlasDocCategories()
   const create = useCreateDocCategory()
+  const update = useUpdateDocCategory()
   const remove = useDeleteDocCategory()
+  // Quando há id, o diálogo edita em vez de criar — é o mesmo formulário, e
+  // duplicá-lo faria dois lugares para consertar cada ajuste.
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   const [addOpen, setAddOpen] = useState(false)
+  const [expanded, setExpanded] = useState<Set<number>>(new Set())
+
+  function toggle(id: number) {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
   const [search, setSearch] = useState("")
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDir(d => (d === "asc" ? "desc" : "asc"))
+    else { setSortKey(key); setSortDir("asc") }
+  }
   const [form, setForm] = useState({ client: "", buildType: "", name: "", axis: "none", defaultSlot: true })
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return rows
-    return rows.filter(r =>
-      [r.client, r.buildType, r.name, AXIS_LABEL[r.axis]]
+    const base = !q ? rows : rows.filter(r =>
+      [r.buildType, r.name, AXIS_LABEL[r.axis]]
         .some(v => String(v ?? "").toLowerCase().includes(q)))
-  }, [rows, search])
+    if (!sortKey) return base
+    const label = (r: (typeof base)[number]) =>
+      sortKey === "buildType" ? BUILD_LABEL[r.buildType] ?? r.buildType
+      : sortKey === "axis" ? AXIS_LABEL[r.axis] ?? r.axis
+      : r.name
+    return [...base].sort((a, b) => {
+      const cmp = label(a).localeCompare(label(b))
+      return sortDir === "asc" ? cmp : -cmp
+    })
+  }, [rows, search, sortKey, sortDir])
+
+  function closeDialog() {
+    setAddOpen(false)
+    setEditingId(null)
+    setForm({ client: "", buildType: "", name: "", axis: "none", defaultSlot: true })
+  }
+
+  function startEdit(row: { id: number; buildType: string; name: string; axis: string; defaultSlot: boolean }) {
+    setEditingId(row.id)
+    setForm({ client: "", buildType: row.buildType, name: row.name, axis: row.axis, defaultSlot: row.defaultSlot })
+    setAddOpen(true)
+  }
 
   function handleAdd() {
     if (!form.name.trim()) return
-    create.mutate(form, {
-      onSuccess: () => {
-        setForm({ client: "", buildType: "", name: "", axis: "none", defaultSlot: true })
-        setAddOpen(false)
-      },
-    })
+    if (editingId !== null) {
+      update.mutate(
+        { id: editingId, name: form.name.trim(), buildType: form.buildType, axis: form.axis, defaultSlot: form.defaultSlot },
+        { onSuccess: closeDialog },
+      )
+      return
+    }
+    create.mutate(form, { onSuccess: closeDialog })
   }
 
   const selectedAxis = AXES.find(a => a.value === form.axis)
@@ -131,34 +187,65 @@ export default function AtlasDefinitionsPage() {
         <Card className="flex max-h-full flex-col py-0">
           <Table containerClassName="max-h-full">
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">ID</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Build type</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Subcategory</TableHead>
-                <TableHead>Applied</TableHead>
-                <TableHead className="w-12" />
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-8" />
+                {SORTABLE.map(col => (
+                  <TableHead key={col.key}>
+                    <button
+                      onClick={() => toggleSort(col.key)}
+                      className={`flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${
+                        sortKey === col.key ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      {col.label}
+                      {sortKey === col.key
+                        ? sortDir === "asc"
+                          ? <ChevronUp className="h-3 w-3" />
+                          : <ChevronDown className="h-3 w-3" />
+                        : <ChevronUp className="h-3 w-3 opacity-20" />}
+                    </button>
+                  </TableHead>
+                ))}
+                <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
                     {search ? "No results found" : "No categories yet"}
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map(row => (
+                filtered.flatMap(row => {
+                  // Só quem tem eixo abre: categoria de pasta única não tem o
+                  // que expandir, e um chevron ali prometeria conteúdo que não
+                  // existe.
+                  // A lista pode não vir: API antiga não conhece o campo. Sem
+                  // a guarda, a tela inteira quebra por causa de um deploy.
+                  const subs = row.subcategories ?? []
+                  const opts = row.axisValues ?? []
+                  const expandable = row.axis !== "none"
+                  const isOpen = expanded.has(row.id)
+                  const rows = [
                   <TableRow key={row.id}>
-                    <TableCell className="text-xs text-muted-foreground">{row.id}</TableCell>
-                    <TableCell className="text-sm">{row.client || "Any client"}</TableCell>
+                    <TableCell className="px-1">
+                      {expandable && (
+                        <button
+                          type="button"
+                          onClick={() => toggle(row.id)}
+                          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          <ChevronRight className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-90" : ""}`} />
+                        </button>
+                      )}
+                    </TableCell>
                     <TableCell className="text-sm">{BUILD_LABEL[row.buildType] ?? row.buildType}</TableCell>
                     <TableCell className="text-sm font-medium">{row.name}</TableCell>
                     <TableCell className="text-sm">
@@ -171,42 +258,84 @@ export default function AtlasDefinitionsPage() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {row.defaultSlot ? (
-                        <span className="text-muted-foreground">Every jobsite</span>
-                      ) : (
-                        <span className="text-muted-foreground/60">On request</span>
-                      )}
-                    </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive"
-                        onClick={() => remove.mutate(row.id)}
-                        disabled={remove.isPending}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          onClick={() => startEdit(row)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => remove.mutate(row.id)}
+                          disabled={remove.isPending}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
-                  </TableRow>
-                ))
+                  </TableRow>,
+                  ]
+
+                  if (expandable && isOpen) {
+                    rows.push(
+                      <TableRow key={`${row.id}-sub`}>
+                        <TableCell />
+                        <TableCell colSpan={4} className="py-2">
+                          {/* As opções que a categoria admite, com destaque no
+                              que já virou pasta em alguma obra: a distinção
+                              entre o que existe e o que está disponível é
+                              justamente o que a tela precisa dizer. */}
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {opts.map(opt => {
+                              const inUse = subs.includes(opt)
+                              return (
+                                <span
+                                  key={opt}
+                                  className={`rounded border px-1.5 py-0.5 text-[11px] ${
+                                    inUse
+                                      ? "border-primary/40 bg-primary/5 text-primary"
+                                      : "border-border/60 text-muted-foreground/60"
+                                  }`}
+                                >
+                                  {row.axis === "floor" ? `${opt} Floor` : `${opt} Unit`}
+                                </span>
+                              )
+                            })}
+                            {opts.length === 0 && (
+                              <span className="text-xs text-muted-foreground/60">
+                                No options defined for this axis yet.
+                              </span>
+                            )}
+                            {opts.length > 0 && (
+                              <span className="ml-1 text-[11px] text-muted-foreground/50">
+                                {subs.length > 0
+                                  ? `${subs.length} in use`
+                                  : "none in use yet"}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>,
+                    )
+                  }
+                  return rows
+                })
               )}
             </TableBody>
           </Table>
         </Card>
       </div>
 
-      <Dialog
-        open={addOpen}
-        onOpenChange={v => {
-          setAddOpen(v)
-          if (!v) setForm({ client: "", buildType: "", name: "", axis: "none", defaultSlot: true })
-        }}
-      >
+      <Dialog open={addOpen} onOpenChange={v => { if (!v) closeDialog(); else setAddOpen(true) }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Add category</DialogTitle>
+            <DialogTitle>{editingId !== null ? "Edit category" : "Add category"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-1">
             <Input
@@ -215,32 +344,38 @@ export default function AtlasDefinitionsPage() {
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               onKeyDown={e => { if (e.key === "Enter") handleAdd() }}
             />
-            <Input
-              placeholder="Client (leave empty for every client)"
-              value={form.client}
-              onChange={e => setForm(f => ({ ...f, client: e.target.value }))}
-              onKeyDown={e => { if (e.key === "Enter") handleAdd() }}
-            />
-            <NativeSelect
-              value={form.buildType}
-              onChange={e => setForm(f => ({ ...f, buildType: e.target.value }))}
-            >
-              {BUILD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </NativeSelect>
+            <Select value={form.buildType} onValueChange={v => setForm(f => ({ ...f, buildType: v ?? "" }))}>
+              <SelectTrigger className="w-full">
+                <span className="flex-1 text-left text-sm">
+                  {BUILD_TYPES.find(t => t.value === form.buildType)?.label}
+                </span>
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {BUILD_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="space-y-1">
-              <NativeSelect
-                value={form.axis}
-                onChange={e => setForm(f => ({ ...f, axis: e.target.value }))}
-              >
-                {AXES.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
-              </NativeSelect>
+              <Select value={form.axis} onValueChange={v => setForm(f => ({ ...f, axis: v ?? "none" }))}>
+                <SelectTrigger className="w-full">
+                  <span className="flex-1 text-left text-sm">{selectedAxis?.label}</span>
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {AXES.map(a => (
+                    <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="px-1 text-[11px] text-muted-foreground">{selectedAxis?.hint}</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
-            <Button onClick={handleAdd} disabled={create.isPending || !form.name.trim()}>
-              {create.isPending ? "Adding..." : "Add"}
+            <Button variant="outline" onClick={closeDialog}>Cancel</Button>
+            <Button onClick={handleAdd} disabled={create.isPending || update.isPending || !form.name.trim()}>
+              {create.isPending || update.isPending
+                ? "Saving..."
+                : editingId !== null ? "Save" : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>

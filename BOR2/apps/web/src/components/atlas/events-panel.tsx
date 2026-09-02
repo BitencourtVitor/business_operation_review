@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { NativeSelect } from "@/components/ui/native-select"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import {
   useAtlasEvents, useAtlasReplies, useCreateAtlasEvent, useCreateAtlasReply,
@@ -116,10 +118,16 @@ export function EventsPanel({ jobsiteId, canWrite, sheetId }: {
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="event-kind">Kind</Label>
-              <NativeSelect id="event-kind" value={form.kind}
-                onChange={e => setForm({ ...form, kind: e.target.value })}>
-                {KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              </NativeSelect>
+              <Select value={form.kind} onValueChange={v => setForm({ ...form, kind: v ?? form.kind })}>
+                <SelectTrigger id="event-kind" className="w-full">
+                  <span className="flex-1 text-left text-sm">
+                    {KINDS.find(([v]) => v === form.kind)?.[1]}
+                  </span>
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {KINDS.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <Label htmlFor="event-title">Title</Label>

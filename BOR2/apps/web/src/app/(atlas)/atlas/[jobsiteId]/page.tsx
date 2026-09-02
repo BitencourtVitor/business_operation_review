@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { NativeSelect } from "@/components/ui/native-select"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
   useCreateDocCategory,
@@ -30,6 +32,12 @@ const VERSION_STATUS: Record<string, { label: string; className: string }> = {
   published: { label: "Published",       className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
   failed:    { label: "Failed",          className: "border-destructive/40 text-destructive" },
 }
+
+const AXIS_OPTIONS = [
+  { value: "none", label: "Single folder" },
+  { value: "floor", label: "One per floor" },
+  { value: "unit", label: "One per unit" },
+]
 
 const TAB_TITLE: Record<string, string> = {
   documents: "Documents",
@@ -110,16 +118,22 @@ function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
           {mode === "pick" ? (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="slot-category">Category</Label>
-              <NativeSelect id="slot-category" value={picked} onChange={e => setPicked(e.target.value)}>
-                <option value="">Select a category…</option>
-                {available.map(o => (
-                  <option key={o.id} value={o.id}>
-                    {o.axis === "floor" ? `${o.name} — one per floor`
-                      : o.axis === "unit" ? `${o.name} — one per unit`
-                      : o.name}
-                  </option>
-                ))}
-              </NativeSelect>
+              <Select value={picked} onValueChange={v => setPicked(v ?? "")}>
+                <SelectTrigger id="slot-category" className="w-full">
+                  <span className="flex-1 truncate text-left text-sm">
+                    {available.find(o => String(o.id) === picked)?.name ?? "Select a category…"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {available.map(o => (
+                    <SelectItem key={o.id} value={String(o.id)}>
+                      {o.axis === "floor" ? `${o.name} — one per floor`
+                        : o.axis === "unit" ? `${o.name} — one per unit`
+                        : o.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
                 {available.length === 0
                   ? "Every category in the taxonomy is already here."
@@ -139,15 +153,18 @@ function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="cat-axis">Subcategory</Label>
-                <NativeSelect
-                  id="cat-axis"
-                  value={draft.axis}
-                  onChange={e => setDraft(d => ({ ...d, axis: e.target.value }))}
-                >
-                  <option value="none">Single folder</option>
-                  <option value="floor">One per floor</option>
-                  <option value="unit">One per unit</option>
-                </NativeSelect>
+                <Select value={draft.axis} onValueChange={v => setDraft(d => ({ ...d, axis: v ?? "none" }))}>
+                  <SelectTrigger id="cat-axis" className="w-full">
+                    <span className="flex-1 text-left text-sm">
+                      {AXIS_OPTIONS.find(a => a.value === draft.axis)?.label}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false}>
+                    {AXIS_OPTIONS.map(a => (
+                      <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
                   Saved for every jobsite to use later — added here only for now.
                 </p>
