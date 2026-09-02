@@ -2,514 +2,42 @@
 
 import { ImportJobsitesDialog } from "@/components/atlas/import-jobsites-dialog"
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
+  JobsiteFormDialog, KIND_META, placeLabel,
+} from "@/components/atlas/jobsite-form-dialog"
+import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
-  Popover, PopoverContent, PopoverTrigger,
-} from "@/components/ui/popover"
-import { Label } from "@/components/ui/label"
-import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
-import { useAtlasJobsites, useCreateAtlasJobsite } from "@/hooks/use-atlas"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { PersonRow } from "@/components/atlas/person-row"
+import { useAtlasJobsites } from "@/hooks/use-atlas"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, Briefcase, Building, Building2, Check, ChevronDown, Eye, EyeOff, Hash,
-  ChevronRight, Home, MapPin, Pencil, Plus, Search, X,
+  Archive, ArchiveRestore, ChevronDown, CircleDot, Layers, MapPin, Pencil, Plus, Search,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 
-// Ou é prédio ou é casa. "Lot" é como a casa se chama quando ela é numerada
-// dentro do loteamento, e é assim que a obra é falada no dia a dia. Por isso
-// vale na linha de identificação, e não como um terceiro tipo de obra.
-// Mesma composição do backend (jobsiteName): a obra se chama pela comunidade
-// mais o tipo e o número.
-function composeName(community: string, kind: string, unit: string): string {
-  const label = KIND_META[kind]?.label ?? ""
-  const suffix = [label, unit.trim()].filter(Boolean).join(" ")
-  const place = community.trim()
-  if (!suffix) return place
-  return place ? `${place} · ${suffix}` : suffix
-}
+// A obra arquivada não some, ela sai da frente. O padrão é ver só as ativas,
+// que é o trabalho de hoje; as arquivadas se procuram quando se procura por
+// elas. Cada opção leva o próprio ícone porque a lista se lê de relance, e três
+// palavras parecidas em cinza não se distinguem de relance.
+const STATUS_OPTIONS = [
+  { value: "active",   label: "Active",   icon: CircleDot },
+  { value: "archived", label: "Archived", icon: Archive },
+  { value: "all",      label: "All",      icon: Layers },
+] as const
 
-const KIND_META: Record<string, { label: string; icon: React.ElementType }> = {
-  building: { label: "Building", icon: Building },
-  house:    { label: "Lot",      icon: Home },
-}
-
-// O lugar, sem o que se repete. "Riverview at East Point, East Providence, RI"
-// vira "Riverview at East Point, RI": o miolo é a cidade, que toda obra da
-// mesma comunidade compartilha e que por isso não distingue nenhuma delas. O
-// estado fica porque é o que separa duas comunidades de nome parecido.
-function placeLabel(raw: string): string {
-  const parts = raw.split(",").map(v => v.trim()).filter(Boolean)
-  if (parts.length <= 2) return parts.join(", ")
-  return `${parts[0]}, ${parts[parts.length - 1]}`
-}
-
-const EMPTY = {
-  community: "", address: "", client: "", unit: "",
-  kind: "building" as "building" | "house",
-}
-
-// Um campo com ícone à esquerda. O ícone não é enfeite: diz de que natureza é o
-// dado antes de a pessoa ler o rótulo, e é o que faz quatro caixas iguais
-// pararem de parecer a mesma pergunta quatro vezes.
-function Field({ id, label, icon: Icon, hint, children }: {
-  id: string
-  label: string
-  icon: React.ElementType
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id} className="text-xs text-muted-foreground">{label}</Label>
-      <div className="relative">
-        <Icon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-        {children}
-      </div>
-      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-    </div>
-  )
-}
-
-// Escrever e escolher no mesmo campo. O botão "New" separado obrigava a decidir
-// antes de digitar se o cliente já existia; aqui a lista filtra conforme se
-// escreve, e o nome que não casa com ninguém vira a opção de acrescentar.
-function ClientField({ value, onChange, clients }: {
-  value: string
-  onChange: (value: string) => void
-  clients: string[]
-}) {
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState(value)
-
-  useEffect(() => setText(value), [value])
-
-  const matches = clients.filter(c => c.toLowerCase().includes(text.trim().toLowerCase()))
-  const exact = clients.some(c => c.toLowerCase() === text.trim().toLowerCase())
-  const typed = text.trim()
-
-  function pick(name: string) {
-    onChange(name)
-    setText(name)
-    setOpen(false)
-  }
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor="jobsite-client" className="text-xs text-muted-foreground">Client</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger
-          render={<div />}
-          nativeButton={false}
-          className="relative"
-        >
-          <Briefcase className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="jobsite-client"
-            value={text}
-            onChange={e => { setText(e.target.value); onChange(e.target.value); setOpen(true) }}
-            onFocus={() => setOpen(true)}
-            placeholder="Toll Brothers"
-            className="pl-8"
-          />
-        </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          sideOffset={4}
-          className="w-(--anchor-width) p-1"
-        >
-          {matches.map(c => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => pick(c)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent"
-            >
-              <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{c}</span>
-              {c === value && <Check className="ml-auto h-3.5 w-3.5 shrink-0" />}
-            </button>
-          ))}
-          {typed && !exact && (
-            <button
-              type="button"
-              onClick={() => pick(typed)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-primary transition-colors hover:bg-accent"
-            >
-              <Plus className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">Add &ldquo;{typed}&rdquo; as a new client</span>
-            </button>
-          )}
-          {!typed && matches.length === 0 && (
-            <p className="px-2 py-1.5 text-sm text-muted-foreground">No clients yet.</p>
-          )}
-        </PopoverContent>
-      </Popover>
-    </div>
-  )
-}
-
-// Quem não vê o projeto. O campo carrega só a contagem; a lista abre num painel
-// colado à direita do diálogo, o mesmo formato do histórico de observação do
-// Forecast. Popover em cima do formulário tapava os campos que a pessoa acabou
-// de preencher.
-function HiddenFromField({ blocked, open, onToggle }: {
-  blocked: string[]
-  open: boolean
-  onToggle: () => void
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label className="text-xs text-muted-foreground">Hidden from</Label>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted dark:bg-input/30 dark:hover:bg-input/50"
-      >
-        <span className="flex items-center gap-2">
-          {blocked.length === 0
-            ? <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-            : <EyeOff className="h-3.5 w-3.5 text-destructive" />}
-          <span className={blocked.length === 0 ? "text-muted-foreground" : "text-destructive"}>
-            {blocked.length === 0
-              ? "Visible to everyone"
-              : `${blocked.length} ${blocked.length === 1 ? "person" : "people"} blocked`}
-          </span>
-        </span>
-        <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-      </button>
-    </div>
-  )
-}
-
-function HiddenFromPanel({ blocked, onChange, people, onClose }: {
-  blocked: string[]
-  onChange: (ids: string[]) => void
-  people: { id: string; name: string }[]
-  onClose: () => void
-}) {
-  // Dois toques também aqui: escolher a pessoa e depois agir. Vale só para esta
-  // lista; endereço e os outros campos continuam sendo só escrever.
-  const [armed, setArmed] = useState<string | null>(null)
-  const available = people.filter(u => !blocked.includes(u.id))
-
-  return (
-    <div className="flex max-h-[85vh] w-full shrink-0 flex-col overflow-hidden border-t bg-muted/20 sm:w-[300px] sm:border-l sm:border-t-0">
-      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-3">
-        <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="flex-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          Hidden From
-        </span>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label="Close the hidden from list"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      <div className="min-h-0 max-h-[20rem] flex-1 overflow-y-auto p-2">
-        <p className="px-1.5 pb-2 text-xs leading-snug text-muted-foreground">
-          Everyone with Atlas access sees this project unless listed here.
-        </p>
-
-        {people.length === 0 && (
-          <p className="px-1.5 py-1 text-sm text-muted-foreground">
-            Nobody has Atlas access yet.
-          </p>
-        )}
-
-        <div className="flex flex-col gap-0.5">
-          {blocked.map(id => {
-            const person = people.find(u => u.id === id)
-            return (
-              <PersonRow
-                key={id}
-                name={person?.name ?? id}
-                hidden
-                armed={armed === id}
-                onSelect={() => setArmed(armed === id ? null : id)}
-                onAct={() => { onChange(blocked.filter(v => v !== id)); setArmed(null) }}
-              />
-            )
-          })}
-
-          {blocked.length > 0 && available.length > 0 && (
-            <div className="my-1 border-t border-border/60" />
-          )}
-
-          {available.map(u => (
-            <PersonRow
-              key={u.id}
-              name={u.name}
-              hidden={false}
-              armed={armed === u.id}
-              onSelect={() => setArmed(armed === u.id ? null : u.id)}
-              onAct={() => { onChange([...blocked, u.id]); setArmed(null) }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  clients: string[]
-  /** Quando vem, o mesmo formulário edita em vez de criar. */
-  editing?: AtlasJobsite | null
-}) {
-  const [form, setForm] = useState(EMPTY)
-  const [blocked, setBlocked] = useState<string[]>([])
-  const [panel, setPanel] = useState(false)
-  // Só quem tem a chave do Atlas. Oferecer o cadastro inteiro deixava a tela
-  // prometer um bloqueio que não acontece: cargo privilegiado vê tudo antes de
-  // a regra ser consultada.
-  const { data: users } = useQuery({
-    queryKey: ["atlas", "blockable-users"],
-    queryFn: () => atlasService.listBlockableUsers(),
-    staleTime: 5 * 60 * 1000,
-  })
-  const people = useMemo(
-    () => (users ?? []).map(u => ({ id: u.userId, name: u.name })),
-    [users],
-  )
-  const create = useCreateAtlasJobsite()
-  const qc = useQueryClient()
-  const update = useMutation({
-    mutationFn: (patch: Partial<AtlasJobsite>) => atlasService.updateJobsite(editing!.id, patch),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["atlas", "jobsites"] })
-      qc.invalidateQueries({ queryKey: ["atlas", "jobsite", editing!.id] })
-      close()
-    },
-  })
-
-  useEffect(() => {
-    if (!open) return
-    if (editing) {
-      atlasService.listBlocked(editing.id)
-        .then(rows => setBlocked(rows.map(r => r.userId)))
-        .catch(() => setBlocked([]))
-    } else {
-      setBlocked([])
-    }
-    setForm(editing
-      ? {
-          community: editing.community || editing.name,
-          address: editing.address,
-          client: editing.client,
-          unit: editing.unit || editing.code,
-          kind: editing.kind === "building" ? "building" : "house",
-        }
-      : EMPTY)
-  }, [open, editing])
-
-  const set = (patch: Partial<typeof EMPTY>) => setForm(f => ({ ...f, ...patch }))
-  const saving = editing ? update.isPending : create.isPending
-
-  function close() {
-    onOpenChange(false)
-    setForm(EMPTY)
-    setBlocked([])
-    setPanel(false)
-  }
-
-  function submit() {
-    if (!form.community.trim()) return
-    const body = {
-      name: composeName(form.community, form.kind, form.unit),
-      community: form.community.trim(),
-      address: form.address.trim(),
-      client: form.client.trim(),
-      unit: form.unit.trim(),
-      kind: form.kind,
-    } satisfies Partial<AtlasJobsite>
-    if (editing) {
-      atlasService.setBlocked(editing.id, blocked).catch(() => {})
-      update.mutate(body)
-    }
-    else create.mutate(body, { onSuccess: close })
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={o => { if (!o) close(); else onOpenChange(true) }}>
-      <DialogContent
-        className={panel
-          ? "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:w-[820px] sm:max-w-[820px] sm:flex-row sm:[&>[data-slot=dialog-close]]:right-[308px]"
-          : "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:max-w-lg sm:flex-row"}
-      >
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-        <DialogHeader><DialogTitle>{editing ? "Edit project" : "New project"}</DialogTitle></DialogHeader>
-
-        <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-[3fr_7fr]">
-            <ClientField
-              value={form.client}
-              onChange={v => set({ client: v })}
-              clients={clients}
-            />
-            <Field id="jobsite-community" label="Jobsite" icon={Building2}>
-              <Input
-                id="jobsite-community"
-                value={form.community}
-                onChange={e => set({ community: e.target.value })}
-                placeholder="Riverview at East Point, East Providence, RI"
-                className="pl-8"
-              />
-            </Field>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-muted-foreground">Build type</Label>
-              <Select value={form.kind} onValueChange={v => v && set({ kind: v as "building" | "house" })}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1 items-center gap-2 text-left text-sm">
-                    {form.kind === "building"
-                      ? <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                      : <Home className="h-3.5 w-3.5 text-muted-foreground" />}
-                    {form.kind === "building" ? "Building" : "Lot"}
-                  </span>
-                </SelectTrigger>
-                <SelectContent alignItemWithTrigger={false}>
-                  <SelectItem value="building">Building</SelectItem>
-                  <SelectItem value="house">Lot</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Field id="jobsite-code" label="Number" icon={Hash}>
-              <Input
-                id="jobsite-code"
-                value={form.unit}
-                onChange={e => set({ unit: e.target.value })}
-                placeholder="2"
-                className="pl-8"
-              />
-            </Field>
-          </div>
-
-          <Field id="jobsite-address" label="Address" icon={MapPin}>
-            <Input
-              id="jobsite-address"
-              value={form.address}
-              onChange={e => set({ address: e.target.value })}
-              placeholder="71 East Point Drive, East Providence, RI 02916"
-              className="pl-8"
-            />
-          </Field>
-
-          {/* Só na edição: um projeto que ainda não existe não tem quem bloquear. */}
-          {editing && (
-            <HiddenFromField blocked={blocked} open={panel} onToggle={() => setPanel(v => !v)} />
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={close}>Cancel</Button>
-          <Button onClick={submit} disabled={!form.community.trim() || saving}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create project"}
-          </Button>
-        </DialogFooter>
-        </div>
-
-        {editing && panel && (
-          <HiddenFromPanel
-            blocked={blocked}
-            onChange={setBlocked}
-            people={people}
-            onClose={() => setPanel(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function ArchiveConfirm({ jobsite, onClose, onConfirm }: {
-  jobsite: AtlasJobsite | null
-  onClose: () => void
-  onConfirm: (id: string) => void
-}) {
-  const [left, setLeft] = useState(3)
-
-  useEffect(() => {
-    if (!jobsite) return
-    setLeft(3)
-    const timer = setInterval(() => setLeft(v => (v <= 1 ? 0 : v - 1)), 1000)
-    return () => clearInterval(timer)
-  }, [jobsite])
-
-  return (
-    <AlertDialog open={!!jobsite} onOpenChange={o => { if (!o) onClose() }}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Archive this project?</AlertDialogTitle>
-          {/* A obra se identifica aqui do mesmo jeito que no cartão: lugar em
-              cima, identificação embaixo e em negrito. Quem confirma precisa
-              reconhecer qual obra está saindo, e um nome corrido no meio do
-              parágrafo não se reconhece. */}
-          <div className="flex w-full flex-col gap-0.5 text-left">
-            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              {jobsite ? placeLabel(jobsite.community || jobsite.address || jobsite.name) : ""}
-            </span>
-            <span className="flex items-center gap-1.5 text-base font-semibold text-foreground">
-              {jobsite && (() => {
-                const K = (KIND_META[jobsite.kind] ?? KIND_META.house).icon
-                return <K className="h-4 w-4 shrink-0 text-muted-foreground" />
-              })()}
-              {jobsite
-                ? [(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
-                    .filter(Boolean).join(" ")
-                : ""}
-            </span>
-          </div>
-          <AlertDialogDescription>
-            It leaves the list for everyone. Documents, photos and diary stay on file.
-            Nothing is deleted, and the project can be reactivated later.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            disabled={left > 0}
-            onClick={() => jobsite && onConfirm(jobsite.id)}
-          >
-            {left > 0 ? `Yes, archive (${left})` : "Yes, archive"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
+type StatusFilter = (typeof STATUS_OPTIONS)[number]["value"]
 
 export default function AtlasJobsitesPage() {
   const { data: jobsites, isLoading } = useAtlasJobsites()
   const [query, setQuery] = useState("")
+  const [status, setStatus] = useState<StatusFilter>("active")
   const [adding, setAdding] = useState<"import" | "new" | null>(null)
   const [editing, setEditing] = useState<AtlasJobsite | null>(null)
   const [archiving, setArchiving] = useState<AtlasJobsite | null>(null)
@@ -529,11 +57,14 @@ export default function AtlasJobsitesPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const rows = jobsites ?? []
+    const rows = (jobsites ?? []).filter(j =>
+      status === "all" ? true
+        : status === "archived" ? j.status === "archived"
+        : j.status !== "archived")
     if (!q) return rows
     return rows.filter(j =>
       [j.name, j.address, j.client, j.code].some(v => v.toLowerCase().includes(q)))
-  }, [jobsites, query])
+  }, [jobsites, query, status])
 
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col gap-4">
@@ -575,14 +106,37 @@ export default function AtlasJobsitesPage() {
         </DropdownMenu>
       </div>
 
-      <div className="relative shrink-0">
-        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search projects"
-          className="pl-8"
-        />
+      <div className="flex shrink-0 items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search projects"
+            className="pl-8"
+          />
+        </div>
+        <Select value={status} onValueChange={v => v && setStatus(v as StatusFilter)}>
+          <SelectTrigger className="w-36 shrink-0">
+            <span className="flex flex-1 items-center gap-2 text-left text-sm">
+              {(() => {
+                const picked = STATUS_OPTIONS.find(o => o.value === status)!
+                return <picked.icon className="h-3.5 w-3.5 text-muted-foreground" />
+              })()}
+              {STATUS_OPTIONS.find(o => o.value === status)!.label}
+            </span>
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}>
+            {STATUS_OPTIONS.map(o => (
+              <SelectItem key={o.value} value={o.value}>
+                <span className="flex items-center gap-2">
+                  <o.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  {o.label}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <ImportJobsitesDialog open={adding === "import"} onOpenChange={o => setAdding(o ? "import" : null)} />
@@ -627,9 +181,16 @@ export default function AtlasJobsitesPage() {
                   // Link e botões lado a lado, nunca aninhados: botão dentro de
                   // link é HTML inválido, e o clique de um roubaria o do outro.
                   // Mesma solução do seletor da sidebar.
+                  // Arquivada se reconhece pelo peso, não por uma etiqueta ao
+                  // lado do cliente: o cartão inteiro recua, que é o que o
+                  // arquivamento fez com a obra.
                   <div
                     key={j.id}
-                    className="flex items-stretch overflow-hidden rounded-md border border-border/60 bg-card transition-colors hover:border-primary/40"
+                    className={`flex items-stretch overflow-hidden rounded-md border transition-colors hover:border-primary/40 ${
+                      archived
+                        ? "border-dashed border-border/50 bg-muted/30 opacity-75 hover:opacity-100"
+                        : "border-border/60 bg-card"
+                    }`}
                   >
                     <Link
                       href={`/atlas/${j.id}`}
@@ -638,11 +199,8 @@ export default function AtlasJobsitesPage() {
                       {/* Do geral ao particular: cliente, lugar, e por fim a
                           obra. A identificação vem por último porque é onde a
                           leitura chega, e é como a obra é chamada no dia a dia. */}
-                      <span className="flex items-center gap-2">
-                        <span className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">
-                          {j.client || "No client"}
-                        </span>
-                        {archived && <Badge variant="outline" className="shrink-0">Archived</Badge>}
+                      <span className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">
+                        {j.client || "No client"}
                       </span>
 
                       {/* O lugar perde o miolo: a cidade se repete em toda obra
@@ -667,7 +225,7 @@ export default function AtlasJobsitesPage() {
                         disabled={archive.isPending}
                         className={`flex flex-1 items-center justify-center px-2.5 transition-colors disabled:opacity-50 ${
                           archived
-                            ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            ? "text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
                             : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         }`}
                       >

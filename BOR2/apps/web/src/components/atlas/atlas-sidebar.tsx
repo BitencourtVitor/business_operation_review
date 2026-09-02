@@ -16,7 +16,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { AtlasJobsitePicker } from "@/components/atlas/atlas-jobsite-picker"
-import { readLastJobsite, writeLastJobsite } from "@/components/atlas/last-jobsite"
+import { onLastJobsiteCleared, readLastJobsite, writeLastJobsite } from "@/components/atlas/last-jobsite"
 import { useAtlasJobsite } from "@/hooks/use-atlas"
 import { usePermission } from "@/hooks/use-permission"
 import {
@@ -76,12 +76,17 @@ export function AtlasSidebar() {
     }
   }, [routeJobsiteId, pathname])
 
+  // Largar a obra estando já na Project List não muda a rota, então o efeito
+  // acima não roda: o aviso é o que faz a barra esquecê-la na hora.
+  useEffect(() => onLastJobsiteCleared(() => setRemembered("")), [])
+
   const jobsiteId = routeJobsiteId || remembered
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { canView } = usePermission()
 
   const tab = params.get("tab") ?? "documents"
   const inRoom = !!jobsiteId
+  const expanded = open || isMobile
 
   return (
     <Sidebar collapsible="icon" className="overflow-x-hidden">
@@ -110,14 +115,32 @@ export function AtlasSidebar() {
             informação duas vezes, uma delas truncada. */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <div className="overflow-hidden rounded-lg border border-sidebar-border">
+            {/* Colapsada, a moldura não tem o que emoldurar: sobra uma caixa em
+                volta de cinco ícones soltos, e a borda de 1px ainda empurrava
+                estes itens para fora do prumo dos de baixo. */}
+            <div className={expanded ? "overflow-hidden rounded-lg border border-sidebar-border" : ""}>
               <AtlasJobsitePicker currentId={jobsiteId} />
 
+              {/* As abas entram uma depois da outra, e a chave carrega o id da
+                  obra para a sequência tocar de novo a cada troca. Escolher a
+                  obra enchia a barra de um quadro para o outro, e o que muda de
+                  lugar sem transição a pessoa tem de reencontrar. */}
               {inRoom && (
-                <div className="border-t border-sidebar-border bg-gradient-to-b from-sidebar-accent/15 to-transparent p-1">
+                <div
+                  key={jobsiteId}
+                  className={`duration-300 animate-in fade-in-0 ${
+                    expanded
+                      ? "border-t border-sidebar-border bg-gradient-to-b from-sidebar-accent/15 to-transparent p-1"
+                      : ""
+                  }`}
+                >
                   <SidebarMenu>
-                    {ROOM_TABS.map(item => (
-                      <SidebarMenuItem key={item.key}>
+                    {ROOM_TABS.map((item, i) => (
+                      <SidebarMenuItem
+                        key={item.key}
+                        className="fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2"
+                        style={{ animationDelay: `${60 + i * 45}ms` }}
+                      >
                         <SidebarMenuButton
                           isActive={pathname === `/atlas/${jobsiteId}` && tab === item.key}
                           tooltip={item.title}
@@ -131,7 +154,10 @@ export function AtlasSidebar() {
                     {/* Dizer quem entra na obra é permissão própria: nem todo
                         mundo que administra a obra decide quem a enxerga. */}
                     {canView("atlas_access") && (
-                      <SidebarMenuItem>
+                      <SidebarMenuItem
+                        className="fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2"
+                        style={{ animationDelay: `${60 + ROOM_TABS.length * 45}ms` }}
+                      >
                         <SidebarMenuButton
                           isActive={pathname === `/atlas/${jobsiteId}` && tab === "access"}
                           tooltip="Manage Access"

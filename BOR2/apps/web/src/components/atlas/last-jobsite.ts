@@ -7,6 +7,12 @@
 // continua mostrando de onde a pessoa veio enquanto ela mexe na configuração.
 // Só o botão de limpar apaga — sair para configurar não é largar a obra.
 
+// Quem escreve o registro é a barra lateral, mas quem o limpa é o botão dentro
+// dela: dois componentes olhando o mesmo valor. Sem aviso, limpar estando já em
+// /atlas não mudava rota nenhuma, e a barra seguia mostrando a obra que a
+// pessoa acabou de largar.
+const CLEARED = "atlas:last-jobsite:cleared"
+
 const KEY = "atlas:last-jobsite"
 
 export function readLastJobsite(): string {
@@ -30,4 +36,11 @@ export function clearLastJobsite() {
   try {
     window.localStorage.removeItem(KEY)
   } catch {}
+  window.dispatchEvent(new Event(CLEARED))
+}
+
+export function onLastJobsiteCleared(fn: () => void) {
+  if (typeof window === "undefined") return () => {}
+  window.addEventListener(CLEARED, fn)
+  return () => window.removeEventListener(CLEARED, fn)
 }
