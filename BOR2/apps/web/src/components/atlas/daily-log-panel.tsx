@@ -120,7 +120,7 @@ export function DailyLogPanel({ jobsiteId, canWrite }: { jobsiteId: string; canW
         <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
           <p className="text-sm font-medium">Diary is empty</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every recorded day becomes a line on the jobsite calendar.
+            Every recorded day becomes a line in the jobsite history.
           </p>
         </div>
       ) : (
@@ -158,7 +158,7 @@ export function DailyLogPanel({ jobsiteId, canWrite }: { jobsiteId: string; canW
                       }}
                     />
                     <Button
-                      variant="ghost" size="sm" className="ml-auto h-7 gap-1.5 text-xs"
+                      variant="ghost" className="ml-auto h-7 gap-1.5 text-xs"
                       onClick={() => fileInputs.current[l.id]?.click()}
                       disabled={upload.isPending}
                     >

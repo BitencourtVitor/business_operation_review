@@ -127,8 +127,8 @@ export function ImportUserDialog({ open, onClose }: { open: boolean; onClose: ()
             {picked.size} selected · comes in with read access
           </span>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-            <Button size="sm" disabled={picked.size === 0 || updatePerms.isPending} onClick={confirm}>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button disabled={picked.size === 0 || updatePerms.isPending} onClick={confirm}>
               {updatePerms.isPending
                 ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 : <><Check className="h-3.5 w-3.5" />Import</>}

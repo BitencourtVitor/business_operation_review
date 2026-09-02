@@ -1,6 +1,5 @@
 "use client"
 
-import { CalendarPanel } from "@/components/atlas/calendar-panel"
 import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteAccessPanel } from "@/components/atlas/jobsite-access-panel"
@@ -15,7 +14,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect } from "@/components/ui/native-select"
 import {
-  useAtlasDocumentCategories, useAtlasDocuments, useAtlasJobsite, useCreateAtlasDocument,
+  useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
+  useCreateDocCategory,
 } from "@/hooks/use-atlas"
 
 import type { AtlasDocument } from "@/services/atlas.service"
@@ -36,79 +36,133 @@ const TAB_TITLE: Record<string, string> = {
   photos: "Photos",
   tasks: "Tasks",
   diary: "Diary",
-  calendar: "Calendar",
   access: "Access",
 }
 
-function NewDocumentDialog({ jobsiteId, client }: { jobsiteId: string; client: string }) {
+function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
+  jobsiteId: string; client: string; kind: string; usedCategoryIds: Set<number>
+}) {
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ name: "", category: "", discipline: "" })
-  const create = useCreateAtlasDocument(jobsiteId)
+  const addSlot = useAddCategorySlot(jobsiteId)
+  const createCategory = useCreateDocCategory()
 
-  // As opções são as do cliente da obra, e só caem para a lista inteira quando
-  // o cliente não tem catálogo próprio: o que a Pulte exige não é o que a Toll
-  // Brothers exige.
-  const { data: byClient } = useAtlasDocumentCategories(client)
-  const { data: all } = useAtlasDocumentCategories()
-  const options = (byClient?.length ? byClient : all) ?? []
+  // Toda pasta pertence a uma categoria — não existe documento sem filiação.
+  // Por isso não há campo livre aqui: ou se escolhe uma categoria que a
+  // taxonomia já conhece, ou se cria uma, que fica guardada para as outras
+  // obras poderem usar depois.
+  const { data: categories = [] } = useAtlasDocCategories()
+  const available = categories
+    .filter(c => !c.client || c.client.toLowerCase() === client.toLowerCase())
+    .filter(c => !c.buildType || c.buildType.toLowerCase() === kind.toLowerCase())
+    .filter(c => !usedCategoryIds.has(c.id))
 
-  // Nomear a pasta é trabalho repetido quando ela é "House Plan" e o documento
-  // é o House Plan. O nome acompanha a categoria até alguém digitar outro.
-  const [nameTouched, setNameTouched] = useState(false)
-  function pickCategory(category: string) {
-    setForm(f => ({ ...f, category, name: nameTouched ? f.name : category }))
+  const [mode, setMode] = useState<"pick" | "new">("pick")
+  const [picked, setPicked] = useState("")
+  const [draft, setDraft] = useState({ name: "", axis: "none" })
+
+  function close() {
+    setOpen(false)
+    setMode("pick"); setPicked(""); setDraft({ name: "", axis: "none" })
   }
 
+  function confirm() {
+    if (mode === "pick") {
+      if (!picked) return
+      addSlot.mutate(Number(picked), { onSuccess: close })
+      return
+    }
+    if (!draft.name.trim()) return
+    // Nasce como sugestão: só esta obra recebe a pasta agora. As demais a
+    // acrescentam quando precisarem — inclusive as já cadastradas.
+    createCategory.mutate(
+      { client: "", buildType: kind, name: draft.name.trim(), axis: draft.axis, defaultSlot: false, jobsiteId },
+      { onSuccess: close },
+    )
+  }
+
+  const pending = addSlot.isPending || createCategory.isPending
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={v => (v ? setOpen(true) : close())}>
       <DialogTrigger render={<Button variant="outline" />}>
         <Plus className="h-4 w-4" />
-        New folder
+        Add folder
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New document folder</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Add a folder to this jobsite</DialogTitle></DialogHeader>
+
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-category">Category</Label>
-            <NativeSelect
-              id="doc-category"
-              value={options.some(o => o.document === form.category) ? form.category : ""}
-              onChange={e => pickCategory(e.target.value)}
-            >
-              <option value="">Not in the catalog</option>
-              {options.map(o => (
-                <option key={`${o.client}-${o.type}-${o.document}`} value={o.document}>
-                  {o.type ? `${o.type} · ${o.document}` : o.document}
-                </option>
-              ))}
-            </NativeSelect>
-            <p className="text-xs text-muted-foreground">
-              Same list the Forecast checks for Fieldwire{client ? ` — ${client}` : ""}.
-            </p>
+          <div className="flex gap-1 rounded-lg border border-border/60 p-1">
+            {(["pick", "new"] as const).map(m => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+                  mode === m ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {m === "pick" ? "From the taxonomy" : "New category"}
+              </button>
+            ))}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-name">Folder name</Label>
-            <Input
-              id="doc-name"
-              value={form.name}
-              placeholder="Permit Set, House Plan…"
-              onChange={e => { setNameTouched(true); setForm({ ...form, name: e.target.value }) }}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="doc-discipline">Discipline</Label>
-            <Input id="doc-discipline" value={form.discipline}
-              placeholder="Architectural, Structural, MEP…"
-              onChange={e => setForm({ ...form, discipline: e.target.value })} />
-          </div>
+
+          {mode === "pick" ? (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="slot-category">Category</Label>
+              <NativeSelect id="slot-category" value={picked} onChange={e => setPicked(e.target.value)}>
+                <option value="">Select a category…</option>
+                {available.map(o => (
+                  <option key={o.id} value={o.id}>
+                    {o.axis === "floor" ? `${o.name} — one per floor`
+                      : o.axis === "unit" ? `${o.name} — one per unit`
+                      : o.name}
+                  </option>
+                ))}
+              </NativeSelect>
+              <p className="text-xs text-muted-foreground">
+                {available.length === 0
+                  ? "Every category in the taxonomy is already here."
+                  : "Only what this jobsite doesn't have yet."}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="cat-name">Category name</Label>
+                <Input
+                  id="cat-name"
+                  value={draft.name}
+                  placeholder="Panels - Elevation - Bearing Walls…"
+                  onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="cat-axis">Subcategory</Label>
+                <NativeSelect
+                  id="cat-axis"
+                  value={draft.axis}
+                  onChange={e => setDraft(d => ({ ...d, axis: e.target.value }))}
+                >
+                  <option value="none">Single folder</option>
+                  <option value="floor">One per floor</option>
+                  <option value="unit">One per unit</option>
+                </NativeSelect>
+                <p className="text-xs text-muted-foreground">
+                  Saved for every jobsite to use later — added here only for now.
+                </p>
+              </div>
+            </>
+          )}
         </div>
+
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={close}>Cancel</Button>
           <Button
-            disabled={!form.name.trim() || create.isPending}
-            onClick={() => create.mutate(form, { onSuccess: () => setOpen(false) })}
+            disabled={pending || (mode === "pick" ? !picked : !draft.name.trim())}
+            onClick={confirm}
           >
-            {create.isPending ? "Creating…" : "Create"}
+            {pending ? "Adding…" : "Add"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -116,19 +170,16 @@ function NewDocumentDialog({ jobsiteId, client }: { jobsiteId: string; client: s
   )
 }
 
-function DocumentsPanel({ jobsiteId, client, canManage }: {
-  jobsiteId: string; client: string; canManage: boolean
+function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
+  jobsiteId: string; client: string; kind: string; canManage: boolean
 }) {
   const { data: documents, isLoading } = useAtlasDocuments(jobsiteId)
-  const { data: catalog } = useAtlasDocumentCategories(client)
 
-  // A lista é a do que a obra precisa ter, não a do que já subiu. Cada
-  // documento exigido pelo cliente aparece uma vez: com a pasta, quando existe,
-  // e como lacuna quando não existe. Mostrar só o que foi anexado esconde
-  // justamente a pergunta que a obra faz — o que está faltando.
-  const required = [...new Set((catalog ?? []).map(c => c.document))]
-  const byCategory = new Map((documents ?? []).map(d => [d.category, d]))
-  const extras = (documents ?? []).filter(d => !required.includes(d.category))
+  // A lista é a das vagas da própria obra, criadas a partir da taxonomia do
+  // Atlas quando ela foi cadastrada ou importada. A pasta existe desde o
+  // começo; o que muda é ter documento dentro ou não — e é essa lacuna que a
+  // obra precisa mostrar.
+  const slots = documents ?? []
 
   if (isLoading) {
     return (
@@ -155,7 +206,7 @@ function DocumentsPanel({ jobsiteId, client, canManage }: {
             {doc
               ? [doc.category, `${doc.versions} ${doc.versions === 1 ? "revision" : "revisions"}`,
                  doc.latestRevision && `rev ${doc.latestRevision}`].filter(Boolean).join(" · ")
-              : "Required for this client · nothing attached yet"}
+              : "Nothing attached yet"}
           </span>
         </span>
         {!!doc?.sheets && (
@@ -191,21 +242,25 @@ function DocumentsPanel({ jobsiteId, client, canManage }: {
     <div className="flex flex-col gap-4">
       {canManage && (
         <div className="flex justify-end">
-          <NewDocumentDialog jobsiteId={jobsiteId} client={client} />
+          <NewDocumentDialog
+            jobsiteId={jobsiteId}
+            client={client}
+            kind={kind}
+            usedCategoryIds={new Set(slots.map(d => d.categoryId).filter((n): n is number => !!n))}
+          />
         </div>
       )}
 
-      {required.length === 0 && !documents?.length ? (
+      {slots.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">Nothing required, nothing attached</p>
+          <p className="text-sm font-medium">No folders yet</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Set what this client needs in Definitions, or attach a document anyway.
+            Set the categories in Manage Categories and Subcategories, or add a folder anyway.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {required.map(doc => row(doc, byCategory.get(doc), doc))}
-          {extras.map(d => row(d.id, d, d.name))}
+          {slots.map(d => row(d.id, d.versions > 0 ? d : undefined, d.name))}
         </div>
       )}
     </div>
@@ -235,7 +290,7 @@ export default function JobsiteRoomPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
         <p className="text-sm text-muted-foreground">Jobsite not found, or no access.</p>
-        <Button variant="outline" size="sm" render={<Link href="/atlas" />}>Back to jobsites</Button>
+        <Button variant="outline" render={<Link href="/atlas" />}>Back to jobsites</Button>
       </div>
     )
   }
@@ -263,10 +318,9 @@ export default function JobsiteRoomPage() {
       </div>
 
       {tab === "documents" && (
-        <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} canManage={!!canManage} />
+        <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
       )}
       {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
-      {tab === "calendar" && <CalendarPanel jobsiteId={jobsiteId} />}
       {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "photos" && <PhotosPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "access" && canManage && <JobsiteAccessPanel jobsiteId={jobsiteId} />}

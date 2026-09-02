@@ -121,31 +121,6 @@ export function useRevokeAtlasAccess(jobsiteId: string) {
  * própria, senão a empresa passa a ter duas respostas para "quais documentos
  * esta obra precisa ter".
  */
-export function useAtlasDocumentCategories(client?: string) {
-  return useQuery({
-    queryKey: ["atlas", "document-categories", client ?? ""],
-    queryFn: () => atlasService.listDocumentCategories(client),
-    staleTime: 10 * 60 * 1000,
-  })
-}
-
-export function useCreateDocumentCategory() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (body: { client: string; type: string; document: string; notes?: string }) =>
-      atlasService.createDocumentCategory(body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "document-categories"] }),
-  })
-}
-
-export function useDeleteDocumentCategory() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: number) => atlasService.deleteDocumentCategory(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "document-categories"] }),
-  })
-}
-
 export function useAtlasDocuments(jobsiteId: string) {
   return useQuery({
     queryKey: KEY.documents(jobsiteId),
@@ -410,5 +385,50 @@ export function useUploadAtlasMedia(jobsiteId: string) {
       qc.invalidateQueries({ queryKey: KEY.dailyLogs(jobsiteId) })
       qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
     },
+  })
+}
+
+// ─── Taxonomia de documento ───────────────────────────────────────────────────
+
+export function useAtlasDocCategories() {
+  return useQuery({
+    queryKey: ["atlas", "doc-categories"],
+    queryFn: atlasService.listDocCategories,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCreateDocCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { client: string; buildType: string; name: string; axis: string; defaultSlot?: boolean; jobsiteId?: string }) =>
+      atlasService.createDocCategory(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "doc-categories"] }),
+  })
+}
+
+export function useDeleteDocCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => atlasService.deleteDocCategory(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "doc-categories"] }),
+  })
+}
+
+// Acrescenta a esta obra as vagas de uma categoria que já existe na taxonomia.
+export function useAddCategorySlot(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (categoryId: number) => atlasService.addCategorySlot(jobsiteId, categoryId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas"] }),
+  })
+}
+
+// Reaplica a taxonomia na obra depois que andares ou unidades mudam.
+export function useRegenerateSlots() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (jobsiteId: string) => atlasService.regenerateSlots(jobsiteId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas"] }),
   })
 }

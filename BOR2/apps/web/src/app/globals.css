@@ -217,5 +217,9 @@ body {
 @media (min-width: 768px) and (max-width: 1023px) {
   .atlas-shell {
     --sidebar-width-icon: 2.75rem !important;
+    /* Aberta, a barra vai a 80% da largura de desktop: 15rem → 12rem. */
+    --sidebar-width: 12rem !important;
   }
 }
+
+

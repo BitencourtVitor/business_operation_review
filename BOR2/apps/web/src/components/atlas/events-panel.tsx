@@ -66,7 +66,7 @@ function Thread({ event, jobsiteId, canWrite, sheetId }: {
           </Button>
           {event.status !== "resolved" && (
             <Button
-              size="sm"
+             
               variant="outline"
               onClick={() => update.mutate({ eventId: event.id, patch: { status: "resolved" } })}
             >
@@ -104,7 +104,7 @@ export function EventsPanel({ jobsiteId, canWrite, sheetId }: {
     <div className="flex flex-col gap-4">
       {canWrite && (
         <div className="flex justify-end">
-          <Button size="sm" variant={open ? "ghost" : "outline"} onClick={() => setOpen(!open)}>
+          <Button variant={open ? "ghost" : "outline"} onClick={() => setOpen(!open)}>
             <Plus className="h-4 w-4" />
             {open ? "Cancel" : "New event"}
           </Button>

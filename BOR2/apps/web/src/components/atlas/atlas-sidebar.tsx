@@ -16,14 +16,17 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { AtlasJobsitePicker } from "@/components/atlas/atlas-jobsite-picker"
+import { readLastJobsite, writeLastJobsite } from "@/components/atlas/last-jobsite"
 import { useAtlasJobsite } from "@/hooks/use-atlas"
+import { usePermission } from "@/hooks/use-permission"
 import {
-  Bot, CalendarDays, ClipboardList, FileSpreadsheet, FolderOpen, Images, ListChecks,
-  Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
+  ClipboardList, FolderOpen, Images, ListChecks,
+  Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ShieldCheck,
   Settings,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 // As abas da sala da obra vivem aqui, e não dentro da página: a navegação do
 // Atlas é a mesma do BOR — sidebar à esquerda, conteúdo à direita. A aba entra
@@ -33,7 +36,6 @@ const ROOM_TABS = [
   { key: "photos",    title: "Photos",   icon: Images },
   { key: "tasks",     title: "Tasks",    icon: ListChecks },
   { key: "diary",     title: "Diary",    icon: Notebook },
-  { key: "calendar",  title: "Calendar", icon: CalendarDays },
 ] as const
 
 // O que o Fieldwire e o Buildertrend fazem e o Atlas ainda não faz.
@@ -42,11 +44,11 @@ const ROOM_TABS = [
 // quem usa e de quem prioriza. Escondido, vira lista em documento que ninguém
 // abre.
 const SOON = [
-  { title: "Specifications", icon: ScrollText,      note: "Spec book tied to the plan set" },
-  { title: "Forms",          icon: FileSpreadsheet, note: "Checklists and inspections filled in the field" },
-  { title: "Reports",        icon: ClipboardList,   note: "What happened on site, exported" },
-  { title: "AI insights",    icon: Bot,             note: "Reads the plan set and answers about it" },
-  { title: "Takeoff",        icon: Ruler,           note: "Measures wood framing straight off the drawing" },
+  { title: "Reports", icon: ClipboardList, note: "What happened on site, exported" },
+  // Um item só, e não dois: a medição do material é feita pela IA, então
+  // separá-la de "AI insights" seria anunciar duas telas para uma coisa. Ela
+  // lê o plan set, tria as páginas que têm material e mede o que dá para medir.
+  { title: "Takeoff", icon: Ruler, note: "AI reads the plan set and measures the material on it" },
 ] as const
 
 export function AtlasSidebar() {
@@ -59,8 +61,24 @@ export function AtlasSidebar() {
   const config = ["/atlas/settings", "/atlas/definitions", "/atlas/users"]
   const inJobsiteRoute = pathname.startsWith("/atlas/")
     && !config.some(route => pathname.startsWith(route))
-  const jobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
+  const routeJobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
+
+  // Entrar em Settings não é largar a obra. A rota de configuração não carrega
+  // id, então a última obra aberta vem do registro do navegador — só o botão de
+  // limpar a esquece.
+  const [remembered, setRemembered] = useState("")
+  useEffect(() => {
+    if (routeJobsiteId) {
+      writeLastJobsite(routeJobsiteId)
+      setRemembered(routeJobsiteId)
+    } else {
+      setRemembered(readLastJobsite())
+    }
+  }, [routeJobsiteId, pathname])
+
+  const jobsiteId = routeJobsiteId || remembered
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
+  const { canView } = usePermission()
 
   const tab = params.get("tab") ?? "documents"
   const inRoom = !!jobsiteId
@@ -71,9 +89,9 @@ export function AtlasSidebar() {
         {(open || isMobile) ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo_black.png" alt="Premium Group" className="h-6 object-contain dark:hidden" />
+            <img src="/images/logo_black.png" alt="Premium Group" className="h-6 object-contain md:max-lg:h-5 dark:hidden" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo_white.png" alt="Premium Group" className="hidden h-6 object-contain dark:block" />
+            <img src="/images/logo_white.png" alt="Premium Group" className="hidden h-6 object-contain md:max-lg:h-5 dark:block" />
           </>
         ) : (
           <>
@@ -110,15 +128,17 @@ export function AtlasSidebar() {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
-                    {jobsite?.level === "manage" && (
+                    {/* Dizer quem entra na obra é permissão própria: nem todo
+                        mundo que administra a obra decide quem a enxerga. */}
+                    {canView("atlas_access") && (
                       <SidebarMenuItem>
                         <SidebarMenuButton
                           isActive={pathname === `/atlas/${jobsiteId}` && tab === "access"}
-                          tooltip="Access"
+                          tooltip="Manage Access"
                           render={<Link href={`/atlas/${jobsiteId}?tab=access`} />}
                         >
                           <ShieldCheck />
-                          <span>Access</span>
+                          <span>Manage Access</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     )}

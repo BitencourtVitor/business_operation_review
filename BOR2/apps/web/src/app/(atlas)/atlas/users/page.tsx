@@ -7,7 +7,7 @@ import {
   useUsers, useCreateUser, useUpdateUser, useDeleteUser, useResetPassword,
   useUpdateUserPermissions,
 } from "@/hooks/use-settings"
-import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "@/components/atlas/atlas-permissions-modal"
+import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "../settings/permissions-modal"
 import {
   ImportUserDialog, SUBCONTRACTOR_KEY, isSubcontractor,
 } from "@/components/atlas/atlas-user-dialogs"
@@ -197,7 +197,7 @@ function UserFormModal({ open, onClose, existing, companies }: {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button size="sm" onClick={handleClose}>
+              <Button onClick={handleClose}>
                 <Check className="h-3.5 w-3.5" />
                 Done
               </Button>
@@ -284,8 +284,8 @@ function UserFormModal({ open, onClose, existing, companies }: {
             )}
 
             <div className="flex justify-end gap-2 pt-1">
-              <Button variant="ghost" size="sm" onClick={handleClose} disabled={pending}>Cancel</Button>
-              <Button size="sm" onClick={handleSubmit} disabled={!canSubmit || pending}>
+              <Button variant="ghost" onClick={handleClose} disabled={pending}>Cancel</Button>
+              <Button onClick={handleSubmit} disabled={!canSubmit || pending}>
                 {pending
                   ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving…</>
                   : isEdit
@@ -347,10 +347,10 @@ function DeleteUserModal({ open, onClose, user: target }: {
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
-          <Button variant="ghost" size="sm" onClick={handleClose}>Cancel</Button>
+          <Button variant="ghost" onClick={handleClose}>Cancel</Button>
           <Button
             variant="destructive"
-            size="sm"
+           
             onClick={confirm}
             disabled={typed !== target?.name || deleteUser.isPending}
           >
@@ -402,7 +402,7 @@ function ResetPasswordModal({ open, onClose, user: target }: {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button size="sm" onClick={handleClose}>
+              <Button onClick={handleClose}>
                 <Check className="h-3.5 w-3.5" />
                 Done
               </Button>
@@ -415,8 +415,8 @@ function ResetPasswordModal({ open, onClose, user: target }: {
               <span className="font-medium text-foreground">{target?.name}</span>?
             </p>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" size="sm" onClick={handleClose}>Cancel</Button>
-              <Button size="sm" onClick={confirm} disabled={resetPw.isPending}>
+              <Button variant="ghost" onClick={handleClose}>Cancel</Button>
+              <Button onClick={confirm} disabled={resetPw.isPending}>
                 {resetPw.isPending
                   ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   : <><KeyRound className="h-3.5 w-3.5" />Reset Password</>}
@@ -443,7 +443,7 @@ export default function AtlasUsersPage() {
   const [editing, setEditing] = useState<UserWithPermissions | undefined>()
   const [deleteTarget, setDeleteTarget] = useState<UserWithPermissions | null>(null)
   const [resetTarget, setResetTarget] = useState<UserWithPermissions | null>(null)
-  const [permsTarget, setPermsTarget] = useState<UserWithPermissions | null>(null)
+  const [permsOpen, setPermsOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
 
   const [search, setSearch] = useState("")
@@ -508,7 +508,7 @@ export default function AtlasUsersPage() {
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button size="sm" className="shrink-0 gap-1.5" />}>
+            <DropdownMenuTrigger render={<Button className="shrink-0 gap-1.5" />}>
               <Plus className="h-3.5 w-3.5" />
               Add User
               <ChevronDown className="h-3.5 w-3.5" />
@@ -614,7 +614,7 @@ export default function AtlasUsersPage() {
                 {filtered.map(u => {
                   const byRole = FULL_ACCESS_ROLES.includes(u.role)
                   const granted = ATLAS_PERMISSIONS
-                    .filter(p => !p.locked && u.permissions?.[p.key]).length
+                    .filter(p => !p.restricted && u.permissions?.[p.key]).length
                   return (
                     <TableRow key={u.id}>
                       <TableCell className="border-r border-border">
@@ -660,7 +660,7 @@ export default function AtlasUsersPage() {
                                     <TooltipTrigger render={
                                       <button
                                         className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                        onClick={() => setPermsTarget(u)}
+                                        onClick={() => setPermsOpen(true)}
                                       />
                                     }>
                                       <ShieldCheck className="h-3.5 w-3.5" />
@@ -733,11 +733,7 @@ export default function AtlasUsersPage() {
         onClose={() => setResetTarget(null)}
         user={resetTarget}
       />
-      <AtlasPermissionsModal
-        open={!!permsTarget}
-        onClose={() => setPermsTarget(null)}
-        user={permsTarget}
-      />
+      <AtlasPermissionsModal open={permsOpen} onClose={() => setPermsOpen(false)} />
       <ImportUserDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </>
   )

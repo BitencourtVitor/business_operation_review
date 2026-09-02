@@ -44,13 +44,29 @@ export interface AtlasJobsite {
   level: AtlasLevel | ""
 }
 
+/** Categoria de documento com o eixo pelo qual ela se divide. */
+export interface AtlasDocCategory {
+  id: number
+  client: string
+  buildType: string
+  name: string
+  /** none = uma pasta; floor = uma por andar; unit = uma por letra de unidade. */
+  axis: "none" | "floor" | "unit"
+  position: number
+  /** true: toda obra do tipo nasce com a pasta. false: fica de sugestão. */
+  defaultSlot: boolean
+}
+
 export interface AtlasDocument {
   id: string
   jobsiteId: string
   name: string
   discipline: string
-  /** Nome do documento no catálogo do Forecast — "House Plan", "Trusses Plans"… */
+  /** Nome da categoria na taxonomia do Atlas — "Trusses", "Wall Panels"… */
   category: string
+  categoryId: number
+  /** Valor do eixo: o andar ("3rd"), a letra da unidade ("C"), ou vazio. */
+  subcategory: string
   createdBy: string
   createdAt: string
   versions: number
@@ -183,14 +199,6 @@ export interface AtlasMedia {
   url: string
 }
 
-/** Uma linha do catálogo de documentos do Forecast, por cliente. */
-export interface AtlasDocumentCategory {
-  id: number
-  client: string
-  type: string
-  document: string
-}
-
 export interface AtlasUser {
   id: string
   name: string
@@ -254,16 +262,16 @@ export const atlasService = {
   revokeAccess: (jobsiteId: string, userId: string) =>
     api.delete(`${base}/jobsites/${jobsiteId}/access/${userId}`, getToken()),
 
-  listDocumentCategories: (client?: string) =>
-    api.get<AtlasDocumentCategory[]>(
-      `${base}/document-categories${client ? `?client=${encodeURIComponent(client)}` : ""}`,
-      getToken(),
-    ).then(r => r ?? []),
-
-  createDocumentCategory: (body: { client: string; type: string; document: string; notes?: string }) =>
-    api.post<{ id: number }>(`${base}/document-categories`, body, getToken()),
-  deleteDocumentCategory: (id: number) =>
-    api.delete(`${base}/document-categories/${id}`, getToken()),
+  listDocCategories: () =>
+    api.get<AtlasDocCategory[]>(`${base}/doc-categories`, getToken()).then(r => r ?? []),
+  createDocCategory: (body: { client: string; buildType: string; name: string; axis: string; defaultSlot?: boolean; jobsiteId?: string }) =>
+    api.post<{ id: number }>(`${base}/doc-categories`, body, getToken()),
+  deleteDocCategory: (id: number) =>
+    api.delete(`${base}/doc-categories/${id}`, getToken()),
+  addCategorySlot: (jobsiteId: string, categoryId: number) =>
+    api.post<{ created: number }>(`${base}/jobsites/${jobsiteId}/slots/${categoryId}`, {}, getToken()),
+  regenerateSlots: (jobsiteId: string) =>
+    api.post<{ created: number }>(`${base}/jobsites/${jobsiteId}/slots`, {}, getToken()),
 
   listDocuments: (jobsiteId: string) =>
     api.get<AtlasDocument[]>(`${base}/jobsites/${jobsiteId}/documents`, getToken()).then(r => r ?? []),
