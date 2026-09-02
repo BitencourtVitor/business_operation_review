@@ -201,3 +201,17 @@ body {
   background-size: 20px 20px;
   background-attachment: fixed;
 }
+/* Atlas em tablet: a barra fechada encolhe.
+ *
+ * O leitor de planta disputa cada centímetro com a navegação, e em tablet a
+ * tela é a metade da do desktop. A barra aberta continua com a mesma largura —
+ * é ela que precisa caber o nome da obra —, e o desktop não muda nada.
+ *
+ * `!important` porque o SidebarProvider grava a variável no style inline do
+ * próprio wrapper, e style inline ganha de classe.
+ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .atlas-shell {
+    --sidebar-width-icon: 2.75rem !important;
+  }
+}

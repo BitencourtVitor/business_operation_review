@@ -16,7 +16,7 @@ export default async function AtlasLayout({ children }: { children: React.ReactN
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false"
   return (
     <AuthGuard>
-      <SidebarProvider defaultOpen={sidebarOpen}>
+      <SidebarProvider defaultOpen={sidebarOpen} className="atlas-shell">
         <AtlasSidebar />
         <SidebarInset className="min-w-0 overflow-x-hidden">
           <AtlasHeader />
