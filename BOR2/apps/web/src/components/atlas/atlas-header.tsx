@@ -76,12 +76,12 @@ export function AtlasHeader() {
         <img src="/images/minilogo_black.png" alt="Premium" className="h-6 w-6 shrink-0 object-contain dark:hidden" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/minilogo_white.png" alt="Premium" className="hidden h-6 w-6 shrink-0 object-contain dark:block" />
-        <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Atlas</span>
+        <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Atlas Project Control</span>
       </div>
 
       {/* Desktop: título + frase */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
-        <h1 className="text-base font-medium tracking-tight text-primary">Atlas</h1>
+        <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
         <p className="text-[10px] text-muted-foreground">
           Unless commitment is made, there are only promises and hopes; but no plans.
         </p>

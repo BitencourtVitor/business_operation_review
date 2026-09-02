@@ -53,7 +53,7 @@ export function useProducts() {
     },
     {
       id: "atlas",
-      name: "Atlas",
+      name: "Atlas Project Control",
       tagline: "Documents, drawings and site diary.",
       href: "/atlas",
       enabled: isDev,
