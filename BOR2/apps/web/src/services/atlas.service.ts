@@ -191,6 +191,17 @@ export interface AtlasDocumentCategory {
   document: string
 }
 
+export interface AtlasUser {
+  id: string
+  name: string
+  email: string
+  role: string
+  level: string
+  jobsites: number
+  /** Entra por ser dev, não por concessão. */
+  byRole: boolean
+}
+
 export interface AtlasAccess {
   userId: string
   userName: string
@@ -228,6 +239,15 @@ export const atlasService = {
     api.post<{ id: string }>(`${base}/jobsites`, body, getToken()),
   updateJobsite: (id: string, patch: Partial<AtlasJobsite>) =>
     api.patch(`${base}/jobsites/${id}`, patch, getToken()),
+
+  listAtlasUsers: () =>
+    api.get<AtlasUser[]>(`${base}/users`, getToken()).then(r => r ?? []),
+  listAtlasUserCandidates: () =>
+    api.get<AtlasUser[]>(`${base}/users/candidates`, getToken()).then(r => r ?? []),
+  createAtlasUser: (body: { name: string; email: string; level: string }) =>
+    api.post<{ id: string; provisionalPassword: string }>(`${base}/users`, body, getToken()),
+  setAtlasUserAccess: (userId: string, level: string) =>
+    api.patch(`${base}/users/${userId}`, { level }, getToken()),
 
   listAccess: (jobsiteId: string) =>
     api.get<AtlasAccess[]>(`${base}/jobsites/${jobsiteId}/access`, getToken()).then(r => r ?? []),

@@ -19,7 +19,7 @@ import { useAtlasJobsite, useAtlasJobsites } from "@/hooks/use-atlas"
 import {
   Bot, CalendarDays, ClipboardList, FileSpreadsheet, FolderOpen, Images, ListChecks,
   Map, Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ScrollText, ShieldCheck,
-  SlidersHorizontal,
+  SlidersHorizontal, Users,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -55,7 +55,9 @@ export function AtlasSidebar() {
   const params = useSearchParams()
 
   // A obra em foco sai da própria rota: /atlas/<id> e tudo abaixo dela.
-  const inJobsiteRoute = pathname.startsWith("/atlas/") && !pathname.startsWith("/atlas/definitions")
+  const inJobsiteRoute = pathname.startsWith("/atlas/")
+    && !pathname.startsWith("/atlas/definitions")
+    && !pathname.startsWith("/atlas/users")
   const jobsiteId = inJobsiteRoute ? pathname.split("/")[2] : ""
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: jobsites } = useAtlasJobsites()
@@ -106,6 +108,16 @@ export function AtlasSidebar() {
                 >
                   <SlidersHorizontal />
                   <span>Definitions</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith("/atlas/users")}
+                  tooltip="Users"
+                  render={<Link href="/atlas/users" />}
+                >
+                  <Users />
+                  <span>Users</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

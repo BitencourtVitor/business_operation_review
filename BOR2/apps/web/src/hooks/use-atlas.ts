@@ -63,6 +63,35 @@ export function useCreateAtlasJobsite() {
   })
 }
 
+export function useAtlasUsers() {
+  return useQuery({ queryKey: ["atlas", "users"], queryFn: atlasService.listAtlasUsers })
+}
+
+export function useAtlasUserCandidates() {
+  return useQuery({
+    queryKey: ["atlas", "users", "candidates"],
+    queryFn: atlasService.listAtlasUserCandidates,
+  })
+}
+
+export function useCreateAtlasUser() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { name: string; email: string; level: string }) =>
+      atlasService.createAtlasUser(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "users"] }),
+  })
+}
+
+export function useSetAtlasUserAccess() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, level }: { userId: string; level: string }) =>
+      atlasService.setAtlasUserAccess(userId, level),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "users"] }),
+  })
+}
+
 export function useAtlasAccess(jobsiteId: string, enabled = true) {
   return useQuery({
     queryKey: KEY.access(jobsiteId),

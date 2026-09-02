@@ -126,6 +126,33 @@ func RequirePermission(db *pgxpool.Pool, key string, level string) fiber.Handler
 	}
 }
 
+// RequireAtlas guarda o Atlas enquanto ele está em construção.
+//
+// Entra quem é dev, e quem recebeu a chave `atlas` — e mais ninguém. É de
+// propósito mais estreito que RequirePermission: lá, dev, owner, admin e
+// manager passam por serem quem são. Aqui, produto em construção só abre para
+// quem foi convidado, mesmo que a pessoa administre a plataforma inteira.
+func RequireAtlas(db *pgxpool.Pool) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if role, _ := c.Locals("userRole").(string); role == "dev" {
+			return c.Next()
+		}
+		userID, _ := c.Locals("userID").(string)
+		if userID != "" {
+			var level string
+			err := db.QueryRow(c.Context(), `
+				SELECT COALESCE(permissions->>'atlas', '')
+				FROM user_permissions WHERE user_id = $1`, userID).Scan(&level)
+			if err == nil && level != "" {
+				return c.Next()
+			}
+		}
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "no access to Atlas", "code": "FORBIDDEN",
+		})
+	}
+}
+
 // RequireCronOrAdmin allows the request if either:
 //   - The X-Cron-Secret header matches the configured cronSecret, OR
 //   - A valid Bearer token belongs to a dev/owner/admin user.
