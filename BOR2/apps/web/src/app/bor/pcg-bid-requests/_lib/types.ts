@@ -198,10 +198,14 @@ export const PROJECT_TYPE_LABEL: Record<ProjectType, string> = {
 
 export const PROJECT_TYPES: ProjectType[] = ["new_construction", "addition", "renovation"]
 
-// The eight states a trade moves through. Trades with no bid form skip
+// The nine states a trade moves through. Trades with no bid form skip
 // straight from not_started to contract_draft.
+//
+// `questionnaire_pending` não é um degrau da escada: é a marca de que a obra tem
+// evento lançado sem o questionário respondido. Ela some sozinha quando a última
+// pergunta é respondida, e por isso é derivada, nunca gravada.
 export type TradeStatus =
-  | "not_started" | "bid_draft" | "bid_sent" | "bid_received"
+  | "not_started" | "questionnaire_pending" | "bid_draft" | "bid_sent" | "bid_received"
   | "bid_approved" | "contract_draft" | "contract_sent" | "contract_signed"
 
 // Only two things are stored: what was asked, and what happened. Status, price
@@ -278,6 +282,11 @@ export type TradeEvent = {
   id: string
   type: TradeEventType
   at: string           // the day it happened, as told by whoever logged it
+  // Nem todo evento importado sabe o dia em que aconteceu. `at` continua
+  // preenchido — é ele que ordena a linha do tempo inteira, e um nulo aqui
+  // quebraria a ordenação, os limites de data e os documentos —, mas a tela
+  // mostra "data não informada" em vez de uma data que ninguém afirmou.
+  atUnknown?: boolean
   recordedAt: string   // when it was typed in — the two differ, and both matter
   by: string           // who logged it, taken from the session
   note: string
@@ -299,7 +308,7 @@ export type TradeEvent = {
 // params and the audit trail are deliberately out: a bid that went out is not
 // retroactively a different step, and who typed it in when is not editable.
 export type TradeEventEdit = Partial<
-  Pick<TradeEvent, "at" | "note" | "url" | "amount" | "leadTimeValue" | "leadTimeUnit" | "subcontractor">
+  Pick<TradeEvent, "at" | "atUnknown" | "note" | "url" | "amount" | "leadTimeValue" | "leadTimeUnit" | "subcontractor">
 >
 
 // A frozen copy of everything the document is built from. Shared by every event
@@ -354,6 +363,7 @@ export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
 
 export const TRADE_STATUS_LABEL: Record<TradeStatus, string> = {
   not_started:     "Not started",
+  questionnaire_pending: "Questionnaire pending",
   bid_draft:       "Bid form draft",
   bid_sent:        "Bid sent to sub",
   bid_received:    "Bid received",

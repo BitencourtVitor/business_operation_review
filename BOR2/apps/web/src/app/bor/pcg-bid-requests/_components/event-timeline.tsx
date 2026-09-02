@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/hooks/use-auth"
+import { usePermission } from "@/hooks/use-permission"
 import { eventMeta } from "../_lib/status-meta"
 import {
   availableEventTypes, bidAmountOf, blockedReason, compareEvents, diffParams, eventDateBounds,
@@ -181,6 +182,10 @@ function LogEventForm({
   // pre-filling the last one would quietly send the same sub two forms.
   const [sub, setSub] = useState("")
   const [pickingDate, setPickingDate] = useState(false)
+  // Registro do que já aconteceu fora do sistema nem sempre traz o dia. O evento
+  // guarda a data do registro assim mesmo, porque é ela que ordena a linha do
+  // tempo, e esta marca impede que ela seja lida como um fato.
+  const [atUnknown, setAtUnknown] = useState(false)
 
   const selected = new Date(`${at}T00:00:00`)
   const min = minDay ? new Date(`${minDay}T00:00:00`) : null
@@ -294,10 +299,29 @@ function LogEventForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label>When it happened</Label>
-        <Popover open={pickingDate} onOpenChange={setPickingDate}>
-          <PopoverTrigger className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted dark:bg-input/30 dark:hover:bg-input/50">
-            <span className="flex-1 truncate text-left">{formatDate(selected.toISOString())}</span>
+        <div className="flex items-baseline justify-between gap-2">
+          <Label>When it happened</Label>
+          {/* Registrar o que veio de fora nem sempre traz o dia. Marcar aqui e
+              dizer que nao se sabe, em vez de escolher uma data qualquer e ela
+              passar a valer como fato. */}
+          <button
+            type="button"
+            onClick={() => setAtUnknown(v => !v)}
+            className={`text-[11px] transition-colors ${
+              atUnknown ? "font-medium text-amber-500" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {atUnknown ? "date not recorded" : "don't know the date"}
+          </button>
+        </div>
+        <Popover open={pickingDate} onOpenChange={o => { if (!atUnknown) setPickingDate(o) }}>
+          <PopoverTrigger
+            disabled={atUnknown}
+            className="flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 dark:hover:bg-input/50"
+          >
+            <span className={atUnknown ? "flex-1 truncate text-left italic text-muted-foreground" : "flex-1 truncate text-left"}>
+              {atUnknown ? "not recorded" : formatDate(selected.toISOString())}
+            </span>
             <CalendarIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           </PopoverTrigger>
           <PopoverContent side="bottom" align="start" className="w-auto gap-0 p-0">
@@ -460,6 +484,7 @@ function LogEventForm({
               id: nextEventId(projectTrade),
               type,
               at: new Date(`${at}T12:00:00`).toISOString(),
+              atUnknown,
               recordedAt: new Date().toISOString(),
               by: loggedBy,
               note: note.trim(),
@@ -651,6 +676,9 @@ function EditEventForm({
           onClick={() => {
             onSave({
               at: new Date(`${at}T12:00:00`).toISOString(),
+              // Editar a data é o que se faz para informá-la: mexer no campo
+              // tira a marca de "não informada", sem uma segunda ação.
+              atUnknown: false,
               note: note.trim(),
               url: url.trim(),
               amount: needsPrice ? amount : null,
@@ -689,13 +717,18 @@ export function EventTimeline({
   overrideCount: number
 }) {
   const { user } = useAuth()
+  const { isDev } = usePermission()
   const [logging, setLogging] = useState(false)
   const [editing, setEditing] = useState<string | null>(null)
 
+  // Só o dev dispensa o questionário. O que se lança assim é fato anterior ao
+  // sistema — orçamento que já foi pedido e já voltou —, e a obra fica marcada
+  // como questionnaire_pending até alguém responder as perguntas.
+  const bypass = isDev
   const step = nextStepHint(trade, projectTrade, { complete, staleApproval: !!staleApproval })
   const flow = eventFlow(trade)
-  const options = availableEventTypes(trade, projectTrade, { complete, current })
-  const blocked = options.length === 0 ? blockedReason(trade, projectTrade, { complete }) : null
+  const options = availableEventTypes(trade, projectTrade, { complete, current, bypass })
+  const blocked = options.length === 0 ? blockedReason(trade, projectTrade, { complete, bypass }) : null
   const changes = staleApproval ? diffParams(trade, staleApproval, current) : []
 
   return (
@@ -833,7 +866,11 @@ export function EventTimeline({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium leading-tight">{TRADE_EVENT_LABEL[event.type]}</p>
                     <p className="mt-1 text-xs">
-                      <span className="text-muted-foreground">{formatDate(event.at)}</span>
+                      {/* Data que ninguém afirmou não se apresenta como data.
+                          O evento aconteceu; o dia é que não veio junto. */}
+                      <span className={event.atUnknown ? "italic text-amber-500/80" : "text-muted-foreground"}>
+                        {event.atUnknown ? "date not recorded" : formatDate(event.at)}
+                      </span>
                       {event.note && <span className="text-muted-foreground"> · </span>}
                       {event.note}
                     </p>

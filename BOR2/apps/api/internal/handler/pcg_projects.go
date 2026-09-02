@@ -35,7 +35,10 @@ type pcgEvent struct {
 	LoggedBy string `json:"by"`
 	// Quando foi digitado — diferente de `at`, que é o dia do fato. A timeline
 	// ordena pelos dois, então sem este campo a ordenação quebra.
-	RecordedAt      time.Time       `json:"recordedAt"`
+	RecordedAt time.Time `json:"recordedAt"`
+	// Marca que o dia em `At` é o do registro, não um fato afirmado. Ponteiro
+	// porque o PATCH precisa distinguir "não mandou o campo" de "mandou false".
+	AtUnknown       *bool           `json:"atUnknown,omitempty"`
 	URL             string          `json:"url"`
 	Params          json.RawMessage `json:"params,omitempty"`
 	PaymentSchedule json.RawMessage `json:"paymentSchedule,omitempty"`
@@ -120,7 +123,7 @@ func (h *PCGProjectsHandler) List(c *fiber.Ctx) error {
 		SELECT project_trade_id, id, type, at, COALESCE(subcontractor,''), amount,
 		       lead_time_value, COALESCE(lead_time_unit,'weeks'), COALESCE(note,''),
 		       COALESCE(logged_by,''), COALESCE(recorded_at, at), COALESCE(url,''),
-		       params, payment_schedule
+		       params, payment_schedule, at_unknown
 		FROM pcg_trade_events ORDER BY at`)
 	if err != nil {
 		return internalErr(c, err)
@@ -132,7 +135,7 @@ func (h *PCGProjectsHandler) List(c *fiber.Ctx) error {
 		var e pcgEvent
 		if err := eventRows.Scan(&key, &e.ID, &e.Type, &e.At, &e.Subcontractor, &e.Amount,
 			&e.LeadTimeValue, &e.LeadTimeUnit, &e.Note, &e.LoggedBy, &e.RecordedAt, &e.URL,
-			&e.Params, &e.PaymentSchedule); err != nil {
+			&e.Params, &e.PaymentSchedule, &e.AtUnknown); err != nil {
 			return internalErr(c, err)
 		}
 		at, ok := place[key]
@@ -252,17 +255,19 @@ func (h *PCGProjectsHandler) AddEvent(c *fiber.Ctx) error {
 		INSERT INTO pcg_trade_events
 			(id, project_trade_id, type, at, subcontractor, amount,
 			 lead_time_value, lead_time_unit, note, logged_by, params, payment_schedule,
-			 recorded_at, url)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+			 recorded_at, url, at_unknown)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
 		ON CONFLICT (project_trade_id, id) DO UPDATE SET
 			type=EXCLUDED.type, at=EXCLUDED.at, subcontractor=EXCLUDED.subcontractor,
 			amount=EXCLUDED.amount, lead_time_value=EXCLUDED.lead_time_value,
 			lead_time_unit=EXCLUDED.lead_time_unit, note=EXCLUDED.note,
 			params=EXCLUDED.params, payment_schedule=EXCLUDED.payment_schedule,
-			recorded_at=EXCLUDED.recorded_at, url=EXCLUDED.url`,
+			recorded_at=EXCLUDED.recorded_at, url=EXCLUDED.url,
+			at_unknown=EXCLUDED.at_unknown`,
 		e.ID, tradeRowID(projectID, tradeID), e.Type, e.At, e.Subcontractor, e.Amount,
 		e.LeadTimeValue, defaultTo(e.LeadTimeUnit, "weeks"), e.Note, e.LoggedBy,
-		rawOrNil(e.Params), rawOrNil(e.PaymentSchedule), recordedOr(e), e.URL)
+		rawOrNil(e.Params), rawOrNil(e.PaymentSchedule), recordedOr(e), e.URL,
+		e.AtUnknown != nil && *e.AtUnknown)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -290,10 +295,12 @@ func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 			lead_time_value  = COALESCE($5, lead_time_value),
 			lead_time_unit   = COALESCE($6, lead_time_unit),
 			note             = COALESCE($7, note),
-			payment_schedule = COALESCE($8, payment_schedule)
+			payment_schedule = COALESCE($8, payment_schedule),
+			at_unknown       = COALESCE($10, at_unknown)
 		WHERE project_trade_id = $9 AND id = $1`,
 		c.Params("eventId"), at, nilIfEmpty(e.Subcontractor), e.Amount,
-		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), nilIfEmpty(e.Note), rawOrNil(e.PaymentSchedule), tradeRow)
+		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), nilIfEmpty(e.Note), rawOrNil(e.PaymentSchedule), tradeRow,
+		e.AtUnknown)
 	if err != nil {
 		return internalErr(c, err)
 	}
