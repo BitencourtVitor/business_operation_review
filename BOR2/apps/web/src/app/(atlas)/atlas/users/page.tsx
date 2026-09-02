@@ -340,6 +340,11 @@ export default function AtlasUsersPage() {
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
+  // A lista é de quem está no Atlas, não do cadastro inteiro da empresa: cargo
+  // acima de `user` entra por definição, e o `user` só aparece depois de
+  // convidado. Ver todo mundo é o que se faz para convidar alguém — por isso
+  // continua a um clique, e não é o padrão.
+  const [scope, setScope] = useState<"atlas" | "all">("atlas")
   const [sortKey, setSortKey] = useState<SortKey>("name")
   const [sortDir, setSortDir] = useState<SortDir>("asc")
 
@@ -353,7 +358,8 @@ export default function AtlasUsersPage() {
       const q = search.toLowerCase()
       const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
       const matchRole = roleFilter === "all" || u.role === roleFilter
-      return matchSearch && matchRole
+      const inAtlas = FULL_ACCESS_ROLES.includes(u.role) || !!u.permissions?.atlas
+      return matchSearch && matchRole && (scope === "all" || inAtlas)
     })
     .sort((a, b) => {
       const va = a[sortKey].toLowerCase()
@@ -413,6 +419,24 @@ export default function AtlasUsersPage() {
             />
           </div>
 
+          <Select value={scope} onValueChange={v => v && setScope(v as "atlas" | "all")}>
+            <SelectTrigger className="w-44">
+              <span className="flex flex-1 items-center gap-1.5 text-sm text-muted-foreground">
+                {scope === "atlas"
+                  ? <><ShieldCheck className="h-3 w-3 shrink-0" />In the Atlas</>
+                  : <><Users className="h-3 w-3 shrink-0" />Everyone</>}
+              </span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="atlas">
+                <span className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 shrink-0" />In the Atlas</span>
+              </SelectItem>
+              <SelectItem value="all">
+                <span className="flex items-center gap-1.5"><Users className="h-3 w-3 shrink-0" />Everyone</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
           <Select value={roleFilter} onValueChange={v => v && setRoleFilter(v)}>
             <SelectTrigger className="w-36">
               <span className="flex flex-1 items-center gap-1.5 text-sm text-muted-foreground">
@@ -451,7 +475,9 @@ export default function AtlasUsersPage() {
             </div>
           ) : filtered.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted-foreground">
-              {users.length === 0 ? "No users yet" : "No users match your search"}
+              {scope === "atlas"
+                ? "Nobody has Atlas access yet. Switch to Everyone to invite someone."
+                : users.length === 0 ? "No users yet" : "No users match your search"}
             </p>
           ) : (
             // border-separate porque o Chrome ignora sticky em <th> quando a
