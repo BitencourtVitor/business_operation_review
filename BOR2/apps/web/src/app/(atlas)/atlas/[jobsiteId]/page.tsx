@@ -18,7 +18,8 @@ import {
   useAtlasDocumentCategories, useAtlasDocuments, useAtlasJobsite, useCreateAtlasDocument,
 } from "@/hooks/use-atlas"
 
-import { FolderOpen, Layers, MapPin, Plus } from "lucide-react"
+import type { AtlasDocument } from "@/services/atlas.service"
+import { FileQuestion, FolderOpen, Layers, MapPin, Plus } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import { useState } from "react"
@@ -31,7 +32,7 @@ const VERSION_STATUS: Record<string, { label: string; className: string }> = {
 }
 
 const TAB_TITLE: Record<string, string> = {
-  documents: "Plans",
+  documents: "Documents",
   photos: "Photos",
   tasks: "Tasks",
   diary: "Diary",
@@ -121,18 +122,67 @@ function DocumentsPanel({ jobsiteId, client, canManage }: {
   const { data: documents, isLoading } = useAtlasDocuments(jobsiteId)
   const { data: catalog } = useAtlasDocumentCategories(client)
 
-  // O que o Forecast cobra deste cliente e ainda não tem pasta nesta obra.
-  // Aparece como lacuna, não como erro: a obra pode não precisar do documento,
-  // mas quem olha a tela merece ver que ele não está aqui.
-  const missing = (catalog ?? [])
-    .map(c => c.document)
-    .filter((doc, i, arr) => arr.indexOf(doc) === i)
-    .filter(doc => !(documents ?? []).some(d => d.category === doc))
+  // A lista é a do que a obra precisa ter, não a do que já subiu. Cada
+  // documento exigido pelo cliente aparece uma vez: com a pasta, quando existe,
+  // e como lacuna quando não existe. Mostrar só o que foi anexado esconde
+  // justamente a pergunta que a obra faz — o que está faltando.
+  const required = [...new Set((catalog ?? []).map(c => c.document))]
+  const byCategory = new Map((documents ?? []).map(d => [d.category, d]))
+  const extras = (documents ?? []).filter(d => !required.includes(d.category))
 
   if (isLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
+      </div>
+    )
+  }
+
+  const row = (key: string, doc: AtlasDocument | undefined, label: string) => {
+    const status = doc ? VERSION_STATUS[doc.latestStatus] : null
+    const body = (
+      <>
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 ${
+          doc ? "text-muted-foreground" : "text-muted-foreground/50"
+        }`}>
+          {doc ? <FolderOpen className="h-4 w-4" /> : <FileQuestion className="h-4 w-4" />}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-medium leading-tight">
+            {doc?.name ?? label}
+          </span>
+          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+            {doc
+              ? [doc.category, `${doc.versions} ${doc.versions === 1 ? "revision" : "revisions"}`,
+                 doc.latestRevision && `rev ${doc.latestRevision}`].filter(Boolean).join(" · ")
+              : "Required for this client · nothing attached yet"}
+          </span>
+        </span>
+        {!!doc?.sheets && (
+          <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+            <Layers className="h-3.5 w-3.5" />
+            {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
+          </span>
+        )}
+        {status && <Badge variant="outline" className={status.className}>{status.label}</Badge>}
+        {!doc && <Badge variant="outline" className="text-muted-foreground">Missing</Badge>}
+      </>
+    )
+
+    return doc ? (
+      <Link
+        key={key}
+        href={`/atlas/${jobsiteId}/documents/${doc.id}`}
+        className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
+      >
+        {body}
+      </Link>
+    ) : (
+      <div
+        key={key}
+        className="flex items-center gap-3 rounded-lg border border-dashed border-border/40 p-3"
+      >
+        {body}
       </div>
     )
   }
@@ -145,61 +195,17 @@ function DocumentsPanel({ jobsiteId, client, canManage }: {
         </div>
       )}
 
-      {!documents?.length ? (
+      {required.length === 0 && !documents?.length ? (
         <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">No document folders in this jobsite</p>
+          <p className="text-sm font-medium">Nothing required, nothing attached</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            A folder holds one document and its revisions. Each page of the PDF becomes a
-            plan inside it.
+            Set what this client needs in Definitions, or attach a document anyway.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {documents.map(d => {
-            const status = VERSION_STATUS[d.latestStatus]
-            return (
-              <Link
-                key={d.id}
-                href={`/atlas/${jobsiteId}/documents/${d.id}`}
-                className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground">
-                  <FolderOpen className="h-4 w-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium leading-tight">{d.name}</p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {[d.category, d.discipline,
-                      `${d.versions} ${d.versions === 1 ? "revision" : "revisions"}`,
-                      d.latestRevision && `rev ${d.latestRevision}`]
-                      .filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-                {d.sheets > 0 && (
-                  <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-                    <Layers className="h-3.5 w-3.5" />
-                    {d.sheets} {d.sheets === 1 ? "plan" : "plans"}
-                  </span>
-                )}
-                {status && (
-                  <Badge variant="outline" className={status.className}>{status.label}</Badge>
-                )}
-              </Link>
-            )
-          })}
-        </div>
-      )}
-
-      {missing.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/60 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Not here yet {client && `· ${client}`}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {missing.map(doc => (
-              <Badge key={doc} variant="outline" className="text-muted-foreground">{doc}</Badge>
-            ))}
-          </div>
+          {required.map(doc => row(doc, byCategory.get(doc), doc))}
+          {extras.map(d => row(d.id, d, d.name))}
         </div>
       )}
     </div>

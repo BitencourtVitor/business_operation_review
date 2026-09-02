@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react"
 // um set de 51 páginas é um download só, e trocar de folha não baixa de novo.
 type PDFDocument = {
   numPages: number
+  destroy?: () => Promise<void>
   getData: () => Promise<Uint8Array>
   getPage: (n: number) => Promise<{
     getViewport: (o: { scale: number }) => { width: number; height: number }
@@ -14,11 +15,35 @@ type PDFDocument = {
   }>
 }
 
+// Janela de três documentos: a página aberta, a anterior e a seguinte. Passar
+// da quarta significa que o leitor andou, e o que ficou para trás não volta a
+// ser aberto tão cedo — segurar tudo em memória é como abrir o set inteiro de
+// novo, só que devagar.
+const CACHE_LIMIT = 3
 const cache = new Map<string, Promise<PDFDocument>>()
+
+function keep(url: string, doc: Promise<PDFDocument>) {
+  // Map em JS preserva ordem de inserção: reinserir move para o fim, e o
+  // primeiro da fila é sempre o mais antigo sem uso.
+  cache.delete(url)
+  cache.set(url, doc)
+  while (cache.size > CACHE_LIMIT) {
+    const oldest = cache.keys().next().value
+    if (oldest === undefined) break
+    const stale = cache.get(oldest)
+    cache.delete(oldest)
+    // `destroy()` devolve a memória do worker; sem isso o pdf.js segura o
+    // arquivo inteiro mesmo depois de a referência sumir daqui.
+    void stale?.then(d => d.destroy?.()).catch(() => {})
+  }
+}
 
 export function loadPdf(url: string): Promise<PDFDocument> {
   const hit = cache.get(url)
-  if (hit) return hit
+  if (hit) {
+    keep(url, hit)
+    return hit
+  }
 
   const promise = (async () => {
     const pdfjs = await import("pdfjs-dist")
@@ -29,7 +54,7 @@ export function loadPdf(url: string): Promise<PDFDocument> {
     return pdfjs.getDocument({ url }).promise as unknown as PDFDocument
   })()
 
-  cache.set(url, promise)
+  keep(url, promise)
   return promise
 }
 

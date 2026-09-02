@@ -41,7 +41,11 @@ export function useProducts() {
 
   // Dev entra sempre; quem recebeu a chave `atlas` na tela de usuários do
   // Atlas entra também. É a mesma regra que a API cobra em RequireAtlas.
-  const hasAtlas = role === "dev" || !!perms.atlas
+  // Cargo acima de `user` entra por definição — quem manda na obra manda no
+  // Atlas. O `user` é convidado um a um na tela de usuários do Atlas, porque é
+  // ele que pode ser um subcontratado. Mesma regra que a API cobra em
+  // RequireAtlas.
+  const hasAtlas = full || !!perms.atlas
   const hasBOR = full || Object.entries(perms).some(([key, level]) => key !== "atlas" && !!level)
 
   const products: Product[] = [

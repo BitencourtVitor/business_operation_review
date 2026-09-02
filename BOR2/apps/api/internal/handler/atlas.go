@@ -35,10 +35,13 @@ func NewAtlasHandler(db *pgxpool.Pool, r2 *service.R2Service) *AtlasHandler {
 
 // ── Permissão por obra ──────────────────────────────────────────────────────
 
-// Quem enxerga qualquer obra sem precisar de concessão. Enquanto o Atlas é só
-// do desenvolvedor, é ele e mais ninguém: abrir para owner/admin/manager aqui
-// deixaria a porta mais larga que a da rota, que exige o papel dev.
-var atlasFullAccess = map[string]bool{"dev": true}
+// Quem enxerga qualquer obra sem precisar de concessão: os mesmos cargos que a
+// rota deixa entrar sem convite. Quem administra a operação não deveria
+// depender de alguém lembrar de conceder acesso a si mesmo — o `user`, sim,
+// entra obra a obra.
+var atlasFullAccess = map[string]bool{
+	"dev": true, "owner": true, "admin": true, "manager": true, "gestor": true,
+}
 
 // Ordem dos níveis. Ler é o piso, gerenciar é o teto; anotar fica no meio
 // porque é o que o subcontratado precisa e não deve ir além.
@@ -129,7 +132,7 @@ func (h *AtlasHandler) ListAtlasUsers(c *fiber.Ctx) error {
 		         WHERE a.user_id = u.id AND a.revoked_at IS NULL)
 		FROM users u
 		LEFT JOIN user_permissions p ON p.user_id = u.id
-		WHERE u.role::text = 'dev' OR p.permissions ? 'atlas'
+		WHERE u.role::text <> 'user' OR p.permissions ? 'atlas'
 		ORDER BY u.name`)
 	if err != nil {
 		return internalErr(c, err)
@@ -142,7 +145,7 @@ func (h *AtlasHandler) ListAtlasUsers(c *fiber.Ctx) error {
 		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.Level, &u.Jobsites); err != nil {
 			return internalErr(c, err)
 		}
-		u.ByRole = u.Role == "dev"
+		u.ByRole = atlasFullAccess[u.Role]
 		out = append(out, u)
 	}
 	return c.JSON(fiber.Map{"data": out})
@@ -263,7 +266,7 @@ func (h *AtlasHandler) ListAtlasUserCandidates(c *fiber.Ctx) error {
 		SELECT u.id, u.name, u.email, u.role::text
 		FROM users u
 		LEFT JOIN user_permissions p ON p.user_id = u.id
-		WHERE u.role::text <> 'dev'
+		WHERE u.role::text = 'user'
 		  AND (p.permissions IS NULL OR NOT (p.permissions ? 'atlas'))
 		ORDER BY u.name`)
 	if err != nil {
@@ -846,9 +849,12 @@ func (h *AtlasHandler) CreateDocumentCategory(c *fiber.Ctx) error {
 		return badRequest(c, "client and document are required")
 	}
 	var id int64
+	// A tabela do catálogo não tem sequence no `id` — ela nasceu como carga de
+	// planilha. Sem calcular o próximo aqui, todo INSERT quebra no not-null.
 	err := h.db.QueryRow(c.Context(), `
-		INSERT INTO catalog_forecast_fieldwire (client, type, document, where_location, notes)
-		VALUES ($1,$2,$3,'-',COALESCE(NULLIF($4,''),'-'))
+		INSERT INTO catalog_forecast_fieldwire (id, client, type, document, where_location, notes)
+		SELECT COALESCE(MAX(id), 0) + 1, $1, $2, $3, '-', COALESCE(NULLIF($4,''),'-')
+		FROM catalog_forecast_fieldwire
 		RETURNING id`,
 		strings.TrimSpace(in.Client), strings.TrimSpace(in.Type),
 		strings.TrimSpace(in.Document), in.Notes).Scan(&id)

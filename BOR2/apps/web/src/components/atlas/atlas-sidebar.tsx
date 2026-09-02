@@ -28,7 +28,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 // Atlas é a mesma do BOR — sidebar à esquerda, conteúdo à direita. A aba entra
 // na URL (`?tab=`) para o link do menu ser um link de verdade, com histórico.
 const ROOM_TABS = [
-  { key: "documents", title: "Plans",    icon: FolderOpen },
+  { key: "documents", title: "Documents", icon: FolderOpen },
   { key: "photos",    title: "Photos",   icon: Images },
   { key: "tasks",     title: "Tasks",    icon: ListChecks },
   { key: "diary",     title: "Diary",    icon: Notebook },
@@ -93,11 +93,11 @@ export function AtlasSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname === "/atlas"}
-                  tooltip="Jobsites"
+                  tooltip="Plans"
                   render={<Link href="/atlas" />}
                 >
                   <Map />
-                  <span>Jobsites</span>
+                  <span>Plans</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
