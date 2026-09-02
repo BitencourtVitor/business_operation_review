@@ -391,17 +391,15 @@ func jobsiteName(community, kind, unit string) string {
 	return name
 }
 
+// Ou é prédio ou é casa. O Forecast distingue "Lot" de "House", mas para o
+// Atlas as duas são a mesma coisa — a taxonomia já tratava assim desde a
+// migração 000135, e deixar o "lot" entrar aqui fazia a obra exibir um terceiro
+// tipo que não existe.
 func atlasKind(forecastType string) string {
-	switch strings.ToLower(strings.TrimSpace(forecastType)) {
-	case "building":
+	if strings.EqualFold(strings.TrimSpace(forecastType), "building") {
 		return "building"
-	case "house":
-		return "house"
-	case "lot":
-		return "lot"
-	default:
-		return "other"
 	}
+	return "house"
 }
 
 // POST /atlas/jobsites/import — traz as obras escolhidas do Forecast.

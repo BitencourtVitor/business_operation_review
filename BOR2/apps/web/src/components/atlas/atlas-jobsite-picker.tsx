@@ -128,9 +128,9 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
               ) : (
                 <>
                   <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Jobsite
+                    Project
                   </span>
-                  <span className="block truncate text-sm font-medium">Select a jobsite</span>
+                  <span className="block truncate text-sm font-medium">Select a project</span>
                 </>
               )}
             </div>
@@ -139,7 +139,7 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
               {current && (
                 <button
                   type="button"
-                  title="Clear selected jobsite"
+                  title="Clear selected project"
                   onClick={() => { clearLastJobsite(); router.push("/atlas") }}
                   className="flex flex-1 items-center justify-center border-b border-sidebar-border px-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
                 >
@@ -150,7 +150,7 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
                 render={
                   <button
                     type="button"
-                    title="Find a jobsite"
+                    title="Find a project"
                     className="flex flex-1 items-center justify-center px-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
                   />
                 }
@@ -164,7 +164,7 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
             render={
               <button
                 type="button"
-                title="Find a jobsite"
+                title="Find a project"
                 className="flex flex-1 items-center justify-center p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
               />
             }
