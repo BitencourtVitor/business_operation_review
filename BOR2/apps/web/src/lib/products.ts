@@ -39,7 +39,9 @@ export function useProducts() {
   const full = FULL_ACCESS_ROLES.includes(role)
   const perms = myPerms?.permissions ?? {}
 
-  const isDev = role === "dev"
+  // Dev entra sempre; quem recebeu a chave `atlas` na tela de usuários do
+  // Atlas entra também. É a mesma regra que a API cobra em RequireAtlas.
+  const hasAtlas = role === "dev" || !!perms.atlas
   const hasBOR = full || Object.entries(perms).some(([key, level]) => key !== "atlas" && !!level)
 
   const products: Product[] = [
@@ -56,8 +58,8 @@ export function useProducts() {
       name: "Atlas Project Control",
       tagline: "Every drawing, every mark, every measurement. The jobsite exactly as it was built.",
       href: "/atlas",
-      enabled: isDev,
-      reason: isDev ? undefined : "Under construction — developer only",
+      enabled: hasAtlas,
+      reason: hasAtlas ? undefined : "Under construction",
     },
   ]
 
@@ -65,7 +67,7 @@ export function useProducts() {
     products,
     available: products.filter(p => p.enabled),
     hasBOR,
-    hasAtlas: isDev,
+    hasAtlas,
     isLoading: !user || isLoading,
   }
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"strings"
 	"time"
@@ -100,15 +101,196 @@ func atlasNoStorage(c *fiber.Ctx) error {
 	})
 }
 
+// ── Usuários do Atlas ───────────────────────────────────────────────────────
+//
+// Gente que entra aqui não entra no BOR de brinde. As duas coisas são chaves
+// diferentes no mesmo cadastro: criar alguém por esta tela grava só `atlas` nas
+// permissões e não encosta em nenhuma outra. Se essa pessoa também precisar do
+// BOR, alguém concede o BOR — em Settings, de propósito.
+
+type atlasUser struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	Level    string `json:"level"`
+	Jobsites int    `json:"jobsites"`
+	// Verdadeiro quando a pessoa entra por ser dev, não por concessão: a lista
+	// precisa mostrar quem tem acesso, e não só quem recebeu acesso.
+	ByRole bool `json:"byRole"`
+}
+
+// GET /atlas/users
+func (h *AtlasHandler) ListAtlasUsers(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(), `
+		SELECT u.id, u.name, u.email, u.role::text,
+		       COALESCE(p.permissions->>'atlas', ''),
+		       (SELECT count(*) FROM atlas_jobsite_access a
+		         WHERE a.user_id = u.id AND a.revoked_at IS NULL)
+		FROM users u
+		LEFT JOIN user_permissions p ON p.user_id = u.id
+		WHERE u.role::text = 'dev' OR p.permissions ? 'atlas'
+		ORDER BY u.name`)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	out := []atlasUser{}
+	for rows.Next() {
+		var u atlasUser
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.Level, &u.Jobsites); err != nil {
+			return internalErr(c, err)
+		}
+		u.ByRole = u.Role == "dev"
+		out = append(out, u)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// POST /atlas/users — cria alguém já com acesso ao Atlas e a nada mais.
+func (h *AtlasHandler) CreateAtlasUser(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	var in struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+		Level string `json:"level"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	in.Name, in.Email = strings.TrimSpace(in.Name), strings.TrimSpace(in.Email)
+	if in.Name == "" || in.Email == "" {
+		return badRequest(c, "name and email are required")
+	}
+	if in.Level != "read" && in.Level != "write" {
+		in.Level = "read"
+	}
+
+	// Mesma senha provisória do fluxo de Settings: a pessoa troca no primeiro
+	// acesso, e o `provisional_password` obriga isso.
+	tempPass, err := generateSettingsPassword(10)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(tempPass), 12)
+	if err != nil {
+		return internalErr(c, err)
+	}
+
+	tx, err := h.db.Begin(c.Context())
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer func() { _ = tx.Rollback(c.Context()) }()
+
+	userID := uuid.NewString()
+	if _, err := tx.Exec(c.Context(), `
+		INSERT INTO users (id, email, name, role, password_hash, provisional_password,
+		                   financial_pass, created_at, updated_at)
+		VALUES ($1,$2,$3,'user',$4,true,false,now(),now())`,
+		userID, in.Email, in.Name, string(hash)); err != nil {
+		return internalErr(c, err)
+	}
+	// Só a chave do Atlas. Escrever o objeto inteiro aqui apagaria permissão de
+	// BOR que a pessoa já tivesse; `||` faz a mesclagem no banco.
+	if _, err := tx.Exec(c.Context(), `
+		INSERT INTO user_permissions (user_id, permissions, updated_at)
+		VALUES ($1, jsonb_build_object('atlas', $2::text), now())
+		ON CONFLICT (user_id) DO UPDATE SET
+			permissions = user_permissions.permissions || jsonb_build_object('atlas', $2::text),
+			updated_at = now()`,
+		userID, in.Level); err != nil {
+		return internalErr(c, err)
+	}
+	if err := tx.Commit(c.Context()); err != nil {
+		return internalErr(c, err)
+	}
+
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"id": userID, "name": in.Name, "email": in.Email,
+		"level": in.Level, "provisionalPassword": tempPass,
+	}})
+}
+
+// PATCH /atlas/users/:id — concede ou tira o acesso ao Atlas.
+func (h *AtlasHandler) SetAtlasUserAccess(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	target := c.Params("id")
+	var in struct {
+		Level string `json:"level"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+
+	if in.Level == "" {
+		// Tirar o Atlas não é apagar as permissões da pessoa: só a chave sai.
+		if _, err := h.db.Exec(c.Context(), `
+			UPDATE user_permissions SET permissions = permissions - 'atlas', updated_at = now()
+			WHERE user_id = $1`, target); err != nil {
+			return internalErr(c, err)
+		}
+		return c.JSON(fiber.Map{"data": fiber.Map{"id": target, "level": ""}})
+	}
+	if in.Level != "read" && in.Level != "write" {
+		return badRequest(c, "level must be read, write or empty")
+	}
+	if _, err := h.db.Exec(c.Context(), `
+		INSERT INTO user_permissions (user_id, permissions, updated_at)
+		VALUES ($1, jsonb_build_object('atlas', $2::text), now())
+		ON CONFLICT (user_id) DO UPDATE SET
+			permissions = user_permissions.permissions || jsonb_build_object('atlas', $2::text),
+			updated_at = now()`, target, in.Level); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": target, "level": in.Level}})
+}
+
+// GET /atlas/users/candidates — quem existe no cadastro e ainda não tem Atlas.
+func (h *AtlasHandler) ListAtlasUserCandidates(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT u.id, u.name, u.email, u.role::text
+		FROM users u
+		LEFT JOIN user_permissions p ON p.user_id = u.id
+		WHERE u.role::text <> 'dev'
+		  AND (p.permissions IS NULL OR NOT (p.permissions ? 'atlas'))
+		ORDER BY u.name`)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	out := []atlasUser{}
+	for rows.Next() {
+		var u atlasUser
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Role); err != nil {
+			return internalErr(c, err)
+		}
+		out = append(out, u)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
 // ── Obras ───────────────────────────────────────────────────────────────────
 
 type atlasJobsite struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	Address       string  `json:"address"`
-	Client        string  `json:"client"`
-	Code          string  `json:"code"`
-	Status        string  `json:"status"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Client  string `json:"client"`
+	Code    string `json:"code"`
+	Status  string `json:"status"`
 	// Vocabulário do Forecast: lot, building ou house, mais a comunidade e o
 	// número. É como a obra é chamada em reunião.
 	Kind          string  `json:"kind"`
@@ -492,10 +674,10 @@ type atlasDocument struct {
 	// mesma lista de documentos que o score de Fieldwire cobra por cliente, e
 	// usar a mesma taxonomia é o que vai permitir o Forecast perguntar ao Atlas
 	// se o documento existe, em vez de alguém marcar a caixinha à mão.
-	Category   string `json:"category"`
-	CreatedBy  string `json:"createdBy"`
-	CreatedAt  string `json:"createdAt"`
-	Versions   int    `json:"versions"`
+	Category  string `json:"category"`
+	CreatedBy string `json:"createdBy"`
+	CreatedAt string `json:"createdAt"`
+	Versions  int    `json:"versions"`
 	// A revisão publicada mais recente — o que a sala da obra abre por padrão.
 	LatestVersionID string `json:"latestVersionId"`
 	LatestRevision  string `json:"latestRevision"`
