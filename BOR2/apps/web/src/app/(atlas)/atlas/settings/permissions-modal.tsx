@@ -45,7 +45,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
     // repetir isso num cabeçalho é dizer duas vezes a mesma coisa. Conceder
     // desde já é de propósito — a permissão não pode ser o gargalo. No dia em
     // que a página subir, ela já nasce liberada para quem foi escolhido aqui.
-    label: "Jobsite",
+    label: "Project",
     permissions: [
       { key: "atlas_documents", label: "Documents", icon: FolderOpen },
       { key: "atlas_photos",  label: "Photos",  icon: Images },

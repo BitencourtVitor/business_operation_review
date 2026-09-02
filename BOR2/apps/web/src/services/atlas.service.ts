@@ -35,6 +35,10 @@ export interface AtlasJobsite {
   community: string
   unit: string
   company: string
+  /** Quantos andares o prédio tem — gera uma pasta de documento por andar. */
+  floors: number
+  /** Letras de unidade em uso — geram uma pasta por letra. */
+  unitLabels: string[]
   forecastId: string | null
   catalogJobSiteId: number | null
   createdBy: string

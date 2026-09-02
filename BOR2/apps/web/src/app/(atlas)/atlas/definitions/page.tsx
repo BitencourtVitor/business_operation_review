@@ -38,7 +38,7 @@ const BUILD_TYPES = [
 ]
 
 const AXES = [
-  { value: "none", label: "Single folder", hint: "One folder for the whole jobsite" },
+  { value: "none", label: "Single folder", hint: "One folder for the whole project" },
   { value: "floor", label: "Per floor", hint: "One folder per floor: 1st, 2nd, 3rd…" },
   { value: "unit", label: "Per unit", hint: "One folder per unit letter: C, F, H…" },
 ]
@@ -386,7 +386,7 @@ export default function AtlasDefinitionsPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      title={inUse ? "In use by a jobsite — cannot remove" : "Remove"}
+                                      title={inUse ? "In use by a project — cannot remove" : "Remove"}
                                       disabled={inUse}
                                       onClick={() => removeValue(row, opt)}
                                       className="rounded p-0.5 text-destructive hover:bg-background/60 disabled:cursor-not-allowed disabled:opacity-30"

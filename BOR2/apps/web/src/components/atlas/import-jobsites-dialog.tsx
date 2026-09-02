@@ -3,17 +3,12 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import {
-  Select, SelectContent, SelectItem, SelectTrigger,
-} from "@/components/ui/select"
 import { useForecastJobsites, useImportAtlasJobsites } from "@/hooks/use-atlas"
-import { Check, DownloadCloud, Search } from "lucide-react"
+import { Check, Search, X } from "lucide-react"
 import { useMemo, useState } from "react"
-
-const COMPANIES = ["", "framing", "hvac", "pcg"]
 
 /**
  * Importa obra do Forecast em vez de redigitar.
@@ -25,14 +20,14 @@ const COMPANIES = ["", "framing", "hvac", "pcg"]
  * A obra já importada continua aparecendo, marcada: some da fila sem sumir da
  * tela, para quem procura entender por que ela não está na lista de escolha.
  */
-export function ImportJobsitesDialog() {
-  const [open, setOpen] = useState(false)
+export function ImportJobsitesDialog({ open, onOpenChange }: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const [query, setQuery] = useState("")
-  const [company, setCompany] = useState("framing")
-  const [status, setStatus] = useState("open")
   const [picked, setPicked] = useState<Set<string>>(new Set())
 
-  const { data: rows, isLoading } = useForecastJobsites({ q: query, company, status })
+  const { data: rows, isLoading } = useForecastJobsites({ q: query, company: "framing", status: "" })
   const importer = useImportAtlasJobsites()
 
   const available = useMemo(() => (rows ?? []).filter(r => !r.imported), [rows])
@@ -48,48 +43,28 @@ export function ImportJobsitesDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={o => { setOpen(o); if (!o) setPicked(new Set()) }}>
-      <DialogTrigger render={<Button variant="outline" />}>
-        <DownloadCloud className="h-4 w-4" />
-        Import from Forecast
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={o => { onOpenChange(o); if (!o) { setPicked(new Set()); setQuery("") } }}>
       <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
-        <DialogHeader><DialogTitle>Import jobsites from Forecast</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Import projects from the Framing Forecast</DialogTitle></DialogHeader>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Community, client, lot, address"
-              className="pl-8"
-            />
-          </div>
-          <Select value={company} onValueChange={v => setCompany(v ?? "")}>
-            <SelectTrigger className="sm:w-36">
-              <span className="flex-1 text-left text-sm">
-                {company ? company.toUpperCase() : "All companies"}
-              </span>
-            </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
-              {COMPANIES.map(c => (
-                <SelectItem key={c || "all"} value={c}>
-                  {c ? c.toUpperCase() : "All companies"}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={status} onValueChange={v => setStatus(v ?? "")}>
-            <SelectTrigger className="sm:w-32">
-              <span className="flex-1 text-left text-sm capitalize">{status || "Any status"}</span>
-            </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
-              <SelectItem value="">Any status</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Community, client, lot, address"
+            className="pl-8 pr-8 text-sm"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border/60">
@@ -100,8 +75,8 @@ export function ImportJobsitesDialog() {
           ) : available.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
               {alreadyIn > 0
-                ? "Every jobsite in this filter is already in Atlas."
-                : "No jobsites match this filter."}
+                ? "Every project in this filter is already in Atlas."
+                : "No projects match this filter."}
             </p>
           ) : (
             <ul className="divide-y divide-border/60">
@@ -140,11 +115,11 @@ export function ImportJobsitesDialog() {
             {picked.size} selected{alreadyIn > 0 ? ` · ${alreadyIn} already in Atlas` : ""}
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button
               disabled={picked.size === 0 || importer.isPending}
               onClick={() => importer.mutate([...picked], {
-                onSuccess: () => { setPicked(new Set()); setOpen(false) },
+                onSuccess: () => { setPicked(new Set()); onOpenChange(false) },
               })}
             >
               {importer.isPending ? "Importing…" : `Import ${picked.size || ""}`}

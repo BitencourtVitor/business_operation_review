@@ -39,7 +39,7 @@ export function JobsiteSettingsDialog({ jobsite }: { jobsite: AtlasJobsite }) {
         <Settings className="h-4 w-4" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Jobsite settings</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Project settings</DialogTitle></DialogHeader>
         <div className="flex flex-col gap-3">
           {([
             ["name", "Name"], ["address", "Address"], ["client", "Client"], ["code", "Code"],

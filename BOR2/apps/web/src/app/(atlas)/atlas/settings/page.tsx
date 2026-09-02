@@ -66,7 +66,7 @@ export default function AtlasSettingsPage() {
     canManageDefinitions && {
       icon: SlidersHorizontal,
       title: "Manage Categories and Subcategories",
-      description: "The categories and subcategories a jobsite is organised by, and what each build type carries.",
+      description: "The categories and subcategories a project is organised by, and what each build type carries.",
       href: "/atlas/definitions",
     },
     {
