@@ -1,6 +1,6 @@
 import {
-  BadgeCheck, CheckCircle2, Circle, CircleCheck, CircleSlash, FilePen, FileText, Inbox,
-  PauseCircle, PencilLine, PlayCircle, Send, SendHorizontal,
+  AlertTriangle, BadgeCheck, CheckCircle2, Circle, CircleCheck, CircleSlash, FilePen, FileText,
+  Inbox, PauseCircle, PencilLine, PlayCircle, Send, SendHorizontal,
 } from "lucide-react"
 import { EVENT_STATUS } from "./types"
 import type { ProjectStatus, TradeEventType, TradeStatus } from "./types"
@@ -28,6 +28,13 @@ export const STATUS_META: Record<TradeStatus, {
   not_started: {
     icon: Circle,
     text: "text-muted-foreground", border: "border-border/60", bg: "bg-muted/30", dot: "bg-muted-foreground/40",
+  },
+  // Vermelho e alerta: a obra tem evento lançado e o questionário não fechou.
+  // Não é um degrau da escada, é uma dívida — e por isso destoa de propósito do
+  // resto da paleta, que vai do cinza ao verde conforme o trabalho anda.
+  questionnaire_pending: {
+    icon: AlertTriangle,
+    text: "text-red-500", border: "border-red-500/50", bg: "bg-red-500/[0.09]", dot: "bg-red-500",
   },
   bid_draft: {
     icon: PencilLine,

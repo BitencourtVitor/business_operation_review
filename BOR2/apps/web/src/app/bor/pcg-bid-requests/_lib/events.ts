@@ -2,7 +2,7 @@ import { formatLeadTime } from "./format"
 import { EVENT_STATUS, NOTES_KEY, NOTES_LABEL } from "./types"
 import type {
   DocumentParams, DocumentBlock, LeadTimeUnit, PaymentMilestone, ProjectTrade, Trade, TradeEvent,
-  TradeEventType, TradeRevision,
+  TradeEventType, TradeRevision, TradeStatus,
 } from "./types"
 
 // ── Revisions ───────────────────────────────────────────────────────────────
@@ -60,12 +60,28 @@ function lastStatusEvent(pt: ProjectTrade): TradeEvent | null {
 
 // Draft states have no event behind them — they are simply "opened, and someone
 // has started filling it in".
-export function currentStatus(trade: Trade | undefined, pt: ProjectTrade) {
+export function currentStatus(trade: Trade | undefined, pt: ProjectTrade): TradeStatus {
   const last = lastStatusEvent(pt)
-  if (last && last.type !== "created") return EVENT_STATUS[last.type]!
+  if (last && last.type !== "created") {
+    // Evento lançado sem o questionário respondido: a condição que a obra
+    // mostra é a dívida, não o degrau. Derivada e não gravada, então some
+    // sozinha na hora em que a última pergunta for respondida.
+    return questionnaireComplete(trade, pt) ? EVENT_STATUS[last.type]! : "questionnaire_pending"
+  }
   const started = Object.values(pt.answers).some(v => (Array.isArray(v) ? v.length > 0 : !!v?.trim()))
   if (!started) return "not_started" as const
   return trade?.hasBidForm ? ("bid_draft" as const) : ("contract_draft" as const)
+}
+
+// A mesma regra do contador do cabeçalho — toda pergunta respondida. Repetida
+// aqui em vez de importada de projects-store para não fechar um ciclo entre os
+// dois módulos.
+export function questionnaireComplete(trade: Trade | undefined, pt: ProjectTrade): boolean {
+  if (!trade || trade.questions.length === 0) return true
+  return trade.questions.every(q => {
+    const v = pt.answers[q.id]
+    return Array.isArray(v) ? v.length > 0 : (v ?? "").trim().length > 0
+  })
 }
 
 // Every step of the ladder, in order — shown whole so the stages are legible,
@@ -157,9 +173,14 @@ export function lastBidEventType(bid: RoundBid): TradeEventType {
 export function availableEventTypes(
   trade: Trade | undefined,
   pt: ProjectTrade,
-  { complete, current }: { complete: boolean; current: DocumentParams | null },
+  { complete, current, bypass = false }:
+    { complete: boolean; current: DocumentParams | null; bypass?: boolean },
 ): TradeEventType[] {
   const has = (type: TradeEventType) => pt.events.some(e => e.type === type)
+  // A trava do questionário existe para impedir que saia papel sem definição.
+  // O dev a dispensa para registrar o que já aconteceu fora do sistema: o fato
+  // é anterior ao cadastro, e recusá-lo nao o desfaz.
+  const answered = complete || bypass
 
   // An adjustment can be logged as long as there is paper out that has not been
   // signed yet — that is exactly the window where a sub argues a clause. Once,
@@ -172,7 +193,7 @@ export function availableEventTypes(
 
   if (!trade?.hasBidForm) {
     const out: TradeEventType[] = []
-    if (complete && !has("contract_sent")) out.push("contract_sent")
+    if (answered && !has("contract_sent")) out.push("contract_sent")
     if (adjustable) out.push("contract_adjustment")
     if (has("contract_sent") && !has("contract_signed")) out.push("contract_signed")
     return out
@@ -188,13 +209,13 @@ export function availableEventTypes(
   const undecided = bids.some(b => b.receivedAt && !b.outcome)
 
   const out: TradeEventType[] = []
-  if (complete && !approvedAndCurrent) out.push("bid_sent")
+  if (answered && !approvedAndCurrent) out.push("bid_sent")
   if (awaitingPrice && !approvedAndCurrent) out.push("bid_received")
-  if (complete && undecided && !approvedAndCurrent) out.push("bid_approved")
+  if (answered && undecided && !approvedAndCurrent) out.push("bid_approved")
   if (undecided) out.push("bid_declined")
   // The sub won, then came back saying they do not do part of it. The answers
   // already say so; this is what carries the approval over to them.
-  if (complete && !!approved && !approvedAndCurrent) out.push("bid_adjustment")
+  if (answered && !!approved && !approvedAndCurrent) out.push("bid_adjustment")
   if (approvedAndCurrent && !has("contract_sent")) out.push("contract_sent")
   if (adjustable) out.push("contract_adjustment")
   if (has("contract_sent") && !has("contract_signed")) out.push("contract_signed")
@@ -206,9 +227,10 @@ export function availableEventTypes(
 export function blockedReason(
   trade: Trade | undefined,
   pt: ProjectTrade,
-  { complete }: { complete: boolean; current?: DocumentParams | null },
+  { complete, bypass = false }:
+    { complete: boolean; current?: DocumentParams | null; bypass?: boolean },
 ): string {
-  if (!complete) return "Finish the questionnaire first"
+  if (!complete && !bypass) return "Finish the questionnaire first"
   if (pt.events.some(e => e.type === "contract_signed")) return "This trade is finished"
   if (trade?.hasBidForm && pt.events.some(e => e.type === "bid_approved")) {
     return "Nothing to log — the approved bid still matches the answers"
@@ -226,6 +248,11 @@ export function nextStepHint(
   pt: ProjectTrade,
   { complete, staleApproval }: { complete: boolean; staleApproval: boolean },
 ): NextStep {
+  // O questionário pendente passa na frente de tudo: enquanto ele não fecha, o
+  // status da obra é a dívida, e é ela que a pessoa precisa resolver.
+  if (!complete && pt.events.some(e => e.type !== "created")) {
+    return { label: "Answer the questionnaire to clear the pending state", tone: "warn" }
+  }
   const has = (type: TradeEventType) => pt.events.some(e => e.type === type)
 
   if (has("contract_signed")) return { label: "Finished", tone: "done" }
