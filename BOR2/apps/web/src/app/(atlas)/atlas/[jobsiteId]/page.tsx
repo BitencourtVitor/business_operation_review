@@ -2,7 +2,7 @@
 
 import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
-import { JobsiteAccessPanel } from "@/components/atlas/jobsite-access-panel"
+import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
 import { JobsiteSettingsDialog } from "@/components/atlas/jobsite-settings-dialog"
 import { PhotosPanel } from "@/components/atlas/photos-panel"
 import { Badge } from "@/components/ui/badge"
@@ -23,7 +23,7 @@ import {
 import type { AtlasDocument } from "@/services/atlas.service"
 import { FileQuestion, FolderOpen, Layers, MapPin, Plus } from "lucide-react"
 import Link from "next/link"
-import { useParams, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 const VERSION_STATUS: Record<string, { label: string; className: string }> = {
@@ -293,6 +293,7 @@ export default function JobsiteRoomPage() {
   const canAnnotate = canManage || jobsite?.level === "annotate"
   // A seção vem da URL porque quem navega é a sidebar. Um link com a seção
   // dentro também é um link que se manda para alguém.
+  const router = useRouter()
   const tab = params.get("tab") ?? "documents"
 
   if (isLoading) {
@@ -340,7 +341,13 @@ export default function JobsiteRoomPage() {
       {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "photos" && <PhotosPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
-      {tab === "access" && canManage && <JobsiteAccessPanel jobsiteId={jobsiteId} />}
+      {tab === "access" && canManage && (
+        <JobsiteVisibilityDialog
+          jobsite={jobsite}
+          open
+          onClose={() => router.replace(`/atlas/${jobsiteId}?tab=documents`)}
+        />
+      )}
     </div>
   )
 }
