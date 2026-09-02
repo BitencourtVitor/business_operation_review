@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ArrowDown01, ArrowDownAZ, ArrowLeft, ArrowUp01, ArrowUpZA, Check, ChevronDown,
-  ChevronRight, FileOutput, FileSignature, HardHat, ListChecks, Loader2, Moon, Plus,
+  ChevronRight, FileOutput, FileSignature, FileText, HardHat, ListChecks, Loader2, Moon, Plus,
   Search, Sun, Trash2, Users, X,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -72,7 +72,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   const [pendingRemove, setPendingRemove] = useState<{ tradeId: string; name: string; answered: number } | null>(null)
   const [sortBy, setSortBy] = useState<"name" | "answered">("name")
   const [sortAsc, setSortAsc] = useState(true)
-  const [previewing, setPreviewing] = useState<"bid" | "contract" | null>(null)
+  const [previewing, setPreviewing] = useState<"bid" | "contract" | "blank" | null>(null)
   const [editingTerms, setEditingTerms] = useState(false)
   const [issuingNumber, setIssuingNumber] = useState(false)
 
@@ -123,9 +123,12 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
   // The contract carries an identifier issued by the API — the browser cannot
   // mint one, because two machines would both hand out PLB-00001. A bid request
   // has no number to fetch: it is a set of questions and answers.
-  async function generate(kind: "bid" | "contract", trade: ProjectTrade, catalog: Trade) {
-    if (kind === "bid") {
-      setPreviewing("bid")
+  async function generate(kind: "bid" | "contract" | "blank", trade: ProjectTrade, catalog: Trade) {
+    // O formulário em branco não captura revisão nem consulta nada: é o papel
+    // que a obra ainda vai receber, para ser preenchido à mão ou levado a
+    // campo. Nada do que ele imprime depende do estado do projeto.
+    if (kind === "bid" || kind === "blank") {
+      setPreviewing(kind)
       return
     }
     setIssuingNumber(true)
@@ -675,7 +678,7 @@ function TradeView({
   isSaving: (key: string) => boolean
   stateOf: (key: string) => "idle" | "saving" | "saved"
   onPatch: (key: string, patch: Partial<ProjectTrade>) => void
-  onGenerate: (kind: "bid" | "contract") => void
+  onGenerate: (kind: "bid" | "contract" | "blank") => void
   issuingNumber: boolean
   onEditTerms: () => void
   onLogEvent: (event: TradeEvent) => void
@@ -902,6 +905,16 @@ function TradeView({
             </span>
           </button>
           <span className="flex-1" />
+          {/* Em branco não tem trava: é o formulário antes de existir resposta,
+              e exigir o questionário respondido para imprimi-lo vazio seria
+              impedir justamente o uso que ele tem. */}
+          <DocButton
+            label="Blank form"
+            icon={FileText}
+            variant="outline"
+            blocked={null}
+            onClick={() => onGenerate("blank")}
+          />
           {trade.hasBidForm && (
             <DocButton
               label="Bid request"

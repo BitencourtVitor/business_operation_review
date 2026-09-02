@@ -15,12 +15,17 @@ import type { DocumentBlock, Project, ProjectTrade, Question, Trade } from "../_
 // questionnaire; work included, exclusions and the matrix belong to the
 // contract's Exhibit A.
 export function BidRequestDocument({
-  project, projectTrade, trade,
+  project, projectTrade, trade, blank = false,
 }: {
   project: Project
   projectTrade: ProjectTrade
   trade: Trade
+  // O formulario em branco e este mesmo papel com as respostas zeradas, e nao
+  // um segundo documento: dois arquivos para o mesmo formulario divergiriam na
+  // primeira pergunta nova.
+  blank?: boolean
 }) {
+  const answers = blank ? {} : projectTrade.answers
   const documentBlocks = useCatalogStore(s => s.documentBlocks)
   const layout = FORM_LAYOUT[trade.name]
   const byId = new Map(trade.questions.map(q => [q.id, q]))
@@ -49,7 +54,7 @@ export function BidRequestDocument({
   const leading = unplaced.filter(q => q.id === SUPPLY_QUESTION_ID)
   const trailing = unplaced.filter(q => q.id !== SUPPLY_QUESTION_ID)
 
-  const noteAnswer = projectTrade.answers[NOTES_KEY]
+  const noteAnswer = answers[NOTES_KEY]
   const notes = typeof noteAnswer === "string" ? noteAnswer.trim() : ""
 
   const sections = [
@@ -128,7 +133,7 @@ export function BidRequestDocument({
             <table className="w-full border-collapse text-[10.5pt]">
               <tbody>
                 {section.questions.map(q => (
-                  <SpecRow key={q.id} question={q} answers={projectTrade.answers} />
+                  <SpecRow key={q.id} question={q} answers={answers} />
                 ))}
               </tbody>
             </table>

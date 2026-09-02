@@ -11,7 +11,7 @@ import type { Project, ProjectTrade, Trade } from "../_lib/types"
 export function DocumentPreviewModal({
   kind, project, projectTrade, trade, onClose,
 }: {
-  kind: "bid" | "contract"
+  kind: "bid" | "contract" | "blank"
   project: Project
   projectTrade: ProjectTrade
   trade: Trade
@@ -25,7 +25,7 @@ export function DocumentPreviewModal({
       >
         <div className="flex shrink-0 items-center gap-3 border-b px-5 py-3 print:hidden">
           <DialogTitle className="min-w-0 flex-1 truncate text-base">
-            {trade.name} {kind === "bid" ? "Bid Request" : "Subcontract"}
+            {trade.name} {kind === "contract" ? "Subcontract" : kind === "blank" ? "Questionnaire (blank)" : "Bid Request"}
           </DialogTitle>
           <Button size="sm" onClick={printDocument}>
             <Printer className="h-3.5 w-3.5" />
@@ -42,9 +42,9 @@ export function DocumentPreviewModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto bg-neutral-200 p-6 dark:bg-neutral-800">
           <div className="mx-auto w-fit shadow-lg">
-            {kind === "bid"
-              ? <BidRequestDocument project={project} projectTrade={projectTrade} trade={trade} />
-              : <ContractDocument project={project} projectTrade={projectTrade} trade={trade} />}
+            {kind === "contract"
+              ? <ContractDocument project={project} projectTrade={projectTrade} trade={trade} />
+              : <BidRequestDocument project={project} projectTrade={projectTrade} trade={trade} blank={kind === "blank"} />}
           </div>
         </div>
       </DialogContent>
