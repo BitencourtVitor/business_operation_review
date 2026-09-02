@@ -5,12 +5,12 @@ import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 import { useProducts, type Product } from "@/lib/products"
-import { ArrowRight, LayoutDashboard, Lock, LogOut, Map } from "lucide-react"
+import { ArrowRight, CircleGauge, Lock, LogOut, Map } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 const PRODUCT_ICON = {
-  bor: LayoutDashboard,
+  bor: CircleGauge,
   atlas: Map,
 } as const
 
