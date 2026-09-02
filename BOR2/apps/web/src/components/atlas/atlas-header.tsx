@@ -7,14 +7,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSidebar } from "@/components/ui/sidebar"
-import { SUBCONTRACTOR_KEY } from "@/components/atlas/atlas-user-dialogs"
+import { isSubcontractor } from "@/components/atlas/atlas-user-dialogs"
 import { useAtlasUserCompanies } from "@/hooks/use-atlas"
-import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
+import { useAuth } from "@/hooks/use-auth"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, Building2, CircleGauge, Compass, Ellipsis, CodeXml, LogOut, Menu, Moon,
+  Award, Building2, CircleGauge, Compass, Ellipsis, CodeXml, HardHat, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -37,6 +37,8 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
   owner:   { label: "Owner",     icon: Compass, light: "border-emerald-600 bg-emerald-600/10 text-emerald-600", dark: "border-emerald-400 bg-emerald-400/10 text-emerald-400" },
   user:    { label: "User",      icon: User,    light: "border-border bg-secondary text-foreground",         dark: "border-border bg-secondary text-foreground" },
   viewer:  { label: "Viewer",    icon: User,    light: "border-border bg-secondary text-foreground",         dark: "border-border bg-secondary text-foreground" },
+  // Vermelho da logo: quem não é da casa se distingue de longe.
+  subcontractor: { label: "Subcontractor", icon: HardHat, light: "border-brand-red bg-brand-red/10 text-brand-red", dark: "border-brand-red bg-brand-red/10 text-brand-red" },
 }
 
 /**
@@ -48,8 +50,8 @@ export function AtlasHeader() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
   const { hasBOR } = useProducts()
-  const { data: myPerms } = useMyPermissions()
   const { data: companies } = useAtlasUserCompanies()
+  const { data: myPerms } = useMyPermissions()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -64,11 +66,15 @@ export function AtlasHeader() {
     }
   }
 
+  // O cargo de subcontratado não existe no enum do banco: mora na permissão.
+  // Sem olhar para ela, o cabeçalho chamaria de "User" quem é de fora.
+  const isSub = isSubcontractor({ permissions: myPerms?.permissions })
   const role = user?.role ?? "viewer"
-  const badge = roleBadges[role] ?? roleBadges.viewer
+  const badge = isSub ? roleBadges.subcontractor : roleBadges[role] ?? roleBadges.viewer
   const BadgeIcon = badge.icon
   const badgeStyle = resolvedTheme === "dark" ? badge.dark : badge.light
-  const isSubcontractor = !!myPerms?.permissions?.[SUBCONTRACTOR_KEY]
+  // A empresa aparece sempre que existe. Hoje só subcontratado tem uma, mas
+  // condicionar ao cargo esconderia o dado de quem o preencheu de propósito.
   const company = user ? companies?.[user.id] : undefined
 
   return (
@@ -96,25 +102,27 @@ export function AtlasHeader() {
 
       <TooltipProvider>
         <div className="flex items-center gap-2">
+          {/* Nome com etiqueta: alinhados por baixo, senão a linha da empresa
+              desce abaixo da etiqueta e o par fica torto. */}
           {user && (
-            // Nome, e embaixo a empresa quando é gente de fora: numa lista de
-            // acesso, "John Carter" sozinho não diz de quem ele é.
-            <span className="hidden flex-col items-end leading-tight lg:flex">
-              <span className="text-sm text-muted-foreground">{user.name}</span>
-              {isSubcontractor && company && (
-                <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <Building2 className="h-2.5 w-2.5" />
-                  {company}
-                </span>
-              )}
-            </span>
-          )}
+            <div className="flex items-end gap-2">
+              {/* Embaixo do nome, a empresa quando é gente de fora: numa lista
+                  de acesso, "John Carter" sozinho não diz de quem ele é. */}
+              <span className="hidden flex-col items-end leading-tight lg:flex">
+                <span className="text-sm text-muted-foreground">{user.name}</span>
+                {company && (
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Building2 className="h-2.5 w-2.5" />
+                    {company}
+                  </span>
+                )}
+              </span>
 
-          {user && (
-            <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide md:inline-flex ${badgeStyle}`}>
-              <BadgeIcon className="h-3 w-3" />
-              {badge.label}
-            </span>
+              <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide md:inline-flex ${badgeStyle}`}>
+                <BadgeIcon className="h-3 w-3" />
+                {badge.label}
+              </span>
+            </div>
           )}
 
           <div className="mx-1.5 w-px self-stretch bg-border" />

@@ -108,7 +108,7 @@ for (const u of bor1Users) {
   const perms = permByUser[u.id] ?? {}
   await sql`
     INSERT INTO user_permissions (user_id, permissions, updated_at)
-    VALUES (${id}, ${JSON.stringify(perms)}::jsonb, NOW())
+    VALUES (${id}, ${sql.json(perms)}, NOW())
     ON CONFLICT (user_id) DO UPDATE SET permissions = EXCLUDED.permissions, updated_at = NOW()
   `
 

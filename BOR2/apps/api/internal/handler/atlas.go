@@ -191,7 +191,12 @@ func (h *AtlasHandler) SetAtlasUserAccess(c *fiber.Ctx) error {
 		INSERT INTO user_permissions (user_id, permissions, updated_at)
 		VALUES ($1, jsonb_build_object('atlas', $2::text), now())
 		ON CONFLICT (user_id) DO UPDATE SET
-			permissions = user_permissions.permissions || jsonb_build_object('atlas', $2::text),
+			-- Linha antiga pode ter a permissão guardada como string JSON em vez de
+			-- objeto (a importação do BOR1 gravou a string "{}"). Sobre não-objeto
+			-- o operador de merge concatena em array e destrói o registro.
+			permissions = CASE WHEN jsonb_typeof(user_permissions.permissions) = 'object'
+			                   THEN user_permissions.permissions ELSE '{}'::jsonb END
+			              || jsonb_build_object('atlas', $2::text),
 			updated_at = now()`, target, in.Level); err != nil {
 		return internalErr(c, err)
 	}
