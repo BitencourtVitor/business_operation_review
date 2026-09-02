@@ -83,7 +83,7 @@ export function ImportUserDialog({ open, onClose }: { open: boolean; onClose: ()
           />
         </div>
 
-        <ScrollArea className="min-h-0 flex-1">
+        <ScrollArea className="max-h-[55vh] min-h-0 flex-1">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

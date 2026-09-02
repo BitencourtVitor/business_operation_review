@@ -17,7 +17,11 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        // `max-h-[inherit]`: a viewport é `h-full`, e altura percentual não
+        // resolve contra o `max-height` de um pai de altura automática. Sem
+        // isto ela cresce até o conteúdo e a lista vaza por cima do que vier
+        // depois — rodapé de modal, normalmente.
+        className="size-full max-h-[inherit] overflow-auto rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
