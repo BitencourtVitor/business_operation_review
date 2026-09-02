@@ -1,242 +1,613 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { useAuth } from "@/hooks/use-auth"
+import {
+  useUsers, useCreateUser, useUpdateUser, useDeleteUser, useResetPassword,
+  useUpdateUserPermissions,
+} from "@/hooks/use-settings"
+import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "@/components/atlas/atlas-permissions-modal"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { NativeSelect } from "@/components/ui/native-select"
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
-  useAtlasUserCandidates, useAtlasUsers, useCreateAtlasUser, useSetAtlasUserAccess,
-} from "@/hooks/use-atlas"
-import { CodeXml, Copy, KeyRound, Plus, UserPlus, X } from "lucide-react"
-import { useState } from "react"
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table"
+import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  ArrowLeft, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, KeyRound, Loader2,
+  Pencil, Plus, Search, Settings, ShieldAlert, ShieldCheck, Trash2, User, UserPlus, Users,
+} from "lucide-react"
+import type { UserWithPermissions } from "@/services/settings.service"
 
-const LEVELS = [
-  { value: "read", label: "Read", hint: "Opens jobsites they were granted" },
-  { value: "write", label: "Write", hint: "Also uploads documents and marks up plans" },
-]
+// A tela é a de Manage Users do BOR, com uma coluna trocada: onde lá vai a
+// contagem de telas liberadas, aqui vai o acesso ao Atlas. Mesmos modais,
+// mesmos atalhos, mesma hierarquia — quem administra um produto não deveria
+// reaprender o outro.
 
-function NewUserDialog() {
-  const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ name: "", email: "", level: "read" })
-  const [created, setCreated] = useState<{ email: string; password: string } | null>(null)
-  const create = useCreateAtlasUser()
+const inputCls =
+  "h-8 w-full rounded-lg border border-input bg-transparent px-3 py-0 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 
-  function close() {
-    setOpen(false)
-    setCreated(null)
-    setForm({ name: "", email: "", level: "read" })
+const ROLES = ["owner", "manager", "user"] as const
+
+const ROLE_RANK: Record<string, number> = { dev: 4, owner: 3, manager: 2, user: 1 }
+
+function canManage(myRole: string, targetRole: string): boolean {
+  return (ROLE_RANK[myRole] ?? 0) > (ROLE_RANK[targetRole] ?? 0)
+}
+
+const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
+  dev:     { label: "Developer", icon: CodeXml, className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  owner:   { label: "Owner",     icon: Gauge,   className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  manager: { label: "Manager",   icon: Users,   className: "border-primary/40 bg-primary/10 text-primary" },
+  user:    { label: "User",      icon: User,    className: "border-border bg-secondary text-foreground" },
+}
+
+// Os cargos que entram no Atlas por serem quem são — os mesmos que o
+// RequireAtlas deixa passar sem convite.
+const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager", "gestor"]
+
+function RoleBadge({ role }: { role: string }) {
+  const m = roleMeta[role] ?? roleMeta.user
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${m.className}`}>
+      <m.icon className="h-3 w-3" />
+      {m.label}
+    </span>
+  )
+}
+
+// ─── User form modal ──────────────────────────────────────────────────────────
+
+function UserFormModal({ open, onClose, existing }: {
+  open: boolean
+  onClose: () => void
+  existing?: UserWithPermissions
+}) {
+  const isEdit = !!existing
+  const createUser = useCreateUser()
+  const updateUser = useUpdateUser()
+  const updatePerms = useUpdateUserPermissions()
+
+  const [name, setName] = useState(existing?.name ?? "")
+  const [email, setEmail] = useState(existing?.email ?? "")
+  const [role, setRole] = useState<string>(existing?.role ?? "user")
+  const [provisional, setProvisional] = useState<string | null>(null)
+
+  useEffect(() => {
+    setName(existing?.name ?? "")
+    setEmail(existing?.email ?? "")
+    setRole(existing?.role ?? "user")
+    setProvisional(null)
+  }, [existing])
+
+  function reset() {
+    setName(""); setEmail(""); setRole("user"); setProvisional(null)
   }
 
-  return (
-    <Dialog open={open} onOpenChange={o => (o ? setOpen(true) : close())}>
-      <DialogTrigger render={<Button />}>
-        <UserPlus className="h-4 w-4" />
-        New user
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New Atlas user</DialogTitle></DialogHeader>
+  async function handleSubmit() {
+    if (!name.trim() || !email.trim()) return
+    if (isEdit) {
+      await updateUser.mutateAsync({ id: existing!.id, data: { name, email, role } })
+      onClose()
+      return
+    }
+    const res = await createUser.mutateAsync({ name, email, role })
+    // Quem nasce nesta tela nasce para o Atlas: a chave do produto entra junto,
+    // em leitura. As demais se concedem no modal de permissões.
+    if (!FULL_ACCESS_ROLES.includes(role)) {
+      await updatePerms.mutateAsync({ userId: res.id, permissions: { atlas: "read" } })
+    }
+    setProvisional(res.provisionalPassword)
+  }
 
-        {created ? (
-          <div className="flex flex-col gap-3">
-            <p className="text-sm">
-              Account created for <span className="font-medium">{created.email}</span>. This
-              password is shown once and must be changed on first sign in.
-            </p>
-            <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/40 p-3">
-              <KeyRound className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <code className="flex-1 truncate text-sm">{created.password}</code>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => navigator.clipboard.writeText(created.password)}
-              >
-                <Copy className="h-4 w-4" />
+  function handleClose() { reset(); onClose() }
+
+  const pending = createUser.isPending || updateUser.isPending || updatePerms.isPending
+  const canSubmit = name.trim().length > 0 && email.trim().length > 0
+
+  return (
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose() }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {isEdit ? <Pencil className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+            {isEdit ? "Edit User" : "Add User"}
+          </DialogTitle>
+        </DialogHeader>
+
+        {provisional ? (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                User created successfully!
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Share this provisional password with the user. They will be prompted to change
+                it on first login. This account has Atlas access only.
+              </p>
+              <div className="mt-3 flex items-center gap-2 rounded-md border bg-background px-3 py-2">
+                <code className="flex-1 font-mono text-sm tracking-wide">{provisional}</code>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button size="sm" onClick={handleClose}>
+                <Check className="h-3.5 w-3.5" />
+                Done
               </Button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="user-name">Name</Label>
-              <Input id="user-name" value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })} />
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Full Name</label>
+              <input className={inputCls} placeholder="Jane Smith" value={name}
+                onChange={e => setName(e.target.value)} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="user-email">Email</Label>
-              <Input id="user-email" type="email" value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })} />
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Email</label>
+              <input type="email" className={inputCls} placeholder="jane@example.com" value={email}
+                onChange={e => setEmail(e.target.value)} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="user-level">Access</Label>
-              <NativeSelect id="user-level" value={form.level}
-                onChange={e => setForm({ ...form, level: e.target.value })}>
-                {LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-              </NativeSelect>
-              <p className="text-xs text-muted-foreground">
-                {LEVELS.find(l => l.value === form.level)?.hint}. Atlas only: this does not
-                grant access to the BOR.
-              </p>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Role</label>
+              <Select value={role} onValueChange={v => v && setRole(v)}>
+                <SelectTrigger className="w-full">
+                  <span className="flex flex-1 items-center gap-1.5 text-sm">
+                    {(() => { const m = roleMeta[role]; return m ? <><m.icon className="h-3 w-3 shrink-0" />{m.label}</> : role })()}
+                  </span>
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {ROLES.map(r => {
+                    const m = roleMeta[r]
+                    return (
+                      <SelectItem key={r} value={r}>
+                        <span className="flex items-center gap-1.5">
+                          {m && <m.icon className="h-3 w-3 shrink-0" />}
+                          {m?.label ?? r}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" size="sm" onClick={handleClose} disabled={pending}>Cancel</Button>
+              <Button size="sm" onClick={handleSubmit} disabled={!canSubmit || pending}>
+                {pending
+                  ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving…</>
+                  : isEdit
+                    ? <><Check className="h-3.5 w-3.5" />Save Changes</>
+                    : <><Plus className="h-3.5 w-3.5" />Create User</>}
+              </Button>
             </div>
           </div>
         )}
-
-        <DialogFooter>
-          {created ? (
-            <Button onClick={close}>Done</Button>
-          ) : (
-            <>
-              <Button variant="outline" onClick={close}>Cancel</Button>
-              <Button
-                disabled={!form.name.trim() || !form.email.trim() || create.isPending}
-                onClick={() => create.mutate(form, {
-                  onSuccess: r => setCreated({ email: form.email, password: r.provisionalPassword }),
-                })}
-              >
-                {create.isPending ? "Creating…" : "Create"}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
 
-function GrantExistingDialog() {
-  const [open, setOpen] = useState(false)
-  const [userId, setUserId] = useState("")
-  const [level, setLevel] = useState("read")
-  const { data: candidates } = useAtlasUserCandidates()
-  const grant = useSetAtlasUserAccess()
+// ─── Delete confirm modal ─────────────────────────────────────────────────────
+
+function DeleteUserModal({ open, onClose, user: target }: {
+  open: boolean
+  onClose: () => void
+  user: UserWithPermissions | null
+}) {
+  const deleteUser = useDeleteUser()
+  const [typed, setTyped] = useState("")
+
+  function handleClose() { setTyped(""); onClose() }
+
+  async function confirm() {
+    if (!target || typed !== target.name) return
+    await deleteUser.mutateAsync(target.id)
+    handleClose()
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" />}>
-        <Plus className="h-4 w-4" />
-        Grant to existing
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Grant Atlas access</DialogTitle></DialogHeader>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="grant-user">Person</Label>
-            <NativeSelect id="grant-user" value={userId} onChange={e => setUserId(e.target.value)}>
-              <option value="">Select…</option>
-              {(candidates ?? []).map(u => (
-                <option key={u.id} value={u.id}>{u.name} — {u.email}</option>
-              ))}
-            </NativeSelect>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="grant-level">Access</Label>
-            <NativeSelect id="grant-level" value={level} onChange={e => setLevel(e.target.value)}>
-              {LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-            </NativeSelect>
-            <p className="text-xs text-muted-foreground">
-              Only the Atlas key is written. Whatever they have in the BOR stays as it is.
-            </p>
-          </div>
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose() }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4" />
+            Delete User
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+          This action is <span className="font-semibold">permanent and irreversible</span>. The
+          user will lose all access immediately, in the Atlas and in the BOR.
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+
+        <div className="space-y-1.5">
+          <p className="text-sm text-muted-foreground">
+            Type <span className="font-medium text-foreground">{target?.name}</span> to confirm.
+          </p>
+          <input
+            className={inputCls}
+            placeholder={target?.name ?? ""}
+            value={typed}
+            onChange={e => setTyped(e.target.value)}
+            onPaste={e => e.preventDefault()}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="ghost" size="sm" onClick={handleClose}>Cancel</Button>
           <Button
-            disabled={!userId || grant.isPending}
-            onClick={() => grant.mutate({ userId, level }, {
-              onSuccess: () => { setUserId(""); setOpen(false) },
-            })}
+            variant="destructive"
+            size="sm"
+            onClick={confirm}
+            disabled={typed !== target?.name || deleteUser.isPending}
           >
-            Grant
+            {deleteUser.isPending
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <><Trash2 className="h-3.5 w-3.5" />Delete</>}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   )
 }
+
+// ─── Reset password modal ─────────────────────────────────────────────────────
+
+function ResetPasswordModal({ open, onClose, user: target }: {
+  open: boolean
+  onClose: () => void
+  user: UserWithPermissions | null
+}) {
+  const resetPw = useResetPassword()
+  const [newPass, setNewPass] = useState<string | null>(null)
+
+  async function confirm() {
+    if (!target) return
+    const res = await resetPw.mutateAsync(target.id)
+    setNewPass(res.provisionalPassword)
+  }
+
+  function handleClose() { setNewPass(null); onClose() }
+
+  return (
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose() }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4" />
+            Reset Password
+          </DialogTitle>
+        </DialogHeader>
+
+        {newPass ? (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Password reset!</p>
+              <p className="mt-1 text-xs text-muted-foreground">Share this provisional password with the user.</p>
+              <div className="mt-3 flex items-center gap-2 rounded-md border bg-background px-3 py-2">
+                <code className="flex-1 font-mono text-sm">{newPass}</code>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button size="sm" onClick={handleClose}>
+                <Check className="h-3.5 w-3.5" />
+                Done
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Generate a new provisional password for{" "}
+              <span className="font-medium text-foreground">{target?.name}</span>?
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" size="sm" onClick={handleClose}>Cancel</Button>
+              <Button size="sm" onClick={confirm} disabled={resetPw.isPending}>
+                {resetPw.isPending
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  : <><KeyRound className="h-3.5 w-3.5" />Reset Password</>}
+              </Button>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+type SortKey = "name" | "role"
+type SortDir = "asc" | "desc"
 
 export default function AtlasUsersPage() {
-  const { data: users, isLoading } = useAtlasUsers()
-  const setAccess = useSetAtlasUserAccess()
+  const { user: me } = useAuth()
+  const { data: users = [], isLoading } = useUsers()
+
+  const [formOpen, setFormOpen] = useState(false)
+  const [editing, setEditing] = useState<UserWithPermissions | undefined>()
+  const [deleteTarget, setDeleteTarget] = useState<UserWithPermissions | null>(null)
+  const [resetTarget, setResetTarget] = useState<UserWithPermissions | null>(null)
+  const [permsTarget, setPermsTarget] = useState<UserWithPermissions | null>(null)
+
+  const [search, setSearch] = useState("")
+  const [roleFilter, setRoleFilter] = useState("all")
+  const [sortKey, setSortKey] = useState<SortKey>("name")
+  const [sortDir, setSortDir] = useState<SortDir>("asc")
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDir(d => (d === "asc" ? "desc" : "asc"))
+    else { setSortKey(key); setSortDir("asc") }
+  }
+
+  const filtered = users
+    .filter(u => {
+      const q = search.toLowerCase()
+      const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      const matchRole = roleFilter === "all" || u.role === roleFilter
+      return matchSearch && matchRole
+    })
+    .sort((a, b) => {
+      const va = a[sortKey].toLowerCase()
+      const vb = b[sortKey].toLowerCase()
+      return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va)
+    })
+
+  const allRoles = [...new Set(users.map(u => u.role))].sort()
+
+  if (me && !["dev", "owner", "manager"].includes(me.role)) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <ShieldAlert className="h-10 w-10 text-destructive/60" />
+          <p className="font-medium">Access Denied</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Users</h1>
-          <p className="text-sm text-muted-foreground">
-            Who gets into the Atlas. Access here is Atlas only: it never grants the BOR,
-            and it never takes it away.
-          </p>
+    <>
+      {/* A página ocupa a altura do main e não rola: quem rola é a tabela. É o
+          que faz o cabeçalho congelado ter contra o que congelar. */}
+      <div className="flex h-full flex-col gap-6">
+        <div className="flex shrink-0 items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/atlas/settings"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <div className="h-8 w-px bg-border" />
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight">Manage Users</h1>
+              <p className="text-sm text-muted-foreground">
+                Create, edit and manage who works in the Atlas
+              </p>
+            </div>
+          </div>
+          <Button size="sm" className="shrink-0 gap-1.5"
+            onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+            <Plus className="h-3.5 w-3.5" />
+            Add User
+          </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <GrantExistingDialog />
-          <NewUserDialog />
+
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              className="h-8 w-full rounded-lg border border-input bg-transparent pl-8 pr-3 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          <Select value={roleFilter} onValueChange={v => v && setRoleFilter(v)}>
+            <SelectTrigger className="w-36">
+              <span className="flex flex-1 items-center gap-1.5 text-sm text-muted-foreground">
+                {roleFilter === "all" ? "All roles" : (() => {
+                  const m = roleMeta[roleFilter]
+                  return m ? <><m.icon className="h-3 w-3 shrink-0" />{m.label}</> : roleFilter
+                })()}
+              </span>
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="all">All roles</SelectItem>
+              {allRoles.map(r => {
+                const m = roleMeta[r]
+                return (
+                  <SelectItem key={r} value={r}>
+                    <span className="flex items-center gap-1.5">
+                      {m && <m.icon className="h-3 w-3 shrink-0" />}
+                      {m?.label ?? r}
+                    </span>
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* O <Table> do shadcn embrulha a tabela num contêiner com
+            overflow-x-auto, e é esse contêiner que o sticky do <th> enxerga
+            como ancestral de rolagem. Rolar aqui fora deixaria o cabeçalho
+            preso a um elemento que não rola — por isso a rolagem vertical vai
+            para dentro dele. */}
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border bg-card [&>[data-slot=table-container]]:h-full [&>[data-slot=table-container]]:overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              {users.length === 0 ? "No users yet" : "No users match your search"}
+            </p>
+          ) : (
+            // border-separate porque o Chrome ignora sticky em <th> quando a
+            // tabela está em border-collapse, que é o padrão do Tailwind. Com
+            // spacing zero o resultado visual é o mesmo.
+            <Table className="border-separate border-spacing-0 [&_th]:py-2.5 [&_td]:py-2 [&_td]:border-b [&_td]:border-border/60">
+              {/* Congelar cabeçalho é no <th>, não no <thead>: sticky em thead
+                  não pega em todo navegador. E o fundo precisa ser opaco, senão
+                  as linhas passam por baixo dele ao rolar. */}
+              <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-muted">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-full border-r border-border">
+                    <button onClick={() => toggleSort("name")}
+                      className={`flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${sortKey === "name" ? "text-foreground" : "text-muted-foreground"}`}>
+                      User
+                      {sortKey === "name"
+                        ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                        : <ChevronUp className="h-3 w-3 opacity-20" />}
+                    </button>
+                  </TableHead>
+                  <TableHead className="border-r border-border text-center">
+                    <button onClick={() => toggleSort("role")}
+                      className={`mx-auto flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${sortKey === "role" ? "text-foreground" : "text-muted-foreground"}`}>
+                      Role
+                      {sortKey === "role"
+                        ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                        : <ChevronUp className="h-3 w-3 opacity-20" />}
+                    </button>
+                  </TableHead>
+                  <TableHead className="border-r border-border text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Permissions
+                  </TableHead>
+                  <TableHead className="bg-muted/60 text-center text-muted-foreground">
+                    <Settings className="mx-auto h-3.5 w-3.5" />
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map(u => {
+                  const byRole = FULL_ACCESS_ROLES.includes(u.role)
+                  const granted = ATLAS_PERMISSIONS
+                    .filter(p => !p.locked && u.permissions?.[p.key]).length
+                  return (
+                    <TableRow key={u.id}>
+                      <TableCell className="border-r border-border">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium">{u.name}</span>
+                          <span className="text-xs text-muted-foreground">{u.email}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="border-r border-border text-center">
+                        <RoleBadge role={u.role} />
+                      </TableCell>
+                      <TableCell className="border-r border-border text-center">
+                        {byRole ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            <ShieldCheck className="h-3 w-3" />
+                            Full Access
+                          </span>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-xs tabular-nums text-muted-foreground">{granted}/{ATLAS_TOTAL}</span>
+                            <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
+                              <div className="h-full rounded-full bg-primary transition-all"
+                                style={{ width: `${(granted / ATLAS_TOTAL) * 100}%` }} />
+                            </div>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="bg-muted/20">
+                        <TooltipProvider>
+                          <div className="flex items-center justify-center gap-1">
+                            {canManage(me?.role ?? "", u.role) && (
+                              <>
+                                {!byRole && (
+                                  <Tooltip>
+                                    <TooltipTrigger render={
+                                      <button
+                                        className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                        onClick={() => setPermsTarget(u)}
+                                      />
+                                    }>
+                                      <ShieldCheck className="h-3.5 w-3.5" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">Atlas permissions</TooltipContent>
+                                  </Tooltip>
+                                )}
+                                <Tooltip>
+                                  <TooltipTrigger render={
+                                    <button
+                                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                      onClick={() => { setEditing(u); setFormOpen(true) }}
+                                    />
+                                  }>
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">Edit user</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger render={
+                                    <button
+                                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                      onClick={() => setResetTarget(u)}
+                                    />
+                                  }>
+                                    <KeyRound className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">Reset password</TooltipContent>
+                                </Tooltip>
+                                {u.id !== me?.id && (
+                                  <Tooltip>
+                                    <TooltipTrigger render={
+                                      <button
+                                        className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => setDeleteTarget(u)}
+                                      />
+                                    }>
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">Delete user</TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </TooltipProvider>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex h-32 items-center justify-center">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
-        </div>
-      ) : !users?.length ? (
-        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">Nobody here yet</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create a user for the Atlas, or grant access to somebody who already has an account.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {users.map(u => (
-            <div
-              key={u.id}
-              className="flex flex-wrap items-center gap-3 rounded-lg border border-border/60 bg-card p-3"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 truncate text-sm font-medium leading-tight">
-                  {u.byRole && <CodeXml className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400" />}
-                  {u.name}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">{u.email}</p>
-              </div>
-
-              <span className="text-xs text-muted-foreground">
-                {u.jobsites} {u.jobsites === 1 ? "jobsite" : "jobsites"}
-              </span>
-
-              {u.byRole ? (
-                // Dev entra por ser dev; tirar a chave dele aqui não mudaria
-                // nada, e o botão mentiria.
-                <Badge variant="outline" className="border-yellow-500/40 text-yellow-600 dark:text-yellow-400">
-                  Developer
-                </Badge>
-              ) : (
-                <>
-                  <NativeSelect
-                    value={u.level}
-                    className="h-8 w-28"
-                    onChange={e => setAccess.mutate({ userId: u.id, level: e.target.value })}
-                  >
-                    {LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-                  </NativeSelect>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    title="Remove Atlas access"
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => setAccess.mutate({ userId: u.id, level: "" })}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <UserFormModal
+        open={formOpen}
+        onClose={() => { setFormOpen(false); setEditing(undefined) }}
+        existing={editing}
+      />
+      <DeleteUserModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        user={deleteTarget}
+      />
+      <ResetPasswordModal
+        open={!!resetTarget}
+        onClose={() => setResetTarget(null)}
+        user={resetTarget}
+      />
+      <AtlasPermissionsModal
+        open={!!permsTarget}
+        onClose={() => setPermsTarget(null)}
+        user={permsTarget}
+      />
+    </>
   )
 }

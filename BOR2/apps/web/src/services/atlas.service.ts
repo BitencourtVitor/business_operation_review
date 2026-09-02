@@ -240,12 +240,6 @@ export const atlasService = {
   updateJobsite: (id: string, patch: Partial<AtlasJobsite>) =>
     api.patch(`${base}/jobsites/${id}`, patch, getToken()),
 
-  listAtlasUsers: () =>
-    api.get<AtlasUser[]>(`${base}/users`, getToken()).then(r => r ?? []),
-  listAtlasUserCandidates: () =>
-    api.get<AtlasUser[]>(`${base}/users/candidates`, getToken()).then(r => r ?? []),
-  createAtlasUser: (body: { name: string; email: string; level: string }) =>
-    api.post<{ id: string; provisionalPassword: string }>(`${base}/users`, body, getToken()),
   setAtlasUserAccess: (userId: string, level: string) =>
     api.patch(`${base}/users/${userId}`, { level }, getToken()),
 
