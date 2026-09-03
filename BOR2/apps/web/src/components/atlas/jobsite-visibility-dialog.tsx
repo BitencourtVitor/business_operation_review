@@ -107,9 +107,12 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
         <p className="shrink-0 px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
           {label} ({people.length})
         </p>
-        <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-2">
         {people.length === 0 ? (
-          <p className="rounded-md border border-dashed border-border/50 px-2 py-3 text-center text-xs text-muted-foreground/70">
+          // A moldura ocupa o bloco inteiro em vez de virar um filete do
+          // tamanho de uma linha: ela é o alvo de quem vai mover o primeiro
+          // nome para cá, e alvo pequeno é alvo que se erra.
+          <p className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border/50 px-2 py-3 text-center text-xs text-muted-foreground/70">
             {empty}
           </p>
         ) : (
@@ -257,13 +260,12 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
         </div>
 
         <DialogFooter className="sm:items-center sm:justify-between">
-          <span className="max-w-sm text-xs text-muted-foreground">
-            {/* As duas metades se governam por regras opostas, e a nota diz isso
-                onde a decisão acontece. Cargo privilegiado fica de fora da
-                conta: vê tudo antes de a regra ser consultada, e listá-lo
-                prometeria um bloqueio que não existe. */}
-            Admins and managers always see every project. Premium people see it unless you say
-            otherwise; a subcontractor sees nothing until you share it.
+          <span className="min-w-0 flex-1 pr-4 text-xs leading-snug text-muted-foreground">
+            {/* Cargo privilegiado fica de fora da conta: vê tudo antes de a
+                regra ser consultada, e listá-lo aqui prometeria um bloqueio que
+                não existe. O resto a tela já mostra: as duas colunas e as duas
+                metades dizem a regra sem precisar de legenda. */}
+            Admins and managers always see every project.
           </span>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
