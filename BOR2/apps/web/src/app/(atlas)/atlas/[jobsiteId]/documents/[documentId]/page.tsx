@@ -635,7 +635,11 @@ export default function DocumentPage() {
                     onClick={downloadChosen}
                   >
                     <Download className="h-3.5 w-3.5" />
-                    {saving ? `Saving ${saving}` : `Download ${chosen.size || ""}`.trim()}
+                    {/* "Download selection" e "Download all": o par diz o que cada um
+                        leva. O número já está dito na esquerda da barra, e
+                        repeti-lo no botão trocava o nome da ação por uma
+                        contagem. */}
+                    {saving ? `Saving ${saving}` : "Download selection"}
                   </Button>
                   <Button
                     variant="outline"
