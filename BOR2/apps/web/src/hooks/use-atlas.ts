@@ -15,6 +15,7 @@ const KEY = {
   jobsite: (id: string) => ["atlas", "jobsite", id] as const,
   access: (id: string) => ["atlas", "access", id] as const,
   documents: (id: string) => ["atlas", "documents", id] as const,
+  jobsiteCategories: (id: string) => ["atlas", "jobsite-categories", id] as const,
   versions: (id: string) => ["atlas", "versions", id] as const,
   sheets: (id: string) => ["atlas", "sheets", id] as const,
   annotations: (id: string) => ["atlas", "annotations", id] as const,
@@ -135,6 +136,37 @@ export function useCreateAtlasDocument(jobsiteId: string) {
   return useMutation({
     mutationFn: (body: Partial<AtlasDocument>) => atlasService.createDocument(jobsiteId, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY.documents(jobsiteId) }),
+  })
+}
+
+/** O que esta obra espera receber, e o quanto já chegou. */
+export function useAtlasJobsiteCategories(jobsiteId: string) {
+  return useQuery({
+    queryKey: KEY.jobsiteCategories(jobsiteId),
+    queryFn: () => atlasService.listJobsiteCategories(jobsiteId),
+    enabled: !!jobsiteId,
+  })
+}
+
+export function useSetDocumentTags(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ documentId, tags }: {
+      documentId: string
+      tags: { categoryId: number; subcategory: string }[]
+    }) => atlasService.setDocumentTags(documentId, tags),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY.documents(jobsiteId) })
+      qc.invalidateQueries({ queryKey: KEY.jobsiteCategories(jobsiteId) })
+    },
+  })
+}
+
+export function useRemoveCategorySlot(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (categoryId: number) => atlasService.removeCategorySlot(jobsiteId, categoryId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas"] }),
   })
 }
 

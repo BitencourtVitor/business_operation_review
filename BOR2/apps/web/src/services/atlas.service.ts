@@ -83,6 +83,32 @@ export interface AtlasDocCategory {
   naming?: { levels: { x0: number; y0: number; x1: number; y1: number; rotation: number }[] }
 }
 
+/**
+ * Uma categoria grudada num documento.
+ *
+ * Categoria e subcategoria são etiquetas classificáveis, e não o lugar onde o
+ * arquivo mora: um set que cobre o 3º e o 4º andar carrega as duas, em vez de
+ * virar dois documentos.
+ */
+export interface AtlasDocTag {
+  categoryId: number
+  category: string
+  /** O valor do eixo: o andar ("3rd"), a letra da unidade ("C"), ou vazio. */
+  subcategory: string
+  axis: "none" | "floor" | "unit"
+}
+
+/** Uma categoria que a obra espera receber, e quanto dela já chegou. */
+export interface AtlasJobsiteCategory {
+  categoryId: number
+  name: string
+  subcategory: string
+  axis: "none" | "floor" | "unit"
+  position: number
+  /** Zero é a lacuna: a obra pediu e ninguém anexou. */
+  documents: number
+}
+
 export interface AtlasDocument {
   id: string
   jobsiteId: string
@@ -93,6 +119,8 @@ export interface AtlasDocument {
   categoryId: number
   /** Valor do eixo: o andar ("3rd"), a letra da unidade ("C"), ou vazio. */
   subcategory: string
+  /** Como o documento se classifica. Muitas por documento. */
+  tags: AtlasDocTag[]
   createdBy: string
   createdAt: string
   versions: number
@@ -362,8 +390,13 @@ export const atlasService = {
     api.delete(`${base}/doc-categories/${id}`, getToken()),
   addCategorySlot: (jobsiteId: string, categoryId: number) =>
     api.post<{ created: number }>(`${base}/jobsites/${jobsiteId}/slots/${categoryId}`, {}, getToken()),
+  removeCategorySlot: (jobsiteId: string, categoryId: number) =>
+    api.delete(`${base}/jobsites/${jobsiteId}/slots/${categoryId}`, getToken()),
   regenerateSlots: (jobsiteId: string) =>
     api.post<{ created: number }>(`${base}/jobsites/${jobsiteId}/slots`, {}, getToken()),
+  listJobsiteCategories: (jobsiteId: string) =>
+    api.get<AtlasJobsiteCategory[]>(`${base}/jobsites/${jobsiteId}/categories`, getToken())
+      .then(r => r ?? []),
 
   listDocuments: (jobsiteId: string) =>
     api.get<AtlasDocument[]>(`${base}/jobsites/${jobsiteId}/documents`, getToken()).then(r => r ?? []),
@@ -371,6 +404,10 @@ export const atlasService = {
     api.post<{ id: string }>(`${base}/jobsites/${jobsiteId}/documents`, body, getToken()),
   updateDocument: (documentId: string, patch: Record<string, unknown>) =>
     api.patch(`${base}/documents/${documentId}`, patch, getToken()),
+  // O conjunto inteiro de uma vez: desmarcar uma etiqueta é mandar a lista sem
+  // ela, e não existe pedido de "remova esta".
+  setDocumentTags: (documentId: string, tags: { categoryId: number; subcategory: string }[]) =>
+    api.put(`${base}/documents/${documentId}/tags`, { tags }, getToken()),
 
   listVersions: (documentId: string) =>
     api.get<AtlasVersion[]>(`${base}/documents/${documentId}/versions`, getToken()).then(r => r ?? []),

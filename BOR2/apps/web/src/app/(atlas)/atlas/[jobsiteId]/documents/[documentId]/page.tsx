@@ -12,6 +12,7 @@ import {
   usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
+import { takeUpload } from "@/components/atlas/pending-upload"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
@@ -21,7 +22,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 // A cor de cada marcação é a mesma da ferramenta que a fez, no leitor: azul do
 // vínculo, laranja da nota, verde-limão do marca-texto. Repetir a cor aqui é o
@@ -245,6 +246,10 @@ export default function DocumentPage() {
   const publish = usePublishAtlasVersion(documentId)
 
   const doc = useMemo(() => documents?.find(d => d.id === documentId), [documents, documentId])
+  // O gabarito de nomenclatura mora na categoria, e o documento agora tem
+  // várias. A primeira manda: é a que a pessoa escolheu primeiro ao anexar, e
+  // um set tem um layout só de carimbo.
+  const templateCategory = doc?.categoryId || doc?.tags?.[0]?.categoryId || 0
   const canManage = jobsite?.level === "manage"
   const canAnnotate = canManage || jobsite?.level === "annotate"
 
@@ -275,6 +280,18 @@ export default function DocumentPage() {
   const [namingUrl, setNamingUrl] = useState("")
   const [applying, setApplying] = useState("")
   const [namingError, setNamingError] = useState("")
+
+  // Documento recém-criado: o arquivo foi escolhido na sala da obra e ficou
+  // esperando aqui, porque é aqui que as folhas aparecem uma a uma. Roda uma
+  // vez só — quem pega, sobe.
+  const started = useRef(false)
+  useEffect(() => {
+    if (started.current) return
+    const pending = takeUpload(documentId)
+    if (!pending) return
+    started.current = true
+    startUpload(pending.file, pending.names)
+  }, [documentId])
 
   useEffect(() => {
     if (!versionId && versions?.length) setVersionId(versions[0].id)
@@ -406,8 +423,8 @@ export default function DocumentPage() {
       stopPicking()
       // Guardado na categoria: o próximo envio do mesmo relatório já sobe
       // nomeado, sem ninguém remarcar nada.
-      if (doc?.categoryId) {
-        updateCategory.mutate({ id: doc.categoryId, naming: template }, { onError: () => {} })
+      if (templateCategory) {
+        updateCategory.mutate({ id: templateCategory, naming: template }, { onError: () => {} })
       }
     } catch (e) {
       setNamingError(e instanceof Error ? e.message : "could not read the names")
@@ -447,6 +464,16 @@ export default function DocumentPage() {
     })
   }
 
+  const [renaming, setRenaming] = useState(false)
+  const [draftName, setDraftName] = useState("")
+  function saveName() {
+    const next = draftName.trim()
+    setRenaming(false)
+    if (!next || next === doc?.name) return
+    atlasService.updateDocument(documentId, { name: next })
+      .then(() => qc.invalidateQueries({ queryKey: ["atlas", "documents", jobsiteId] }))
+  }
+
   async function download() {
     const { url } = await atlasService.versionDownloadUrl(versionId)
     window.open(url, "_blank", "noopener")
@@ -471,9 +498,52 @@ export default function DocumentPage() {
             </Link>
             <span className="h-9 w-px shrink-0 bg-border" />
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-lg font-semibold leading-tight">{doc?.name ?? "Document"}</h1>
+              {/* O nome veio do arquivo, e arquivo chega com nome que ninguém
+                  escolheu direito. Editar é operação normal, e ela acontece
+                  onde o nome está, não numa tela de configuração. */}
+              {renaming ? (
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    autoFocus
+                    value={draftName}
+                    className="h-8"
+                    onChange={e => setDraftName(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") saveName()
+                      if (e.key === "Escape") setRenaming(false)
+                    }}
+                  />
+                  <Button variant="ghost" className="h-8 w-8 shrink-0 p-0" onClick={saveName}>
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="h-8 w-8 shrink-0 p-0"
+                    onClick={() => setRenaming(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <h1 className="flex items-center gap-1.5 text-lg font-semibold leading-tight">
+                  <span className="truncate">{doc?.name ?? "Document"}</span>
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={() => { setDraftName(doc?.name ?? ""); setRenaming(true) }}
+                      className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      title="Rename this document"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </h1>
+              )}
               <p className="truncate text-sm text-muted-foreground">
-                {[jobsite?.name, doc?.discipline].filter(Boolean).join(" · ")}
+                {[jobsite?.name, ...(doc?.tags ?? []).map(t =>
+                  t.subcategory
+                    ? `${t.subcategory} ${t.axis === "unit" ? "Unit" : "Floor"} ${t.category}`
+                    : t.category)].filter(Boolean).join(" · ")}
               </p>
             </div>
             {canManage && (
@@ -497,8 +567,8 @@ export default function DocumentPage() {
               guardado, e é dela que ele volta no próximo envio. */}
           {canManage && (
             <UploadPlanDialog
-              categoryId={doc?.categoryId ?? undefined}
-              naming={categories.find(c => c.id === doc?.categoryId)?.naming}
+              categoryId={templateCategory || undefined}
+              naming={categories.find(c => c.id === templateCategory)?.naming}
               revisionCount={versions?.length ?? 0}
               open={uploading}
               onStart={startUpload}
@@ -546,7 +616,7 @@ export default function DocumentPage() {
             <NamingTemplateDialog
               url={namingUrl}
               open={naming}
-              initial={categories.find(c => c.id === doc?.categoryId)?.naming}
+              initial={categories.find(c => c.id === templateCategory)?.naming}
               onClose={() => setNaming(false)}
               onSave={applyNaming}
             />

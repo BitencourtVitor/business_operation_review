@@ -853,6 +853,21 @@ type atlasDocument struct {
 	// crachá que a tela de usuários usa.
 	UploadedRole string `json:"uploadedRole"`
 	UploadedAt   string `json:"uploadedAt"`
+	// Como o documento se classifica. São muitas: um set que cobre o 3º e o 4º
+	// andar carrega as duas etiquetas, em vez de virar dois documentos.
+	Tags []atlasDocTag `json:"tags"`
+}
+
+// atlasDocTag é uma categoria da taxonomia grudada num documento.
+//
+// `Category` e `Axis` vêm resolvidos da taxonomia porque a lista da obra
+// precisa do nome legível e do eixo para montar a etiqueta, e buscar a
+// taxonomia inteira só para traduzir um id é ida e volta à toa.
+type atlasDocTag struct {
+	CategoryID  int64  `json:"categoryId"`
+	Category    string `json:"category"`
+	Subcategory string `json:"subcategory"`
+	Axis        string `json:"axis"`
 }
 
 // GET /atlas/jobsites/:id/documents
@@ -867,7 +882,16 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
 		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0),
-		       COALESCE(au.name,''), COALESCE(au.role::text,''), u.uploaded_at
+		       COALESCE(au.name,''), COALESCE(au.role::text,''), u.uploaded_at,
+		       COALESCE((
+		           SELECT json_agg(json_build_object(
+		                      'categoryId', t.category_id, 'category', c.name,
+		                      'subcategory', t.subcategory, 'axis', c.axis)
+		                  ORDER BY c.position, c.name, t.subcategory)
+		           FROM atlas_document_tag t
+		           JOIN atlas_doc_category c ON c.id = t.category_id
+		           WHERE t.document_id = d.id
+		       ), '[]')::text
 		FROM atlas_document d
 		LEFT JOIN LATERAL (
 			SELECT v.id, v.revision, v.status, v.uploaded_by, v.uploaded_at
@@ -878,7 +902,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		) u ON true
 		LEFT JOIN users au ON au.id = u.uploaded_by
 		WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
-		ORDER BY d.category, d.subcategory, d.name`, id)
+		ORDER BY d.created_at DESC, d.name`, id)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -889,11 +913,16 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		var d atlasDocument
 		var created time.Time
 		var uploaded *time.Time
+		var tags string
 		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Category,
 			&d.CategoryID, &d.Subcategory, &d.CreatedBy, &created, &d.Versions,
 			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets,
-			&d.UploadedBy, &d.UploadedRole, &uploaded); err != nil {
+			&d.UploadedBy, &d.UploadedRole, &uploaded, &tags); err != nil {
 			return internalErr(c, err)
+		}
+		d.Tags = []atlasDocTag{}
+		if tags != "" {
+			_ = json.Unmarshal([]byte(tags), &d.Tags)
 		}
 		d.CreatedAt = created.Format(time.RFC3339)
 		if uploaded != nil {
@@ -924,6 +953,12 @@ func (h *AtlasHandler) CreateDocument(c *fiber.Ctx) error {
 		VALUES ($1,$2,$3,$4,$5,$6)`,
 		docID, id, strings.TrimSpace(in.Name), in.Discipline, in.Category, userID)
 	if err != nil {
+		return internalErr(c, err)
+	}
+	// As etiquetas entram junto: o documento nasce classificado, e não numa
+	// pasta. Falhar aqui não desfaz o documento — o arquivo é o que importa, e
+	// a etiqueta se corrige na tela.
+	if err := h.writeTags(c.Context(), docID, in.Tags); err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": docID}})

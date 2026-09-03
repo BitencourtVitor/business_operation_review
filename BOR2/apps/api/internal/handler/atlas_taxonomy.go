@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 // A taxonomia de documento e as vagas que ela cria na obra.
@@ -93,10 +92,12 @@ func (h *AtlasHandler) ListDocCategories(c *fiber.Ctx) error {
 		FROM atlas_doc_category c
 		LEFT JOIN LATERAL (
 			-- As subcategorias que existem de fato, e não as que caberiam: é o
-			-- que responde "quais andares esta categoria já cobre".
-			SELECT array_agg(DISTINCT d.subcategory ORDER BY d.subcategory) AS values
-			FROM atlas_document d
-			WHERE d.category_id = c.id AND d.subcategory <> '' AND d.archived_at IS NULL
+			-- que responde "quais andares esta categoria já cobre". Sai da
+			-- expectativa da obra, e não do documento: com a categoria virando
+			-- etiqueta, um andar pode estar previsto sem ter arquivo ainda.
+			SELECT array_agg(DISTINCT j.subcategory ORDER BY j.subcategory) AS values
+			FROM atlas_jobsite_category j
+			WHERE j.category_id = c.id AND j.subcategory <> ''
 		) sub ON true
 		WHERE c.archived_at IS NULL
 		ORDER BY c.position, c.name`)
@@ -335,15 +336,14 @@ func (h *AtlasHandler) seedJobsiteSlots(ctx context.Context, jobsiteID, userID s
 		}
 
 		for _, v := range values {
-			name := slotName(ct.name, ct.axis, v)
-			// O índice único de (obra, categoria, subcategoria) é quem garante
-			// que rodar de novo não duplica pasta.
+			// A vaga é linha da obra, e não documento vazio: o documento nasce
+			// quando alguém anexa um PDF, com o nome do arquivo. A chave
+			// primária de (obra, categoria, subcategoria) é quem garante que
+			// rodar de novo não duplica expectativa.
 			tag, err := h.db.Exec(ctx, `
-				INSERT INTO atlas_document
-					(id, jobsite_id, name, category, category_id, subcategory, created_by)
-				VALUES ($1,$2,$3,$4,$5,$6,$7)
-				ON CONFLICT DO NOTHING`,
-				uuid.NewString(), jobsiteID, name, ct.name, ct.id, v, userID)
+				INSERT INTO atlas_jobsite_category (jobsite_id, category_id, subcategory)
+				VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
+				jobsiteID, ct.id, v)
 			if err != nil {
 				return created, err
 			}
@@ -367,9 +367,9 @@ func (h *AtlasHandler) createSlotsForCategory(ctx context.Context, jobsiteID str
 		return 0, fmt.Errorf("jobsite: %w", err)
 	}
 
-	var name, axis string
+	var axis string
 	if err := h.db.QueryRow(ctx,
-		`SELECT name, axis FROM atlas_doc_category WHERE id = $1`, categoryID).Scan(&name, &axis); err != nil {
+		`SELECT axis FROM atlas_doc_category WHERE id = $1`, categoryID).Scan(&axis); err != nil {
 		return 0, fmt.Errorf("category: %w", err)
 	}
 
@@ -392,11 +392,9 @@ func (h *AtlasHandler) createSlotsForCategory(ctx context.Context, jobsiteID str
 	created := 0
 	for _, v := range values {
 		tag, err := h.db.Exec(ctx, `
-			INSERT INTO atlas_document
-				(id, jobsite_id, name, category, category_id, subcategory, created_by)
-			VALUES ($1,$2,$3,$4,$5,$6,$7)
-			ON CONFLICT DO NOTHING`,
-			uuid.NewString(), jobsiteID, slotName(name, axis, v), name, categoryID, v, userID)
+			INSERT INTO atlas_jobsite_category (jobsite_id, category_id, subcategory)
+			VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
+			jobsiteID, categoryID, v)
 		if err != nil {
 			return created, err
 		}

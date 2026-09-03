@@ -3,12 +3,30 @@
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
 import { Check, CloudUpload, FileUp, ScanText } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+
+import type { AtlasJobsiteCategory } from "@/services/atlas.service"
+
+/** Uma etiqueta escolhida: a categoria e o valor do eixo. */
+type TagKey = { categoryId: number; subcategory: string }
+
+/** O que um documento novo precisa saber de si além do arquivo. */
+export type DocumentIdentity = { name: string; tags: TagKey[] }
+
+/** "3rd Floor Trusses", "C Unit Cabinet Layout", ou só "Permit Set". */
+function slotLabel(sl: AtlasJobsiteCategory) {
+  if (!sl.subcategory) return sl.name
+  return sl.axis === "unit"
+    ? `${sl.subcategory} Unit ${sl.name}`
+    : `${sl.subcategory} Floor ${sl.name}`
+}
 
 /**
  * Subir um plan set, do arquivo às folhas nomeadas.
@@ -20,7 +38,7 @@ import { useEffect, useRef, useState } from "react"
  * folha que vale é sempre a última.
  */
 export function UploadPlanDialog({
-  categoryId, naming, revisionCount, open, onStart, onClose,
+  categoryId, naming, revisionCount, open, slots, onStart, onClose,
 }: {
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
   categoryId?: number
@@ -28,8 +46,14 @@ export function UploadPlanDialog({
   /** Quantas versões já existem: a próxima é a seguinte, sem ninguém digitar. */
   revisionCount: number
   open: boolean
+  /**
+   * Documento novo: as categorias que esta obra espera receber. Presente,
+   * o diálogo também pergunta nome e etiquetas; ausente, ele só troca o set de
+   * um documento que já existe.
+   */
+  slots?: AtlasJobsiteCategory[]
   /** Quem envia é a página: o envio precisa sobreviver ao fechamento daqui. */
-  onStart: (file: File, names?: Map<number, string>) => void
+  onStart: (file: File, names?: Map<number, string>, identity?: DocumentIdentity) => void
   onClose: () => void
 }) {
   const updateCategory = useUpdateDocCategory()
@@ -37,6 +61,12 @@ export function UploadPlanDialog({
 
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
+
+  // O nome do documento e como ele se classifica. O nome nasce do arquivo:
+  // quem anexou já escolheu como chamar aquilo, e digitar de novo é pedir a
+  // mesma coisa duas vezes. Fica editável aqui e depois, na própria página.
+  const [name, setName] = useState("")
+  const [tags, setTags] = useState<TagKey[]>([])
 
   const [marking, setMarking] = useState(false)
   const [template, setTemplate] = useState<NamingTemplate | undefined>(naming)
@@ -47,7 +77,14 @@ export function UploadPlanDialog({
     if (open) return
     setFile(null); setError("")
     setNames(null); setReading("")
+    setName(""); setTags([])
   }, [open])
+
+  function choose(picked: File | null) {
+    setFile(picked); setError("")
+    // Sem a extensão: ".pdf" é o formato, não o nome do documento.
+    if (picked) setName(picked.name.replace(/.pdf$/i, "").trim())
+  }
 
   // O que veio do servidor só entra enquanto ninguém marcou nada aqui: a
   // categoria devolve o gabarito a cada refetch, e adotá-lo sempre apagava a
@@ -87,7 +124,8 @@ export function UploadPlanDialog({
 
   function submit() {
     if (!file) return
-    onStart(file, names ?? undefined)
+    onStart(file, names ?? undefined,
+      slots ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined)
     onClose()
   }
 
@@ -99,7 +137,9 @@ export function UploadPlanDialog({
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {revisionCount ? "Replace the plan set" : "Upload the plan set"}
+              {slots ? "New document"
+                : revisionCount ? "Replace the plan set"
+                : "Upload the plan set"}
             </DialogTitle>
           </DialogHeader>
 
@@ -110,7 +150,7 @@ export function UploadPlanDialog({
               type="file"
               accept="application/pdf"
               className="hidden"
-              onChange={e => { setFile(e.target.files?.[0] ?? null); setError("") }}
+              onChange={e => choose(e.target.files?.[0] ?? null)}
             />
             <Button
               variant="outline"
@@ -129,7 +169,61 @@ export function UploadPlanDialog({
               </span>
             </Button>
 
-            {/* 2. Onde o nome de cada folha está impresso. Opcional: dá para
+            {/* 2. Como o documento se chama e como ele se classifica. Só para
+                documento novo: trocar o set de um que já existe não é hora de
+                mexer no nome dele. */}
+            {slots && !!file && (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="doc-name">Document name</Label>
+                  <Input
+                    id="doc-name"
+                    value={name}
+                    placeholder="Comes from the file"
+                    onChange={e => setName(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <Label>Categories</Label>
+                  {slots.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      This jobsite has no category yet. Add one from the folder list, or upload
+                      it plain and tag it later.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {slots.map(sl => {
+                        const key = `${sl.categoryId}:${sl.subcategory}`
+                        const on = tags.some(t => `${t.categoryId}:${t.subcategory}` === key)
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setTags(prev => on
+                              ? prev.filter(t => `${t.categoryId}:${t.subcategory}` !== key)
+                              : [...prev, { categoryId: sl.categoryId, subcategory: sl.subcategory }])}
+                            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                              on
+                                ? "border-primary bg-primary/10 text-foreground"
+                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                            }`}
+                          >
+                            {slotLabel(sl)}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    A document can carry more than one — a set covering the 3rd and the 4th
+                    floor is one document with two.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* 3. Onde o nome de cada folha está impresso. Opcional: dá para
                 subir agora e nomear depois, na própria pasta, que é o caminho
                 de quem recebeu o arquivo e ainda não sabe como ele é
                 organizado. */}
@@ -191,8 +285,9 @@ export function UploadPlanDialog({
             // Gravar o gabarito é conveniência do próximo envio, não condição
             // deste: se falhar, o envio segue com o que está marcado aqui, e o
             // aviso diz que da próxima vez vai precisar remarcar.
-            if (categoryId) {
-              updateCategory.mutate({ id: categoryId, naming: next }, {
+            const target = categoryId ?? tags[0]?.categoryId
+            if (target) {
+              updateCategory.mutate({ id: target, naming: next }, {
                 onError: () => setError("The template was not saved to the folder. This upload still uses what you marked."),
               })
             }

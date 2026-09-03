@@ -20,19 +20,22 @@ import {
 } from "@/components/ui/select"
 import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
-  useCreateDocCategory,
+  useAtlasJobsiteCategories, useCreateAtlasDocument, useCreateDocCategory, useSetDocumentTags,
 } from "@/hooks/use-atlas"
 import { atlasService } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import type { AtlasDocument } from "@/services/atlas.service"
+import { stashUpload } from "@/components/atlas/pending-upload"
+import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
+
+import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, CodeXml, FileQuestion, FolderOpen,
-  Gauge, HardHat, Hash, Layers, MapPin, Pencil, Plus, UserRound, Users,
+  Gauge, HardHat, Layers, MapPin, Pencil, Plus, Tags, UserRound, Users,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 // O crachá de quem subiu, o mesmo da tela de usuários: numa obra com
 // subcontratado dentro, saber que o set veio de fora vale mais que o nome.
@@ -74,24 +77,24 @@ const AXIS_OPTIONS = [
 // barra lateral, e repetir o endereço aqui gastava o título com o que não muda
 // ao navegar entre as seções.
 const TAB_META: Record<string, { title: string; hint: string }> = {
-  documents: { title: "Documents", hint: "One folder per category, with every revision inside." },
+  documents: { title: "Documents", hint: "Every file attached here, and what the jobsite still lacks." },
   photos:    { title: "Photos",    hint: "What the site looked like, by the day it was shot." },
   tasks:     { title: "Tasks",     hint: "What was asked on the plan, and what got done." },
   diary:     { title: "Diary",     hint: "What happened on site, day by day." },
   access:    { title: "Access",    hint: "Who sees this project." },
 }
 
-function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
+function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
   jobsiteId: string; client: string; kind: string; usedCategoryIds: Set<number>
 }) {
   const [open, setOpen] = useState(false)
   const addSlot = useAddCategorySlot(jobsiteId)
   const createCategory = useCreateDocCategory()
 
-  // Toda pasta pertence a uma categoria — não existe documento sem filiação.
-  // Por isso não há campo livre aqui: ou se escolhe uma categoria que a
-  // taxonomia já conhece, ou se cria uma, que fica guardada para as outras
-  // obras poderem usar depois.
+  // A categoria é etiqueta, e etiqueta não se inventa por obra: ou se escolhe
+  // uma que a taxonomia já conhece, ou se cria uma, que fica guardada para as
+  // outras obras poderem usar depois. Sem isso volta o problema do Fieldwire,
+  // três grafias para a mesma coisa.
   const { data: categories = [] } = useAtlasDocCategories()
   // Tipo fechado só enxerga o que é dele; os demais somam as categorias de
   // build type vazio, que valem para qualquer obra levantada.
@@ -133,10 +136,10 @@ function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
     <Dialog open={open} onOpenChange={v => (v ? setOpen(true) : close())}>
       <DialogTrigger render={<Button variant="outline" />}>
         <Plus className="h-4 w-4" />
-        Add folder
+        Add category
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Add a folder to this jobsite</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>What this jobsite should have</DialogTitle></DialogHeader>
 
         <div className="flex flex-col gap-3">
           <div className="flex gap-1 rounded-lg border border-border/60 p-1">
@@ -226,16 +229,117 @@ function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
   )
 }
 
+/** "3rd Floor Trusses", "C Unit Cabinet Layout", ou só "Permit Set". */
+function tagLabel(t: { category?: string; name?: string; subcategory: string; axis: string }) {
+  const name = t.category ?? t.name ?? ""
+  if (!t.subcategory) return name
+  return t.axis === "unit"
+    ? `${t.subcategory} Unit ${name}`
+    : `${t.subcategory} Floor ${name}`
+}
+
+// As etiquetas de um documento que já existe. Documento subido antes de a
+// classificação existir, ou que mudou de mão, precisa de um lugar para ser
+// reclassificado sem passar por novo upload.
+function TagDialog({ jobsiteId, doc, slots, onClose }: {
+  jobsiteId: string
+  doc: AtlasDocument | null
+  slots: AtlasJobsiteCategory[]
+  onClose: () => void
+}) {
+  const setTags = useSetDocumentTags(jobsiteId)
+  const [picked, setPicked] = useState<string[]>([])
+
+  useEffect(() => {
+    if (doc) setPicked(doc.tags.map(t => `${t.categoryId}:${t.subcategory}`))
+  }, [doc])
+
+  function save() {
+    if (!doc) return
+    setTags.mutate({
+      documentId: doc.id,
+      tags: picked.map(k => {
+        const [id, sub] = k.split(":")
+        return { categoryId: Number(id), subcategory: sub ?? "" }
+      }),
+    }, { onSuccess: onClose })
+  }
+
+  return (
+    <Dialog open={!!doc} onOpenChange={o => { if (!o) onClose() }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Categories of this document</DialogTitle></DialogHeader>
+        {slots.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            This jobsite has no category yet. Add one below the document list first.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {slots.map(sl => {
+              const key = `${sl.categoryId}:${sl.subcategory}`
+              const on = picked.includes(key)
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setPicked(prev =>
+                    on ? prev.filter(k => k !== key) : [...prev, key])}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    on
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  {tagLabel(sl)}
+                </button>
+              )
+            })}
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button disabled={setTags.isPending} onClick={save}>
+            {setTags.isPending ? "Saving…" : "Save"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   jobsiteId: string; client: string; kind: string; canManage: boolean
 }) {
   const { data: documents, isLoading } = useAtlasDocuments(jobsiteId)
+  const { data: slots = [] } = useAtlasJobsiteCategories(jobsiteId)
+  const createDocument = useCreateAtlasDocument(jobsiteId)
+  const router = useRouter()
 
-  // A lista é a das vagas da própria obra, criadas a partir da taxonomia do
-  // Atlas quando ela foi cadastrada ou importada. A pasta existe desde o
-  // começo; o que muda é ter documento dentro ou não — e é essa lacuna que a
-  // obra precisa mostrar.
-  const slots = documents ?? []
+  const [uploading, setUploading] = useState(false)
+  const [tagging, setTagging] = useState<AtlasDocument | null>(null)
+  // O filtro é o que sobrou da pasta: em vez de entrar nela, a lista encolhe.
+  const [filter, setFilter] = useState("")
+
+  const docs = documents ?? []
+  const shown = filter
+    ? docs.filter(d => d.tags.some(t => `${t.categoryId}:${t.subcategory}` === filter))
+    : docs
+
+  // Documento novo nasce do arquivo: cria a linha com o nome e as etiquetas, e
+  // manda a pessoa para a página dele, onde as folhas sobem uma a uma. O
+  // arquivo viaja por fora da navegação, que não carrega `File`.
+  function startNew(file: File, names?: Map<number, string>, identity?: DocumentIdentity) {
+    if (!identity) return
+    createDocument.mutate(
+      { name: identity.name, tags: identity.tags as AtlasDocument["tags"] },
+      {
+        onSuccess: ({ id }) => {
+          stashUpload(id, { file, names })
+          router.push(`/atlas/${jobsiteId}/documents/${id}`)
+        },
+      },
+    )
+  }
 
   if (isLoading) {
     return (
@@ -245,102 +349,206 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     )
   }
 
-  const row = (id: string, doc: AtlasDocument | undefined, label: string) => {
-    const body = (
-      <>
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 ${
-          doc ? "text-muted-foreground" : "text-muted-foreground/50"
-        }`}>
-          {doc ? <FolderOpen className="h-4 w-4" /> : <FileQuestion className="h-4 w-4" />}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium leading-tight">
-            {doc?.name ?? label}
-          </span>
-          {!doc && (
-            <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-              Nothing attached yet
-            </span>
-          )}
-        </span>
-        {/* Do outro lado, a procedência: quanto tem dentro, quando entrou e
-            quem pôs. Contagem e número de revisão saíram porque só a última
-            vale, e a categoria repetia o nome da pasta. */}
-        {!!doc?.sheets && (
-          <span className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
-            <span className="flex items-center gap-1.5">
-              <Layers className="h-3.5 w-3.5" />
-              {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
-            </span>
-            {/* Quem pôs em cima e quando embaixo: é uma informação só, a
-                procedência, e ela se lê de uma vez em vez de virar três blocos
-                soltos na mesma linha. */}
-            <span className="flex flex-col items-end gap-0.5 leading-none">
-              {doc.uploadedBy && (() => {
-                const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
-                const RoleIcon = role.icon
-                return (
-                  <span className="flex items-center gap-1.5 font-medium text-foreground/80">
-                    <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
-                    {doc.uploadedBy.split(" ")[0]}
-                  </span>
-                )
-              })()}
-              {when(doc.uploadedAt) && (
-                <span className="flex items-center gap-1.5 text-muted-foreground/80">
-                  <CalendarDays className="h-3 w-3" />
-                  {when(doc.uploadedAt)}
-                </span>
-              )}
-            </span>
-          </span>
-        )}
-        {!doc && <Badge variant="outline" className="text-muted-foreground">Missing</Badge>}
-      </>
-    )
-
-    // A pasta vazia abre igual à cheia. A vaga já existe com id próprio, e é lá
-    // dentro que se anexa a primeira revisão: sem o link, quem tinha o
-    // documento em mãos não tinha por onde entregá-lo.
-    return (
-      <Link
-        key={id}
-        href={`/atlas/${jobsiteId}/documents/${id}`}
-        className={`flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-accent/30 ${
-          doc ? "border-border/60 bg-card" : "border-dashed border-border/40"
-        }`}
-      >
-        {body}
-      </Link>
-    )
-  }
-
   return (
-    <Panel
-      title="Folders"
-      hint="Each block is a document category this project asked for."
-      action={canManage && (
-        <NewDocumentDialog
-          jobsiteId={jobsiteId}
-          client={client}
-          kind={kind}
-          usedCategoryIds={new Set(slots.map(d => d.categoryId).filter((n): n is number => !!n))}
+    <>
+      <Panel
+        title="Documents"
+        hint="Every file attached to this jobsite, by what it is."
+        action={canManage && (
+          <Button variant="outline" onClick={() => setUploading(true)}>
+            <Plus className="h-4 w-4" />
+            New document
+          </Button>
+        )}
+      >
+        {/* As categorias como filtro, e não como pasta: o documento continua à
+            vista, e escolher uma etiqueta encolhe a lista em vez de abrir outra
+            tela. */}
+        {slots.length > 0 && docs.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setFilter("")}
+              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                filter === ""
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              All {docs.length}
+            </button>
+            {slots.map(sl => {
+              const key = `${sl.categoryId}:${sl.subcategory}`
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(f => (f === key ? "" : key))}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    filter === key
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  {tagLabel(sl)}
+                  <span className="ml-1.5 text-muted-foreground">{sl.documents}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {shown.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+            <p className="text-sm font-medium">
+              {docs.length ? "Nothing with this category" : "No documents yet"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {docs.length
+                ? "Clear the filter to see everything attached here."
+                : "Attach the PDF and it becomes a document, named after the file."}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {shown.map(doc => (
+              <div
+                key={doc.id}
+                className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-3 transition-colors hover:border-primary/40"
+              >
+                <Link
+                  href={`/atlas/${jobsiteId}/documents/${doc.id}`}
+                  className="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-muted-foreground">
+                    {doc.versions ? <FolderOpen className="h-4 w-4" /> : <FileQuestion className="h-4 w-4" />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium leading-tight">
+                      {doc.name}
+                    </span>
+                    <span className="mt-1 flex flex-wrap items-center gap-1">
+                      {doc.tags.length === 0 ? (
+                        <span className="text-xs text-muted-foreground">No category</span>
+                      ) : doc.tags.map(t => (
+                        <Badge
+                          key={`${t.categoryId}:${t.subcategory}`}
+                          variant="outline"
+                          className="text-[11px] font-normal text-muted-foreground"
+                        >
+                          {tagLabel(t)}
+                        </Badge>
+                      ))}
+                    </span>
+                  </span>
+                </Link>
+
+                {!!doc.sheets && (
+                  <span className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
+                    <span className="flex items-center gap-1.5">
+                      <Layers className="h-3.5 w-3.5" />
+                      {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
+                    </span>
+                    {/* Quem pôs em cima e quando embaixo: é uma informação só, a
+                        procedência, e ela se lê de uma vez em vez de virar três
+                        blocos soltos na mesma linha. */}
+                    <span className="flex flex-col items-end gap-0.5 leading-none">
+                      {doc.uploadedBy && (() => {
+                        const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
+                        const RoleIcon = role.icon
+                        return (
+                          <span className="flex items-center gap-1.5 font-medium text-foreground/80">
+                            <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
+                            {doc.uploadedBy.split(" ")[0]}
+                          </span>
+                        )
+                      })()}
+                      {when(doc.uploadedAt) && (
+                        <span className="flex items-center gap-1.5 text-muted-foreground/80">
+                          <CalendarDays className="h-3 w-3" />
+                          {when(doc.uploadedAt)}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                )}
+
+                {canManage && (
+                  <Button
+                    variant="ghost"
+                    className="h-8 w-8 shrink-0 p-0"
+                    onClick={() => setTagging(doc)}
+                  >
+                    <Tags className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
+
+      {/* O que a obra pediu e ainda não chegou. Era isto que a pasta vazia
+          dizia, e é a única coisa dela que valia a pena guardar. */}
+      <Panel
+        title="What this jobsite should have"
+        hint="The categories asked for here, and what is still missing."
+        action={canManage && (
+          <NewCategoryDialog
+            jobsiteId={jobsiteId}
+            client={client}
+            kind={kind}
+            usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
+          />
+        )}
+      >
+        {slots.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
+            <p className="text-sm font-medium">No category set for this jobsite</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Set them in Manage Categories and Subcategories, or add one here.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {slots.map(sl => (
+              <div
+                key={`${sl.categoryId}:${sl.subcategory}`}
+                className={`flex items-center gap-3 rounded-lg border p-2.5 ${
+                  sl.documents ? "border-border/60 bg-card" : "border-dashed border-border/40"
+                }`}
+              >
+                <span className="min-w-0 flex-1 truncate text-sm">{tagLabel(sl)}</span>
+                {sl.documents ? (
+                  <span className="text-xs text-muted-foreground">
+                    {sl.documents} {sl.documents === 1 ? "document" : "documents"}
+                  </span>
+                ) : (
+                  <Badge variant="outline" className="text-muted-foreground">Missing</Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
+
+      {canManage && (
+        <UploadPlanDialog
+          revisionCount={0}
+          open={uploading}
+          slots={slots}
+          onStart={startNew}
+          onClose={() => setUploading(false)}
         />
       )}
-    >
-      {slots.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">No folders yet</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Set the categories in Manage Categories and Subcategories, or add a folder anyway.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {slots.map(d => row(d.id, d.versions > 0 ? d : undefined, d.name))}
-        </div>
-      )}
-    </Panel>
+
+      <TagDialog
+        jobsiteId={jobsiteId}
+        doc={tagging}
+        slots={slots}
+        onClose={() => setTagging(null)}
+      />
+    </>
   )
 }
 
