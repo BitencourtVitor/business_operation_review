@@ -258,40 +258,43 @@ body {
   animation: atlas-burst 420ms cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* Virar página: halo que cresce em volta do botão.
+/* Virar página: o anel sai do botão e se abre para fora.
  *
- * Aqui não cabe o disparo do toque, que acontece e passa. Passar adiante é uma
- * intenção que se anuncia antes: o anel abre quando o ponteiro chega, cresce
- * mais quando se pressiona, e recolhe quando se sai. É estado, não evento.
+ * Sai no toque, não no hover: passar o mouse por cima não vira página nenhuma, e
+ * um anel aceso o tempo todo em que o ponteiro descansa ali é ruído. O que se
+ * anuncia é o clique, e ele se anuncia crescendo de dentro para fora.
  *
  * A sombra de apoio entra na mesma declaração porque box-shadow não se acumula
- * entre regras: deixá-la na classe utilitária faria uma apagar a outra. As
- * setas também vivem centradas na vertical, e perder isso as jogaria para o
- * topo no instante do toque.
+ * entre regras: deixá-la na classe utilitária faria uma apagar a outra.
  */
+@keyframes atlas-page-halo {
+  0% {
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.35),
+      0 0 0 0 rgb(255 255 255 / 0.3);
+  }
+  100% {
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.35),
+      0 0 0 18px rgb(255 255 255 / 0);
+  }
+}
+
 .atlas-page-turn {
-  transition: box-shadow 240ms cubic-bezier(0.2, 0.7, 0.3, 1), background-color 200ms ease;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.35),
-    0 0 0 0 rgb(255 255 255 / 0);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.35);
+  transition: background-color 200ms ease;
 }
 
-.atlas-page-turn:hover {
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.35),
-    0 0 0 9px rgb(255 255 255 / 0.12);
-}
-
-/* Pressionado o anel abre mais: o gesto termina maior do que começou. */
 .atlas-page-turn:active {
+  /* As setas vivem centradas na vertical, e perder isso as jogaria para o topo
+     no instante do toque. */
   transform: translateY(-50%);
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.35),
-    0 0 0 15px rgb(255 255 255 / 0.18);
+  animation: atlas-page-halo 480ms cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .atlas-burst:active {
+  .atlas-burst:active,
+  .atlas-page-turn:active {
     animation: none;
   }
 }

@@ -4,6 +4,7 @@ import { downloadPlan } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
 import { findInPlan, type TextHit } from "@/components/atlas/plan-text"
 import { atlasService } from "@/services/atlas.service"
+import { useAuth } from "@/hooks/use-auth"
 import { usePlanSource } from "@/components/atlas/use-plan-url"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +21,8 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
-  Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, User, Users, X,
+  Eye, EyeOff, Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, User,
+  Users, X,
 } from "lucide-react"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
@@ -146,6 +148,21 @@ function clampView(v: PlanView, box: { width: number; height: number }, pw: numb
   }
 }
 
+// O que a prancha mostra por cima do desenho, e de quem.
+//
+// Numa folha com meia dúzia de leitores, a marcação de todo mundo somada tapa o
+// plano. Poder apagar a camada dos outros e ficar só com a sua, ou o contrário,
+// é o que deixa a prancha continuar legível sem ninguém ter de apagar nada.
+const LAYERS = [
+  { key: "myPen",       label: "My pen",            icon: Pen },
+  { key: "theirPen",    label: "Pen from others",   icon: Pen },
+  { key: "myMarker",    label: "My marker",         icon: Highlighter },
+  { key: "theirMarker", label: "Marker from others", icon: Highlighter },
+  { key: "notes",       label: "Notes",             icon: MapPin },
+] as const
+
+type LayerKey = (typeof LAYERS)[number]["key"]
+
 function pointsToPath(points: [number, number][], w: number, h: number): string {
   if (!points.length) return ""
   return points
@@ -221,6 +238,24 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
   const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
   const [noteText, setNoteText] = useState("")
+
+  // Pelo hook e não pelo store: o store guarda só o token entre recargas, e sem
+  // o id do usuário toda marcação virava "de outra pessoa", inclusive a sua.
+  const { user } = useAuth()
+  const me = user?.id ?? ""
+  const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
+    myPen: true, theirPen: true, myMarker: true, theirMarker: true, notes: true,
+  })
+  const [layersOpen, setLayersOpen] = useState(false)
+
+  // Traço só aparece se a camada dele estiver acesa. O que é meu sai do autor;
+  // o que veio sem autor é tratado como meu, que é o caso do traço ainda a
+  // caminho do banco.
+  const visible = useCallback((a: AtlasAnnotation) => {
+    const mine = !a.authorId || a.authorId === me
+    if (a.tool === "highlighter") return mine ? layers.myMarker : layers.theirMarker
+    return mine ? layers.myPen : layers.theirPen
+  }, [me, layers])
 
   const [sample, setSample] = useState(false)
   const sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -330,8 +365,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const centreOn = useCallback((target: TextHit) => {
     setView(v => clampView({
       scale: v.scale,
-      x: size.width / 2 - (target.x + target.width / 2) * v.scale,
-      y: size.height / 2 - (target.y + target.height / 2) * v.scale,
+      x: size.width / 2 - target.cx * v.scale,
+      y: size.height / 2 - target.cy * v.scale,
     }, size, pageWidth, pageHeight))
   }, [size, pageWidth, pageHeight])
 
@@ -582,6 +617,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // ── Teclado ───────────────────────────────────────────────────────────────
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      // Digitar num campo é digitar, não comandar: procurar "pen" não pode
+      // trocar de ferramenta no meio da palavra.
+      const target = e.target as HTMLElement | null
+      const typing = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA"
+        || target?.isContentEditable
+      if (typing) return
+
       if (e.key === "ArrowRight" && next) onNavigate(next)
       if (e.key === "ArrowLeft" && prev) onNavigate(prev)
       if (e.key === "Escape") onClose()
@@ -680,7 +722,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           {[
             ...(annotations ?? []),
             ...pending.filter(m => !annotations?.some(a => a.id === m.id)),
-          ].map(a => (
+          ].filter(visible).map(a => (
             <path
               key={a.id}
               d={pointsToPath(a.geometry?.points ?? [], pageWidth, pageHeight)}
@@ -727,17 +769,20 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               laranja forte, os outros em amarelo, para a leitura saber onde
               está e quantos faltam sem precisar contar. */}
           {hits.map((h, i) => (
+            // O retângulo nasce na origem do trecho e gira com ele: a base do
+            // texto é o zero, então a altura sobe, não desce.
             <rect
               key={`${h.x}-${h.y}-${i}`}
-              x={h.x}
-              y={h.y}
+              x={0}
+              y={-h.height}
               width={h.width}
               height={h.height}
+              transform={`translate(${h.x} ${h.y}) rotate(${h.angle})`}
               className={i === hit ? "fill-orange-500/45" : "fill-yellow-400/35"}
             />
           ))}
 
-          {events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
+          {layers.notes && events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
             <g
               key={e.id}
               transform={`translate(${(e.pageX ?? 0) * pageWidth} ${(e.pageY ?? 0) * pageHeight})`}
@@ -876,54 +921,81 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
           </p>
-          <p className="truncate text-xs text-white/60">
-            {sheet.title || `${index + 1} of ${sheets.length}`}
+          {/* A posição na sequência não cede lugar ao título: saber que folha
+              se está lendo e saber onde ela cai no set são duas perguntas, e a
+              segunda continua valendo depois de a folha ganhar nome. Cada uma
+              num canto, que já as separa sem precisar de sinal no meio. */}
+          <p className="flex items-baseline justify-between gap-8 text-xs text-white/60">
+            <span className="truncate">{sheet.title}</span>
+            <span className="shrink-0">{index + 1} of {sheets.length}</span>
           </p>
         </div>
       </div>
 
-      <div className="absolute right-4 top-4 flex items-center gap-1 rounded-lg border border-white/10 bg-neutral-800/90 p-1 shadow-lg backdrop-blur">
+      {/* A barra e o painel são dois blocos, não um que estica. Grudados, a
+          largura do painel esticava a fileira de ícones e sobrava vão depois do
+          X; soltos, cada um tem a largura do que carrega. */}
+      <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
+       <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-neutral-800/90 p-1 shadow-lg backdrop-blur">
         {/* Procurar texto na prancha. O plano guarda o texto que foi impresso
             nele, então achar "U341" é leitura de PDF, não busca em imagem. */}
         {finding && (
           <div className="flex items-center gap-1">
-            <input
-              autoFocus
-              value={needle}
-              onChange={e => setNeedle(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Enter") goToHit(e.shiftKey ? -1 : 1)
-                if (e.key === "Escape") { setFinding(false); setNeedle(""); setHits([]) }
-              }}
-              placeholder="Find on this sheet"
-              className="h-9 w-44 rounded-md border border-white/15 bg-white/5 px-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-white/40"
-            />
-            <span className="w-16 shrink-0 text-center text-xs tabular-nums text-white/60">
-              {searching ? "…"
-                : needle.trim().length < 2 ? ""
-                : hits.length ? `${hit + 1} of ${hits.length}`
-                : "none"}
-            </span>
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={!hits.length}
-              onClick={() => goToHit(-1)}
-              title="Previous match (Shift+Enter)"
-              className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
-            >
-              <ChevronUp className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={!hits.length}
-              onClick={() => goToHit(1)}
-              title="Next match (Enter)"
-              className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
+            <div className="relative">
+              <input
+                autoFocus
+                value={needle}
+                onChange={e => setNeedle(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter") goToHit(e.shiftKey ? -1 : 1)
+                  if (e.key === "Escape") { setFinding(false); setNeedle(""); setHits([]) }
+                }}
+                placeholder="Find on this sheet"
+                className="h-9 w-56 rounded-md border border-white/15 bg-white/5 py-1 pl-2.5 pr-8 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-white/40"
+              />
+              {/* Limpar sem fechar a busca: trocar de palavra é o que mais se faz
+                  aqui, e apagar letra por letra num campo de tablet é penoso. */}
+              {needle && (
+                <button
+                  type="button"
+                  onClick={() => { setNeedle(""); setHits([]); setHit(0) }}
+                  aria-label="Clear search"
+                  className="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {/* Contador e setas só existem quando há o que contar e para onde
+                ir. Reservados o tempo todo, esticavam a barra em cem pixels que
+                ficavam vazios enquanto ninguém tinha digitado nada. */}
+            {needle.trim().length >= 2 && (
+              <span className="shrink-0 whitespace-nowrap px-1 text-xs tabular-nums text-white/60">
+                {searching ? "…" : hits.length ? `${hit + 1} of ${hits.length}` : "none"}
+              </span>
+            )}
+            {hits.length > 0 && (
+              <>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => goToHit(-1)}
+                  title="Previous match (Shift+Enter)"
+                  className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => goToHit(1)}
+                  title="Next match (Enter)"
+                  className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         )}
         <Button
@@ -938,6 +1010,15 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           }}
         >
           <Search className="h-4 w-4" />
+        </Button>
+        <Button
+          size="icon"
+          variant={layersOpen ? "default" : "ghost"}
+          className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+          title="What to show on the sheet"
+          onClick={() => setLayersOpen(v => !v)}
+        >
+          <Eye className="h-4 w-4" />
         </Button>
         <Button
           size="icon"
@@ -962,6 +1043,40 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         >
           <X className="h-4 w-4" />
         </Button>
+       </div>
+
+        {/* O painel desce da barra e para logo abaixo dela, com folga. */}
+        {layersOpen && (
+          <div className="w-max rounded-lg border border-white/10 bg-neutral-800/95 p-1.5 shadow-xl backdrop-blur duration-200 animate-in fade-in-0 slide-in-from-top-2">
+              <p className="px-1.5 pb-1.5 pt-0.5 text-[11px] font-bold uppercase tracking-wider text-white/40">
+                Show on this sheet
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {LAYERS.map(layer => {
+                  const on = layers[layer.key]
+                  return (
+                    <button
+                      key={layer.key}
+                      type="button"
+                      onClick={() => setLayers(v => ({ ...v, [layer.key]: !v[layer.key] }))}
+                      className={`atlas-burst flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
+                        on ? "text-white hover:bg-white/10" : "text-white/35 hover:bg-white/5"
+                      }`}
+                    >
+                      <layer.icon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="flex-1 whitespace-nowrap">{layer.label}</span>
+                      {/* O olho aberto ou fechado carrega o estado sozinho: um
+                          quadradinho marcado obriga a lembrar o que "marcado"
+                          quer dizer aqui. */}
+                      {on
+                        ? <Eye className="h-3.5 w-3.5 shrink-0" />
+                        : <EyeOff className="h-3.5 w-3.5 shrink-0" />}
+                    </button>
+                  )
+                })}
+              </div>
+          </div>
+        )}
       </div>
 
       {prev && (
@@ -970,7 +1085,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(prev)}
           title="Previous plan"
-          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -981,7 +1096,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(next)}
           title="Next plan"
-          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
