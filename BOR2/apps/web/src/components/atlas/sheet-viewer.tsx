@@ -250,6 +250,12 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // A área sendo cercada agora, e o vínculo vazio que espera destino.
   const [linkBox, setLinkBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
   const [linking, setLinking] = useState<string | null>(null)
+  // Onde o dedo tocou, para a janelinha nascer ali. Ela não é um diálogo: é a
+  // resposta a "para onde isto vai", e some ao tocar fora.
+  const [peek, setPeek] = useState<{ x: number; y: number; target: AtlasLinkTarget } | null>(null)
+  // A trilha de quem chegou por vínculo. Sem ela, seguir um link é entrar num
+  // desenho de 97 folhas sem porta de volta.
+  const [trail, setTrail] = useState<AtlasSheet[]>([])
   const router = useRouter()
   const [noteText, setNoteText] = useState("")
 
@@ -668,8 +674,9 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // Seguir o vínculo. Na mesma pasta a folha troca sem sair da tela; noutra, a
   // página do documento abre já com a folha pedida, pelo endereço.
   function follow(target: AtlasLinkTarget) {
+    setPeek(null)
     const here = sheets.find(s => s.id === target.sheetId)
-    if (here) { onNavigate(here); return }
+    if (here) { setTrail(t => [...t, sheet]); onNavigate(here); return }
     router.push(`/atlas/${jobsiteId}/documents/${target.documentId}?sheet=${target.sheetId}`)
   }
 
@@ -756,6 +763,10 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   }
 
   const strokeScale = pageHeight / 400
+  // Um pixel de tela, dito em unidade de página. O traço pertence ao papel e
+  // acompanha o zoom; o botão pertence à tela e não pode: ampliar oito vezes o
+  // transformaria numa bola tapando o desenho que ele serve para deixar ver.
+  const px = 1 / view.scale
   const pageStyle = {
     left: view.x,
     top: view.y,
@@ -854,72 +865,67 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             const y = (g.y0 ?? 0) * pageHeight
             const w = ((g.x1 ?? 0) - (g.x0 ?? 0)) * pageWidth
             const hgt = ((g.y1 ?? 0) - (g.y0 ?? 0)) * pageHeight
-            const r = 9 * strokeScale
             const target = g.target
+            const badge = 18 * px
+
+            function act(e: React.PointerEvent) {
+              e.stopPropagation()
+              if (tool === "erase") {
+                if (!canAnnotate) return
+                setErasing(list => [...list, a.id])
+                deleteAnnotation.mutate(a.id, {
+                  onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
+                })
+                return
+              }
+              // Resolvido, o toque não salta: ele abre a janelinha com o nome do
+              // destino. Saltar direto tirava a folha do lugar sem avisar, e
+              // quem tocou por engano não sabia de onde tinha vindo.
+              if (target) setPeek({ x: e.clientX, y: e.clientY, target })
+              else if (canAnnotate) setLinking(a.id)
+            }
+
             return (
               <g key={a.id} opacity={fade(a.id)}>
                 <rect
                   x={x} y={y} width={w} height={hgt}
-                  rx={3 * strokeScale}
-                  fill={LINK_COLOR} fillOpacity={target ? 0.1 : 0.06}
-                  stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale}
-                  strokeDasharray={target ? undefined : `${4 * strokeScale} ${3 * strokeScale}`}
+                  fill={LINK_COLOR} fillOpacity={target ? 0.08 : 0.06}
+                  stroke={LINK_COLOR} strokeWidth={1.25 * px}
+                  strokeDasharray={target ? undefined : `${4 * px} ${3 * px}`}
                   onPointerEnter={() => tool === "erase" && setUnder(a.id)}
                   onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
-                  onPointerDown={e => {
-                    e.stopPropagation()
-                    if (tool === "erase") {
-                      if (!canAnnotate) return
-                      setErasing(list => [...list, a.id])
-                      deleteAnnotation.mutate(a.id, {
-                        onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
-                      })
-                      return
-                    }
-                    if (target) follow(target)
-                    else if (canAnnotate) setLinking(a.id)
-                  }}
+                  onPointerDown={act}
                   style={{ cursor: "pointer", pointerEvents: "all" }}
                 />
 
-                {/* O botão fica colado na quina, imediatamente ao lado da área,
-                    para o gesto seguinte não exigir procurar nada na tela. */}
-                <g
-                  onPointerDown={e => {
-                    e.stopPropagation()
-                    if (tool === "erase") return
-                    if (target) follow(target)
-                    else if (canAnnotate) setLinking(a.id)
-                  }}
-                  style={{ cursor: "pointer", pointerEvents: "all" }}
-                >
-                  <circle cx={x + w} cy={y} r={r} fill={LINK_COLOR} />
-                  {target ? (
-                    <path
-                      d={`M ${x + w - r * 0.36} ${y} h ${r * 0.72}`}
-                      stroke="#fff" strokeWidth={1.8 * strokeScale} strokeLinecap="round"
+                {/* Quadrado conjugado, encostado na quina esquerda: é uma peça
+                    ao lado da outra, como o botão da linha de pessoa, e não um
+                    enfeite flutuando sobre o desenho. Tamanho de tela, para
+                    continuar do mesmo tamanho em qualquer zoom. */}
+                {target ? (
+                  <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
+                    <rect
+                      x={x - badge} y={y}
+                      width={badge} height={Math.min(badge, hgt)}
+                      fill={LINK_COLOR} fillOpacity={0.9}
                     />
-                  ) : (
+                    <path
+                      d={`M ${x - badge * 0.68} ${y + Math.min(badge, hgt) / 2} h ${badge * 0.36}`}
+                      stroke="#fff" strokeWidth={1.6 * px} strokeLinecap="round"
+                    />
+                  </g>
+                ) : (
+                  <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
+                    <circle cx={x + w} cy={y} r={badge * 0.62} fill={LINK_COLOR} />
                     <text
-                      x={x + w} y={y + r * 0.42}
+                      x={x + w} y={y + badge * 0.26}
                       textAnchor="middle" fill="#fff"
-                      fontSize={r * 1.25} fontWeight={700}
+                      fontSize={badge * 0.78} fontWeight={700}
                       style={{ pointerEvents: "none", userSelect: "none" }}
                     >
                       ?
                     </text>
-                  )}
-                </g>
-
-                {target && (
-                  <text
-                    x={x} y={y - r * 0.7}
-                    fill={LINK_COLOR}
-                    fontSize={9 * strokeScale}
-                    style={{ pointerEvents: "none", userSelect: "none" }}
-                  >
-                    {target.sheetName}
-                  </text>
+                  </g>
                 )}
               </g>
             )
@@ -1384,6 +1390,41 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             </>
           )}
         </div>
+      )}
+
+      {/* Nome do destino e o botão de ir, ancorados onde o dedo tocou. */}
+      {peek && (
+        <>
+          <div className="fixed inset-0 z-40" onPointerDown={() => setPeek(null)} />
+          <div
+            className="fixed z-50 flex items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/95 px-2.5 py-2 text-white shadow-xl backdrop-blur"
+            style={{ left: Math.max(12, peek.x - 90), top: Math.max(12, peek.y - 56) }}
+          >
+            <span className="max-w-56 truncate text-sm">
+              <span className="text-white/50">{peek.target.documentName} · </span>
+              {peek.target.sheetName}
+            </span>
+            <Button size="sm" onClick={() => follow(peek.target)}>
+              Open
+            </Button>
+          </div>
+        </>
+      )}
+
+      {/* A porta de volta só existe depois de alguém ter entrado por um link. */}
+      {trail.length > 0 && (
+        <Button
+          variant="ghost"
+          onClick={() => {
+            const back = trail[trail.length - 1]
+            setTrail(t => t.slice(0, -1))
+            onNavigate(back)
+          }}
+          className="absolute bottom-4 right-4 gap-1.5 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to {trail[trail.length - 1].sheetNumber || `page ${trail[trail.length - 1].pageIndex + 1}`}
+        </Button>
       )}
 
       <SheetLinkDialog
