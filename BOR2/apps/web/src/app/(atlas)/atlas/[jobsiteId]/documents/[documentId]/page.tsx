@@ -482,10 +482,13 @@ export default function DocumentPage() {
                 {versions?.length ? "Replace" : "Upload plan set"}
               </Button>
             )}
+            {/* Dois botões chamados "Download" na mesma tela não são dois botões,
+                são uma dúvida. O de cima leva o plan set inteiro, o de baixo leva
+                o que foi escolhido, e cada um diz isso. */}
             {version && version.status !== "pending" && (
               <Button variant="outline" className="shrink-0" onClick={download}>
                 <Download className="h-3.5 w-3.5" />
-                Download
+                Download all
               </Button>
             )}
           </div>
@@ -632,7 +635,7 @@ export default function DocumentPage() {
                     onClick={downloadChosen}
                   >
                     <Download className="h-3.5 w-3.5" />
-                    {saving ? `Saving ${saving}` : "Download"}
+                    {saving ? `Saving ${saving}` : `Download ${chosen.size || ""}`.trim()}
                   </Button>
                   <Button
                     variant="outline"
