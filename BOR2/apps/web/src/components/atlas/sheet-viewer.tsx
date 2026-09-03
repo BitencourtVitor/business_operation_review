@@ -888,11 +888,32 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               else if (canAnnotate) setLinking(a.id)
             }
 
+            // A célula do ícone é proporcional ao bloco, e não ao zoom: ela
+            // cresce junto com a área quando a prancha amplia, como o traço da
+            // caneta. Um quadrado do tamanho do lado curto, que é o que deixa o
+            // ícone caber inteiro sem espremer.
+            const cell = deitada ? hgt : w
+            const ox = deitada ? x - cell : x
+            const oy = deitada ? y : y - cell
+
             return (
               <g key={a.id} opacity={fade(a.id)}>
+                {/* Uma forma só quando o vínculo está resolvido: a célula do
+                    ícone e a área marcada dividem o mesmo contorno e o mesmo
+                    fundo, sem linha entre elas. Dois retângulos encostados
+                    desenhavam um fio no meio da etiqueta, que é justamente o
+                    que uma etiqueta não tem. */}
                 <rect
-                  x={x} y={y} width={w} height={hgt}
-                  fill={LINK_COLOR} fillOpacity={target ? 0.08 : 0.06}
+                  x={target ? ox : x}
+                  y={target ? oy : y}
+                  width={target ? (deitada ? w + cell : w) : w}
+                  height={target ? (deitada ? hgt : hgt + cell) : hgt}
+                  // Quina bem redonda, como a de um chip: é o que separa a
+                  // etiqueta do traço técnico impresso embaixo dela, todo em
+                  // canto vivo. O raio acompanha o lado curto, então uma área
+                  // fina não vira cápsula nem uma grande vira caixa.
+                  rx={Math.min(deitada ? hgt : w, target ? cell : hgt) * 0.32}
+                  fill={LINK_COLOR} fillOpacity={0.08}
                   stroke={LINK_COLOR} strokeWidth={1.25 * px}
                   strokeDasharray={target ? undefined : `${4 * px} ${3 * px}`}
                   onPointerEnter={() => tool === "erase" && setUnder(a.id)}
@@ -901,43 +922,22 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                   style={{ cursor: "pointer", pointerEvents: "all" }}
                 />
 
-                {/* Etiqueta, e não adesivo por cima: o ícone tem célula
-                    própria e a área marcada continua inteira, do jeito que um
-                    chip separa o ícone do texto. A célula acompanha o lado
-                    inteiro da região, e cresce para fora, no sentido que sobra:
-                    área deitada abre à esquerda, área em pé abre em cima.
-                    Espremê-la no lado curto taparia o desenho que a marca
-                    existe para apontar.
-
-                    Mesmo fundo da área e ícone na cor da borda: é uma peça só,
-                    partida em duas, e não um botão colado numa moldura. */}
                 {target ? (
-                  <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
-                    <rect
-                      x={deitada ? x - badge : x}
-                      y={deitada ? y : y - badge}
-                      width={deitada ? badge : w}
-                      height={deitada ? hgt : badge}
-                      fill={LINK_COLOR} fillOpacity={0.08}
-                      stroke={LINK_COLOR} strokeWidth={1.25 * px}
-                    />
-                    {/* O mesmo ícone da barra de ferramentas, o link-2 do
-                        lucide, desenhado aqui em coordenada de página: o botão
-                        que cria e a marca que fica não podem ser dois desenhos
-                        diferentes da mesma ideia. */}
-                    <g
-                      transform={`translate(${(deitada ? x - badge / 2 : x + w / 2) - badge * 0.32} ${(deitada ? y + hgt / 2 : y - badge / 2) - badge * 0.32}) scale(${badge * 0.64 / 24})`}
-                      stroke={LINK_COLOR}
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="none"
-                      vectorEffect="non-scaling-stroke"
-                    >
-                      <path d="M9 17H7A5 5 0 0 1 7 7h2" />
-                      <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
-                      <line x1="8" x2="16" y1="12" y2="12" />
-                    </g>
+                  // O mesmo ícone da barra de ferramentas, o link-2 do lucide,
+                  // desenhado em coordenada de página: o botão que cria e a
+                  // marca que fica não podem ser dois desenhos da mesma ideia.
+                  <g
+                    transform={`translate(${ox + cell / 2 - cell * 0.3} ${oy + cell / 2 - cell * 0.3}) scale(${cell * 0.6 / 24})`}
+                    stroke={LINK_COLOR}
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+                    <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
+                    <line x1="8" x2="16" y1="12" y2="12" />
                   </g>
                 ) : (
                   <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
@@ -963,9 +963,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               y={Math.min(linkBox.y0, linkBox.y1) * pageHeight}
               width={Math.abs(linkBox.x1 - linkBox.x0) * pageWidth}
               height={Math.abs(linkBox.y1 - linkBox.y0) * pageHeight}
+              rx={Math.min(
+                Math.abs(linkBox.x1 - linkBox.x0) * pageWidth,
+                Math.abs(linkBox.y1 - linkBox.y0) * pageHeight,
+              ) * 0.32}
               fill={LINK_COLOR} fillOpacity={0.08}
-              stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale}
-              strokeDasharray={`${4 * strokeScale} ${3 * strokeScale}`}
+              stroke={LINK_COLOR} strokeWidth={1.25 * px}
+              strokeDasharray={`${4 * px} ${3 * px}`}
             />
           )}
 
