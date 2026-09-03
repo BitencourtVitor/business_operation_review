@@ -925,8 +925,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               se está lendo e saber onde ela cai no set são duas perguntas, e a
               segunda continua valendo depois de a folha ganhar nome. Cada uma
               num canto, que já as separa sem precisar de sinal no meio. */}
-          <p className="flex items-baseline justify-between gap-8 text-xs text-white/60">
-            <span className="truncate">{sheet.title}</span>
+          {/* Os cantos opostos só fazem sentido quando há dois dados. Sozinha,
+              a contagem fica onde tudo mais começa, e não pendurada à direita
+              com um vão no meio. */}
+          <p className={`flex items-baseline gap-8 text-xs text-white/60 ${
+            sheet.title ? "justify-between" : ""
+          }`}>
+            {sheet.title && <span className="truncate">{sheet.title}</span>}
             <span className="shrink-0">{index + 1} of {sheets.length}</span>
           </p>
         </div>
@@ -1079,15 +1084,19 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         )}
       </div>
 
+      {/* A seta diz para onde vai; o número diz aonde chega. Ele fica apagado de
+          propósito: quem está lendo a prancha quer virar a folha, e só de vez em
+          quando quer saber que folha é a de trás. */}
       {prev && (
         <Button
           size="icon"
           variant="ghost"
           onClick={() => onNavigate(prev)}
-          title="Previous plan"
-          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
+          title={`Plan ${index}`}
+          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 flex-col gap-1 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
+          <span className="text-[11px] font-normal tabular-nums text-white/35">{index}</span>
         </Button>
       )}
       {next && (
@@ -1095,10 +1104,11 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           size="icon"
           variant="ghost"
           onClick={() => onNavigate(next)}
-          title="Next plan"
-          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
+          title={`Plan ${index + 2}`}
+          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 flex-col gap-1 rounded-lg bg-neutral-800/95 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
+          <span className="text-[11px] font-normal tabular-nums text-white/35">{index + 2}</span>
         </Button>
       )}
 
