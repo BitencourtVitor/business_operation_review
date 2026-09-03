@@ -590,11 +590,14 @@ export default function DocumentPage() {
                       sem dar dezoito toques. */}
                   {canManage && !!sheets?.length && (
                     picking ? (
-                      <div className="flex items-center rounded-lg border border-border p-0.5">
+                      // Trinta e dois de altura, igual aos botões que dividem a
+                      // linha com ele: os dois pedaços somam 28 mais a borda
+                      // interna, e a fileira para de ter um degrau no meio.
+                      <div className="flex h-8 items-center rounded-lg border border-border p-0.5">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
-                          className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                          className={`h-7 rounded-md px-2.5 text-xs font-medium transition-colors ${
                             picking === "one" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                           }`}
                         >
@@ -603,7 +606,7 @@ export default function DocumentPage() {
                         <button
                           type="button"
                           onClick={() => { setPicking("range"); setAnchor(null) }}
-                          className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                          className={`h-7 rounded-md px-2.5 text-xs font-medium transition-colors ${
                             picking === "range" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                           }`}
                         >
