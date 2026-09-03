@@ -1174,6 +1174,31 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           </div>
         )}
 
+        {/* Chegar por vínculo é diferente de abrir a folha: a leitura veio de
+            outro desenho, e o cabeçalho passa a contar isso em dois blocos, o
+            de onde se veio e o de onde se está. O caminho de volta fica junto
+            da identificação, que é onde a pessoa procura saber onde está, e não
+            num botão solto no rodapé. */}
+        {trail.length > 0 && (() => {
+          const from = trail[trail.length - 1]
+          return (
+            <button
+              type="button"
+              onClick={() => { setTrail(t => t.slice(0, -1)); onNavigate(from) }}
+              title={`Back to ${from.sheetNumber || `plan ${from.pageIndex + 1}`}`}
+              className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 py-1.5 pl-2 pr-3 text-left shadow-lg backdrop-blur transition-colors hover:bg-neutral-700/90"
+            >
+              <ChevronLeft className="h-4 w-4 shrink-0 text-white/60" />
+              <span className="flex min-w-0 flex-col justify-center">
+                <span className="truncate text-sm font-medium leading-tight text-white">
+                  {from.sheetNumber || `Plan ${from.pageIndex + 1}`}
+                </span>
+                <span className="truncate text-xs text-white/60">came from</span>
+              </span>
+            </button>
+          )
+        })()}
+
         <div className="flex min-w-0 flex-col justify-center rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-1.5 shadow-lg backdrop-blur">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
@@ -1476,22 +1501,6 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             </Button>
           </div>
         </>
-      )}
-
-      {/* A porta de volta só existe depois de alguém ter entrado por um link. */}
-      {trail.length > 0 && (
-        <Button
-          variant="ghost"
-          onClick={() => {
-            const back = trail[trail.length - 1]
-            setTrail(t => t.slice(0, -1))
-            onNavigate(back)
-          }}
-          className="absolute bottom-4 right-4 gap-1.5 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to {trail[trail.length - 1].sheetNumber || `page ${trail[trail.length - 1].pageIndex + 1}`}
-        </Button>
       )}
 
       <SheetLinkDialog
