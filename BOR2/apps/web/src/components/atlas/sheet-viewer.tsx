@@ -1186,7 +1186,11 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               type="button"
               onClick={() => { setTrail(t => t.slice(0, -1)); onNavigate(from) }}
               title={`Back to ${from.sheetNumber || `plan ${from.pageIndex + 1}`}`}
-              className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 py-1.5 pl-2 pr-3 text-left shadow-lg backdrop-blur transition-colors hover:bg-neutral-700/90"
+              // O cabeçalho inteiro é `pointer-events-none`, para a faixa de
+              // identificação não roubar o arraste da prancha embaixo dela. Este
+              // bloco é o único que se clica, então ele devolve o ponteiro para
+              // si: sem isto o clique atravessava e ia parar no desenho.
+              className="pointer-events-auto flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 py-1.5 pl-2 pr-3 text-left shadow-lg backdrop-blur transition-colors hover:bg-neutral-700/90"
             >
               <ChevronLeft className="h-4 w-4 shrink-0 text-white/60" />
               <span className="flex min-w-0 flex-col justify-center">
