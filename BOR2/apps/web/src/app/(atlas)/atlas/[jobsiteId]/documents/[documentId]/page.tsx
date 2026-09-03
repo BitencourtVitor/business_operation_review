@@ -623,8 +623,12 @@ export default function DocumentPage() {
               {/* O que se faz com o que foi escolhido. A barra só existe
                   enquanto há escolha, e ela mesma diz quantas folhas são: sem
                   esse número, "baixar" é um salto no escuro. */}
+              <div className="flex min-h-0 flex-1 flex-col gap-3 bg-muted/20 p-3">
               {picking && (
-                <div className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-primary/5 px-3 py-2">
+                // Dentro da caixa, no mesmo respiro da grade, e parada: ela não
+                // é um segundo cabeçalho, é uma peça que divide o espaço interno
+                // com as folhas e continua à vista enquanto elas rolam.
+                <div className="flex shrink-0 items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
                   <span className="text-sm">
                     {chosen.size === 0
                       ? picking === "range"
@@ -658,7 +662,7 @@ export default function DocumentPage() {
               )}
 
               {!sheets?.length ? (
-                <div className="m-3 rounded-lg border border-dashed border-border/60 p-6 text-center">
+                <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
                   <p className="text-sm font-medium">No plans yet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Plans are created from the PDF when a revision is uploaded — one per page, the
@@ -666,7 +670,7 @@ export default function DocumentPage() {
                   </p>
                 </div>
               ) : (
-                <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20 p-3">
+                <div className="min-h-0 flex-1 overflow-y-auto">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {sheets.map(s => (
                       <SheetCard
@@ -686,6 +690,7 @@ export default function DocumentPage() {
                   </div>
                 </div>
               )}
+              </div>
             </section>
           )}
       </div>
