@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
@@ -161,6 +162,9 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
 
   const usable = levels.filter(has)
   const named = preview?.filter(p => p.name).length ?? 0
+  // Quantas folhas leram um nome que outra também leu, e por isso ganharam
+  // sufixo. Vale dizer: é o número que explica um "1-01-L-B" na lista.
+  const suffixed = preview?.filter(p => p.name !== p.read).length ?? 0
   const pending = preview ? preview.length - named : 0
 
   return (
@@ -301,6 +305,34 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                     : has(region) ? "Redraw the area" : "Draw the area"}
                 </Button>
 
+                {/* A faixa de páginas: vazia, o nível vale para o arquivo
+                    inteiro. Preenchida, ele só opina ali dentro, e o nível
+                    seguinte assume no resto sem disputa de precedência. */}
+                <div className="flex flex-col gap-1.5">
+                  <Label className="text-xs text-muted-foreground">Pages</Label>
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={pages}
+                      value={region.fromPage ?? ""}
+                      placeholder="1"
+                      onChange={e => setLevels(l => l.map((r, k) =>
+                        k === i ? { ...r, fromPage: Number(e.target.value) || undefined } : r))}
+                    />
+                    <span className="shrink-0 text-xs text-muted-foreground">to</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={pages}
+                      value={region.toPage ?? ""}
+                      placeholder={String(pages)}
+                      onChange={e => setLevels(l => l.map((r, k) =>
+                        k === i ? { ...r, toPage: Number(e.target.value) || undefined } : r))}
+                    />
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Text direction</Label>
                   <Select
@@ -335,6 +367,9 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 <p className="text-sm font-medium">
                   {named} of {preview.length} named
                   {pending > 0 && <span className="text-destructive"> · {pending} pending</span>}
+                  {suffixed > 0 && (
+                    <span className="text-muted-foreground"> · {suffixed} disambiguated</span>
+                  )}
                 </p>
                 <div className="max-h-56 overflow-y-auto">
                   {preview.map(p => (

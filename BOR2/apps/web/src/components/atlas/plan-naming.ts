@@ -20,6 +20,18 @@ export interface NamingRegion {
    * é o que está de cabeça para baixo; ninguém precisa saber qual.
    */
   rotation: number
+  /**
+   * De qual página até qual página este nível vale, contando a partir de 1 e
+   * incluindo as duas pontas. Vazio vale para o arquivo inteiro.
+   *
+   * Existe porque nem sempre o que separa os tipos de folha é o que está
+   * impresso: às vezes é a posição no arquivo. Num relatório de produção as 18
+   * primeiras páginas trazem o código no cabeçalho e as demais no rodapé, e sem
+   * a faixa isso vira uma disputa de precedência entre dois níveis lendo o
+   * mesmo lugar.
+   */
+  fromPage?: number
+  toPage?: number
 }
 
 export interface NamingTemplate {
@@ -29,12 +41,52 @@ export interface NamingTemplate {
 
 export interface PageName {
   pageIndex: number
-  /** O nome final, ou vazio quando nenhum nível achou nada. */
+  /** O nome final, já com sufixo se houve repetição. */
   name: string
+  /** O que o gabarito leu, antes do sufixo. Vazio quando nada foi lido. */
+  read: string
   /** Qual nível resolveu, começando em 1. Zero quando a folha ficou sem nome. */
   level: number
   /** O que cada nível leu, para a prévia mostrar por que deu no que deu. */
   reads: string[]
+}
+
+/** A letra do sufixo: 0 vira A, 25 vira Z, 26 vira AA. */
+function letter(i: number): string {
+  let out = ""
+  let n = i
+  do {
+    out = String.fromCharCode(65 + (n % 26)) + out
+    n = Math.floor(n / 26) - 1
+  } while (n >= 0)
+  return out
+}
+
+/**
+ * Desempata folhas que leram a mesma identificação.
+ *
+ * Acontece de verdade: num relatório de produção, o mesmo código de bundle
+ * aparece na folha de montagem e na de posicionamento, e as duas são folhas
+ * diferentes. Sem desempate as duas ficam com o mesmo nome e ninguém sabe qual
+ * é qual; com ele viram "1-01-L-A" e "1-01-L-B", na ordem em que estão no
+ * arquivo.
+ *
+ * Só quem repete recebe sufixo. Nome único continua exatamente como foi lido,
+ * senão a folha que não tem irmã passaria a carregar um "-A" que não significa
+ * nada.
+ */
+export function disambiguate(pages: PageName[]): PageName[] {
+  const count = new Map<string, number>()
+  for (const p of pages) {
+    if (p.read) count.set(p.read, (count.get(p.read) ?? 0) + 1)
+  }
+  const seen = new Map<string, number>()
+  return pages.map(p => {
+    if (!p.read || (count.get(p.read) ?? 0) < 2) return p
+    const i = seen.get(p.read) ?? 0
+    seen.set(p.read, i + 1)
+    return { ...p, name: `${p.read}-${letter(i)}` }
+  })
 }
 
 type TextItem = { str: string; width: number; transform: number[] }
@@ -160,6 +212,10 @@ export async function readPageNames(
     }).getTextContent()
 
     const reads = template.levels.map(region => {
+      // Fora da faixa o nível simplesmente não opina, e a decisão passa ao
+      // seguinte como se ele não existisse.
+      if (region.fromPage && n < region.fromPage) return ""
+      if (region.toPage && n > region.toPage) return ""
       let found = ""
       for (const item of content.items) {
         if (!item.str?.trim()) continue
@@ -169,14 +225,16 @@ export async function readPageNames(
     })
 
     const level = reads.findIndex(Boolean)
+    const read = level === -1 ? "" : reads[level]
     out.push({
       pageIndex: n - 1,
-      name: level === -1 ? "" : reads[level],
+      name: read,
+      read,
       level: level === -1 ? 0 : level + 1,
       reads,
     })
     onProgress?.(n, pdf.numPages)
   }
 
-  return out
+  return disambiguate(out)
 }

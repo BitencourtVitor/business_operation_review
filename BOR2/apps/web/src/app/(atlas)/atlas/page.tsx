@@ -210,7 +210,12 @@ export default function AtlasJobsitesPage() {
                         <span>{placeLabel(j.community || j.address || j.name)}</span>
                       </span>
 
-                      <span className="flex items-center gap-1.5 text-base font-semibold leading-tight">
+                      {/* Mesmo corpo do lugar, logo acima: as duas linhas são a
+                          identificação da obra, e o degrau de tamanho entre
+                          elas sugeria uma hierarquia que não existe. O que
+                          separa as duas passa a ser peso e cor, como na barra
+                          lateral, e não escala. */}
+                      <span className="flex items-center gap-1.5 text-sm font-semibold leading-snug">
                         <Kind className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         {[(KIND_META[j.kind] ?? KIND_META.house).label, j.unit || j.code]
                           .filter(Boolean).join(" ")}
