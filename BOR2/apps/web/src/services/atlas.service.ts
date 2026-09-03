@@ -146,6 +146,8 @@ export interface AtlasAnnotation {
   color: string
   width: number
   opacity: number
+  /** Verdadeiro quando a equipe inteira vê o traço; falso deixa ele só com quem o fez. */
+  shared: boolean
   geometry: AtlasStrokeGeometry
   createdAt: string
 }
