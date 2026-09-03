@@ -27,6 +27,8 @@ export interface AtlasBlockedUser {
   userId: string
   name: string
   email: string
+  /** De fora da Premium: não vê nada por padrão, e se convida obra a obra. */
+  subcontractor: boolean
 }
 
 export interface AtlasJobsite {

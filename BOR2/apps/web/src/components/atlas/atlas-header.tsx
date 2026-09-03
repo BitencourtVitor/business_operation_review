@@ -141,8 +141,20 @@ export function AtlasHeader() {
             </Button>
           </Tip>
 
+          <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
+            <Button
+              variant="ghost" size="icon"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="hidden md:inline-flex"
+            >
+              {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
+          </Tip>
+
           {/* Salto para o outro braço da plataforma, sem passar de novo pelo
-              login: a sessão é da plataforma e os produtos são destinos dela. */}
+              login: a sessão é da plataforma e os produtos são destinos dela.
+              Vem colado no sair porque é a outra forma de deixar esta tela, e
+              as duas juntas se leem como uma decisão só: para onde eu vou. */}
           {hasBOR && (
             <Tip label="Go to BOR">
               <Button
@@ -154,16 +166,6 @@ export function AtlasHeader() {
               </Button>
             </Tip>
           )}
-
-          <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
-            <Button
-              variant="ghost" size="icon"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="hidden md:inline-flex"
-            >
-              {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
-          </Tip>
 
           <Tip label="Sign out">
             <Button
