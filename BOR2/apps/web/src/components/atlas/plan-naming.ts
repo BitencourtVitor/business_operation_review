@@ -41,11 +41,17 @@ export interface NamingRegion {
  * assim por diante, quantos trechos forem precisos. Não há precedência: a
  * página pertence a uma faixa, e é ela quem responde.
  *
- * Os dois existem porque são perguntas diferentes. Deixar as faixas como campo
- * opcional dos níveis misturava as duas e obrigava a pensar em precedência num
- * arquivo onde ela não significa nada.
+ * `file`: não há nome impresso em lugar nenhum, e o que identifica as folhas é o
+ * próprio arquivo. O título dele vira o nome, numerado por página. É o caso de
+ * um relatório que chega como "Lower Level Wall Panel.pdf" e cujas páginas não
+ * trazem sigla nenhuma: pedir para marcar uma região aí seria pedir para marcar
+ * o vazio.
+ *
+ * Os três existem porque são perguntas diferentes. Deixar as faixas como campo
+ * opcional dos níveis misturava duas delas e obrigava a pensar em precedência
+ * num arquivo onde ela não significa nada.
  */
-export type NamingMode = "layout" | "ranges"
+export type NamingMode = "layout" | "ranges" | "file"
 
 export interface NamingTemplate {
   /** Ausente vale como `layout`, que é como todo gabarito existente foi feito. */
@@ -218,9 +224,31 @@ export async function readPageNames(
   template: NamingTemplate,
   onProgress?: (done: number, total: number) => void,
   measure: (text: string) => number = ruler,
+  /** O nome do arquivo, para o modo `file` quando o PDF não declara título. */
+  fallbackTitle = "",
 ): Promise<PageName[]> {
   const pdf = await loadPdf(url)
   const out: PageName[] = []
+
+  if (template.mode === "file") {
+    // O título declarado dentro do PDF vem antes do nome do arquivo: o primeiro
+    // é o que quem emitiu escreveu, o segundo é o que sobreviveu ao caminho até
+    // aqui, e "Panel - Production1 (2) final v3.pdf" é o que costuma sobreviver.
+    const meta = await (pdf as unknown as {
+      getMetadata?: () => Promise<{ info?: { Title?: string } }>
+    }).getMetadata?.().catch(() => null)
+    const declared = clean(meta?.info?.Title ?? "")
+    const title = declared || clean(fallbackTitle.replace(/\.pdf$/i, "")) || "Sheet"
+    for (let n = 1; n <= pdf.numPages; n++) {
+      // Numerado porque folha precisa ser distinguível: sem o número, as 97
+      // páginas ficariam com o mesmo nome e o desempate resolveria isso com
+      // letras, que é resposta pior para a mesma pergunta.
+      const name = pdf.numPages > 1 ? `${title} ${n}` : title
+      out.push({ pageIndex: n - 1, name, read: name, level: 1, reads: [name] })
+      onProgress?.(n, pdf.numPages)
+    }
+    return out
+  }
 
   for (let n = 1; n <= pdf.numPages; n++) {
     const page = await pdf.getPage(n)
