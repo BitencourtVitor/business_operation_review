@@ -14,7 +14,9 @@ import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
-import { ArrowLeft, Check, CloudUpload, Download, Images, Layers, ScanText } from "lucide-react"
+import {
+  ArrowLeft, Check, CloudUpload, Download, Highlighter, Images, Layers, Link2, MapPin, ScanText,
+} from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -77,17 +79,12 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, onOpen }: {
             review
           </Badge>
         )}
-        {sheet.annotations > 0 && (
-          <span className="absolute bottom-1.5 right-1.5 rounded bg-background/85 px-1.5 text-[11px] text-muted-foreground">
-            {sheet.annotations} marks
-          </span>
-        )}
       </button>
 
       {/* Um campo de identificação, não dois. O número da página o sistema já
           sabe, e sai como prefixo apagado ao lado; o que se digita é o nome da
           folha, que o gabarito preencheu a partir do próprio desenho. */}
-      <div className="flex shrink-0 items-center gap-1.5 border-t border-border/60 p-2">
+      <div className="flex shrink-0 items-center gap-1.5 border-t border-border/60 px-2 pb-1.5 pt-2">
         {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
             coluna não dança de cartão para cartão. O nome cede esse espaço,
             porque sigla de folha é curta e sobra borda dentro do campo. */}
@@ -120,6 +117,34 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, onOpen }: {
           <p className="min-w-0 flex-1 truncate text-sm font-medium leading-tight">
             {sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}
           </p>
+        )}
+      </div>
+
+      {/* O rodapé conta o que existe sobre a folha, por tipo, com ícone e
+          número lado a lado: quem conhece o ícone lê a folha inteira sem abrir.
+          Caneta fica de fora de propósito, porque dois traços podem ser uma
+          letra e o número de vetores não diz quanto foi escrito ali.
+
+          Vazio quando nada foi marcado: uma fileira de zeros ocuparia a mesma
+          linha para dizer que não há nada. */}
+      <div className="flex h-6 shrink-0 items-center gap-3 px-2 pb-1.5 text-[11px] text-muted-foreground">
+        {sheet.links > 0 && (
+          <span className="flex items-center gap-1" title={`${sheet.links} link${sheet.links > 1 ? "s" : ""}`}>
+            <Link2 className="h-3.5 w-3.5" />
+            {sheet.links}
+          </span>
+        )}
+        {sheet.highlights > 0 && (
+          <span className="flex items-center gap-1" title={`${sheet.highlights} highlight${sheet.highlights > 1 ? "s" : ""}`}>
+            <Highlighter className="h-3.5 w-3.5" />
+            {sheet.highlights}
+          </span>
+        )}
+        {sheet.notes > 0 && (
+          <span className="flex items-center gap-1" title={`${sheet.notes} note${sheet.notes > 1 ? "s" : ""}`}>
+            <MapPin className="h-3.5 w-3.5" />
+            {sheet.notes}
+          </span>
         )}
       </div>
     </div>
