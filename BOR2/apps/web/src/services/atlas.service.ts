@@ -78,7 +78,7 @@ export interface AtlasDocCategory {
    * Onde o nome de cada folha está impresso no PDF desta categoria, em fração
    * da página. O primeiro nível que devolver texto dá o nome.
    */
-  naming?: { levels: { x0: number; y0: number; x1: number; y1: number; rotation: number; after: string }[] }
+  naming?: { levels: { x0: number; y0: number; x1: number; y1: number; rotation: number }[] }
 }
 
 export interface AtlasDocument {

@@ -170,6 +170,12 @@ export function PlanCanvas({
           canvasContext: ctx,
           viewport,
           transform: [1, 0, 0, 1, px, py],
+          // Sem isto o pdf.js pinta o canvas inteiro de branco antes de
+          // desenhar, e o canvas é a tela toda: a folha sumia dentro de um
+          // branco do mesmo tom, sem borda, e não dava para saber onde o
+          // documento acabava. O branco do papel é o `fillRect` acima, que tem
+          // o tamanho da página.
+          background: "transparent",
         } as Parameters<typeof page.render>[0])
         task.current = render
         await render.promise
@@ -217,6 +223,9 @@ export function PlanCanvas({
           height: pageHeight * view.scale,
           transform: `translate(${view.x}px, ${view.y}px)`,
           visibility: baseReady ? "visible" : "hidden",
+          // A quina da folha contra o fundo: o papel é branco, e sem uma linha
+          // o olho não acha onde ele termina.
+          boxShadow: "0 0 0 1px rgba(255,255,255,0.14), 0 10px 30px rgba(0,0,0,0.45)",
         }}
       />
       {[0, 1].map(i => (
