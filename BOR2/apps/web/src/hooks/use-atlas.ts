@@ -7,6 +7,7 @@ import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
   type AtlasDocCategory, type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
+  type AtlasStrokeGeometry,
 } from "@/services/atlas.service"
 
 const KEY = {
@@ -321,6 +322,15 @@ export function useCreateAtlasAnnotation(sheetId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (body: Partial<AtlasAnnotation>) => atlasService.createAnnotation(sheetId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY.annotations(sheetId) }),
+  })
+}
+
+export function useUpdateAtlasAnnotation(sheetId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, geometry }: { id: string; geometry: AtlasStrokeGeometry }) =>
+      atlasService.updateAnnotation(id, geometry),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY.annotations(sheetId) }),
   })
 }

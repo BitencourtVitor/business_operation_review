@@ -16,11 +16,11 @@ import { Kbd } from "@/components/ui/kbd"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import {
   useAtlasAnnotations, useAtlasEvents, useAtlasJobsite,
-  useCreateAtlasEvent, useDeleteAtlasAnnotation, useUpdateAtlasEvent,
+  useCreateAtlasEvent, useDeleteAtlasAnnotation, useUpdateAtlasAnnotation, useUpdateAtlasEvent,
 } from "@/hooks/use-atlas"
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
-  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
+  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
   Eye, EyeOff, Highlighter, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
   User, Users, X,
 } from "lucide-react"
@@ -29,7 +29,10 @@ import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
-type Tool = "pan" | "pen" | "highlighter" | "pin" | "link" | "erase"
+// Nenhuma ferramenta é um estado, e é o estado normal: sem nada escolhido a
+// prancha se arrasta e amplia, que é o que a mão fazia. A mão era uma
+// ferramenta para voltar ao que já era o padrão, e ocupava um botão para isso.
+type Tool = "pen" | "highlighter" | "pin" | "link" | "erase" | null
 
 // A letra é a inicial do nome da ferramenta, para não haver o que decorar. No
 // desktop ela aparece dentro do botão: quem lê a prancha o dia inteiro não
@@ -38,14 +41,13 @@ type Tool = "pan" | "pen" | "highlighter" | "pin" | "link" | "erase"
 // ensina que arrastar desloca e que a roda amplia: quem chega na tela pela
 // primeira vez tem de descobrir por tentativa.
 const TOOLS = [
-  { value: "pan",         key: "h", label: "Hand",     hint: "Drag to move, scroll to zoom", icon: Hand },
   { value: "pen",         key: "p", label: "Pen",      hint: "Draw over the sheet",          icon: Pen },
   { value: "highlighter", key: "m", label: "Marker",   hint: "Highlight over the sheet",     icon: Highlighter },
   { value: "pin",         key: "n", label: "Note pin", hint: "Tap the sheet to open a note", icon: MapPin },
-  { value: "link",        key: "l", label: "Link",     hint: "Tap the sheet, then pick where it goes", icon: Link2 },
+  { value: "link",        key: "l", label: "Link",     hint: "Drag over the sheet, then pick where it goes", icon: Link2 },
   { value: "erase",       key: "e", label: "Eraser",   hint: "Tap a stroke or a pin",        icon: Eraser },
 ] as const satisfies readonly {
-  value: Tool; key: string; label: string; hint: string; icon: React.ElementType
+  value: NonNullable<Tool>; key: string; label: string; hint: string; icon: React.ElementType
 }[]
 
 // Duas paletas, porque são dois gestos. A caneta escreve por cima do desenho e
@@ -203,7 +205,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const createEvent = useCreateAtlasEvent(jobsiteId, sheet.id)
   const updateEvent = useUpdateAtlasEvent(jobsiteId, sheet.id)
 
-  const [tool, setTool] = useState<Tool>("pan")
+  const [tool, setTool] = useState<Tool>(null)
   const [penInk, setPenInk] = useState<Ink>(PEN_INK)
   const [markerInk, setMarkerInk] = useState<Ink>(MARKER_INK)
   const marking = tool === "highlighter"
@@ -244,7 +246,10 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   }
 
   const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
-  const [linkAt, setLinkAt] = useState<{ x: number; y: number } | null>(null)
+  const updateAnnotation = useUpdateAtlasAnnotation(sheet.id)
+  // A área sendo cercada agora, e o vínculo vazio que espera destino.
+  const [linkBox, setLinkBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
+  const [linking, setLinking] = useState<string | null>(null)
   const router = useRouter()
   const [noteText, setNoteText] = useState("")
 
@@ -279,7 +284,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const fade = (id: string) => erasing.includes(id) ? 0.15 : under === id ? 0.4 : 1
   // O ouvinte da roda é nativo e é montado uma vez; sem esta referência ele
   // ficaria preso à ferramenta que estava selecionada quando foi montado.
-  const toolRef = useRef<Tool>("pan")
+  const toolRef = useRef<Tool>(null)
   const [panning, setPanning] = useState(false)
 
   // ── Procurar na prancha ───────────────────────────────────────────────────
@@ -422,7 +427,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       // Com caneta na mão a roda não faz nada: quem está desenhando encosta o
       // dedo no scroll sem querer, e o desenho saltando de escala no meio do
       // traço é pior do que não ampliar.
-      if (canAnnotate && toolRef.current !== "pan") return
+      if (canAnnotate && toolRef.current) return
       e.preventDefault()
       const box = node!.getBoundingClientRect()
       zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX - box.left, e.clientY - box.top)
@@ -473,7 +478,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
     // Deslocar é da mão, e de mais nada. Arrastar com a caneta selecionada
     // desenha; com a borracha, apaga. Uma ferramenta, um gesto.
-    if (!canAnnotate || tool === "pan") {
+    if (!canAnnotate || !tool) {
       gesture.current = { kind: "pan", x: e.clientX, y: e.clientY, view }
       setPanning(true)
       return
@@ -489,10 +494,11 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       return
     }
     if (tool === "link") {
-      // O ponto fica guardado e o destino vem da janela: escolher a folha exige
-      // procurar, e procurar com o dedo apoiado na prancha não existe.
+      // Cerca-se a área, como se marca a região no gabarito de nomenclatura: o
+      // vínculo pertence a um pedaço do desenho, a bolha de referência ou a
+      // chamada de detalhe, e não a um ponto sem tamanho.
       const [x, y] = toPage(e.clientX, e.clientY)
-      setLinkAt({ x, y })
+      setLinkBox({ x0: x, y0: y, x1: x, y1: y })
       return
     }
     if (tool === "erase") return
@@ -530,6 +536,12 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       return
     }
 
+    if (linkBox) {
+      const [x, y] = toPage(e.clientX, e.clientY)
+      setLinkBox(b => b && { ...b, x1: x, y1: y })
+      return
+    }
+
     if (!drawing.length) return
     setDrawing(points => [...points, toPage(e.clientX, e.clientY)])
   }
@@ -539,6 +551,30 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
     if (pointers.current.size < 2) {
       gesture.current = null
       setPanning(false)
+    }
+
+    if (linkBox) {
+      const box = {
+        x0: Math.min(linkBox.x0, linkBox.x1), y0: Math.min(linkBox.y0, linkBox.y1),
+        x1: Math.max(linkBox.x0, linkBox.x1), y1: Math.max(linkBox.y0, linkBox.y1),
+      }
+      setLinkBox(null)
+      // Área de nada é toque errado, não intenção: some sem gravar.
+      if (box.x1 - box.x0 < 0.005 || box.y1 - box.y0 < 0.005) return
+      const mark = {
+        id: crypto.randomUUID(),
+        tool: "link" as const,
+        color: LINK_COLOR,
+        width: 2,
+        opacity: 1,
+        // Nasce compartilhado, ao contrário do traço: caminho que só quem
+        // desenhou enxerga não serve para nada, porque a referência é do
+        // desenho e não da leitura de uma pessoa.
+        shared: true,
+        geometry: { ...box, target: null } as AtlasStrokeGeometry,
+      }
+      setPending(list => [...list, mark as AtlasAnnotation])
+      return
     }
 
     if (drawing.length < 2) { setDrawing([]); return }
@@ -614,21 +650,19 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   }, [pending, sheet.id, refetchAnnotations])
 
   function saveLink(target: AtlasLinkTarget) {
-    if (!linkAt) return
-    // Nasce compartilhado, ao contrário do traço: um caminho que só quem
-    // desenhou enxerga não serve para nada. A referência é do desenho, não da
-    // leitura de uma pessoa.
-    const mark = {
-      id: crypto.randomUUID(),
-      tool: "link" as const,
-      color: LINK_COLOR,
-      width: 2,
-      opacity: 1,
-      shared: true,
-      geometry: { x: linkAt.x, y: linkAt.y, target } as AtlasStrokeGeometry,
+    const id = linking
+    if (!id) return
+    setLinking(null)
+    const mark = [...(annotations ?? []), ...pending].find(a => a.id === id)
+    if (!mark?.geometry) return
+    const geometry = { ...mark.geometry, target }
+    // Já gravado no servidor: muda lá. Ainda na fila de envio: muda aqui, e ele
+    // sobe uma vez só, com destino e tudo.
+    if (annotations?.some(a => a.id === id)) {
+      updateAnnotation.mutate({ id, geometry })
+    } else {
+      setPending(list => list.map(m => m.id === id ? { ...m, geometry } as AtlasAnnotation : m))
     }
-    setPending(list => [...list, mark as AtlasAnnotation])
-    setLinkAt(null)
   }
 
   // Seguir o vínculo. Na mesma pasta a folha troca sem sair da tela; noutra, a
@@ -652,8 +686,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // Trocar de ferramenta não mexe em tinta nenhuma: cada uma volta exatamente
   // como foi deixada.
   function pickTool(value: Tool) {
-    setTool(value)
-    toolRef.current = value
+    // Tocar de novo na ferramenta ativa larga ela. Antes era preciso ir até a
+    // mão para parar de desenhar, e "parar" não deveria exigir escolher outra
+    // coisa.
+    const next = value === toolRef.current ? null : value
+    setTool(next)
+    toolRef.current = next
+    value = next as Tool
   }
 
   // ── Teclado ───────────────────────────────────────────────────────────────
@@ -676,6 +715,12 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       // Letra solta troca de ferramenta. Com modificador não: Ctrl+P é imprimir
       // e continua sendo.
       if (e.ctrlKey || e.metaKey || e.altKey) return
+
+      // "S" larga o que estiver na mão e devolve a prancha ao repouso, que é
+      // arrastar e ampliar. Escape não serve para isso porque já fecha a folha,
+      // e trocar o que ele faz quebraria o gesto de sair.
+      if (e.key.toLowerCase() === "s") { setTool(null); toolRef.current = null; return }
+
       const picked = TOOLS.find(t => t.key === e.key.toLowerCase())
       if (picked && canAnnotate) pickTool(picked.value)
     }
@@ -719,7 +764,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   }
 
   const cursor = panning ? "grabbing"
-    : tool === "pan" || !canAnnotate ? "grab"
+    : !tool || !canAnnotate ? "grab"
     : tool === "erase" ? "pointer"
     : "crosshair"
 
@@ -795,57 +840,103 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             />
           ))}
 
-          {/* O vínculo é bolha, não traço: um círculo com o elo dentro, do
-              tamanho do carimbo de referência que a prancha já imprime. Ele
-              acompanha o zoom como o resto da marcação, então numa folha de 42
-              polegadas ele continua do tamanho de um carimbo, e não de um
-              botão de tela. */}
+          {/* O vínculo é área, não traço: o retângulo cerca o pedaço do desenho
+              que aponta para outro lugar, do jeito que a bolha de referência
+              faz no papel. Sem destino ele existe assim mesmo, tracejado e com
+              uma interrogação ao lado: é o estado entre cercar e escolher, e
+              guardá-lo é o que deixa sair da tela no meio sem perder o gesto. */}
           {[
             ...(annotations ?? []),
             ...pending.filter(m => !annotations?.some(a => a.id === m.id)),
-          ].filter(visible).filter(a => a.tool === "link" && a.geometry?.target).map(a => {
-            const g = a.geometry!
-            const cx = (g.x ?? 0) * pageWidth
-            const cy = (g.y ?? 0) * pageHeight
+          ].filter(visible).filter(a => a.tool === "link").map(a => {
+            const g = a.geometry ?? {}
+            const x = (g.x0 ?? 0) * pageWidth
+            const y = (g.y0 ?? 0) * pageHeight
+            const w = ((g.x1 ?? 0) - (g.x0 ?? 0)) * pageWidth
+            const hgt = ((g.y1 ?? 0) - (g.y0 ?? 0)) * pageHeight
             const r = 9 * strokeScale
+            const target = g.target
             return (
-              <g
-                key={a.id}
-                opacity={fade(a.id)}
-                onPointerEnter={() => tool === "erase" && setUnder(a.id)}
-                onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
-                onPointerDown={e => {
-                  e.stopPropagation()
-                  if (tool === "erase") {
-                    if (!canAnnotate) return
-                    setErasing(list => [...list, a.id])
-                    deleteAnnotation.mutate(a.id, {
-                      onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
-                    })
-                    return
-                  }
-                  follow(g.target!)
-                }}
-                style={{ cursor: "pointer", pointerEvents: "all" }}
-              >
-                <circle cx={cx} cy={cy} r={r} fill={LINK_COLOR} fillOpacity={0.15}
-                  stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale} />
-                <path
-                  d={`M ${cx - r * 0.34} ${cy} h ${r * 0.68}`}
-                  stroke={LINK_COLOR} strokeWidth={1.6 * strokeScale} strokeLinecap="round"
+              <g key={a.id} opacity={fade(a.id)}>
+                <rect
+                  x={x} y={y} width={w} height={hgt}
+                  rx={3 * strokeScale}
+                  fill={LINK_COLOR} fillOpacity={target ? 0.1 : 0.06}
+                  stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale}
+                  strokeDasharray={target ? undefined : `${4 * strokeScale} ${3 * strokeScale}`}
+                  onPointerEnter={() => tool === "erase" && setUnder(a.id)}
+                  onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
+                  onPointerDown={e => {
+                    e.stopPropagation()
+                    if (tool === "erase") {
+                      if (!canAnnotate) return
+                      setErasing(list => [...list, a.id])
+                      deleteAnnotation.mutate(a.id, {
+                        onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
+                      })
+                      return
+                    }
+                    if (target) follow(target)
+                    else if (canAnnotate) setLinking(a.id)
+                  }}
+                  style={{ cursor: "pointer", pointerEvents: "all" }}
                 />
-                <text
-                  x={cx} y={cy - r * 1.5}
-                  textAnchor="middle"
-                  fill={LINK_COLOR}
-                  fontSize={9 * strokeScale}
-                  style={{ pointerEvents: "none", userSelect: "none" }}
+
+                {/* O botão fica colado na quina, imediatamente ao lado da área,
+                    para o gesto seguinte não exigir procurar nada na tela. */}
+                <g
+                  onPointerDown={e => {
+                    e.stopPropagation()
+                    if (tool === "erase") return
+                    if (target) follow(target)
+                    else if (canAnnotate) setLinking(a.id)
+                  }}
+                  style={{ cursor: "pointer", pointerEvents: "all" }}
                 >
-                  {g.target!.sheetName}
-                </text>
+                  <circle cx={x + w} cy={y} r={r} fill={LINK_COLOR} />
+                  {target ? (
+                    <path
+                      d={`M ${x + w - r * 0.36} ${y} h ${r * 0.72}`}
+                      stroke="#fff" strokeWidth={1.8 * strokeScale} strokeLinecap="round"
+                    />
+                  ) : (
+                    <text
+                      x={x + w} y={y + r * 0.42}
+                      textAnchor="middle" fill="#fff"
+                      fontSize={r * 1.25} fontWeight={700}
+                      style={{ pointerEvents: "none", userSelect: "none" }}
+                    >
+                      ?
+                    </text>
+                  )}
+                </g>
+
+                {target && (
+                  <text
+                    x={x} y={y - r * 0.7}
+                    fill={LINK_COLOR}
+                    fontSize={9 * strokeScale}
+                    style={{ pointerEvents: "none", userSelect: "none" }}
+                  >
+                    {target.sheetName}
+                  </text>
+                )}
               </g>
             )
           })}
+
+          {/* A área sendo cercada agora. */}
+          {linkBox && (
+            <rect
+              x={Math.min(linkBox.x0, linkBox.x1) * pageWidth}
+              y={Math.min(linkBox.y0, linkBox.y1) * pageHeight}
+              width={Math.abs(linkBox.x1 - linkBox.x0) * pageWidth}
+              height={Math.abs(linkBox.y1 - linkBox.y0) * pageHeight}
+              fill={LINK_COLOR} fillOpacity={0.08}
+              stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale}
+              strokeDasharray={`${4 * strokeScale} ${3 * strokeScale}`}
+            />
+          )}
 
           {drawing.length > 1 && (
             <path
@@ -1297,8 +1388,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
       <SheetLinkDialog
         jobsiteId={jobsiteId}
-        open={!!linkAt}
-        onClose={() => setLinkAt(null)}
+        open={!!linking}
+        onClose={() => setLinking(null)}
         onPick={saveLink}
       />
 

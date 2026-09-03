@@ -166,10 +166,15 @@ export interface AtlasSheet {
 export interface AtlasStrokeGeometry {
   /** Traço: a sequência de pontos em fração da página. */
   points?: [number, number][]
-  /** Vínculo: onde a bolha foi posta, e para onde ela leva. */
-  x?: number
-  y?: number
-  target?: AtlasLinkTarget
+  /**
+   * Vínculo: a área cercada na prancha, em fração da página, e o destino. O
+   * destino chega depois da área, e até chegar o vínculo existe vazio.
+   */
+  x0?: number
+  y0?: number
+  x1?: number
+  y1?: number
+  target?: AtlasLinkTarget | null
 }
 
 /** Para onde um vínculo aponta. O nome viaja junto para a bolha na prancha
@@ -414,6 +419,8 @@ export const atlasService = {
     api.get<AtlasAnnotation[]>(`${base}/sheets/${sheetId}/annotations`, getToken()).then(r => r ?? []),
   createAnnotation: (sheetId: string, body: Partial<AtlasAnnotation>) =>
     api.post(`${base}/sheets/${sheetId}/annotations`, body, getToken()),
+  updateAnnotation: (id: string, geometry: AtlasStrokeGeometry) =>
+    api.patch(`${base}/annotations/${id}`, { geometry }, getToken()),
   deleteAnnotation: (annotationId: string) =>
     api.delete(`${base}/annotations/${annotationId}`, getToken()),
 

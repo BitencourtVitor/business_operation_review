@@ -1512,6 +1512,42 @@ func (h *AtlasHandler) RenameSheets(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": fiber.Map{"named": len(body.Names)}})
 }
 
+// PATCH /atlas/annotations/:id
+//
+// Muda a geometria de uma marca que já existe.
+//
+// Existe por causa do vínculo. Ele nasce vazio: primeiro se cerca a área da
+// prancha, e só depois se diz para onde ela aponta, porque escolher a folha de
+// destino exige procurar e procurar com o dedo apoiado no desenho não existe.
+// Entre um gesto e outro a marca precisa estar gravada, senão sair da tela no
+// meio perde o retângulo.
+//
+// Só o autor mexe. Marca alheia é leitura de outra pessoa sobre o desenho, e
+// corrigi-la por cima seria reescrever o que ela entendeu.
+func (h *AtlasHandler) UpdateAnnotation(c *fiber.Ctx) error {
+	userID, _ := actor(c)
+	var in struct {
+		Geometry json.RawMessage `json:"geometry"`
+	}
+	if err := c.BodyParser(&in); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	if len(in.Geometry) == 0 {
+		return badRequest(c, "geometry is required")
+	}
+	tag, err := h.db.Exec(c.Context(), `
+		UPDATE atlas_annotation SET geometry = $3::jsonb
+		 WHERE id = $1 AND author_id = $2 AND deleted_at IS NULL`,
+		c.Params("id"), userID, string(in.Geometry))
+	if err != nil {
+		return internalErr(c, err)
+	}
+	if tag.RowsAffected() == 0 {
+		return atlasNotFound(c, "anotação")
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": c.Params("id")}})
+}
+
 // GET /atlas/sheets/:id/url — o PDF de uma página só.
 //
 // Cai no original quando a página ainda não foi recortada: versão antiga, ou

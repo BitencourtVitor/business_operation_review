@@ -691,6 +691,7 @@ func main() {
 	atlas.Patch("/sheets/:id", atlasHandler.UpdateSheet)
 	atlas.Get("/sheets/:id/annotations", atlasHandler.ListAnnotations)
 	atlas.Post("/sheets/:id/annotations", atlasHandler.CreateAnnotation)
+	atlas.Patch("/annotations/:id", atlasHandler.UpdateAnnotation)
 	atlas.Delete("/annotations/:id", atlasHandler.DeleteAnnotation)
 	atlas.Post("/versions/:id/thumb-uploads", atlasHandler.ThumbUploadURLs)
 	atlas.Get("/versions/:id/thumbs", atlasHandler.VersionThumbs)
