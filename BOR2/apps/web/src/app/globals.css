@@ -224,37 +224,48 @@ body {
 
 
 
-/* Virar página irradia, em vez de afundar.
+/* Botão do leitor de planta: o fundo se dispersa em vez de afundar.
  *
- * O botão de página é o único aqui que troca o conteúdo inteiro da tela, e o
- * afundar de um pressionar comum não dava conta disso: o gesto dizia "cliquei" e
- * não "a folha mudou". A onda sai da própria borda do botão e se dissipa para
- * fora, no tempo em que a folha nova entra.
+ * Afundar um pixel é a resposta de um botão de formulário, e some sob o dedo no
+ * tablet, que é onde a prancha é lida. Aqui o próprio fundo do botão irradia
+ * para fora e se dissipa: o toque se vê de longe, sem nada mudar de lugar.
  *
- * `box-shadow` e não um elemento à parte: nada a mais no DOM, e a sombra não
- * ocupa espaço nem empurra o que está em volta.
+ * `box-shadow` e não um elemento à parte: nada a mais no DOM, e a onda não ocupa
+ * espaço nem empurra o que está em volta. A cor sai de --burst, que cada botão
+ * troca pela sua quando tem fundo próprio.
  */
-@keyframes atlas-page-burst {
+@property --burst-noop {
+  syntax: "*";
+  inherits: false;
+}
+
+@keyframes atlas-burst {
   0% {
     box-shadow:
-      0 0 0 0 rgb(255 255 255 / 0.35),
-      0 0 0 0 rgb(255 255 255 / 0.18);
+      0 0 0 0 var(--burst, rgb(255 255 255 / 0.35)),
+      0 0 0 0 var(--burst, rgb(255 255 255 / 0.2));
   }
   100% {
     box-shadow:
-      0 0 0 14px rgb(255 255 255 / 0),
-      0 0 0 28px rgb(255 255 255 / 0);
+      0 0 0 12px transparent,
+      0 0 0 22px transparent;
   }
 }
 
-.atlas-page-turn:active {
-  /* Sem o deslocamento herdado do botão comum: aqui nada afunda. */
+.atlas-burst:active {
+  /* Anula o afundar do botão padrão: aqui nada se desloca. */
+  transform: none;
+  animation: atlas-burst 420ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* As setas de página já vivem centradas na vertical, e perder isso as jogaria
+ * para o topo no instante do toque. */
+.atlas-burst.atlas-page-turn:active {
   transform: translateY(-50%);
-  animation: atlas-page-burst 450ms cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .atlas-page-turn:active {
+  .atlas-burst:active {
     animation: none;
   }
 }

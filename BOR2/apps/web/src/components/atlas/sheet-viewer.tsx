@@ -20,7 +20,7 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
-  Highlighter, Lock, Maximize, MapPin, Minus, Pen, Plus, Search, Users, X,
+  Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, User, Users, X,
 } from "lucide-react"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
@@ -597,7 +597,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         variant={active ? "default" : "ghost"}
         onClick={() => pickTool(value)}
         title={`${label} (${key.toUpperCase()})`}
-        className="h-9 gap-1.5 px-2 transition-all duration-200"
+        className="atlas-burst h-9 gap-1.5 px-2 transition-all duration-200"
       >
         <Icon className="h-4 w-4" />
         {/* Aberto só quando ativo, e só onde há largura: a dica é para quem
@@ -884,7 +884,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               disabled={!hits.length}
               onClick={() => goToHit(-1)}
               title="Previous match (Shift+Enter)"
-              className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+              className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
             >
               <ChevronUp className="h-4 w-4" />
             </Button>
@@ -894,7 +894,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               disabled={!hits.length}
               onClick={() => goToHit(1)}
               title="Next match (Enter)"
-              className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+              className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
             >
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -903,7 +903,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant={finding ? "default" : "ghost"}
-          className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+          className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
           title="Find text on this sheet"
           onClick={() => {
             const open = !finding
@@ -916,7 +916,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+          className="atlas-burst pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
           disabled={!source?.url}
           title="Download this plan"
           onClick={() => source && downloadPlan(
@@ -930,7 +930,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+          className="atlas-burst pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
           onClick={onClose}
           title="Close"
         >
@@ -944,7 +944,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(prev)}
           title="Previous plan"
-          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-burst atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -955,7 +955,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(next)}
           title="Next plan"
-          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-burst atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
@@ -977,7 +977,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                     onClick={() => setInk({ color: c.value })}
                     title={c.label}
                     style={{ background: c.value }}
-                    className={`h-6 w-6 rounded-full border transition-transform ${
+                    className={`atlas-burst h-6 w-6 rounded-full border transition-transform ${
                       color === c.value ? "scale-110 border-white" : "border-white/30"
                     }`}
                   />
@@ -991,7 +991,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                     key={w}
                     onClick={() => { setInk({ width: w }); showSample() }}
                     title={`Stroke ${i + 1} of ${widths.length}`}
-                    className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                    className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
                       width === w ? "bg-white/20" : "hover:bg-white/10"
                     }`}
                   >
@@ -1011,16 +1011,19 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                 type="button"
                 onClick={() => setInk({ shared: !shared })}
                 title={shared
-                  ? "Everyone on this project sees this stroke"
-                  : "Only you see this stroke"}
-                className={`flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-all duration-200 ${
+                  ? "Everyone on this project sees what you mark"
+                  : "Only you see what you mark"}
+                style={shared ? { ["--burst" as string]: "rgb(56 189 248 / 0.45)" } : undefined}
+                className={`atlas-burst flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-all duration-200 ${
                   shared
                     ? "bg-sky-500/20 text-sky-200 ring-1 ring-inset ring-sky-400/40"
                     : "text-white/50 hover:bg-white/10 hover:text-white/80"
                 }`}
               >
-                {shared ? <Users className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                <span className="hidden lg:inline">{shared ? "Shared" : "Private"}</span>
+                {shared ? <Users className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                {/* Quem vê, e não o nome do estado: "privado" e "compartilhado"
+                    obrigam a traduzir para saber o que muda. */}
+                <span className="hidden lg:inline">{shared ? "Everyone sees" : "Only me"}</span>
               </button>
 
               {/* A amostra do traço escolhido, do tamanho que ele vai sair no
@@ -1075,7 +1078,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-burst h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={() => zoomCentre(1.25)}
           title="Zoom in"
         >
@@ -1091,7 +1094,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-none border-x border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-burst h-10 w-10 rounded-none border-x border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={fit}
           title="Fit to screen"
         >
@@ -1100,7 +1103,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-burst h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={() => zoomCentre(0.8)}
           title="Zoom out"
         >
