@@ -60,17 +60,50 @@ func (h *AtlasHandler) jobsiteLevel(c *fiber.Ctx, jobsiteID string) (string, err
 	if userID == "" {
 		return "", errAtlasForbidden
 	}
+	// Concessão explícita manda: ela é o convite, e também é o que registra a
+	// revogação. Linha revogada ou vencida encerra o assunto, senão o caminho de
+	// baixo devolveria por conta própria o acesso que alguém tirou de propósito.
 	var level string
+	var revoked bool
 	err := h.db.QueryRow(c.Context(), `
-		SELECT level FROM atlas_jobsite_access
-		WHERE jobsite_id = $1 AND user_id = $2
-		  AND revoked_at IS NULL
-		  AND (expires_at IS NULL OR expires_at > now())`,
-		jobsiteID, userID).Scan(&level)
-	if err != nil {
+		SELECT level, (revoked_at IS NOT NULL OR (expires_at IS NOT NULL AND expires_at <= now()))
+		FROM atlas_jobsite_access
+		WHERE jobsite_id = $1 AND user_id = $2`,
+		jobsiteID, userID).Scan(&level, &revoked)
+	if err == nil {
+		if revoked {
+			return "", errAtlasForbidden
+		}
+		return level, nil
+	}
+
+	// Sem convite, a chave do Atlas decide. Escrita é gente da casa: enxerga
+	// toda obra, inclusive a que ainda vai nascer, sem depender de alguém
+	// lembrar de conceder projeto a projeto. Leitura continua entrando obra a
+	// obra, porque quem tem só leitura pode ser subcontratado.
+	//
+	// A lista de obras já trabalhava assim, mostrando tudo a quem tem a chave e
+	// tirando o que uma regra de deny alcança. O portão de cada obra não sabia
+	// disso e pedia convite: quem entrava via a lista cheia e tomava 403 ao
+	// abrir qualquer projeto. As duas pontas passam a falar a mesma língua,
+	// deny incluído.
+	var allowed bool
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT COALESCE(p.permissions::jsonb ->> 'atlas', '') = 'write'
+		   AND NOT EXISTS (
+		     SELECT 1 FROM atlas_visibility_rule r
+		      JOIN atlas_jobsite j ON j.id = $2
+		     WHERE r.user_id = $1 AND r.effect = 'deny'
+		       AND ((r.scope = 'jobsite' AND r.value = j.id)
+		         OR (r.scope = 'kind'    AND r.value = j.kind)
+		         OR (r.scope = 'client'  AND lower(r.value) = lower(j.client)))
+		   )
+		FROM user_permissions p
+		WHERE p.user_id = $1 AND jsonb_typeof(p.permissions::jsonb) = 'object'`,
+		userID, jobsiteID).Scan(&allowed); err != nil || !allowed {
 		return "", errAtlasForbidden
 	}
-	return level, nil
+	return "manage", nil
 }
 
 func (h *AtlasHandler) require(c *fiber.Ctx, jobsiteID, needed string) error {
