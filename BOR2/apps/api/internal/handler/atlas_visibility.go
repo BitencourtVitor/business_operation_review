@@ -20,6 +20,10 @@ type atlasBlockedUser struct {
 	UserID string `json:"userId"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
+	// Quem é de fora se governa por outra regra: o de dentro vê por padrão e se
+	// bloqueia, o de fora não vê nada e se convida. A tela precisa saber de qual
+	// dos dois se trata para não oferecer o gesto errado.
+	Subcontractor bool `json:"subcontractor"`
 }
 
 // GET /atlas/jobsites/:id/blocked
@@ -100,7 +104,8 @@ func (h *AtlasHandler) SetBlocked(c *fiber.Ctx) error {
 // aqui deixaria a tela prometer um bloqueio que não acontece.
 func (h *AtlasHandler) ListBlockableUsers(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
-		SELECT u.id, COALESCE(u.name, ''), COALESCE(u.email, '')
+		SELECT u.id, COALESCE(u.name, ''), COALESCE(u.email, ''),
+		       COALESCE(p.permissions::jsonb ->> 'atlas_subcontractor', '') <> ''
 		FROM users u
 		JOIN user_permissions p ON p.user_id = u.id
 		WHERE u.role NOT IN ('dev', 'owner', 'admin', 'manager')
@@ -115,7 +120,7 @@ func (h *AtlasHandler) ListBlockableUsers(c *fiber.Ctx) error {
 	out := []atlasBlockedUser{}
 	for rows.Next() {
 		var u atlasBlockedUser
-		if err := rows.Scan(&u.UserID, &u.Name, &u.Email); err != nil {
+		if err := rows.Scan(&u.UserID, &u.Name, &u.Email, &u.Subcontractor); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, u)
