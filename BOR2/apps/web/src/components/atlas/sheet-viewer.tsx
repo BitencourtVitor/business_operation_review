@@ -21,12 +21,15 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
-  Eye, EyeOff, Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, User,
-  Users, X,
+  Eye, EyeOff, Highlighter, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
+  User, Users, X,
 } from "lucide-react"
+import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
+import { useRouter } from "next/navigation"
+import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
-type Tool = "pan" | "pen" | "highlighter" | "pin" | "erase"
+type Tool = "pan" | "pen" | "highlighter" | "pin" | "link" | "erase"
 
 // A letra é a inicial do nome da ferramenta, para não haver o que decorar. No
 // desktop ela aparece dentro do botão: quem lê a prancha o dia inteiro não
@@ -39,6 +42,7 @@ const TOOLS = [
   { value: "pen",         key: "p", label: "Pen",      hint: "Draw over the sheet",          icon: Pen },
   { value: "highlighter", key: "m", label: "Marker",   hint: "Highlight over the sheet",     icon: Highlighter },
   { value: "pin",         key: "n", label: "Note pin", hint: "Tap the sheet to open a note", icon: MapPin },
+  { value: "link",        key: "l", label: "Link",     hint: "Tap the sheet, then pick where it goes", icon: Link2 },
   { value: "erase",       key: "e", label: "Eraser",   hint: "Tap a stroke or a pin",        icon: Eraser },
 ] as const satisfies readonly {
   value: Tool; key: string; label: string; hint: string; icon: React.ElementType
@@ -51,6 +55,9 @@ const TOOLS = [
 // Laranja não entra em paleta nenhuma: é a cor da nota, e uma cor que quer dizer
 // "há algo a resolver aqui" só funciona se não aparecer também em traço solto.
 const NOTE_COLOR = "#f97316"
+// O vínculo tem cor própria pelo mesmo motivo da nota: ele não é marca de
+// leitura, é caminho, e precisa se distinguir de traço solto na prancha.
+const LINK_COLOR = "#0ea5e9"
 
 const PEN_COLORS = [
   { value: "#dc2626", label: "Red" },
@@ -237,6 +244,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   }
 
   const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
+  const [linkAt, setLinkAt] = useState<{ x: number; y: number } | null>(null)
+  const router = useRouter()
   const [noteText, setNoteText] = useState("")
 
   // Pelo hook e não pelo store: o store guarda só o token entre recargas, e sem
@@ -479,6 +488,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       setNoteText("")
       return
     }
+    if (tool === "link") {
+      // O ponto fica guardado e o destino vem da janela: escolher a folha exige
+      // procurar, e procurar com o dedo apoiado na prancha não existe.
+      const [x, y] = toPage(e.clientX, e.clientY)
+      setLinkAt({ x, y })
+      return
+    }
     if (tool === "erase") return
 
     setDrawing([toPage(e.clientX, e.clientY)])
@@ -596,6 +612,32 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
     return () => { alive = false; if (timer) clearTimeout(timer) }
   }, [pending, sheet.id, refetchAnnotations])
+
+  function saveLink(target: AtlasLinkTarget) {
+    if (!linkAt) return
+    // Nasce compartilhado, ao contrário do traço: um caminho que só quem
+    // desenhou enxerga não serve para nada. A referência é do desenho, não da
+    // leitura de uma pessoa.
+    const mark = {
+      id: crypto.randomUUID(),
+      tool: "link" as const,
+      color: LINK_COLOR,
+      width: 2,
+      opacity: 1,
+      shared: true,
+      geometry: { x: linkAt.x, y: linkAt.y, target } as AtlasStrokeGeometry,
+    }
+    setPending(list => [...list, mark as AtlasAnnotation])
+    setLinkAt(null)
+  }
+
+  // Seguir o vínculo. Na mesma pasta a folha troca sem sair da tela; noutra, a
+  // página do documento abre já com a folha pedida, pelo endereço.
+  function follow(target: AtlasLinkTarget) {
+    const here = sheets.find(s => s.id === target.sheetId)
+    if (here) { onNavigate(here); return }
+    router.push(`/atlas/${jobsiteId}/documents/${target.documentId}?sheet=${target.sheetId}`)
+  }
 
   function saveNote() {
     if (!noteAt || !noteText.trim()) return
@@ -722,7 +764,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           {[
             ...(annotations ?? []),
             ...pending.filter(m => !annotations?.some(a => a.id === m.id)),
-          ].filter(visible).map(a => (
+          ].filter(visible).filter(a => a.tool !== "link").map(a => (
             <path
               key={a.id}
               d={pointsToPath(a.geometry?.points ?? [], pageWidth, pageHeight)}
@@ -752,6 +794,58 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               }}
             />
           ))}
+
+          {/* O vínculo é bolha, não traço: um círculo com o elo dentro, do
+              tamanho do carimbo de referência que a prancha já imprime. Ele
+              acompanha o zoom como o resto da marcação, então numa folha de 42
+              polegadas ele continua do tamanho de um carimbo, e não de um
+              botão de tela. */}
+          {[
+            ...(annotations ?? []),
+            ...pending.filter(m => !annotations?.some(a => a.id === m.id)),
+          ].filter(visible).filter(a => a.tool === "link" && a.geometry?.target).map(a => {
+            const g = a.geometry!
+            const cx = (g.x ?? 0) * pageWidth
+            const cy = (g.y ?? 0) * pageHeight
+            const r = 9 * strokeScale
+            return (
+              <g
+                key={a.id}
+                opacity={fade(a.id)}
+                onPointerEnter={() => tool === "erase" && setUnder(a.id)}
+                onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
+                onPointerDown={e => {
+                  e.stopPropagation()
+                  if (tool === "erase") {
+                    if (!canAnnotate) return
+                    setErasing(list => [...list, a.id])
+                    deleteAnnotation.mutate(a.id, {
+                      onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
+                    })
+                    return
+                  }
+                  follow(g.target!)
+                }}
+                style={{ cursor: "pointer", pointerEvents: "all" }}
+              >
+                <circle cx={cx} cy={cy} r={r} fill={LINK_COLOR} fillOpacity={0.15}
+                  stroke={LINK_COLOR} strokeWidth={1.5 * strokeScale} />
+                <path
+                  d={`M ${cx - r * 0.34} ${cy} h ${r * 0.68}`}
+                  stroke={LINK_COLOR} strokeWidth={1.6 * strokeScale} strokeLinecap="round"
+                />
+                <text
+                  x={cx} y={cy - r * 1.5}
+                  textAnchor="middle"
+                  fill={LINK_COLOR}
+                  fontSize={9 * strokeScale}
+                  style={{ pointerEvents: "none", userSelect: "none" }}
+                >
+                  {g.target!.sheetName}
+                </text>
+              </g>
+            )
+          })}
 
           {drawing.length > 1 && (
             <path
@@ -1200,6 +1294,13 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           )}
         </div>
       )}
+
+      <SheetLinkDialog
+        jobsiteId={jobsiteId}
+        open={!!linkAt}
+        onClose={() => setLinkAt(null)}
+        onPick={saveLink}
+      />
 
       <Dialog open={!!noteAt} onOpenChange={o => { if (!o) setNoteAt(null) }}>
         <DialogContent className="sm:max-w-md">
