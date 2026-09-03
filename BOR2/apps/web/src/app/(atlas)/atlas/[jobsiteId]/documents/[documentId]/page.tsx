@@ -32,7 +32,11 @@ function bytes(n: number) {
   return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
 }
 
-function SheetRow({ sheet, versionId, canManage, thumb, onOpen }: {
+// A folha é um cartão quadrado: a prancha em cima, ocupando tudo, e a
+// identificação no rodapé. É como o Fieldwire e o MiTek mostram um set, e por um
+// motivo prático: o que distingue uma planta da outra é o desenho, não o número
+// dela. Em lista, a imagem cabia em 64x48 e não distinguia nada.
+function SheetCard({ sheet, versionId, canManage, thumb, onOpen }: {
   sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string; onOpen: () => void
 }) {
   const update = useUpdateAtlasSheet(versionId)
@@ -40,73 +44,81 @@ function SheetRow({ sheet, versionId, canManage, thumb, onOpen }: {
   const dirty = draft.sheetNumber !== sheet.sheetNumber || draft.title !== sheet.title
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-2.5">
-      {/* A prévia é o que distingue uma folha da outra antes de abrir: numa
-          lista de 51 páginas, a coluna de números obriga a abrir uma por uma
-          para achar a prancha certa. O número fica por cima, no canto, porque
-          continua sendo como a folha é chamada. */}
-      <button
-        onClick={onOpen}
-        className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded border border-border/60 bg-muted/30 text-xs text-muted-foreground hover:border-primary/40"
-      >
+    <div className="flex aspect-square flex-col overflow-hidden rounded-lg border border-border/60 bg-card transition-colors hover:border-primary/40">
+      {/* Sem respiro em volta da imagem: a moldura do cartão já é a moldura da
+          prancha, e qualquer margem aqui só encolhe o desenho. */}
+      <button onClick={onOpen} className="relative min-h-0 flex-1 bg-white">
         {thumb ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={thumb}
-              alt=""
-              loading="lazy"
-              className="h-full w-full bg-white object-cover object-top"
-            />
-            <span className="absolute bottom-0 right-0 rounded-tl bg-background/85 px-1 text-[10px] leading-tight">
-              {sheet.pageIndex + 1}
-            </span>
-          </>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumb}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover object-top"
+          />
         ) : (
-          sheet.pageIndex + 1
+          <span className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60">
+            {sheet.pageIndex + 1}
+          </span>
+        )}
+
+        {sheet.needsReview && !dirty && (
+          <Badge
+            variant="outline"
+            className="absolute right-1.5 top-1.5 border-amber-500/40 bg-background/90 text-amber-600 dark:text-amber-400"
+          >
+            review
+          </Badge>
+        )}
+        {sheet.annotations > 0 && (
+          <span className="absolute bottom-1.5 right-1.5 rounded bg-background/85 px-1.5 text-[11px] text-muted-foreground">
+            {sheet.annotations} marks
+          </span>
         )}
       </button>
-      {canManage ? (
-        <>
-          <Input
-            value={draft.sheetNumber}
-            placeholder="Plan no."
-            className="h-8 w-32"
-            onChange={e => setDraft({ ...draft, sheetNumber: e.target.value })}
-          />
-          <Input
-            value={draft.title}
-            placeholder="Title"
-            className="h-8 flex-1"
-            onChange={e => setDraft({ ...draft, title: e.target.value })}
-          />
-        </>
-      ) : (
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}</p>
-          <p className="truncate text-xs text-muted-foreground">{sheet.title}</p>
-        </div>
-      )}
-      {sheet.needsReview && !dirty && (
-        <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400">
-          review
-        </Badge>
-      )}
-      {canManage && dirty && (
-        <Button
-         
-          onClick={() => update.mutate({
-            sheetId: sheet.id,
-            patch: { ...draft, needsReview: false } as Partial<AtlasSheet>,
-          })}
-        >
-          <Check className="h-3.5 w-3.5" />
-          Save
-        </Button>
-      )}
-      {sheet.annotations > 0 && (
-        <span className="text-xs text-muted-foreground">{sheet.annotations} marks</span>
-      )}
+
+      <div className="flex shrink-0 flex-col gap-1 border-t border-border/60 p-2">
+        {canManage ? (
+          <>
+            <Input
+              value={draft.sheetNumber}
+              placeholder={`Plan no. (page ${sheet.pageIndex + 1})`}
+              className="h-7 font-medium"
+              onChange={e => setDraft({ ...draft, sheetNumber: e.target.value })}
+            />
+            <div className="flex items-center gap-1">
+              <Input
+                value={draft.title}
+                placeholder="Title"
+                className="h-7 flex-1"
+                onChange={e => setDraft({ ...draft, title: e.target.value })}
+              />
+              {dirty && (
+                <Button
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  title="Save"
+                  onClick={() => update.mutate({
+                    sheetId: sheet.id,
+                    patch: { ...draft, needsReview: false } as Partial<AtlasSheet>,
+                  })}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="truncate text-sm font-medium leading-tight">
+              {sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {sheet.title || "No title yet"}
+            </p>
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -254,9 +266,9 @@ export default function DocumentPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {sheets.map(s => (
-                    <SheetRow
+                    <SheetCard
                       key={s.id}
                       sheet={s}
                       versionId={versionId}
