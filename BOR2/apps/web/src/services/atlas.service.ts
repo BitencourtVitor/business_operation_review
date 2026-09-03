@@ -158,6 +158,10 @@ export interface AtlasSheet {
   byteSize: number
   confidence: number
   needsReview: boolean
+  /** O que existe sobre a folha, por tipo. Traço de caneta não se conta. */
+  links: number
+  highlights: number
+  notes: number
   annotations: number
 }
 

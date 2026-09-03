@@ -1223,7 +1223,13 @@ type atlasSheet struct {
 	ByteSize    int64    `json:"byteSize"`
 	Confidence  float64  `json:"confidence"`
 	NeedsReview bool     `json:"needsReview"`
-	Annotations int      `json:"annotations"`
+	// O que existe sobre esta folha, por tipo. Contagem de traço de caneta fica
+	// de fora de propósito: dois traços podem ser uma letra, e o número de
+	// vetores não diz nada sobre quanto foi escrito ali.
+	Links       int `json:"links"`
+	Highlights  int `json:"highlights"`
+	Notes       int `json:"notes"`
+	Annotations int `json:"annotations"`
 }
 
 // GET /atlas/versions/:id/sheets
@@ -1241,7 +1247,12 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		       s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
 		       s.r2_key, s.byte_size, s.confidence, s.needs_review,
 		       (SELECT count(*) FROM atlas_annotation a
-		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL)
+		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL),
+		       (SELECT count(*) FROM atlas_annotation a
+		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL AND a.tool = 'link'),
+		       (SELECT count(*) FROM atlas_annotation a
+		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL AND a.tool = 'highlighter'),
+		       (SELECT count(*) FROM atlas_event e WHERE e.sheet_id = s.id)
 		FROM atlas_sheet s WHERE s.version_id = $1 ORDER BY s.page_index`, versionID)
 	if err != nil {
 		return internalErr(c, err)
@@ -1253,7 +1264,8 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		var s atlasSheet
 		if err := rows.Scan(&s.ID, &s.VersionID, &s.PageIndex, &s.SheetNumber, &s.Discipline,
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
-			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview, &s.Annotations); err != nil {
+			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview, &s.Annotations,
+			&s.Links, &s.Highlights, &s.Notes); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, s)
