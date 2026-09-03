@@ -264,6 +264,8 @@ export interface AtlasAccess {
   grantedAt: string
   expiresAt: string | null
   revokedAt: string | null
+  /** Quando o convite saiu. Nulo: nunca avisado. */
+  notifiedAt: string | null
 }
 
 interface UploadTicket {
@@ -314,6 +316,13 @@ export const atlasService = {
     api.get<AtlasAccess[]>(`${base}/jobsites/${jobsiteId}/access`, getToken()).then(r => r ?? []),
   grantAccess: (jobsiteId: string, userId: string, level: AtlasLevel, expiresAt?: string) =>
     api.put(`${base}/jobsites/${jobsiteId}/access/${userId}`, { level, expiresAt }, getToken()),
+  // Avisar é gesto à parte de conceder: sai quando o responsável decidir, e a
+  // data volta para a tela poder dizer que já foi.
+  notifyAccess: (jobsiteId: string, userId: string) =>
+    api.post<{ notifiedAt: string; email: string }>(
+      `${base}/jobsites/${jobsiteId}/access/${userId}/notify`, {}, getToken(),
+    ),
+
   revokeAccess: (jobsiteId: string, userId: string) =>
     api.delete(`${base}/jobsites/${jobsiteId}/access/${userId}`, getToken()),
 
