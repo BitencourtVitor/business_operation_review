@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Crop, Plus, Trash2, ZoomIn, ZoomOut } from "lucide-react"
+import { ChevronLeft, ChevronRight, Crop, Minus, Plus, Trash2, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 const EMPTY_REGION: NamingRegion = { x0: 0, y0: 0, x1: 0, y1: 0, rotation: 0 }
@@ -28,6 +27,42 @@ const MIN_ZOOM = 1
 const MAX_ZOOM = 6
 
 const has = (r: NamingRegion) => r.x1 > r.x0 && r.y1 > r.y0
+
+/**
+ * Reacomoda as faixas depois de alguém mexer numa ponta.
+ *
+ * As faixas cobrem o arquivo em sequência, e sequência não tem buraco nem
+ * sobreposição: se a primeira passa a terminar na 92, a segunda começa na 93,
+ * não na 92. Sem isto, mudar um limite obrigava a corrigir o vizinho à mão, e
+ * quem esquecesse ficava com uma página pertencendo a duas faixas ou a nenhuma.
+ *
+ * O empurrão anda para os dois lados a partir de onde se mexeu, e uma faixa
+ * espremida a nada vira uma página só, em vez de virar faixa invertida.
+ */
+function tidy(levels: NamingRegion[], moved: number, pages: number): NamingRegion[] {
+  const out = levels.map(l => ({ ...l }))
+  const clamp = (n?: number) => n === undefined ? undefined : Math.min(pages, Math.max(1, n))
+
+  for (const l of out) { l.fromPage = clamp(l.fromPage); l.toPage = clamp(l.toPage) }
+
+  for (let i = moved; i < out.length - 1; i++) {
+    const end = out[i].toPage
+    if (end === undefined) continue
+    const next = out[i + 1]
+    if ((next.fromPage ?? 0) <= end) next.fromPage = Math.min(pages, end + 1)
+    if (next.toPage !== undefined && next.toPage < (next.fromPage ?? 1)) next.toPage = next.fromPage
+  }
+
+  for (let i = moved; i > 0; i--) {
+    const start = out[i].fromPage
+    if (start === undefined) continue
+    const prev = out[i - 1]
+    if ((prev.toPage ?? Infinity) >= start) prev.toPage = Math.max(1, start - 1)
+    if (prev.fromPage !== undefined && prev.fromPage > (prev.toPage ?? pages)) prev.fromPage = prev.toPage
+  }
+
+  return out
+}
 
 // As duas perguntas que o arquivo responde antes de qualquer marcação.
 const MODES: { value: NamingMode; label: string; hint: string }[] = [
@@ -59,6 +94,53 @@ const MODES: { value: NamingMode; label: string; hint: string }[] = [
  * folha que não traz sigla nenhuma, e o que a identifica está no cabeçalho. O
  * primeiro nível que devolver texto ganha.
  */
+/**
+ * Um limite de página, com um degrau de cada lado.
+ *
+ * O teclado numérico do navegador esconde as setas até o ponteiro chegar em
+ * cima, e em tablet ele não as mostra nunca. Aqui o menos e o mais são parte do
+ * campo: ajustar de uma em uma é o gesto de quem procura onde o layout muda, e
+ * ele não pode depender de digitar.
+ */
+function PageField({ value, placeholder, max, onChange }: {
+  value?: number
+  placeholder: string
+  max: number
+  onChange: (v: number | undefined) => void
+}) {
+  const step = (by: number) => {
+    const base = value ?? (Number(placeholder) || 1)
+    onChange(Math.min(max, Math.max(1, base + by)))
+  }
+  return (
+    <div className="flex h-8 min-w-0 flex-1 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+      <button
+        type="button"
+        onClick={() => step(-1)}
+        className="flex h-full w-7 shrink-0 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Minus className="h-3.5 w-3.5" />
+      </button>
+      <input
+        type="number"
+        min={1}
+        max={max}
+        value={value ?? ""}
+        placeholder={placeholder}
+        onChange={e => onChange(Number(e.target.value) || undefined)}
+        className="h-full min-w-0 flex-1 bg-transparent text-center text-sm tabular-nums outline-none placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      />
+      <button
+        type="button"
+        onClick={() => step(1)}
+        className="flex h-full w-7 shrink-0 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  )
+}
+
 export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
   url: string
   open: boolean
@@ -166,6 +248,11 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
     if (drawing === null) return
     start.current = null
     setDrawing(null)
+  }
+
+  function setRange(i: number, patch: Partial<NamingRegion>) {
+    setLevels(l => tidy(l.map((r, k) => k === i ? { ...r, ...patch } : r), i, pages))
+    setPreview(null)
   }
 
   async function runPreview() {
@@ -366,24 +453,18 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Pages</Label>
                   <div className="flex items-center gap-1.5">
-                    <Input
-                      type="number"
-                      min={1}
-                      max={pages}
-                      value={region.fromPage ?? ""}
+                    <PageField
+                      value={region.fromPage}
                       placeholder="1"
-                      onChange={e => setLevels(l => l.map((r, k) =>
-                        k === i ? { ...r, fromPage: Number(e.target.value) || undefined } : r))}
+                      max={pages}
+                      onChange={v => setRange(i, { fromPage: v })}
                     />
                     <span className="shrink-0 text-xs text-muted-foreground">to</span>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={pages}
-                      value={region.toPage ?? ""}
+                    <PageField
+                      value={region.toPage}
                       placeholder={String(pages)}
-                      onChange={e => setLevels(l => l.map((r, k) =>
-                        k === i ? { ...r, toPage: Number(e.target.value) || undefined } : r))}
+                      max={pages}
+                      onChange={v => setRange(i, { toPage: v })}
                     />
                   </div>
                 </div>
