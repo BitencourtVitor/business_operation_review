@@ -898,21 +898,34 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                   style={{ cursor: "pointer", pointerEvents: "all" }}
                 />
 
-                {/* Quadrado conjugado, encostado na quina esquerda: é uma peça
-                    ao lado da outra, como o botão da linha de pessoa, e não um
-                    enfeite flutuando sobre o desenho. Tamanho de tela, para
-                    continuar do mesmo tamanho em qualquer zoom. */}
+                {/* Etiqueta, e não adesivo por cima: o ícone tem célula
+                    própria e a área marcada continua inteira, do jeito que um
+                    chip separa o ícone do texto. A célula cresce para fora, e
+                    para o lado que sobra: numa área deitada ela entra à
+                    esquerda, numa área em pé ela entra em cima, porque
+                    espremê-la no lado curto taparia o desenho que a marca
+                    existe para apontar. */}
                 {target ? (
                   <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
                     <rect
-                      x={x - badge} y={y}
-                      width={badge} height={Math.min(badge, hgt)}
-                      fill={LINK_COLOR} fillOpacity={0.9}
+                      x={w >= hgt ? x - badge : x}
+                      y={w >= hgt ? y : y - badge}
+                      width={badge} height={badge}
+                      fill={LINK_COLOR} fillOpacity={0.92}
+                      stroke={LINK_COLOR} strokeWidth={1.25 * px}
                     />
-                    <path
-                      d={`M ${x - badge * 0.68} ${y + Math.min(badge, hgt) / 2} h ${badge * 0.36}`}
-                      stroke="#fff" strokeWidth={1.6 * px} strokeLinecap="round"
-                    />
+                    {/* O elo, desenhado em duas metades como o ícone de
+                        corrente: some a corda solta que um traço reto virava. */}
+                    <g
+                      stroke="#fff"
+                      strokeWidth={1.5 * px}
+                      strokeLinecap="round"
+                      fill="none"
+                      transform={`translate(${(w >= hgt ? x - badge : x) + badge / 2} ${(w >= hgt ? y : y - badge) + badge / 2})`}
+                    >
+                      <path d={`M ${-badge * 0.06} ${-badge * 0.16} a ${badge * 0.16} ${badge * 0.16} 0 0 1 ${badge * 0.22} 0 l ${badge * 0.05} ${badge * 0.05} a ${badge * 0.16} ${badge * 0.16} 0 0 1 0 ${badge * 0.22}`} />
+                      <path d={`M ${badge * 0.06} ${badge * 0.16} a ${badge * 0.16} ${badge * 0.16} 0 0 1 ${-badge * 0.22} 0 l ${-badge * 0.05} ${-badge * 0.05} a ${badge * 0.16} ${badge * 0.16} 0 0 1 0 ${-badge * 0.22}`} />
+                    </g>
                   </g>
                 ) : (
                   <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
