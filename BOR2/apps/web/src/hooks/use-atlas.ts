@@ -6,7 +6,7 @@ import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-spli
 import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
-  type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
+  type AtlasDocCategory, type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
 } from "@/services/atlas.service"
 
 const KEY = {
@@ -190,10 +190,12 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, notes, onProgress }: {
+    mutationFn: async ({ file, revision, notes, names, onProgress }: {
       file: File
       revision: string
       notes?: string
+      /** O nome de cada página, quando um gabarito já resolveu a nomenclatura. */
+      names?: Map<number, string>
       onProgress?: (step: "opening" | "uploading" | "splitting" | "confirming", detail?: string) => void
     }) => {
       const contentType = file.type || "application/pdf"
@@ -243,7 +245,10 @@ export function useUploadAtlasVersion(documentId: string) {
           r2Key: byIndex.get(i)?.r2Key ?? "",
           thumbKey: byIndex.get(i)?.thumbKey ?? "",
           byteSize: byIndex.get(i)?.byteSize ?? 0,
-          needsReview: true,
+          // Nomeada pelo gabarito já entra conferida: o nome saiu do desenho, e
+          // foi aprovado na prévia antes de o arquivo subir.
+          sheetNumber: names?.get(i) ?? "",
+          needsReview: !names?.get(i),
         })),
       )
       return confirmed
@@ -426,7 +431,9 @@ export function useCreateDocCategory() {
 export function useUpdateDocCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number; name: string; buildType: string; axis: string; defaultSlot: boolean; axisValues?: string[] }) =>
+    // O corpo é parcial: gravar só o gabarito não pode exigir reenviar nome,
+    // eixo e tipo de obra, que o backend preserva por COALESCE.
+    mutationFn: ({ id, ...body }: { id: number } & Partial<Omit<AtlasDocCategory, "id" | "subcategories">>) =>
       atlasService.updateDocCategory(id, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "doc-categories"] }),
   })

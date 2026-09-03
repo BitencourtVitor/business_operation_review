@@ -8,20 +8,12 @@ import { Input } from "@/components/ui/input"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { useQuery } from "@tanstack/react-query"
 import { PersonRow } from "@/components/atlas/person-row"
-import { Building, Home, MapPin, Search, X } from "lucide-react"
+import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
+import { MapPin, Search, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-const KIND_META: Record<string, { label: string; icon: React.ElementType }> = {
-  building: { label: "Building", icon: Building },
-  house:    { label: "Lot",      icon: Home },
-}
-
-/** O lugar sem o miolo, igual ao cartão da lista. */
-function placeLabel(raw: string): string {
-  const parts = raw.split(",").map(v => v.trim()).filter(Boolean)
-  if (parts.length <= 2) return parts.join(", ")
-  return `${parts[0]}, ${parts[parts.length - 1]}`
-}
+// A tabela de tipos e a regra do lugar vêm do formulário: eram cópias, e um
+// tipo novo aparecia em toda tela menos nesta.
 
 /**
  * Quem vê e quem não vê a obra.

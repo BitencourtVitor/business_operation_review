@@ -37,7 +37,12 @@ export interface AtlasJobsite {
   code: string
   status: "active" | "archived"
   /** Vocabulário do Forecast: lot, building, house. */
-  kind: "lot" | "building" | "house" | "other"
+  /**
+   * Prédio, casa ou painel. "lot" e "other" existiram no começo e não são mais
+   * gravados; o tipo segue aberto porque obra antiga pode ter qualquer um deles,
+   * e a tabela de rótulos cai em casa quando não reconhece.
+   */
+  kind: string
   community: string
   unit: string
   company: string
@@ -69,6 +74,11 @@ export interface AtlasDocCategory {
   subcategories: string[]
   /** As opções que a categoria admite no eixo — 1st…5th, C…M. */
   axisValues: string[]
+  /**
+   * Onde o nome de cada folha está impresso no PDF desta categoria, em fração
+   * da página. O primeiro nível que devolver texto dá o nome.
+   */
+  naming?: { levels: { x0: number; y0: number; x1: number; y1: number; rotation: number; after: string }[] }
 }
 
 export interface AtlasDocument {
@@ -292,7 +302,9 @@ export const atlasService = {
     api.get<AtlasDocCategory[]>(`${base}/doc-categories`, getToken()).then(r => r ?? []),
   createDocCategory: (body: { client: string; buildType: string; name: string; axis: string; defaultSlot?: boolean; jobsiteId?: string }) =>
     api.post<{ id: number }>(`${base}/doc-categories`, body, getToken()),
-  updateDocCategory: (id: number, body: { name: string; buildType: string; axis: string; defaultSlot: boolean; axisValues?: string[] }) =>
+  // Parcial: o backend preserva por COALESCE o que não vier, então gravar só o
+  // gabarito não exige reenviar nome, eixo e tipo de obra.
+  updateDocCategory: (id: number, body: Partial<Omit<AtlasDocCategory, "id" | "subcategories">>) =>
     api.patch(`${base}/doc-categories/${id}`, body, getToken()),
   deleteDocCategory: (id: number) =>
     api.delete(`${base}/doc-categories/${id}`, getToken()),

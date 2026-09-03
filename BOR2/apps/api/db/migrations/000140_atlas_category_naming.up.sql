@@ -1,0 +1,24 @@
+-- Gabarito de nomenclatura da categoria.
+--
+-- Um plan set do MiTek tem 97 páginas e cada uma carrega o próprio nome
+-- impresso: a sigla do painel no rodapé, ou o bundle no cabeçalho quando a
+-- página é do lote e não de uma peça. Nomear isso à mão é digitar noventa e sete
+-- vezes o que o desenho já diz.
+--
+-- O gabarito guarda onde procurar: uma região por nível, em fração da página,
+-- para valer tanto no ofício deste relatório quanto na prancha de 42 polegadas.
+-- Fica na categoria e não no envio, porque o layout é do emissor do documento e
+-- se repete a cada nível novo que chega.
+--
+-- Formato:
+--   {
+--     "levels": [
+--       { "x0":0.55,"y0":0.93,"x1":1.0,"y1":1.0, "rotation":0, "after":"" },
+--       { "x0":0.30,"y0":0.10,"x1":0.70,"y1":0.17,"rotation":0, "after":":" }
+--     ]
+--   }
+-- O primeiro nível que devolver texto ganha; sem nenhum, a folha fica sem nome.
+-- `after` corta o que vier antes do separador, para "Bundle: 1-06-L" virar
+-- "1-06-L". `rotation` atende a prancha com o carimbo escrito de lado.
+ALTER TABLE atlas_doc_category
+  ADD COLUMN IF NOT EXISTS naming JSONB NOT NULL DEFAULT '{}'::jsonb;

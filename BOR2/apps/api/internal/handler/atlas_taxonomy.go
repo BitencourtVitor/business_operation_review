@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -40,6 +41,10 @@ type docCategory struct {
 	// Os valores que a categoria admite no eixo — as opções, e não o que já
 	// virou pasta. É o que a tela precisa mostrar antes da primeira obra.
 	AxisValues []string `json:"axisValues"`
+	// Onde o nome de cada folha está impresso no PDF desta categoria. Mora aqui
+	// porque o layout é de quem emite o documento e se repete a cada envio: o
+	// próximo nível do mesmo relatório sobe nomeado sem remarcar nada.
+	Naming json.RawMessage `json:"naming,omitempty"`
 }
 
 // buildTypeOf normaliza o vocabulário do Forecast para o da taxonomia: lote e
@@ -84,7 +89,7 @@ func slotName(category, axis, value string) string {
 func (h *AtlasHandler) ListDocCategories(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT c.id, c.client, c.build_type, c.name, c.axis, c.position, c.default_slot,
-		       COALESCE(sub.values, '{}'), c.axis_values
+		       COALESCE(sub.values, '{}'), c.axis_values, c.naming
 		FROM atlas_doc_category c
 		LEFT JOIN LATERAL (
 			-- As subcategorias que existem de fato, e não as que caberiam: é o
@@ -103,7 +108,8 @@ func (h *AtlasHandler) ListDocCategories(c *fiber.Ctx) error {
 	out := []docCategory{}
 	for rows.Next() {
 		var d docCategory
-		if err := rows.Scan(&d.ID, &d.Client, &d.BuildType, &d.Name, &d.Axis, &d.Position, &d.DefaultSlot, &d.Subcategories, &d.AxisValues); err != nil {
+		if err := rows.Scan(&d.ID, &d.Client, &d.BuildType, &d.Name, &d.Axis, &d.Position,
+			&d.DefaultSlot, &d.Subcategories, &d.AxisValues, &d.Naming); err != nil {
 			return internalErr(c, err)
 		}
 		out = append(out, d)
@@ -198,13 +204,23 @@ func (h *AtlasHandler) UpdateDocCategory(c *fiber.Ctx) error {
 		values = &clean
 	}
 
+	// O gabarito segue a mesma regra das subcategorias: só é tocado quando vem no
+	// corpo, para um PATCH de renomear não apagar onde o nome da folha é lido.
+	var naming *string
+	if len(in.Naming) > 0 {
+		text := string(in.Naming)
+		naming = &text
+	}
+
 	if _, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_doc_category SET
 			name = $2, build_type = $3, axis = $4, default_slot = $5,
 			axis_values = COALESCE($6, axis_values),
+			naming = COALESCE($7::jsonb, naming),
 			updated_at = now()
 		WHERE id = $1`,
-		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot, values); err != nil {
+		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot, values,
+		naming); err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})

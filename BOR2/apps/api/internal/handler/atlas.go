@@ -416,11 +416,21 @@ func jobsiteName(community, kind, unit string) string {
 // Atlas as duas são a mesma coisa — a taxonomia já tratava assim desde a
 // migração 000135, e deixar o "lot" entrar aqui fazia a obra exibir um terceiro
 // tipo que não existe.
-func atlasKind(forecastType string) string {
-	if strings.EqualFold(strings.TrimSpace(forecastType), "building") {
+// O tipo da obra, vindo do Forecast ou do cadastro manual.
+//
+// O Forecast só conhece prédio e casa, e o que não for prédio lá é casa. O Atlas
+// conhece mais: painel é obra de fábrica, sai da Simpson e vai para a obra de
+// outra empresa, então não é nem uma coisa nem outra. Tipo desconhecido continua
+// caindo em casa, que é o que o Forecast manda na dúvida.
+func atlasKind(kind string) string {
+	switch strings.ToLower(strings.TrimSpace(kind)) {
+	case "building":
 		return "building"
+	case "panels":
+		return "panels"
+	default:
+		return "house"
 	}
-	return "house"
 }
 
 // POST /atlas/jobsites/import — traz as obras escolhidas do Forecast.
@@ -525,6 +535,15 @@ func (h *AtlasHandler) UpdateJobsite(c *fiber.Ctx) error {
 		units = &list
 	}
 
+	// Tipo, comunidade e número entram aqui porque o formulário de edição sempre
+	// os mostrou e o UPDATE os ignorava: trocar o tipo de obra ou corrigir a
+	// comunidade não salvava, e a tela dizia que sim.
+	var kind *string
+	if raw, ok := patch["kind"].(string); ok && strings.TrimSpace(raw) != "" {
+		normalized := atlasKind(raw)
+		kind = &normalized
+	}
+
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_jobsite SET
 			name    = COALESCE($2, name),
@@ -534,16 +553,21 @@ func (h *AtlasHandler) UpdateJobsite(c *fiber.Ctx) error {
 			status  = COALESCE($6, status),
 			floors      = COALESCE($7, floors),
 			unit_labels = COALESCE($8, unit_labels),
+			kind      = COALESCE($9, kind),
+			community = COALESCE($10, community),
+			unit      = COALESCE($11, unit),
 			updated_at = now()
 		WHERE id = $1`,
 		id, strPtr(patch, "name"), strPtr(patch, "address"), strPtr(patch, "client"),
-		strPtr(patch, "code"), strPtr(patch, "status"), floors, units)
+		strPtr(patch, "code"), strPtr(patch, "status"), floors, units,
+		kind, strPtr(patch, "community"), strPtr(patch, "unit"))
 	if err != nil {
 		return internalErr(c, err)
 	}
-	// Mudou andar ou unidade, as vagas novas passam a existir na mesma hora. Só
-	// acrescenta: o que já tem documento anexado não se toca.
-	if floors != nil || units != nil {
+	// Mudou andar, unidade ou tipo, as vagas novas passam a existir na mesma
+	// hora: o tipo decide qual taxonomia a obra segue. Só acrescenta, o que já
+	// tem documento anexado não se toca.
+	if floors != nil || units != nil || kind != nil {
 		userID, _ := actor(c)
 		if _, err := h.seedJobsiteSlots(c.Context(), id, userID); err != nil {
 			return internalErr(c, err)
