@@ -57,6 +57,16 @@ export function placeLabel(raw: string): string {
 
 export type JobsiteKind = keyof typeof KIND_META
 
+/**
+ * Tipos de obra com taxonomia fechada: só as pastas do próprio tipo valem.
+ *
+ * As categorias de build type vazio foram pensadas para obra levantada, onde
+ * Permit Set e Structural Plan valem para casa e prédio igualmente. Num pedido
+ * de fabricação elas não significam nada, e ofereciam seis opções onde existem
+ * duas.
+ */
+export const CLOSED_TAXONOMY = new Set<string>(["panels"])
+
 const EMPTY = {
   community: "", address: "", client: "", unit: "",
   kind: "building" as JobsiteKind,
@@ -134,13 +144,17 @@ function ClientField({ value, onChange, clients }: {
             className="pl-8"
           />
         </PopoverTrigger>
-        {/* O campo do cliente ocupa 30% da linha, e a lista herdava essa
-            largura: nome de construtora não cabe em três palavras truncadas. A
-            âncora vira piso, não teto. */}
+        {/* Largura do campo, e nada além disso: a lista é o campo aberto, não
+            uma janela à parte. Deixá-la crescer com o conteúdo fazia o campo de
+            cliente novo, que ocupa a linha inteira, empurrar a caixa para fora
+            de si mesma.
+
+            `gap-0` porque o padrão do popover separa os filhos, e aqui cada item já
+            tem o próprio respiro: os dois somados dobravam a altura da lista. */}
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="min-w-[max(var(--anchor-width),18rem)] p-1"
+          className="w-(--anchor-width) gap-0 p-1"
         >
           {matches.map(c => (
             <button
@@ -149,7 +163,8 @@ function ClientField({ value, onChange, clients }: {
               onClick={() => pick(c)}
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent"
             >
-              <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              {/* Sem a maleta em cada linha: o campo já a traz como prefixo, e
+                  repeti-la só afasta o nome da borda. */}
               <span className="truncate">{c}</span>
               {c === value && <Check className="ml-auto h-3.5 w-3.5 shrink-0" />}
             </button>
@@ -166,11 +181,12 @@ function ClientField({ value, onChange, clients }: {
           )}
 
           {adding ? (
-            <div className="flex items-center gap-1 border-t border-border/60 p-1 pt-1.5">
+            <div className="mt-1 flex min-w-0 items-center gap-1 border-t border-border/60 pt-1.5">
               <Input
                 autoFocus
+                className="min-w-0 flex-1"
                 value={fresh}
-                placeholder="Tara Construction"
+                placeholder="Client name"
                 onChange={e => setFresh(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === "Enter" && fresh.trim()) pick(fresh.trim())
@@ -191,7 +207,7 @@ function ClientField({ value, onChange, clients }: {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="mt-0.5 flex w-full items-center gap-2 border-t border-border/60 px-2 pb-1.5 pt-2 text-left text-sm text-primary transition-colors hover:bg-accent"
+              className="mt-1 flex w-full items-center gap-2 border-t border-border/60 px-2 pb-1 pt-2 text-left text-sm text-primary transition-colors hover:bg-accent"
             >
               <Plus className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">New client</span>
@@ -323,6 +339,9 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
   editing?: AtlasJobsite | null
 }) {
   const [form, setForm] = useState(EMPTY)
+  // Sem isto, servidor fora do ar ou recusa de permissão davam exatamente a
+  // mesma tela de antes do clique: parecia botão quebrado.
+  const [error, setError] = useState("")
   const [blocked, setBlocked] = useState<string[]>([])
   const [panel, setPanel] = useState(false)
   // Só quem tem a chave do Atlas. Oferecer o cadastro inteiro deixava a tela
@@ -373,6 +392,7 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
 
   function close() {
     onOpenChange(false)
+    setError("")
     setForm(EMPTY)
     setBlocked([])
     setPanel(false)
@@ -380,6 +400,7 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
 
   function submit() {
     if (!form.community.trim()) return
+    setError("")
     const body = {
       name: composeName(form.community, form.kind, form.unit),
       community: form.community.trim(),
@@ -388,25 +409,33 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
       unit: form.unit.trim(),
       kind: form.kind,
     } satisfies Partial<AtlasJobsite>
+    const onError = (e: unknown) =>
+      setError(e instanceof Error ? e.message : "não deu para salvar")
+
     if (editing) {
       atlasService.setBlocked(editing.id, blocked).catch(() => {})
-      update.mutate(body)
+      update.mutate(body, { onError })
     }
-    else create.mutate(body, { onSuccess: close })
+    else create.mutate(body, { onSuccess: close, onError })
   }
 
   return (
     <Dialog open={open} onOpenChange={o => { if (!o) close(); else onOpenChange(true) }}>
       <DialogContent
         className={panel
-          ? "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:w-[820px] sm:max-w-[820px] sm:flex-row sm:[&>[data-slot=dialog-close]]:right-[308px]"
-          : "flex max-h-[85vh] w-[min(92vw,460px)] gap-0 overflow-hidden p-0 sm:max-w-lg sm:flex-row"}
+          // O formulário carrega nome de comunidade e endereço inteiros, que são
+          // linhas longas: em 32rem eles chegavam truncados já na digitação.
+          ? "flex max-h-[85vh] w-[min(94vw,560px)] gap-0 overflow-hidden p-0 sm:w-[920px] sm:max-w-[920px] sm:flex-row sm:[&>[data-slot=dialog-close]]:right-[308px]"
+          : "flex max-h-[85vh] w-[min(94vw,560px)] gap-0 overflow-hidden p-0 sm:max-w-[38rem] sm:flex-row"}
       >
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
         <DialogHeader><DialogTitle>{editing ? "Edit project" : "New project"}</DialogTitle></DialogHeader>
 
         <div className="flex flex-col gap-3">
-          <div className="grid gap-3 sm:grid-cols-[3fr_7fr]">
+          {/* Nome de construtora ocupa mais do que 30% da linha: "Tara
+              Construction" chegava truncado no próprio campo, e o bairro tem
+              largura de sobra para ceder um pedaço. */}
+          <div className="grid gap-3 sm:grid-cols-[2fr_3fr]">
             <ClientField
               value={form.client}
               onChange={v => set({ client: v })}
@@ -470,6 +499,8 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
             <HiddenFromField blocked={blocked} open={panel} onToggle={() => setPanel(v => !v)} />
           )}
         </div>
+
+        {error && <p className="text-xs text-destructive">{error}</p>}
 
         <DialogFooter>
           <Button variant="outline" onClick={close}>Cancel</Button>

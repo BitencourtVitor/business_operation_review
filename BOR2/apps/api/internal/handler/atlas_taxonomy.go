@@ -180,14 +180,24 @@ func (h *AtlasHandler) UpdateDocCategory(c *fiber.Ctx) error {
 	if err != nil {
 		return badRequest(c, "invalid id")
 	}
-	var in docCategory
+	// Campo ausente é campo preservado. Antes o corpo era lido como categoria
+	// inteira e nome vazio virava 400: gravar só o gabarito, que é um PATCH
+	// legítimo de um campo só, era recusado como se fosse categoria sem nome.
+	var in struct {
+		Name        *string         `json:"name"`
+		BuildType   *string         `json:"buildType"`
+		Axis        *string         `json:"axis"`
+		DefaultSlot *bool           `json:"defaultSlot"`
+		AxisValues  []string        `json:"axisValues"`
+		Naming      json.RawMessage `json:"naming"`
+	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
 	}
-	if strings.TrimSpace(in.Name) == "" {
+	if in.Name != nil && strings.TrimSpace(*in.Name) == "" {
 		return badRequest(c, "name is required")
 	}
-	if in.Axis != "none" && in.Axis != "floor" && in.Axis != "unit" {
+	if in.Axis != nil && *in.Axis != "none" && *in.Axis != "floor" && *in.Axis != "unit" {
 		return badRequest(c, "axis must be none, floor or unit")
 	}
 
@@ -212,14 +222,23 @@ func (h *AtlasHandler) UpdateDocCategory(c *fiber.Ctx) error {
 		naming = &text
 	}
 
+	var name *string
+	if in.Name != nil {
+		trimmed := strings.TrimSpace(*in.Name)
+		name = &trimmed
+	}
+
 	if _, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_doc_category SET
-			name = $2, build_type = $3, axis = $4, default_slot = $5,
-			axis_values = COALESCE($6, axis_values),
-			naming = COALESCE($7::jsonb, naming),
+			name         = COALESCE($2, name),
+			build_type   = COALESCE($3, build_type),
+			axis         = COALESCE($4, axis),
+			default_slot = COALESCE($5, default_slot),
+			axis_values  = COALESCE($6, axis_values),
+			naming       = COALESCE($7::jsonb, naming),
 			updated_at = now()
 		WHERE id = $1`,
-		id, strings.TrimSpace(in.Name), in.BuildType, in.Axis, in.DefaultSlot, values,
+		id, name, in.BuildType, in.Axis, in.DefaultSlot, values,
 		naming); err != nil {
 		return internalErr(c, err)
 	}
@@ -260,12 +279,23 @@ func (h *AtlasHandler) seedJobsiteSlots(ctx context.Context, jobsiteID, userID s
 		return 0, fmt.Errorf("jobsite: %w", err)
 	}
 
+	// Obra de painel tem taxonomia fechada: só as pastas dela, e nenhuma nasce
+	// sozinha. As categorias de build type vazio foram pensadas para obra
+	// levantada, e caíam aqui trazendo Permit Set, Plot Plan e Structural Plan
+	// para um pedido de fabricação, onde não significam nada. Aqui a pasta entra
+	// quando alguém a acrescenta, que é como o pedido chega: um relatório de cada
+	// vez.
+	buildType := buildTypeOf(kind)
+	if buildType == "panels" {
+		return 0, nil
+	}
+
 	rows, err := h.db.Query(ctx, `
 		SELECT id, name, axis FROM atlas_doc_category
 		WHERE archived_at IS NULL AND default_slot
 		  AND (client = '' OR lower(client) = lower($1))
 		  AND (build_type = '' OR lower(build_type) = lower($2))
-		ORDER BY position, name`, client, buildTypeOf(kind))
+		ORDER BY position, name`, client, buildType)
 	if err != nil {
 		return 0, err
 	}

@@ -4,7 +4,9 @@ import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
 import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
-import { JobsiteFormDialog, KIND_META } from "@/components/atlas/jobsite-form-dialog"
+import {
+  CLOSED_TAXONOMY, JobsiteFormDialog, KIND_META,
+} from "@/components/atlas/jobsite-form-dialog"
 import { PhotosPanel } from "@/components/atlas/photos-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -68,9 +70,14 @@ function NewDocumentDialog({ jobsiteId, client, kind, usedCategoryIds }: {
   // taxonomia já conhece, ou se cria uma, que fica guardada para as outras
   // obras poderem usar depois.
   const { data: categories = [] } = useAtlasDocCategories()
+  // Tipo fechado só enxerga o que é dele; os demais somam as categorias de
+  // build type vazio, que valem para qualquer obra levantada.
+  const closed = CLOSED_TAXONOMY.has(kind.toLowerCase())
   const available = categories
     .filter(c => !c.client || c.client.toLowerCase() === client.toLowerCase())
-    .filter(c => !c.buildType || c.buildType.toLowerCase() === kind.toLowerCase())
+    .filter(c => closed
+      ? c.buildType.toLowerCase() === kind.toLowerCase()
+      : !c.buildType || c.buildType.toLowerCase() === kind.toLowerCase())
     .filter(c => !usedCategoryIds.has(c.id))
 
   const [mode, setMode] = useState<"pick" | "new">("pick")

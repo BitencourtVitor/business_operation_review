@@ -2,7 +2,7 @@
 
 import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
-import { VersionUpload } from "@/components/atlas/version-upload"
+import { UploadPlanDialog } from "@/components/atlas/upload-plan-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,7 @@ import {
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
-import { ArrowLeft, Check, Download, Images, Layers } from "lucide-react"
+import { ArrowLeft, Check, CloudUpload, Download, Images, Layers } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -136,6 +136,7 @@ export default function DocumentPage() {
 
   const [versionId, setVersionId] = useState("")
   const [openSheet, setOpenSheet] = useState<AtlasSheet | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!versionId && versions?.length) setVersionId(versions[0].id)
@@ -174,83 +175,71 @@ export default function DocumentPage() {
 
   return (
     <>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-          <div className="flex items-start gap-3">
+      {/* Altura da tela, não do conteúdo: quem rola é a lista de folhas, dentro
+          da caixa dela. São 97 cartões, e deixar a página inteira rolar tirava
+          o cabeçalho e o botão de enviar do campo de visão logo no primeiro
+          gesto. */}
+      <div className="mx-auto flex h-full max-w-5xl flex-col gap-6">
+          <div className="flex items-center gap-3">
+            {/* O fio separa sair de estar: sem ele a seta encosta no título e
+                parece parte dele. */}
             <Link
               href={`/atlas/${jobsiteId}`}
-              className="mt-1 text-muted-foreground hover:text-foreground"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title="Back to the jobsite"
             >
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <div className="min-w-0">
-              <h1 className="truncate text-lg font-semibold">{doc?.name ?? "Document"}</h1>
+            <span className="h-9 w-px shrink-0 bg-border" />
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-lg font-semibold leading-tight">{doc?.name ?? "Document"}</h1>
               <p className="truncate text-sm text-muted-foreground">
                 {[jobsite?.name, doc?.discipline].filter(Boolean).join(" · ")}
               </p>
             </div>
+            {canManage && (
+              <Button className="shrink-0" onClick={() => setUploading(true)}>
+                <CloudUpload className="h-4 w-4" />
+                {versions?.length ? "Replace" : "Upload plan set"}
+              </Button>
+            )}
+            {version && version.status !== "pending" && (
+              <Button variant="outline" className="shrink-0" onClick={download}>
+                <Download className="h-3.5 w-3.5" />
+                Download
+              </Button>
+            )}
           </div>
 
-          {/* A categoria vai junto: é nela que o gabarito de nomenclatura
-              fica guardado, e é dela que ele volta no próximo envio. */}
+          {/* A categoria vai junto: é nela que o gabarito de nomenclatura fica
+              guardado, e é dela que ele volta no próximo envio. */}
           {canManage && (
-            <VersionUpload
+            <UploadPlanDialog
               documentId={documentId}
               categoryId={doc?.categoryId ?? undefined}
               naming={categories.find(c => c.id === doc?.categoryId)?.naming}
+              revisionCount={versions?.length ?? 0}
+              open={uploading}
+              onClose={() => setUploading(false)}
             />
           )}
 
-          <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold">Versions</h2>
-            {isLoading ? (
-              <div className="flex h-24 items-center justify-center">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
-              </div>
-            ) : !versions?.length ? (
-              <p className="text-sm text-muted-foreground">
-                No revisions yet. The original PDF is immutable: a new revision is always a new
-                version, never an overwrite.
+          {!isLoading && !versions?.length && (
+            <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
+              <p className="text-sm font-medium">No plan set here yet</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                Upload the PDF and say where each sheet name is printed. The pages become
+                sheets with a preview, named by the drawing itself.
               </p>
-            ) : versions.map(v => {
-              const status = STATUS[v.status]
-              const selected = v.id === versionId
-              return (
-                <div
-                  key={v.id}
-                  className={`flex flex-wrap items-center gap-3 rounded-lg border p-3 transition-colors ${
-                    selected ? "border-primary/50 bg-accent/30" : "border-border/60 bg-card"
-                  }`}
-                >
-                  <button className="min-w-0 flex-1 text-left" onClick={() => setVersionId(v.id)}>
-                    <p className="text-sm font-medium leading-tight">rev {v.revision}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {[bytes(v.byteSize), v.pageCount ? `${v.pageCount} pages` : null,
-                        new Date(v.uploadedAt).toLocaleDateString()].filter(Boolean).join(" · ")}
-                    </p>
-                  </button>
-                  {status && <Badge variant="outline" className={status.className}>{status.label}</Badge>}
-                  {selected && v.status !== "pending" && (
-                    <Button variant="outline" onClick={download}>
-                      <Download className="h-3.5 w-3.5" />
-                      Download
-                    </Button>
-                  )}
-                  {canManage && v.status === "uploaded" && (
-                    <Button onClick={() => publish.mutate(v.id)} disabled={publish.isPending}>
-                      Publish
-                    </Button>
-                  )}
-                </div>
-              )
-            })}
-          </section>
+            </div>
+          )}
 
           {version && (
-            <section className="flex flex-col gap-3">
+            <section className="flex min-h-0 flex-1 flex-col gap-3">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
-                  Plans in rev {version.revision}
+                  Sheets
                 </h2>
                 <div className="flex items-center gap-2">
                   {fillError && (
@@ -275,17 +264,19 @@ export default function DocumentPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                  {sheets.map(s => (
-                    <SheetCard
-                      key={s.id}
-                      sheet={s}
-                      versionId={versionId}
-                      canManage={!!canManage}
-                      thumb={thumbs?.get(s.id)}
-                      onOpen={() => setOpenSheet(s)}
-                    />
-                  ))}
+                <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border/60 bg-muted/20 p-3">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {sheets.map(s => (
+                      <SheetCard
+                        key={s.id}
+                        sheet={s}
+                        versionId={versionId}
+                        canManage={!!canManage}
+                        thumb={thumbs?.get(s.id)}
+                        onOpen={() => setOpenSheet(s)}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </section>

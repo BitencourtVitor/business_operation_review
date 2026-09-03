@@ -685,7 +685,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
     <div className="fixed inset-0 z-50 flex flex-col bg-neutral-900">
       <div
         ref={boxRef}
-        className="relative min-h-0 flex-1 touch-none overflow-hidden"
+        className="relative min-h-0 flex-1 touch-none overflow-hidden bg-neutral-800"
         style={{ cursor }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
