@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
-import { useAtlasAccess, useGrantAtlasAccess, useRevokeAtlasAccess } from "@/hooks/use-atlas"
+import {
+  useAtlasAccess, useGrantAtlasAccess, useNotifyAtlasAccess, useRevokeAtlasAccess,
+} from "@/hooks/use-atlas"
 import { useUsers } from "@/hooks/use-settings"
 import type { AtlasLevel } from "@/services/atlas.service"
-import { ShieldOff, UserPlus } from "lucide-react"
+import { Mail, ShieldOff, UserPlus } from "lucide-react"
 import { useMemo, useState } from "react"
 
 const LEVELS: { value: AtlasLevel; label: string; hint: string }[] = [
@@ -31,6 +33,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
   const { data: users } = useUsers()
   const grant = useGrantAtlasAccess(jobsiteId)
   const revoke = useRevokeAtlasAccess(jobsiteId)
+  const notify = useNotifyAtlasAccess(jobsiteId)
 
   const [userId, setUserId] = useState("")
   const [level, setLevel] = useState<AtlasLevel>("read")
@@ -109,6 +112,24 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
               </Badge>
             )}
             <Badge variant="outline">{LEVEL_LABEL[a.level] ?? a.level}</Badge>
+            {/* Conceder não avisa ninguém. O convite sai daqui, quando o
+                responsável decidir, e a data do último envio fica à vista: sem
+                ela a escolha é entre mandar duas vezes e não mandar por achar
+                que alguém já mandou. */}
+            <Button
+              variant="outline"
+              className="shrink-0"
+              disabled={notify.isPending}
+              onClick={() => notify.mutate(a.userId)}
+              title={a.notifiedAt
+                ? `Invited on ${new Date(a.notifiedAt).toLocaleDateString()}. Send again?`
+                : "Send the invite by e-mail"}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              {a.notifiedAt
+                ? `Invited ${new Date(a.notifiedAt).toLocaleDateString()}`
+                : "Send invite"}
+            </Button>
             <Button
               variant="ghost"
               size="icon"

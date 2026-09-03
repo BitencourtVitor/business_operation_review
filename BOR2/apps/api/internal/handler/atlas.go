@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -26,10 +28,14 @@ import (
 type AtlasHandler struct {
 	db *pgxpool.Pool
 	r2 *service.R2Service
+	// A mesma entrega transacional do resto da plataforma. Pode ser nula em
+	// ambiente sem credencial, e nesse caso o convite recusa em vez de fingir
+	// que saiu.
+	email service.EmailSender
 }
 
-func NewAtlasHandler(db *pgxpool.Pool, r2 *service.R2Service) *AtlasHandler {
-	return &AtlasHandler{db: db, r2: r2}
+func NewAtlasHandler(db *pgxpool.Pool, r2 *service.R2Service, email service.EmailSender) *AtlasHandler {
+	return &AtlasHandler{db: db, r2: r2, email: email}
 }
 
 // ── Permissão por obra ──────────────────────────────────────────────────────
@@ -638,6 +644,9 @@ type atlasAccess struct {
 	GrantedAt string  `json:"grantedAt"`
 	ExpiresAt *string `json:"expiresAt"`
 	RevokedAt *string `json:"revokedAt"`
+	// Quando o convite saiu. Nulo é "nunca avisado", e a tela precisa dessa
+	// diferença: sem ela, quem concede não sabe se manda ou se repete.
+	NotifiedAt *string `json:"notifiedAt"`
 }
 
 // GET /atlas/jobsites/:id/access
@@ -648,7 +657,7 @@ func (h *AtlasHandler) ListAccess(c *fiber.Ctx) error {
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT a.user_id, u.name, u.email, a.level, a.granted_by, a.granted_at,
-		       a.expires_at, a.revoked_at
+		       a.expires_at, a.revoked_at, a.notified_at
 		FROM atlas_jobsite_access a
 		JOIN users u ON u.id = a.user_id
 		WHERE a.jobsite_id = $1
@@ -662,17 +671,100 @@ func (h *AtlasHandler) ListAccess(c *fiber.Ctx) error {
 	for rows.Next() {
 		var a atlasAccess
 		var granted time.Time
-		var expires, revoked *time.Time
+		var expires, revoked, notified *time.Time
 		if err := rows.Scan(&a.UserID, &a.UserName, &a.UserEmail, &a.Level,
-			&a.GrantedBy, &granted, &expires, &revoked); err != nil {
+			&a.GrantedBy, &granted, &expires, &revoked, &notified); err != nil {
 			return internalErr(c, err)
 		}
 		a.GrantedAt = granted.Format(time.RFC3339)
 		a.ExpiresAt = isoOrNil(expires)
 		a.RevokedAt = isoOrNil(revoked)
+		a.NotifiedAt = isoOrNil(notified)
 		out = append(out, a)
 	}
 	return c.JSON(fiber.Map{"data": out})
+}
+
+// O que cada nível deixa fazer, dito para quem vai ler no celular e nunca leu
+// a documentação do sistema.
+var atlasLevelWords = map[string]string{
+	"read":     "open the drawings",
+	"annotate": "open the drawings and mark them",
+	"manage":   "open the drawings, mark them and manage the project",
+}
+
+// POST /atlas/jobsites/:id/access/:userId/notify
+//
+// Avisa a pessoa de que a obra existe para ela.
+//
+// Separado da concessão de propósito. Conceder acontece no meio de outra coisa,
+// muitas vezes em lote, e o convite tem de sair quando o responsável decidir e
+// não quando o clique aconteceu. Guardar a data do envio é o que evita os dois
+// erros do WhatsApp: mandar duas vezes, e não mandar por achar que alguém já
+// mandou.
+func (h *AtlasHandler) NotifyAccess(c *fiber.Ctx) error {
+	id, target := c.Params("id"), c.Params("userId")
+	if err := h.require(c, id, "manage"); err != nil {
+		return atlasForbidden(c)
+	}
+	if h.email == nil {
+		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+			"error": "envio de e-mail não configurado neste ambiente", "code": "EMAIL_NOT_CONFIGURED",
+		})
+	}
+
+	var name, mail, level, jobName, unit, client, address string
+	err := h.db.QueryRow(c.Context(), `
+		SELECT COALESCE(u.name,''), COALESCE(u.email,''), a.level,
+		       COALESCE(j.community, j.name), COALESCE(j.unit,''),
+		       COALESCE(j.client,''), COALESCE(j.address,'')
+		FROM atlas_jobsite_access a
+		JOIN users u ON u.id = a.user_id
+		JOIN atlas_jobsite j ON j.id = a.jobsite_id
+		WHERE a.jobsite_id = $1 AND a.user_id = $2
+		  AND a.revoked_at IS NULL
+		  AND (a.expires_at IS NULL OR a.expires_at > now())`,
+		id, target).Scan(&name, &mail, &level, &jobName, &unit, &client, &address)
+	if err != nil {
+		return atlasNotFound(c, "acesso")
+	}
+	if mail == "" {
+		return badRequest(c, "this person has no e-mail on file")
+	}
+
+	base := strings.TrimRight(os.Getenv("PLATFORM_URL"), "/")
+	if base == "" {
+		base = "https://pg-dip.up.railway.app"
+	}
+
+	body := service.BuildAtlasInviteEmail(service.AtlasInvite{
+		PersonName: name,
+		JobSite:    jobName,
+		Unit:       unit,
+		Client:     client,
+		Address:    address,
+		LevelLabel: atlasLevelWords[level],
+		URL:        fmt.Sprintf("%s/atlas/%s", base, id),
+	})
+
+	if _, err := h.email.Send(c.Context(), service.EmailMessage{
+		To: []string{mail}, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
+	}); err != nil {
+		return internalErr(c, err)
+	}
+
+	// A data só entra depois do envio dar certo: marcar antes transformaria uma
+	// falha de entrega em "já foi avisado", que é o pior dos dois mundos.
+	var notified time.Time
+	if err := h.db.QueryRow(c.Context(), `
+		UPDATE atlas_jobsite_access SET notified_at = now()
+		 WHERE jobsite_id = $1 AND user_id = $2
+		 RETURNING notified_at`, id, target).Scan(&notified); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"notifiedAt": notified.Format(time.RFC3339), "email": mail,
+	}})
 }
 
 // PUT /atlas/jobsites/:id/access/:userId

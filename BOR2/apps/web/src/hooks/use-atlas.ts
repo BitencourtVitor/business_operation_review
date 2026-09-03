@@ -284,6 +284,14 @@ export function useUploadAtlasVersion(documentId: string) {
   })
 }
 
+export function useNotifyAtlasAccess(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => atlasService.notifyAccess(jobsiteId, userId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "access", jobsiteId] }),
+  })
+}
+
 export function useRenameAtlasSheets(versionId: string) {
   const qc = useQueryClient()
   return useMutation({

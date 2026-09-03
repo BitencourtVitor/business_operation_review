@@ -153,7 +153,7 @@ func main() {
 	// Atlas — o storage é opcional na subida: sem as variáveis do R2 o serviço
 	// continua de pé e é o Atlas que responde 503, não a API inteira.
 	r2Service := service.NewR2Service(cfg.R2.Endpoint, cfg.R2.Bucket, cfg.R2.AccessKey, cfg.R2.SecretKey)
-	atlasHandler := handler.NewAtlasHandler(db, r2Service)
+	atlasHandler := handler.NewAtlasHandler(db, r2Service, emailSender)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -671,6 +671,7 @@ func main() {
 	atlas.Get("/jobsites/:id/access", atlasHandler.ListAccess)
 	atlas.Put("/jobsites/:id/access/:userId", atlasHandler.GrantAccess)
 	atlas.Delete("/jobsites/:id/access/:userId", atlasHandler.RevokeAccess)
+	atlas.Post("/jobsites/:id/access/:userId/notify", atlasHandler.NotifyAccess)
 	atlas.Get("/blockable-users", atlasHandler.ListBlockableUsers)
 	atlas.Get("/jobsites/:id/blocked", atlasHandler.ListBlocked)
 	atlas.Put("/jobsites/:id/blocked", atlasHandler.SetBlocked)
