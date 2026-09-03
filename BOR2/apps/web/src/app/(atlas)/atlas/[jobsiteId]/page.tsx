@@ -53,12 +53,15 @@ function when(iso: string) {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const days = Math.round((today.getTime() - day.getTime()) / 86400000)
-  if (days === 0) return "today"
-  if (days === 1) return "yesterday"
-  return date.toLocaleDateString(undefined, {
-    month: "short", day: "numeric",
-    year: date.getFullYear() === now.getFullYear() ? undefined : "numeric",
-  })
+  // Maiúscula como qualquer data: "Sep 3" começa com maiúscula, e "yesterday"
+  // ao lado dele parecia sobra de frase.
+  if (days === 0) return "Today"
+  if (days === 1) return "Yesterday"
+  // Data cheia, em números, e sempre com o ano: mês por extenso encurtava a
+  // coluna mas obrigava a traduzir "Sep" na cabeça, e sem o ano um set de
+  // janeiro passado se confundia com o deste ano.
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()}`
 }
 
 const AXIS_OPTIONS = [
@@ -264,27 +267,32 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
             quem pôs. Contagem e número de revisão saíram porque só a última
             vale, e a categoria repetia o nome da pasta. */}
         {!!doc?.sheets && (
-          <span className="hidden items-center gap-3 text-xs text-muted-foreground sm:flex">
+          <span className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
             <span className="flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" />
               {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
             </span>
-            {when(doc.uploadedAt) && (
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5" />
-                {when(doc.uploadedAt)}
-              </span>
-            )}
-            {doc.uploadedBy && (() => {
-              const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
-              const RoleIcon = role.icon
-              return (
-                <span className="flex items-center gap-1.5">
-                  <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
-                  {doc.uploadedBy.split(" ")[0]}
+            {/* Quem pôs em cima e quando embaixo: é uma informação só, a
+                procedência, e ela se lê de uma vez em vez de virar três blocos
+                soltos na mesma linha. */}
+            <span className="flex flex-col items-end gap-0.5 leading-none">
+              {doc.uploadedBy && (() => {
+                const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
+                const RoleIcon = role.icon
+                return (
+                  <span className="flex items-center gap-1.5 font-medium text-foreground/80">
+                    <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
+                    {doc.uploadedBy.split(" ")[0]}
+                  </span>
+                )
+              })()}
+              {when(doc.uploadedAt) && (
+                <span className="flex items-center gap-1.5 text-muted-foreground/80">
+                  <CalendarDays className="h-3 w-3" />
+                  {when(doc.uploadedAt)}
                 </span>
-              )
-            })()}
+              )}
+            </span>
           </span>
         )}
         {!doc && <Badge variant="outline" className="text-muted-foreground">Missing</Badge>}
