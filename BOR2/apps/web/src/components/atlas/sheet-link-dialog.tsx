@@ -31,9 +31,14 @@ export function SheetLinkDialog({ jobsiteId, open, onClose, onPick }: {
   const [docId, setDocId] = useState("")
   const [query, setQuery] = useState("")
 
-  const { data: versions } = useAtlasVersions(docId)
+  // São duas buscas em fila: a pasta devolve a versão, e a versão devolve as
+  // folhas. Entre uma e outra a tela ficava com a lista vazia e sem sinal de
+  // nada, e uma lista vazia que não diz "estou buscando" se lê como travada.
+  const { data: versions, isLoading: loadingVersions } = useAtlasVersions(docId)
   const versionId = versions?.[0]?.id ?? ""
-  const { data: sheets, isLoading } = useAtlasSheets(versionId)
+  const { data: sheets, isLoading: loadingSheets } = useAtlasSheets(versionId)
+  const loading = !!docId && (loadingVersions || (!versionId && !versions) || loadingSheets)
+  const semPlanSet = !!docId && !loadingVersions && !versionId
 
   const doc = documents.find(d => d.id === docId)
   const withPlans = documents.filter(d => d.sheets > 0)
@@ -96,16 +101,28 @@ export function SheetLinkDialog({ jobsiteId, open, onClose, onPick }: {
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search by name or page"
                 className="pl-8"
+                disabled={loading}
               />
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
-              {isLoading && (
-                <div className="flex h-24 items-center justify-center">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              {loading && (
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-xs">Loading the sheets…</span>
                 </div>
               )}
-              {shown.map(s => (
+              {semPlanSet && (
+                <p className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
+                  This folder has no plan set yet.
+                </p>
+              )}
+              {!loading && !semPlanSet && shown.length === 0 && (
+                <p className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
+                  No sheet matches this search.
+                </p>
+              )}
+              {!loading && shown.map(s => (
                 <button
                   key={s.id}
                   type="button"
