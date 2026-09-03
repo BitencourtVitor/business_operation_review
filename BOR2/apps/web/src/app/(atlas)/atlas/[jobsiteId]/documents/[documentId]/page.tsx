@@ -16,7 +16,7 @@ import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft, Check, CloudUpload, Download, Images, Layers, ScanText } from "lucide-react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 const STATUS: Record<string, { label: string; className: string }> = {
@@ -162,8 +162,21 @@ export default function DocumentPage() {
     if (!versionId && versions?.length) setVersionId(versions[0].id)
   }, [versions, versionId])
 
+
   const { data: sheets } = useAtlasSheets(versionId)
   const { data: thumbs, refetch: refetchThumbs } = useAtlasThumbs(versionId)
+  // Chegar direto numa folha, que é o outro lado do vínculo desenhado na
+  // prancha: sem isto o link entre pastas abriria a lista e devolveria a
+  // procura para quem clicou justamente para não procurar.
+  const wanted = useSearchParams().get("sheet")
+  const [jumped, setJumped] = useState("")
+  useEffect(() => {
+    if (!wanted || jumped === wanted || !sheets?.length) return
+    const target = sheets.find(s => s.id === wanted)
+    if (!target) return
+    setOpenSheet(target)
+    setJumped(wanted)
+  }, [wanted, jumped, sheets])
   const { data: categories = [] } = useAtlasDocCategories()
   const qc = useQueryClient()
   // Prévias que faltam: as folhas cortadas antes de a miniatura existir. O

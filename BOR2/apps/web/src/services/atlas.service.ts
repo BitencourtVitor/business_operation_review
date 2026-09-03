@@ -164,14 +164,29 @@ export interface AtlasSheet {
 // Pontos normalizados (0..1) em relação à página, para o traço acompanhar
 // qualquer zoom sem depender da resolução em que a folha foi renderizada.
 export interface AtlasStrokeGeometry {
-  points: [number, number][]
+  /** Traço: a sequência de pontos em fração da página. */
+  points?: [number, number][]
+  /** Vínculo: onde a bolha foi posta, e para onde ela leva. */
+  x?: number
+  y?: number
+  target?: AtlasLinkTarget
+}
+
+/** Para onde um vínculo aponta. O nome viaja junto para a bolha na prancha
+ *  poder dizer o destino sem buscar nada. */
+export interface AtlasLinkTarget {
+  documentId: string
+  documentName: string
+  sheetId: string
+  sheetName: string
+  pageIndex: number
 }
 
 export interface AtlasAnnotation {
   id: string
   sheetId: string
   authorId: string
-  tool: "pen" | "highlighter"
+  tool: "pen" | "highlighter" | "link"
   color: string
   width: number
   opacity: number
