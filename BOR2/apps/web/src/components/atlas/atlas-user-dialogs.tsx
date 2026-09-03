@@ -19,6 +19,31 @@ export function isSubcontractor(user: { permissions?: Record<string, string> }) 
   return !!user.permissions?.[SUBCONTRACTOR_KEY]
 }
 
+/**
+ * O que um subcontratado pode, e não é negociável.
+ *
+ * O cargo é o perfil: não se concede permissão a subcontratado uma a uma, como
+ * se faz com gente da casa, porque cada exceção vira uma pessoa de fora com um
+ * poder que ninguém lembra de ter dado. Ele entra para trabalhar na obra que
+ * lhe couber e é isso.
+ *
+ * - **Documents** em escrita: abre o set e anota, o dele e o dos outros. É o
+ *   motivo de ele estar aqui.
+ * - **Photos** em escrita: vê o que já existe e registra o que fez.
+ * - **Tasks** em escrita: pendência de obra é conversa de duas pontas.
+ * - **Diary** em leitura: o diário é a versão da Premium sobre o dia, e ela não
+ *   se escreve a quatro mãos.
+ * - **Nada de acesso**: quem é convidado não convida.
+ */
+export const SUBCONTRACTOR_PERMISSIONS = {
+  atlas: "read",
+  [SUBCONTRACTOR_KEY]: "read",
+  atlas_documents: "write",
+  atlas_photos: "write",
+  atlas_tasks: "write",
+  atlas_diary: "read",
+} as const satisfies Record<string, "read" | "write">
+
 const inputCls =
   "h-8 w-full rounded-lg border border-input bg-transparent px-3 py-0 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 

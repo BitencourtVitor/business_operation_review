@@ -2,6 +2,7 @@ package handler
 
 import (
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -118,6 +119,64 @@ func (h *AtlasHandler) ListBlockableUsers(c *fiber.Ctx) error {
 			return internalErr(c, err)
 		}
 		out = append(out, u)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// ── O que uma pessoa enxerga ────────────────────────────────────────────────
+
+type atlasUserJobsite struct {
+	JobsiteID string `json:"jobsiteId"`
+	Name      string `json:"name"`
+	Community string `json:"community"`
+	Unit      string `json:"unit"`
+	Client    string `json:"client"`
+	Kind      string `json:"kind"`
+	Status    string `json:"status"`
+	Level     string `json:"level"`
+	GrantedAt string `json:"grantedAt"`
+}
+
+// GET /atlas/users/:id/jobsites
+//
+// As obras que foram compartilhadas com esta pessoa. Existe para o
+// subcontratado, que nasce sem ver nada: quem concede precisa poder conferir o
+// que o outro lado enxerga sem ter de abrir obra por obra e procurar o nome
+// dele na lista de acesso.
+//
+// Devolve só concessão viva. Linha revogada ou vencida não é "acesso com
+// ressalva", é ausência de acesso, e mostrá-la aqui faria a tela prometer o que
+// o portão nega.
+func (h *AtlasHandler) UserJobsites(c *fiber.Ctx) error {
+	role, _ := c.Locals("userRole").(string)
+	if !atlasFullAccess[role] {
+		return atlasForbidden(c)
+	}
+	rows, err := h.db.Query(c.Context(), `
+		SELECT j.id, j.name, COALESCE(j.community,''), COALESCE(j.unit,''),
+		       COALESCE(j.client,''), COALESCE(j.kind,''), COALESCE(j.status,''),
+		       a.level, a.granted_at
+		FROM atlas_jobsite_access a
+		JOIN atlas_jobsite j ON j.id = a.jobsite_id
+		WHERE a.user_id = $1
+		  AND a.revoked_at IS NULL
+		  AND (a.expires_at IS NULL OR a.expires_at > now())
+		ORDER BY j.community, j.unit, j.name`, c.Params("id"))
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer rows.Close()
+
+	out := []atlasUserJobsite{}
+	for rows.Next() {
+		var j atlasUserJobsite
+		var granted time.Time
+		if err := rows.Scan(&j.JobsiteID, &j.Name, &j.Community, &j.Unit, &j.Client,
+			&j.Kind, &j.Status, &j.Level, &granted); err != nil {
+			return internalErr(c, err)
+		}
+		j.GrantedAt = granted.Format(time.RFC3339)
+		out = append(out, j)
 	}
 	return c.JSON(fiber.Map{"data": out})
 }
