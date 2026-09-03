@@ -1374,6 +1374,52 @@ func (h *AtlasHandler) VersionThumbs(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": out})
 }
 
+// PUT /atlas/versions/:id/names
+//
+// Aplica o gabarito às folhas que já existem.
+//
+// Nomear deixou de ser etapa do envio: o set sobe, as folhas nascem, e o nome
+// vem depois, quando alguém sentar para marcar onde ele está impresso. Sem esta
+// rota isso seria uma chamada por folha, 97 requisições para um relatório de
+// produção, ou um `replaceSheets` que reescreveria os recortes já subidos.
+func (h *AtlasHandler) RenameSheets(c *fiber.Ctx) error {
+	versionID := c.Params("id")
+	var body struct {
+		Names []struct {
+			PageIndex   int    `json:"pageIndex"`
+			SheetNumber string `json:"sheetNumber"`
+		} `json:"names"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return badRequest(c, "invalid body")
+	}
+
+	tx, err := h.db.Begin(c.Context())
+	if err != nil {
+		return internalErr(c, err)
+	}
+	defer tx.Rollback(c.Context())
+
+	for _, n := range body.Names {
+		// Nome vazio não apaga o que estava: o gabarito que não achou nada numa
+		// página não é motivo para perder o nome que alguém digitou à mão ali.
+		if strings.TrimSpace(n.SheetNumber) == "" {
+			continue
+		}
+		if _, err := tx.Exec(c.Context(), `
+			UPDATE atlas_sheet
+			   SET sheet_number = $3, needs_review = false, updated_at = now()
+			 WHERE version_id = $1 AND page_index = $2`,
+			versionID, n.PageIndex, strings.TrimSpace(n.SheetNumber)); err != nil {
+			return internalErr(c, err)
+		}
+	}
+	if err := tx.Commit(c.Context()); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"named": len(body.Names)}})
+}
+
 // GET /atlas/sheets/:id/url — o PDF de uma página só.
 //
 // Cai no original quando a página ainda não foi recortada: versão antiga, ou

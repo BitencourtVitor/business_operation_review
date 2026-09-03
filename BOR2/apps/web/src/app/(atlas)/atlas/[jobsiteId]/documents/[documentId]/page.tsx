@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
-  usePublishAtlasVersion, useUpdateAtlasSheet, useUploadAtlasVersion,
+  usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
+import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
+import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
-import { ArrowLeft, Check, CloudUpload, Download, Images, Layers } from "lucide-react"
+import { ArrowLeft, Check, CloudUpload, Download, Images, Layers, ScanText } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -147,6 +149,15 @@ export default function DocumentPage() {
   const [sending, setSending] = useState<{ done: number; total: number } | null>(null)
   const [sendError, setSendError] = useState("")
 
+  // Nomear é etapa à parte do envio, e pode acontecer dias depois: o set sobe,
+  // as folhas nascem numeradas por página, e o gabarito entra quando alguém
+  // sentar para marcar onde o nome está impresso. Enquanto isso não acontece a
+  // página diz que está pendente em vez de fingir que terminou.
+  const [naming, setNaming] = useState(false)
+  const [namingUrl, setNamingUrl] = useState("")
+  const [applying, setApplying] = useState("")
+  const [namingError, setNamingError] = useState("")
+
   useEffect(() => {
     if (!versionId && versions?.length) setVersionId(versions[0].id)
   }, [versions, versionId])
@@ -176,6 +187,44 @@ export default function DocumentPage() {
     }
   }
   const version = versions?.find(v => v.id === versionId)
+  const rename = useRenameAtlasSheets(versionId)
+  const updateCategory = useUpdateDocCategory()
+  const unnamed = (sheets ?? []).filter(s => !s.sheetNumber).length
+
+  async function openNaming() {
+    setNamingError("")
+    try {
+      // O gabarito se marca sobre o original, não sobre o recorte: é ali que
+      // estão todas as páginas, e é o mesmo arquivo que a leitura vai varrer.
+      const { url } = await atlasService.versionDownloadUrl(versionId)
+      setNamingUrl(url)
+      setNaming(true)
+    } catch (e) {
+      setNamingError(e instanceof Error ? e.message : "could not open the plan set")
+    }
+  }
+
+  async function applyNaming(template: NamingTemplate) {
+    setNaming(false)
+    setNamingError("")
+    setApplying("0")
+    try {
+      const names = await readPageNames(namingUrl, template,
+        (done, total) => setApplying(`${done}/${total}`))
+      await rename.mutateAsync(
+        names.filter(n => n.name).map(n => ({ pageIndex: n.pageIndex, sheetNumber: n.name })),
+      )
+      // Guardado na categoria: o próximo envio do mesmo relatório já sobe
+      // nomeado, sem ninguém remarcar nada.
+      if (doc?.categoryId) {
+        updateCategory.mutate({ id: doc.categoryId, naming: template }, { onError: () => {} })
+      }
+    } catch (e) {
+      setNamingError(e instanceof Error ? e.message : "could not read the names")
+    } finally {
+      setApplying("")
+    }
+  }
 
   function startUpload(file: File, names?: Map<number, string>) {
     setPreviews(new Map())
@@ -272,6 +321,42 @@ export default function DocumentPage() {
                 sheets with a preview, named by the drawing itself.
               </p>
             </div>
+          )}
+
+          {canManage && !!sheets?.length && (unnamed > 0 || namingError) && (
+            <div className="flex shrink-0 items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2.5">
+              <ScanText className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span className="min-w-0 flex-1 text-sm">
+                {namingError ? (
+                  <span className="text-destructive">{namingError}</span>
+                ) : (
+                  <>
+                    <span className="font-medium">Naming pending</span>
+                    <span className="text-muted-foreground">
+                      {" · "}{unnamed} of {sheets.length} sheets still go by page number
+                    </span>
+                  </>
+                )}
+              </span>
+              <Button
+                variant="outline"
+                className="shrink-0"
+                disabled={!!applying}
+                onClick={openNaming}
+              >
+                {applying ? `Reading ${applying}` : "Set up naming"}
+              </Button>
+            </div>
+          )}
+
+          {canManage && namingUrl && (
+            <NamingTemplateDialog
+              url={namingUrl}
+              open={naming}
+              initial={categories.find(c => c.id === doc?.categoryId)?.naming}
+              onClose={() => setNaming(false)}
+              onSave={applyNaming}
+            />
           )}
 
           {version && (

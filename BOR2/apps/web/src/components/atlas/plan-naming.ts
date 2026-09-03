@@ -21,21 +21,39 @@ export interface NamingRegion {
    */
   rotation: number
   /**
-   * De qual página até qual página este nível vale, contando a partir de 1 e
-   * incluindo as duas pontas. Vazio vale para o arquivo inteiro.
-   *
-   * Existe porque nem sempre o que separa os tipos de folha é o que está
-   * impresso: às vezes é a posição no arquivo. Num relatório de produção as 18
-   * primeiras páginas trazem o código no cabeçalho e as demais no rodapé, e sem
-   * a faixa isso vira uma disputa de precedência entre dois níveis lendo o
-   * mesmo lugar.
+   * De qual página até qual página esta faixa vale, contando a partir de 1 e
+   * incluindo as duas pontas. Só no modo `ranges`.
    */
   fromPage?: number
   toPage?: number
 }
 
+/**
+ * Como o arquivo está organizado, que é a pergunta que decide tudo o mais.
+ *
+ * `layout`: o documento inteiro segue o mesmo desenho, e o que muda é o tipo de
+ * folha. Marca-se um lugar, e um segundo para quem não tem o primeiro; vale
+ * precedência, o primeiro que devolver texto dá o nome. É o caso do plan set de
+ * uma casa, onde toda prancha tem carimbo no mesmo canto.
+ *
+ * `ranges`: o arquivo é a emenda de vários relatórios, e cada trecho tem o nome
+ * impresso em outro lugar. Da página 1 à 10 num canto, da 11 à 20 noutro, e
+ * assim por diante, quantos trechos forem precisos. Não há precedência: a
+ * página pertence a uma faixa, e é ela quem responde.
+ *
+ * Os dois existem porque são perguntas diferentes. Deixar as faixas como campo
+ * opcional dos níveis misturava as duas e obrigava a pensar em precedência num
+ * arquivo onde ela não significa nada.
+ */
+export type NamingMode = "layout" | "ranges"
+
 export interface NamingTemplate {
-  /** Em ordem de precedência: o primeiro que devolver texto dá o nome. */
+  /** Ausente vale como `layout`, que é como todo gabarito existente foi feito. */
+  mode?: NamingMode
+  /**
+   * No modo `layout`, em ordem de precedência. No modo `ranges`, um por trecho
+   * do arquivo, cada um com a faixa de páginas dele.
+   */
   levels: NamingRegion[]
 }
 
@@ -212,10 +230,12 @@ export async function readPageNames(
     }).getTextContent()
 
     const reads = template.levels.map(region => {
-      // Fora da faixa o nível simplesmente não opina, e a decisão passa ao
-      // seguinte como se ele não existisse.
-      if (region.fromPage && n < region.fromPage) return ""
-      if (region.toPage && n > region.toPage) return ""
+      // Por faixa, a página pertence a um trecho e os outros não opinam. Por
+      // layout, a faixa não existe e todos concorrem por precedência.
+      if (template.mode === "ranges") {
+        if (region.fromPage && n < region.fromPage) return ""
+        if (region.toPage && n > region.toPage) return ""
+      }
       let found = ""
       for (const item of content.items) {
         if (!item.str?.trim()) continue

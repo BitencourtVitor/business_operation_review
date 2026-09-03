@@ -129,7 +129,10 @@ export function UploadPlanDialog({
               </span>
             </Button>
 
-            {/* 2. Onde o nome de cada folha está impresso. */}
+            {/* 2. Onde o nome de cada folha está impresso. Opcional: dá para
+                subir agora e nomear depois, na própria pasta, que é o caminho
+                de quem recebeu o arquivo e ainda não sabe como ele é
+                organizado. */}
             <Button
               variant="outline"
               className="h-auto justify-start py-3"
@@ -138,12 +141,12 @@ export function UploadPlanDialog({
             >
               <ScanText className="h-4 w-4" />
               <span className="flex min-w-0 flex-col items-start">
-                <span>{template?.levels?.length ? "Naming marked" : "Mark the naming"}</span>
+                <span>{template?.levels?.length ? "Naming marked" : "Mark the naming (optional)"}</span>
                 <span className="text-xs font-normal text-muted-foreground">
                   {reading ? `Reading the sheets ${reading}`
                     : names ? `${names.size} sheets named by the template`
                     : template?.levels?.length ? "Tap to check or redo it"
-                    : "Where each sheet name is printed"}
+                    : "Skip it and the sheets go by page number until you name them"}
                 </span>
               </span>
               {!!names?.size && !reading && (

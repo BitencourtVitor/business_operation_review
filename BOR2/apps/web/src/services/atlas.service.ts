@@ -361,6 +361,11 @@ export const atlasService = {
     api.get<AtlasSheet[]>(`${base}/versions/${versionId}/sheets`, getToken()).then(r => r ?? []),
   replaceSheets: (versionId: string, sheets: Partial<AtlasSheet>[]) =>
     api.put(`${base}/versions/${versionId}/sheets`, { sheets }, getToken()),
+  // Aplica o gabarito às folhas que já existem. Uma chamada, não uma por
+  // folha: um relatório de produção tem 97.
+  renameSheets: (versionId: string, names: { pageIndex: number; sheetNumber: string }[]) =>
+    api.put(`${base}/versions/${versionId}/names`, { names }, getToken()),
+
   planUploadUrls: (versionId: string, pageIndexes: number[]) =>
     api.post<PlanUploadTicket[]>(
       `${base}/versions/${versionId}/plan-uploads`, { pageIndexes }, getToken(),
