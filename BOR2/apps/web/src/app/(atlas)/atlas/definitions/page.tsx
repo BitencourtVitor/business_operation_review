@@ -65,11 +65,13 @@ const SORTABLE = [
 
 type SortKey = (typeof SORTABLE)[number]["key"]
 
-const BUILD_LABEL: Record<string, string> = {
-  "": "Any",
-  building: "Building",
-  house: "House",
-}
+// Derivado do próprio catálogo em vez de reescrito à mão: era uma cópia, e a
+// cópia esqueceu de painel, então a tabela mostrava "panels" cru enquanto o
+// formulário logo acima dizia "Building Panels". Tipo novo agora aparece nos
+// dois lugares sem ninguém lembrar de nada.
+const BUILD_LABEL: Record<string, string> = Object.fromEntries(
+  BUILD_TYPES.map(t => [t.value, t.value === "" ? "Any" : t.label]),
+)
 
 // O campo tem a mesma caixa da etiqueta que ele substitui, para a linha não
 // pular de altura enquanto se digita.
@@ -136,7 +138,7 @@ export default function AtlasDefinitionsPage() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     const base = !q ? rows : rows.filter(r =>
-      [r.buildType, r.name, AXIS_LABEL[r.axis]]
+      [r.buildType, BUILD_LABEL[r.buildType] ?? "", r.name, AXIS_LABEL[r.axis]]
         .some(v => String(v ?? "").toLowerCase().includes(q)))
     if (!sortKey) return base
     const label = (r: (typeof base)[number]) =>
