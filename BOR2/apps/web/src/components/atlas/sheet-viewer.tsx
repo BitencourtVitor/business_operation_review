@@ -910,7 +910,17 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               // Resolvido, o toque não salta: ele abre a janelinha com o nome do
               // destino. Saltar direto tirava a folha do lugar sem avisar, e
               // quem tocou por engano não sabia de onde tinha vindo.
-              if (target) setPeek({ x: e.clientX, y: e.clientY, target })
+              // Ancorada na etiqueta, e não no dedo: a janela é sobre aquele
+              // vínculo, então ela nasce sempre no mesmo lugar em relação a
+              // ele. Presa ao toque, ela pulava de posição conforme o canto em
+              // que a pessoa acertava, e a mesma marca abria a janela em cinco
+              // lugares diferentes.
+              const tag = (e.currentTarget as SVGGraphicsElement).closest("g")?.getBoundingClientRect()
+              if (target) {
+                setPeek(tag
+                  ? { x: tag.left + tag.width / 2, y: tag.top, target }
+                  : { x: e.clientX, y: e.clientY, target })
+              }
               else if (canAnnotate) setLinking(a.id)
             }
 
@@ -1453,8 +1463,9 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <>
           <div className="fixed inset-0 z-40" onPointerDown={() => setPeek(null)} />
           <div
-            className="fixed z-50 flex items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/95 px-2.5 py-2 text-white shadow-xl backdrop-blur"
-            style={{ left: Math.max(12, peek.x - 90), top: Math.max(12, peek.y - 56) }}
+            className="fixed z-50 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/95 px-2.5 py-2 text-white shadow-xl backdrop-blur"
+            // Centrada na etiqueta e um respiro acima dela.
+            style={{ left: peek.x, top: Math.max(64, peek.y - 10) }}
           >
             <span className="max-w-56 truncate text-sm">
               <span className="text-white/50">{peek.target.documentName} · </span>
