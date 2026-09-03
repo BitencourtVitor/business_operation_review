@@ -229,6 +229,15 @@ function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
   )
 }
 
+/**
+ * As etiquetas de um documento, sempre uma lista.
+ *
+ * A API velha não devolvia o campo, e durante um deploy as duas versões
+ * convivem: a tela precisa aguentar receber um documento sem `tags` sem quebrar
+ * a sala inteira.
+ */
+const tagsOf = (d: AtlasDocument) => d.tags ?? []
+
 /** "3rd Floor Trusses", "C Unit Cabinet Layout", ou só "Permit Set". */
 function tagLabel(t: { category?: string; name?: string; subcategory: string; axis: string }) {
   const name = t.category ?? t.name ?? ""
@@ -251,7 +260,7 @@ function TagDialog({ jobsiteId, doc, slots, onClose }: {
   const [picked, setPicked] = useState<string[]>([])
 
   useEffect(() => {
-    if (doc) setPicked(doc.tags.map(t => `${t.categoryId}:${t.subcategory}`))
+    if (doc) setPicked(tagsOf(doc).map(t => `${t.categoryId}:${t.subcategory}`))
   }, [doc])
 
   function save() {
@@ -322,7 +331,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
 
   const docs = documents ?? []
   const shown = filter
-    ? docs.filter(d => d.tags.some(t => `${t.categoryId}:${t.subcategory}` === filter))
+    ? docs.filter(d => tagsOf(d).some(t => `${t.categoryId}:${t.subcategory}` === filter))
     : docs
 
   // Documento novo nasce do arquivo: cria a linha com o nome e as etiquetas, e
@@ -428,9 +437,9 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                       {doc.name}
                     </span>
                     <span className="mt-1 flex flex-wrap items-center gap-1">
-                      {doc.tags.length === 0 ? (
+                      {tagsOf(doc).length === 0 ? (
                         <span className="text-xs text-muted-foreground">No category</span>
-                      ) : doc.tags.map(t => (
+                      ) : tagsOf(doc).map(t => (
                         <Badge
                           key={`${t.categoryId}:${t.subcategory}`}
                           variant="outline"
