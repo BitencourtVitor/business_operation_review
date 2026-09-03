@@ -3,12 +3,43 @@
 import { loadPdf } from "@/components/atlas/pdf-page"
 
 export interface TextHit {
-  /** Retângulo na coordenada da página, origem no canto superior esquerdo. */
+  /** Início do trecho, na coordenada da página, com origem no canto superior esquerdo. */
   x: number
   y: number
   width: number
   height: number
+  /** Giro do texto em graus, no sentido da tela. Carimbo e legenda vêm a 90. */
+  angle: number
+  /** Meio do trecho, para levar a prancha até ele sem recalcular o giro. */
+  cx: number
+  cy: number
 }
+
+/**
+ * Régua para medir a fatia de um trecho.
+ *
+ * O PDF entrega a largura do trecho inteiro e mais nada, então achar onde uma
+ * palavra começa dentro dele é conta nossa. Dividir a largura pelo número de
+ * letras supõe que todas ocupam o mesmo, o que não vale em fonte proporcional:
+ * "l" e "m" não medem igual, e o erro se acumula ao longo da linha até o
+ * destaque escorregar alguns caracteres.
+ *
+ * Medir com a fonte real exigiria montar o programa de fonte do próprio PDF. O
+ * que se faz aqui é usar as proporções de uma fonte proporcional qualquer e
+ * normalizá-las pela largura que o PDF informa: a soma continua exata e a
+ * repartição interna fica muito mais perto da verdade.
+ */
+const ruler = (() => {
+  let ctx: CanvasRenderingContext2D | null = null
+  return (text: string) => {
+    if (typeof document === "undefined") return text.length
+    if (!ctx) {
+      ctx = document.createElement("canvas").getContext("2d")
+      if (ctx) ctx.font = "100px system-ui, sans-serif"
+    }
+    return ctx ? ctx.measureText(text).width : text.length
+  }
+})()
 
 type TextItem = {
   str: string
@@ -21,8 +52,13 @@ type TextItem = {
  * Onde uma palavra aparece na prancha.
  *
  * O texto do plano é texto de verdade, não imagem: o PDF carrega cada trecho com
- * a posição em que foi impresso, e é isso que o pdf.js devolve. Procurar aqui
- * custa uma leitura da página e nenhuma rasterização.
+ * a posição e o giro em que foi impresso, e é isso que o pdf.js devolve. Procurar
+ * aqui custa uma leitura da página e nenhuma rasterização.
+ *
+ * O giro importa mais do que parece. Prancha de arquitetura escreve de lado o
+ * tempo todo: o carimbo lateral, o nome da folha, as chamadas ao longo das
+ * paredes. Marcar tudo deitado deixava o destaque atravessado sobre o desenho,
+ * apontando para o lugar errado.
  *
  * A busca é por trecho, do jeito que o PDF os guarda. Uma palavra partida entre
  * dois trechos não é encontrada, o que acontece em título com espaçamento
@@ -49,20 +85,34 @@ export async function findInPlan(
     const text = (item.str ?? "").toLowerCase()
     if (!text.includes(needle)) continue
 
-    const [, , , , left, bottom] = item.transform
+    const [a, b, , , left, bottom] = item.transform
     const height = item.height || 10
-    // Uma ocorrência por trecho, mas o retângulo cobre só a fatia da palavra:
-    // o trecho pode ser uma linha inteira, e destacá-la toda apontaria para o
+    // O ângulo sai da própria matriz do trecho. O PDF conta o giro no sentido
+    // anti-horário e com o eixo Y para cima; a tela é o contrário nas duas
+    // coisas, e é por isso que o sinal se inverte.
+    const radians = Math.atan2(b, a)
+    const angle = -radians * (180 / Math.PI)
+    const dirX = Math.cos(radians)
+    const dirY = -Math.sin(radians)
+
+    // Uma ocorrência por trecho, mas o retângulo cobre só a fatia da palavra: o
+    // trecho pode ser uma linha inteira, e destacá-la toda apontaria para o
     // lugar errado.
+    const whole = ruler(item.str) || 1
+    const scale = item.width / whole
     let from = text.indexOf(needle)
     while (from !== -1) {
-      const unit = item.width / Math.max(1, text.length)
+      // A fatia sai da medição da própria cadeia, e não de uma média: assim o
+      // começo da palavra cai onde ela realmente começa.
+      const offset = ruler(item.str.slice(0, from)) * scale
+      const width = ruler(item.str.slice(from, from + needle.length)) * scale
+      // O PDF conta de baixo para cima; a tela, de cima para baixo.
+      const x = left + dirX * offset
+      const y = pageHeight - bottom + dirY * offset
       hits.push({
-        x: left + from * unit,
-        // O PDF conta de baixo para cima; a tela, de cima para baixo.
-        y: pageHeight - bottom - height,
-        width: unit * needle.length,
-        height,
+        x, y, width, height, angle,
+        cx: x + dirX * (width / 2),
+        cy: y + dirY * (width / 2),
       })
       from = text.indexOf(needle, from + needle.length)
     }
@@ -70,5 +120,5 @@ export async function findInPlan(
 
   // Ordem de leitura: de cima para baixo, depois da esquerda para a direita. É
   // como quem varre a prancha espera que "próximo" ande.
-  return hits.sort((a, b) => (a.y - b.y) || (a.x - b.x))
+  return hits.sort((p, q) => (p.cy - q.cy) || (p.cx - q.cx))
 }
