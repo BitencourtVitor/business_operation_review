@@ -245,6 +245,16 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const [hit, setHit] = useState(0)
   const [searching, setSearching] = useState(false)
 
+  // Enquanto a folha nova não está desenhada, a tela mostra o giro e mais nada.
+  // Sem isto o canvas pintava o retângulo branco da página antes de o PDF entrar
+  // por cima, e por um instante a prancha era uma moldura vazia.
+  const [ready, setReady] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
+  useEffect(() => { setReady(false); setFailed(false) }, [sheet.id])
+  const markReady = useCallback(() => { setReady(true); setFailed(false) }, [])
+  const markFailed = useCallback(() => setFailed(true), [])
+
   const boxRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [view, setView] = useState<PlanView>({ scale: 0, x: 0, y: 0 })
@@ -651,6 +661,9 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             height={size.height}
             pageWidth={pageWidth}
             pageHeight={pageHeight}
+            onReady={markReady}
+            onFail={markFailed}
+            key={attempt}
           />
         )}
 
@@ -773,7 +786,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             porque texto em SVG não quebra linha nem herda a tipografia da casa. */}
         {bubble && (
           <div
-            className="pointer-events-none absolute z-10 max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95"
+            className="pointer-events-none absolute max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95"
             style={{
               left: view.x + bubble.x * pageWidth * view.scale,
               top: view.y + bubble.y * pageHeight * view.scale - pageHeight / 70 * view.scale - 10,
@@ -786,9 +799,22 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           </div>
         )}
 
-        {!source && (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
-            Loading plan…
+        {(!source || !ready) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-neutral-900">
+            {failed ? (
+              <>
+                <p className="text-sm text-white/70">This plan did not load.</p>
+                <Button
+                  variant="outline"
+                  className="atlas-burst border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => { setFailed(false); setAttempt(n => n + 1) }}
+                >
+                  Try again
+                </Button>
+              </>
+            ) : (
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+            )}
           </div>
         )}
       </div>
@@ -944,7 +970,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(prev)}
           title="Previous plan"
-          className="atlas-burst atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -955,7 +981,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(next)}
           title="Next plan"
-          className="atlas-burst atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white backdrop-blur hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
