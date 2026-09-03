@@ -338,7 +338,18 @@ export function useUpdateAtlasAnnotation(sheetId: string) {
 export function useDeleteAtlasAnnotation(sheetId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (annotationId: string) => atlasService.deleteAnnotation(annotationId),
+    // Marca que o servidor não conhece já está apagada, e insistir nisso deixa
+    // um fantasma na tela: some ao recarregar e volta a cada tentativa. É o que
+    // acontece quando duas pessoas apagam a mesma coisa, ou quando a listagem
+    // em memória é mais velha que o banco.
+    mutationFn: async (annotationId: string) => {
+      try {
+        return await atlasService.deleteAnnotation(annotationId)
+      } catch (e) {
+        if (e instanceof Error && /404|não encontrad|not found/i.test(e.message)) return null
+        throw e
+      }
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY.annotations(sheetId) }),
   })
 }
