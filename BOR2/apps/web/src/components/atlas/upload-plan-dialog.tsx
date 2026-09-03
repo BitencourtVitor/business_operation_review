@@ -6,18 +6,9 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { useUpdateDocCategory, useUploadAtlasVersion } from "@/hooks/use-atlas"
+import { useUpdateDocCategory } from "@/hooks/use-atlas"
 import { Check, CloudUpload, FileUp, ScanText } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-
-const STEP_LABEL = {
-  opening: "Opening the version",
-  uploading: "Uploading the file",
-  confirming: "Checking",
-  splitting: "Splitting the sheets",
-} as const
-
-type Step = keyof typeof STEP_LABEL
 
 /**
  * Subir um plan set, do arquivo às folhas nomeadas.
@@ -29,24 +20,22 @@ type Step = keyof typeof STEP_LABEL
  * folha que vale é sempre a última.
  */
 export function UploadPlanDialog({
-  documentId, categoryId, naming, revisionCount, open, onClose,
+  categoryId, naming, revisionCount, open, onStart, onClose,
 }: {
-  documentId: string
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
   categoryId?: number
   naming?: NamingTemplate
   /** Quantas versões já existem: a próxima é a seguinte, sem ninguém digitar. */
   revisionCount: number
   open: boolean
+  /** Quem envia é a página: o envio precisa sobreviver ao fechamento daqui. */
+  onStart: (file: File, names?: Map<number, string>) => void
   onClose: () => void
 }) {
-  const upload = useUploadAtlasVersion(documentId)
   const updateCategory = useUpdateDocCategory()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [file, setFile] = useState<File | null>(null)
-  const [step, setStep] = useState<Step | null>(null)
-  const [detail, setDetail] = useState("")
   const [error, setError] = useState("")
 
   const [marking, setMarking] = useState(false)
@@ -56,7 +45,7 @@ export function UploadPlanDialog({
 
   useEffect(() => {
     if (open) return
-    setFile(null); setStep(null); setDetail(""); setError("")
+    setFile(null); setError("")
     setNames(null); setReading("")
   }, [open])
 
@@ -98,27 +87,11 @@ export function UploadPlanDialog({
 
   function submit() {
     if (!file) return
-    setError("")
-    upload.mutate(
-      {
-        file,
-        names: names ?? undefined,
-        // Contada, não digitada: quem sobe o arquivo sabe que ele é o mais novo,
-        // não qual número ele tem na fila.
-        revision: String(revisionCount + 1),
-        onProgress: (next: Step, info?: string) => { setStep(next); setDetail(info ?? "") },
-      },
-      {
-        onSuccess: () => onClose(),
-        onError: (e: unknown) => {
-          setStep(null)
-          setError(e instanceof Error ? e.message : "could not upload")
-        },
-      },
-    )
+    onStart(file, names ?? undefined)
+    onClose()
   }
 
-  const busy = upload.isPending
+  const busy = false
 
   return (
     <>
@@ -187,19 +160,14 @@ export function UploadPlanDialog({
               </p>
             )}
 
-            {step && (
-              <p className="text-center text-xs text-muted-foreground">
-                {STEP_LABEL[step]}{detail ? ` ${detail}` : ""}…
-              </p>
-            )}
             {error && <p className="text-center text-xs text-destructive">{error}</p>}
           </div>
 
           <DialogFooter>
             <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
-            <Button onClick={submit} disabled={!file || busy}>
+            <Button onClick={submit} disabled={!file}>
               <CloudUpload className="h-4 w-4" />
-              {busy ? "Uploading…" : "Upload"}
+              Upload
             </Button>
           </DialogFooter>
         </DialogContent>

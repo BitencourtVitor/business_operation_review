@@ -27,18 +27,38 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import type { AtlasDocument } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, Briefcase, Building2, FileQuestion, FolderOpen, Hash, Layers,
-  MapPin, Pencil, Plus,
+  Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, CodeXml, FileQuestion, FolderOpen,
+  Gauge, HardHat, Hash, Layers, MapPin, Pencil, Plus, UserRound, Users,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
-const VERSION_STATUS: Record<string, { label: string; className: string }> = {
-  pending:   { label: "Awaiting upload", className: "border-amber-500/40 text-amber-600 dark:text-amber-400" },
-  uploaded:  { label: "In review",       className: "border-sky-500/40 text-sky-600 dark:text-sky-400" },
-  published: { label: "Published",       className: "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" },
-  failed:    { label: "Failed",          className: "border-destructive/40 text-destructive" },
+// O crachá de quem subiu, o mesmo da tela de usuários: numa obra com
+// subcontratado dentro, saber que o set veio de fora vale mais que o nome.
+const UPLOADER_ROLE: Record<string, { icon: React.ElementType; className: string }> = {
+  dev:           { icon: CodeXml, className: "text-yellow-600 dark:text-yellow-400" },
+  owner:         { icon: Gauge,   className: "text-emerald-600 dark:text-emerald-400" },
+  manager:       { icon: Users,   className: "text-primary" },
+  subcontractor: { icon: HardHat, className: "text-brand-red" },
+  user:          { icon: UserRound, className: "text-muted-foreground" },
+}
+
+// A data do envio como se fala dela: hoje, ontem, e depois disso o dia.
+function when(iso: string) {
+  if (!iso) return ""
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ""
+  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const days = Math.round((today.getTime() - day.getTime()) / 86400000)
+  if (days === 0) return "today"
+  if (days === 1) return "yesterday"
+  return date.toLocaleDateString(undefined, {
+    month: "short", day: "numeric",
+    year: date.getFullYear() === now.getFullYear() ? undefined : "numeric",
+  })
 }
 
 const AXIS_OPTIONS = [
@@ -223,7 +243,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   }
 
   const row = (id: string, doc: AtlasDocument | undefined, label: string) => {
-    const status = doc ? VERSION_STATUS[doc.latestStatus] : null
     const body = (
       <>
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 ${
@@ -235,20 +254,39 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           <span className="block truncate text-sm font-medium leading-tight">
             {doc?.name ?? label}
           </span>
-          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-            {doc
-              ? [doc.category, `${doc.versions} ${doc.versions === 1 ? "revision" : "revisions"}`,
-                 doc.latestRevision && `rev ${doc.latestRevision}`].filter(Boolean).join(" · ")
-              : "Nothing attached yet"}
-          </span>
+          {!doc && (
+            <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+              Nothing attached yet
+            </span>
+          )}
         </span>
+        {/* Do outro lado, a procedência: quanto tem dentro, quando entrou e
+            quem pôs. Contagem e número de revisão saíram porque só a última
+            vale, e a categoria repetia o nome da pasta. */}
         {!!doc?.sheets && (
-          <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-            <Layers className="h-3.5 w-3.5" />
-            {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
+          <span className="hidden items-center gap-3 text-xs text-muted-foreground sm:flex">
+            <span className="flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5" />
+              {doc.sheets} {doc.sheets === 1 ? "plan" : "plans"}
+            </span>
+            {when(doc.uploadedAt) && (
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5" />
+                {when(doc.uploadedAt)}
+              </span>
+            )}
+            {doc.uploadedBy && (() => {
+              const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
+              const RoleIcon = role.icon
+              return (
+                <span className="flex items-center gap-1.5">
+                  <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
+                  {doc.uploadedBy.split(" ")[0]}
+                </span>
+              )
+            })()}
           </span>
         )}
-        {status && <Badge variant="outline" className={status.className}>{status.label}</Badge>}
         {!doc && <Badge variant="outline" className="text-muted-foreground">Missing</Badge>}
       </>
     )
@@ -397,7 +435,7 @@ export default function JobsiteRoomPage() {
                 assim. */}
             <Button variant="outline" className="gap-1.5" onClick={() => setEditing(true)}>
               <Pencil className="h-3.5 w-3.5" />
-              Edit project
+              Edit
             </Button>
             {archived ? (
               <Button

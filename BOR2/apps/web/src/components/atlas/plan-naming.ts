@@ -117,21 +117,23 @@ function inside(
   if (t1 <= t0) return ""
   if (t0 === 0 && t1 === 1) return item.str
 
-  const chars = Array.from(item.str)
-  const widths = chars.map(ch => measure(ch))
+  // Palavra inteira, nunca letra solta. A régua acerta a posição por
+  // aproximação, e cortar no caractere fazia "1-01-L" virar "01-L" quando a
+  // conta escorregava um passo. Ninguém marca uma região para levar meio
+  // código: o que se marca é o código.
+  const parts = item.str.split(/(\s+)/).filter(Boolean)
+  const widths = parts.map(part => measure(part))
   const total = widths.reduce((a, b) => a + b, 0)
   if (total <= 0) return item.str
 
   let acc = 0
-  let out = ""
-  for (let i = 0; i < chars.length; i++) {
+  const kept: string[] = []
+  for (let i = 0; i < parts.length; i++) {
     const middle = (acc + widths[i] / 2) / total
     acc += widths[i]
-    // Pelo meio da letra: a que está pela metade dentro fica de fora, que é o
-    // que quem desenhou a região quis dizer ao parar ali.
-    if (middle >= t0 && middle <= t1) out += chars[i]
+    if (parts[i].trim() && middle >= t0 && middle <= t1) kept.push(parts[i])
   }
-  return out
+  return kept.join(" ")
 }
 
 /**

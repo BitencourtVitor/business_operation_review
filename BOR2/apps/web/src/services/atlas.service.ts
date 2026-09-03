@@ -98,6 +98,10 @@ export interface AtlasDocument {
   latestRevision: string
   latestStatus: string
   sheets: number
+  /** Quem subiu o set que vale, o cargo dessa pessoa, e quando. */
+  uploadedBy: string
+  uploadedRole: string
+  uploadedAt: string
 }
 
 export interface AtlasVersion {

@@ -74,6 +74,10 @@ export async function splitAndUploadPlans(
   file: File,
   versionId: string,
   onProgress?: (done: number, total: number) => void,
+  // A folha pronta, uma a uma, com a prévia que acabou de ser desenhada aqui.
+  // É o que deixa a página mostrar o quadradinho preenchendo sem esperar o
+  // bucket devolver nada.
+  onPage?: (part: PlanPart, preview: string) => void,
 ): Promise<PlanPart[]> {
   const { PDFDocument } = await import("pdf-lib")
   const source = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()))
@@ -113,12 +117,14 @@ export async function splitAndUploadPlans(
       await uploadToR2(ticket.uploadUrl, blob, "application/pdf")
 
       let thumbKey = ""
+      let preview = ""
       const thumbTicket = thumbByIndex.get(index)
       if (thumbTicket) {
         const href = blobUrl(bytes)
         const thumb = await renderThumb(href, 0)
         URL.revokeObjectURL(href)
         if (thumb) {
+          preview = URL.createObjectURL(thumb)
           try {
             await uploadToR2(
               thumbTicket.uploadUrl,
@@ -132,16 +138,18 @@ export async function splitAndUploadPlans(
         }
       }
 
-      parts.push({
+      const part: PlanPart = {
         pageIndex: index,
         r2Key: ticket.r2Key,
         thumbKey,
         byteSize: bytes.length,
         widthPt: width,
         heightPt: height,
-      })
+      }
+      parts.push(part)
       done += 1
       onProgress?.(done, total)
+      onPage?.(part, preview)
     }
   }
 

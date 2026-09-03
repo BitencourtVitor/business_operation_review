@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
-  usePublishAtlasVersion, useUpdateAtlasSheet,
+  usePublishAtlasVersion, useUpdateAtlasSheet, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
@@ -36,8 +36,11 @@ function bytes(n: number) {
 // identificação no rodapé. É como o Fieldwire e o MiTek mostram um set, e por um
 // motivo prático: o que distingue uma planta da outra é o desenho, não o número
 // dela. Em lista, a imagem cabia em 64x48 e não distinguia nada.
-function SheetCard({ sheet, versionId, canManage, thumb, onOpen }: {
-  sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string; onOpen: () => void
+function SheetCard({ sheet, versionId, canManage, thumb, waiting, onOpen }: {
+  sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string
+  /** Ainda na fila do corte: o recorte dela não existe no bucket. */
+  waiting?: boolean
+  onOpen: () => void
 }) {
   const update = useUpdateAtlasSheet(versionId)
   const [draft, setDraft] = useState({ sheetNumber: sheet.sheetNumber, title: sheet.title })
@@ -47,7 +50,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, onOpen }: {
     <div className="flex aspect-square flex-col overflow-hidden rounded-lg border border-border/60 bg-card transition-colors hover:border-primary/40">
       {/* Sem respiro em volta da imagem: a moldura do cartão já é a moldura da
           prancha, e qualquer margem aqui só encolhe o desenho. */}
-      <button onClick={onOpen} className="relative min-h-0 flex-1 bg-white">
+      <button onClick={onOpen} disabled={waiting} className="relative min-h-0 flex-1 bg-white">
         {thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -57,7 +60,9 @@ function SheetCard({ sheet, versionId, canManage, thumb, onOpen }: {
             className="absolute inset-0 h-full w-full object-cover object-top"
           />
         ) : (
-          <span className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60">
+          <span className={`absolute inset-0 flex items-center justify-center bg-muted/40 text-sm text-muted-foreground/60 ${
+            waiting ? "animate-pulse" : ""
+          }`}>
             {sheet.pageIndex + 1}
           </span>
         )}
@@ -77,46 +82,42 @@ function SheetCard({ sheet, versionId, canManage, thumb, onOpen }: {
         )}
       </button>
 
-      <div className="flex shrink-0 flex-col gap-1 border-t border-border/60 p-2">
+      {/* Um campo de identificação, não dois. O número da página o sistema já
+          sabe, e sai como prefixo apagado ao lado; o que se digita é o nome da
+          folha, que o gabarito preencheu a partir do próprio desenho. */}
+      <div className="flex shrink-0 items-center gap-1.5 border-t border-border/60 p-2">
+        {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
+            coluna não dança de cartão para cartão. O nome cede esse espaço,
+            porque sigla de folha é curta e sobra borda dentro do campo. */}
+        <span className="w-7 shrink-0 text-center text-sm tabular-nums text-muted-foreground">
+          {sheet.pageIndex + 1}
+        </span>
         {canManage ? (
           <>
             <Input
               value={draft.sheetNumber}
-              placeholder={`Plan no. (page ${sheet.pageIndex + 1})`}
-              className="h-7 font-medium"
+              placeholder="Sheet name"
+              className="h-7 flex-1 font-medium"
               onChange={e => setDraft({ ...draft, sheetNumber: e.target.value })}
             />
-            <div className="flex items-center gap-1">
-              <Input
-                value={draft.title}
-                placeholder="Title"
-                className="h-7 flex-1"
-                onChange={e => setDraft({ ...draft, title: e.target.value })}
-              />
-              {dirty && (
-                <Button
-                  size="icon"
-                  className="h-7 w-7 shrink-0"
-                  title="Save"
-                  onClick={() => update.mutate({
-                    sheetId: sheet.id,
-                    patch: { ...draft, needsReview: false } as Partial<AtlasSheet>,
-                  })}
-                >
-                  <Check className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
+            {dirty && (
+              <Button
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                title="Save"
+                onClick={() => update.mutate({
+                  sheetId: sheet.id,
+                  patch: { ...draft, needsReview: false } as Partial<AtlasSheet>,
+                })}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </>
         ) : (
-          <>
-            <p className="truncate text-sm font-medium leading-tight">
-              {sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {sheet.title || "No title yet"}
-            </p>
-          </>
+          <p className="min-w-0 flex-1 truncate text-sm font-medium leading-tight">
+            {sheet.sheetNumber || `Page ${sheet.pageIndex + 1}`}
+          </p>
         )}
       </div>
     </div>
@@ -137,6 +138,14 @@ export default function DocumentPage() {
   const [versionId, setVersionId] = useState("")
   const [openSheet, setOpenSheet] = useState<AtlasSheet | null>(null)
   const [uploading, setUploading] = useState(false)
+
+  const upload = useUploadAtlasVersion(documentId)
+  // A prévia desenhada no próprio navegador, por página. Ela aparece no cartão
+  // no instante em que a folha termina, sem esperar o bucket devolver a imagem
+  // assinada. Some sozinha quando a do servidor chega.
+  const [previews, setPreviews] = useState<Map<number, string>>(new Map())
+  const [sending, setSending] = useState<{ done: number; total: number } | null>(null)
+  const [sendError, setSendError] = useState("")
 
   useEffect(() => {
     if (!versionId && versions?.length) setVersionId(versions[0].id)
@@ -167,6 +176,37 @@ export default function DocumentPage() {
     }
   }
   const version = versions?.find(v => v.id === versionId)
+
+  function startUpload(file: File, names?: Map<number, string>) {
+    setPreviews(new Map())
+    setSendError("")
+    setSending({ done: 0, total: 0 })
+    upload.mutate({
+      file,
+      names,
+      revision: String((versions?.length ?? 0) + 1),
+      onSheets: (id, pageCount) => {
+        setSending({ done: 0, total: pageCount })
+        setVersionId(id)
+        qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
+      },
+      onPage: (pageIndex, preview) => {
+        setPreviews(m => new Map(m).set(pageIndex, preview))
+        setSending(s => s && { ...s, done: s.done + 1 })
+      },
+    }, {
+      onSuccess: () => {
+        setSending(null)
+        // O recorte e a miniatura do bucket entram no lugar da prévia local.
+        qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
+        refetchThumbs()
+      },
+      onError: e => {
+        setSending(null)
+        setSendError(e instanceof Error ? e.message : "could not upload")
+      },
+    })
+  }
 
   async function download() {
     const { url } = await atlasService.versionDownloadUrl(versionId)
@@ -215,11 +255,11 @@ export default function DocumentPage() {
               guardado, e é dela que ele volta no próximo envio. */}
           {canManage && (
             <UploadPlanDialog
-              documentId={documentId}
               categoryId={doc?.categoryId ?? undefined}
               naming={categories.find(c => c.id === doc?.categoryId)?.naming}
               revisionCount={versions?.length ?? 0}
               open={uploading}
+              onStart={startUpload}
               onClose={() => setUploading(false)}
             />
           )}
@@ -251,6 +291,12 @@ export default function DocumentPage() {
                       {filling ? `Making previews ${filling}` : `Make ${missingThumbs} previews`}
                     </Button>
                   )}
+                  {sending && (
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      Sending {sending.done}/{sending.total || "…"}
+                    </span>
+                  )}
+                  {sendError && <span className="text-xs text-destructive">{sendError}</span>}
                   <span className="text-xs text-muted-foreground">{sheets?.length ?? 0}</span>
                 </div>
               </div>
@@ -272,7 +318,8 @@ export default function DocumentPage() {
                         sheet={s}
                         versionId={versionId}
                         canManage={!!canManage}
-                        thumb={thumbs?.get(s.id)}
+                        thumb={thumbs?.get(s.id) ?? previews.get(s.pageIndex)}
+                        waiting={!s.r2Key && !previews.has(s.pageIndex)}
                         onOpen={() => setOpenSheet(s)}
                       />
                     ))}

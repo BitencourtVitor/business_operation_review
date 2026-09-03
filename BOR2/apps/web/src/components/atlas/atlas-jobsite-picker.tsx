@@ -65,7 +65,13 @@ export function AtlasJobsitePicker({ currentId }: { currentId: string }) {
             <span className="block text-xs leading-snug text-muted-foreground">
               {placeLabel(current.community || current.name)}
             </span>
-            <span className="mt-0.5 flex items-center gap-1.5 text-sm font-medium">
+            {/* "Building Panels" é o rótulo mais longo da taxonomia, e em tablet
+                a barra tem 122px: a 14px ele quebra em duas linhas e a obra
+                aparece partida ao meio. Meio ponto a menos, e só nessa faixa,
+                resolve sem mexer no resto. */}
+            <span className={`mt-0.5 flex items-center gap-1.5 text-sm font-medium ${
+              current.kind === "panels" ? "md:max-lg:text-[12.5px]" : ""
+            }`}>
               <CurrentIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               {[KIND_META[current.kind]?.label ?? current.kind, current.unit]
                 .filter(Boolean).join(" ")}
