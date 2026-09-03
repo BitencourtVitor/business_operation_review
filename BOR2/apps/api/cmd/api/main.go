@@ -684,6 +684,7 @@ func main() {
 	atlas.Get("/versions/:id/download", atlasHandler.VersionDownloadURL)
 	atlas.Get("/versions/:id/sheets", atlasHandler.ListSheets)
 	atlas.Put("/versions/:id/sheets", atlasHandler.ReplaceSheets)
+	atlas.Put("/versions/:id/names", atlasHandler.RenameSheets)
 	atlas.Post("/versions/:id/plan-uploads", atlasHandler.PlanUploadURLs)
 	atlas.Get("/sheets/:id/url", atlasHandler.SheetURL)
 	atlas.Patch("/sheets/:id", atlasHandler.UpdateSheet)

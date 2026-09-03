@@ -2,7 +2,7 @@
 
 import { PdfPage, loadPdf } from "@/components/atlas/pdf-page"
 import {
-  readPageNames, type NamingRegion, type NamingTemplate, type PageName,
+  readPageNames, type NamingMode, type NamingRegion, type NamingTemplate, type PageName,
 } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +29,20 @@ const MAX_ZOOM = 6
 
 const has = (r: NamingRegion) => r.x1 > r.x0 && r.y1 > r.y0
 
+// As duas perguntas que o arquivo responde antes de qualquer marcação.
+const MODES: { value: NamingMode; label: string; hint: string }[] = [
+  {
+    value: "layout",
+    label: "Same layout",
+    hint: "Every page follows the same drawing. Mark where the name is, and a second place for the pages that don't have the first.",
+  },
+  {
+    value: "ranges",
+    label: "By page range",
+    hint: "The file is several reports glued together. Say from which page to which, and where the name is printed in that stretch.",
+  },
+]
+
 /**
  * Onde o nome de cada folha está impresso.
  *
@@ -49,6 +63,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
 }) {
   const [page, setPage] = useState(0)
   const [pages, setPages] = useState(1)
+  const [mode, setMode] = useState<NamingMode>("layout")
   const [levels, setLevels] = useState<NamingRegion[]>([{ ...EMPTY_REGION }])
   const [drawing, setDrawing] = useState<number | null>(null)
   const [preview, setPreview] = useState<PageName[] | null>(null)
@@ -69,6 +84,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
   useEffect(() => {
     if (!open) return
     setPreview(null)
+    setMode(initial?.mode ?? "layout")
     setLevels(initial?.levels?.length ? initial.levels.map(l => ({ ...l })) : [{ ...EMPTY_REGION }])
     setPage(0)
   }, [open, initial])
@@ -152,7 +168,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
     if (!usable.length) return
     setReading("0")
     try {
-      const names = await readPageNames(url, { levels: usable },
+      const names = await readPageNames(url, { mode, levels: usable },
         (done, total) => setReading(`${done}/${total}`))
       setPreview(names)
     } finally {
@@ -231,6 +247,30 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
 
           {/* Todo controle deste. */}
           <div className="flex w-80 shrink-0 flex-col gap-3 overflow-y-auto pr-1">
+            {/* A primeira decisão, e a que mudaria o sentido de tudo abaixo se
+                ficasse implícita: como o arquivo está organizado. */}
+            <div className="flex flex-col gap-1.5 rounded-lg border border-border/60 p-2">
+              <div className="flex gap-1">
+                {MODES.map(m => (
+                  <button
+                    key={m.value}
+                    type="button"
+                    onClick={() => { setMode(m.value); setPreview(null) }}
+                    className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+                      mode === m.value
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <p className="px-0.5 text-[11px] leading-snug text-muted-foreground">
+                {MODES.find(m => m.value === mode)?.hint}
+              </p>
+            </div>
+
             <div className="flex items-center justify-between rounded-lg border border-border/60 p-1.5">
               <Button
                 size="icon" variant="ghost" className="h-8 w-8"
@@ -283,7 +323,9 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm font-medium">
                     <span className={`h-2.5 w-2.5 rounded-full ${i === 0 ? "bg-sky-500" : "bg-violet-500"}`} />
-                    {i === 0 ? "First level" : "Second level"}
+                    {mode === "ranges"
+                      ? `Range ${i + 1}`
+                      : i === 0 ? "First level" : "Second level"}
                   </span>
                   {i > 0 && (
                     <Button
@@ -305,9 +347,10 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                     : has(region) ? "Redraw the area" : "Draw the area"}
                 </Button>
 
-                {/* A faixa de páginas: vazia, o nível vale para o arquivo
-                    inteiro. Preenchida, ele só opina ali dentro, e o nível
-                    seguinte assume no resto sem disputa de precedência. */}
+                {/* A faixa só existe no modo por trecho: no de layout ela não
+                    significa nada, e mostrá-la ali seria oferecer uma decisão
+                    que não muda resultado nenhum. */}
+                {mode === "ranges" && (
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Pages</Label>
                   <div className="flex items-center gap-1.5">
@@ -332,6 +375,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                     />
                   </div>
                 </div>
+                )}
 
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Text direction</Label>
@@ -355,10 +399,19 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
               </div>
             ))}
 
-            {levels.length < 2 && (
-              <Button variant="outline" onClick={() => setLevels(l => [...l, { ...EMPTY_REGION }])}>
+            {/* Por layout são dois, porque precedência com três já é regra que
+                ninguém acompanha. Por trecho não há teto: o arquivo tem os
+                trechos que tiver. */}
+            {(mode === "ranges" || levels.length < 2) && (
+              <Button
+                variant="outline"
+                onClick={() => setLevels(l => [...l, {
+                  ...EMPTY_REGION,
+                  ...(mode === "ranges" ? { fromPage: (l[l.length - 1]?.toPage ?? 0) + 1 } : {}),
+                }])}
+              >
                 <Plus className="h-3.5 w-3.5" />
-                Add a second level
+                {mode === "ranges" ? "Add a page range" : "Add a second level"}
               </Button>
             )}
 
@@ -410,7 +463,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
           </Button>
           <Button
             disabled={!usable.length}
-            onClick={() => onSave({ levels: usable })}
+            onClick={() => onSave({ mode, levels: usable })}
           >
             Save template
           </Button>

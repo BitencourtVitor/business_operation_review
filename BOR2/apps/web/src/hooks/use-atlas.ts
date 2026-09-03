@@ -284,6 +284,15 @@ export function useUploadAtlasVersion(documentId: string) {
   })
 }
 
+export function useRenameAtlasSheets(versionId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (names: { pageIndex: number; sheetNumber: string }[]) =>
+      atlasService.renameSheets(versionId, names),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY.sheets(versionId) }),
+  })
+}
+
 export function usePublishAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
