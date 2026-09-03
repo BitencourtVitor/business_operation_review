@@ -867,6 +867,9 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             const hgt = ((g.y1 ?? 0) - (g.y0 ?? 0)) * pageHeight
             const target = g.target
             const badge = 18 * px
+            // Deitada é mais larga que alta: a célula entra pelo lado, onde há
+            // folga. Em pé, ela entra por cima.
+            const deitada = w >= hgt
 
             function act(e: React.PointerEvent) {
               e.stopPropagation()
@@ -900,31 +903,40 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
                 {/* Etiqueta, e não adesivo por cima: o ícone tem célula
                     própria e a área marcada continua inteira, do jeito que um
-                    chip separa o ícone do texto. A célula cresce para fora, e
-                    para o lado que sobra: numa área deitada ela entra à
-                    esquerda, numa área em pé ela entra em cima, porque
-                    espremê-la no lado curto taparia o desenho que a marca
-                    existe para apontar. */}
+                    chip separa o ícone do texto. A célula acompanha o lado
+                    inteiro da região, e cresce para fora, no sentido que sobra:
+                    área deitada abre à esquerda, área em pé abre em cima.
+                    Espremê-la no lado curto taparia o desenho que a marca
+                    existe para apontar.
+
+                    Mesmo fundo da área e ícone na cor da borda: é uma peça só,
+                    partida em duas, e não um botão colado numa moldura. */}
                 {target ? (
                   <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
                     <rect
-                      x={w >= hgt ? x - badge : x}
-                      y={w >= hgt ? y : y - badge}
-                      width={badge} height={badge}
-                      fill={LINK_COLOR} fillOpacity={0.92}
+                      x={deitada ? x - badge : x}
+                      y={deitada ? y : y - badge}
+                      width={deitada ? badge : w}
+                      height={deitada ? hgt : badge}
+                      fill={LINK_COLOR} fillOpacity={0.08}
                       stroke={LINK_COLOR} strokeWidth={1.25 * px}
                     />
-                    {/* O elo, desenhado em duas metades como o ícone de
-                        corrente: some a corda solta que um traço reto virava. */}
+                    {/* O mesmo ícone da barra de ferramentas, o link-2 do
+                        lucide, desenhado aqui em coordenada de página: o botão
+                        que cria e a marca que fica não podem ser dois desenhos
+                        diferentes da mesma ideia. */}
                     <g
-                      stroke="#fff"
-                      strokeWidth={1.5 * px}
+                      transform={`translate(${(deitada ? x - badge / 2 : x + w / 2) - badge * 0.32} ${(deitada ? y + hgt / 2 : y - badge / 2) - badge * 0.32}) scale(${badge * 0.64 / 24})`}
+                      stroke={LINK_COLOR}
+                      strokeWidth={2}
                       strokeLinecap="round"
+                      strokeLinejoin="round"
                       fill="none"
-                      transform={`translate(${(w >= hgt ? x - badge : x) + badge / 2} ${(w >= hgt ? y : y - badge) + badge / 2})`}
+                      vectorEffect="non-scaling-stroke"
                     >
-                      <path d={`M ${-badge * 0.06} ${-badge * 0.16} a ${badge * 0.16} ${badge * 0.16} 0 0 1 ${badge * 0.22} 0 l ${badge * 0.05} ${badge * 0.05} a ${badge * 0.16} ${badge * 0.16} 0 0 1 0 ${badge * 0.22}`} />
-                      <path d={`M ${badge * 0.06} ${badge * 0.16} a ${badge * 0.16} ${badge * 0.16} 0 0 1 ${-badge * 0.22} 0 l ${-badge * 0.05} ${-badge * 0.05} a ${badge * 0.16} ${badge * 0.16} 0 0 1 0 ${-badge * 0.22}`} />
+                      <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+                      <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
+                      <line x1="8" x2="16" y1="12" y2="12" />
                     </g>
                   </g>
                 ) : (
