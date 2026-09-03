@@ -593,7 +593,7 @@ export default function DocumentPage() {
                       // Trinta e dois de altura, igual aos botões que dividem a
                       // linha com ele: os dois pedaços somam 28 mais a borda
                       // interna, e a fileira para de ter um degrau no meio.
-                      <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border p-0.5">
+                      <div className="flex h-8 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
@@ -614,7 +614,11 @@ export default function DocumentPage() {
                         </button>
                       </div>
                     ) : (
-                      <Button variant="outline" onClick={() => setPicking("one")}>
+                      <Button
+                        variant="outline"
+                        className="origin-right duration-200 animate-in fade-in-0 zoom-in-95"
+                        onClick={() => setPicking("one")}
+                      >
                         <SquareDashedMousePointer className="h-3.5 w-3.5" />
                         Select
                       </Button>
@@ -631,7 +635,7 @@ export default function DocumentPage() {
                 // Dentro da caixa, no mesmo respiro da grade, e parada: ela não
                 // é um segundo cabeçalho, é uma peça que divide o espaço interno
                 // com as folhas e continua à vista enquanto elas rolam.
-                <div className="flex shrink-0 items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                <div className="flex shrink-0 items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 duration-200 animate-in fade-in-0 slide-in-from-top-2">
                   <span className="text-sm">
                     {chosen.size === 0
                       ? picking === "range"
