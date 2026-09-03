@@ -640,7 +640,7 @@ export default function DocumentPage() {
                     onClick={openNaming}
                   >
                     <ScanText className="h-3.5 w-3.5" />
-                    {applying ? `Reading ${applying}` : "Name these"}
+                    {applying ? `Reading ${applying}` : "Rename these"}
                   </Button>
                   <Button variant="ghost" onClick={stopPicking}>Cancel</Button>
                 </div>
