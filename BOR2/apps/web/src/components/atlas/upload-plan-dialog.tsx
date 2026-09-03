@@ -75,7 +75,7 @@ export function UploadPlanDialog({
     setReading("0")
     readPageNames(localUrl, template, (done, total) => {
       if (alive) setReading(`${done}/${total}`)
-    })
+    }, undefined, file?.name)
       .then(list => {
         if (!alive) return
         setNames(new Map(list.filter(n => n.name).map(n => [n.pageIndex, n.name])))

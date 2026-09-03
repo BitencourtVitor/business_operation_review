@@ -41,6 +41,11 @@ const MODES: { value: NamingMode; label: string; hint: string }[] = [
     label: "By page range",
     hint: "The file is several reports glued together. Say from which page to which, and where the name is printed in that stretch.",
   },
+  {
+    value: "file",
+    label: "From the file",
+    hint: "Nothing is printed on the pages. The file title names the sheets, numbered by page.",
+  },
 ]
 
 /**
@@ -165,7 +170,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
 
   async function runPreview() {
     const usable = levels.filter(has)
-    if (!usable.length) return
+    if (mode !== "file" && !usable.length) return
     setReading("0")
     try {
       const names = await readPageNames(url, { mode, levels: usable },
@@ -318,7 +323,14 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
               </Button>
             </div>
 
-            {levels.map((region, i) => (
+            {mode === "file" && (
+              <div className="rounded-lg border border-border/60 p-3 text-xs leading-snug text-muted-foreground">
+                Nothing to mark here. Run the preview to see the names the file title gives, and
+                save it to keep the choice for the next upload of this folder.
+              </div>
+            )}
+
+            {mode !== "file" && levels.map((region, i) => (
               <div key={i} className="flex flex-col gap-2 rounded-lg border border-border/60 p-3">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm font-medium">
@@ -402,7 +414,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
             {/* Por layout são dois, porque precedência com três já é regra que
                 ninguém acompanha. Por trecho não há teto: o arquivo tem os
                 trechos que tiver. */}
-            {(mode === "ranges" || levels.length < 2) && (
+            {mode !== "file" && (mode === "ranges" || levels.length < 2) && (
               <Button
                 variant="outline"
                 onClick={() => setLevels(l => [...l, {
@@ -456,13 +468,13 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button
             variant="outline"
-            disabled={!usable.length || !!reading}
+            disabled={(mode !== "file" && !usable.length) || !!reading}
             onClick={runPreview}
           >
             {reading ? `Reading ${reading}` : "Preview names"}
           </Button>
           <Button
-            disabled={!usable.length}
+            disabled={mode !== "file" && !usable.length}
             onClick={() => onSave({ mode, levels: usable })}
           >
             Save template

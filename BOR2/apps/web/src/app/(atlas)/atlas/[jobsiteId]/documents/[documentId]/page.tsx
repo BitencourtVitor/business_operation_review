@@ -223,7 +223,11 @@ export default function DocumentPage() {
     setApplying("0")
     try {
       const names = await readPageNames(namingUrl, template,
-        (done, total) => setApplying(`${done}/${total}`))
+        (done, total) => setApplying(`${done}/${total}`),
+        undefined,
+        // O nome com que o arquivo foi guardado no bucket. O título declarado
+        // dentro do PDF vem antes dele; isto é a rede de segurança.
+        version?.r2Key.split("/").pop() ?? "")
       await rename.mutateAsync(
         names.filter(n => n.name).map(n => ({ pageIndex: n.pageIndex, sheetNumber: n.name })),
       )
