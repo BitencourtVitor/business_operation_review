@@ -2,26 +2,46 @@
 
 import { downloadPlan } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
+import { findInPlan, type TextHit } from "@/components/atlas/plan-text"
+import { atlasService } from "@/services/atlas.service"
 import { usePlanSource } from "@/components/atlas/use-plan-url"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
+import { Kbd } from "@/components/ui/kbd"
+import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import {
-  useAtlasAnnotations, useAtlasEvents, useCreateAtlasAnnotation,
+  useAtlasAnnotations, useAtlasEvents, useAtlasJobsite,
   useCreateAtlasEvent, useDeleteAtlasAnnotation, useUpdateAtlasEvent,
 } from "@/hooks/use-atlas"
-import type { AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
+import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
-  ChevronLeft, ChevronRight, Download, Eraser, Hand, Highlighter, Maximize,
-  MapPin, Minus, Pen, Plus, X,
+  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
+  Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, X,
 } from "lucide-react"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
 type Tool = "pan" | "pen" | "highlighter" | "pin" | "erase"
 
-// Paleta fechada, escolhida para ler sobre papel branco nas duas ferramentas:
-// opaca como caneta e translúcida como marca-texto. Cor livre deixaria o
-// usuário escolher amarelo claro de caneta, que some na prancha.
-const COLORS = [
+// A letra é a inicial do nome da ferramenta, para não haver o que decorar. No
+// desktop ela aparece dentro do botão: quem lê a prancha o dia inteiro não
+// larga o desenho para ir até a barra a cada troca de ferramenta.
+// A ferramenta selecionada abre e diz o que o gesto faz. Um ícone de mão não
+// ensina que arrastar desloca e que a roda amplia: quem chega na tela pela
+// primeira vez tem de descobrir por tentativa.
+const TOOLS = [
+  { value: "pan",         key: "h", label: "Hand",     hint: "Drag to move, scroll to zoom", icon: Hand },
+  { value: "pen",         key: "p", label: "Pen",      hint: "Draw over the sheet",          icon: Pen },
+  { value: "highlighter", key: "m", label: "Marker",   hint: "Highlight over the sheet",     icon: Highlighter },
+  { value: "pin",         key: "n", label: "Note pin", hint: "Tap the sheet to open a note", icon: MapPin },
+  { value: "erase",       key: "e", label: "Eraser",   hint: "Tap a stroke or a pin",        icon: Eraser },
+] as const satisfies readonly {
+  value: Tool; key: string; label: string; hint: string; icon: React.ElementType
+}[]
+
+// Duas paletas, porque são dois gestos. A caneta escreve por cima do desenho e
+// precisa de cor cheia que se leia sobre traço preto; o marca-texto passa por
+// baixo da leitura e precisa de cor clara, que realce sem esconder. Misturar as
+// duas dava marca-texto vermelho-sangue tapando a cota.
+const PEN_COLORS = [
   { value: "#dc2626", label: "Red" },
   { value: "#ea580c", label: "Orange" },
   { value: "#16a34a", label: "Green" },
@@ -30,15 +50,39 @@ const COLORS = [
   { value: "#111827", label: "Ink" },
 ]
 
-// Opacidade é o que separa caneta de marca-texto: opaca simula tinta,
-// translúcida simula o traço largo por cima do desenho (AT-14). É ponto de
-// partida, não trava: o controle deixa regular traço a traço.
-const TOOL_DEFAULTS: Record<"pen" | "highlighter", { width: number; opacity: number }> = {
-  pen: { width: 2, opacity: 1 },
-  highlighter: { width: 14, opacity: 0.3 },
-}
+const MARKER_COLORS = [
+  { value: "#d4ff3f", label: "Highlighter" },
+  { value: "#fde047", label: "Yellow" },
+  { value: "#4ade80", label: "Green" },
+  { value: "#38bdf8", label: "Sky" },
+  { value: "#fb923c", label: "Orange" },
+  { value: "#f472b6", label: "Pink" },
+]
 
-const WIDTHS = [1, 2, 4, 8]
+// Cada ferramenta guarda a própria tinta. Antes era um estado só para as duas, e
+// bastava regular a espessura de uma para a outra herdá-la.
+interface Ink { color: string; width: number }
+
+const PEN_INK: Ink = { color: PEN_COLORS[0].value, width: 1 }
+const MARKER_INK: Ink = { color: MARKER_COLORS[0].value, width: 6 }
+
+// A opacidade não se regula: é ela que define o que cada ferramenta é. Caneta é
+// tinta, e tinta cobre; marca-texto passa por cima e deixa ler o que está
+// embaixo. Deixar isso solto só criava caneta apagada e marca-texto tapando a
+// cota, que são as duas ferramentas erradas.
+const TOOL_OPACITY = { pen: 1, highlighter: 0.35 } as const
+
+// Espessura medida no papel, e não em pixels de tela: o traço pertence à
+// prancha, então ele acompanha o zoom como acompanharia se tivesse sido feito à
+// mão sobre o papel impresso.
+//
+// A folha é de 42x30 polegadas. Uma caneta fina de verdade rende perto de meio
+// milímetro, um marca-texto rende um centímetro, e é essa proporção que estes
+// números guardam. Antes o marca-texto multiplicava a largura por seis e ainda
+// passava pela escala da página: o tamanho maior saía com um oitavo da altura
+// da prancha, uma tarja e não um traço.
+const PEN_WIDTHS = [0.5, 1, 2, 3]
+const MARKER_WIDTHS = [3, 6, 9, 12]
 
 // O zoom é relativo ao enquadramento inicial: 100% é a prancha inteira na tela.
 // O teto alto não custa memória porque só a área visível é rasterizada, e é ele
@@ -46,6 +90,12 @@ const WIDTHS = [1, 2, 4, 8]
 //
 // O piso é 75% porque abaixo disso a folha já cabe inteira com sobra: só afasta
 // a prancha e a deixa ilegível no meio de uma tela vazia.
+// Espera entre as tentativas de gravar um traço, em segundos. Cresce para não
+// martelar uma rede que já está ruim, e para de crescer em meio minuto porque
+// obra recupera sinal em ondas: passar de um minuto seria desistir cedo demais
+// e tarde demais ao mesmo tempo.
+const RETRY_STEPS = [2, 5, 10, 20, 30]
+
 const MIN_ZOOM = 0.75
 const MAX_ZOOM = 64
 
@@ -112,19 +162,64 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   onClose: () => void
   onNavigate: (sheet: AtlasSheet) => void
 }) {
-  const { data: annotations } = useAtlasAnnotations(sheet.id)
+  const { data: jobsite } = useAtlasJobsite(jobsiteId)
+  const { data: annotations, refetch: refetchAnnotations } = useAtlasAnnotations(sheet.id)
   const { data: events } = useAtlasEvents(jobsiteId, sheet.id)
-  const createAnnotation = useCreateAtlasAnnotation(sheet.id)
   const deleteAnnotation = useDeleteAtlasAnnotation(sheet.id)
   const createEvent = useCreateAtlasEvent(jobsiteId, sheet.id)
   const updateEvent = useUpdateAtlasEvent(jobsiteId, sheet.id)
 
   const [tool, setTool] = useState<Tool>("pan")
-  const [color, setColor] = useState(COLORS[0].value)
-  const [width, setWidth] = useState(2)
-  const [opacity, setOpacity] = useState(1)
+  const [penInk, setPenInk] = useState<Ink>(PEN_INK)
+  const [markerInk, setMarkerInk] = useState<Ink>(MARKER_INK)
+  const marking = tool === "highlighter"
+  const ink = marking ? markerInk : penInk
+  const setInk = (patch: Partial<Ink>) =>
+    (marking ? setMarkerInk : setPenInk)(current => ({ ...current, ...patch }))
+  const { color, width } = ink
+  const opacity = marking ? TOOL_OPACITY.highlighter : TOOL_OPACITY.pen
+  const palette = marking ? MARKER_COLORS : PEN_COLORS
+  const widths = marking ? MARKER_WIDTHS : PEN_WIDTHS
   const [drawing, setDrawing] = useState<[number, number][]>([])
+// Traços já feitos e ainda não confirmados pelo banco. O traço nasce aqui e só
+  // sai quando a listagem do servidor passa a trazê-lo: antes disso ele sumia da
+  // tela no instante em que a mão saía do papel e voltava um segundo depois,
+  // quando a resposta chegava. Desenhar não pode piscar.
+  //
+  // Enquanto estiver aqui, ele continua sendo oferecido ao servidor. Sinal de
+  // obra cai e volta o tempo todo, e o gravar deste traço é assunto do sistema,
+  // não de quem está com a caneta na mão.
+  const [pending, setPending] = useState<AtlasAnnotation[]>([])
+  const tries = useRef(new Map<string, number>())
+
+  // A borracha responde antes de agir: o que está sob o cursor enfraquece, e o
+  // que acabou de ser clicado enfraquece mais, até a resposta chegar. Sem isso a
+  // única confirmação de ter acertado o traço certo era ele sumir, o que é tarde
+  // demais para se arrepender.
+  // A amostra aparece quando se escolhe uma espessura e se recolhe sozinha: é
+  // resposta ao gesto, não um painel a mais ocupando a barra.
+  const [sample, setSample] = useState(false)
+  const sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showSample = () => {
+    setSample(true)
+    if (sampleTimer.current) clearTimeout(sampleTimer.current)
+    sampleTimer.current = setTimeout(() => setSample(false), 2200)
+  }
+
+  const [under, setUnder] = useState<string | null>(null)
+  const [erasing, setErasing] = useState<string[]>([])
+  const fade = (id: string) => erasing.includes(id) ? 0.15 : under === id ? 0.4 : 1
+  // O ouvinte da roda é nativo e é montado uma vez; sem esta referência ele
+  // ficaria preso à ferramenta que estava selecionada quando foi montado.
+  const toolRef = useRef<Tool>("pan")
   const [panning, setPanning] = useState(false)
+
+  // ── Procurar na prancha ───────────────────────────────────────────────────
+  const [finding, setFinding] = useState(false)
+  const [needle, setNeedle] = useState("")
+  const [hits, setHits] = useState<TextHit[]>([])
+  const [hit, setHit] = useState(0)
+  const [searching, setSearching] = useState(false)
 
   const boxRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
@@ -196,6 +291,47 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
     zoomAt(factor, size.width / 2, size.height / 2)
   }, [zoomAt, size])
 
+  // Leva o resultado para o meio da tela sem mexer no zoom: quem procurou já
+  // escolheu a aproximação em que estava lendo.
+  const centreOn = useCallback((target: TextHit) => {
+    setView(v => clampView({
+      scale: v.scale,
+      x: size.width / 2 - (target.x + target.width / 2) * v.scale,
+      y: size.height / 2 - (target.y + target.height / 2) * v.scale,
+    }, size, pageWidth, pageHeight))
+  }, [size, pageWidth, pageHeight])
+
+  // Procura enquanto se digita, com uma pausa curta: cada tecla custa uma
+  // leitura do texto da página, e a página não muda no meio da digitação.
+  useEffect(() => {
+    if (!finding || !source?.url) { setHits([]); return }
+    const q = needle.trim()
+    if (q.length < 2) { setHits([]); setHit(0); return }
+
+    let alive = true
+    setSearching(true)
+    const timer = setTimeout(() => {
+      findInPlan(source.url, source.whole ? sheet.pageIndex : 0, q)
+        .then(found => {
+          if (!alive) return
+          setHits(found)
+          setHit(0)
+          if (found.length) centreOn(found[0])
+        })
+        .catch(() => { if (alive) setHits([]) })
+        .finally(() => { if (alive) setSearching(false) })
+    }, 250)
+
+    return () => { alive = false; clearTimeout(timer) }
+  }, [finding, needle, source, sheet.pageIndex, centreOn])
+
+  const goToHit = useCallback((step: number) => {
+    if (!hits.length) return
+    const next = (hit + step + hits.length) % hits.length
+    setHit(next)
+    centreOn(hits[next])
+  }, [hits, hit, centreOn])
+
   // ── Roda: zoom direto, sem tecla modificadora ─────────────────────────────
   useEffect(() => {
     const node = boxRef.current
@@ -204,13 +340,18 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       // A prancha não rola: ela é uma folha só, e o gesto que se espera dela é
       // aproximar, como em qualquer mapa. Rolar a página inteira num leitor de
       // plano nunca leva a lugar nenhum.
+      //
+      // Com caneta na mão a roda não faz nada: quem está desenhando encosta o
+      // dedo no scroll sem querer, e o desenho saltando de escala no meio do
+      // traço é pior do que não ampliar.
+      if (canAnnotate && toolRef.current !== "pan") return
       e.preventDefault()
       const box = node!.getBoundingClientRect()
       zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX - box.left, e.clientY - box.top)
     }
     node.addEventListener("wheel", onWheel, { passive: false })
     return () => node.removeEventListener("wheel", onWheel)
-  }, [zoomAt])
+  }, [zoomAt, canAnnotate])
 
   // ── Ponteiros: arrastar, desenhar e pinçar ────────────────────────────────
   const pointers = useRef(new Map<number, { x: number; y: number }>())
@@ -252,9 +393,9 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
     e.currentTarget.setPointerCapture(e.pointerId)
 
-    // Botão do meio arrasta com qualquer ferramenta na mão: é o atalho que quem
-    // desenha muito espera, para não ter de largar a caneta a cada deslocada.
-    if (!canAnnotate || tool === "pan" || e.button === 1) {
+    // Deslocar é da mão, e de mais nada. Arrastar com a caneta selecionada
+    // desenha; com a borracha, apaga. Uma ferramenta, um gesto.
+    if (!canAnnotate || tool === "pan") {
       gesture.current = { kind: "pan", x: e.clientX, y: e.clientY, view }
       setPanning(true)
       return
@@ -317,29 +458,81 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
     }
 
     if (drawing.length < 2) { setDrawing([]); return }
-    const stroke = tool === "highlighter" ? "highlighter" : "pen"
-    createAnnotation.mutate({
+    const stroke: AtlasAnnotation["tool"] = marking ? "highlighter" : "pen"
+    const mark = {
       // O id nasce no cliente porque o traço precisa existir antes de a rede
       // responder: é o que permite anotar em obra sem sinal e sincronizar
-      // depois sem duplicar (AT-14).
+      // depois sem duplicar (AT-14). É também o que deixa reconhecê-lo quando
+      // ele volta do servidor.
       id: crypto.randomUUID(),
       tool: stroke,
       color,
-      width: stroke === "highlighter" ? width * 6 : width,
+      width,
       opacity,
       geometry: { points: drawing } as AtlasStrokeGeometry,
-    })
+    }
+    setPending(list => [...list, mark as AtlasAnnotation])
     setDrawing([])
   }
 
-  // Trocar de ferramenta troca a opacidade sugerida, sem prender: quem regulou
-  // um marca-texto mais forte continua com ele até mudar de ideia.
+  // O que o servidor já confirmou sai da memória: dali em diante o traço vem da
+  // listagem como qualquer outro.
+  useEffect(() => {
+    if (!annotations?.length || !pending.length) return
+    const saved = new Set(annotations.map(a => a.id))
+    setPending(list => list.some(m => saved.has(m.id))
+      ? list.filter(m => !saved.has(m.id))
+      : list)
+  }, [annotations, pending.length])
+
+  // A fila insiste sozinha. Gravar duas vezes o mesmo traço não faz mal: o id
+  // nasce no cliente e o servidor ignora o repetido, então tentar de novo é
+  // sempre seguro.
+  useEffect(() => {
+    if (!pending.length) return
+    let alive = true
+
+    async function attempt(mark: AtlasAnnotation) {
+      try {
+        await atlasService.createAnnotation(sheet.id, mark)
+        if (alive) refetchAnnotations()
+        tries.current.delete(mark.id)
+      } catch {
+        // Erro aqui é rede ou servidor fora do ar. A próxima rodada tenta de
+        // novo, um pouco mais tarde a cada vez.
+        tries.current.set(mark.id, (tries.current.get(mark.id) ?? 0) + 1)
+        schedule()
+      }
+    }
+
+    let timer: ReturnType<typeof setTimeout> | null = null
+    function schedule() {
+      if (timer) clearTimeout(timer)
+      const worst = Math.max(...pending.map(m => tries.current.get(m.id) ?? 0), 0)
+      const wait = RETRY_STEPS[Math.min(worst, RETRY_STEPS.length - 1)] * 1000
+      timer = setTimeout(() => {
+        if (!alive) return
+        for (const mark of pending) void attempt(mark)
+      }, wait)
+    }
+
+    // A primeira tentativa é imediata; as seguintes esperam.
+    for (const mark of pending) {
+      if ((tries.current.get(mark.id) ?? 0) === 0) {
+        tries.current.set(mark.id, 0)
+        void attempt(mark)
+      }
+    }
+    schedule()
+
+    return () => { alive = false; if (timer) clearTimeout(timer) }
+  }, [pending, sheet.id, refetchAnnotations])
+
+  // Trocar de ferramenta não mexe em tinta nenhuma: cada uma volta exatamente
+  // como foi deixada.
   function pickTool(value: Tool) {
     setTool(value)
-    if (value === "pen" || value === "highlighter") {
-      setOpacity(TOOL_DEFAULTS[value].opacity)
-      setWidth(TOOL_DEFAULTS[value].width === 14 ? 2 : TOOL_DEFAULTS[value].width)
-    }
+    toolRef.current = value
   }
 
   // ── Teclado ───────────────────────────────────────────────────────────────
@@ -351,23 +544,43 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       if (e.key === "0") fit()
       if (e.key === "+" || e.key === "=") zoomCentre(1.25)
       if (e.key === "-") zoomCentre(0.8)
+
+      // Letra solta troca de ferramenta. Com modificador não: Ctrl+P é imprimir
+      // e continua sendo.
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const picked = TOOLS.find(t => t.key === e.key.toLowerCase())
+      if (picked && canAnnotate) pickTool(picked.value)
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [next, prev, onNavigate, onClose, fit, zoomCentre])
+  })
 
-  const toolButton = (value: Tool, Icon: typeof Pen, label: string) => (
-    <Button
-      key={value}
-      size="icon"
-      variant={tool === value ? "default" : "ghost"}
-      onClick={() => pickTool(value)}
-      title={label}
-      className="h-9 w-9"
-    >
-      <Icon className="h-4 w-4" />
-    </Button>
-  )
+  const toolButton = ({ value, key, label, hint, icon: Icon }: (typeof TOOLS)[number]) => {
+    const active = tool === value
+    return (
+      <Button
+        key={value}
+        variant={active ? "default" : "ghost"}
+        onClick={() => pickTool(value)}
+        title={`${label} (${key.toUpperCase()})`}
+        className="h-9 gap-1.5 px-2 transition-all duration-200"
+      >
+        <Icon className="h-4 w-4" />
+        {/* Aberto só quando ativo, e só onde há largura: a dica é para quem
+            acabou de escolher a ferramenta, não uma legenda permanente de
+            cinco botões. */}
+        <span
+          className={`hidden overflow-hidden whitespace-nowrap text-xs transition-all duration-200 lg:inline-block ${
+            active ? "max-w-[15rem] opacity-90" : "max-w-0 opacity-0"
+          }`}
+        >
+          {hint}
+        </span>
+        {/* A tecla só no computador: no tablet não há teclado para ela indicar. */}
+        <Kbd className="hidden bg-black/20 text-current md:inline-flex">{key.toUpperCase()}</Kbd>
+      </Button>
+    )
+  }
 
   const strokeScale = pageHeight / 400
   const pageStyle = {
@@ -402,6 +615,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             view={view}
             width={size.width}
             height={size.height}
+            pageWidth={pageWidth}
+            pageHeight={pageHeight}
           />
         )}
 
@@ -412,24 +627,39 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           className="pointer-events-none absolute select-none"
           style={pageStyle}
         >
-          {annotations?.map(a => (
+          {/* Entre a resposta do servidor e a limpeza da memória existe um
+              quadro em que o mesmo traço está nas duas listas. Sem este filtro
+              ele é desenhado duas vezes, com a mesma chave. */}
+          {[
+            ...(annotations ?? []),
+            ...pending.filter(m => !annotations?.some(a => a.id === m.id)),
+          ].map(a => (
             <path
               key={a.id}
               d={pointsToPath(a.geometry?.points ?? [], pageWidth, pageHeight)}
               fill="none"
               stroke={a.color}
               strokeWidth={Number(a.width) * strokeScale}
-              strokeOpacity={Number(a.opacity)}
+              strokeOpacity={Number(a.opacity) * fade(a.id)}
               strokeLinecap="round"
               strokeLinejoin="round"
+              onPointerEnter={() => tool === "erase" && setUnder(a.id)}
+              onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
               onPointerDown={e => {
                 if (tool !== "erase" || !canAnnotate) return
                 e.stopPropagation()
-                deleteAnnotation.mutate(a.id)
+                setErasing(list => [...list, a.id])
+                deleteAnnotation.mutate(a.id, {
+                  // Some da lista de apagados quando a resposta chega: se deu
+                  // certo o traço já saiu da listagem, e se falhou ele volta ao
+                  // peso normal em vez de ficar meio apagado para sempre.
+                  onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
+                })
               }}
               style={{
                 cursor: tool === "erase" ? "pointer" : "inherit",
                 pointerEvents: tool === "erase" ? "stroke" : "none",
+                transition: "stroke-opacity 150ms ease",
               }}
             />
           ))}
@@ -439,27 +669,49 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               d={pointsToPath(drawing, pageWidth, pageHeight)}
               fill="none"
               stroke={color}
-              strokeWidth={(tool === "highlighter" ? width * 6 : width) * strokeScale}
+              strokeWidth={width * strokeScale}
               strokeOpacity={opacity}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           )}
 
+          {/* O achado fica marcado como marca-texto sobre papel: o da vez em
+              laranja forte, os outros em amarelo, para a leitura saber onde
+              está e quantos faltam sem precisar contar. */}
+          {hits.map((h, i) => (
+            <rect
+              key={`${h.x}-${h.y}-${i}`}
+              x={h.x}
+              y={h.y}
+              width={h.width}
+              height={h.height}
+              className={i === hit ? "fill-orange-500/45" : "fill-yellow-400/35"}
+            />
+          ))}
+
           {events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
             <g
               key={e.id}
               transform={`translate(${(e.pageX ?? 0) * pageWidth} ${(e.pageY ?? 0) * pageHeight})`}
+              onPointerEnter={() => tool === "erase" && setUnder(e.id)}
+              onPointerLeave={() => setUnder(u => u === e.id ? null : u)}
               onPointerDown={ev => {
                 if (tool !== "erase" || !canAnnotate) return
                 ev.stopPropagation()
+                setErasing(list => [...list, e.id])
                 // Soltar o pino não apaga o evento: ele fica em Tasks, com o que
                 // já foi respondido nele. O que sai é a marca sobre a prancha.
-                updateEvent.mutate({ eventId: e.id, patch: { detach: true } })
+                updateEvent.mutate(
+                  { eventId: e.id, patch: { detach: true } },
+                  { onSettled: () => setErasing(list => list.filter(id => id !== e.id)) },
+                )
               }}
               style={{
                 cursor: tool === "erase" ? "pointer" : "inherit",
                 pointerEvents: tool === "erase" ? "auto" : "none",
+                opacity: fade(e.id),
+                transition: "opacity 150ms ease",
               }}
             >
               <circle
@@ -482,8 +734,56 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           topo rouba altura da folha, que é o que a pessoa veio ver. Em cima a
           identificação e a saída, nas laterais a virada de página, embaixo as
           ferramentas e o zoom, onde o polegar chega sem soltar o tablet. */}
-      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[min(60vw,28rem)] items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-2 shadow-lg backdrop-blur">
-        <div className="min-w-0">
+      {/* Que obra, e depois que folha. Em tela cheia a barra lateral some, e sem
+          isto a prancha aberta não diz de qual projeto ela é: numa comunidade
+          com trinta lotes iguais, isso é a diferença entre marcar a casa certa e
+          a errada. */}
+      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[min(70vw,36rem)] items-stretch gap-2">
+        {jobsite && (
+          <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-white/10 bg-neutral-800/90 px-2.5 py-1.5 shadow-lg backdrop-blur">
+            {/* O selo da casa na prancha aberta. O leitor ocupa a tela inteira e
+                perde toda a moldura do produto: sem isto, a folha em tela cheia
+                podia ser de qualquer visualizador de PDF. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/minilogo_white.png"
+              alt="Premium Group"
+              className="h-7 w-7 shrink-0 object-contain"
+            />
+            <span className="h-8 w-px shrink-0 bg-white/10" />
+
+            <span className="flex min-w-0 flex-col justify-center gap-0.5">
+            <span className="flex items-center gap-1.5 text-xs text-white/70">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">
+                {placeLabel(jobsite.community || jobsite.address || jobsite.name)}
+              </span>
+            </span>
+            {/* A obra à esquerda e o cliente à direita, na mesma linha: são os
+                dois dados de mesmo peso, e empilhá-los fazia o bloco crescer
+                para dizer o que cabia lado a lado. */}
+            <span className="flex items-center justify-between gap-2.5">
+              <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold leading-tight text-white">
+                {(() => {
+                  const K = (KIND_META[jobsite.kind] ?? KIND_META.house).icon
+                  return <K className="h-3.5 w-3.5 shrink-0 text-white/60" />
+                })()}
+                <span className="truncate">
+                  {[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
+                    .filter(Boolean).join(" ")}
+                </span>
+              </span>
+              {/* Sem caixa alta: o nome vem do cadastro já escrito como se
+                  escreve, e gritá-lo aqui não acrescenta nada. */}
+              <span className="shrink-0 truncate text-xs capitalize text-white/60">
+                {jobsite.client || "No client"}
+              </span>
+            </span>
+            </span>
+          </div>
+        )}
+
+        <div className="flex min-w-0 flex-col justify-center rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-1.5 shadow-lg backdrop-blur">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
           </p>
@@ -493,11 +793,67 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         </div>
       </div>
 
-      <div className="pointer-events-none absolute right-4 top-4 flex items-center gap-1 rounded-lg border border-white/10 bg-neutral-800/90 p-1 shadow-lg backdrop-blur">
+      <div className="absolute right-4 top-4 flex items-center gap-1 rounded-lg border border-white/10 bg-neutral-800/90 p-1 shadow-lg backdrop-blur">
+        {/* Procurar texto na prancha. O plano guarda o texto que foi impresso
+            nele, então achar "U341" é leitura de PDF, não busca em imagem. */}
+        {finding && (
+          <div className="flex items-center gap-1">
+            <input
+              autoFocus
+              value={needle}
+              onChange={e => setNeedle(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter") goToHit(e.shiftKey ? -1 : 1)
+                if (e.key === "Escape") { setFinding(false); setNeedle(""); setHits([]) }
+              }}
+              placeholder="Find on this sheet"
+              className="h-9 w-44 rounded-md border border-white/15 bg-white/5 px-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-white/40"
+            />
+            <span className="w-16 shrink-0 text-center text-xs tabular-nums text-white/60">
+              {searching ? "…"
+                : needle.trim().length < 2 ? ""
+                : hits.length ? `${hit + 1} of ${hits.length}`
+                : "none"}
+            </span>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={!hits.length}
+              onClick={() => goToHit(-1)}
+              title="Previous match (Shift+Enter)"
+              className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={!hits.length}
+              onClick={() => goToHit(1)}
+              title="Next match (Enter)"
+              className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        <Button
+          size="icon"
+          variant={finding ? "default" : "ghost"}
+          className="h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+          title="Find text on this sheet"
+          onClick={() => {
+            const open = !finding
+            setFinding(open)
+            if (!open) { setNeedle(""); setHits([]) }
+          }}
+        >
+          <Search className="h-4 w-4" />
+        </Button>
         <Button
           size="icon"
           variant="ghost"
-          className="pointer-events-auto h-9 w-9 text-white hover:bg-white/10 hover:text-white"
+          className="pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
           disabled={!source?.url}
           title="Download this plan"
           onClick={() => source && downloadPlan(
@@ -511,7 +867,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="pointer-events-auto h-9 w-9 text-white hover:bg-white/10 hover:text-white"
+          className="pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
           onClick={onClose}
           title="Close"
         >
@@ -525,7 +881,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(prev)}
           title="Previous plan"
-          className="absolute left-4 top-1/2 h-11 w-11 -translate-y-1/2 rounded-full border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -536,30 +892,26 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(next)}
           title="Next plan"
-          className="absolute right-4 top-1/2 h-11 w-11 -translate-y-1/2 rounded-full border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
       )}
 
       {canAnnotate && (
-        <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 p-1.5 text-white shadow-lg backdrop-blur">
+        <div className="absolute bottom-4 left-4 flex max-w-[calc(100vw-9rem)] flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 p-1.5 text-white shadow-lg backdrop-blur transition-all duration-200">
           <div className="flex items-center gap-1">
-            {toolButton("pan", Hand, "Move the sheet")}
-            {toolButton("pen", Pen, "Pen")}
-            {toolButton("highlighter", Highlighter, "Highlighter")}
-            {toolButton("pin", MapPin, "Event pin")}
-            {toolButton("erase", Eraser, "Erase stroke or take the pin off")}
+            {TOOLS.map(toolButton)}
           </div>
 
           {drawTool && (
             <>
               <span className="h-6 w-px bg-white/15" />
               <div className="flex items-center gap-1">
-                {COLORS.map(c => (
+                {palette.map(c => (
                   <button
                     key={c.value}
-                    onClick={() => setColor(c.value)}
+                    onClick={() => setInk({ color: c.value })}
                     title={c.label}
                     style={{ background: c.value }}
                     className={`h-6 w-6 rounded-full border transition-transform ${
@@ -571,38 +923,40 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
               <span className="h-6 w-px bg-white/15" />
               <div className="flex items-center gap-1">
-                {WIDTHS.map(w => (
+                {widths.map((w, i) => (
                   <button
                     key={w}
-                    onClick={() => setWidth(w)}
-                    title={`${w} pt`}
+                    onClick={() => { setInk({ width: w }); showSample() }}
+                    title={`Stroke ${i + 1} of ${widths.length}`}
                     className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
                       width === w ? "bg-white/20" : "hover:bg-white/10"
                     }`}
                   >
                     <span
                       className="rounded-full bg-white"
-                      style={{ width: `${2 + w}px`, height: `${2 + w}px` }}
+                      style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
                     />
                   </button>
                 ))}
               </div>
 
-              <span className="h-6 w-px bg-white/15" />
-              {/* Opacidade solta o traço da ferramenta: marca-texto mais forte
-                  sobre hachura, caneta mais fraca sobre cota que não pode
-                  sumir. */}
-              <div className="flex w-36 items-center gap-2 px-1">
-                <Slider
-                  value={[Math.round(opacity * 100)]}
-                  min={10}
-                  max={100}
-                  step={5}
-                  onValueChange={v => setOpacity((Array.isArray(v) ? v[0] : v) / 100)}
-                  className="flex-1"
-                />
-                <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-white/70">
-                  {Math.round(opacity * 100)}%
+              {/* A amostra do traço escolhido, do tamanho que ele vai sair no
+                  zoom em que a prancha está. Uma bolinha de sete pixels no botão
+                  não diz nada sobre o que cai no papel; esta linha diz. */}
+              <div
+                className={`flex items-center overflow-hidden transition-all duration-200 ${
+                  sample ? "max-w-[9rem] opacity-100" : "max-w-0 opacity-0"
+                }`}
+              >
+                <span className="flex h-9 w-32 shrink-0 items-center justify-center rounded-md bg-white px-2">
+                  <span
+                    className="w-full rounded-full"
+                    style={{
+                      background: color,
+                      opacity,
+                      height: Math.max(1, Math.min(28, width * strokeScale * view.scale)),
+                    }}
+                  />
                 </span>
               </div>
             </>
@@ -614,7 +968,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={() => zoomCentre(1.25)}
           title="Zoom in"
         >
@@ -623,14 +977,14 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <button
           onClick={fit}
           title="Fit the sheet to the screen"
-          className="flex w-10 items-center justify-center gap-1 border-x border-white/10 bg-neutral-800/90 py-1 text-[10px] tabular-nums text-white/70 shadow-lg backdrop-blur hover:text-white"
+          className="flex w-10 items-center justify-center gap-1 border-x border-white/10 bg-neutral-800/90 py-1 text-[10px] tabular-nums text-white/70 shadow-lg backdrop-blur transition-all hover:text-white"
         >
           {zoomLabel(zoom)}
         </button>
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-none border-x border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="h-10 w-10 rounded-none border-x border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={fit}
           title="Fit to screen"
         >
@@ -639,7 +993,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         <Button
           size="icon"
           variant="ghost"
-          className="h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur hover:bg-neutral-700 hover:text-white"
+          className="h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
           onClick={() => zoomCentre(0.8)}
           title="Zoom out"
         >
