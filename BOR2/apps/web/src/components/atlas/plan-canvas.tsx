@@ -42,7 +42,9 @@ const FADE_MS = 160
  * de ser um salto: o pop-in não some, porque para sumir seria preciso
  * rasterizar o PDF a cada quadro do gesto, mas para de saltar aos olhos.
  */
-export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pageHeight }: {
+export function PlanCanvas({
+  url, pageIndex, view, width, height, pageWidth, pageHeight, onReady, onFail,
+}: {
   url: string
   pageIndex: number
   view: PlanView
@@ -50,6 +52,10 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
   height: number
   pageWidth: number
   pageHeight: number
+  /** Chamado quando o primeiro quadro desta folha terminou de ser desenhado. */
+  onReady?: () => void
+  /** Chamado quando o arquivo da folha não abre: rede, permissão ou PDF quebrado. */
+  onFail?: () => void
 }) {
   const baseRef = useRef<HTMLCanvasElement>(null)
   const sharpRefs = [useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null)]
@@ -66,6 +72,9 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
   const idle = useRef<ReturnType<typeof setTimeout> | null>(null)
   const task = useRef<{ cancel: () => void } | null>(null)
   const busy = useRef(false)
+  // Só o primeiro quadro de cada folha avisa: os seguintes são refinamento de
+  // zoom e de deslocamento, e a tela já está mostrando a página certa.
+  const announced = useRef(false)
 
   useEffect(() => { frontRef.current = front }, [front])
 
@@ -73,6 +82,7 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
   useEffect(() => {
     let cancelled = false
     drawn.current = [null, null]
+    announced.current = false
     setBaseReady(false)
 
     ;(async () => {
@@ -93,13 +103,15 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
         await page.render({ canvasContext: ctx, viewport }).promise
         if (!cancelled) setBaseReady(true)
       } catch {
-        // Sem fundo o leitor continua funcionando: volta a ser só a camada
-        // nítida, como era antes.
+        // A folha não abriu. Quem pede o arquivo é esta camada e a nítida, pelo
+        // mesmo cache: se falhou aqui, falhou para as duas, e girar para sempre
+        // seria mentir que ainda está vindo.
+        if (!cancelled) onFail?.()
       }
     })()
 
     return () => { cancelled = true }
-  }, [url, pageIndex])
+  }, [url, pageIndex, onFail])
 
   // ── Camada nítida: a cada parada do gesto ─────────────────────────────────
   useEffect(() => {
@@ -169,6 +181,7 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
         c.style.transform = ""
         frontRef.current = back
         setFront(back)
+        if (!announced.current) { announced.current = true; onReady?.() }
       } catch {
         // Render cancelado no meio do gesto é o caso normal: o próximo quadro
         // resolve, e o desenho anterior segue na tela até lá.
@@ -189,7 +202,7 @@ export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pag
       cancelAnimationFrame(frame.current)
       if (idle.current) clearTimeout(idle.current)
     }
-  }, [url, pageIndex, view, width, height])
+  }, [url, pageIndex, view, width, height, onReady])
 
   return (
     <>
