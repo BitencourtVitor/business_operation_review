@@ -298,3 +298,37 @@ body {
     animation: none;
   }
 }
+
+/* Formiguinhas na borda do que foi escolhido por trecho.
+ *
+ * Escolher uma folha é um gesto pontual e a borda parada dá conta. Escolher da
+ * 1 à 18 é um gesto sobre um conjunto, e o conjunto precisa se anunciar como
+ * conjunto: o tracejado correndo liga os cartões entre si e mostra onde a faixa
+ * começa e onde termina, que é a única coisa que a borda estática não diz. */
+@keyframes atlas-ants {
+  to {
+    background-position: left 12px top, right 12px bottom, left bottom 12px, right top 12px;
+  }
+}
+
+.atlas-ants::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--color-primary) 50%, transparent 0) repeat-x,
+    linear-gradient(90deg, var(--color-primary) 50%, transparent 0) repeat-x,
+    linear-gradient(0deg, var(--color-primary) 50%, transparent 0) repeat-y,
+    linear-gradient(0deg, var(--color-primary) 50%, transparent 0) repeat-y;
+  background-size: 12px 2px, 12px 2px, 2px 12px, 2px 12px;
+  background-position: left top, right bottom, left bottom, right top;
+  animation: atlas-ants 0.7s infinite linear;
+}
+
+/* Quem pediu para o sistema não animar não quer isto correndo na tela. */
+@media (prefers-reduced-motion: reduce) {
+  .atlas-ants::after { animation: none; }
+}

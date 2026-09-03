@@ -51,13 +51,15 @@ function bytes(n: number) {
 // identificação no rodapé. É como o Fieldwire e o MiTek mostram um set, e por um
 // motivo prático: o que distingue uma planta da outra é o desenho, não o número
 // dela. Em lista, a imagem cabia em 64x48 e não distinguia nada.
-function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picked, onPick, onOpen }: {
+function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picked, march, onPick, onOpen }: {
   sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string
   /** Ainda na fila do corte: o recorte dela não existe no bucket. */
   waiting?: boolean
   /** A grade está em modo de escolha: a folha ganha caixa e o toque marca. */
   picking?: boolean
   picked?: boolean
+  /** Escolhido dentro de uma faixa: a borda corre para o conjunto se anunciar. */
+  march?: boolean
   onPick?: () => void
   onOpen: () => void
 }) {
@@ -80,9 +82,9 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   }
 
   return (
-    <div className={`group/card flex aspect-square flex-col overflow-hidden rounded-lg border bg-card transition-colors ${
+    <div className={`group/card relative flex aspect-square flex-col overflow-hidden rounded-lg border bg-card transition-colors ${
       picked ? "border-primary" : "border-border/60 hover:border-primary/40"
-    }`}>
+    } ${march ? "atlas-ants" : ""}`}>
       {/* Sem respiro em volta da imagem: a moldura do cartão já é a moldura da
           prancha, e qualquer margem aqui só encolhe o desenho. */}
       <button
@@ -106,10 +108,11 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
           </span>
         )}
 
-        {/* A caixa no canto da prancha, e não no rodapé: escolher folha é olhar
-            para o desenho, e é ali que a mão já está. */}
+        {/* A caixa na quina superior esquerda, que é onde a leitura começa e onde
+            a mão já está: escolher folha é olhar para o desenho, não descer até
+            o rodapé do cartão. */}
         {picking && (
-          <span className={`absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
+          <span className={`absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
             picked
               ? "border-primary bg-primary text-primary-foreground"
               : "border-white/70 bg-background/70"
@@ -201,7 +204,15 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
 
           Vazio quando nada foi marcado: uma fileira de zeros ocuparia a mesma
           linha para dizer que não há nada. */}
-      <div className="flex h-6 shrink-0 items-center justify-center gap-3 px-2 pb-1.5 text-[11px] text-muted-foreground">
+      {/* O espaço em branco se reparte por igual, inclusive nas pontas: são
+          poucas categorias e a sobra é grande, então agrupá-las no meio deixava
+          duas ilhas de vazio nos cantos. Com `evenly` cada ícone fica no centro
+          da própria fatia, e a linha se lê como uma régua.
+
+          Folha sem marca nenhuma não tem rodapé: a faixa vazia comia altura da
+          prancha em 96 de 97 cartões para não dizer nada. */}
+      {(sheet.links > 0 || sheet.highlights > 0 || sheet.notes > 0) && (
+      <div className="flex h-6 shrink-0 items-center justify-evenly gap-1 px-2 pb-1.5 text-[11px] text-muted-foreground">
         {sheet.links > 0 && (
           <span className="flex items-center gap-1" title={`${sheet.links} link${sheet.links > 1 ? "s" : ""}`}>
             <Link2 className="h-3.5 w-3.5" style={{ color: MARK_COLORS.link }} />
@@ -221,6 +232,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
           </span>
         )}
       </div>
+      )}
     </div>
   )
 }
@@ -655,6 +667,7 @@ export default function DocumentPage() {
                         waiting={!s.r2Key && !previews.has(s.pageIndex)}
                         picking={!!picking}
                         picked={chosen.has(s.id)}
+                        march={picking === "range" && chosen.has(s.id)}
                         onPick={() => pick(s, sheets)}
                         onOpen={() => setOpenSheet(s)}
                       />
