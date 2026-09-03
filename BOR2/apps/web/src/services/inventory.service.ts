@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/store/auth.store';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
 export interface ConsumoVsLimite {
@@ -62,10 +64,15 @@ export interface InventoryData {
 
 export const inventoryService = {
   async getInventory(): Promise<InventoryData> {
+    // O token vem do store da sessão, como no resto do sistema. Aqui ele era
+    // lido de `localStorage.auth_token`, chave que não existe: o valor saía
+    // nulo, o cabeçalho ia como "Bearer null" e a API respondia 401 sempre. A
+    // tela então mostrava "Failed to load inventory data" como se o dado
+    // tivesse quebrado, quando ninguém nunca chegou a pedi-lo autenticado.
     const res = await fetch(`${API_URL}/api/v1/inventory`, {
       credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        Authorization: `Bearer ${useAuthStore.getState().token ?? ''}`,
       },
     });
     if (!res.ok) throw new Error(`Failed to fetch inventory: ${res.statusText}`);

@@ -329,11 +329,22 @@ function NavGroupItems({
   const router = useRouter()
   return (
     <SidebarMenu>
-      {items.map((item) => {
+      {items.map((item, i) => {
+        // A barra entra item a item, de cima para baixo, como no Atlas. Não é
+        // enfeite: quinze linhas aparecendo de uma vez são um bloco, e a pessoa
+        // tem de varrer tudo para achar onde ir. Entrando em sequência, o olho
+        // acompanha e a ordem do menu se lê sozinha.
+        //
+        // O atraso tem teto: sem ele o último item da lista longa levaria quase
+        // um segundo para existir, e aí a animação vira espera.
+        const enter = {
+          className: "fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2",
+          style: { animationDelay: `${Math.min(60 + i * 35, 480)}ms` },
+        }
         // On mobile, every page except /forecast is locked — tapping redirects to /forecast
         if (isMobile && item.href !== "/bor/forecast") {
           return (
-            <SidebarMenuItem key={item.title + item.href}>
+            <SidebarMenuItem key={item.title + item.href} {...enter}>
               <SidebarMenuButton
                 render={<Link href="/bor/forecast" />}
                 className="opacity-40"
@@ -353,7 +364,7 @@ function NavGroupItems({
         const hasRightAction = hasGear || hasMetrics
 
         return item.children ? (
-          <SidebarMenuItem key={item.title}>
+          <SidebarMenuItem key={item.title} {...enter}>
             {!open ? (
               <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} isDev={isDev} onEditOpen={onEditOpen} />
             ) : (
@@ -412,9 +423,17 @@ function NavGroupItems({
                   </TooltipProvider>
                 )}
                 {isItemExpanded(item) && (
-                  <SidebarMenuSub className="gap-1 py-1">
-                    {item.children.map((child) => (
-                      <SidebarMenuSubItem key={child.title + child.href}>
+                  <SidebarMenuSub className="gap-1 py-1 duration-200 animate-in fade-in-0">
+                    {/* Abrir um grupo é o mesmo gesto de abrir a barra, em
+                        escala menor: os filhos entram em sequência, e o passo é
+                        mais curto porque são poucos e estão logo abaixo do
+                        cursor, onde a espera se nota mais. */}
+                    {item.children.map((child, ci) => (
+                      <SidebarMenuSubItem
+                        key={child.title + child.href}
+                        className="fill-mode-backwards duration-200 animate-in fade-in-0 slide-in-from-left-2"
+                        style={{ animationDelay: `${ci * 40}ms` }}
+                      >
                         <SidebarMenuSubButton
                           isActive={isActive(child.href)}
                           {...(child.devOnly && !isDev
@@ -458,7 +477,7 @@ function NavGroupItems({
             )}
           </SidebarMenuItem>
         ) : (
-          <SidebarMenuItem key={item.title + item.href}>
+          <SidebarMenuItem key={item.title + item.href} {...enter}>
             {item.devOnly && !isDev ? (
               <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
                 <NavItemIcon item={item} />
