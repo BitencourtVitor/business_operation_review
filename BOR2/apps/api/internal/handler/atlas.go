@@ -724,7 +724,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
 		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0),
-		       COALESCE(au.name,''), COALESCE(au.role,''), u.uploaded_at
+		       COALESCE(au.name,''), COALESCE(au.role::text,''), u.uploaded_at
 		FROM atlas_document d
 		LEFT JOIN LATERAL (
 			SELECT v.id, v.revision, v.status, v.uploaded_by, v.uploaded_at
