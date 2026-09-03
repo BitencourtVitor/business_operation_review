@@ -1,7 +1,7 @@
 "use client"
 
 import { loadPdf } from "@/components/atlas/pdf-page"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export interface PlanView {
   /** Pixels de tela por ponto do PDF. */
@@ -15,65 +15,124 @@ export interface PlanView {
 // reportar 2; telas 3x rendem em 2,5 sem diferença visível a olho nu.
 const MAX_DPR = 2.5
 
+// Largura da camada de fundo, em pixels. Uma prancha inteira nisto é ~1,8 M de
+// pixels e ~7 MB, independente do tamanho do papel: a folha de 42 polegadas
+// custa o mesmo que a A1. Desenha uma vez, em ~55 ms, e depois só é esticada.
+const BASE_WIDTH = 1600
+
+// Quanto dura a troca entre o quadro esticado e o nítido. Abaixo de ~100 ms o
+// olho lê como salto; acima de ~250 ms o desenho parece demorar a firmar.
+const FADE_MS = 160
+
 /**
- * A página desenhada só onde ela aparece.
+ * A página em camadas: a folha inteira embaixo, o pedaço nítido em cima.
  *
- * O leitor antigo dava ao canvas o tamanho da página inteira multiplicado pelo
- * zoom. A 400% numa prancha de 42 polegadas isso já pedia mais de 16 mil pixels
- * de largura, que é o limite de dimensão do navegador: passava dali e o canvas
- * saía em branco. Era esse o teto, não uma escolha de produto.
+ * O canvas nítido tem o tamanho da área visível e nada mais, e é isso que
+ * permite ampliar até 64x sem estourar o limite de dimensão do navegador, que é
+ * o que travava o leitor antigo em 4x. O preço é que ele só sabe o que está na
+ * tela: ao arrastar, a faixa que entra ainda não foi desenhada.
  *
- * Aqui o canvas tem o tamanho da área visível e mais nada. O zoom entra na
- * escala do vetor e a posição entra como translação, então ampliar não custa
- * memória nenhuma: 6400% desenha a mesma quantidade de pixels que 100%, e cada
- * um deles é um pixel físico da tela. É por isso que a letra fica nítida em vez
- * de esticada.
+ * Daí a camada de baixo. Ela é a página inteira, desenhada uma única vez em
+ * resolução modesta, e acompanha o gesto só por CSS. Nunca há vazio: o que
+ * chega já vem preenchido, e o nítido substitui por cima quando a mão para.
+ *
+ * A camada nítida é dupla, e alterna. O novo quadro é desenhado no canvas que
+ * está escondido e só então aparece, com meio suspiro de transição por cima do
+ * anterior. Assim nunca se vê o canvas sendo pintado, e a troca de nitidez deixa
+ * de ser um salto: o pop-in não some, porque para sumir seria preciso
+ * rasterizar o PDF a cada quadro do gesto, mas para de saltar aos olhos.
  */
-export function PlanCanvas({ url, pageIndex, view, width, height, onReady }: {
+export function PlanCanvas({ url, pageIndex, view, width, height, pageWidth, pageHeight }: {
   url: string
   pageIndex: number
   view: PlanView
   width: number
   height: number
-  onReady?: () => void
+  pageWidth: number
+  pageHeight: number
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  // O que está de fato desenhado no canvas agora. Enquanto o gesto acontece, a
-  // diferença entre isto e `view` vira transformação de CSS: o desenho antigo
-  // acompanha o dedo de graça, e o nítido chega quando a mão para.
-  const drawn = useRef<PlanView | null>(null)
+  const baseRef = useRef<HTMLCanvasElement>(null)
+  const sharpRefs = [useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null)]
+  const [baseReady, setBaseReady] = useState(false)
+  // Qual dos dois está na frente. O outro é onde o próximo quadro é desenhado.
+  const [front, setFront] = useState(0)
+
+  // O que cada canvas tem desenhado. Enquanto o gesto acontece, a diferença
+  // entre isto e `view` vira transformação de CSS: o desenho antigo acompanha o
+  // dedo de graça, e o nítido chega quando a mão para.
+  const drawn = useRef<(PlanView | null)[]>([null, null])
+  const frontRef = useRef(0)
   const frame = useRef(0)
   const idle = useRef<ReturnType<typeof setTimeout> | null>(null)
   const task = useRef<{ cancel: () => void } | null>(null)
   const busy = useRef(false)
 
-  useEffect(() => { drawn.current = null }, [url, pageIndex])
+  useEffect(() => { frontRef.current = front }, [front])
 
+  // ── Camada de fundo: uma vez por página ───────────────────────────────────
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || width <= 0 || height <= 0) return
+    let cancelled = false
+    drawn.current = [null, null]
+    setBaseReady(false)
+
+    ;(async () => {
+      try {
+        const pdf = await loadPdf(url)
+        const page = await pdf.getPage(pageIndex + 1)
+        const natural = page.getViewport({ scale: 1 })
+        const viewport = page.getViewport({ scale: BASE_WIDTH / natural.width })
+        const canvas = baseRef.current
+        if (!canvas || cancelled) return
+
+        canvas.width = Math.round(viewport.width)
+        canvas.height = Math.round(viewport.height)
+        const ctx = canvas.getContext("2d", { alpha: false })
+        if (!ctx) return
+        ctx.fillStyle = "#ffffff"
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        await page.render({ canvasContext: ctx, viewport }).promise
+        if (!cancelled) setBaseReady(true)
+      } catch {
+        // Sem fundo o leitor continua funcionando: volta a ser só a camada
+        // nítida, como era antes.
+      }
+    })()
+
+    return () => { cancelled = true }
+  }, [url, pageIndex])
+
+  // ── Camada nítida: a cada parada do gesto ─────────────────────────────────
+  useEffect(() => {
+    if (width <= 0 || height <= 0) return
 
     const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1)
 
+    // Cada canvas acompanha o gesto a partir do que ele próprio tem desenhado:
+    // durante a troca os dois estão na tela, e um transform comum deslocaria o
+    // que está saindo.
     function preview() {
-      const c = canvasRef.current
-      const base = drawn.current
-      if (!c) return
-      if (!base) { c.style.transform = "" ; return }
-      const k = view.scale / base.scale
-      c.style.transformOrigin = "0 0"
-      c.style.transform = `translate(${view.x - base.x * k}px, ${view.y - base.y * k}px) scale(${k})`
+      for (let i = 0; i < 2; i++) {
+        const c = sharpRefs[i].current
+        const base = drawn.current[i]
+        if (!c) continue
+        if (!base) { c.style.transform = ""; continue }
+        const k = view.scale / base.scale
+        c.style.transformOrigin = "0 0"
+        c.style.transform = `translate(${view.x - base.x * k}px, ${view.y - base.y * k}px) scale(${k})`
+      }
     }
 
     async function draw() {
-      const c = canvasRef.current
-      if (!c || busy.current) return
+      if (busy.current) return
+      const back = 1 - frontRef.current
+      const c = sharpRefs[back].current
+      if (!c) return
       busy.current = true
       const target: PlanView = { ...view }
       try {
         const pdf = await loadPdf(url)
         const page = await pdf.getPage(pageIndex + 1)
-        const ctx = c.getContext("2d", { alpha: false })
+        const ctx = c.getContext("2d", { alpha: true })
         if (!ctx) return
 
         const w = Math.max(1, Math.round(width * dpr))
@@ -81,17 +140,16 @@ export function PlanCanvas({ url, pageIndex, view, width, height, onReady }: {
         if (c.width !== w || c.height !== h) { c.width = w; c.height = h }
 
         const viewport = page.getViewport({ scale: target.scale * dpr })
-
-        // O vazio é escuro e só a folha é branca. Pintar o canvas inteiro de
-        // branco fazia a prancha perder as quinas: a pessoa arrastava para o
-        // nada achando que ainda estava sobre o desenho.
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.fillStyle = "#171717"
-        ctx.fillRect(0, 0, w, h)
         const px = Math.round(target.x * dpr)
         const py = Math.round(target.y * dpr)
+
+        // Transparente fora da folha: é o que deixa a camada de fundo aparecer
+        // por baixo enquanto esta ainda não cobriu o que entrou na tela.
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.clearRect(0, 0, w, h)
         ctx.fillStyle = "#ffffff"
         ctx.fillRect(px, py, viewport.width, viewport.height)
+
         task.current?.cancel()
         // A translação entra pelo `transform` do próprio pdf.js: o vetor é
         // desenhado já deslocado e o canvas recorta o que sobra, então só o que
@@ -104,16 +162,13 @@ export function PlanCanvas({ url, pageIndex, view, width, height, onReady }: {
         task.current = render
         await render.promise
 
-        // Fio de contorno: a borda da folha branca sobre o fundo escuro já se
-        // vê, mas o papel de plano costuma ter margem larga e branca demais
-        // para o olho achar onde ele acaba.
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.strokeStyle = "rgba(255,255,255,0.25)"
-        ctx.lineWidth = 1
-        ctx.strokeRect(px + 0.5, py + 0.5, viewport.width - 1, viewport.height - 1)
-        drawn.current = target
+        // Pronto e ainda escondido: agora ele vem para a frente, e o anterior
+        // se apaga por baixo dele em vez de desaparecer de um quadro para o
+        // outro.
+        drawn.current[back] = target
         c.style.transform = ""
-        onReady?.()
+        frontRef.current = back
+        setFront(back)
       } catch {
         // Render cancelado no meio do gesto é o caso normal: o próximo quadro
         // resolve, e o desenho anterior segue na tela até lá.
@@ -126,21 +181,44 @@ export function PlanCanvas({ url, pageIndex, view, width, height, onReady }: {
     frame.current = requestAnimationFrame(preview)
 
     if (idle.current) clearTimeout(idle.current)
-    // Sem desenho nenhum ainda, desenha já; com desenho na tela, espera a mão
-    // parar. Redesenhar a cada quadro de um gesto é o que trava o tablet.
-    idle.current = setTimeout(() => { void draw() }, drawn.current ? 90 : 0)
+    // Com a folha inteira desenhada por baixo, esperar menos é seguro: o que
+    // aparece antes do nítido já é a página, não um buraco.
+    idle.current = setTimeout(() => { void draw() }, drawn.current[frontRef.current] ? 60 : 0)
 
     return () => {
       cancelAnimationFrame(frame.current)
       if (idle.current) clearTimeout(idle.current)
     }
-  }, [url, pageIndex, view, width, height, onReady])
+  }, [url, pageIndex, view, width, height])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 h-full w-full"
-      style={{ width, height }}
-    />
+    <>
+      <canvas
+        ref={baseRef}
+        aria-hidden
+        className="absolute origin-top-left"
+        style={{
+          left: 0,
+          top: 0,
+          width: pageWidth * view.scale,
+          height: pageHeight * view.scale,
+          transform: `translate(${view.x}px, ${view.y}px)`,
+          visibility: baseReady ? "visible" : "hidden",
+        }}
+      />
+      {[0, 1].map(i => (
+        <canvas
+          key={i}
+          ref={sharpRefs[i]}
+          className="absolute inset-0"
+          style={{
+            width,
+            height,
+            opacity: front === i ? 1 : 0,
+            transition: `opacity ${FADE_MS}ms linear`,
+          }}
+        />
+      ))}
+    </>
   )
 }

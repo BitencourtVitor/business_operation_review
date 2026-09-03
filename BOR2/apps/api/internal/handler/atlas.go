@@ -1428,10 +1428,13 @@ func (h *AtlasHandler) CreateAnnotation(c *fiber.Ctx) error {
 		in.ID = uuid.NewString()
 	}
 	userID, _ := actor(c)
+	// O cast para numeric não é enfeite: comparado com o literal 0, que é inteiro,
+	// o parâmetro era inferido como inteiro e toda opacidade fracionária virava
+	// zero, caía no COALESCE e voltava 1. O marca-texto saía opaco sempre.
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_annotation (id, sheet_id, author_id, tool, color, width, opacity, geometry)
 		VALUES ($1,$2,$3,COALESCE(NULLIF($4,''),'pen'),COALESCE(NULLIF($5,''),'#ef4444'),
-		        COALESCE(NULLIF($6,0),2), COALESCE(NULLIF($7,0),1), $8)
+		        COALESCE(NULLIF($6::numeric,0),2), COALESCE(NULLIF($7::numeric,0),1), $8)
 		ON CONFLICT (id) DO NOTHING`,
 		in.ID, sheetID, userID, in.Tool, in.Color, in.Width, in.Opacity, string(in.Geometry))
 	if err != nil {
