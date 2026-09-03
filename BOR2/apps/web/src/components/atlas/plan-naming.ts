@@ -224,21 +224,25 @@ export async function readPageNames(
   template: NamingTemplate,
   onProgress?: (done: number, total: number) => void,
   measure: (text: string) => number = ruler,
-  /** O nome do arquivo, para o modo `file` quando o PDF não declara título. */
+  /** O nome do arquivo anexado: é dele que o modo `file` tira o título. */
   fallbackTitle = "",
 ): Promise<PageName[]> {
   const pdf = await loadPdf(url)
   const out: PageName[] = []
 
   if (template.mode === "file") {
-    // O título declarado dentro do PDF vem antes do nome do arquivo: o primeiro
-    // é o que quem emitiu escreveu, o segundo é o que sobreviveu ao caminho até
-    // aqui, e "Panel - Production1 (2) final v3.pdf" é o que costuma sobreviver.
-    const meta = await (pdf as unknown as {
-      getMetadata?: () => Promise<{ info?: { Title?: string } }>
-    }).getMetadata?.().catch(() => null)
-    const declared = clean(meta?.info?.Title ?? "")
-    const title = declared || clean(fallbackTitle.replace(/\.pdf$/i, "")) || "Sheet"
+    // O nome do arquivo manda, e o `/Title` de dentro do PDF só entra quando não
+    // há arquivo nenhum a consultar. O metadado costuma trazer sobra do programa
+    // que gerou o PDF: o caminho do projeto, "Untitled", o nome de um template
+    // antigo. O nome do arquivo é o que a pessoa que anexou escolheu.
+    let title = clean(fallbackTitle.replace(/\.pdf$/i, ""))
+    if (!title) {
+      const meta = await (pdf as unknown as {
+        getMetadata?: () => Promise<{ info?: { Title?: string } }>
+      }).getMetadata?.().catch(() => null)
+      title = clean(meta?.info?.Title ?? "")
+    }
+    title = title || "Sheet"
     for (let n = 1; n <= pdf.numPages; n++) {
       // Numerado porque folha precisa ser distinguível: sem o número, as 97
       // páginas ficariam com o mesmo nome e o desempate resolveria isso com
