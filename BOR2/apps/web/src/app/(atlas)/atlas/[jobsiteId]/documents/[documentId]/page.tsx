@@ -593,7 +593,7 @@ export default function DocumentPage() {
                       // Trinta e dois de altura, igual aos botões que dividem a
                       // linha com ele: os dois pedaços somam 28 mais a borda
                       // interna, e a fileira para de ter um degrau no meio.
-                      <div className="flex h-8 items-center rounded-lg border border-border p-0.5">
+                      <div className="flex h-8 items-center gap-0.5 rounded-lg border border-border p-0.5">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
