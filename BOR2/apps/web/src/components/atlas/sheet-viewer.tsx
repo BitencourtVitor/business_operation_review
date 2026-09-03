@@ -871,16 +871,23 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             // folga. Em pé, ela entra por cima.
             const deitada = w >= hgt
 
-            function act(e: React.PointerEvent) {
+            // O toque só segura o gesto: sem isto o arraste sobre a marca vira
+            // deslocamento da prancha ou traço novo.
+            function hold(e: React.PointerEvent) {
               e.stopPropagation()
-              if (tool === "erase") {
-                if (!canAnnotate) return
-                setErasing(list => [...list, a.id])
-                deleteAnnotation.mutate(a.id, {
-                  onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
-                })
-                return
-              }
+              if (tool !== "erase" || !canAnnotate) return
+              setErasing(list => [...list, a.id])
+              deleteAnnotation.mutate(a.id, {
+                onSettled: () => setErasing(list => list.filter(id => id !== a.id)),
+              })
+            }
+
+            // Abrir janela é no clique, e não no toque. A janela que nascia no
+            // `pointerdown` via o `click` seguinte cair fora dela, que é
+            // exatamente o gesto de fechar: abria e fechava no mesmo movimento.
+            function act(e: React.MouseEvent) {
+              e.stopPropagation()
+              if (tool === "erase") return
               // Resolvido, o toque não salta: ele abre a janelinha com o nome do
               // destino. Saltar direto tirava a folha do lugar sem avisar, e
               // quem tocou por engano não sabia de onde tinha vindo.
@@ -918,7 +925,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                   strokeDasharray={target ? undefined : `${4 * px} ${3 * px}`}
                   onPointerEnter={() => tool === "erase" && setUnder(a.id)}
                   onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
-                  onPointerDown={act}
+                  onPointerDown={hold}
+                  onClick={act}
                   style={{ cursor: "pointer", pointerEvents: "all" }}
                 />
 
@@ -940,7 +948,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                     <line x1="8" x2="16" y1="12" y2="12" />
                   </g>
                 ) : (
-                  <g onPointerDown={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
+                  <g onPointerDown={hold} onClick={act} style={{ cursor: "pointer", pointerEvents: "all" }}>
                     <circle cx={x + w} cy={y} r={badge * 0.62} fill={LINK_COLOR} />
                     <text
                       x={x + w} y={y + badge * 0.26}
