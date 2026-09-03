@@ -90,6 +90,9 @@ func (h *AtlasHandler) jobsiteLevel(c *fiber.Ctx, jobsiteID string) (string, err
 	var allowed bool
 	if err := h.db.QueryRow(c.Context(), `
 		SELECT COALESCE(p.permissions::jsonb ->> 'atlas', '') = 'write'
+		   -- Subcontratado nunca entra por aqui, nem se alguém lhe der escrita
+		   -- por engano: ele entra obra a obra, pela linha de acesso, e só.
+		   AND COALESCE(p.permissions::jsonb ->> 'atlas_subcontractor', '') = ''
 		   AND NOT EXISTS (
 		     SELECT 1 FROM atlas_visibility_rule r
 		      JOIN atlas_jobsite j ON j.id = $2
@@ -286,7 +289,22 @@ func (h *AtlasHandler) ListJobsites(c *fiber.Ctx) error {
 		      AND a.revoked_at IS NULL
 		      AND (a.expires_at IS NULL OR a.expires_at > now())
 		WHERE $1 OR (
+		  -- Subcontratado nasce sem enxergar nada. Para quem é da Premium o
+		  -- padrão é ver e a exceção é o bloqueio; para quem é de fora o padrão
+		  -- se inverte, porque o erro aqui não é chato, é grave: um sub vendo
+		  -- obra de outro cliente. Ele só passa a ver o que alguém compartilhou,
+		  -- e compartilhar é gravar a linha de acesso.
+		  (
+		    NOT EXISTS (
+		      SELECT 1 FROM user_permissions p
+		       WHERE p.user_id = $2
+		         AND jsonb_typeof(p.permissions::jsonb) = 'object'
+		         AND COALESCE(p.permissions::jsonb ->> 'atlas_subcontractor', '') <> ''
+		    )
+		    OR a.level IS NOT NULL
+		  )
 		  -- O padrão é ver. Só sai da lista o que uma regra de deny alcança.
+		  AND
 		  NOT EXISTS (
 		    SELECT 1 FROM atlas_visibility_rule r
 		     WHERE r.user_id = $2 AND r.effect = 'deny'

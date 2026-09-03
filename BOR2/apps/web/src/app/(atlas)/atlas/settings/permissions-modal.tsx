@@ -290,8 +290,8 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                       key={u.id}
                       user={u}
                       level={null}
-                      isFixed={false}
-                      isDraggable={canManage(me?.role ?? "", u.role)}
+                      isFixed={isSubcontractor(u)}
+                      isDraggable={!isSubcontractor(u) && canManage(me?.role ?? "", u.role)}
                       onDragStart={() => { dragUserId.current = u.id }}
                       onLevelChange={null}
                     />
@@ -320,11 +320,11 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                       key={u.id}
                       user={u}
                       level={getEffective(u)[selectedKey] ?? null}
-                      isFixed={false}
-                      isDraggable={canManage(me?.role ?? "", u.role)}
+                      isFixed={isSubcontractor(u)}
+                      isDraggable={!isSubcontractor(u) && canManage(me?.role ?? "", u.role)}
                       onDragStart={() => { dragUserId.current = u.id }}
                       onLevelChange={
-                        canManage(me?.role ?? "", u.role)
+                        !isSubcontractor(u) && canManage(me?.role ?? "", u.role)
                           ? l => applyChange(u.id, selectedKey, l)
                           : null
                       }

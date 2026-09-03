@@ -26,7 +26,7 @@ import {
   Activity, ArrowLeft, BarChart2, Banknote, Bell,
   CalendarCheck, CalendarDays, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
   Eye, FileCheck, Gauge,
-  CodeXml, KeyRound, Loader2,
+  CodeXml, Crown, KeyRound, Loader2,
   Network, Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
   User, UserCheck, UserCog, UserPlus, Users, Wrench,
@@ -758,6 +758,28 @@ export default function UsersPage() {
                         <TableCell className="bg-muted/20">
                           <TooltipProvider>
                             <div className="flex items-center justify-center gap-1">
+                              {/* Linha que ninguém acima alcança: em vez de uma
+                                  célula vazia, que se lê como bug, a conta diz
+                                  por que não há nada a fazer nela. */}
+                              {!canManage(me?.role ?? "", u.role) && (
+                                <Tooltip>
+                                  <TooltipTrigger render={
+                                    <button
+                                      type="button"
+                                      aria-disabled="true"
+                                      onClick={e => e.preventDefault()}
+                                      className="cursor-not-allowed rounded p-1.5 text-muted-foreground/40"
+                                    />
+                                  }>
+                                    <Crown className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-64 text-center">
+                                    Eis-me aqui, o criador e gestor de tudo o que você está vendo
+                                    nesta plataforma. Não vou permitir intervenção nas minhas
+                                    informações ou permissões.
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
                               {canManage(me?.role ?? "", u.role) && (<>
                                 <Tooltip>
                                   <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => { setEditing(u); setFormOpen(true) }} />}>

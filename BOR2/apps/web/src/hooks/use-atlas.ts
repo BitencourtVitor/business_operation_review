@@ -435,6 +435,14 @@ export function useUploadAtlasMedia(jobsiteId: string) {
 
 // ─── Taxonomia de documento ───────────────────────────────────────────────────
 
+export function useAtlasUserJobsites(userId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["atlas", "user-jobsites", userId],
+    queryFn: () => atlasService.userJobsites(userId),
+    enabled: !!userId && enabled,
+  })
+}
+
 export function useAtlasDocCategories() {
   return useQuery({
     queryKey: ["atlas", "doc-categories"],

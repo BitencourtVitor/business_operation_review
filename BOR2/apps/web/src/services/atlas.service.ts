@@ -104,6 +104,19 @@ export interface AtlasDocument {
   uploadedAt: string
 }
 
+export interface AtlasUserJobsite {
+  jobsiteId: string
+  name: string
+  community: string
+  unit: string
+  client: string
+  kind: string
+  status: string
+  /** read | annotate | manage */
+  level: string
+  grantedAt: string
+}
+
 export interface AtlasVersion {
   id: string
   documentId: string
@@ -336,6 +349,11 @@ export const atlasService = {
     api.post(`${base}/versions/${versionId}/publish`, {}, getToken()),
   versionDownloadUrl: (versionId: string) =>
     api.get<{ url: string }>(`${base}/versions/${versionId}/download`, getToken()),
+
+  // As obras compartilhadas com uma pessoa. É a resposta a "o que ele vê", que
+  // só o subcontratado obriga a perguntar: os outros veem tudo.
+  userJobsites: (userId: string) =>
+    api.get<AtlasUserJobsite[]>(`${base}/users/${userId}/jobsites`, getToken()).then(r => r ?? []),
 
   listSheets: (versionId: string) =>
     api.get<AtlasSheet[]>(`${base}/versions/${versionId}/sheets`, getToken()).then(r => r ?? []),

@@ -8,8 +8,9 @@ import {
   useUpdateUserPermissions,
 } from "@/hooks/use-settings"
 import { AtlasPermissionsModal, ATLAS_TOTAL, ATLAS_PERMISSIONS } from "../settings/permissions-modal"
+import { SubcontractorScopeDialog } from "@/components/atlas/subcontractor-scope-dialog"
 import {
-  ImportUserDialog, SUBCONTRACTOR_KEY, isSubcontractor,
+  ImportUserDialog, SUBCONTRACTOR_KEY, SUBCONTRACTOR_PERMISSIONS, isSubcontractor,
 } from "@/components/atlas/atlas-user-dialogs"
 import { useAtlasUserCompanies, useSetAtlasUserCompany } from "@/hooks/use-atlas"
 import { useSubDocContractors } from "@/hooks/use-subcontractor-docs"
@@ -28,8 +29,8 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
-  ArrowLeft, Building2, Check, ChevronDown, ChevronUp, CodeXml, Eye, Gauge, HardHat, KeyRound, Loader2,
-  Pencil, Plus, Search, Settings, ShieldAlert, ShieldCheck, Trash2, User, UserPlus, Users,
+  ArrowLeft, Building2, Check, ChevronDown, ChevronUp, CodeXml, Crown, Eye, Gauge, HardHat, KeyRound,
+  Loader2, Pencil, Plus, Search, Settings, ShieldAlert, ShieldCheck, Trash2, User, UserPlus, Users,
 } from "lucide-react"
 import type { UserWithPermissions } from "@/services/settings.service"
 
@@ -142,9 +143,17 @@ function UserFormModal({ open, onClose, existing, companies }: {
       await updateUser.mutateAsync({ id: existing!.id, data: { name, email, role: dbRole } })
       // Virar ou deixar de ser subcontratado é acrescentar ou tirar a marca, com
       // o resto das permissões intacto.
-      const perms = { ...(existing!.permissions ?? {}) }
-      if (sub) { perms.atlas = perms.atlas ?? "read"; perms[SUBCONTRACTOR_KEY] = "read" }
-      else delete perms[SUBCONTRACTOR_KEY]
+      // Virar subcontratado é assumir o perfil inteiro, não ganhar mais uma
+      // marca por cima do que a pessoa já tinha: o que ela acumulou como gente
+      // da casa não pode sobreviver à mudança de lado. Deixar de ser devolve
+      // um usuário comum, com a chave do Atlas e nada além.
+      const perms = sub
+        ? { ...SUBCONTRACTOR_PERMISSIONS }
+        : (() => {
+            const rest = { ...(existing!.permissions ?? {}) }
+            delete rest[SUBCONTRACTOR_KEY]
+            return rest
+          })()
       await updatePerms.mutateAsync({ userId: existing!.id, permissions: perms })
       if (sub) await setCompany.mutateAsync({ userId: existing!.id, company })
       onClose()
@@ -157,9 +166,7 @@ function UserFormModal({ open, onClose, existing, companies }: {
     if (!FULL_ACCESS_ROLES.includes(dbRole)) {
       await updatePerms.mutateAsync({
         userId: res.id,
-        permissions: sub
-          ? { atlas: "read", [SUBCONTRACTOR_KEY]: "read" }
-          : { atlas: "read" },
+        permissions: sub ? { ...SUBCONTRACTOR_PERMISSIONS } : { atlas: "read" },
       })
     }
     if (sub) await setCompany.mutateAsync({ userId: res.id, company })
@@ -438,6 +445,7 @@ export default function AtlasUsersPage() {
   const { user: me } = useAuth()
   const { data: users = [], isLoading } = useUsers()
   const { data: companies = {} } = useAtlasUserCompanies()
+  const [scopeTarget, setScopeTarget] = useState<UserWithPermissions | null>(null)
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<UserWithPermissions | undefined>()
@@ -653,6 +661,46 @@ export default function AtlasUsersPage() {
                       <TableCell className="bg-muted/20">
                         <TooltipProvider>
                           <div className="flex items-center justify-center gap-1">
+                            {/* Só o subcontratado tem esta pergunta: ele nasce
+                                sem ver nada, e o que ele enxerga é o que alguém
+                                compartilhou, obra a obra. Para os outros a
+                                resposta é sempre "tudo", e um botão para dizer
+                                isso seria ruído em toda linha da tabela. */}
+                            {isSubcontractor(u) && (
+                              <Tooltip>
+                                <TooltipTrigger render={
+                                  <button
+                                    className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    onClick={() => setScopeTarget(u)}
+                                  />
+                                }>
+                                  <Eye className="h-3.5 w-3.5" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top">What this subcontractor sees</TooltipContent>
+                              </Tooltip>
+                            )}
+                            {/* Linha que ninguém acima alcança: em vez de uma
+                                célula vazia, que se lê como bug, a conta diz
+                                por que não há nada a fazer nela. */}
+                            {!canManage(me?.role ?? "", u.role) && (
+                              <Tooltip>
+                                <TooltipTrigger render={
+                                  <button
+                                    type="button"
+                                    aria-disabled="true"
+                                    onClick={e => e.preventDefault()}
+                                    className="cursor-not-allowed rounded p-1.5 text-muted-foreground/40"
+                                  />
+                                }>
+                                  <Crown className="h-3.5 w-3.5" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-64 text-center">
+                                  Eis-me aqui, o criador e gestor de tudo o que você está vendo
+                                  nesta plataforma. Não vou permitir intervenção nas minhas
+                                  informações ou permissões.
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
                             {canManage(me?.role ?? "", u.role) && (
                               <>
                                 {!byRole && (
@@ -717,6 +765,12 @@ export default function AtlasUsersPage() {
         </div>
       </div>
 
+      <SubcontractorScopeDialog
+        user={scopeTarget}
+        company={scopeTarget ? companies[scopeTarget.id] : undefined}
+        open={!!scopeTarget}
+        onClose={() => setScopeTarget(null)}
+      />
       <UserFormModal
         open={formOpen}
         onClose={() => { setFormOpen(false); setEditing(undefined) }}
