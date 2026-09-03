@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
+  useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
   usePublishAtlasVersion, useUpdateAtlasSheet,
 } from "@/hooks/use-atlas"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
@@ -143,6 +143,7 @@ export default function DocumentPage() {
 
   const { data: sheets } = useAtlasSheets(versionId)
   const { data: thumbs, refetch: refetchThumbs } = useAtlasThumbs(versionId)
+  const { data: categories = [] } = useAtlasDocCategories()
   const qc = useQueryClient()
   // Prévias que faltam: as folhas cortadas antes de a miniatura existir. O
   // botão só aparece enquanto houver alguma, e some sozinho quando acabam.
@@ -189,7 +190,15 @@ export default function DocumentPage() {
             </div>
           </div>
 
-          {canManage && <VersionUpload documentId={documentId} />}
+          {/* A categoria vai junto: é nela que o gabarito de nomenclatura
+              fica guardado, e é dela que ele volta no próximo envio. */}
+          {canManage && (
+            <VersionUpload
+              documentId={documentId}
+              categoryId={doc?.categoryId ?? undefined}
+              naming={categories.find(c => c.id === doc?.categoryId)?.naming}
+            />
+          )}
 
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold">Versions</h2>

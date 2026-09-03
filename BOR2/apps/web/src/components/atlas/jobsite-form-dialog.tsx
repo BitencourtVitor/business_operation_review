@@ -17,7 +17,8 @@ import { useCreateAtlasJobsite } from "@/hooks/use-atlas"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
-  Briefcase, Building, Building2, Check, ChevronRight, Eye, EyeOff, Hash, MapPin, Home, Plus, Search, X,
+  Briefcase, Building, Building2, Check, ChevronRight, Eye, EyeOff, Hash, MapPin,
+  Home, PanelsTopLeft, Plus, Search, X,
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
@@ -35,9 +36,13 @@ export function composeName(community: string, kind: string, unit: string): stri
   return place ? `${place} · ${suffix}` : suffix
 }
 
+// Painel é obra de fábrica: a Simpson produz as placas aqui e elas vão para a
+// obra de outra empresa, que às vezes é concorrente e nesse trabalho é cliente.
+// Não é prédio nem casa porque a Premium não levanta nada; entrega painel.
 export const KIND_META: Record<string, { label: string; icon: React.ElementType }> = {
   building: { label: "Building", icon: Building },
   house:    { label: "Lot",      icon: Home },
+  panels:   { label: "Building Panels", icon: PanelsTopLeft },
 }
 
 // O lugar, sem o que se repete. "Riverview at East Point, East Providence, RI"
@@ -50,9 +55,11 @@ export function placeLabel(raw: string): string {
   return `${parts[0]}, ${parts[parts.length - 1]}`
 }
 
+export type JobsiteKind = keyof typeof KIND_META
+
 const EMPTY = {
   community: "", address: "", client: "", unit: "",
-  kind: "building" as "building" | "house",
+  kind: "building" as JobsiteKind,
 }
 
 // Um campo com ícone à esquerda. O ícone não é enfeite: diz de que natureza é o
@@ -87,8 +94,13 @@ function ClientField({ value, onChange, clients }: {
 }) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState(value)
+  // Cadastrar cliente novo sem depender de digitar no campo de busca: a lista
+  // abre com a opção, e ela abre um campo próprio.
+  const [adding, setAdding] = useState(false)
+  const [fresh, setFresh] = useState("")
 
   useEffect(() => setText(value), [value])
+  useEffect(() => { if (!open) { setAdding(false); setFresh("") } }, [open])
 
   const matches = clients.filter(c => c.toLowerCase().includes(text.trim().toLowerCase()))
   const exact = clients.some(c => c.toLowerCase() === text.trim().toLowerCase())
@@ -103,6 +115,10 @@ function ClientField({ value, onChange, clients }: {
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor="jobsite-client" className="text-xs text-muted-foreground">Client</Label>
+      {/* O gatilho do popover envolve o próprio campo, e é ele quem abre no
+          clique. Abrir também no foco fazia os dois brigarem: o foco abria e o
+          clique logo em seguida alternava para fechado, então clicar não fazia
+          nada. */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={<div />}
@@ -114,15 +130,17 @@ function ClientField({ value, onChange, clients }: {
             id="jobsite-client"
             value={text}
             onChange={e => { setText(e.target.value); onChange(e.target.value); setOpen(true) }}
-            onFocus={() => setOpen(true)}
             placeholder="Toll Brothers"
             className="pl-8"
           />
         </PopoverTrigger>
+        {/* O campo do cliente ocupa 30% da linha, e a lista herdava essa
+            largura: nome de construtora não cabe em três palavras truncadas. A
+            âncora vira piso, não teto. */}
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="w-(--anchor-width) p-1"
+          className="min-w-[max(var(--anchor-width),18rem)] p-1"
         >
           {matches.map(c => (
             <button
@@ -146,7 +164,41 @@ function ClientField({ value, onChange, clients }: {
               <span className="truncate">Add &ldquo;{typed}&rdquo; as a new client</span>
             </button>
           )}
-          {!typed && matches.length === 0 && (
+
+          {adding ? (
+            <div className="flex items-center gap-1 border-t border-border/60 p-1 pt-1.5">
+              <Input
+                autoFocus
+                value={fresh}
+                placeholder="Tara Construction"
+                onChange={e => setFresh(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" && fresh.trim()) pick(fresh.trim())
+                  if (e.key === "Escape") setAdding(false)
+                }}
+              />
+              <Button
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                disabled={!fresh.trim()}
+                onClick={() => pick(fresh.trim())}
+                title="Add this client"
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="mt-0.5 flex w-full items-center gap-2 border-t border-border/60 px-2 pb-1.5 pt-2 text-left text-sm text-primary transition-colors hover:bg-accent"
+            >
+              <Plus className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">New client</span>
+            </button>
+          )}
+
+          {!typed && !adding && matches.length === 0 && (
             <p className="px-2 py-1.5 text-sm text-muted-foreground">No clients yet.</p>
           )}
         </PopoverContent>
@@ -311,7 +363,7 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
           address: editing.address,
           client: editing.client,
           unit: editing.unit || editing.code,
-          kind: editing.kind === "building" ? "building" : "house",
+          kind: (editing.kind in KIND_META ? editing.kind : "house") as JobsiteKind,
         }
       : EMPTY)
   }, [open, editing])
@@ -374,18 +426,20 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">Build type</Label>
-              <Select value={form.kind} onValueChange={v => v && set({ kind: v as "building" | "house" })}>
+              <Select value={form.kind} onValueChange={v => v && set({ kind: v as JobsiteKind })}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1 items-center gap-2 text-left text-sm">
-                    {form.kind === "building"
-                      ? <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                      : <Home className="h-3.5 w-3.5 text-muted-foreground" />}
-                    {form.kind === "building" ? "Building" : "Lot"}
+                    {(() => {
+                      const K = KIND_META[form.kind].icon
+                      return <K className="h-3.5 w-3.5 text-muted-foreground" />
+                    })()}
+                    {KIND_META[form.kind].label}
                   </span>
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
-                  <SelectItem value="building">Building</SelectItem>
-                  <SelectItem value="house">Lot</SelectItem>
+                  {Object.entries(KIND_META).map(([value, meta]) => (
+                    <SelectItem key={value} value={value}>{meta.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

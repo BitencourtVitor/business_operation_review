@@ -3,9 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useUploadAtlasVersion } from "@/hooks/use-atlas"
-import { CloudUpload, FileUp } from "lucide-react"
-import { useRef, useState } from "react"
+import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
+import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
+import { useUploadAtlasVersion, useUpdateDocCategory } from "@/hooks/use-atlas"
+import { CloudUpload, FileUp, ScanText } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 const STEP_LABEL = {
   opening: "Opening the version…",
@@ -21,7 +23,12 @@ type Step = keyof typeof STEP_LABEL
  * API (AT-9). Por isso o botão fala em três etapas: a do meio é a longa, e num
  * set de 112 MB em internet de obra ela pode levar minutos.
  */
-export function VersionUpload({ documentId }: { documentId: string }) {
+export function VersionUpload({ documentId, categoryId, naming }: {
+  documentId: string
+  /** A categoria da pasta, que é onde o gabarito de nomenclatura fica guardado. */
+  categoryId?: number
+  naming?: NamingTemplate
+}) {
   const upload = useUploadAtlasVersion(documentId)
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -32,12 +39,49 @@ export function VersionUpload({ documentId }: { documentId: string }) {
   const [detail, setDetail] = useState("")
   const [error, setError] = useState("")
 
+  // O gabarito vive na categoria, mas é aqui que ele se marca: é olhando o
+  // arquivo que se enxerga onde o nome está impresso.
+  const [marking, setMarking] = useState(false)
+  const [template, setTemplate] = useState<NamingTemplate | undefined>(naming)
+  const [names, setNames] = useState<Map<number, string> | null>(null)
+  const [naming_, setNaming] = useState("")
+  const updateCategory = useUpdateDocCategory()
+
+  // O arquivo escolhido só existe no navegador até subir; para marcar e para
+  // ler os nomes, ele precisa de um endereço.
+  const [localUrl, setLocalUrl] = useState("")
+  useEffect(() => {
+    if (!file) { setLocalUrl(""); return }
+    const href = URL.createObjectURL(file)
+    setLocalUrl(href)
+    return () => URL.revokeObjectURL(href)
+  }, [file])
+
+  // Gabarito conhecido: os nomes saem sozinhos assim que o arquivo entra, sem
+  // ninguém precisar abrir nada.
+  useEffect(() => {
+    if (!localUrl || !template?.levels?.length) { setNames(null); return }
+    let alive = true
+    setNaming("0")
+    readPageNames(localUrl, template, (done, total) => {
+      if (alive) setNaming(`${done}/${total}`)
+    })
+      .then(list => {
+        if (!alive) return
+        setNames(new Map(list.filter(n => n.name).map(n => [n.pageIndex, n.name])))
+      })
+      .catch(() => { if (alive) setNames(null) })
+      .finally(() => { if (alive) setNaming("") })
+    return () => { alive = false }
+  }, [localUrl, template])
+
   function submit() {
     if (!file || !revision.trim()) return
     setError("")
     upload.mutate(
       {
         file,
+        names: names ?? undefined,
         revision: revision.trim(),
         onProgress: (next: Step, info?: string) => { setStep(next); setDetail(info ?? "") },
       },
@@ -82,6 +126,18 @@ export function VersionUpload({ documentId }: { documentId: string }) {
           </Button>
         </div>
 
+        {/* Marcar onde o nome está impresso. Só faz sentido com o arquivo em
+            mãos, e é por isso que fica aqui e não na tela da taxonomia. */}
+        <Button
+          variant="outline"
+          disabled={!localUrl}
+          onClick={() => setMarking(true)}
+          title="Marcar onde o nome de cada folha está impresso"
+        >
+          <ScanText className="h-4 w-4" />
+          {template?.levels?.length ? "Naming set" : "Set naming"}
+        </Button>
+
         <Button onClick={submit} disabled={!file || !revision.trim() || upload.isPending}>
           <CloudUpload className="h-4 w-4" />
           {upload.isPending ? "Uploading…" : "Upload"}
@@ -93,7 +149,34 @@ export function VersionUpload({ documentId }: { documentId: string }) {
           {STEP_LABEL[step]}{detail ? ` ${detail}` : ""}
         </p>
       )}
+      {naming_ && (
+        <p className="text-xs text-muted-foreground">Reading sheet names {naming_}</p>
+      )}
+      {!naming_ && names && (
+        <p className="text-xs text-muted-foreground">
+          {names.size} folha{names.size === 1 ? "" : "s"} nomeada
+          {names.size === 1 ? "" : "s"} pelo gabarito.
+        </p>
+      )}
       {error && <p className="text-xs text-destructive">{error}</p>}
+
+      {localUrl && (
+        <NamingTemplateDialog
+          url={localUrl}
+          open={marking}
+          initial={template}
+          onClose={() => setMarking(false)}
+          onSave={next => {
+            setTemplate(next)
+            setMarking(false)
+            // Guardado na categoria: o próximo nível do mesmo relatório sobe
+            // nomeado sem ninguém remarcar nada.
+            if (categoryId) {
+              updateCategory.mutate({ id: categoryId, naming: next })
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

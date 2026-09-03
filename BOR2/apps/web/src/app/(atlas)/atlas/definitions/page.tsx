@@ -1,5 +1,6 @@
 "use client"
 
+import type { AtlasDocCategory } from "@/services/atlas.service"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
@@ -35,6 +36,10 @@ const BUILD_TYPES = [
   { value: "", label: "Any build type" },
   { value: "building", label: "Building" },
   { value: "house", label: "House" },
+  // Painel tem documento que não existe em obra levantada: layout de placa,
+  // desenho de produção, lista de corte. Separado aqui, essas pastas não
+  // aparecem em casa nem em prédio.
+  { value: "panels", label: "Building Panels" },
 ]
 
 const AXES = [
@@ -188,7 +193,13 @@ export default function AtlasDefinitionsPage() {
     if (!form.name.trim()) return
     if (editingId !== null) {
       update.mutate(
-        { id: editingId, name: form.name.trim(), buildType: form.buildType, axis: form.axis, defaultSlot: form.defaultSlot },
+        {
+          id: editingId,
+          name: form.name.trim(),
+          buildType: form.buildType,
+          axis: form.axis as AtlasDocCategory["axis"],
+          defaultSlot: form.defaultSlot,
+        },
         { onSuccess: closeDialog },
       )
       return
