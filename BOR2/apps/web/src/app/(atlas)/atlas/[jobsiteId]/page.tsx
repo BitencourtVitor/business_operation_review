@@ -77,7 +77,7 @@ const AXIS_OPTIONS = [
 // barra lateral, e repetir o endereço aqui gastava o título com o que não muda
 // ao navegar entre as seções.
 const TAB_META: Record<string, { title: string; hint: string }> = {
-  documents: { title: "Documents", hint: "Every file attached here, and what the jobsite still lacks." },
+  documents: { title: "Documents", hint: "Every file attached here, by what it is." },
   photos:    { title: "Photos",    hint: "What the site looked like, by the day it was shot." },
   tasks:     { title: "Tasks",     hint: "What was asked on the plan, and what got done." },
   diary:     { title: "Diary",     hint: "What happened on site, day by day." },
@@ -364,10 +364,18 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
         title="Documents"
         hint="Every file attached to this jobsite, by what it is."
         action={canManage && (
-          <Button variant="outline" onClick={() => setUploading(true)}>
-            <Plus className="h-4 w-4" />
-            New document
-          </Button>
+          <div className="flex items-center gap-2">
+            <NewCategoryDialog
+              jobsiteId={jobsiteId}
+              client={client}
+              kind={kind}
+              usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
+            />
+            <Button onClick={() => setUploading(true)}>
+              <Plus className="h-4 w-4" />
+              New document
+            </Button>
+          </div>
         )}
       >
         {/* As categorias como filtro, e não como pasta: o documento continua à
@@ -497,49 +505,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
         )}
       </Panel>
 
-      {/* O que a obra pediu e ainda não chegou. Era isto que a pasta vazia
-          dizia, e é a única coisa dela que valia a pena guardar. */}
-      <Panel
-        title="What this jobsite should have"
-        hint="The categories asked for here, and what is still missing."
-        action={canManage && (
-          <NewCategoryDialog
-            jobsiteId={jobsiteId}
-            client={client}
-            kind={kind}
-            usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
-          />
-        )}
-      >
-        {slots.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
-            <p className="text-sm font-medium">No category set for this jobsite</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Set them in Manage Categories and Subcategories, or add one here.
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1.5">
-            {slots.map(sl => (
-              <div
-                key={`${sl.categoryId}:${sl.subcategory}`}
-                className={`flex items-center gap-3 rounded-lg border p-2.5 ${
-                  sl.documents ? "border-border/60 bg-card" : "border-dashed border-border/40"
-                }`}
-              >
-                <span className="min-w-0 flex-1 truncate text-sm">{tagLabel(sl)}</span>
-                {sl.documents ? (
-                  <span className="text-xs text-muted-foreground">
-                    {sl.documents} {sl.documents === 1 ? "document" : "documents"}
-                  </span>
-                ) : (
-                  <Badge variant="outline" className="text-muted-foreground">Missing</Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </Panel>
 
       {canManage && (
         <UploadPlanDialog
