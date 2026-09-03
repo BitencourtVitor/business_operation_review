@@ -168,6 +168,7 @@ const LAYERS = [
   { key: "myMarker",    label: "My marker",         icon: Highlighter },
   { key: "theirMarker", label: "Marker from others", icon: Highlighter },
   { key: "notes",       label: "Notes",             icon: MapPin },
+  { key: "links",       label: "Links",             icon: Link2 },
 ] as const
 
 type LayerKey = (typeof LAYERS)[number]["key"]
@@ -264,7 +265,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const { user } = useAuth()
   const me = user?.id ?? ""
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
-    myPen: true, theirPen: true, myMarker: true, theirMarker: true, notes: true,
+    myPen: true, theirPen: true, myMarker: true, theirMarker: true, notes: true, links: true,
   })
   const [layersOpen, setLayersOpen] = useState(false)
 
@@ -273,6 +274,10 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // caminho do banco.
   const visible = useCallback((a: AtlasAnnotation) => {
     const mine = !a.authorId || a.authorId === me
+    // O vínculo não é marcação de leitura, é caminho, e por isso não pertence à
+    // camada de ninguém: apagar a caneta dos outros escondia as referências do
+    // desenho junto, e elas sumiam sem que ninguém tivesse pedido isso.
+    if (a.tool === "link") return layers.links
     if (a.tool === "highlighter") return mine ? layers.myMarker : layers.theirMarker
     return mine ? layers.myPen : layers.theirPen
   }, [me, layers])
@@ -565,8 +570,22 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
         x1: Math.max(linkBox.x0, linkBox.x1), y1: Math.max(linkBox.y0, linkBox.y1),
       }
       setLinkBox(null)
-      // Área de nada é toque errado, não intenção: some sem gravar.
-      if (box.x1 - box.x0 < 0.005 || box.y1 - box.y0 < 0.005) return
+      // Toque sem arraste é engano, e some. Mas arraste curto é intenção, e
+      // antes ele sumia igual: quem cercava uma bolha de referência, que é
+      // pequena, via o vínculo desaparecer sem uma palavra. Agora a área curta
+      // cresce até o mínimo que dá para tocar e fica.
+      const MIN = 0.012
+      if (box.x1 - box.x0 < 0.002 && box.y1 - box.y0 < 0.002) return
+      if (box.x1 - box.x0 < MIN) {
+        const meio = (box.x0 + box.x1) / 2
+        box.x0 = Math.max(0, meio - MIN / 2)
+        box.x1 = Math.min(1, meio + MIN / 2)
+      }
+      if (box.y1 - box.y0 < MIN) {
+        const meio = (box.y0 + box.y1) / 2
+        box.y0 = Math.max(0, meio - MIN / 2)
+        box.y1 = Math.min(1, meio + MIN / 2)
+      }
       const mark = {
         id: crypto.randomUUID(),
         tool: "link" as const,
