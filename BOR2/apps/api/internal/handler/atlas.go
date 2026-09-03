@@ -703,6 +703,13 @@ type atlasDocument struct {
 	LatestRevision  string `json:"latestRevision"`
 	LatestStatus    string `json:"latestStatus"`
 	Sheets          int    `json:"sheets"`
+	// Quem subiu o set que está valendo, e quando. É a auditoria que a lista de
+	// pastas mostra: sem isso, uma pasta cheia não diz de onde veio o conteúdo.
+	UploadedBy string `json:"uploadedBy"`
+	// O cargo de quem subiu: na lista ele vira o ícone ao lado do nome, o mesmo
+	// crachá que a tela de usuários usa.
+	UploadedRole string `json:"uploadedRole"`
+	UploadedAt   string `json:"uploadedAt"`
 }
 
 // GET /atlas/jobsites/:id/documents
@@ -716,15 +723,17 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		       COALESCE(d.category_id, 0), COALESCE(d.subcategory,''), d.created_by, d.created_at,
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
-		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0)
+		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0),
+		       COALESCE(au.name,''), COALESCE(au.role,''), u.uploaded_at
 		FROM atlas_document d
 		LEFT JOIN LATERAL (
-			SELECT v.id, v.revision, v.status
+			SELECT v.id, v.revision, v.status, v.uploaded_by, v.uploaded_at
 			FROM atlas_document_version v
 			WHERE v.document_id = d.id
 			ORDER BY v.uploaded_at DESC
 			LIMIT 1
 		) u ON true
+		LEFT JOIN users au ON au.id = u.uploaded_by
 		WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
 		ORDER BY d.category, d.subcategory, d.name`, id)
 	if err != nil {
@@ -736,12 +745,17 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 	for rows.Next() {
 		var d atlasDocument
 		var created time.Time
+		var uploaded *time.Time
 		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Category,
 			&d.CategoryID, &d.Subcategory, &d.CreatedBy, &created, &d.Versions,
-			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets); err != nil {
+			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets,
+			&d.UploadedBy, &d.UploadedRole, &uploaded); err != nil {
 			return internalErr(c, err)
 		}
 		d.CreatedAt = created.Format(time.RFC3339)
+		if uploaded != nil {
+			d.UploadedAt = uploaded.Format(time.RFC3339)
+		}
 		out = append(out, d)
 	}
 	return c.JSON(fiber.Map{"data": out})

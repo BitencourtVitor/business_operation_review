@@ -190,13 +190,17 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, notes, names, onProgress }: {
+    mutationFn: async ({ file, revision, notes, names, onProgress, onSheets, onPage }: {
       file: File
       revision: string
       notes?: string
       /** O nome de cada página, quando um gabarito já resolveu a nomenclatura. */
       names?: Map<number, string>
       onProgress?: (step: "opening" | "uploading" | "splitting" | "confirming", detail?: string) => void
+      /** As folhas já existem no banco, ainda sem recorte: a página pode abrir. */
+      onSheets?: (versionId: string, pageCount: number) => void
+      /** Uma folha ficou pronta, com a prévia desenhada aqui mesmo. */
+      onPage?: (pageIndex: number, preview: string) => void
     }) => {
       const contentType = file.type || "application/pdf"
       onProgress?.("opening")
@@ -222,6 +226,26 @@ export function useUploadAtlasVersion(documentId: string) {
       })
       if (!outline) return confirmed
 
+      // As folhas entram no banco antes do corte, com o nome que o gabarito já
+      // leu e sem recorte nenhum. É o que permite fechar o modal aqui: a página
+      // abre com os 97 quadros no lugar, e cada um se preenche quando a página
+      // dele termina. Antes disto, quem subia um set ficava com o sistema
+      // parado atrás de uma janela até o fim.
+      await atlasService.replaceSheets(
+        ticket.versionId,
+        Array.from({ length: outline.pageCount }, (_, i) => ({
+          pageIndex: i,
+          widthPt: outline.width,
+          heightPt: outline.height,
+          r2Key: "",
+          thumbKey: "",
+          byteSize: 0,
+          sheetNumber: names?.get(i) ?? "",
+          needsReview: !names?.get(i),
+        })),
+      )
+      onSheets?.(ticket.versionId, outline.pageCount)
+
       // Corte em um PDF por página, subindo cada um direto no bucket. É o que
       // faz abrir um plano custar 1,66 MB de mediana em vez dos 107 MB do set.
       onProgress?.("splitting", `0/${outline.pageCount}`)
@@ -229,7 +253,7 @@ export function useUploadAtlasVersion(documentId: string) {
       try {
         parts = await splitAndUploadPlans(file, ticket.versionId, (done, count) => {
           onProgress?.("splitting", `${done}/${count}`)
-        })
+        }, (part, preview) => onPage?.(part.pageIndex, preview))
       } catch {
         // Corte que falha não invalida a versão: o original está no bucket e as
         // folhas abrem por ele. O recorte pode ser refeito depois.
