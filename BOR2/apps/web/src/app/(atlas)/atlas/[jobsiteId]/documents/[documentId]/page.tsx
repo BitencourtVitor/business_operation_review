@@ -552,9 +552,13 @@ export default function DocumentPage() {
             />
           )}
 
+          {/* Uma caixa só: cabeçalho, fio, e a listagem dentro. O título solto
+              por cima da grade parecia legenda de outra coisa, e a contagem e o
+              botão de escolher pertencem ao conjunto que está logo abaixo, não
+              à página. */}
           {version && (
-            <section className="flex min-h-0 flex-1 flex-col gap-3">
-              <div className="flex items-center justify-between gap-3">
+            <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-muted/30 px-3 py-2">
                 <h2 className="flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
                   Sheets
@@ -620,7 +624,7 @@ export default function DocumentPage() {
                   enquanto há escolha, e ela mesma diz quantas folhas são: sem
                   esse número, "baixar" é um salto no escuro. */}
               {picking && (
-                <div className="flex shrink-0 items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                <div className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-primary/5 px-3 py-2">
                   <span className="text-sm">
                     {chosen.size === 0
                       ? picking === "range"
@@ -654,7 +658,7 @@ export default function DocumentPage() {
               )}
 
               {!sheets?.length ? (
-                <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
+                <div className="m-3 rounded-lg border border-dashed border-border/60 p-6 text-center">
                   <p className="text-sm font-medium">No plans yet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Plans are created from the PDF when a revision is uploaded — one per page, the
@@ -662,7 +666,7 @@ export default function DocumentPage() {
                   </p>
                 </div>
               ) : (
-                <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20 p-3">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {sheets.map(s => (
                       <SheetCard
