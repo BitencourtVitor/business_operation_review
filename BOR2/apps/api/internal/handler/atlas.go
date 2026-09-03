@@ -1366,6 +1366,7 @@ type atlasAnnotation struct {
 	Color     string          `json:"color"`
 	Width     float64         `json:"width"`
 	Opacity   float64         `json:"opacity"`
+	Shared    bool            `json:"shared"`
 	Geometry  json.RawMessage `json:"geometry"`
 	CreatedAt string          `json:"createdAt"`
 }
@@ -1380,11 +1381,14 @@ func (h *AtlasHandler) ListAnnotations(c *fiber.Ctx) error {
 	if err := h.require(c, jobsiteID, "read"); err != nil {
 		return atlasForbidden(c)
 	}
+	// O traço de cada um é dele; o compartilhado é de todos. Sem este filtro a
+	// prancha vira o quadro de rascunho da equipe inteira.
+	userID, _ := actor(c)
 	rows, err := h.db.Query(c.Context(), `
-		SELECT id, sheet_id, author_id, tool, color, width, opacity, geometry, created_at
+		SELECT id, sheet_id, author_id, tool, color, width, opacity, shared, geometry, created_at
 		FROM atlas_annotation
-		WHERE sheet_id = $1 AND deleted_at IS NULL
-		ORDER BY created_at`, sheetID)
+		WHERE sheet_id = $1 AND deleted_at IS NULL AND (shared OR author_id = $2)
+		ORDER BY created_at`, sheetID, userID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1395,7 +1399,7 @@ func (h *AtlasHandler) ListAnnotations(c *fiber.Ctx) error {
 		var a atlasAnnotation
 		var created time.Time
 		if err := rows.Scan(&a.ID, &a.SheetID, &a.AuthorID, &a.Tool, &a.Color,
-			&a.Width, &a.Opacity, &a.Geometry, &created); err != nil {
+			&a.Width, &a.Opacity, &a.Shared, &a.Geometry, &created); err != nil {
 			return internalErr(c, err)
 		}
 		a.CreatedAt = created.Format(time.RFC3339)
@@ -1432,11 +1436,12 @@ func (h *AtlasHandler) CreateAnnotation(c *fiber.Ctx) error {
 	// o parâmetro era inferido como inteiro e toda opacidade fracionária virava
 	// zero, caía no COALESCE e voltava 1. O marca-texto saía opaco sempre.
 	_, err = h.db.Exec(c.Context(), `
-		INSERT INTO atlas_annotation (id, sheet_id, author_id, tool, color, width, opacity, geometry)
+		INSERT INTO atlas_annotation (id, sheet_id, author_id, tool, color, width, opacity, shared, geometry)
 		VALUES ($1,$2,$3,COALESCE(NULLIF($4,''),'pen'),COALESCE(NULLIF($5,''),'#ef4444'),
-		        COALESCE(NULLIF($6::numeric,0),2), COALESCE(NULLIF($7::numeric,0),1), $8)
+		        COALESCE(NULLIF($6::numeric,0),2), COALESCE(NULLIF($7::numeric,0),1), $8, $9)
 		ON CONFLICT (id) DO NOTHING`,
-		in.ID, sheetID, userID, in.Tool, in.Color, in.Width, in.Opacity, string(in.Geometry))
+		in.ID, sheetID, userID, in.Tool, in.Color, in.Width, in.Opacity, in.Shared,
+		string(in.Geometry))
 	if err != nil {
 		return internalErr(c, err)
 	}

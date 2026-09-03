@@ -6,6 +6,11 @@ import { findInPlan, type TextHit } from "@/components/atlas/plan-text"
 import { atlasService } from "@/services/atlas.service"
 import { usePlanSource } from "@/components/atlas/use-plan-url"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Kbd } from "@/components/ui/kbd"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import {
@@ -15,7 +20,7 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, Hand,
-  Highlighter, Maximize, MapPin, Minus, Pen, Plus, Search, X,
+  Highlighter, Lock, Maximize, MapPin, Minus, Pen, Plus, Search, Users, X,
 } from "lucide-react"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
@@ -41,9 +46,12 @@ const TOOLS = [
 // precisa de cor cheia que se leia sobre traço preto; o marca-texto passa por
 // baixo da leitura e precisa de cor clara, que realce sem esconder. Misturar as
 // duas dava marca-texto vermelho-sangue tapando a cota.
+// Laranja não entra em paleta nenhuma: é a cor da nota, e uma cor que quer dizer
+// "há algo a resolver aqui" só funciona se não aparecer também em traço solto.
+const NOTE_COLOR = "#f97316"
+
 const PEN_COLORS = [
   { value: "#dc2626", label: "Red" },
-  { value: "#ea580c", label: "Orange" },
   { value: "#16a34a", label: "Green" },
   { value: "#2563eb", label: "Blue" },
   { value: "#7c3aed", label: "Violet" },
@@ -55,16 +63,18 @@ const MARKER_COLORS = [
   { value: "#fde047", label: "Yellow" },
   { value: "#4ade80", label: "Green" },
   { value: "#38bdf8", label: "Sky" },
-  { value: "#fb923c", label: "Orange" },
   { value: "#f472b6", label: "Pink" },
 ]
 
 // Cada ferramenta guarda a própria tinta. Antes era um estado só para as duas, e
 // bastava regular a espessura de uma para a outra herdá-la.
-interface Ink { color: string; width: number }
+interface Ink { color: string; width: number; shared: boolean }
 
-const PEN_INK: Ink = { color: PEN_COLORS[0].value, width: 1 }
-const MARKER_INK: Ink = { color: MARKER_COLORS[0].value, width: 6 }
+// Nasce privado. Anotar é pensar em voz alta sobre o desenho, e se cada rabisco
+// caísse na prancha de todo mundo por padrão a folha encheria de conferência
+// alheia até ninguém mais anotar nada. Quem quer que a equipe veja, diz antes.
+const PEN_INK: Ink = { color: PEN_COLORS[0].value, width: 1, shared: false }
+const MARKER_INK: Ink = { color: MARKER_COLORS[0].value, width: 6, shared: false }
 
 // A opacidade não se regula: é ela que define o que cada ferramenta é. Caneta é
 // tinta, e tinta cobre; marca-texto passa por cima e deixa ler o que está
@@ -176,7 +186,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   const ink = marking ? markerInk : penInk
   const setInk = (patch: Partial<Ink>) =>
     (marking ? setMarkerInk : setPenInk)(current => ({ ...current, ...patch }))
-  const { color, width } = ink
+  const { color, width, shared } = ink
   const opacity = marking ? TOOL_OPACITY.highlighter : TOOL_OPACITY.pen
   const palette = marking ? MARKER_COLORS : PEN_COLORS
   const widths = marking ? MARKER_WIDTHS : PEN_WIDTHS
@@ -198,6 +208,20 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
   // demais para se arrepender.
   // A amostra aparece quando se escolhe uma espessura e se recolhe sozinha: é
   // resposta ao gesto, não um painel a mais ocupando a barra.
+  // O balão da nota: o título aparece por alguns segundos e some sozinho. Um
+  // círculo tracejado no meio da prancha não diz o que foi anotado ali, e abrir
+  // Tasks para descobrir é sair do desenho.
+  const [bubble, setBubble] = useState<{ id: string; text: string; x: number; y: number } | null>(null)
+  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showBubble = (id: string, text: string, x: number, y: number) => {
+    setBubble({ id, text, x, y })
+    if (bubbleTimer.current) clearTimeout(bubbleTimer.current)
+    bubbleTimer.current = setTimeout(() => setBubble(null), 5000)
+  }
+
+  const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
+  const [noteText, setNoteText] = useState("")
+
   const [sample, setSample] = useState(false)
   const sampleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const showSample = () => {
@@ -402,13 +426,12 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
     }
 
     if (tool === "pin") {
-      const title = window.prompt("What happened at this point of the drawing?")
-      if (title?.trim()) {
-        const [x, y] = toPage(e.clientX, e.clientY)
-        createEvent.mutate({
-          kind: "issue", title: title.trim(), sheetId: sheet.id, pageX: x, pageY: y,
-        })
-      }
+      // O ponto fica guardado e o texto vem num diálogo. Era window.prompt, que
+      // o navegador bloqueia em silêncio conforme o contexto: o clique não fazia
+      // nada e não havia como saber por quê.
+      const [x, y] = toPage(e.clientX, e.clientY)
+      setNoteAt({ x, y })
+      setNoteText("")
       return
     }
     if (tool === "erase") return
@@ -469,6 +492,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
       color,
       width,
       opacity,
+      shared,
       geometry: { points: drawing } as AtlasStrokeGeometry,
     }
     setPending(list => [...list, mark as AtlasAnnotation])
@@ -527,6 +551,16 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
 
     return () => { alive = false; if (timer) clearTimeout(timer) }
   }, [pending, sheet.id, refetchAnnotations])
+
+  function saveNote() {
+    if (!noteAt || !noteText.trim()) return
+    createEvent.mutate({
+      kind: "issue", title: noteText.trim(), sheetId: sheet.id,
+      pageX: noteAt.x, pageY: noteAt.y,
+    })
+    setNoteAt(null)
+    setNoteText("")
+  }
 
   // Trocar de ferramenta não mexe em tinta nenhuma: cada uma volta exatamente
   // como foi deixada.
@@ -697,31 +731,60 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
               onPointerEnter={() => tool === "erase" && setUnder(e.id)}
               onPointerLeave={() => setUnder(u => u === e.id ? null : u)}
               onPointerDown={ev => {
-                if (tool !== "erase" || !canAnnotate) return
                 ev.stopPropagation()
-                setErasing(list => [...list, e.id])
-                // Soltar o pino não apaga o evento: ele fica em Tasks, com o que
-                // já foi respondido nele. O que sai é a marca sobre a prancha.
-                updateEvent.mutate(
-                  { eventId: e.id, patch: { detach: true } },
-                  { onSettled: () => setErasing(list => list.filter(id => id !== e.id)) },
-                )
+                if (tool === "erase" && canAnnotate) {
+                  setErasing(list => [...list, e.id])
+                  // Soltar o pino não apaga o evento: ele fica em Tasks, com o
+                  // que já foi respondido nele. O que sai é a marca da prancha.
+                  updateEvent.mutate(
+                    { eventId: e.id, patch: { detach: true } },
+                    { onSettled: () => setErasing(list => list.filter(id => id !== e.id)) },
+                  )
+                  return
+                }
+                // Com qualquer outra ferramenta o pino se lê, não se altera: o
+                // toque abre o que foi anotado ali e devolve o desenho depois.
+                showBubble(e.id, e.title || e.body || "No title", e.pageX ?? 0, e.pageY ?? 0)
               }}
               style={{
-                cursor: tool === "erase" ? "pointer" : "inherit",
-                pointerEvents: tool === "erase" ? "auto" : "none",
+                cursor: "pointer",
+                pointerEvents: "auto",
                 opacity: fade(e.id),
                 transition: "opacity 150ms ease",
               }}
             >
+              {/* Vazado, para não esconder o que está marcado, e tracejado, para
+                  se ler como anotação e não como parte do desenho. Resolvido
+                  fica verde; o resto é laranja, a cor reservada da nota. */}
               <circle
-                r={pageHeight / 60}
-                className={e.status === "resolved" ? "fill-emerald-500/80" : "fill-amber-500/80"}
+                r={pageHeight / 70}
+                fill="none"
+                stroke={e.status === "resolved" ? "#10b981" : NOTE_COLOR}
+                strokeWidth={strokeScale * 1.5}
+                strokeDasharray={`${strokeScale * 4} ${strokeScale * 3}`}
               />
+              <circle r={strokeScale * 1.5} fill={e.status === "resolved" ? "#10b981" : NOTE_COLOR} />
               <title>{e.title || e.body}</title>
             </g>
           ))}
         </svg>
+
+        {/* Ancorado no ponto e acima dele, como um balão de fala. Fora do SVG
+            porque texto em SVG não quebra linha nem herda a tipografia da casa. */}
+        {bubble && (
+          <div
+            className="pointer-events-none absolute z-10 max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95"
+            style={{
+              left: view.x + bubble.x * pageWidth * view.scale,
+              top: view.y + bubble.y * pageHeight * view.scale - pageHeight / 70 * view.scale - 10,
+            }}
+          >
+            <div className="rounded-lg bg-neutral-900 px-3 py-2 text-sm leading-snug text-white shadow-xl ring-1 ring-white/15">
+              {bubble.text}
+            </div>
+            <div className="mx-auto h-0 w-0 border-x-[6px] border-t-[7px] border-x-transparent border-t-neutral-900" />
+          </div>
+        )}
 
         {!source && (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
@@ -881,7 +944,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(prev)}
           title="Previous plan"
-          className="absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute left-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -892,7 +955,7 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           variant="ghost"
           onClick={() => onNavigate(next)}
           title="Next plan"
-          className="absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          className="atlas-page-turn absolute right-4 top-1/2 h-24 w-10 -translate-y-1/2 rounded-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
@@ -940,6 +1003,26 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
                 ))}
               </div>
 
+              <span className="h-6 w-px bg-white/15" />
+              {/* Com quem o traço fica. Privado é o padrão, e o botão só ganha
+                  peso quando está ligado: um estado que muda o que os outros
+                  veem não pode ser descoberto depois. */}
+              <button
+                type="button"
+                onClick={() => setInk({ shared: !shared })}
+                title={shared
+                  ? "Everyone on this project sees this stroke"
+                  : "Only you see this stroke"}
+                className={`flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-all duration-200 ${
+                  shared
+                    ? "bg-sky-500/20 text-sky-200 ring-1 ring-inset ring-sky-400/40"
+                    : "text-white/50 hover:bg-white/10 hover:text-white/80"
+                }`}
+              >
+                {shared ? <Users className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                <span className="hidden lg:inline">{shared ? "Shared" : "Private"}</span>
+              </button>
+
               {/* A amostra do traço escolhido, do tamanho que ele vai sair no
                   zoom em que a prancha está. Uma bolinha de sete pixels no botão
                   não diz nada sobre o que cai no papel; esta linha diz. */}
@@ -963,6 +1046,30 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           )}
         </div>
       )}
+
+      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) setNoteAt(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>New note on this sheet</DialogTitle></DialogHeader>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="note-text">What happened here?</Label>
+            <Input
+              id="note-text"
+              autoFocus
+              value={noteText}
+              placeholder="Beam is 2 in. off the grid line"
+              onChange={e => setNoteText(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") saveNote() }}
+            />
+            <p className="text-xs text-muted-foreground">
+              It lands on Tasks, anchored to this point of the drawing.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoteAt(null)}>Cancel</Button>
+            <Button onClick={saveNote} disabled={!noteText.trim()}>Add note</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="absolute bottom-4 right-4 flex flex-col items-center gap-px">
         <Button
