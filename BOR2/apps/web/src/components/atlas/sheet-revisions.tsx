@@ -122,7 +122,9 @@ function AttachmentWindow({ url, name, onClose }: {
   const dedos = useRef(new Map<number, { x: number; y: number }>())
   const inicio = useRef<{ dist: number; zoom: number } | null>(null)
 
-  const limita = (n: number) => Math.min(teto, Math.max(0.4, n))
+  // O tamanho de partida é o piso: ele já é a imagem inteira cabendo na tela, e
+  // encolher além disso só devolve uma janela menor do que a que se abriu.
+  const limita = (n: number) => Math.min(teto, Math.max(1, n))
 
   function medir(img: HTMLImageElement) {
     const largura = window.innerWidth * 0.92
