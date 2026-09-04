@@ -20,18 +20,19 @@ import {
 } from "@/components/ui/select"
 import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
-  useAtlasJobsiteCategories, useCreateAtlasDocument, useCreateDocCategory, useSetDocumentTags,
+  useAtlasJobsiteCategories, useCreateAtlasDocument, useCreateDocCategory,
 } from "@/hooks/use-atlas"
 import { atlasService } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
+import { tagLabel } from "@/components/atlas/document-tags-dialog"
 import { stashUpload } from "@/components/atlas/pending-upload"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
 
 import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, CodeXml, FileQuestion, FolderOpen,
-  Gauge, HardHat, Layers, MapPin, Pencil, Plus, Tags, UserRound, Users,
+  Gauge, HardHat, Layers, MapPin, Pencil, Plus, UserRound, Users,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -238,83 +239,6 @@ function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
  */
 const tagsOf = (d: AtlasDocument) => d.tags ?? []
 
-/** "3rd Floor Trusses", "C Unit Cabinet Layout", ou só "Permit Set". */
-function tagLabel(t: { category?: string; name?: string; subcategory: string; axis: string }) {
-  const name = t.category ?? t.name ?? ""
-  if (!t.subcategory) return name
-  return t.axis === "unit"
-    ? `${t.subcategory} Unit ${name}`
-    : `${t.subcategory} Floor ${name}`
-}
-
-// As etiquetas de um documento que já existe. Documento subido antes de a
-// classificação existir, ou que mudou de mão, precisa de um lugar para ser
-// reclassificado sem passar por novo upload.
-function TagDialog({ jobsiteId, doc, slots, onClose }: {
-  jobsiteId: string
-  doc: AtlasDocument | null
-  slots: AtlasJobsiteCategory[]
-  onClose: () => void
-}) {
-  const setTags = useSetDocumentTags(jobsiteId)
-  const [picked, setPicked] = useState<string[]>([])
-
-  useEffect(() => {
-    if (doc) setPicked(tagsOf(doc).map(t => `${t.categoryId}:${t.subcategory}`))
-  }, [doc])
-
-  function save() {
-    if (!doc) return
-    setTags.mutate({
-      documentId: doc.id,
-      tags: picked.map(k => {
-        const [id, sub] = k.split(":")
-        return { categoryId: Number(id), subcategory: sub ?? "" }
-      }),
-    }, { onSuccess: onClose })
-  }
-
-  return (
-    <Dialog open={!!doc} onOpenChange={o => { if (!o) onClose() }}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Categories of this document</DialogTitle></DialogHeader>
-        {slots.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            This jobsite has no category yet. Add one below the document list first.
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {slots.map(sl => {
-              const key = `${sl.categoryId}:${sl.subcategory}`
-              const on = picked.includes(key)
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setPicked(prev =>
-                    on ? prev.filter(k => k !== key) : [...prev, key])}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    on
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                  }`}
-                >
-                  {tagLabel(sl)}
-                </button>
-              )
-            })}
-          </div>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={setTags.isPending} onClick={save}>
-            {setTags.isPending ? "Saving…" : "Save"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
 
 function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   jobsiteId: string; client: string; kind: string; canManage: boolean
@@ -325,7 +249,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   const router = useRouter()
 
   const [uploading, setUploading] = useState(false)
-  const [tagging, setTagging] = useState<AtlasDocument | null>(null)
   // O filtro é o que sobrou da pasta: em vez de entrar nela, a lista encolhe.
   const [filter, setFilter] = useState("")
 
@@ -490,15 +413,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                   </span>
                 )}
 
-                {canManage && (
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 shrink-0 p-0"
-                    onClick={() => setTagging(doc)}
-                  >
-                    <Tags className="h-4 w-4" />
-                  </Button>
-                )}
               </div>
             ))}
           </div>
@@ -515,13 +429,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           onClose={() => setUploading(false)}
         />
       )}
-
-      <TagDialog
-        jobsiteId={jobsiteId}
-        doc={tagging}
-        slots={slots}
-        onClose={() => setTagging(null)}
-      />
     </>
   )
 }

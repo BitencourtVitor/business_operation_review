@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasSheets, useAtlasThumbs, useAtlasVersions,
+  useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasJobsiteCategories, useAtlasSheets,
+  useAtlasThumbs, useAtlasVersions,
   usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
+import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { takeUpload } from "@/components/atlas/pending-upload"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import {
@@ -21,7 +23,7 @@ import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft, Check, CloudUpload, Download, Highlighter, History, Images, Layers, Link2, MapPin,
-  Pencil, ScanText, SquareDashedMousePointer, X,
+  Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -241,7 +243,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   )
 }
 
-/** "09/04/2026 14:32" — o que identifica uma versão. */
+/** "09/04/2026 14:32": o que identifica uma versão. */
 function stamp(iso: string) {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ""
@@ -253,6 +255,7 @@ export default function DocumentPage() {
   const { jobsiteId, documentId } = useParams<{ jobsiteId: string; documentId: string }>()
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: documents } = useAtlasDocuments(jobsiteId)
+  const { data: slots = [] } = useAtlasJobsiteCategories(jobsiteId)
   const { data: versions, isLoading } = useAtlasVersions(documentId)
   const publish = usePublishAtlasVersion(documentId)
 
@@ -294,7 +297,7 @@ export default function DocumentPage() {
 
   // Documento recém-criado: o arquivo foi escolhido na sala da obra e ficou
   // esperando aqui, porque é aqui que as folhas aparecem uma a uma. Roda uma
-  // vez só — quem pega, sobe.
+  // vez só: quem pega, sobe.
   const started = useRef(false)
   useEffect(() => {
     if (started.current) return
@@ -482,6 +485,7 @@ export default function DocumentPage() {
     })
   }
 
+  const [tagging, setTagging] = useState(false)
   const [history, setHistory] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [draftName, setDraftName] = useState("")
@@ -558,12 +562,35 @@ export default function DocumentPage() {
                   )}
                 </h1>
               )}
-              <p className="truncate text-sm text-muted-foreground">
-                {[jobsite?.name, ...(doc?.tags ?? []).map(t =>
-                  t.subcategory
-                    ? `${t.subcategory} ${t.axis === "unit" ? "Unit" : "Floor"} ${t.category}`
-                    : t.category)].filter(Boolean).join(" · ")}
-              </p>
+              {/* As categorias do documento, aqui e não na lista da obra:
+                  classificar é olhar para o que se classifica. Vazio, o bloco
+                  ainda existe, porque documento sem categoria é justamente o
+                  que precisa ser resolvido. */}
+              <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
+                <span className="truncate text-sm text-muted-foreground">{jobsite?.name}</span>
+                {!!(doc?.tags ?? []).length && (
+                  <span className="text-sm text-muted-foreground">·</span>
+                )}
+                {(doc?.tags ?? []).map(t => (
+                  <Badge
+                    key={`${t.categoryId}:${t.subcategory}`}
+                    variant="outline"
+                    className="text-[11px] font-normal text-muted-foreground"
+                  >
+                    {tagLabel(t)}
+                  </Badge>
+                ))}
+                {canManage && (
+                  <button
+                    type="button"
+                    onClick={() => setTagging(true)}
+                    className="flex items-center gap-1 rounded px-1 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <Tags className="h-3 w-3" />
+                    {(doc?.tags ?? []).length ? "Edit" : "Add a category"}
+                  </button>
+                )}
+              </div>
             </div>
             {/* As versões do set. A identificação é a data e a hora do envio,
                 com o nome ao lado quando alguém deu um: número de revisão era
@@ -803,6 +830,14 @@ export default function DocumentPage() {
             </section>
           )}
       </div>
+
+      <DocumentTagsDialog
+        jobsiteId={jobsiteId}
+        doc={doc}
+        slots={slots}
+        open={tagging}
+        onClose={() => setTagging(false)}
+      />
 
       {/* Qual set está aberto, e o que cada um trouxe. Trocar aqui abre as
           folhas daquele envio, com as marcações que foram feitas sobre elas. */}

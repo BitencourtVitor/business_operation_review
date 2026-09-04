@@ -228,7 +228,7 @@ export function UploadPlanDialog({
                     </div>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    A document can carry more than one — a set covering the 3rd and the 4th
+                    A document can carry more than one. A set covering the 3rd and the 4th
                     floor is one document with two.
                   </p>
                 </div>

@@ -187,8 +187,8 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
                       e as marcações feitas sobre ele continuam lá, não vêm
                       junto. */}
                   <p className="text-xs text-muted-foreground">
-                    The current sheet becomes history. Marks made on it stay with it — the new
-                    plan starts clean.
+                    The current sheet becomes history. Marks made on it stay with it, and the
+                    new plan starts clean.
                   </p>
                 </>
               )}
