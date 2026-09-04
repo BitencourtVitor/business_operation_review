@@ -1355,7 +1355,13 @@ export function SheetViewer({
           largura do painel esticava a fileira de ícones e sobrava vão depois do
           X; soltos, cada um tem a largura do que carrega. */}
       <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
-       <div className={`flex items-center gap-1 px-1 ${FLUTUA}`}>
+       {/* Em tela estreita a fileira deitada avança sobre a identificação, que
+           é o que a pessoa precisa ler. Então ela fica de pé, e a ordem se
+           inverte junto: o X sobe para o topo, onde a mão o procura, e a lupa
+           desce para o fim. */}
+       <div
+         className={`flex items-center gap-1 px-1 max-sm:h-auto max-sm:w-[50px] max-sm:flex-col-reverse max-sm:px-0 max-sm:py-1 ${FLUTUA}`}
+       >
         {/* Procurar texto na prancha. O plano guarda o texto que foi impresso
             nele, então achar "U341" é leitura de PDF, não busca em imagem. */}
         {finding && (
