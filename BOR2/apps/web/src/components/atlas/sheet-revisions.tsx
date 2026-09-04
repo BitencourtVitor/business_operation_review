@@ -41,6 +41,9 @@ function when(iso: string) {
   return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
+/** O que um anexo é, e por isso que janela ele abre. */
+type Tipo = "image" | "audio" | "video" | "file"
+
 /** "1:07" a partir de segundos. */
 function relogio(s: number) {
   if (!Number.isFinite(s)) return "0:00"
@@ -144,6 +147,62 @@ function AudioWindow({ url, name, onClose }: {
 }
 
 /**
+ * A janela que toca um anexo de vídeo.
+ *
+ * Veste o vídeo como a de imagem veste a imagem: a proporção vem do arquivo, e
+ * não uma caixa fixa com tarja preta em cima e embaixo. Os controles são os do
+ * navegador de propósito: tela cheia, velocidade e legenda já estão lá, e
+ * refazê-los à mão seria refazer pior.
+ */
+function VideoWindow({ url, name, onClose }: {
+  url: string; name: string; onClose: () => void
+}) {
+  const [largura, setLargura] = useState(0)
+
+  function medir(v: HTMLVideoElement) {
+    if (!v.videoWidth || !v.videoHeight) return
+    const teto = window.innerWidth * 0.92
+    const altura = window.innerHeight * 0.9 - 44
+    const coube = Math.min(1, teto / v.videoWidth, altura / v.videoHeight)
+    setLargura(v.videoWidth * coube)
+  }
+
+  return (
+    <div
+      role="presentation"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/60 p-6 backdrop-blur-md"
+    >
+      <div
+        role="presentation"
+        onClick={e => e.stopPropagation()}
+        style={largura ? { width: Math.round(largura) } : undefined}
+        className="flex max-w-[92vw] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
+      >
+        <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b border-border px-4">
+          <span className="min-w-0 truncate text-sm font-medium">{name}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+        <video
+          src={url}
+          controls
+          autoPlay
+          playsInline
+          onLoadedMetadata={e => medir(e.currentTarget)}
+          className="block max-h-[calc(90vh-2.75rem)] w-full bg-black"
+        />
+      </div>
+    </div>
+  )
+}
+
+/**
  * Uma imagem anexada à justificativa.
  *
  * O objeto no bucket é privado, então a miniatura pede a URL assinada quando
@@ -152,11 +211,12 @@ function AudioWindow({ url, name, onClose }: {
  */
 function Attachment({ id, fileName, contentType, onOpen }: {
   id: string; fileName: string; contentType: string
-  onOpen: (anexo: { url: string; name: string; kind: "image" | "audio" | "file" }) => void
+  onOpen: (anexo: { url: string; name: string; kind: Tipo }) => void
 }) {
   const [url, setUrl] = useState("")
-  const kind: "image" | "audio" | "file" = contentType.startsWith("image/") ? "image"
+  const kind: Tipo = contentType.startsWith("image/") ? "image"
     : contentType.startsWith("audio/") ? "audio"
+    : contentType.startsWith("video/") ? "video"
     : "file"
 
   useEffect(() => {
@@ -185,6 +245,9 @@ function Attachment({ id, fileName, contentType, onOpen }: {
       ) : kind === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt={fileName} className="h-full w-full object-cover" />
+      ) : kind === "video" ? (
+        // O primeiro quadro já diz do que se trata; ícone de filme não diz.
+        <video src={url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
       ) : (
         <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-muted-foreground">
           {kind === "audio" ? <Music className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
@@ -343,9 +406,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
   const [error, setError] = useState("")
   // Clicar num anexo abria outra aba, e outra aba é sair do sistema para ver o
   // que justifica a troca que se está lendo. A imagem abre aqui, por cima.
-  const [zoom, setZoom] = useState<
-    { url: string; name: string; kind: "image" | "audio" | "file" } | null
-  >(null)
+  const [zoom, setZoom] = useState<{ url: string; name: string; kind: Tipo } | null>(null)
 
   useEffect(() => {
     if (open) return
@@ -421,6 +482,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
             sheetId: ticket.sheetId,
             kind: extra.type.startsWith("image/") ? "photo"
               : extra.type.startsWith("audio/") ? "audio"
+              : extra.type.startsWith("video/") ? "video"
               : "file",
             fileName: extra.name,
             contentType: extra.type || "application/octet-stream",
@@ -620,6 +682,8 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
         {zoom && createPortal(
           zoom.kind === "audio"
             ? <AudioWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />
+            : zoom.kind === "video"
+            ? <VideoWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />
             : <AttachmentWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
           document.body,
         )}

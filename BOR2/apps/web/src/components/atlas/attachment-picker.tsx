@@ -27,7 +27,10 @@ export function AttachmentPicker({ files, onChange, disabled }: {
   // pelo bucket: o anexo ainda nem subiu.
   const [previews, setPreviews] = useState<string[]>([])
   useEffect(() => {
-    const urls = files.map(f => (f.type.startsWith("image/") ? URL.createObjectURL(f) : ""))
+    // Vídeo também tem prévia: o primeiro quadro dele já diz do que se trata,
+    // e um ícone de filme não diz nada.
+    const urls = files.map(f =>
+      f.type.startsWith("image/") || f.type.startsWith("video/") ? URL.createObjectURL(f) : "")
     setPreviews(urls)
     return () => urls.forEach(u => u && URL.revokeObjectURL(u))
   }, [files])
@@ -43,7 +46,7 @@ export function AttachmentPicker({ files, onChange, disabled }: {
         ref={inputRef}
         type="file"
         multiple
-        accept="image/*,audio/*,application/pdf"
+        accept="image/*,audio/*,video/*,application/pdf"
         className="hidden"
         onChange={e => {
           // A lista sai do input agora, e não dentro do atualizador de estado:
@@ -61,7 +64,9 @@ export function AttachmentPicker({ files, onChange, disabled }: {
           className="group/anexo relative h-20 w-20 overflow-hidden rounded-lg border border-border/60 bg-muted/30"
           title={f.name}
         >
-          {previews[i] ? (
+          {previews[i] && f.type.startsWith("video/") ? (
+            <video src={previews[i]} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+          ) : previews[i] ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={previews[i]} alt={f.name} className="h-full w-full object-cover" />
           ) : (
