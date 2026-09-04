@@ -1249,6 +1249,7 @@ export function SheetViewer({
 
       <SheetRevisions
         sheet={sheet}
+        jobsiteId={jobsiteId}
         canManage={!!canManage}
         open={revisions}
         onClose={() => setRevisions(false)}

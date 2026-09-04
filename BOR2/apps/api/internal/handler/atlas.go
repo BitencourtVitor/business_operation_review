@@ -1042,6 +1042,8 @@ type atlasVersion struct {
 	UploadedAt  string  `json:"uploadedAt"`
 	PublishedAt *string `json:"publishedAt"`
 	Sheets      int     `json:"sheets"`
+	// O que foi anexado à justificativa desta versão.
+	Attachments []atlasRevisionFile `json:"attachments"`
 }
 
 // GET /atlas/documents/:id/versions
@@ -1059,7 +1061,15 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		       v.checksum, v.content_type, v.status, v.name, v.notes, v.uploaded_by,
 		       v.uploaded_at, v.published_at,
 		       (SELECT count(*) FROM atlas_sheet s
-		         WHERE s.version_id = v.id AND s.superseded_at IS NULL)
+		         WHERE s.version_id = v.id AND s.superseded_at IS NULL),
+		       COALESCE((
+		           SELECT json_agg(json_build_object(
+		                      'id', m.id, 'fileName', m.file_name,
+		                      'contentType', m.content_type, 'byteSize', m.byte_size)
+		                  ORDER BY m.uploaded_at)
+		           FROM atlas_media m
+		           WHERE m.version_id = v.id AND m.status <> 'failed'
+		       ), '[]')::text
 		FROM atlas_document_version v
 		WHERE v.document_id = $1
 		ORDER BY v.uploaded_at DESC`, docID)
@@ -1073,10 +1083,15 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		var v atlasVersion
 		var uploaded time.Time
 		var published *time.Time
+		var files string
 		if err := rows.Scan(&v.ID, &v.DocumentID, &v.Revision, &v.R2Key, &v.ByteSize,
 			&v.PageCount, &v.Checksum, &v.ContentType, &v.Status, &v.Name, &v.Notes,
-			&v.UploadedBy, &uploaded, &published, &v.Sheets); err != nil {
+			&v.UploadedBy, &uploaded, &published, &v.Sheets, &files); err != nil {
 			return internalErr(c, err)
+		}
+		v.Attachments = []atlasRevisionFile{}
+		if files != "" {
+			_ = json.Unmarshal([]byte(files), &v.Attachments)
 		}
 		v.UploadedAt = uploaded.Format(time.RFC3339)
 		v.PublishedAt = isoOrNil(published)
@@ -2147,8 +2162,13 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 		return atlasNoStorage(c)
 	}
 	var in struct {
-		EventID     *string `json:"eventId"`
-		DailyLogID  *string `json:"dailyLogId"`
+		EventID    *string `json:"eventId"`
+		DailyLogID *string `json:"dailyLogId"`
+		// A revisão que este arquivo justifica: a folha trocada, ou o set
+		// inteiro. A justificativa de uma troca costuma ser uma foto do que foi
+		// achado em obra, e sem isto ela vira "ver anexo no e-mail".
+		SheetID     *string `json:"sheetId"`
+		VersionID   *string `json:"versionId"`
 		Kind        string  `json:"kind"`
 		FileName    string  `json:"fileName"`
 		ContentType string  `json:"contentType"`
@@ -2181,11 +2201,12 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 	}
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_media
-			(id, jobsite_id, event_id, daily_log_id, kind, r2_key, file_name,
-			 content_type, byte_size, caption, uploaded_by, album, taken_at)
-		VALUES ($1,$2,$3,$4,COALESCE(NULLIF($5,''),'photo'),$6,$7,$8,$9,$10,$11,$12,$13)`,
-		id, jobsiteID, in.EventID, in.DailyLogID, in.Kind, key, in.FileName,
-		in.ContentType, in.ByteSize, in.Caption, userID, strings.TrimSpace(in.Album), takenAt)
+			(id, jobsite_id, event_id, daily_log_id, sheet_id, version_id, kind, r2_key,
+			 file_name, content_type, byte_size, caption, uploaded_by, album, taken_at)
+		VALUES ($1,$2,$3,$4,$5,$6,COALESCE(NULLIF($7,''),'photo'),$8,$9,$10,$11,$12,$13,$14,$15)`,
+		id, jobsiteID, in.EventID, in.DailyLogID, in.SheetID, in.VersionID, in.Kind, key,
+		in.FileName, in.ContentType, in.ByteSize, in.Caption, userID,
+		strings.TrimSpace(in.Album), takenAt)
 	if err != nil {
 		return internalErr(c, err)
 	}
