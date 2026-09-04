@@ -20,7 +20,7 @@ import {
 } from "@/hooks/use-atlas"
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
-  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
+  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, FileUp,
   Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
   User, Users, X,
 } from "lucide-react"
@@ -1229,21 +1229,21 @@ export function SheetViewer({
           </p>
          </div>
 
-         {/* A linhagem da página. Fica junto da identificação porque é sobre
-             esta prancha que ela fala: quantas vezes ela já foi trocada, e por
-             quem. O número só aparece a partir da segunda, que é quando ele
-             deixa de ser óbvio. */}
-         <button
-           type="button"
-           onClick={() => setRevisions(true)}
-           title="Revisions of this sheet"
-           className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-         >
-           <History className="h-4 w-4" />
-           {sheet.revisions > 1 && (
+         {/* A linhagem da página, junto da identificação porque é sobre esta
+             prancha que ela fala. Só existe a partir da segunda revisão: com uma
+             só, o relógio prometia uma tela onde não há nada para ver. Trocar a
+             prancha continua na barra da direita, com as outras ações da folha. */}
+         {sheet.revisions > 1 && (
+           <button
+             type="button"
+             onClick={() => setRevisions(true)}
+             title="Revisions of this sheet"
+             className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+           >
+             <History className="h-4 w-4" />
              <span className="text-xs font-medium tabular-nums">{sheet.revisions}</span>
-           )}
-         </button>
+           </button>
+         )}
         </div>
       </div>
 
@@ -1357,6 +1357,17 @@ export function SheetViewer({
         >
           <Download className="h-4 w-4" />
         </Button>
+        {canManage && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst pointer-events-auto h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            title="Replace this plan"
+            onClick={() => setRevisions(true)}
+          >
+            <FileUp className="h-4 w-4" />
+          </Button>
+        )}
         <Button
           size="icon"
           variant="ghost"
