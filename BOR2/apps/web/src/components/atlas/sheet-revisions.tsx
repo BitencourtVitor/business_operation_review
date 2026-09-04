@@ -97,6 +97,151 @@ function Attachment({ id, fileName, contentType, onOpen }: {
   )
 }
 
+/**
+ * A janela que amplia um anexo.
+ *
+ * Toma a forma da imagem: a altura é o limite e a largura sai da proporção
+ * dela. Largura fixa deixava um print deitado no meio de dois vãos de fundo do
+ * tamanho dele.
+ *
+ * A pinça amplia dentro da janela, e não a janela: o quadro fica onde está e o
+ * desenho cresce dentro dele, que é o gesto de quem quer ler o texto pequeno de
+ * um print sem perder de vista onde ele estava.
+ */
+function AttachmentWindow({ url, name, onClose }: {
+  url: string; name: string; onClose: () => void
+}) {
+  const [scale, setScale] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  // Os dedos na tela, por id. Dois deles viram distância, e a razão entre a
+  // distância de agora e a do começo do gesto é a ampliação.
+  const dedos = useRef(new Map<number, { x: number; y: number }>())
+  const inicio = useRef<{ dist: number; scale: number } | null>(null)
+  const arrasto = useRef<{ x: number; y: number; pan: { x: number; y: number } } | null>(null)
+
+  const limita = (n: number) => Math.min(6, Math.max(1, n))
+
+  function reset() {
+    setScale(1)
+    setPan({ x: 0, y: 0 })
+  }
+
+  function down(e: React.PointerEvent) {
+    // Capturar o ponteiro é conforto para o arraste não escapar do elemento, e
+    // ele recusa id que o navegador não conhece. Falhar aqui não pode derrubar
+    // o resto do gesto: sem o try, a pinça nem chegava a ser registrada.
+    try {
+      ;(e.target as Element).setPointerCapture?.(e.pointerId)
+    } catch {
+      // segue sem captura
+    }
+    dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (dedos.current.size === 2) {
+      const [a, b] = [...dedos.current.values()]
+      inicio.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale }
+      arrasto.current = null
+      return
+    }
+    // Arrastar só faz sentido com a imagem ampliada: no tamanho natural não há
+    // para onde ir.
+    if (scale > 1) arrasto.current = { x: e.clientX, y: e.clientY, pan }
+  }
+
+  function move(e: React.PointerEvent) {
+    if (!dedos.current.has(e.pointerId)) return
+    dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+    if (dedos.current.size === 2 && inicio.current) {
+      const [a, b] = [...dedos.current.values()]
+      const dist = Math.hypot(a.x - b.x, a.y - b.y)
+      if (inicio.current.dist > 0) {
+        setScale(limita(inicio.current.scale * (dist / inicio.current.dist)))
+      }
+      return
+    }
+    if (arrasto.current) {
+      setPan({
+        x: arrasto.current.pan.x + (e.clientX - arrasto.current.x),
+        y: arrasto.current.pan.y + (e.clientY - arrasto.current.y),
+      })
+    }
+  }
+
+  function up(e: React.PointerEvent) {
+    dedos.current.delete(e.pointerId)
+    if (dedos.current.size < 2) inicio.current = null
+    if (dedos.current.size === 0) arrasto.current = null
+  }
+
+  return (
+    <div
+      role="presentation"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/60 p-6 backdrop-blur-md"
+    >
+      <div
+        role="presentation"
+        onClick={e => e.stopPropagation()}
+        className="inline-flex min-w-80 max-w-[90vw] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
+      >
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+          <span className="min-w-0 truncate text-sm font-medium">{name}</span>
+          <div className="flex shrink-0 items-center gap-1">
+            {scale > 1 && (
+              <button
+                type="button"
+                onClick={reset}
+                className="rounded px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {scale.toFixed(1)}x
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
+
+        {/* A imagem encosta na moldura: o que arredonda é a janela, e o corte
+            dela nas duas quinas de baixo é o mesmo que qualquer modal faz com o
+            que carrega. Respiro aqui viraria borda que não é da imagem. */}
+        <div
+          className="touch-none overflow-hidden"
+          onPointerDown={down}
+          onPointerMove={move}
+          onPointerUp={up}
+          onPointerCancel={up}
+          onDoubleClick={reset}
+          onWheel={e => {
+            const passo = e.deltaY < 0 ? 1.15 : 1 / 1.15
+            setScale(atual => {
+              const proximo = limita(atual * passo)
+              if (proximo === 1) setPan({ x: 0, y: 0 })
+              return proximo
+            })
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt={name}
+            draggable={false}
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+              cursor: scale > 1 ? "grab" : "default",
+            }}
+            className="block h-auto max-h-[calc(85vh-3.5rem)] w-auto max-w-full select-none object-contain"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onReplaced }: {
   sheet: AtlasSheet
   jobsiteId: string
@@ -385,38 +530,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
             valer a tela e passa a valer o próprio popup: a janela nascia do
             tamanho do diálogo, presa a ele, e o desfoque não alcançava o resto. */}
         {zoom && createPortal(
-          <div
-            role="presentation"
-            onClick={() => setZoom(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/60 p-6 backdrop-blur-md"
-          >
-            <div
-              role="presentation"
-              onClick={e => e.stopPropagation()}
-              className="flex max-h-[85vh] w-[min(90vw,64rem)] flex-col border border-border bg-background shadow-2xl"
-            >
-              <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
-                <span className="min-w-0 truncate text-sm font-medium">{zoom.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setZoom(null)}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </header>
-              {/* A imagem cabe inteira, e o que sobra de moldura é fundo, não
-                  imagem esticada: print de conversa perde a leitura ao deformar. */}
-              <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-muted/20 p-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={zoom.url}
-                  alt={zoom.name}
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-          </div>,
+          <AttachmentWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
           document.body,
         )}
 
