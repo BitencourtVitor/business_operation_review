@@ -6,11 +6,12 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { renderThumb } from "@/components/atlas/plan-split"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { atlasService, uploadToR2 } from "@/services/atlas.service"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { FileUp, History, Loader2 } from "lucide-react"
+import { FileUp, History, ImagePlus, Loader2, Paperclip, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import type { AtlasSheet } from "@/services/atlas.service"
@@ -23,9 +24,9 @@ import type { AtlasSheet } from "@/services/atlas.service"
  * junto, levando as anotações feitas sobre elas.
  *
  * Aqui a página guarda linhagem. A prancha que vale é a última; as anteriores
- * continuam no banco com quem as trocou, quando, e com que nome e observação.
- * As anotações ficam com a revisão em que foram feitas, e é isso que se quer:
- * elas apontam para traços que podem ter mudado de lugar na prancha nova.
+ * continuam no banco com quem as trocou, quando, e com que justificativa. As
+ * anotações ficam com a revisão em que foram feitas, e é isso que se quer: elas
+ * apontam para traços que podem ter mudado de lugar na prancha nova.
  */
 
 /** A data como se fala dela numa linha de histórico. */
@@ -36,8 +37,55 @@ function when(iso: string) {
   return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
-export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: {
+/**
+ * Uma imagem anexada à justificativa.
+ *
+ * O objeto no bucket é privado, então a miniatura pede a URL assinada quando
+ * entra na tela. Pedir todas de uma vez ao abrir o histórico gastaria uma
+ * assinatura por anexo de revisão nenhuma que ninguém foi olhar.
+ */
+function Attachment({ id, fileName, contentType }: {
+  id: string; fileName: string; contentType: string
+}) {
+  const [url, setUrl] = useState("")
+  const image = contentType.startsWith("image/")
+
+  useEffect(() => {
+    let alive = true
+    atlasService.mediaUrl(id)
+      .then(r => { if (alive) setUrl(r.url) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [id])
+
+  if (!image) {
+    return (
+      <a
+        href={url || undefined}
+        target="_blank"
+        rel="noopener"
+        className="flex items-center gap-1.5 rounded-md border border-border/60 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+      >
+        <Paperclip className="h-3 w-3" />
+        <span className="max-w-40 truncate">{fileName}</span>
+      </a>
+    )
+  }
+  return (
+    <a href={url || undefined} target="_blank" rel="noopener" title={fileName}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt={fileName}
+        className="h-14 w-14 rounded-md border border-border/60 bg-muted/40 object-cover transition-colors hover:border-primary/40"
+      />
+    </a>
+  )
+}
+
+export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onReplaced }: {
   sheet: AtlasSheet
+  jobsiteId: string
   canManage: boolean
   open: boolean
   onClose: () => void
@@ -46,6 +94,7 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
 }) {
   const qc = useQueryClient()
   const inputRef = useRef<HTMLInputElement>(null)
+  const filesRef = useRef<HTMLInputElement>(null)
 
   const { data: history = [], isLoading } = useQuery({
     queryKey: ["atlas", "sheet-history", sheet.id],
@@ -56,12 +105,14 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
   const [file, setFile] = useState<File | null>(null)
   const [name, setName] = useState("")
   const [notes, setNotes] = useState("")
+  const [attachments, setAttachments] = useState<File[]>([])
   const [busy, setBusy] = useState("")
   const [error, setError] = useState("")
 
   useEffect(() => {
     if (open) return
-    setFile(null); setName(""); setNotes(""); setBusy(""); setError("")
+    setFile(null); setName(""); setNotes(""); setAttachments([])
+    setBusy(""); setError("")
   }, [open])
 
   async function replace() {
@@ -114,6 +165,27 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
         notes: notes.trim(),
       })
 
+      // Os anexos vão depois da troca porque é a revisão nova que eles
+      // justificam, e ela só existe a partir daqui. Falhar num anexo não
+      // desfaz a troca: a prancha nova já é a que vale, e o que faltou se
+      // reanexa.
+      for (const [i, extra] of attachments.entries()) {
+        setBusy(`Attaching ${i + 1}/${attachments.length}`)
+        try {
+          const media = await atlasService.openMedia(jobsiteId, {
+            sheetId: ticket.sheetId,
+            kind: extra.type.startsWith("image/") ? "photo" : "file",
+            fileName: extra.name,
+            contentType: extra.type || "application/octet-stream",
+            byteSize: extra.size,
+          })
+          await uploadToR2(media.uploadUrl, extra, extra.type || "application/octet-stream")
+          await atlasService.confirmMedia(media.mediaId)
+        } catch {
+          setError("The sheet was replaced, but one of the attachments did not go up.")
+        }
+      }
+
       qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
       qc.invalidateQueries({ queryKey: ["atlas", "sheet-history", sheet.id] })
       onReplaced()
@@ -134,7 +206,7 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto">
           {canManage && (
             <>
               <input
@@ -174,15 +246,66 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
                       onChange={e => setName(e.target.value)}
                     />
                   </div>
+
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="rev-notes">Notes</Label>
-                    <Input
+                    <Label htmlFor="rev-notes">Why it changed</Label>
+                    {/* Uma linha só não cabia o motivo. Quem troca uma prancha
+                        conta o que foi achado em obra, quem pediu e o que a
+                        correção resolve, e isso não é uma frase. */}
+                    <Textarea
                       id="rev-notes"
+                      rows={4}
                       value={notes}
-                      placeholder="Optional"
+                      placeholder="What was found, who asked for it, what the correction solves"
                       onChange={e => setNotes(e.target.value)}
                     />
                   </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Attachments</Label>
+                    <input
+                      ref={filesRef}
+                      type="file"
+                      multiple
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                      onChange={e => {
+                        setAttachments(prev => [...prev, ...Array.from(e.target.files ?? [])])
+                        e.target.value = ""
+                      }}
+                    />
+                    {/* A foto do que se achou em obra, o recorte do e-mail do
+                        projetista. Sem lugar para isso, a justificativa vira
+                        "ver anexo no e-mail" e o anexo fica fora do Atlas. */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {attachments.map((a, i) => (
+                        <span
+                          key={`${a.name}-${i}`}
+                          className="flex items-center gap-1 rounded-md border border-border/60 py-1 pl-2 pr-1 text-xs text-muted-foreground"
+                        >
+                          <Paperclip className="h-3 w-3" />
+                          <span className="max-w-36 truncate">{a.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setAttachments(p => p.filter((_, k) => k !== i))}
+                            className="rounded p-0.5 transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        disabled={!!busy}
+                        onClick={() => filesRef.current?.click()}
+                      >
+                        <ImagePlus />
+                        Add an image
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* Dito onde a decisão acontece: o que estava vira histórico,
                       e as marcações feitas sobre ele continuam lá, não vêm
                       junto. */}
@@ -202,29 +325,53 @@ export function SheetRevisions({ sheet, canManage, open, onClose, onReplaced }: 
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             ) : (
-              <div className="flex max-h-56 flex-col gap-1.5 overflow-y-auto">
+              <div className="flex flex-col gap-1.5">
                 {history.map(r => (
                   <div
                     key={r.id}
-                    className={`flex items-start gap-3 rounded-lg border p-2.5 ${
+                    className={`flex flex-col gap-2 rounded-lg border p-2.5 ${
                       r.supersededAt ? "border-border/40 bg-muted/20" : "border-primary/30 bg-primary/5"
                     }`}
                   >
-                    <History className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm leading-tight">
-                        {r.name || (r.supersededAt ? "Replaced" : "Original")}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {[when(r.revisedAt), r.revisedBy.split(" ")[0], r.notes]
-                          .filter(Boolean).join(" · ")}
-                      </p>
+                    <div className="flex items-start gap-3">
+                      <History className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm leading-tight">
+                          {r.name || (r.supersededAt ? "Replaced" : "Original")}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {[when(r.revisedAt), r.revisedBy.split(" ")[0]]
+                            .filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {r.supersededAt
+                          ? `${r.annotations} ${r.annotations === 1 ? "mark" : "marks"}`
+                          : "Current"}
+                      </span>
                     </div>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {r.supersededAt
-                        ? `${r.annotations} ${r.annotations === 1 ? "mark" : "marks"}`
-                        : "Current"}
-                    </span>
+
+                    {/* A justificativa inteira, com as quebras que quem
+                        escreveu deu: cortá-la numa linha faria a segunda frase
+                        sumir junto com o motivo. */}
+                    {r.notes && (
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                        {r.notes}
+                      </p>
+                    )}
+
+                    {!!r.attachments?.length && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {r.attachments.map(a => (
+                          <Attachment
+                            key={a.id}
+                            id={a.id}
+                            fileName={a.fileName}
+                            contentType={a.contentType}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

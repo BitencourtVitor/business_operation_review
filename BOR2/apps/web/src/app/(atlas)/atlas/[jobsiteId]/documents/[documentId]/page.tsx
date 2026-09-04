@@ -19,11 +19,11 @@ import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-nami
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { atlasService, type AtlasSheet } from "@/services/atlas.service"
+import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft, Check, CloudUpload, Download, Highlighter, History, Images, Layers, Link2, MapPin,
-  Pencil, ScanText, SquareDashedMousePointer, Tags, X,
+  Paperclip, Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -451,7 +451,7 @@ export default function DocumentPage() {
     file: File,
     names?: Map<number, string>,
     _identity?: unknown,
-    version?: { name: string; notes: string },
+    version?: { name: string; notes: string; attachments?: File[] },
   ) {
     setPreviews(new Map())
     setSendError("")
@@ -466,6 +466,10 @@ export default function DocumentPage() {
         setSending({ done: 0, total: pageCount })
         setVersionId(id)
         qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
+        // Os anexos da justificativa vão assim que a versão existe, em paralelo
+        // com o corte: eles não dependem das folhas, e segurá-los até o fim
+        // atrasaria por nada. Falhar num anexo não desfaz o envio.
+        void sendAttachments(id, version?.attachments ?? [])
       },
       onPage: (pageIndex, preview) => {
         setPreviews(m => new Map(m).set(pageIndex, preview))
@@ -495,6 +499,27 @@ export default function DocumentPage() {
     if (!next || next === doc?.name) return
     atlasService.updateDocument(documentId, { name: next })
       .then(() => qc.invalidateQueries({ queryKey: ["atlas", "documents", jobsiteId] }))
+  }
+
+  // Anexa à versão o que justifica a troca. Roda depois de a versão existir,
+  // porque é a ela que os arquivos pertencem.
+  async function sendAttachments(versionId: string, files: File[]) {
+    for (const extra of files) {
+      try {
+        const media = await atlasService.openMedia(jobsiteId, {
+          versionId,
+          kind: extra.type.startsWith("image/") ? "photo" : "file",
+          fileName: extra.name,
+          contentType: extra.type || "application/octet-stream",
+          byteSize: extra.size,
+        })
+        await uploadToR2(media.uploadUrl, extra, extra.type || "application/octet-stream")
+        await atlasService.confirmMedia(media.mediaId)
+      } catch {
+        setSendError("The plan set went up, but one of the attachments did not.")
+      }
+    }
+    qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
   }
 
   async function download() {
@@ -859,10 +884,23 @@ export default function DocumentPage() {
                       <span className="ml-2 font-normal text-muted-foreground">{v.name}</span>
                     )}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {[`${v.sheets} ${v.sheets === 1 ? "plan" : "plans"}`, v.notes]
-                      .filter(Boolean).join(" · ")}
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {v.sheets} {v.sheets === 1 ? "plan" : "plans"}
                   </p>
+                  {/* A justificativa com as quebras que quem escreveu deu:
+                      cortá-la numa linha faria a segunda frase sumir junto com
+                      o motivo. */}
+                  {v.notes && (
+                    <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                      {v.notes}
+                    </p>
+                  )}
+                  {!!v.attachments?.length && (
+                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <Paperclip className="h-3 w-3" />
+                      {v.attachments.length} attached
+                    </p>
+                  )}
                 </div>
                 {v.id === versionId && (
                   <span className="shrink-0 text-xs text-muted-foreground">Open</span>

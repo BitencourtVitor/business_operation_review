@@ -164,6 +164,8 @@ export interface AtlasVersion {
   uploadedAt: string
   publishedAt: string | null
   sheets: number
+  /** O que foi anexado à justificativa desta versão. */
+  attachments: { id: string; fileName: string; contentType: string; byteSize: number }[]
 }
 
 export interface PlanUploadTicket {
@@ -215,6 +217,8 @@ export interface AtlasSheetRevision {
   thumbKey: string
   byteSize: number
   annotations: number
+  /** O que foi anexado à justificativa desta revisão. */
+  attachments: { id: string; fileName: string; contentType: string; byteSize: number }[]
 }
 
 // Pontos normalizados (0..1) em relação à página, para o traço acompanhar
@@ -546,13 +550,18 @@ export const atlasService = {
       .then(r => r ?? [])
   },
   openMedia: (jobsiteId: string, body: {
-    eventId?: string; dailyLogId?: string; kind: string
+    eventId?: string; dailyLogId?: string
+    /** A revisão que este arquivo justifica: a folha trocada, ou o set inteiro. */
+    sheetId?: string; versionId?: string
+    kind: string
     fileName: string; contentType: string; byteSize: number; caption?: string
     album?: string; takenAt?: string
   }) => api.post<UploadTicket & { mediaId: string }>(
     `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
   confirmMedia: (mediaId: string) =>
     api.post(`${base}/media/${mediaId}/confirm`, {}, getToken()),
+  mediaUrl: (mediaId: string) =>
+    api.get<{ url: string }>(`${base}/media/${mediaId}/url`, getToken()),
 }
 
 /**

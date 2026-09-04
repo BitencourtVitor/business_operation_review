@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -39,6 +40,18 @@ type atlasSheetRevision struct {
 	ThumbKey     string `json:"thumbKey"`
 	ByteSize     int64  `json:"byteSize"`
 	Annotations  int    `json:"annotations"`
+	// O que foi anexado à justificativa: a foto do que se achou em obra, o
+	// recorte do e-mail do projetista. Vem junto do histórico porque é lendo o
+	// histórico que alguém pergunta "por que trocou".
+	Attachments []atlasRevisionFile `json:"attachments"`
+}
+
+// atlasRevisionFile é um anexo da justificativa.
+type atlasRevisionFile struct {
+	ID          string `json:"id"`
+	FileName    string `json:"fileName"`
+	ContentType string `json:"contentType"`
+	ByteSize    int64  `json:"byteSize"`
 }
 
 // POST /atlas/sheets/:id/revisions — onde gravar a prancha nova.
@@ -171,7 +184,15 @@ func (h *AtlasHandler) SheetHistory(c *fiber.Ctx) error {
 		       COALESCE(u.name,''), s.revised_at, s.superseded_at,
 		       s.r2_key, s.thumb_key, s.byte_size,
 		       (SELECT count(*) FROM atlas_annotation a
-		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL)
+		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL),
+		       COALESCE((
+		           SELECT json_agg(json_build_object(
+		                      'id', m.id, 'fileName', m.file_name,
+		                      'contentType', m.content_type, 'byteSize', m.byte_size)
+		                  ORDER BY m.uploaded_at)
+		           FROM atlas_media m
+		           WHERE m.sheet_id = s.id AND m.status <> 'failed'
+		       ), '[]')::text
 		FROM atlas_sheet s
 		LEFT JOIN users u ON u.id = s.revised_by
 		WHERE (s.version_id, s.page_index) = (
@@ -190,10 +211,15 @@ func (h *AtlasHandler) SheetHistory(c *fiber.Ctx) error {
 		var r atlasSheetRevision
 		var revised time.Time
 		var superseded *time.Time
+		var files string
 		if err := rows.Scan(&r.ID, &r.PageIndex, &r.SheetNumber, &r.Name, &r.Notes,
 			&r.RevisedBy, &revised, &superseded, &r.R2Key, &r.ThumbKey,
-			&r.ByteSize, &r.Annotations); err != nil {
+			&r.ByteSize, &r.Annotations, &files); err != nil {
 			return internalErr(c, err)
+		}
+		r.Attachments = []atlasRevisionFile{}
+		if files != "" {
+			_ = json.Unmarshal([]byte(files), &r.Attachments)
 		}
 		r.RevisedAt = revised.Format(time.RFC3339)
 		if superseded != nil {

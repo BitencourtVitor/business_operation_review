@@ -5,11 +5,12 @@ import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-nami
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
-import { Check, CloudUpload, FileUp, ScanText } from "lucide-react"
+import { Check, CloudUpload, FileUp, ImagePlus, Paperclip, ScanText, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import type { AtlasJobsiteCategory } from "@/services/atlas.service"
@@ -57,12 +58,13 @@ export function UploadPlanDialog({
     file: File,
     names?: Map<number, string>,
     identity?: DocumentIdentity,
-    version?: { name: string; notes: string },
+    version?: { name: string; notes: string; attachments: File[] },
   ) => void
   onClose: () => void
 }) {
   const updateCategory = useUpdateDocCategory()
   const inputRef = useRef<HTMLInputElement>(null)
+  const filesRef = useRef<HTMLInputElement>(null)
 
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
@@ -77,6 +79,7 @@ export function UploadPlanDialog({
   // e hora do envio; isto é o que a data não conta.
   const [versionName, setVersionName] = useState("")
   const [versionNotes, setVersionNotes] = useState("")
+  const [attachments, setAttachments] = useState<File[]>([])
 
   const [marking, setMarking] = useState(false)
   const [template, setTemplate] = useState<NamingTemplate | undefined>(naming)
@@ -88,7 +91,7 @@ export function UploadPlanDialog({
     setFile(null); setError("")
     setNames(null); setReading("")
     setName(""); setTags([])
-    setVersionName(""); setVersionNotes("")
+    setVersionName(""); setVersionNotes(""); setAttachments([])
   }, [open])
 
   function choose(picked: File | null) {
@@ -137,7 +140,7 @@ export function UploadPlanDialog({
     if (!file) return
     onStart(file, names ?? undefined,
       slots ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined,
-      { name: versionName.trim(), notes: versionNotes.trim() })
+      { name: versionName.trim(), notes: versionNotes.trim(), attachments })
     onClose()
   }
 
@@ -275,13 +278,57 @@ export function UploadPlanDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="ver-notes">Notes</Label>
-                  <Input
+                  <Label htmlFor="ver-notes">Why it changed</Label>
+                  {/* Uma linha só não cabia o motivo. Quem troca um set conta o
+                      que foi achado em obra, quem pediu e o que a correção
+                      resolve, e isso não é uma frase. */}
+                  <Textarea
                     id="ver-notes"
+                    rows={4}
                     value={versionNotes}
-                    placeholder="Optional"
+                    placeholder="What was found, who asked for it, what the correction solves"
                     onChange={e => setVersionNotes(e.target.value)}
                   />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <Label>Attachments</Label>
+                  <input
+                    ref={filesRef}
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    onChange={e => {
+                      setAttachments(prev => [...prev, ...Array.from(e.target.files ?? [])])
+                      e.target.value = ""
+                    }}
+                  />
+                  {/* A foto do que se achou em obra, o recorte do e-mail do
+                      projetista. Sem lugar para isso, a justificativa vira "ver
+                      anexo no e-mail" e o anexo fica fora do Atlas. */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {attachments.map((a, i) => (
+                      <span
+                        key={`${a.name}-${i}`}
+                        className="flex items-center gap-1 rounded-md border border-border/60 py-1 pl-2 pr-1 text-xs text-muted-foreground"
+                      >
+                        <Paperclip className="h-3 w-3" />
+                        <span className="max-w-36 truncate">{a.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAttachments(p => p.filter((_, k) => k !== i))}
+                          className="rounded p-0.5 transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                    <Button variant="outline" size="xs" onClick={() => filesRef.current?.click()}>
+                      <ImagePlus />
+                      Add an image
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
