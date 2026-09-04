@@ -154,9 +154,10 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
           aria-hidden
           // Comprido e com a virada tarde: num degradê curto e linear a metade
           // do caminho é cinza chapado, e o cinza aparece como faixa em cima de
-          // uma prancha branca. Aqui ele quase não existe no primeiro terço e
-          // fecha perto do fim.
-          className="pointer-events-none absolute inset-x-0 -top-16 h-16 bg-gradient-to-b from-transparent from-0% via-card/25 via-60% to-card to-100%"
+          // uma prancha branca. Aqui ele é quase invisível em dois terços do
+          // caminho e só fecha no fim, já dentro do bloco de identificação: a
+          // borda entre os dois deixa de existir como linha.
+          className="pointer-events-none absolute inset-x-0 -top-20 h-24 bg-gradient-to-b from-transparent from-0% via-card/10 via-70% to-card to-100%"
         />
         {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
             coluna não dança de cartão para cartão. O nome cede esse espaço,
