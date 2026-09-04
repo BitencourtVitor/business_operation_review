@@ -13,9 +13,10 @@ import { renderThumb } from "@/components/atlas/plan-split"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { atlasService, uploadToR2 } from "@/services/atlas.service"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { FileUp, Loader2, Music, Paperclip, Pause, Play, X } from "lucide-react"
+import { FileText, FileUp, Loader2, Music, Pause, Play, X } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useRef, useState } from "react"
+import WaveSurfer from "wavesurfer.js"
 
 import type { AtlasSheet } from "@/services/atlas.service"
 
@@ -47,65 +48,97 @@ function relogio(s: number) {
 }
 
 /**
- * Um áudio anexado à justificativa.
+ * A janela que toca um anexo de áudio.
  *
- * O player nativo do navegador tem largura própria, cor própria e um menu de
- * três pontos que não leva a lugar nenhum aqui. Este mostra o que a linha do
- * histórico precisa: tocar, onde está, e quanto falta.
+ * Áudio de justificativa é recado de obra, e recado se ouve procurando um
+ * trecho: a onda mostra onde está o silêncio e onde alguém falou, o que uma
+ * barra de progresso lisa não conta. Daí o wavesurfer, que desenha a forma do
+ * som e deixa saltar clicando nela.
  */
-function AudioAttachment({ url, fileName }: { url: string; fileName: string }) {
-  const ref = useRef<HTMLAudioElement>(null)
+function AudioWindow({ url, name, onClose }: {
+  url: string; name: string; onClose: () => void
+}) {
+  const caixa = useRef<HTMLDivElement>(null)
+  const onda = useRef<WaveSurfer | null>(null)
   const [tocando, setTocando] = useState(false)
   const [pos, setPos] = useState(0)
   const [total, setTotal] = useState(0)
+  const [pronta, setPronta] = useState(false)
+
+  useEffect(() => {
+    if (!caixa.current) return
+    // As cores saem do tema pelo valor calculado: o wavesurfer desenha em
+    // canvas, e canvas não enxerga variável de CSS.
+    const estilo = getComputedStyle(document.documentElement)
+    const ws = WaveSurfer.create({
+      container: caixa.current,
+      url,
+      height: 96,
+      // Barra grossa: recado de obra é voz, e voz vira uma serrilha fina demais
+      // para se enxergar onde alguém falou e onde ficou em silêncio.
+      barWidth: 5,
+      barGap: 3,
+      barRadius: 3,
+      cursorWidth: 1,
+      waveColor: estilo.getPropertyValue("--color-muted-foreground").trim() || "#888",
+      progressColor: estilo.getPropertyValue("--color-primary").trim() || "#0ea5e9",
+      cursorColor: estilo.getPropertyValue("--color-foreground").trim() || "#fff",
+    })
+    onda.current = ws
+    ws.on("ready", () => { setTotal(ws.getDuration()); setPronta(true) })
+    ws.on("timeupdate", t => setPos(t))
+    ws.on("play", () => setTocando(true))
+    ws.on("pause", () => setTocando(false))
+    ws.on("finish", () => setTocando(false))
+    return () => { ws.destroy(); onda.current = null }
+  }, [url])
 
   return (
-    <div className="flex h-10 w-64 items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2">
-      <audio
-        ref={ref}
-        src={url}
-        preload="metadata"
-        onLoadedMetadata={e => setTotal(e.currentTarget.duration)}
-        onTimeUpdate={e => setPos(e.currentTarget.currentTime)}
-        onPlay={() => setTocando(true)}
-        onPause={() => setTocando(false)}
-        onEnded={() => { setTocando(false); setPos(0) }}
-      />
-      <button
-        type="button"
-        title={fileName}
-        onClick={() => {
-          const a = ref.current
-          if (!a) return
-          if (a.paused) void a.play()
-          else a.pause()
-        }}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-muted"
-      >
-        {tocando ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-      </button>
-
-      {/* Clicar na barra salta para o ponto: ouvir de novo um trecho do meio é
-          o uso normal de um áudio de justificativa. */}
+    <div
+      role="presentation"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/60 p-6 backdrop-blur-md"
+    >
       <div
         role="presentation"
-        onClick={e => {
-          const a = ref.current
-          if (!a || !total) return
-          const caixa = e.currentTarget.getBoundingClientRect()
-          a.currentTime = ((e.clientX - caixa.left) / caixa.width) * total
-        }}
-        className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-border"
+        onClick={e => e.stopPropagation()}
+        className="flex w-[min(90vw,42rem)] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
       >
-        <div
-          className="h-full rounded-full bg-primary transition-[width] duration-100"
-          style={{ width: `${total ? (pos / total) * 100 : 0}%` }}
-        />
-      </div>
+        <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b border-border px-4">
+          <span className="min-w-0 truncate text-sm font-medium">{name}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
 
-      <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-        {relogio(total ? total - pos : 0)}
-      </span>
+        <div className="flex items-center gap-3 p-4">
+          <button
+            type="button"
+            disabled={!pronta}
+            onClick={() => onda.current?.playPause()}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            {tocando ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </button>
+
+          <div className="relative min-w-0 flex-1">
+            <div ref={caixa} className="w-full" />
+            {!pronta && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </span>
+            )}
+          </div>
+
+          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            {relogio(pos)} / {relogio(total)}
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -119,10 +152,12 @@ function AudioAttachment({ url, fileName }: { url: string; fileName: string }) {
  */
 function Attachment({ id, fileName, contentType, onOpen }: {
   id: string; fileName: string; contentType: string
-  onOpen: (url: string, fileName: string) => void
+  onOpen: (anexo: { url: string; name: string; kind: "image" | "audio" | "file" }) => void
 }) {
   const [url, setUrl] = useState("")
-  const image = contentType.startsWith("image/")
+  const kind: "image" | "audio" | "file" = contentType.startsWith("image/") ? "image"
+    : contentType.startsWith("audio/") ? "audio"
+    : "file"
 
   useEffect(() => {
     let alive = true
@@ -132,47 +167,28 @@ function Attachment({ id, fileName, contentType, onOpen }: {
     return () => { alive = false }
   }, [id])
 
-  if (contentType.startsWith("audio/")) {
-    if (!url) {
-      return (
-        <span className="flex h-10 w-64 items-center justify-center rounded-md border border-border/60 bg-muted/30">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-        </span>
-      )
-    }
-    return <AudioAttachment url={url} fileName={fileName} />
-  }
-
-  if (!image) {
-    return (
-      <a
-        href={url || undefined}
-        target="_blank"
-        rel="noopener"
-        className="flex items-center gap-1.5 rounded-md border border-border/60 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-      >
-        <Paperclip className="h-3 w-3" />
-        <span className="max-w-40 truncate">{fileName}</span>
-      </a>
-    )
-  }
+  // Todos do mesmo tamanho: o que muda é o que aparece dentro e o que o clique
+  // abre. Anexo de tipos diferentes em quadros de tamanhos diferentes fazia a
+  // fila parecer três coisas soltas em vez de uma lista.
   return (
     <button
       type="button"
       title={fileName}
       disabled={!url}
-      onClick={() => onOpen(url, fileName)}
-      className="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40 transition-colors hover:border-primary/40"
+      onClick={() => onOpen({ url, name: fileName, kind })}
+      className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted/30 transition-colors hover:border-primary/40 disabled:opacity-60"
     >
-      {/* Enquanto a URL assinada não chega, o quadro gira. Antes ele renderizava
-          com `src` vazio, o que o navegador trata como "recarregue a página
-          inteira" e deixava a moldura quebrada. */}
-      {url ? (
+      {!url ? (
+        <span className="flex h-full w-full items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        </span>
+      ) : kind === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt={fileName} className="h-full w-full object-cover" />
       ) : (
-        <span className="flex h-full w-full items-center justify-center">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+        <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-muted-foreground">
+          {kind === "audio" ? <Music className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+          <span className="w-full truncate text-center text-[10px] leading-tight">{fileName}</span>
         </span>
       )}
     </button>
@@ -180,13 +196,13 @@ function Attachment({ id, fileName, contentType, onOpen }: {
 }
 
 /**
- * A janela que amplia um anexo.
+ * A janela que amplia um anexo de imagem.
  *
  * Ela veste a imagem: a largura sai da proporção, e o cabeçalho acompanha essa
  * largura sem mudar de altura. Largura fixa deixava um print deitado no meio de
  * dois vãos de fundo do tamanho dele.
  *
- * A pinça cresce e encolhe a **janela**, e a imagem ocupa o corpo inteiro dela.
+ * A pinça cresce e encolhe a janela, e a imagem ocupa o corpo inteiro dela.
  * Ampliar o desenho dentro de um quadro parado resolveria outro problema: aqui
  * o que se quer é a mesma imagem maior na tela, não um pedaço dela.
  */
@@ -199,8 +215,6 @@ function AttachmentWindow({ url, name, onClose }: {
   const [teto, setTeto] = useState(1)
   const [zoom, setZoom] = useState(1)
 
-  // Os dedos na tela, por id. Dois deles viram distância, e a razão entre a
-  // distância de agora e a do começo do gesto é o tamanho da janela.
   const dedos = useRef(new Map<number, { x: number; y: number }>())
   const inicio = useRef<{ dist: number; zoom: number } | null>(null)
 
@@ -212,8 +226,6 @@ function AttachmentWindow({ url, name, onClose }: {
     const largura = window.innerWidth * 0.92
     const altura = window.innerHeight * 0.9 - 44
     const proporcao = img.naturalWidth / img.naturalHeight
-    // Quanto a imagem já encolheu para caber: é daí que sai o tamanho de
-    // partida, e não do tamanho natural dela.
     const coube = Math.min(1, largura / img.naturalWidth, altura / img.naturalHeight)
     const inicial = img.naturalWidth * coube
     setBase(inicial)
@@ -331,7 +343,9 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
   const [error, setError] = useState("")
   // Clicar num anexo abria outra aba, e outra aba é sair do sistema para ver o
   // que justifica a troca que se está lendo. A imagem abre aqui, por cima.
-  const [zoom, setZoom] = useState<{ url: string; name: string } | null>(null)
+  const [zoom, setZoom] = useState<
+    { url: string; name: string; kind: "image" | "audio" | "file" } | null
+  >(null)
 
   useEffect(() => {
     if (open) return
@@ -581,7 +595,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
                             id={a.id}
                             fileName={a.fileName}
                             contentType={a.contentType}
-                            onOpen={(url, name) => setZoom({ url, name })}
+                            onOpen={setZoom}
                           />
                         ))}
                       </div>
@@ -604,7 +618,9 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
             valer a tela e passa a valer o próprio popup: a janela nascia do
             tamanho do diálogo, presa a ele, e o desfoque não alcançava o resto. */}
         {zoom && createPortal(
-          <AttachmentWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
+          zoom.kind === "audio"
+            ? <AudioWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />
+            : <AttachmentWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
           document.body,
         )}
 
