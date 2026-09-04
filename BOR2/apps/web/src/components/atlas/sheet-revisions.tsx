@@ -100,77 +100,67 @@ function Attachment({ id, fileName, contentType, onOpen }: {
 /**
  * A janela que amplia um anexo.
  *
- * Toma a forma da imagem: a altura é o limite e a largura sai da proporção
- * dela. Largura fixa deixava um print deitado no meio de dois vãos de fundo do
- * tamanho dele.
+ * Ela veste a imagem: a largura sai da proporção, e o cabeçalho acompanha essa
+ * largura sem mudar de altura. Largura fixa deixava um print deitado no meio de
+ * dois vãos de fundo do tamanho dele.
  *
- * A pinça amplia dentro da janela, e não a janela: o quadro fica onde está e o
- * desenho cresce dentro dele, que é o gesto de quem quer ler o texto pequeno de
- * um print sem perder de vista onde ele estava.
+ * A pinça cresce e encolhe a **janela**, e a imagem ocupa o corpo inteiro dela.
+ * Ampliar o desenho dentro de um quadro parado resolveria outro problema: aqui
+ * o que se quer é a mesma imagem maior na tela, não um pedaço dela.
  */
 function AttachmentWindow({ url, name, onClose }: {
   url: string; name: string; onClose: () => void
 }) {
-  const [scale, setScale] = useState(1)
-  const [pan, setPan] = useState({ x: 0, y: 0 })
+  // A largura com que a imagem coube na tela ao abrir, e o quanto ela ainda
+  // pode crescer antes de encostar na borda por qualquer um dos dois lados.
+  const [base, setBase] = useState(0)
+  const [teto, setTeto] = useState(1)
+  const [zoom, setZoom] = useState(1)
+
   // Os dedos na tela, por id. Dois deles viram distância, e a razão entre a
-  // distância de agora e a do começo do gesto é a ampliação.
+  // distância de agora e a do começo do gesto é o tamanho da janela.
   const dedos = useRef(new Map<number, { x: number; y: number }>())
-  const inicio = useRef<{ dist: number; scale: number } | null>(null)
-  const arrasto = useRef<{ x: number; y: number; pan: { x: number; y: number } } | null>(null)
+  const inicio = useRef<{ dist: number; zoom: number } | null>(null)
 
-  const limita = (n: number) => Math.min(6, Math.max(1, n))
+  const limita = (n: number) => Math.min(teto, Math.max(0.4, n))
 
-  function reset() {
-    setScale(1)
-    setPan({ x: 0, y: 0 })
+  function medir(img: HTMLImageElement) {
+    const largura = window.innerWidth * 0.92
+    const altura = window.innerHeight * 0.9 - 44
+    const proporcao = img.naturalWidth / img.naturalHeight
+    // Quanto a imagem já encolheu para caber: é daí que sai o tamanho de
+    // partida, e não do tamanho natural dela.
+    const coube = Math.min(1, largura / img.naturalWidth, altura / img.naturalHeight)
+    const inicial = img.naturalWidth * coube
+    setBase(inicial)
+    setTeto(Math.max(1, Math.min(largura / inicial, (altura * proporcao) / inicial)))
   }
 
   function down(e: React.PointerEvent) {
-    // Capturar o ponteiro é conforto para o arraste não escapar do elemento, e
-    // ele recusa id que o navegador não conhece. Falhar aqui não pode derrubar
-    // o resto do gesto: sem o try, a pinça nem chegava a ser registrada.
     try {
       ;(e.target as Element).setPointerCapture?.(e.pointerId)
     } catch {
-      // segue sem captura
+      // ponteiro que o navegador não conhece: segue sem captura
     }
     dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     if (dedos.current.size === 2) {
       const [a, b] = [...dedos.current.values()]
-      inicio.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale }
-      arrasto.current = null
-      return
+      inicio.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), zoom }
     }
-    // Arrastar só faz sentido com a imagem ampliada: no tamanho natural não há
-    // para onde ir.
-    if (scale > 1) arrasto.current = { x: e.clientX, y: e.clientY, pan }
   }
 
   function move(e: React.PointerEvent) {
     if (!dedos.current.has(e.pointerId)) return
     dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-
-    if (dedos.current.size === 2 && inicio.current) {
-      const [a, b] = [...dedos.current.values()]
-      const dist = Math.hypot(a.x - b.x, a.y - b.y)
-      if (inicio.current.dist > 0) {
-        setScale(limita(inicio.current.scale * (dist / inicio.current.dist)))
-      }
-      return
-    }
-    if (arrasto.current) {
-      setPan({
-        x: arrasto.current.pan.x + (e.clientX - arrasto.current.x),
-        y: arrasto.current.pan.y + (e.clientY - arrasto.current.y),
-      })
-    }
+    if (dedos.current.size !== 2 || !inicio.current) return
+    const [a, b] = [...dedos.current.values()]
+    const dist = Math.hypot(a.x - b.x, a.y - b.y)
+    if (inicio.current.dist > 0) setZoom(limita(inicio.current.zoom * (dist / inicio.current.dist)))
   }
 
   function up(e: React.PointerEvent) {
     dedos.current.delete(e.pointerId)
     if (dedos.current.size < 2) inicio.current = null
-    if (dedos.current.size === 0) arrasto.current = null
   }
 
   return (
@@ -182,18 +172,26 @@ function AttachmentWindow({ url, name, onClose }: {
       <div
         role="presentation"
         onClick={e => e.stopPropagation()}
-        className="inline-flex min-w-80 max-w-[90vw] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        onDoubleClick={() => setZoom(1)}
+        onWheel={e => setZoom(z => limita(z * (e.deltaY < 0 ? 1.12 : 1 / 1.12)))}
+        className="inline-flex touch-none flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
       >
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+        {/* O cabeçalho segue a largura da janela e não muda de altura: ele é a
+            identificação, e identificação não cresce com o zoom. */}
+        <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b border-border px-4">
           <span className="min-w-0 truncate text-sm font-medium">{name}</span>
           <div className="flex shrink-0 items-center gap-1">
-            {scale > 1 && (
+            {zoom !== 1 && (
               <button
                 type="button"
-                onClick={reset}
+                onClick={() => setZoom(1)}
                 className="rounded px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                {scale.toFixed(1)}x
+                {zoom.toFixed(1)}x
               </button>
             )}
             <button
@@ -208,35 +206,16 @@ function AttachmentWindow({ url, name, onClose }: {
 
         {/* A imagem encosta na moldura: o que arredonda é a janela, e o corte
             dela nas duas quinas de baixo é o mesmo que qualquer modal faz com o
-            que carrega. Respiro aqui viraria borda que não é da imagem. */}
-        <div
-          className="touch-none overflow-hidden"
-          onPointerDown={down}
-          onPointerMove={move}
-          onPointerUp={up}
-          onPointerCancel={up}
-          onDoubleClick={reset}
-          onWheel={e => {
-            const passo = e.deltaY < 0 ? 1.15 : 1 / 1.15
-            setScale(atual => {
-              const proximo = limita(atual * passo)
-              if (proximo === 1) setPan({ x: 0, y: 0 })
-              return proximo
-            })
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={url}
-            alt={name}
-            draggable={false}
-            style={{
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
-              cursor: scale > 1 ? "grab" : "default",
-            }}
-            className="block h-auto max-h-[calc(85vh-3.5rem)] w-auto max-w-full select-none object-contain"
-          />
-        </div>
+            que carrega. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt={name}
+          draggable={false}
+          onLoad={e => medir(e.currentTarget)}
+          style={base ? { width: Math.round(base * zoom) } : undefined}
+          className="block h-auto max-h-[calc(90vh-2.75rem)] w-auto max-w-[92vw] select-none"
+        />
       </div>
     </div>
   )
