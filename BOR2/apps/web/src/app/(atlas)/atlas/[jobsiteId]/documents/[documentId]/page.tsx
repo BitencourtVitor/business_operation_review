@@ -152,7 +152,11 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
       <div className="relative flex shrink-0 items-center gap-1.5 px-2 pb-1.5 pt-2">
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-b from-transparent to-card"
+          // Comprido e com a virada tarde: num degradê curto e linear a metade
+          // do caminho é cinza chapado, e o cinza aparece como faixa em cima de
+          // uma prancha branca. Aqui ele quase não existe no primeiro terço e
+          // fecha perto do fim.
+          className="pointer-events-none absolute inset-x-0 -top-16 h-16 bg-gradient-to-b from-transparent from-0% via-card/25 via-60% to-card to-100%"
         />
         {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
             coluna não dança de cartão para cartão. O nome cede esse espaço,
