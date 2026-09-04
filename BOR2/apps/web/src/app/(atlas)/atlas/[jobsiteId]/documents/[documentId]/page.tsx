@@ -36,6 +36,9 @@ const MARK_COLORS = {
   link: "#0ea5e9",
   note: "#f97316",
   highlight: "#d4ff3f",
+  // A revisão não é marcação, é a folha ter trocado, e por isso ganha uma cor
+  // que não se confunde com nenhuma das três tintas que se usa sobre ela.
+  revision: "#a78bfa",
 } as const
 
 const STATUS: Record<string, { label: string; className: string }> = {
@@ -219,7 +222,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
 
           Folha sem marca nenhuma não tem rodapé: a faixa vazia comia altura da
           prancha em 96 de 97 cartões para não dizer nada. */}
-      {(sheet.links > 0 || sheet.highlights > 0 || sheet.notes > 0) && (
+      {(sheet.links > 0 || sheet.highlights > 0 || sheet.notes > 0 || sheet.revisions > 1) && (
       <div className="flex h-6 shrink-0 items-center justify-evenly gap-1 px-2 pb-1.5 text-[11px] text-muted-foreground">
         {sheet.links > 0 && (
           <span className="flex items-center gap-1" title={`${sheet.links} link${sheet.links > 1 ? "s" : ""}`}>
@@ -237,6 +240,14 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
           <span className="flex items-center gap-1" title={`${sheet.notes} note${sheet.notes > 1 ? "s" : ""}`}>
             <MapPin className="h-3.5 w-3.5" style={{ color: MARK_COLORS.note }} />
             {sheet.notes}
+          </span>
+        )}
+        {/* A prancha já foi trocada. Uma revisão é toda folha, então só conta a
+            partir da segunda: aí sim é notícia. */}
+        {sheet.revisions > 1 && (
+          <span className="flex items-center gap-1" title={`${sheet.revisions} revisions`}>
+            <History className="h-3.5 w-3.5" style={{ color: MARK_COLORS.revision }} />
+            {sheet.revisions}
           </span>
         )}
       </div>
