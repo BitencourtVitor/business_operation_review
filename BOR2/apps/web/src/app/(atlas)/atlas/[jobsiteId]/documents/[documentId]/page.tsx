@@ -510,7 +510,9 @@ export default function DocumentPage() {
       try {
         const media = await atlasService.openMedia(jobsiteId, {
           versionId,
-          kind: extra.type.startsWith("image/") ? "photo" : "file",
+          kind: extra.type.startsWith("image/") ? "photo"
+            : extra.type.startsWith("audio/") ? "audio"
+            : "file",
           fileName: extra.name,
           contentType: extra.type || "application/octet-stream",
           byteSize: extra.size,

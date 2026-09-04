@@ -27,26 +27,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { tagLabel } from "@/components/atlas/document-tags-dialog"
 import { stashUpload } from "@/components/atlas/pending-upload"
+import { RoleName } from "@/components/atlas/role-icon"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
 
 import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, CodeXml, FileQuestion, FolderOpen,
-  Gauge, HardHat, Layers, MapPin, Pencil, Plus, UserRound, Users,
+  Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, FileQuestion, FolderOpen,
+  Layers, MapPin, Pencil, Plus,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
-// O crachá de quem subiu, o mesmo da tela de usuários: numa obra com
-// subcontratado dentro, saber que o set veio de fora vale mais que o nome.
-const UPLOADER_ROLE: Record<string, { icon: React.ElementType; className: string }> = {
-  dev:           { icon: CodeXml, className: "text-yellow-600 dark:text-yellow-400" },
-  owner:         { icon: Gauge,   className: "text-emerald-600 dark:text-emerald-400" },
-  manager:       { icon: Users,   className: "text-primary" },
-  subcontractor: { icon: HardHat, className: "text-brand-red" },
-  user:          { icon: UserRound, className: "text-muted-foreground" },
-}
 
 // A data do envio como se fala dela: hoje, ontem, e depois disso o dia.
 function when(iso: string) {
@@ -393,16 +385,11 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                         procedência, e ela se lê de uma vez em vez de virar três
                         blocos soltos na mesma linha. */}
                     <span className="flex flex-col items-end gap-0.5 leading-none">
-                      {doc.uploadedBy && (() => {
-                        const role = UPLOADER_ROLE[doc.uploadedRole] ?? UPLOADER_ROLE.user
-                        const RoleIcon = role.icon
-                        return (
-                          <span className="flex items-center gap-1.5 font-medium text-foreground/80">
-                            <RoleIcon className={`h-3.5 w-3.5 ${role.className}`} />
-                            {doc.uploadedBy.split(" ")[0]}
-                          </span>
-                        )
-                      })()}
+                      <RoleName
+                        name={doc.uploadedBy}
+                        role={doc.uploadedRole}
+                        className="font-medium text-foreground/80"
+                      />
                       {when(doc.uploadedAt) && (
                         <span className="flex items-center gap-1.5 text-muted-foreground/80">
                           <CalendarDays className="h-3 w-3" />
