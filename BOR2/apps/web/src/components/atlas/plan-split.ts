@@ -43,7 +43,7 @@ export interface PlanPart {
  * Sai do mesmo PDF que acabou de subir, então não custa download nenhum: o
  * pdf.js já tem o arquivo em memória por causa do corte.
  */
-async function renderThumb(url: string, pageIndex: number): Promise<Blob | null> {
+export async function renderThumb(url: string, pageIndex: number): Promise<Blob | null> {
   try {
     const pdf = await loadPdf(url)
     const page = await pdf.getPage(pageIndex + 1)

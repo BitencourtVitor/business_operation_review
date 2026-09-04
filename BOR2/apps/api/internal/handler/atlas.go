@@ -1034,6 +1034,9 @@ type atlasVersion struct {
 	Checksum    string  `json:"checksum"`
 	ContentType string  `json:"contentType"`
 	Status      string  `json:"status"`
+	// O que a pessoa chamou esta versão, e o que ela quis dizer sobre a troca.
+	// A identificação na tela é a data e a hora; o nome é o apelido dela.
+	Name        string  `json:"name"`
 	Notes       string  `json:"notes"`
 	UploadedBy  string  `json:"uploadedBy"`
 	UploadedAt  string  `json:"uploadedAt"`
@@ -1053,9 +1056,10 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT v.id, v.document_id, v.revision, v.r2_key, v.byte_size, v.page_count,
-		       v.checksum, v.content_type, v.status, v.notes, v.uploaded_by,
+		       v.checksum, v.content_type, v.status, v.name, v.notes, v.uploaded_by,
 		       v.uploaded_at, v.published_at,
-		       (SELECT count(*) FROM atlas_sheet s WHERE s.version_id = v.id)
+		       (SELECT count(*) FROM atlas_sheet s
+		         WHERE s.version_id = v.id AND s.superseded_at IS NULL)
 		FROM atlas_document_version v
 		WHERE v.document_id = $1
 		ORDER BY v.uploaded_at DESC`, docID)
@@ -1070,7 +1074,7 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		var uploaded time.Time
 		var published *time.Time
 		if err := rows.Scan(&v.ID, &v.DocumentID, &v.Revision, &v.R2Key, &v.ByteSize,
-			&v.PageCount, &v.Checksum, &v.ContentType, &v.Status, &v.Notes,
+			&v.PageCount, &v.Checksum, &v.ContentType, &v.Status, &v.Name, &v.Notes,
 			&v.UploadedBy, &uploaded, &published, &v.Sheets); err != nil {
 			return internalErr(c, err)
 		}
@@ -1103,6 +1107,7 @@ func (h *AtlasHandler) CreateVersion(c *fiber.Ctx) error {
 		FileName    string `json:"fileName"`
 		ContentType string `json:"contentType"`
 		ByteSize    int64  `json:"byteSize"`
+		Name        string `json:"name"`
 		Notes       string `json:"notes"`
 	}
 	if err := c.BodyParser(&in); err != nil {
@@ -1121,10 +1126,10 @@ func (h *AtlasHandler) CreateVersion(c *fiber.Ctx) error {
 	}
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_document_version
-			(id, document_id, revision, r2_key, byte_size, content_type, notes, uploaded_by)
-		VALUES ($1,$2,$3,$4,$5,COALESCE(NULLIF($6,''),'application/pdf'),$7,$8)`,
+			(id, document_id, revision, r2_key, byte_size, content_type, name, notes, uploaded_by)
+		VALUES ($1,$2,$3,$4,$5,COALESCE(NULLIF($6,''),'application/pdf'),$7,$8,$9)`,
 		versionID, docID, strings.TrimSpace(in.Revision), key, in.ByteSize,
-		in.ContentType, in.Notes, userID)
+		in.ContentType, strings.TrimSpace(in.Name), in.Notes, userID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1265,6 +1270,11 @@ type atlasSheet struct {
 	Highlights  int `json:"highlights"`
 	Notes       int `json:"notes"`
 	Annotations int `json:"annotations"`
+	// Desde quando esta prancha é a que vale, e o nome que quem a trocou deu à
+	// troca. Quantas revisões a página já teve: um é a original.
+	RevisedAt   string `json:"revisedAt"`
+	VersionName string `json:"versionName"`
+	Revisions   int    `json:"revisions"`
 }
 
 // GET /atlas/versions/:id/sheets
@@ -1281,6 +1291,11 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		SELECT s.id, s.version_id, s.page_index, s.sheet_number, s.discipline, s.level,
 		       s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
 		       s.r2_key, s.byte_size, s.confidence, s.needs_review,
+		       s.revised_at, s.version_name,
+		       -- Quantas revisões esta página já teve. Um é a original: o cartão
+		       -- só precisa dizer alguma coisa a partir de duas.
+		       (SELECT count(*) FROM atlas_sheet h
+		         WHERE h.version_id = s.version_id AND h.page_index = s.page_index),
 		       (SELECT count(*) FROM atlas_annotation a
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL),
 		       (SELECT count(*) FROM atlas_annotation a
@@ -1288,7 +1303,9 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		       (SELECT count(*) FROM atlas_annotation a
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL AND a.tool = 'highlighter'),
 		       (SELECT count(*) FROM atlas_event e WHERE e.sheet_id = s.id)
-		FROM atlas_sheet s WHERE s.version_id = $1 ORDER BY s.page_index`, versionID)
+		FROM atlas_sheet s
+		WHERE s.version_id = $1 AND s.superseded_at IS NULL
+		ORDER BY s.page_index`, versionID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1297,12 +1314,15 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 	out := []atlasSheet{}
 	for rows.Next() {
 		var s atlasSheet
+		var revised time.Time
 		if err := rows.Scan(&s.ID, &s.VersionID, &s.PageIndex, &s.SheetNumber, &s.Discipline,
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
-			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview, &s.Annotations,
+			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview,
+			&revised, &s.VersionName, &s.Revisions, &s.Annotations,
 			&s.Links, &s.Highlights, &s.Notes); err != nil {
 			return internalErr(c, err)
 		}
+		s.RevisedAt = revised.Format(time.RFC3339)
 		out = append(out, s)
 	}
 	return c.JSON(fiber.Map{"data": out})
@@ -1349,7 +1369,7 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 				 revision, thumb_key, width_pt, height_pt, confidence, needs_review,
 				 r2_key, byte_size)
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
-			ON CONFLICT (version_id, page_index) DO UPDATE SET
+			ON CONFLICT (version_id, page_index) WHERE superseded_at IS NULL DO UPDATE SET
 				sheet_number = EXCLUDED.sheet_number,
 				discipline   = EXCLUDED.discipline,
 				level        = EXCLUDED.level,

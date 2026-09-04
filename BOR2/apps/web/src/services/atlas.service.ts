@@ -157,6 +157,8 @@ export interface AtlasVersion {
   checksum: string
   contentType: string
   status: "pending" | "uploaded" | "published" | "failed"
+  /** O apelido da versão. Quem a identifica é a data e a hora. */
+  name: string
   notes: string
   uploadedBy: string
   uploadedAt: string
@@ -190,6 +192,28 @@ export interface AtlasSheet {
   links: number
   highlights: number
   notes: number
+  annotations: number
+  /** Desde quando esta prancha é a que vale, e o nome dado à troca. */
+  revisedAt: string
+  versionName: string
+  /** Quantas revisões a página já teve. Um é a original. */
+  revisions: number
+}
+
+/** Uma prancha que já ocupou esta página, ou a que ocupa agora. */
+export interface AtlasSheetRevision {
+  id: string
+  pageIndex: number
+  sheetNumber: string
+  name: string
+  notes: string
+  revisedBy: string
+  revisedAt: string
+  /** Vazio na que está valendo. */
+  supersededAt: string
+  r2Key: string
+  thumbKey: string
+  byteSize: number
   annotations: number
 }
 
@@ -409,10 +433,26 @@ export const atlasService = {
   setDocumentTags: (documentId: string, tags: { categoryId: number; subcategory: string }[]) =>
     api.put(`${base}/documents/${documentId}/tags`, { tags }, getToken()),
 
+  // Trocar uma prancha sem refazer o set: assina onde a nova vai, e só depois
+  // que ela está no bucket é que ela passa a valer.
+  openSheetRevision: (sheetId: string) =>
+    api.post<{
+      sheetId: string; r2Key: string; uploadUrl: string
+      thumbKey: string; thumbUploadUrl: string
+    }>(`${base}/sheets/${sheetId}/revisions`, {}, getToken()),
+  commitSheetRevision: (sheetId: string, body: {
+    sheetId: string; r2Key: string; thumbKey?: string; byteSize: number
+    widthPt?: number; heightPt?: number; name?: string; notes?: string
+  }) => api.put<{ sheetId: string }>(`${base}/sheets/${sheetId}/revisions`, body, getToken()),
+  sheetHistory: (sheetId: string) =>
+    api.get<AtlasSheetRevision[]>(`${base}/sheets/${sheetId}/history`, getToken())
+      .then(r => r ?? []),
+
   listVersions: (documentId: string) =>
     api.get<AtlasVersion[]>(`${base}/documents/${documentId}/versions`, getToken()).then(r => r ?? []),
   openVersion: (documentId: string, body: {
-    revision: string; fileName: string; contentType: string; byteSize: number; notes?: string
+    revision: string; fileName: string; contentType: string; byteSize: number
+    name?: string; notes?: string
   }) => api.post<UploadTicket & { versionId: string }>(
     `${base}/documents/${documentId}/versions`, body, getToken()),
   confirmVersion: (versionId: string, body: { checksum?: string; pageCount?: number }) =>
@@ -524,7 +564,7 @@ export const atlasService = {
  * não com o backend, e mandar o header de Authorization aqui invalidaria a
  * assinatura.
  */
-export async function uploadToR2(url: string, file: File, contentType: string): Promise<void> {
+export async function uploadToR2(url: string, file: Blob, contentType: string): Promise<void> {
   const res = await fetch(url, {
     method: "PUT",
     headers: { "Content-Type": contentType || "application/octet-stream" },

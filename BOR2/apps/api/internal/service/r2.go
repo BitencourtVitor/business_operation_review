@@ -215,3 +215,21 @@ func defaultContentType(ctype string) string {
 	}
 	return ctype
 }
+
+// SheetKey é o PDF de uma folha revisada por fora do set.
+//
+// PlanKey endereça pelo número da página, e por isso uma revisão gravaria por
+// cima da anterior — o que apagaria justamente o que o histórico existe para
+// guardar. Aqui o endereço é o id da folha, que é novo a cada revisão: a
+// prancha antiga continua onde estava, e quem abrir a revisão de ontem vê o
+// desenho de ontem.
+func SheetKey(jobsiteID, versionID, sheetID string) string {
+	return fmt.Sprintf("jobsites/%s/versions/%s/sheets/%s.pdf",
+		jobsiteID, versionID, sheetID)
+}
+
+// SheetThumbKey é a prévia dessa folha revisada, pela mesma razão.
+func SheetThumbKey(jobsiteID, versionID, sheetID string) string {
+	return fmt.Sprintf("jobsites/%s/versions/%s/sheets/%s.jpg",
+		jobsiteID, versionID, sheetID)
+}

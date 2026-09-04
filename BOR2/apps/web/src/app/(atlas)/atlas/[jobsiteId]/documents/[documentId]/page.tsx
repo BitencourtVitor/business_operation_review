@@ -14,11 +14,14 @@ import {
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { takeUpload } from "@/components/atlas/pending-upload"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ArrowLeft, Check, CloudUpload, Download, Highlighter, Images, Layers, Link2, MapPin, Pencil,
-  ScanText, SquareDashedMousePointer, X,
+  ArrowLeft, Check, CloudUpload, Download, Highlighter, History, Images, Layers, Link2, MapPin,
+  Pencil, ScanText, SquareDashedMousePointer, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -238,6 +241,14 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   )
 }
 
+/** "09/04/2026 14:32" — o que identifica uma versão. */
+function stamp(iso: string) {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ""
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
 export default function DocumentPage() {
   const { jobsiteId, documentId } = useParams<{ jobsiteId: string; documentId: string }>()
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
@@ -433,13 +444,20 @@ export default function DocumentPage() {
     }
   }
 
-  function startUpload(file: File, names?: Map<number, string>) {
+  function startUpload(
+    file: File,
+    names?: Map<number, string>,
+    _identity?: unknown,
+    version?: { name: string; notes: string },
+  ) {
     setPreviews(new Map())
     setSendError("")
     setSending({ done: 0, total: 0 })
     upload.mutate({
       file,
       names,
+      name: version?.name,
+      notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
       onSheets: (id, pageCount) => {
         setSending({ done: 0, total: pageCount })
@@ -464,6 +482,7 @@ export default function DocumentPage() {
     })
   }
 
+  const [history, setHistory] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [draftName, setDraftName] = useState("")
   function saveName() {
@@ -546,6 +565,19 @@ export default function DocumentPage() {
                     : t.category)].filter(Boolean).join(" · ")}
               </p>
             </div>
+            {/* As versões do set. A identificação é a data e a hora do envio,
+                com o nome ao lado quando alguém deu um: número de revisão era
+                um campo que ninguém sabia preencher, e que não dizia quando. */}
+            {(versions?.length ?? 0) > 1 && (
+              <Button
+                variant="outline"
+                className="shrink-0"
+                onClick={() => setHistory(true)}
+              >
+                <History className="h-3.5 w-3.5" />
+                {versions?.length} versions
+              </Button>
+            )}
             {canManage && (
               <Button className="shrink-0" onClick={() => setUploading(true)}>
                 <CloudUpload className="h-4 w-4" />
@@ -772,12 +804,51 @@ export default function DocumentPage() {
           )}
       </div>
 
+      {/* Qual set está aberto, e o que cada um trouxe. Trocar aqui abre as
+          folhas daquele envio, com as marcações que foram feitas sobre elas. */}
+      <Dialog open={history} onOpenChange={o => { if (!o) setHistory(false) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader><DialogTitle>Versions of this plan set</DialogTitle></DialogHeader>
+          <div className="flex max-h-96 flex-col gap-1.5 overflow-y-auto">
+            {(versions ?? []).map(v => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => { setVersionId(v.id); setHistory(false) }}
+                className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
+                  v.id === versionId
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 hover:border-primary/40 hover:bg-accent/30"
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium leading-tight">
+                    {stamp(v.uploadedAt)}
+                    {v.name && (
+                      <span className="ml-2 font-normal text-muted-foreground">{v.name}</span>
+                    )}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {[`${v.sheets} ${v.sheets === 1 ? "plan" : "plans"}`, v.notes]
+                      .filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                {v.id === versionId && (
+                  <span className="shrink-0 text-xs text-muted-foreground">Open</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {openSheet && sheets && (
         <SheetViewer
           sheet={openSheet}
           sheets={sheets}
           jobsiteId={jobsiteId}
           canAnnotate={!!canAnnotate}
+          canManage={!!canManage}
           onClose={() => setOpenSheet(null)}
           onNavigate={setOpenSheet}
         />
