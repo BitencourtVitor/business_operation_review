@@ -12,7 +12,7 @@ import { renderThumb } from "@/components/atlas/plan-split"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { atlasService, uploadToR2 } from "@/services/atlas.service"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { FileUp, History, Loader2, Paperclip } from "lucide-react"
+import { FileUp, History, Loader2, Paperclip, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import type { AtlasSheet } from "@/services/atlas.service"
@@ -45,8 +45,9 @@ function when(iso: string) {
  * entra na tela. Pedir todas de uma vez ao abrir o histórico gastaria uma
  * assinatura por anexo de revisão nenhuma que ninguém foi olhar.
  */
-function Attachment({ id, fileName, contentType }: {
+function Attachment({ id, fileName, contentType, onOpen }: {
   id: string; fileName: string; contentType: string
+  onOpen: (url: string, fileName: string) => void
 }) {
   const [url, setUrl] = useState("")
   const image = contentType.startsWith("image/")
@@ -73,14 +74,25 @@ function Attachment({ id, fileName, contentType }: {
     )
   }
   return (
-    <a href={url || undefined} target="_blank" rel="noopener" title={fileName}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={url}
-        alt={fileName}
-        className="h-14 w-14 rounded-md border border-border/60 bg-muted/40 object-cover transition-colors hover:border-primary/40"
-      />
-    </a>
+    <button
+      type="button"
+      title={fileName}
+      disabled={!url}
+      onClick={() => onOpen(url, fileName)}
+      className="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40 transition-colors hover:border-primary/40"
+    >
+      {/* Enquanto a URL assinada não chega, o quadro gira. Antes ele renderizava
+          com `src` vazio, o que o navegador trata como "recarregue a página
+          inteira" e deixava a moldura quebrada. */}
+      {url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt={fileName} className="h-full w-full object-cover" />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center">
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+        </span>
+      )}
+    </button>
   )
 }
 
@@ -108,12 +120,22 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
   const [attachments, setAttachments] = useState<File[]>([])
   const [busy, setBusy] = useState("")
   const [error, setError] = useState("")
+  // Clicar num anexo abria outra aba, e outra aba é sair do sistema para ver o
+  // que justifica a troca que se está lendo. A imagem abre aqui, por cima.
+  const [zoom, setZoom] = useState<{ url: string; name: string } | null>(null)
 
   useEffect(() => {
     if (open) return
     setFile(null); setName(""); setNotes(""); setAttachments([])
-    setBusy(""); setError("")
+    setBusy(""); setError(""); setZoom(null)
   }, [open])
+
+  useEffect(() => {
+    if (!zoom) return
+    const sair = (e: KeyboardEvent) => { if (e.key === "Escape") setZoom(null) }
+    window.addEventListener("keydown", sair)
+    return () => window.removeEventListener("keydown", sair)
+  }, [zoom])
 
   async function replace() {
     if (!file) return
@@ -339,6 +361,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
                             id={a.id}
                             fileName={a.fileName}
                             contentType={a.contentType}
+                            onOpen={(url, name) => setZoom({ url, name })}
                           />
                         ))}
                       </div>
@@ -351,6 +374,30 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
 
           {error && <p className="text-center text-xs text-destructive">{error}</p>}
         </div>
+
+        {/* Sobre o diálogo, e não no lugar dele: quem amplia o anexo está no
+            meio da leitura do histórico e volta para ela num toque. */}
+        {zoom && (
+          <div
+            role="presentation"
+            onClick={() => setZoom(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/80 p-6 backdrop-blur-sm"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={zoom.url}
+              alt={zoom.name}
+              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+            />
+            <button
+              type="button"
+              onClick={() => setZoom(null)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-900/80 text-white backdrop-blur transition-colors hover:bg-neutral-800"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" disabled={!!busy} onClick={onClose}>Close</Button>
