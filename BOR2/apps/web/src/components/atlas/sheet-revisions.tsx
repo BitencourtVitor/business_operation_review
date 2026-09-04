@@ -187,6 +187,10 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
       }
 
       qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
+      // A grade guarda as miniaturas por meia hora, e elas são endereçadas pelo
+      // id da folha: sem derrubar esse cache, a folha nova ficaria num quadro
+      // cinza até a página ser recarregada à mão.
+      qc.invalidateQueries({ queryKey: ["atlas", "thumbs"] })
       qc.invalidateQueries({ queryKey: ["atlas", "sheet-history", sheet.id] })
       onReplaced()
       onClose()

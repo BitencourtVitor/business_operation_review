@@ -107,10 +107,12 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
             className="absolute inset-0 h-full w-full object-cover object-top"
           />
         ) : (
-          <span className={`absolute inset-0 flex items-center justify-center bg-muted/40 text-sm text-muted-foreground/60 ${
-            waiting ? "animate-pulse" : ""
-          }`}>
-            {sheet.pageIndex + 1}
+          // Sem miniatura ainda: ou a folha está na fila do corte, ou acabou de
+          // ser trocada e a prévia nova está a caminho. Nos dois casos é espera,
+          // e espera se mostra girando. O número da página não se perde: ele
+          // está logo abaixo, na identificação.
+          <span className="absolute inset-0 flex items-center justify-center bg-muted/40">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-muted-foreground/70" />
           </span>
         )}
 
