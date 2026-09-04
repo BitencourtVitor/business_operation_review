@@ -91,7 +91,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   }
 
   return (
-    <div className={`group/card relative flex aspect-square flex-col overflow-hidden rounded-lg border bg-card transition-colors ${
+    <div className={`group/card relative flex aspect-square flex-col overflow-hidden rounded-lg border transition-colors ${
       picked ? "border-primary" : "border-border/60 hover:border-primary/40"
     } ${march ? "atlas-ants" : ""}`}>
       {/* Sem respiro em volta da imagem: a moldura do cartão já é a moldura da
@@ -145,20 +145,12 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
       {/* Um campo de identificação, não dois. O número da página o sistema já
           sabe, e sai como prefixo apagado ao lado; o que se digita é o nome da
           folha, que o gabarito preencheu a partir do próprio desenho. */}
-      {/* Sem fio separando: a prancha não termina, ela se apaga dentro do
-          cartão. O degradê sobe transparente sobre o desenho e chega no fundo
-          do bloco de identificação, então os dois viram um só em vez de dois
-          colados por uma linha. */}
-      <div className="relative flex shrink-0 items-center gap-1.5 px-2 pb-1.5 pt-2">
-        <span
-          aria-hidden
-          // Comprido e com a virada tarde: num degradê curto e linear a metade
-          // do caminho é cinza chapado, e o cinza aparece como faixa em cima de
-          // uma prancha branca. Aqui ele é quase invisível em dois terços do
-          // caminho e só fecha no fim, já dentro do bloco de identificação: a
-          // borda entre os dois deixa de existir como linha.
-          className="pointer-events-none absolute inset-x-0 -top-20 h-24 bg-gradient-to-b from-transparent from-0% via-card/10 via-70% to-card to-100%"
-        />
+      {/* A área de informação é que carrega o fundo, e ela começa transparente:
+          o número e o nome nascem sobre o nada e o cartão só ganha cor descendo
+          até o rodapé. Sem fio separando e sem véu por cima da prancha, que
+          continua inteira até onde termina. */}
+      <div className="flex shrink-0 flex-col bg-gradient-to-b from-transparent to-card">
+      <div className="flex shrink-0 items-center gap-1.5 px-2 pb-1.5 pt-2">
         {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
             coluna não dança de cartão para cartão. O nome cede esse espaço,
             porque sigla de folha é curta e sobra borda dentro do campo. */}
@@ -265,6 +257,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
         )}
       </div>
       )}
+      </div>
     </div>
   )
 }
