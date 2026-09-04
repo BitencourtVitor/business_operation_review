@@ -366,6 +366,11 @@ export function SheetViewer({
   // deitado, e girar de novo a cada prancha seria cobrar o mesmo gesto noventa
   // e sete vezes. Fica no aparelho porque é dele que se trata, o tablet
   // apoiado de lado na obra e o monitor em pé na mesa não querem a mesma coisa.
+  // Em tela estreita a barra mostra só a cor e a espessura em uso, e o resto
+  // vira uma gaveta que abre logo acima dela. Guardar o que está aberto aqui
+  // deixa as duas se fecharem uma à outra.
+  const [gaveta, setGaveta] = useState<null | "cor" | "espessura">(null)
+
   const [spin, setSpin] = useState(0)
 
   useEffect(() => {
@@ -552,6 +557,8 @@ export function SheetViewer({
   }, [view, pageWidth, pageHeight, noPalco])
 
   const drawTool = tool === "pen" || tool === "highlighter"
+
+  useEffect(() => { if (!drawTool) setGaveta(null) }, [drawTool, tool])
 
   function handlePointerDown(e: React.PointerEvent) {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
@@ -1557,7 +1564,10 @@ export function SheetViewer({
           {drawTool && (
             <>
               <span className="h-6 w-px bg-white/15" />
-              <div className="flex items-center gap-1">
+              {/* Larga, a paleta inteira à mão. Estreita, só a cor em uso, e as
+                  outras esperam na gaveta: encolher o contêiner é o certo, e
+                  não empurrar a prancha para caber tudo. */}
+              <div className="hidden items-center gap-1 lg:flex">
                 {palette.map(c => (
                   <button
                     key={c.value}
@@ -1570,9 +1580,17 @@ export function SheetViewer({
                   />
                 ))}
               </div>
+              <button
+                onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
+                title="Colour"
+                style={{ background: color }}
+                className={`atlas-burst h-6 w-6 rounded-full border transition-transform lg:hidden ${
+                  gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
+                }`}
+              />
 
               <span className="h-6 w-px bg-white/15" />
-              <div className="flex items-center gap-1">
+              <div className="hidden items-center gap-1 lg:flex">
                 {widths.map((w, i) => (
                   <button
                     key={w}
@@ -1589,6 +1607,21 @@ export function SheetViewer({
                   </button>
                 ))}
               </div>
+              <button
+                onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
+                title="Stroke width"
+                className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors lg:hidden ${
+                  gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
+                }`}
+              >
+                <span
+                  className="rounded-full bg-white"
+                  style={{
+                    width: `${3 + widths.indexOf(width) * 3}px`,
+                    height: `${3 + widths.indexOf(width) * 3}px`,
+                  }}
+                />
+              </button>
 
               <span className="h-6 w-px bg-white/15" />
               {/* Com quem o traço fica. Privado é o padrão, e o botão só ganha
@@ -1634,6 +1667,54 @@ export function SheetViewer({
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {/* A gaveta da barra: mesma posição, um andar acima. Só existe em tela
+          estreita, que é onde a barra deixou de mostrar tudo.
+
+          As duas gavetas resolvem perguntas diferentes, e por isso não têm o
+          mesmo conteúdo. Cor se escolhe pela cor, e a que está em uso já está
+          ali embaixo, no botão que abriu a gaveta: repeti-la seria oferecer o
+          que a pessoa acabou de tocar. Espessura se escolhe por comparação, e
+          uma bolinha só diz pouco sobre ser a fina ou a média, então todas
+          aparecem, com a atual visivelmente fora de alcance. É por ela que se
+          sabe qual está valendo. */}
+      {canAnnotate && drawTool && gaveta && (
+        <div
+          className={`absolute bottom-[74px] left-4 flex h-[50px] items-center gap-1 px-1.5 text-white duration-150 animate-in fade-in-0 slide-in-from-bottom-2 lg:hidden ${MOLDURA}`}
+        >
+          {gaveta === "cor"
+            ? palette.filter(c => c.value !== color).map(c => (
+                <button
+                  key={c.value}
+                  onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
+                  title={c.label}
+                  style={{ background: c.value }}
+                  className="atlas-burst h-6 w-6 rounded-full border border-white/30 transition-transform hover:scale-110"
+                />
+              ))
+            : widths.map((w, i) => {
+                const atual = w === width
+                return (
+                  <button
+                    key={w}
+                    disabled={atual}
+                    onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
+                    title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
+                    className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                      atual
+                        ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
+                        : "hover:bg-white/10"
+                    }`}
+                  >
+                    <span
+                      className="rounded-full bg-white"
+                      style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
+                    />
+                  </button>
+                )
+              })}
         </div>
       )}
 
