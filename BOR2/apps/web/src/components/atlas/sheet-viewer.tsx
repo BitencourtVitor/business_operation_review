@@ -1328,7 +1328,10 @@ export function SheetViewer({
           )
         })()}
 
-        <div className={`pointer-events-auto flex min-w-0 items-center gap-2 px-3 ${FLUTUA}`}>
+        {/* Doze do lado do texto, seis do lado do botão: o botão traz o próprio
+            respiro interno, e somar os dois deixava o ícone mais longe da borda
+            do que o texto está da dele. */}
+        <div className={`pointer-events-auto flex min-w-0 items-center gap-2 pl-3 pr-1.5 ${FLUTUA}`}>
          <div className="flex min-w-0 flex-col justify-center">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
@@ -1719,7 +1722,10 @@ export function SheetViewer({
                   ? "Everyone on this project sees what you mark"
                   : "Only you see what you mark"}
                 style={shared ? { ["--burst" as string]: "rgb(56 189 248 / 0.45)" } : undefined}
-                className={`atlas-burst flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-all duration-200 ${
+                // Sem o rótulo ao lado ele é um botão de ícone como os outros,
+                // e botão de ícone é quadrado: 36 por 36. Com o rótulo, a
+                // largura passa a ser a do texto.
+                className={`atlas-burst flex h-9 w-9 items-center justify-center gap-1.5 rounded-md text-xs font-medium transition-all duration-200 lg:w-auto lg:justify-start lg:px-2 ${
                   shared
                     ? "bg-sky-500/20 text-sky-200 ring-1 ring-inset ring-sky-400/40"
                     : "text-white/50 hover:bg-white/10 hover:text-white/80"
