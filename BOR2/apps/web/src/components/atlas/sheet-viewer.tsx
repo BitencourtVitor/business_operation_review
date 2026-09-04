@@ -31,6 +31,16 @@ import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
+/**
+ * A moldura de tudo que flutua sobre a prancha.
+ *
+ * Eram três alturas diferentes para a mesma ideia de bloco, e a diferença
+ * aparece justo onde eles se encostam, no alto da tela. Cinquenta é a altura,
+ * e cada bloco cuida só do que carrega dentro.
+ */
+const FLUTUA =
+  "h-[50px] rounded-lg border border-white/10 bg-neutral-800/90 shadow-lg backdrop-blur"
+
 /** Onde o giro preferido fica guardado, por aparelho. */
 const SPIN_KEY = "atlas:sheet-spin"
 
@@ -1220,9 +1230,9 @@ export function SheetViewer({
           isto a prancha aberta não diz de qual projeto ela é: numa comunidade
           com trinta lotes iguais, isso é a diferença entre marcar a casa certa e
           a errada. */}
-      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[min(70vw,36rem)] items-stretch gap-2">
+      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[min(70vw,36rem)] flex-wrap items-start gap-2">
         {jobsite && (
-          <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-white/10 bg-neutral-800/90 px-2.5 py-1.5 shadow-lg backdrop-blur">
+          <div className={`flex min-w-0 items-center gap-2.5 px-2.5 ${FLUTUA}`}>
             {/* O selo da casa na prancha aberta. O leitor ocupa a tela inteira e
                 perde toda a moldura do produto: sem isto, a folha em tela cheia
                 podia ser de qualquer visualizador de PDF. */}
@@ -1281,7 +1291,7 @@ export function SheetViewer({
               // identificação não roubar o arraste da prancha embaixo dela. Este
               // bloco é o único que se clica, então ele devolve o ponteiro para
               // si: sem isto o clique atravessava e ia parar no desenho.
-              className="pointer-events-auto flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 py-1.5 pl-2 pr-3 text-left shadow-lg backdrop-blur transition-colors hover:bg-neutral-700/90"
+              className={`pointer-events-auto flex min-w-0 items-center gap-2 pl-2 pr-3 text-left transition-colors hover:bg-neutral-700/90 ${FLUTUA}`}
             >
               <ChevronLeft className="h-4 w-4 shrink-0 text-white/60" />
               <span className="flex min-w-0 flex-col justify-center">
@@ -1294,7 +1304,7 @@ export function SheetViewer({
           )
         })()}
 
-        <div className="pointer-events-auto flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-1.5 shadow-lg backdrop-blur">
+        <div className={`pointer-events-auto flex min-w-0 items-center gap-2 px-3 ${FLUTUA}`}>
          <div className="flex min-w-0 flex-col justify-center">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
@@ -1345,7 +1355,7 @@ export function SheetViewer({
           largura do painel esticava a fileira de ícones e sobrava vão depois do
           X; soltos, cada um tem a largura do que carrega. */}
       <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
-       <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-neutral-800/90 p-1 shadow-lg backdrop-blur">
+       <div className={`flex items-center gap-1 px-1 ${FLUTUA}`}>
         {/* Procurar texto na prancha. O plano guarda o texto que foi impresso
             nele, então achar "U341" é leitura de PDF, não busca em imagem. */}
         {finding && (
@@ -1528,7 +1538,9 @@ export function SheetViewer({
       )}
 
       {canAnnotate && (
-        <div className="absolute bottom-4 left-4 flex max-w-[calc(100vw-9rem)] flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 p-1.5 text-white shadow-lg backdrop-blur transition-all duration-200">
+        // Este cresce quando a ferramenta abre as opções dela, então a altura é
+        // piso e não trava: dois blocos empilhados precisam de mais que 50.
+        <div className={`absolute bottom-4 left-4 flex max-w-[calc(100vw-9rem)] flex-wrap items-center gap-2 px-1.5 py-1.5 text-white transition-all duration-200 ${FLUTUA} h-auto min-h-[50px]`}>
           <div className="flex items-center gap-1">
             {TOOLS.map(toolButton)}
           </div>
