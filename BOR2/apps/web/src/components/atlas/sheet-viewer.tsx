@@ -1710,10 +1710,13 @@ export function SheetViewer({
           <button
             onClick={fit}
             title="Fit the sheet to the screen"
-            className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-md border border-white/10 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            // Carrega dois recursos, então ocupa o espaço dos dois: trinta e
+            // seis do enquadrar, quinze da conta, e os quatro do vão que sumiu
+            // entre eles. O bloco fica com a mesma altura de antes.
+            className="flex h-[55px] w-9 shrink-0 flex-col items-center justify-center gap-1 rounded-md border border-white/10 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <Maximize className="h-3.5 w-3.5" />
-            <span className="text-[9px] leading-none tabular-nums">{zoomLabel(zoom)}</span>
+            <Maximize className="h-4 w-4" />
+            <span className="text-[10px] leading-none tabular-nums">{zoomLabel(zoom)}</span>
           </button>
           <Button
             size="icon"
