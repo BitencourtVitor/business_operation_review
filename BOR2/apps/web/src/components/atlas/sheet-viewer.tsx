@@ -21,7 +21,8 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, FileUp,
-  Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
+  Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus,
+  RotateCcw, RotateCw, Search,
   User, Users, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
@@ -29,6 +30,9 @@ import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+
+/** Onde o giro preferido fica guardado, por aparelho. */
+const SPIN_KEY = "atlas:sheet-spin"
 
 // Nenhuma ferramenta é um estado, e é o estado normal: sem nada escolhido a
 // prancha se arrasta e amplia, que é o que a mão fazia. A mão era uma
@@ -340,11 +344,74 @@ export function SheetViewer({
     pageHeight: Number(sheet.heightPt) || 2160,
   }), [sheet.widthPt, sheet.heightPt])
 
+  // Girar a prancha na tela. O papel não muda: o que muda é de que lado a
+  // pessoa está olhando para ele. Um relatório sai retrato, uma elevação sai
+  // paisagem, e no tablet em obra ninguém vira o aparelho de lado com a mão
+  // suja para ler uma prancha.
+  //
+  // O giro fica guardado no aparelho, e não na folha: quem lê deitado lê tudo
+  // deitado, e girar de novo a cada prancha seria cobrar o mesmo gesto noventa
+  // e sete vezes. Fica no aparelho porque é dele que se trata, o tablet
+  // apoiado de lado na obra e o monitor em pé na mesa não querem a mesma coisa.
+  const [spin, setSpin] = useState(0)
+
+  useEffect(() => {
+    const guardado = Number(localStorage.getItem(SPIN_KEY))
+    if (guardado === 90 || guardado === 180 || guardado === 270) setSpin(guardado)
+  }, [])
+
+  const gira = useCallback((passo: number) => {
+    setSpin(atual => {
+      const proximo = (atual + passo + 360) % 360
+      try {
+        localStorage.setItem(SPIN_KEY, String(proximo))
+      } catch {
+        // navegador sem armazenamento: gira mesmo assim, só não lembra
+      }
+      return proximo
+    })
+  }, [])
+  // De pé ou deitado: a 90 e a 270 a largura vira altura, e o enquadramento
+  // precisa saber disso para a folha caber girada.
+  const deitado = spin % 180 !== 0
+
+  // Gira um deslocamento de tela ao contrário do giro da prancha. Sem isto,
+  // arrastar para a direita com a folha a 90 graus a leva para baixo: a mão
+  // fala em coordenada de tela, e a prancha vive na dela.
+  const desgira = useCallback((dx: number, dy: number): [number, number] => {
+    const a = (-spin * Math.PI) / 180
+    return [dx * Math.cos(a) - dy * Math.sin(a), dx * Math.sin(a) + dy * Math.cos(a)]
+  }, [spin])
+
+  // Um ponto da prancha dito em coordenada de tela, já com o giro aplicado.
+  const naTela = useCallback((x: number, y: number): [number, number] => {
+    const box = boxRef.current?.getBoundingClientRect()
+    if (!box || !spin) return [x, y]
+    const ox = box.width / 2
+    const oy = box.height / 2
+    const a = (spin * Math.PI) / 180
+    const dx = x - ox
+    const dy = y - oy
+    return [ox + dx * Math.cos(a) - dy * Math.sin(a), oy + dx * Math.sin(a) + dy * Math.cos(a)]
+  }, [spin])
+
+  // Um ponto da tela dito em coordenada da prancha, antes do giro.
+  const noPalco = useCallback((clientX: number, clientY: number): [number, number] => {
+    const box = boxRef.current?.getBoundingClientRect()
+    if (!box) return [0, 0]
+    const ox = box.width / 2
+    const oy = box.height / 2
+    const [dx, dy] = desgira(clientX - box.left - ox, clientY - box.top - oy)
+    return [ox + dx, oy + dy]
+  }, [desgira])
+
   // ── Enquadramento ─────────────────────────────────────────────────────────
   const fitScale = useMemo(() => {
     if (!size.width || !size.height) return 0
-    return Math.min(size.width / pageWidth, size.height / pageHeight) * 0.96
-  }, [size, pageWidth, pageHeight])
+    const largura = deitado ? pageHeight : pageWidth
+    const altura = deitado ? pageWidth : pageHeight
+    return Math.min(size.width / largura, size.height / altura) * 0.96
+  }, [size, pageWidth, pageHeight, deitado])
 
   const fit = useCallback(() => {
     if (!fitScale) return
@@ -369,6 +436,7 @@ export function SheetViewer({
   // Enquadra ao abrir, ao trocar de folha e quando a tela muda de tamanho sem
   // que ninguém tenha mexido no zoom ainda.
   useEffect(() => { fit() }, [fit, sheet.id])
+
 
   const zoom = fitScale ? view.scale / fitScale : 1
 
@@ -446,12 +514,12 @@ export function SheetViewer({
       // traço é pior do que não ampliar.
       if (canAnnotate && toolRef.current) return
       e.preventDefault()
-      const box = node!.getBoundingClientRect()
-      zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX - box.left, e.clientY - box.top)
+      const [x, y] = noPalco(e.clientX, e.clientY)
+      zoomAt(Math.exp(-e.deltaY * 0.0015), x, y)
     }
     node.addEventListener("wheel", onWheel, { passive: false })
     return () => node.removeEventListener("wheel", onWheel)
-  }, [zoomAt, canAnnotate])
+  }, [zoomAt, canAnnotate, noPalco])
 
   // ── Ponteiros: arrastar, desenhar e pinçar ────────────────────────────────
   const pointers = useRef(new Map<number, { x: number; y: number }>())
@@ -462,13 +530,13 @@ export function SheetViewer({
   >(null)
 
   const toPage = useCallback((clientX: number, clientY: number): [number, number] => {
-    const box = boxRef.current?.getBoundingClientRect()
-    if (!box || !view.scale) return [0, 0]
+    if (!view.scale) return [0, 0]
+    const [x, y] = noPalco(clientX, clientY)
     return [
-      (clientX - box.left - view.x) / (pageWidth * view.scale),
-      (clientY - box.top - view.y) / (pageHeight * view.scale),
+      (x - view.x) / (pageWidth * view.scale),
+      (y - view.y) / (pageHeight * view.scale),
     ]
-  }, [view, pageWidth, pageHeight])
+  }, [view, pageWidth, pageHeight, noPalco])
 
   const drawTool = tool === "pen" || tool === "highlighter"
 
@@ -480,18 +548,26 @@ export function SheetViewer({
     // apoiada na tela é o acidente clássico do tablet em obra.
     if (pointers.current.size === 2 && box) {
       const [a, b] = [...pointers.current.values()]
+      const [cx, cy] = noPalco((a.x + b.x) / 2, (a.y + b.y) / 2)
       gesture.current = {
         kind: "pinch",
         distance: Math.hypot(a.x - b.x, a.y - b.y),
         view,
-        cx: (a.x + b.x) / 2 - box.left,
-        cy: (a.y + b.y) / 2 - box.top,
+        cx,
+        cy,
       }
       setDrawing([])
       return
     }
 
-    e.currentTarget.setPointerCapture(e.pointerId)
+    // Capturar o ponteiro é conforto para o gesto não escapar do elemento, e
+    // ele recusa id que o navegador já soltou. Falhar aqui não pode derrubar o
+    // arraste inteiro, que é o gesto mais usado da tela.
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // segue sem captura
+    }
 
     // Deslocar é da mão, e de mais nada. Arrastar com a caneta selecionada
     // desenha; com a borracha, apaga. Uma ferramenta, um gesto.
@@ -546,8 +622,9 @@ export function SheetViewer({
     }
 
     if (g?.kind === "pan") {
+      const [dx, dy] = desgira(e.clientX - g.x, e.clientY - g.y)
       setView(clampView(
-        { scale: g.view.scale, x: g.view.x + (e.clientX - g.x), y: g.view.y + (e.clientY - g.y) },
+        { scale: g.view.scale, x: g.view.x + dx, y: g.view.y + dy },
         size, pageWidth, pageHeight,
       ))
       return
@@ -815,6 +892,13 @@ export function SheetViewer({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
+       {/* Prancha e anotação giram como uma coisa só, em volta do centro da
+           tela. Girar só o desenho deixaria o traço fora do lugar em que ele
+           foi feito. */}
+       <div
+         className="absolute inset-0"
+         style={spin ? { transform: `rotate(${spin}deg)` } : undefined}
+       >
         {source?.url && view.scale > 0 && (
           <PlanCanvas
             url={source.url}
@@ -1089,16 +1173,17 @@ export function SheetViewer({
             </g>
           ))}
         </svg>
+       </div>
 
         {/* Ancorado no ponto e acima dele, como um balão de fala. Fora do SVG
             porque texto em SVG não quebra linha nem herda a tipografia da casa. */}
         {bubble && (
           <div
             className="pointer-events-none absolute max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95"
-            style={{
-              left: view.x + bubble.x * pageWidth * view.scale,
-              top: view.y + bubble.y * pageHeight * view.scale - pageHeight / 70 * view.scale - 10,
-            }}
+            style={(([left, top]) => ({ left, top }))(naTela(
+              view.x + bubble.x * pageWidth * view.scale,
+              view.y + bubble.y * pageHeight * view.scale - pageHeight / 70 * view.scale - 10,
+            ))}
           >
             <div className="rounded-lg bg-neutral-900 px-3 py-2 text-sm leading-snug text-white shadow-xl ring-1 ring-white/15">
               {bubble.text}
@@ -1616,6 +1701,29 @@ export function SheetViewer({
           title="Zoom out"
         >
           <Minus className="h-4 w-4" />
+        </Button>
+
+        {/* Girar é outro assunto que não o zoom, então é outro bloco, com um
+            respiro entre eles. Noventa graus por vez, para os dois lados:
+            documento sai retrato ou paisagem conforme quem o emitiu, e virar o
+            tablet de lado com a mão suja não é opção. */}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="atlas-burst mt-2 h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          onClick={() => gira(-90)}
+          title="Rotate left"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="atlas-burst h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
+          onClick={() => gira(90)}
+          title="Rotate right"
+        >
+          <RotateCw className="h-4 w-4" />
         </Button>
       </div>
     </div>
