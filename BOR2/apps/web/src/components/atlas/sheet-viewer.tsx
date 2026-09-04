@@ -38,6 +38,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
  * aparece justo onde eles se encostam, no alto da tela. Cinquenta é a altura,
  * e cada bloco cuida só do que carrega dentro.
  */
+/**
+ * A casa de um botão nesses blocos, e o respiro em volta dela.
+ *
+ * Trinta e seis é a caixa, seis é o respiro, quatro é o vão entre duas casas.
+ * Daí sai o cinquenta que todo bloco tem: 36 + 6 + 6 + as duas bordas. Estava
+ * escrito de quatro jeitos diferentes, e o olho pega a diferença mesmo sem
+ * saber medir.
+ */
+const CASA = "h-9 w-9 shrink-0"
+
 const MOLDURA =
   "rounded-lg border border-white/10 bg-neutral-800/90 shadow-lg backdrop-blur"
 
@@ -1347,7 +1357,7 @@ export function SheetViewer({
              type="button"
              onClick={() => setRevisions(true)}
              title="Revisions of this sheet"
-             className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+             className="flex h-9 shrink-0 items-center gap-1 rounded-md px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
            >
              <History className="h-4 w-4" />
              <span className="text-xs font-medium tabular-nums">{sheet.revisions}</span>
@@ -1374,7 +1384,7 @@ export function SheetViewer({
            inverte junto: o X sobe para o topo, onde a mão o procura, e a lupa
            desce para o fim. */}
        <div
-         className={`flex items-center gap-1 px-1 max-sm:h-auto max-sm:w-[50px] max-sm:flex-col-reverse max-sm:px-0 max-sm:py-1 ${FLUTUA}`}
+         className={`flex items-center gap-1 px-1.5 max-sm:h-auto max-sm:w-[50px] max-sm:flex-col-reverse max-sm:px-0 max-sm:py-1.5 ${FLUTUA}`}
        >
         {/* Procurar texto na prancha. O plano guarda o texto que foi impresso
             nele, então achar "U341" é leitura de PDF, não busca em imagem. */}
@@ -1577,11 +1587,17 @@ export function SheetViewer({
                     key={c.value}
                     onClick={() => setInk({ color: c.value })}
                     title={c.label}
-                    style={{ background: c.value }}
-                    className={`atlas-burst h-6 w-6 rounded-full border transition-transform ${
-                      color === c.value ? "scale-110 border-white" : "border-white/30"
+                    className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
+                      color === c.value ? "bg-white/20" : "hover:bg-white/10"
                     }`}
-                  />
+                  >
+                    <span
+                      style={{ background: c.value }}
+                      className={`h-6 w-6 rounded-full border transition-transform ${
+                        color === c.value ? "scale-110 border-white" : "border-white/30"
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
               {/* A gaveta sobe do próprio botão, e não do canto da barra: ela é
@@ -1591,14 +1607,20 @@ export function SheetViewer({
                 <button
                   onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
                   title="Colour"
-                  style={{ background: color }}
-                  className={`atlas-burst block h-6 w-6 rounded-full border transition-transform ${
-                    gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
+                  className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
+                    gaveta === "cor" ? "bg-white/20" : "hover:bg-white/10"
                   }`}
-                />
+                >
+                  <span
+                    style={{ background: color }}
+                    className={`h-6 w-6 rounded-full border transition-transform ${
+                      gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
+                    }`}
+                  />
+                </button>
                 {gaveta === "cor" && (
                   <div
-                    className={`absolute bottom-full left-1/2 mb-5 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
                   >
                     {/* Sem a cor em uso: ela está no botão logo abaixo, e
                         repeti-la seria oferecer o que se acabou de tocar. */}
@@ -1607,9 +1629,13 @@ export function SheetViewer({
                         key={c.value}
                         onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
                         title={c.label}
-                        style={{ background: c.value }}
-                        className="atlas-burst h-7 w-7 shrink-0 rounded-full border border-white/30 transition-transform hover:scale-110"
-                      />
+                        className={`atlas-burst flex items-center justify-center rounded-md transition-colors hover:bg-white/10 ${CASA}`}
+                      >
+                        <span
+                          style={{ background: c.value }}
+                          className="h-6 w-6 rounded-full border border-white/30 transition-transform group-hover:scale-110"
+                        />
+                      </button>
                     ))}
                   </div>
                 )}
@@ -1622,7 +1648,7 @@ export function SheetViewer({
                     key={w}
                     onClick={() => { setInk({ width: w }); showSample() }}
                     title={`Stroke ${i + 1} of ${widths.length}`}
-                    className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                    className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
                       width === w ? "bg-white/20" : "hover:bg-white/10"
                     }`}
                   >
@@ -1637,7 +1663,7 @@ export function SheetViewer({
                 <button
                   onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
                   title="Stroke width"
-                  className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                  className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
                     gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
                   }`}
                 >
@@ -1651,7 +1677,7 @@ export function SheetViewer({
                 </button>
                 {gaveta === "espessura" && (
                   <div
-                    className={`absolute bottom-full left-1/2 mb-5 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
                   >
                     {/* Todas, inclusive a em uso: espessura se escolhe por
                         comparação, e uma bolinha sozinha diz pouco sobre ser a
@@ -1665,7 +1691,7 @@ export function SheetViewer({
                           disabled={atual}
                           onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
                           title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
-                          className={`atlas-burst flex h-7 w-7 shrink-0 items-center justify-center rounded transition-colors ${
+                          className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
                             atual
                               ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
                               : "hover:bg-white/10"
@@ -1790,7 +1816,7 @@ export function SheetViewer({
           qualquer outro par aqui. Cada um é a mesma moldura dos demais, de pé:
           cinquenta de largura, botão de trinta e seis, sete de cada lado. */}
       <div className="absolute bottom-4 right-4 flex flex-col items-center gap-2">
-        <div className={`flex w-[50px] flex-col items-center gap-1 p-[7px] ${MOLDURA}`}>
+        <div className={`flex w-[50px] flex-col items-center gap-1 p-1.5 ${MOLDURA}`}>
           <Button
             size="icon"
             variant="ghost"
@@ -1830,7 +1856,7 @@ export function SheetViewer({
             Noventa graus por vez, para os dois lados: documento sai retrato ou
             paisagem conforme quem o emitiu, e virar o tablet de lado com a mão
             suja não é opção. */}
-        <div className={`flex w-[50px] flex-col items-center gap-1 p-[7px] ${MOLDURA}`}>
+        <div className={`flex w-[50px] flex-col items-center gap-1 p-1.5 ${MOLDURA}`}>
           <Button
             size="icon"
             variant="ghost"
