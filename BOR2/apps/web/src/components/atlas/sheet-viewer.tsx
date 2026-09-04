@@ -38,8 +38,11 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
  * aparece justo onde eles se encostam, no alto da tela. Cinquenta é a altura,
  * e cada bloco cuida só do que carrega dentro.
  */
-const FLUTUA =
-  "h-[50px] rounded-lg border border-white/10 bg-neutral-800/90 shadow-lg backdrop-blur"
+const MOLDURA =
+  "rounded-lg border border-white/10 bg-neutral-800/90 shadow-lg backdrop-blur"
+
+/** Deitada: cinquenta de altura, largura livre. */
+const FLUTUA = `h-[50px] ${MOLDURA}`
 
 /** Onde o giro preferido fica guardado, por aparelho. */
 const SPIN_KEY = "atlas:sheet-spin"
@@ -1690,7 +1693,7 @@ export function SheetViewer({
           qualquer outro par aqui. Cada um é a mesma moldura dos demais, de pé:
           cinquenta de largura, botão de trinta e seis, sete de cada lado. */}
       <div className="absolute bottom-4 right-4 flex flex-col items-center gap-2">
-        <div className={`flex h-auto w-[50px] flex-col items-center gap-1 p-[7px] ${FLUTUA}`}>
+        <div className={`flex w-[50px] flex-col items-center gap-1 p-[7px] ${MOLDURA}`}>
           <Button
             size="icon"
             variant="ghost"
@@ -1700,24 +1703,18 @@ export function SheetViewer({
           >
             <Plus className="h-4 w-4" />
           </Button>
-          {/* A conta do zoom é leitura, não botão de trinta e seis: ela mora
-              entre os dois e volta ao enquadramento com um toque. */}
+          {/* Enquadrar e o nível de zoom eram dois: o segundo dizia em que
+              ponto se está, o primeiro levava de volta ao começo, e são a mesma
+              conversa. Viraram um botão só, com o fio de borda da moldura para
+              se distinguir dos outros dois sem sair da família. */}
           <button
             onClick={fit}
             title="Fit the sheet to the screen"
-            className="w-full rounded text-center text-[10px] tabular-nums text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-md border border-white/10 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           >
-            {zoomLabel(zoom)}
+            <Maximize className="h-3.5 w-3.5" />
+            <span className="text-[9px] leading-none tabular-nums">{zoomLabel(zoom)}</span>
           </button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
-            onClick={fit}
-            title="Fit to screen"
-          >
-            <Maximize className="h-4 w-4" />
-          </Button>
           <Button
             size="icon"
             variant="ghost"
@@ -1733,7 +1730,7 @@ export function SheetViewer({
             Noventa graus por vez, para os dois lados: documento sai retrato ou
             paisagem conforme quem o emitiu, e virar o tablet de lado com a mão
             suja não é opção. */}
-        <div className={`flex h-auto w-[50px] flex-col items-center gap-1 p-[7px] ${FLUTUA}`}>
+        <div className={`flex w-[50px] flex-col items-center gap-1 p-[7px] ${MOLDURA}`}>
           <Button
             size="icon"
             variant="ghost"
