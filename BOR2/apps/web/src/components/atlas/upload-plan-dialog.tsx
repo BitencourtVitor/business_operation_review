@@ -53,7 +53,12 @@ export function UploadPlanDialog({
    */
   slots?: AtlasJobsiteCategory[]
   /** Quem envia é a página: o envio precisa sobreviver ao fechamento daqui. */
-  onStart: (file: File, names?: Map<number, string>, identity?: DocumentIdentity) => void
+  onStart: (
+    file: File,
+    names?: Map<number, string>,
+    identity?: DocumentIdentity,
+    version?: { name: string; notes: string },
+  ) => void
   onClose: () => void
 }) {
   const updateCategory = useUpdateDocCategory()
@@ -68,6 +73,11 @@ export function UploadPlanDialog({
   const [name, setName] = useState("")
   const [tags, setTags] = useState<TagKey[]>([])
 
+  // O apelido desta versão e o que mudou nela. A versão se identifica pela data
+  // e hora do envio; isto é o que a data não conta.
+  const [versionName, setVersionName] = useState("")
+  const [versionNotes, setVersionNotes] = useState("")
+
   const [marking, setMarking] = useState(false)
   const [template, setTemplate] = useState<NamingTemplate | undefined>(naming)
   const [names, setNames] = useState<Map<number, string> | null>(null)
@@ -78,6 +88,7 @@ export function UploadPlanDialog({
     setFile(null); setError("")
     setNames(null); setReading("")
     setName(""); setTags([])
+    setVersionName(""); setVersionNotes("")
   }, [open])
 
   function choose(picked: File | null) {
@@ -125,7 +136,8 @@ export function UploadPlanDialog({
   function submit() {
     if (!file) return
     onStart(file, names ?? undefined,
-      slots ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined)
+      slots ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined,
+      { name: versionName.trim(), notes: versionNotes.trim() })
     onClose()
   }
 
@@ -247,6 +259,32 @@ export function UploadPlanDialog({
                 <Check className="ml-auto h-4 w-4 text-emerald-500" />
               )}
             </Button>
+
+            {/* Trocar o set é o momento de dizer o que mudou. Num documento
+                novo não há o que comparar, e o campo só pediria texto por
+                pedir. */}
+            {revisionCount > 0 && !!file && (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="ver-name">Version name</Label>
+                  <Input
+                    id="ver-name"
+                    value={versionName}
+                    placeholder="What changed, in a few words"
+                    onChange={e => setVersionName(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="ver-notes">Notes</Label>
+                  <Input
+                    id="ver-notes"
+                    value={versionNotes}
+                    placeholder="Optional"
+                    onChange={e => setVersionNotes(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
 
             {revisionCount > 0 && (
               <p className="text-xs text-muted-foreground">

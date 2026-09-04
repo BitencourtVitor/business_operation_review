@@ -21,10 +21,11 @@ import {
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
   ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
-  Eye, EyeOff, Highlighter, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
+  Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus, Search,
   User, Users, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
+import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
@@ -191,14 +192,19 @@ function pointsToPath(points: [number, number][], w: number, h: number): string 
  * do ponto apontado. O zoom é escala de render, não `transform: scale`, então
  * ampliar redesenha o vetor em vez de esticar o bitmap.
  */
-export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, onNavigate }: {
+export function SheetViewer({
+  sheet, sheets, jobsiteId, canAnnotate, canManage, onClose, onNavigate,
+}: {
   sheet: AtlasSheet
   sheets: AtlasSheet[]
   jobsiteId: string
   canAnnotate: boolean
+  /** Quem manda na obra pode trocar a prancha; os demais só leem o histórico. */
+  canManage?: boolean
   onClose: () => void
   onNavigate: (sheet: AtlasSheet) => void
 }) {
+  const [revisions, setRevisions] = useState(false)
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: annotations, refetch: refetchAnnotations } = useAtlasAnnotations(sheet.id)
   const { data: events } = useAtlasEvents(jobsiteId, sheet.id)
@@ -1203,7 +1209,8 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
           )
         })()}
 
-        <div className="flex min-w-0 flex-col justify-center rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-1.5 shadow-lg backdrop-blur">
+        <div className="pointer-events-auto flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/90 px-3 py-1.5 shadow-lg backdrop-blur">
+         <div className="flex min-w-0 flex-col justify-center">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
           </p>
@@ -1220,8 +1227,33 @@ export function SheetViewer({ sheet, sheets, jobsiteId, canAnnotate, onClose, on
             {sheet.title && <span className="truncate">{sheet.title}</span>}
             <span className="shrink-0">{index + 1} of {sheets.length}</span>
           </p>
+         </div>
+
+         {/* A linhagem da página. Fica junto da identificação porque é sobre
+             esta prancha que ela fala: quantas vezes ela já foi trocada, e por
+             quem. O número só aparece a partir da segunda, que é quando ele
+             deixa de ser óbvio. */}
+         <button
+           type="button"
+           onClick={() => setRevisions(true)}
+           title="Revisions of this sheet"
+           className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+         >
+           <History className="h-4 w-4" />
+           {sheet.revisions > 1 && (
+             <span className="text-xs font-medium tabular-nums">{sheet.revisions}</span>
+           )}
+         </button>
         </div>
       </div>
+
+      <SheetRevisions
+        sheet={sheet}
+        canManage={!!canManage}
+        open={revisions}
+        onClose={() => setRevisions(false)}
+        onReplaced={onClose}
+      />
 
       {/* A barra e o painel são dois blocos, não um que estica. Grudados, a
           largura do painel esticava a fileira de ícones e sobrava vão depois do

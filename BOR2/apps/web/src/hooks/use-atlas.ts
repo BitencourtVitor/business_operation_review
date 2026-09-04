@@ -223,9 +223,11 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, notes, names, onProgress, onSheets, onPage }: {
+    mutationFn: async ({ file, revision, name, notes, names, onProgress, onSheets, onPage }: {
       file: File
       revision: string
+      /** O apelido desta versão, e o que mudou nela. */
+      name?: string
       notes?: string
       /** O nome de cada página, quando um gabarito já resolveu a nomenclatura. */
       names?: Map<number, string>
@@ -238,7 +240,7 @@ export function useUploadAtlasVersion(documentId: string) {
       const contentType = file.type || "application/pdf"
       onProgress?.("opening")
       const ticket = await atlasService.openVersion(documentId, {
-        revision, fileName: file.name, contentType, byteSize: file.size, notes,
+        revision, fileName: file.name, contentType, byteSize: file.size, name, notes,
       })
       onProgress?.("uploading")
       await uploadToR2(ticket.uploadUrl, file, contentType)
