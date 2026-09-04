@@ -1685,64 +1685,74 @@ export function SheetViewer({
         </DialogContent>
       </Dialog>
 
-      <div className="absolute bottom-4 right-4 flex flex-col items-center gap-px">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="atlas-burst h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
-          onClick={() => zoomCentre(1.25)}
-          title="Zoom in"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-        <button
-          onClick={fit}
-          title="Fit the sheet to the screen"
-          className="flex w-10 items-center justify-center gap-1 border-x border-white/10 bg-neutral-800/90 py-1 text-[10px] tabular-nums text-white/70 shadow-lg backdrop-blur transition-all hover:text-white"
-        >
-          {zoomLabel(zoom)}
-        </button>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="atlas-burst h-10 w-10 rounded-none border-x border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
-          onClick={fit}
-          title="Fit to screen"
-        >
-          <Maximize className="h-4 w-4" />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="atlas-burst h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
-          onClick={() => zoomCentre(0.8)}
-          title="Zoom out"
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
+      {/* Dois blocos conjugados, não uma fileira de botões soldados: em cima
+          o zoom, embaixo o giro, com o mesmo respiro entre eles que separa
+          qualquer outro par aqui. Cada um é a mesma moldura dos demais, de pé:
+          cinquenta de largura, botão de trinta e seis, sete de cada lado. */}
+      <div className="absolute bottom-4 right-4 flex flex-col items-center gap-2">
+        <div className={`flex h-auto w-[50px] flex-col items-center gap-1 p-[7px] ${FLUTUA}`}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => zoomCentre(1.25)}
+            title="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          {/* A conta do zoom é leitura, não botão de trinta e seis: ela mora
+              entre os dois e volta ao enquadramento com um toque. */}
+          <button
+            onClick={fit}
+            title="Fit the sheet to the screen"
+            className="w-full rounded text-center text-[10px] tabular-nums text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            {zoomLabel(zoom)}
+          </button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            onClick={fit}
+            title="Fit to screen"
+          >
+            <Maximize className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => zoomCentre(0.8)}
+            title="Zoom out"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+        </div>
 
-        {/* Girar é outro assunto que não o zoom, então é outro bloco, com um
-            respiro entre eles. Noventa graus por vez, para os dois lados:
-            documento sai retrato ou paisagem conforme quem o emitiu, e virar o
-            tablet de lado com a mão suja não é opção. */}
-        <Button
-          size="icon"
-          variant="ghost"
-          className="atlas-burst mt-2 h-10 w-10 rounded-b-none rounded-t-lg border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
-          onClick={() => gira(-90)}
-          title="Rotate left"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="atlas-burst h-10 w-10 rounded-b-lg rounded-t-none border border-white/10 bg-neutral-800/90 text-white shadow-lg backdrop-blur transition-all hover:bg-neutral-700 hover:text-white"
-          onClick={() => gira(90)}
-          title="Rotate right"
-        >
-          <RotateCw className="h-4 w-4" />
-        </Button>
+        {/* Girar é outro assunto que não o zoom, e por isso outro bloco.
+            Noventa graus por vez, para os dois lados: documento sai retrato ou
+            paisagem conforme quem o emitiu, e virar o tablet de lado com a mão
+            suja não é opção. */}
+        <div className={`flex h-auto w-[50px] flex-col items-center gap-1 p-[7px] ${FLUTUA}`}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => gira(-90)}
+            title="Rotate left"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="atlas-burst h-9 w-9 text-white transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => gira(90)}
+            title="Rotate right"
+          >
+            <RotateCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
