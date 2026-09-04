@@ -376,23 +376,27 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
         </div>
 
         {/* Sobre o diálogo, e não no lugar dele: quem amplia o anexo está no
-            meio da leitura do histórico e volta para ela num toque. */}
+            meio da leitura do histórico e volta para ela num toque. A página
+            inteira desfoca atrás, então o que estava lá continua reconhecível
+            sem disputar atenção com a imagem. */}
         {zoom && (
           <div
             role="presentation"
             onClick={() => setZoom(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/80 p-6 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/85 p-8 backdrop-blur-lg"
           >
+            {/* Quina viva e um fio de borda: a imagem é a janela, e arredondar
+                cantaria um recorte que o print não tem. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={zoom.url}
               alt={zoom.name}
-              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+              className="max-h-full max-w-full border border-white/20 object-contain shadow-2xl"
             />
             <button
               type="button"
               onClick={() => setZoom(null)}
-              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-900/80 text-white backdrop-blur transition-colors hover:bg-neutral-800"
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center border border-white/20 bg-neutral-900/80 text-white backdrop-blur transition-colors hover:bg-neutral-800"
             >
               <X className="h-4 w-4" />
             </button>
