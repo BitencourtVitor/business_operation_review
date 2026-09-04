@@ -33,6 +33,8 @@ type atlasSheetRevision struct {
 	Name        string `json:"name"`
 	Notes       string `json:"notes"`
 	RevisedBy   string `json:"revisedBy"`
+	// O cargo de quem revisou, que na tela vira o crachá ao lado do nome.
+	RevisedRole string `json:"revisedRole"`
 	RevisedAt   string `json:"revisedAt"`
 	// Vazio na folha que está valendo.
 	SupersededAt string `json:"supersededAt"`
@@ -181,7 +183,12 @@ func (h *AtlasHandler) SheetHistory(c *fiber.Ctx) error {
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT s.id, s.page_index, s.sheet_number, s.version_name, s.version_notes,
-		       COALESCE(u.name,''), s.revised_at, s.superseded_at,
+		       -- A folha que veio no set não tem quem a revisou: ela nasceu do
+		       -- envio, e quem a pôs ali é quem subiu o set. Sem esta segunda
+		       -- fonte, a revisão original ficava anônima.
+		       COALESCE(NULLIF(u.name,''), vu.name, ''),
+		       COALESCE(NULLIF(u.role::text,''), vu.role::text, ''),
+		       s.revised_at, s.superseded_at,
 		       s.r2_key, s.thumb_key, s.byte_size,
 		       (SELECT count(*) FROM atlas_annotation a
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL),
@@ -195,6 +202,8 @@ func (h *AtlasHandler) SheetHistory(c *fiber.Ctx) error {
 		       ), '[]')::text
 		FROM atlas_sheet s
 		LEFT JOIN users u ON u.id = s.revised_by
+		LEFT JOIN atlas_document_version v ON v.id = s.version_id
+		LEFT JOIN users vu ON vu.id = v.uploaded_by
 		WHERE (s.version_id, s.page_index) = (
 			SELECT version_id, page_index FROM atlas_sheet WHERE id = $1
 		)
@@ -213,7 +222,7 @@ func (h *AtlasHandler) SheetHistory(c *fiber.Ctx) error {
 		var superseded *time.Time
 		var files string
 		if err := rows.Scan(&r.ID, &r.PageIndex, &r.SheetNumber, &r.Name, &r.Notes,
-			&r.RevisedBy, &revised, &superseded, &r.R2Key, &r.ThumbKey,
+			&r.RevisedBy, &r.RevisedRole, &revised, &superseded, &r.R2Key, &r.ThumbKey,
 			&r.ByteSize, &r.Annotations, &files); err != nil {
 			return internalErr(c, err)
 		}

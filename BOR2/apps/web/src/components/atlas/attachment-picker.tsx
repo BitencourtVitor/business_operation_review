@@ -1,6 +1,6 @@
 "use client"
 
-import { FileText, ImagePlus, X } from "lucide-react"
+import { FileText, ImagePlus, Music, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 /**
@@ -43,7 +43,7 @@ export function AttachmentPicker({ files, onChange, disabled }: {
         ref={inputRef}
         type="file"
         multiple
-        accept="image/*,application/pdf"
+        accept="image/*,audio/*,application/pdf"
         className="hidden"
         onChange={e => {
           // A lista sai do input agora, e não dentro do atualizador de estado:
@@ -66,7 +66,9 @@ export function AttachmentPicker({ files, onChange, disabled }: {
             <img src={previews[i]} alt={f.name} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-muted-foreground">
-              <FileText className="h-5 w-5" />
+              {/* Áudio não tem prévia para mostrar, e o ícone do formato já diz
+                  o que vai acontecer quando alguém abrir. */}
+              {f.type.startsWith("audio/") ? <Music className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
               <span className="w-full truncate text-center text-[10px] leading-tight">{f.name}</span>
             </div>
           )}
@@ -97,7 +99,7 @@ export function AttachmentPicker({ files, onChange, disabled }: {
         }`}
       >
         <ImagePlus className="h-4 w-4" />
-        <span className="text-[10px] leading-tight">Click or drop an image</span>
+        <span className="text-[10px] leading-tight">Click or drop a file</span>
       </button>
     </div>
   )

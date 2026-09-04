@@ -210,6 +210,8 @@ export interface AtlasSheetRevision {
   name: string
   notes: string
   revisedBy: string
+  /** O cargo de quem revisou: na tela vira o crachá ao lado do nome. */
+  revisedRole: string
   revisedAt: string
   /** Vazio na que está valendo. */
   supersededAt: string

@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { AttachmentPicker } from "@/components/atlas/attachment-picker"
+import { RoleName } from "@/components/atlas/role-icon"
 import { renderThumb } from "@/components/atlas/plan-split"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { atlasService, uploadToR2 } from "@/services/atlas.service"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { FileUp, History, Loader2, Paperclip, X } from "lucide-react"
+import { FileUp, Loader2, Music, Paperclip, Pause, Play, X } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useRef, useState } from "react"
 
@@ -39,6 +40,76 @@ function when(iso: string) {
   return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
+/** "1:07" a partir de segundos. */
+function relogio(s: number) {
+  if (!Number.isFinite(s)) return "0:00"
+  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`
+}
+
+/**
+ * Um áudio anexado à justificativa.
+ *
+ * O player nativo do navegador tem largura própria, cor própria e um menu de
+ * três pontos que não leva a lugar nenhum aqui. Este mostra o que a linha do
+ * histórico precisa: tocar, onde está, e quanto falta.
+ */
+function AudioAttachment({ url, fileName }: { url: string; fileName: string }) {
+  const ref = useRef<HTMLAudioElement>(null)
+  const [tocando, setTocando] = useState(false)
+  const [pos, setPos] = useState(0)
+  const [total, setTotal] = useState(0)
+
+  return (
+    <div className="flex h-10 w-64 items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2">
+      <audio
+        ref={ref}
+        src={url}
+        preload="metadata"
+        onLoadedMetadata={e => setTotal(e.currentTarget.duration)}
+        onTimeUpdate={e => setPos(e.currentTarget.currentTime)}
+        onPlay={() => setTocando(true)}
+        onPause={() => setTocando(false)}
+        onEnded={() => { setTocando(false); setPos(0) }}
+      />
+      <button
+        type="button"
+        title={fileName}
+        onClick={() => {
+          const a = ref.current
+          if (!a) return
+          if (a.paused) void a.play()
+          else a.pause()
+        }}
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-muted"
+      >
+        {tocando ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+      </button>
+
+      {/* Clicar na barra salta para o ponto: ouvir de novo um trecho do meio é
+          o uso normal de um áudio de justificativa. */}
+      <div
+        role="presentation"
+        onClick={e => {
+          const a = ref.current
+          if (!a || !total) return
+          const caixa = e.currentTarget.getBoundingClientRect()
+          a.currentTime = ((e.clientX - caixa.left) / caixa.width) * total
+        }}
+        className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-border"
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-100"
+          style={{ width: `${total ? (pos / total) * 100 : 0}%` }}
+        />
+      </div>
+
+      <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+        {relogio(total ? total - pos : 0)}
+      </span>
+    </div>
+  )
+}
+
 /**
  * Uma imagem anexada à justificativa.
  *
@@ -60,6 +131,17 @@ function Attachment({ id, fileName, contentType, onOpen }: {
       .catch(() => {})
     return () => { alive = false }
   }, [id])
+
+  if (contentType.startsWith("audio/")) {
+    if (!url) {
+      return (
+        <span className="flex h-10 w-64 items-center justify-center rounded-md border border-border/60 bg-muted/30">
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+        </span>
+      )
+    }
+    return <AudioAttachment url={url} fileName={fileName} />
+  }
 
   if (!image) {
     return (
@@ -323,7 +405,9 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
         try {
           const media = await atlasService.openMedia(jobsiteId, {
             sheetId: ticket.sheetId,
-            kind: extra.type.startsWith("image/") ? "photo" : "file",
+            kind: extra.type.startsWith("image/") ? "photo"
+              : extra.type.startsWith("audio/") ? "audio"
+              : "file",
             fileName: extra.name,
             contentType: extra.type || "application/octet-stream",
             byteSize: extra.size,
@@ -453,22 +537,31 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
                       r.supersededAt ? "border-border/40 bg-muted/20" : "border-primary/30 bg-primary/5"
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <History className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm leading-tight">
+                    {/* Duas colunas, e não três informações numa linha só: à
+                        esquerda quem fez, à direita quando e o que a revisão é.
+                        Cada coluna se lê de cima para baixo, do mais forte para
+                        o detalhe. */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium leading-tight">
                           {r.name || (r.supersededAt ? "Replaced" : "Original")}
                         </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {[when(r.revisedAt), r.revisedBy.split(" ")[0]]
-                            .filter(Boolean).join(" · ")}
+                        <RoleName
+                          name={r.revisedBy}
+                          role={r.revisedRole}
+                          className="mt-0.5 text-xs text-muted-foreground"
+                        />
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-xs leading-tight text-muted-foreground">
+                          {when(r.revisedAt)}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {r.supersededAt
+                            ? `${r.annotations} ${r.annotations === 1 ? "mark" : "marks"}`
+                            : "Current"}
                         </p>
                       </div>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {r.supersededAt
-                          ? `${r.annotations} ${r.annotations === 1 ? "mark" : "marks"}`
-                          : "Current"}
-                      </span>
                     </div>
 
                     {/* A justificativa inteira, com as quebras que quem
@@ -481,7 +574,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
                     )}
 
                     {!!r.attachments?.length && (
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         {r.attachments.map(a => (
                           <Attachment
                             key={a.id}
