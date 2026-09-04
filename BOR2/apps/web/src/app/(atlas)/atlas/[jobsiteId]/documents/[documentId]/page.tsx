@@ -581,14 +581,10 @@ export default function DocumentPage() {
                   </Badge>
                 ))}
                 {canManage && (
-                  <button
-                    type="button"
-                    onClick={() => setTagging(true)}
-                    className="flex items-center gap-1 rounded px-1 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    <Tags className="h-3 w-3" />
+                  <Button variant="ghost" size="xs" onClick={() => setTagging(true)}>
+                    <Tags />
                     {(doc?.tags ?? []).length ? "Edit" : "Add a category"}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
