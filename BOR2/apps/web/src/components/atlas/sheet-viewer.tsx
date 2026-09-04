@@ -1330,8 +1330,13 @@ export function SheetViewer({
 
         {/* Doze do lado do texto, seis do lado do botão: o botão traz o próprio
             respiro interno, e somar os dois deixava o ícone mais longe da borda
-            do que o texto está da dele. */}
-        <div className={`pointer-events-auto flex min-w-0 items-center gap-2 pl-3 pr-1.5 ${FLUTUA}`}>
+            do que o texto está da dele. Sem o botão não há o que compensar, e o
+            respiro volta a ser igual dos dois lados. */}
+        <div
+          className={`pointer-events-auto flex min-w-0 items-center gap-2 pl-3 ${
+            sheet.revisions > 1 ? "pr-1.5" : "pr-3"
+          } ${FLUTUA}`}
+        >
          <div className="flex min-w-0 flex-col justify-center">
           <p className="truncate text-sm font-medium leading-tight text-white">
             {sheet.sheetNumber || `Plan ${sheet.pageIndex + 1}`}
