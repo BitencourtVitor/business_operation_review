@@ -1709,8 +1709,13 @@ export function SheetViewer({
                   zoom em que a prancha está. Uma bolinha de sete pixels no botão
                   não diz nada sobre o que cai no papel; esta linha diz. */}
               <div
+                // Fechada, a amostra tem largura zero mas continua sendo filha
+                // da fileira, e o vão de oito da fileira sobra depois do último
+                // botão. A margem negativa devolve esse vão enquanto ela está
+                // fechada, sem tirá-la do fluxo: fora dele, a abertura deixaria
+                // de ser animada.
                 className={`flex items-center overflow-hidden transition-all duration-200 ${
-                  sample ? "max-w-[9rem] opacity-100" : "max-w-0 opacity-0"
+                  sample ? "max-w-[9rem] opacity-100" : "-ml-2 max-w-0 opacity-0"
                 }`}
               >
                 <span className="flex h-9 w-32 shrink-0 items-center justify-center rounded-md bg-white px-2">
