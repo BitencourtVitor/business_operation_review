@@ -1580,14 +1580,36 @@ export function SheetViewer({
                   />
                 ))}
               </div>
-              <button
-                onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
-                title="Colour"
-                style={{ background: color }}
-                className={`atlas-burst h-6 w-6 rounded-full border transition-transform lg:hidden ${
-                  gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
-                }`}
-              />
+              {/* A gaveta sobe do próprio botão, e não do canto da barra: ela é
+                  a continuação dele, e quem tocou aqui procura a resposta aqui.
+                  De pé, na direção em que o dedo já está subindo. */}
+              <span className="relative lg:hidden">
+                <button
+                  onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
+                  title="Colour"
+                  style={{ background: color }}
+                  className={`atlas-burst block h-6 w-6 rounded-full border transition-transform ${
+                    gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
+                  }`}
+                />
+                {gaveta === "cor" && (
+                  <div
+                    className={`absolute bottom-full left-1/2 mb-6 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                  >
+                    {/* Sem a cor em uso: ela está no botão logo abaixo, e
+                        repeti-la seria oferecer o que se acabou de tocar. */}
+                    {palette.filter(c => c.value !== color).reverse().map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
+                        title={c.label}
+                        style={{ background: c.value }}
+                        className="atlas-burst h-7 w-7 shrink-0 rounded-full border border-white/30 transition-transform hover:scale-110"
+                      />
+                    ))}
+                  </div>
+                )}
+              </span>
 
               <span className="h-6 w-px bg-white/15" />
               <div className="hidden items-center gap-1 lg:flex">
@@ -1607,21 +1629,54 @@ export function SheetViewer({
                   </button>
                 ))}
               </div>
-              <button
-                onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
-                title="Stroke width"
-                className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors lg:hidden ${
-                  gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
-                }`}
-              >
-                <span
-                  className="rounded-full bg-white"
-                  style={{
-                    width: `${3 + widths.indexOf(width) * 3}px`,
-                    height: `${3 + widths.indexOf(width) * 3}px`,
-                  }}
-                />
-              </button>
+              <span className="relative lg:hidden">
+                <button
+                  onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
+                  title="Stroke width"
+                  className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                    gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
+                  }`}
+                >
+                  <span
+                    className="rounded-full bg-white"
+                    style={{
+                      width: `${3 + widths.indexOf(width) * 3}px`,
+                      height: `${3 + widths.indexOf(width) * 3}px`,
+                    }}
+                  />
+                </button>
+                {gaveta === "espessura" && (
+                  <div
+                    className={`absolute bottom-full left-1/2 mb-6 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                  >
+                    {/* Todas, inclusive a em uso: espessura se escolhe por
+                        comparação, e uma bolinha sozinha diz pouco sobre ser a
+                        fina ou a média. A atual fica fora de alcance, e é por
+                        ela que se sabe qual está valendo. */}
+                    {widths.map((w, i) => [w, i] as const).reverse().map(([w, i]) => {
+                      const atual = w === width
+                      return (
+                        <button
+                          key={w}
+                          disabled={atual}
+                          onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
+                          title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
+                          className={`atlas-burst flex h-7 w-7 shrink-0 items-center justify-center rounded transition-colors ${
+                            atual
+                              ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
+                              : "hover:bg-white/10"
+                          }`}
+                        >
+                          <span
+                            className="rounded-full bg-white"
+                            style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
+                          />
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </span>
 
               <span className="h-6 w-px bg-white/15" />
               {/* Com quem o traço fica. Privado é o padrão, e o botão só ganha
@@ -1667,54 +1722,6 @@ export function SheetViewer({
               </div>
             </>
           )}
-        </div>
-      )}
-
-      {/* A gaveta da barra: mesma posição, um andar acima. Só existe em tela
-          estreita, que é onde a barra deixou de mostrar tudo.
-
-          As duas gavetas resolvem perguntas diferentes, e por isso não têm o
-          mesmo conteúdo. Cor se escolhe pela cor, e a que está em uso já está
-          ali embaixo, no botão que abriu a gaveta: repeti-la seria oferecer o
-          que a pessoa acabou de tocar. Espessura se escolhe por comparação, e
-          uma bolinha só diz pouco sobre ser a fina ou a média, então todas
-          aparecem, com a atual visivelmente fora de alcance. É por ela que se
-          sabe qual está valendo. */}
-      {canAnnotate && drawTool && gaveta && (
-        <div
-          className={`absolute bottom-[74px] left-4 flex h-[50px] items-center gap-1 px-1.5 text-white duration-150 animate-in fade-in-0 slide-in-from-bottom-2 lg:hidden ${MOLDURA}`}
-        >
-          {gaveta === "cor"
-            ? palette.filter(c => c.value !== color).map(c => (
-                <button
-                  key={c.value}
-                  onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
-                  title={c.label}
-                  style={{ background: c.value }}
-                  className="atlas-burst h-6 w-6 rounded-full border border-white/30 transition-transform hover:scale-110"
-                />
-              ))
-            : widths.map((w, i) => {
-                const atual = w === width
-                return (
-                  <button
-                    key={w}
-                    disabled={atual}
-                    onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
-                    title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
-                    className={`atlas-burst flex h-7 w-7 items-center justify-center rounded transition-colors ${
-                      atual
-                        ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
-                        : "hover:bg-white/10"
-                    }`}
-                  >
-                    <span
-                      className="rounded-full bg-white"
-                      style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
-                    />
-                  </button>
-                )
-              })}
         </div>
       )}
 
