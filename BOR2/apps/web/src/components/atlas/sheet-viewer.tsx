@@ -1598,7 +1598,7 @@ export function SheetViewer({
                 />
                 {gaveta === "cor" && (
                   <div
-                    className={`absolute bottom-full left-1/2 mb-6 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    className={`absolute bottom-full left-1/2 mb-5 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
                   >
                     {/* Sem a cor em uso: ela está no botão logo abaixo, e
                         repeti-la seria oferecer o que se acabou de tocar. */}
@@ -1651,7 +1651,7 @@ export function SheetViewer({
                 </button>
                 {gaveta === "espessura" && (
                   <div
-                    className={`absolute bottom-full left-1/2 mb-6 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    className={`absolute bottom-full left-1/2 mb-5 flex -translate-x-1/2 flex-col items-center gap-1 p-[7px] duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
                   >
                     {/* Todas, inclusive a em uso: espessura se escolhe por
                         comparação, e uma bolinha sozinha diz pouco sobre ser a
