@@ -270,8 +270,14 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
                       accept="image/*,application/pdf"
                       className="hidden"
                       onChange={e => {
-                        setAttachments(prev => [...prev, ...Array.from(e.target.files ?? [])])
+                        // A lista sai do input agora, e não dentro do
+                        // atualizador de estado: o React só roda o atualizador
+                        // na renderização seguinte, e até lá a linha abaixo já
+                        // esvaziou o campo. Lendo lá dentro, o anexo chegava
+                        // sempre vazio e a tela não mostrava nada.
+                        const escolhidos = Array.from(e.target.files ?? [])
                         e.target.value = ""
+                        setAttachments(prev => [...prev, ...escolhidos])
                       }}
                     />
                     {/* A foto do que se achou em obra, o recorte do e-mail do
