@@ -1,5 +1,6 @@
 "use client"
 
+import { AttachmentPicker } from "@/components/atlas/attachment-picker"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
@@ -10,7 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
-import { Check, CloudUpload, FileUp, ImagePlus, Paperclip, ScanText, X } from "lucide-react"
+import { Check, CloudUpload, FileUp, ScanText } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import type { AtlasJobsiteCategory } from "@/services/atlas.service"
@@ -64,7 +65,6 @@ export function UploadPlanDialog({
 }) {
   const updateCategory = useUpdateDocCategory()
   const inputRef = useRef<HTMLInputElement>(null)
-  const filesRef = useRef<HTMLInputElement>(null)
 
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
@@ -293,48 +293,10 @@ export function UploadPlanDialog({
 
                 <div className="flex flex-col gap-1.5">
                   <Label>Attachments</Label>
-                  <input
-                    ref={filesRef}
-                    type="file"
-                    multiple
-                    accept="image/*,application/pdf"
-                    className="hidden"
-                    onChange={e => {
-                      // A lista sai do input agora, e não dentro do
-                      // atualizador de estado: o React só roda o atualizador
-                      // na renderização seguinte, e até lá a linha abaixo já
-                      // esvaziou o campo. Lendo lá dentro, o anexo chegava
-                      // sempre vazio e a tela não mostrava nada.
-                      const escolhidos = Array.from(e.target.files ?? [])
-                      e.target.value = ""
-                      setAttachments(prev => [...prev, ...escolhidos])
-                    }}
-                  />
                   {/* A foto do que se achou em obra, o recorte do e-mail do
                       projetista. Sem lugar para isso, a justificativa vira "ver
                       anexo no e-mail" e o anexo fica fora do Atlas. */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {attachments.map((a, i) => (
-                      <span
-                        key={`${a.name}-${i}`}
-                        className="flex items-center gap-1 rounded-md border border-border/60 py-1 pl-2 pr-1 text-xs text-muted-foreground"
-                      >
-                        <Paperclip className="h-3 w-3" />
-                        <span className="max-w-36 truncate">{a.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAttachments(p => p.filter((_, k) => k !== i))}
-                          className="rounded p-0.5 transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                    <Button variant="outline" size="xs" onClick={() => filesRef.current?.click()}>
-                      <ImagePlus />
-                      Add an image
-                    </Button>
-                  </div>
+                  <AttachmentPicker files={attachments} onChange={setAttachments} />
                 </div>
               </>
             )}
