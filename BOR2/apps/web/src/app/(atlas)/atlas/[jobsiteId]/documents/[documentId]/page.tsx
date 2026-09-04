@@ -512,6 +512,7 @@ export default function DocumentPage() {
           versionId,
           kind: extra.type.startsWith("image/") ? "photo"
             : extra.type.startsWith("audio/") ? "audio"
+            : extra.type.startsWith("video/") ? "video"
             : "file",
           fileName: extra.name,
           contentType: extra.type || "application/octet-stream",
