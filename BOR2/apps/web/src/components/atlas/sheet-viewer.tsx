@@ -79,12 +79,16 @@ const NOTE_COLOR = "#f97316"
 // leitura, é caminho, e precisa se distinguir de traço solto na prancha.
 const LINK_COLOR = "#0ea5e9"
 
+// Nenhuma delas é preta de propósito: a prancha é desenhada em preto sobre
+// branco, e um traço preto some dentro do desenho que ele deveria comentar. A
+// laranja entrou no lugar da tinta por ser a que sobrou longe das outras quatro
+// e das cores de preenchimento que os relatórios usam.
 const PEN_COLORS = [
   { value: "#dc2626", label: "Red" },
   { value: "#16a34a", label: "Green" },
   { value: "#2563eb", label: "Blue" },
   { value: "#7c3aed", label: "Violet" },
-  { value: "#111827", label: "Ink" },
+  { value: "#ea580c", label: "Orange" },
 ]
 
 const MARKER_COLORS = [
