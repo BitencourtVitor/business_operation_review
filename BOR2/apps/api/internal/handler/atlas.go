@@ -1522,7 +1522,7 @@ func (h *AtlasHandler) VersionThumbs(c *fiber.Ctx) error {
 	}
 	rows, err := h.db.Query(c.Context(), `
 		SELECT id, thumb_key FROM atlas_sheet
-		WHERE version_id = $1 AND thumb_key <> ''
+		WHERE version_id = $1 AND thumb_key <> '' AND superseded_at IS NULL
 		ORDER BY page_index`, versionID)
 	if err != nil {
 		return internalErr(c, err)
