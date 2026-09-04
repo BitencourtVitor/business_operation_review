@@ -145,7 +145,15 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
       {/* Um campo de identificação, não dois. O número da página o sistema já
           sabe, e sai como prefixo apagado ao lado; o que se digita é o nome da
           folha, que o gabarito preencheu a partir do próprio desenho. */}
-      <div className="flex shrink-0 items-center gap-1.5 border-t border-border/60 px-2 pb-1.5 pt-2">
+      {/* Sem fio separando: a prancha não termina, ela se apaga dentro do
+          cartão. O degradê sobe transparente sobre o desenho e chega no fundo
+          do bloco de identificação, então os dois viram um só em vez de dois
+          colados por uma linha. */}
+      <div className="relative flex shrink-0 items-center gap-1.5 px-2 pb-1.5 pt-2">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-b from-transparent to-card"
+        />
         {/* Largura fixa para o número: a três dígitos ele continua cabendo, e a
             coluna não dança de cartão para cartão. O nome cede esse espaço,
             porque sigla de folha é curta e sobra borda dentro do campo. */}
