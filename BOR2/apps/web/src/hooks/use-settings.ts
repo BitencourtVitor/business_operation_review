@@ -42,7 +42,10 @@ export function useDeleteUser() {
 
 export function useResetPassword() {
   return useMutation({
-    mutationFn: (id: string) => settingsService.resetPassword(id),
+    mutationFn: (arg: string | { id: string; notify?: boolean }) =>
+      typeof arg === "string"
+        ? settingsService.resetPassword(arg)
+        : settingsService.resetPassword(arg.id, arg.notify),
   })
 }
 

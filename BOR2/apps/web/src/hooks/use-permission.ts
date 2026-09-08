@@ -30,5 +30,15 @@ export function usePermission() {
     return myPerms?.permissions[permKey] === "write"
   }
 
-  return { canView, canEdit, isDev: user?.role === "dev", isLoading }
+  return {
+    canView,
+    canEdit,
+    isDev: user?.role === "dev",
+    // Gente da casa. Não é sobre poder fazer algo, é sobre o que faz sentido
+    // ver: roadmap, contagem de pendência, o mapa do que ainda não existe.
+    // Subcontratado veio buscar uma prancha e não tem por que receber a lista
+    // do que a Premium ainda vai construir.
+    isStaff: FULL_ACCESS_ROLES.includes(user?.role ?? ""),
+    isLoading,
+  }
 }

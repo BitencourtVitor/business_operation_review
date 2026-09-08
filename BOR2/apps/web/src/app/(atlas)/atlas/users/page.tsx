@@ -97,6 +97,11 @@ function UserFormModal({ open, onClose, existing, companies }: {
     existing ? (isSubcontractor(existing) ? "subcontractor" : existing.role) : "user")
   const [company, setCompanyValue] = useState(existing ? companies[existing.id] ?? "" : "")
   const [provisional, setProvisional] = useState<string | null>(null)
+  // Se o e-mail saiu. A senha continua na tela de qualquer jeito: o envio é o
+  // caminho preferido, não o único, e uma falha de entrega não pode deixar a
+  // pessoa sem a credencial que acabou de ser criada.
+  const [notified, setNotified] = useState(false)
+  const [notifyError, setNotifyError] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -160,7 +165,13 @@ function UserFormModal({ open, onClose, existing, companies }: {
       return
     }
 
-    const res = await createUser.mutateAsync({ name, email, role: dbRole })
+    // Com aviso: a credencial sai por e-mail no mesmo instante em que nasce.
+    // Quem é cadastrado por aqui costuma estar longe de quem cadastrou, e senha
+    // repassada por telefone ou WhatsApp é senha que chega errada, ou que fica
+    // parada numa conversa para sempre.
+    const res = await createUser.mutateAsync({ name, email, role: dbRole, notify: true })
+    setNotified(!!res.notified)
+    setNotifyError(res.notifyError ?? "")
     // Quem nasce nesta tela nasce para o Atlas: a chave do produto entra junto,
     // em leitura. As demais se concedem no modal de permissões.
     if (!FULL_ACCESS_ROLES.includes(dbRole)) {
@@ -196,12 +207,19 @@ function UserFormModal({ open, onClose, existing, companies }: {
                 User created successfully!
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Share this provisional password with the user. They will be prompted to change
-                it on first login. This account has Atlas access only.
+                {notified
+                  ? `The login and this password were e-mailed to ${email}. They will be prompted to change it on first login. This account has Atlas access only.`
+                  : "Share this provisional password with the user. They will be prompted to change it on first login. This account has Atlas access only."}
               </p>
               <div className="mt-3 flex items-center gap-2 rounded-md border bg-background px-3 py-2">
                 <code className="flex-1 font-mono text-sm tracking-wide">{provisional}</code>
               </div>
+              {!notified && notifyError && (
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  The e-mail did not go out ({notifyError}). The account exists, so pass the
+                  password on by hand, or reset it later to try again.
+                </p>
+              )}
             </div>
             <div className="flex justify-end">
               <Button onClick={handleClose}>
@@ -380,14 +398,18 @@ function ResetPasswordModal({ open, onClose, user: target }: {
 }) {
   const resetPw = useResetPassword()
   const [newPass, setNewPass] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
 
   async function confirm() {
     if (!target) return
-    const res = await resetPw.mutateAsync(target.id)
+    // Gerar outra e avisar é um gesto só. Separar os dois deixava a senha nova
+    // parada na tela de quem a gerou, esperando alguém lembrar de repassá-la.
+    const res = await resetPw.mutateAsync({ id: target.id, notify: true })
     setNewPass(res.provisionalPassword)
+    setSent(!!res.notified)
   }
 
-  function handleClose() { setNewPass(null); onClose() }
+  function handleClose() { setNewPass(null); setSent(false); onClose() }
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) handleClose() }}>
@@ -403,7 +425,11 @@ function ResetPasswordModal({ open, onClose, user: target }: {
           <div className="space-y-4">
             <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
               <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Password reset!</p>
-              <p className="mt-1 text-xs text-muted-foreground">Share this provisional password with the user.</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {sent
+                  ? "The new password was e-mailed to them."
+                  : "Share this provisional password with the user."}
+              </p>
               <div className="mt-3 flex items-center gap-2 rounded-md border bg-background px-3 py-2">
                 <code className="flex-1 font-mono text-sm">{newPass}</code>
               </div>
@@ -510,9 +536,6 @@ export default function AtlasUsersPage() {
             <div className="h-8 w-px bg-border" />
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Manage Users</h1>
-              <p className="text-sm text-muted-foreground">
-                Create, edit and manage who works in the Atlas
-              </p>
             </div>
           </div>
           <DropdownMenu>

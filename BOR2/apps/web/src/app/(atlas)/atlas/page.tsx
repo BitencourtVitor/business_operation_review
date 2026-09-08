@@ -69,12 +69,9 @@ export default function AtlasJobsitesPage() {
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col gap-4">
       <div className="flex shrink-0 items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-semibold">Project List</h1>
-          <p className="text-sm text-muted-foreground">
-            Every project is a room: documents, drawings and diary in one place.
-          </p>
-        </div>
+        {/* Só o título. A frase de apoio explicava a tela uma vez e ocupava
+            altura em toda visita; a lista é o que se veio ver. */}
+        <h1 className="text-lg font-semibold">Project List</h1>
         {/* Uma porta só para as duas maneiras de a obra entrar, como na tela de
             usuários. Dois botões lado a lado obrigavam a ler os dois para
             descobrir que fazem a mesma coisa por caminhos diferentes. */}
@@ -205,17 +202,21 @@ export default function AtlasJobsitesPage() {
 
                       {/* O lugar perde o miolo: a cidade se repete em toda obra
                           da comunidade e não distingue nenhuma delas. */}
-                      <span className="flex items-start gap-1.5 text-sm leading-snug text-muted-foreground">
+                      <span className="flex items-start gap-1.5 text-xs font-semibold leading-snug text-muted-foreground">
                         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         <span>{placeLabel(j.community || j.address || j.name)}</span>
                       </span>
 
                       {/* Mesmo corpo do lugar, logo acima: as duas linhas são a
                           identificação da obra, e o degrau de tamanho entre
-                          elas sugeria uma hierarquia que não existe. O que
-                          separa as duas passa a ser peso e cor, como na barra
-                          lateral, e não escala. */}
-                      <span className="flex items-center gap-1.5 text-sm font-semibold leading-snug">
+                          elas sugeria uma hierarquia que não existe. As duas
+                          são bold e do mesmo tamanho; o que separa uma da outra
+                          é a cor, como na barra lateral.
+
+                          Menores do que eram: o cartão se lê de relance, em
+                          grade de três colunas, e nome de obra é longo. Corpo
+                          menor cabe mais linha antes de o nome truncar. */}
+                      <span className="flex items-center gap-1.5 text-xs font-semibold leading-snug">
                         <Kind className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         {[(KIND_META[j.kind] ?? KIND_META.house).label, j.unit || j.code]
                           .filter(Boolean).join(" ")}

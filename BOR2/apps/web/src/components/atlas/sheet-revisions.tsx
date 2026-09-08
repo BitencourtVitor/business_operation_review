@@ -15,6 +15,7 @@ import { atlasService, uploadToR2 } from "@/services/atlas.service"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { FileText, FileUp, Loader2, Music, Pause, Play, X } from "lucide-react"
 import { createPortal } from "react-dom"
+import { ImageWindow } from "@/components/atlas/image-window"
 import { useEffect, useRef, useState } from "react"
 import WaveSurfer from "wavesurfer.js"
 
@@ -269,117 +270,6 @@ function Attachment({ id, fileName, contentType, onOpen }: {
  * Ampliar o desenho dentro de um quadro parado resolveria outro problema: aqui
  * o que se quer é a mesma imagem maior na tela, não um pedaço dela.
  */
-function AttachmentWindow({ url, name, onClose }: {
-  url: string; name: string; onClose: () => void
-}) {
-  // A largura com que a imagem coube na tela ao abrir, e o quanto ela ainda
-  // pode crescer antes de encostar na borda por qualquer um dos dois lados.
-  const [base, setBase] = useState(0)
-  const [teto, setTeto] = useState(1)
-  const [zoom, setZoom] = useState(1)
-
-  const dedos = useRef(new Map<number, { x: number; y: number }>())
-  const inicio = useRef<{ dist: number; zoom: number } | null>(null)
-
-  // O tamanho de partida é o piso: ele já é a imagem inteira cabendo na tela, e
-  // encolher além disso só devolve uma janela menor do que a que se abriu.
-  const limita = (n: number) => Math.min(teto, Math.max(1, n))
-
-  function medir(img: HTMLImageElement) {
-    const largura = window.innerWidth * 0.92
-    const altura = window.innerHeight * 0.9 - 44
-    const proporcao = img.naturalWidth / img.naturalHeight
-    const coube = Math.min(1, largura / img.naturalWidth, altura / img.naturalHeight)
-    const inicial = img.naturalWidth * coube
-    setBase(inicial)
-    setTeto(Math.max(1, Math.min(largura / inicial, (altura * proporcao) / inicial)))
-  }
-
-  function down(e: React.PointerEvent) {
-    try {
-      ;(e.target as Element).setPointerCapture?.(e.pointerId)
-    } catch {
-      // ponteiro que o navegador não conhece: segue sem captura
-    }
-    dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-    if (dedos.current.size === 2) {
-      const [a, b] = [...dedos.current.values()]
-      inicio.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), zoom }
-    }
-  }
-
-  function move(e: React.PointerEvent) {
-    if (!dedos.current.has(e.pointerId)) return
-    dedos.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-    if (dedos.current.size !== 2 || !inicio.current) return
-    const [a, b] = [...dedos.current.values()]
-    const dist = Math.hypot(a.x - b.x, a.y - b.y)
-    if (inicio.current.dist > 0) setZoom(limita(inicio.current.zoom * (dist / inicio.current.dist)))
-  }
-
-  function up(e: React.PointerEvent) {
-    dedos.current.delete(e.pointerId)
-    if (dedos.current.size < 2) inicio.current = null
-  }
-
-  return (
-    <div
-      role="presentation"
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/60 p-6 backdrop-blur-md"
-    >
-      <div
-        role="presentation"
-        onClick={e => e.stopPropagation()}
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={up}
-        onDoubleClick={() => setZoom(1)}
-        onWheel={e => setZoom(z => limita(z * (e.deltaY < 0 ? 1.12 : 1 / 1.12)))}
-        className="inline-flex touch-none flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
-      >
-        {/* O cabeçalho segue a largura da janela e não muda de altura: ele é a
-            identificação, e identificação não cresce com o zoom. */}
-        <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b border-border px-4">
-          <span className="min-w-0 truncate text-sm font-medium">{name}</span>
-          <div className="flex shrink-0 items-center gap-1">
-            {zoom !== 1 && (
-              <button
-                type="button"
-                onClick={() => setZoom(1)}
-                className="rounded px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                {zoom.toFixed(1)}x
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </header>
-
-        {/* A imagem encosta na moldura: o que arredonda é a janela, e o corte
-            dela nas duas quinas de baixo é o mesmo que qualquer modal faz com o
-            que carrega. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={url}
-          alt={name}
-          draggable={false}
-          onLoad={e => medir(e.currentTarget)}
-          style={base ? { width: Math.round(base * zoom) } : undefined}
-          className="block h-auto max-h-[calc(90vh-2.75rem)] w-auto max-w-[92vw] select-none"
-        />
-      </div>
-    </div>
-  )
-}
-
 export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onReplaced }: {
   sheet: AtlasSheet
   jobsiteId: string
@@ -684,7 +574,7 @@ export function SheetRevisions({ sheet, jobsiteId, canManage, open, onClose, onR
             ? <AudioWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />
             : zoom.kind === "video"
             ? <VideoWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />
-            : <AttachmentWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
+            : <ImageWindow url={zoom.url} name={zoom.name} onClose={() => setZoom(null)} />,
           document.body,
         )}
 

@@ -226,9 +226,6 @@ export default function AtlasDefinitionsPage() {
           <div className="h-8 w-px bg-border" />
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Manage Categories and Subcategories</h1>
-            <p className="text-sm text-muted-foreground">
-              {rows.length} {rows.length === 1 ? "category" : "categories"} a jobsite is organised by
-            </p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">

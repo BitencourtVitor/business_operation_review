@@ -24,4 +24,10 @@ export interface LoginResponse {
   user: User
   session: Session
   token: string
+  /**
+   * Conta que só enxerga o Atlas. A sessão dela dura meio ano no servidor e
+   * desliza a cada uso, então o token precisa sobreviver ao fechamento da aba:
+   * é o que decide guardá-lo em localStorage em vez de sessionStorage.
+   */
+  longSession?: boolean
 }

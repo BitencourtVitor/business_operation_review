@@ -22,7 +22,10 @@ export function useAuth() {
       return { ...data, remember: remember ?? false }
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.token, data.remember)
+      // Conta exclusiva do Atlas não depende da caixinha "Remember me": quem
+      // abre uma prancha na obra pelo celular perdia a sessão a cada aba que o
+      // navegador fechava sozinho, por mais meses que o servidor concedesse.
+      setAuth(data.user, data.token, data.remember || !!data.longSession)
       router.push("/select")
     },
   })

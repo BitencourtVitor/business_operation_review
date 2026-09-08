@@ -20,7 +20,7 @@ import { onLastJobsiteCleared, readLastJobsite, writeLastJobsite } from "@/compo
 import { useAtlasJobsite } from "@/hooks/use-atlas"
 import { usePermission } from "@/hooks/use-permission"
 import {
-  ClipboardList, FolderOpen, Images, ListChecks,
+  ClipboardList, FolderOpen, ListChecks,
   Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ShieldCheck,
   Settings,
 } from "lucide-react"
@@ -31,19 +31,26 @@ import { useEffect, useState } from "react"
 // As abas da sala da obra vivem aqui, e não dentro da página: a navegação do
 // Atlas é a mesma do BOR — sidebar à esquerda, conteúdo à direita. A aba entra
 // na URL (`?tab=`) para o link do menu ser um link de verdade, com histórico.
+// Duas abas, e não quatro. Foto de obra chega presa a um note, e note é task:
+// manter Photos à parte era manter duas portas para a mesma coisa, e obrigava
+// quem tirou a foto a escolher por qual delas ela entra. Diary foi para o que
+// ainda não existe, com o resto do que falta.
 const ROOM_TABS = [
   { key: "documents", title: "Documents", icon: FolderOpen },
-  { key: "photos",    title: "Photos",   icon: Images },
   { key: "tasks",     title: "Tasks",    icon: ListChecks },
-  { key: "diary",     title: "Diary",    icon: Notebook },
 ] as const
 
 // O que o Fieldwire e o Buildertrend fazem e o Atlas ainda não faz.
 //
-// Ficam visíveis e desabilitados de propósito: é o mapa do que falta, à vista de
-// quem usa e de quem prioriza. Escondido, vira lista em documento que ninguém
-// abre.
+// Visíveis e desabilitados de propósito, mas só para gente da casa: é o mapa do
+// que falta, à vista de quem prioriza, e escondido de todos vira lista em
+// documento que ninguém abre.
+//
+// Quem é de fora não vê. Subcontratado abriu o Atlas para achar uma prancha, e
+// uma coluna de itens cinzas que não clicam só lhe diz que o sistema está
+// inacabado. O que a Premium ainda vai construir é assunto da Premium.
 const SOON = [
+  { title: "Diary", icon: Notebook, note: "What happened on site, day by day" },
   { title: "Reports", icon: ClipboardList, note: "What happened on site, exported" },
   // Um item só, e não dois: a medição do material é feita pela IA, então
   // separá-la de "AI insights" seria anunciar duas telas para uma coisa. Ela
@@ -82,7 +89,7 @@ export function AtlasSidebar() {
 
   const jobsiteId = routeJobsiteId || remembered
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
-  const { canView } = usePermission()
+  const { canView, isStaff } = usePermission()
 
   const tab = params.get("tab") ?? "documents"
   const inRoom = !!jobsiteId
@@ -179,6 +186,8 @@ export function AtlasSidebar() {
             colapsar no rodapé: é uma seção de outra natureza, não mais um grupo
             de páginas. O rótulo em caixa alta e peso leve reforça que ele
             anuncia, em vez de navegar. */}
+        {isStaff && (
+        <>
         <div className="h-px bg-sidebar-border" />
         <SidebarGroup>
           {(open || isMobile) && (
@@ -204,6 +213,8 @@ export function AtlasSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="gap-0 overflow-x-hidden p-0">

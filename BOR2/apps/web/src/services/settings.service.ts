@@ -20,6 +20,12 @@ export interface CreateUserInput {
   name:  string
   email: string
   role:  string
+  /**
+   * Manda a credencial provisória por e-mail no ato do cadastro. A tela do
+   * Atlas liga isto sempre: quem entra por lá costuma estar longe de quem
+   * cadastrou, e a senha ditada por telefone é a que chega errada.
+   */
+  notify?: boolean
 }
 
 export interface UpdateUserInput {
@@ -40,9 +46,12 @@ export const settingsService = {
     api.get<UserWithPermissions[]>("/api/v1/settings/users", getToken()),
 
   createUser: (data: CreateUserInput) =>
-    api.post<{ id: string; name: string; email: string; role: string; provisionalPassword: string }>(
-      "/api/v1/settings/users", data, getToken()
-    ),
+    api.post<{
+      id: string; name: string; email: string; role: string
+      provisionalPassword: string
+      notified?: boolean
+      notifyError?: string
+    }>("/api/v1/settings/users", data, getToken()),
 
   updateUser: (id: string, data: UpdateUserInput) =>
     api.put<{ message: string }>(`/api/v1/settings/users/${id}`, data, getToken()),
@@ -50,8 +59,10 @@ export const settingsService = {
   deleteUser: (id: string) =>
     api.delete<void>(`/api/v1/settings/users/${id}`, getToken()),
 
-  resetPassword: (id: string) =>
-    api.post<{ provisionalPassword: string }>(`/api/v1/settings/users/${id}/reset-password`, {}, getToken()),
+  resetPassword: (id: string, notify = false) =>
+    api.post<{ provisionalPassword: string; notified?: boolean; notifyError?: string }>(
+      `/api/v1/settings/users/${id}/reset-password`, { notify }, getToken(),
+    ),
 
   updateUserPermissions: (userId: string, permissions: Record<string, PermissionLevel>) =>
     api.patch<{ message: string }>(`/api/v1/settings/users/${userId}/permissions`, { permissions }, getToken()),

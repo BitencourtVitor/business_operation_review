@@ -336,7 +336,11 @@ export default function DocumentPage() {
   // Chegar direto numa folha, que é o outro lado do vínculo desenhado na
   // prancha: sem isto o link entre pastas abriria a lista e devolveria a
   // procura para quem clicou justamente para não procurar.
-  const wanted = useSearchParams().get("sheet")
+  const params = useSearchParams()
+  const wanted = params.get("sheet")
+  // Quem chegou por uma task traz o note junto: a folha abre e a prancha se
+  // aproxima do ponto marcado, em vez de despejar a pessoa numa página inteira.
+  const spotlightNote = params.get("note") ?? ""
   const [jumped, setJumped] = useState("")
   useEffect(() => {
     if (!wanted || jumped === wanted || !sheets?.length) return
@@ -940,6 +944,7 @@ export default function DocumentPage() {
           jobsiteId={jobsiteId}
           canAnnotate={!!canAnnotate}
           canManage={!!canManage}
+          spotlightNote={spotlightNote}
           onClose={() => setOpenSheet(null)}
           onNavigate={setOpenSheet}
         />

@@ -200,6 +200,13 @@ export interface AtlasSheet {
   versionName: string
   /** Quantas revisões a página já teve. Um é a original. */
   revisions: number
+  /**
+   * A impressão digital da página: o texto e a geometria do desenho. É o que
+   * separa "outra prancha com o mesmo nome" de "a mesma prancha de novo", e o
+   * que a conferência de envio cruza com o nome para decidir o que oferecer.
+   */
+  textHash: string
+  geomHash: string
 }
 
 /** Uma prancha que já ocupou esta página, ou a que ocupa agora. */
@@ -280,6 +287,17 @@ export interface AtlasEvent {
   resolvedAt: string | null
   replies: number
   media: number
+  /** Quem abriu, com o cargo: na lista o crachá vem antes do nome. */
+  createdByName: string
+  createdByRole: string
+  /** De que obra é, para a task se ler fora da sala dela. */
+  jobsiteName: string
+  jobsiteUnit: string
+  /**
+   * A que documento pertence a folha marcada. O evento guarda a folha e o ponto
+   * nela, mas não o documento, e é o documento que a rota da prancha exige.
+   */
+  documentId: string
 }
 
 export interface AtlasReply {
@@ -520,6 +538,9 @@ export const atlasService = {
     api.post<{ id: string }>(`${base}/jobsites/${jobsiteId}/events`, body, getToken()),
   updateEvent: (eventId: string, patch: Record<string, unknown>) =>
     api.patch(`${base}/events/${eventId}`, patch, getToken()),
+  // Apagar o note apaga a task: são a mesma linha, vista da prancha e da lista.
+  deleteEvent: (eventId: string) =>
+    api.delete(`${base}/events/${eventId}`, getToken()),
   listReplies: (eventId: string) =>
     api.get<AtlasReply[]>(`${base}/events/${eventId}/replies`, getToken()).then(r => r ?? []),
   createReply: (eventId: string, body: string) =>

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
+import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
   atlasService, uploadToR2,
@@ -223,7 +224,7 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, name, notes, names, onProgress, onSheets, onPage }: {
+    mutationFn: async ({ file, revision, name, notes, names, prints, onProgress, onSheets, onPage }: {
       file: File
       revision: string
       /** O apelido desta versão, e o que mudou nela. */
@@ -231,6 +232,13 @@ export function useUploadAtlasVersion(documentId: string) {
       notes?: string
       /** O nome de cada página, quando um gabarito já resolveu a nomenclatura. */
       names?: Map<number, string>
+      /**
+       * A impressão digital de cada página. Quem já a calculou para conferir o
+       * envio a passa adiante; quem não passou, ela sai daqui mesmo. Gravar
+       * sempre é o que impede a dívida de crescer: folha sem impressão obriga
+       * baixar o recorte dela do bucket depois, só para poder compará-la.
+       */
+      prints?: Map<number, Fingerprint>
       onProgress?: (step: "opening" | "uploading" | "splitting" | "confirming", detail?: string) => void
       /** As folhas já existem no banco, ainda sem recorte: a página pode abrir. */
       onSheets?: (versionId: string, pageCount: number) => void
@@ -294,6 +302,19 @@ export function useUploadAtlasVersion(documentId: string) {
         // folhas abrem por ele. O recorte pode ser refeito depois.
       }
 
+      let marks = prints
+      if (!marks) {
+        try {
+          const href = URL.createObjectURL(file)
+          const list = await fingerprintPages(href)
+          URL.revokeObjectURL(href)
+          marks = new Map(list.map((f, i) => [i, f]))
+        } catch {
+          // Sem impressão a folha sobe do mesmo jeito: só fica de fora da
+          // comparação até alguém preenchê-la.
+        }
+      }
+
       const byIndex = new Map(parts.map(p => [p.pageIndex, p]))
       await atlasService.replaceSheets(
         ticket.versionId,
@@ -308,6 +329,8 @@ export function useUploadAtlasVersion(documentId: string) {
           // foi aprovado na prévia antes de o arquivo subir.
           sheetNumber: names?.get(i) ?? "",
           needsReview: !names?.get(i),
+          textHash: marks?.get(i)?.text ?? "",
+          geomHash: marks?.get(i)?.geom ?? "",
         })),
       )
       return confirmed
@@ -415,6 +438,26 @@ export function useUpdateAtlasEvent(jobsiteId: string, sheetId?: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
+    },
+  })
+}
+
+/**
+ * Apagar o note apaga a task.
+ *
+ * Note e task são a mesma linha vista de dois lugares: um pino sobre a prancha
+ * e uma linha da lista. Soltar só o pino deixava de pé uma task que ninguém
+ * mais conseguia localizar no desenho, porque a marca que dizia onde ela ficava
+ * era justamente a que tinha sido apagada.
+ */
+export function useDeleteAtlasEvent(jobsiteId: string, sheetId?: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (eventId: string) => atlasService.deleteEvent(eventId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
+      qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
+      if (sheetId) qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
     },
   })
 }
