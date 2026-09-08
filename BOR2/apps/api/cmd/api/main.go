@@ -74,7 +74,7 @@ func main() {
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService := service.NewAuditService(auditLogRepo)
-	authService := service.NewAuthService(userRepo, sessionRepo)
+	authService := service.NewAuthService(userRepo, sessionRepo, db)
 	forecastService := service.NewForecastService(forecastRepo)
 	accountingService := service.NewAccountingService(accountingRepo)
 	subcontractorService := service.NewSubcontractorService(subcontractorRepo)
@@ -124,7 +124,6 @@ func main() {
 	workforceRuleHandler := handler.NewWorkforceAttributionRuleHandler(workforceRuleSvc, auditService)
 	qbtWfImportSvc := service.NewQBTimeWorkforceImportService(workforceUploadRepo)
 	qbtWfImportHandler := handler.NewQBTimeWorkforceImportHandler(qbtWfImportSvc, auditService)
-	settingsHandler := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler := handler.NewInventoryHandler(db)
 	qbHandler := handler.NewQBHandler(qbOAuthService)
 	wexCatHandler := handler.NewWexCategorizationHandler(wexCatService)
@@ -141,6 +140,9 @@ func main() {
 	budgetTaxonomyHandler := handler.NewBudgetTaxonomyHandler(db)
 	// Shared transactional delivery is composed once and injected into every feature that sends mail.
 	emailSender := service.NewGmailAPISenderFromEnv()
+	// Settings manda a credencial provisória por e-mail no ato do cadastro, então
+	// ele entra depois do remetente existir.
+	settingsHandler := handler.NewSettingsHandler(db, auditService, emailSender)
 	alertRecipients := service.NewAlertRecipientDirectory(db)
 	emailTriggerService := service.NewEmailTriggerService(db)
 	emailTriggersHandler := handler.NewEmailTriggersHandler(emailTriggerService, emailSender)
@@ -705,6 +707,7 @@ func main() {
 	atlas.Get("/jobsites/:id/events", atlasHandler.ListEvents)
 	atlas.Post("/jobsites/:id/events", atlasHandler.CreateEvent)
 	atlas.Patch("/events/:id", atlasHandler.UpdateEvent)
+	atlas.Delete("/events/:id", atlasHandler.DeleteEvent)
 	atlas.Get("/events/:id/replies", atlasHandler.ListReplies)
 	atlas.Post("/events/:id/replies", atlasHandler.CreateReply)
 	atlas.Get("/jobsites/:id/daily-logs", atlasHandler.ListDailyLogs)
