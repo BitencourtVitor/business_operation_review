@@ -1025,15 +1025,15 @@ func (h *AtlasHandler) sheetContext(c *fiber.Ctx, sheetID string) (jobsiteID, ve
 // ── Versões e upload ────────────────────────────────────────────────────────
 
 type atlasVersion struct {
-	ID          string  `json:"id"`
-	DocumentID  string  `json:"documentId"`
-	Revision    string  `json:"revision"`
-	R2Key       string  `json:"r2Key"`
-	ByteSize    int64   `json:"byteSize"`
-	PageCount   int     `json:"pageCount"`
-	Checksum    string  `json:"checksum"`
-	ContentType string  `json:"contentType"`
-	Status      string  `json:"status"`
+	ID          string `json:"id"`
+	DocumentID  string `json:"documentId"`
+	Revision    string `json:"revision"`
+	R2Key       string `json:"r2Key"`
+	ByteSize    int64  `json:"byteSize"`
+	PageCount   int    `json:"pageCount"`
+	Checksum    string `json:"checksum"`
+	ContentType string `json:"contentType"`
+	Status      string `json:"status"`
 	// O que a pessoa chamou esta versão, e o que ela quis dizer sobre a troca.
 	// A identificação na tela é a data e a hora; o nome é o apelido dela.
 	Name        string  `json:"name"`
@@ -1932,6 +1932,13 @@ func (h *AtlasHandler) CreateEvent(c *fiber.Ctx) error {
 	if strings.TrimSpace(in.Title) == "" && strings.TrimSpace(in.Body) == "" {
 		return badRequest(c, "title or body is required")
 	}
+	// Toda task nasce de um note sobre a prancha, ancorada num ponto do desenho.
+	// Uma solta seria o registro sem lugar: aparece na lista, ninguém acha no
+	// desenho, e ninguém sabe mais do que ela fala. O banco também recusa, mas a
+	// recusa daqui diz o motivo em vez de devolver erro de constraint.
+	if in.SheetID == nil || strings.TrimSpace(*in.SheetID) == "" {
+		return badRequest(c, "a task belongs to a point on a sheet: sheetId is required")
+	}
 	userID, _ := actor(c)
 	id := in.ID
 	if strings.TrimSpace(id) == "" {
@@ -1967,10 +1974,13 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 	}
 	userID, _ := actor(c)
 	status := strPtr(patch, "status")
-	// Soltar o pino do desenho não apaga o evento: ele continua em Tasks, com o
-	// que já foi respondido. O que sai é a marca sobre a prancha, que é o que a
-	// borracha do leitor promete tirar.
-	detach, _ := patch["detach"].(bool)
+	// A folha e o ponto sobre ela não se alteram por aqui, e não é omissão.
+	//
+	// Existia um `detach` que zerava os três de uma vez, para a borracha do
+	// leitor soltar o pino sem apagar o que já tinha sido respondido. O que ele
+	// produzia era uma task que ninguém mais conseguia localizar no desenho,
+	// porque a marca que dizia onde ela ficava era justamente a que sumia. Quem
+	// apaga o note apaga a task, e isso agora tem porta própria: DELETE.
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_event SET
 			title  = COALESCE($2, title),
@@ -1978,13 +1988,10 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 			kind   = COALESCE($4, kind),
 			status = COALESCE($5, status),
 			resolved_by = CASE WHEN $5 = 'resolved' THEN $6 ELSE resolved_by END,
-			resolved_at = CASE WHEN $5 = 'resolved' THEN now() ELSE resolved_at END,
-			sheet_id = CASE WHEN $7 THEN NULL ELSE sheet_id END,
-			page_x   = CASE WHEN $7 THEN NULL ELSE page_x END,
-			page_y   = CASE WHEN $7 THEN NULL ELSE page_y END
+			resolved_at = CASE WHEN $5 = 'resolved' THEN now() ELSE resolved_at END
 		WHERE id = $1`,
 		eventID, strPtr(patch, "title"), strPtr(patch, "body"), strPtr(patch, "kind"),
-		status, userID, detach)
+		status, userID)
 	if err != nil {
 		return internalErr(c, err)
 	}
