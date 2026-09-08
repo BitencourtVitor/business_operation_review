@@ -1881,7 +1881,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		       e.resolved_by, e.resolved_at,
 		       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
 		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'),
-		       COALESCE(u.name, ''), COALESCE(u.role, ''),
+		       COALESCE(u.name, ''), COALESCE(u.role::text, ''),
 		       COALESCE(NULLIF(j.community,''), j.name), COALESCE(NULLIF(j.unit,''), j.code, ''),
 		       COALESCE(v.document_id, '')
 		FROM atlas_event e

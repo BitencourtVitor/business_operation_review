@@ -68,6 +68,15 @@ func (m *mockSessionRepo) FindByToken(ctx context.Context, token string) (*domai
 	return s, nil
 }
 
+// A janela desliza a cada uso; aqui basta empurrar o vencimento da linha que o
+// mapa já guarda, que é o que o serviço espera que aconteça.
+func (m *mockSessionRepo) Touch(ctx context.Context, token string, expiresAt time.Time) error {
+	if s, ok := m.sessions[token]; ok {
+		s.ExpiresAt = expiresAt
+	}
+	return nil
+}
+
 func (m *mockSessionRepo) DeleteByToken(ctx context.Context, token string) error {
 	delete(m.sessions, token)
 	return nil
@@ -85,9 +94,9 @@ func (m *mockSessionRepo) DeleteExpired(ctx context.Context) error {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 func TestAuthService_Login_Success(t *testing.T) {
-	userRepo    := newMockUserRepo()
+	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc         := service.NewAuthService(userRepo, sessionRepo)
+	svc := service.NewAuthService(userRepo, sessionRepo, nil)
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
 	userRepo.users["user-1"] = &domain.User{
@@ -111,9 +120,9 @@ func TestAuthService_Login_Success(t *testing.T) {
 }
 
 func TestAuthService_Login_WrongPassword(t *testing.T) {
-	userRepo    := newMockUserRepo()
+	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc         := service.NewAuthService(userRepo, sessionRepo)
+	svc := service.NewAuthService(userRepo, sessionRepo, nil)
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
 	userRepo.users["user-1"] = &domain.User{
@@ -129,7 +138,7 @@ func TestAuthService_Login_WrongPassword(t *testing.T) {
 }
 
 func TestAuthService_Login_UserNotFound(t *testing.T) {
-	svc := service.NewAuthService(newMockUserRepo(), newMockSessionRepo())
+	svc := service.NewAuthService(newMockUserRepo(), newMockSessionRepo(), nil)
 
 	_, err := svc.Login(context.Background(), "notfound@bor2.com", "any")
 	if err == nil {
@@ -138,9 +147,9 @@ func TestAuthService_Login_UserNotFound(t *testing.T) {
 }
 
 func TestAuthService_Logout(t *testing.T) {
-	userRepo    := newMockUserRepo()
+	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc         := service.NewAuthService(userRepo, sessionRepo)
+	svc := service.NewAuthService(userRepo, sessionRepo, nil)
 
 	sessionRepo.sessions["token-abc"] = &domain.Session{
 		ID:        "sess-1",
