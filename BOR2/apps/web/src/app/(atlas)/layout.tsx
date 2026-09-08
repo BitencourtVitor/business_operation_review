@@ -18,7 +18,13 @@ export const metadata: Metadata = {
 
 export default async function AtlasLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
-  const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false"
+  // Colapsada por natureza. O Atlas é leitor de planta: a largura vale mais como
+  // desenho do que como menu, e quem chega quer a prancha, não a navegação.
+  //
+  // Quem expande sobrescreve a natureza para sempre, porque o próprio
+  // SidebarProvider grava a escolha em cookie ao alternar. Então isto é o
+  // estado de quem nunca opinou, e não uma preferência imposta a cada visita.
+  const sidebarOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     <AuthGuard>
       <SidebarProvider defaultOpen={sidebarOpen} className="atlas-shell">

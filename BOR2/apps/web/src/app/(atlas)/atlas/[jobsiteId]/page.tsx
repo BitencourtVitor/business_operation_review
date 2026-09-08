@@ -1,13 +1,11 @@
 "use client"
 
-import { DailyLogPanel } from "@/components/atlas/daily-log-panel"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
 import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
 import {
   CLOSED_TAXONOMY, JobsiteFormDialog, KIND_META,
 } from "@/components/atlas/jobsite-form-dialog"
-import { PhotosPanel } from "@/components/atlas/photos-panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -69,12 +67,14 @@ const AXIS_OPTIONS = [
 // O topo diz em que seção da obra a pessoa está. Que obra é já está dito pela
 // barra lateral, e repetir o endereço aqui gastava o título com o que não muda
 // ao navegar entre as seções.
-const TAB_META: Record<string, { title: string; hint: string }> = {
-  documents: { title: "Documents", hint: "Every file attached here, by what it is." },
-  photos:    { title: "Photos",    hint: "What the site looked like, by the day it was shot." },
-  tasks:     { title: "Tasks",     hint: "What was asked on the plan, and what got done." },
-  diary:     { title: "Diary",     hint: "What happened on site, day by day." },
-  access:    { title: "Access",    hint: "Who sees this project." },
+//
+// Sem frase de apoio. Ela explicava a seção uma vez e ocupava altura para
+// sempre: quem abre Documents pela segunda vez já sabe o que é, e o que quer
+// ver é a lista. A altura que ela gastava passa a ser lista.
+const TAB_META: Record<string, { title: string }> = {
+  documents: { title: "Documents" },
+  tasks:     { title: "Tasks" },
+  access:    { title: "Access" },
 }
 
 function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
@@ -277,7 +277,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     <>
       <Panel
         title="Documents"
-        hint="Every file attached to this jobsite, by what it is."
         action={canManage && (
           <div className="flex items-center gap-2">
             <NewCategoryDialog
@@ -423,43 +422,47 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
 // Contêiner com cabeçalho próprio. As duas partes da sala, a obra e o que está
 // guardado nela, são coisas de natureza diferente: uma se lê, a outra se
 // percorre. Numa moldura só, a segunda parecia continuação da primeira.
-function Panel({ title, hint, action, children }: {
+function Panel({ title, action, children }: {
   title: string
-  hint?: string
   action?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <section className="overflow-hidden rounded-lg border border-border/60 bg-card/20">
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 px-4 py-2.5">
-        <div className="min-w-0">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            {title}
-          </h2>
-          {hint && <p className="text-xs text-muted-foreground/80">{hint}</p>}
-        </div>
+      {/* Cabeçalho sem fio embaixo. A linha cortando a largura inteira fazia a
+          seção parecer formulário; o respiro já diz onde o cabeçalho termina. */}
+      <header className="flex flex-wrap items-center justify-between gap-2 px-4 pb-1.5 pt-3">
+        <h2 className="min-w-0 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </h2>
         {action}
       </header>
-      <div className="p-4">{children}</div>
+      <div className="px-4 pb-4 pt-1">{children}</div>
     </section>
   )
 }
 
-// A obra por inteiro, sem abreviar: aqui não falta largura, e é a única tela em
-// que a pessoa confere o que está cadastrado antes de sair editando.
-function IdentityRow({ icon: Icon, label, value }: {
+// O que a obra é, numa linha só.
+//
+// Era um painel inteiro, com cabeçalho próprio e quatro colunas de rótulo em
+// cima e valor embaixo. Ocupava a altura de um bloco de conteúdo para dizer
+// quatro coisas que não mudam nunca, e empurrava a lista de documentos para
+// baixo da dobra.
+//
+// O rótulo saiu junto: o ícone diz de que campo se trata, e "CLIENT" escrito
+// acima de "Tara Construction" era a mesma informação duas vezes. Quem precisar
+// da palavra a encontra ao passar o mouse.
+function IdentityFact({ icon: Icon, label, value }: {
   icon: React.ElementType
   label: string
   value: string
 }) {
+  if (!value) return null
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
-      <span className="flex items-start gap-1.5 text-sm leading-snug">
-        <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="min-w-0 break-words">{value || "Not set"}</span>
-      </span>
-    </div>
+    <span className="flex min-w-0 items-center gap-1.5" title={label}>
+      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <span className="truncate">{value}</span>
+    </span>
   )
 }
 
@@ -474,8 +477,11 @@ export default function JobsiteRoomPage() {
   // A seção vem da URL porque quem navega é a sidebar. Um link com a seção
   // dentro também é um link que se manda para alguém.
   const router = useRouter()
-  const tab = params.get("tab") ?? "documents"
-  const meta = TAB_META[tab] ?? TAB_META.documents
+  // Aba desconhecida cai em Documents. Photos e Diary existiram e saíram: link
+  // guardado por alguém não pode abrir uma sala vazia.
+  const pedida = params.get("tab") ?? "documents"
+  const tab = pedida in TAB_META ? pedida : "documents"
+  const meta = TAB_META[tab]
   const [editing, setEditing] = useState(false)
   const [archiving, setArchiving] = useState(false)
   const qc = useQueryClient()
@@ -510,7 +516,19 @@ export default function JobsiteRoomPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-lg font-semibold">{meta.title}</h1>
-          <p className="text-sm text-muted-foreground">{meta.hint}</p>
+          {/* No lugar da frase de apoio, o que a obra é. A linha que antes
+              explicava a seção agora carrega o dado que a pessoa confere. */}
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <IdentityFact icon={Briefcase} label="Client" value={jobsite.client} />
+            <IdentityFact icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
+            <IdentityFact
+              icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
+              label="Build type"
+              value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
+                .filter(Boolean).join(" ")}
+            />
+            <IdentityFact icon={MapPin} label="Address" value={jobsite.address} />
+          </div>
         </div>
         {canManage && (
           <div className="flex shrink-0 items-center gap-2">
@@ -545,26 +563,10 @@ export default function JobsiteRoomPage() {
         )}
       </div>
 
-      <Panel title="Project Information">
-        <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-          <IdentityRow icon={Briefcase} label="Client" value={jobsite.client} />
-          <IdentityRow icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
-          <IdentityRow
-            icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
-            label="Build type"
-            value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
-              .filter(Boolean).join(" ")}
-          />
-          <IdentityRow icon={MapPin} label="Address" value={jobsite.address} />
-        </div>
-      </Panel>
-
       {tab === "documents" && (
         <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
       )}
-      {tab === "diary" && <DailyLogPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
-      {tab === "photos" && <PhotosPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
       {/* O mesmo formulário da lista de projetos: a obra se edita de um jeito
           só, esteja quem edita na lista ou dentro dela. */}
       <ArchiveConfirm

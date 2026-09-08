@@ -26,7 +26,10 @@ import {
 import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+// Um ano. A escolha de abrir ou fechar a barra é preferência, não sessão: a
+// sete dias ela expirava sozinha e a pessoa reencontrava o padrão sem ter
+// mudado de ideia sobre nada.
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 const SIDEBAR_WIDTH = "15rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3.5rem"

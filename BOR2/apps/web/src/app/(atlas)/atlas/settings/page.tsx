@@ -82,9 +82,6 @@ export default function AtlasSettingsPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage who works in the Atlas and what each jobsite is expected to carry
-          </p>
         </div>
 
         <div className="flex flex-col overflow-hidden rounded-xl border border-border/30 bg-muted/40">

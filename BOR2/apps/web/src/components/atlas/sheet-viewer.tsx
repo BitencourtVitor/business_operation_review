@@ -13,14 +13,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Kbd } from "@/components/ui/kbd"
+import { ImageWindow } from "@/components/atlas/image-window"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import {
   useAtlasAnnotations, useAtlasEvents, useAtlasJobsite,
-  useCreateAtlasEvent, useDeleteAtlasAnnotation, useUpdateAtlasAnnotation, useUpdateAtlasEvent,
+  useCreateAtlasEvent, useDeleteAtlasAnnotation, useDeleteAtlasEvent,
+  useAtlasMedia, useUpdateAtlasAnnotation, useUploadAtlasMedia,
 } from "@/hooks/use-atlas"
 import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
 import {
-  ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, FileUp,
+  Camera, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, FileUp,
   Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus,
   RotateCcw, RotateCw, Search,
   User, Users, X,
@@ -30,6 +32,7 @@ import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 
 /**
  * A moldura de tudo que flutua sobre a prancha.
@@ -85,6 +88,36 @@ const TOOLS = [
 // Laranja não entra em paleta nenhuma: é a cor da nota, e uma cor que quer dizer
 // "há algo a resolver aqui" só funciona se não aparecer também em traço solto.
 const NOTE_COLOR = "#f97316"
+const NOTE_DONE_COLOR = "#10b981"
+
+// O tamanho da marca da nota, em pixels de tela, e não em unidades da página.
+//
+// A marca não faz parte do desenho: ela aponta para o desenho. Aproximar a
+// prancha aproxima o que está impresso nela, não o alfinete que alguém espetou
+// em cima. Desenhada em unidade de página, a mesma marca virava um pontinho a
+// 1x e uma bola cobrindo o painel inteiro a 7x, e nas duas pontas ela deixava
+// de cumprir o papel: longe demais para se achar, ou grande demais para se ver
+// o que ela marca.
+//
+// É assim que o Fieldwire se comporta, e é o que se espera de qualquer
+// alfinete sobre mapa.
+const PIN_R = 15
+const PIN_STROKE = 2.5
+// A câmera ocupa sessenta por cento do diâmetro: grande o bastante para se ler
+// de relance, com folga até o anel. O ícone nasce numa grade de 24 e mede 18 de
+// largura, que por sorte é exatamente a largura pedida, então a escala é 1.
+const PIN_CAM = (PIN_R * 2 * 0.6) / 18
+
+// A cor da nota diz uma coisa só: em que pé ela está. Laranja é o que falta
+// resolver, verde é o que já foi.
+//
+// Carregar foto não é um terceiro estado, é um detalhe do conteúdo, e dar cor
+// própria a ele fazia a marca competir consigo mesma: quem varre a prancha
+// procurando o que falta resolver passaria a ver duas cores de "aberto" e teria
+// de lembrar qual das duas ainda conta. Quem tem foto se distingue pelo ícone.
+function corDaNota(e: { status: string }) {
+  return e.status === "resolved" ? NOTE_DONE_COLOR : NOTE_COLOR
+}
 // O vínculo tem cor própria pelo mesmo motivo da nota: ele não é marca de
 // leitura, é caminho, e precisa se distinguir de traço solto na prancha.
 const LINK_COLOR = "#0ea5e9"
@@ -223,8 +256,59 @@ function pointsToPath(points: [number, number][], w: number, h: number): string 
  * do ponto apontado. O zoom é escala de render, não `transform: scale`, então
  * ampliar redesenha o vetor em vez de esticar o bitmap.
  */
+/**
+ * A prévia da foto dentro do balão da nota.
+ *
+ * A marca na prancha diz que há imagem ali; o balão mostra qual é. Sem isso, a
+ * única forma de ver a foto era sair do desenho, ir até Tasks e procurar a
+ * linha certa, que é sair justamente do lugar onde a dúvida apareceu.
+ *
+ * Busca só quando o balão está aberto: montar isto para as vinte notas de uma
+ * prancha custaria vinte consultas para mostrar nenhuma.
+ */
+function NotePreview({ jobsiteId, eventId, onOpen }: {
+  jobsiteId: string
+  eventId: string
+  onOpen: (foto: { url: string; name: string }) => void
+}) {
+  const { data: media } = useAtlasMedia(jobsiteId, { eventId })
+  const fotos = (media ?? []).filter(m => m.url && m.contentType.startsWith("image/"))
+  if (!fotos.length) return null
+
+  // Foto sozinha ocupa a largura do balão; várias viram fila de miniaturas.
+  //
+  // Um quadrado de sessenta e quatro encostado na esquerda desperdiçava o balão
+  // inteiro e mostrava pouco demais para a prévia valer alguma coisa: quem
+  // clicou no pino quer saber se é aquela foto mesmo antes de abrir. Com duas ou
+  // mais, a fila volta, porque aí o que importa é escolher entre elas.
+  const sozinha = fotos.length === 1
+
+  return (
+    <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+      {fotos.map(m => (
+        <button
+          key={m.id}
+          type="button"
+          title={m.fileName}
+          onClick={() => onOpen({ url: m.url, name: m.fileName })}
+          className={`overflow-hidden rounded-md ring-1 ring-white/20 transition-opacity hover:opacity-75 ${
+            sozinha ? "w-full" : "h-16 w-16"
+          }`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={m.url}
+            alt={m.caption || m.fileName}
+            className={`w-full object-cover ${sozinha ? "aspect-[4/3]" : "h-full"}`}
+          />
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function SheetViewer({
-  sheet, sheets, jobsiteId, canAnnotate, canManage, onClose, onNavigate,
+  sheet, sheets, jobsiteId, canAnnotate, canManage, spotlightNote, onClose, onNavigate,
 }: {
   sheet: AtlasSheet
   sheets: AtlasSheet[]
@@ -232,6 +316,12 @@ export function SheetViewer({
   canAnnotate: boolean
   /** Quem manda na obra pode trocar a prancha; os demais só leem o histórico. */
   canManage?: boolean
+  /**
+   * O note que trouxe a pessoa até aqui, vindo de uma task. A prancha se
+   * aproxima dele e ele pulsa por três segundos: sem isso, chegar numa folha de
+   * 42 polegadas por causa de um círculo de poucos pixels é chegar perdido.
+   */
+  spotlightNote?: string
   onClose: () => void
   onNavigate: (sheet: AtlasSheet) => void
 }) {
@@ -241,7 +331,15 @@ export function SheetViewer({
   const { data: events } = useAtlasEvents(jobsiteId, sheet.id)
   const deleteAnnotation = useDeleteAtlasAnnotation(sheet.id)
   const createEvent = useCreateAtlasEvent(jobsiteId, sheet.id)
-  const updateEvent = useUpdateAtlasEvent(jobsiteId, sheet.id)
+  const deleteEvent = useDeleteAtlasEvent(jobsiteId, sheet.id)
+  const uploadMedia = useUploadAtlasMedia(jobsiteId)
+  // O que o note vai levar junto: foto da obra, tirada na hora ou escolhida do
+  // rolo. Sobe depois do note existir, porque a mídia se pendura nele.
+  const [notePhotos, setNotePhotos] = useState<File[]>([])
+  const [savingNote, setSavingNote] = useState(false)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  // Qual pino está piscando agora, e por quanto tempo ainda.
+  const [pulsando, setPulsando] = useState("")
 
   const [tool, setTool] = useState<Tool>(null)
   const [penInk, setPenInk] = useState<Ink>(PEN_INK)
@@ -275,13 +373,20 @@ export function SheetViewer({
   // O balão da nota: o título aparece por alguns segundos e some sozinho. Um
   // círculo tracejado no meio da prancha não diz o que foi anotado ali, e abrir
   // Tasks para descobrir é sair do desenho.
-  const [bubble, setBubble] = useState<{ id: string; text: string; x: number; y: number } | null>(null)
+  const [bubble, setBubble] = useState<
+    { id: string; text: string; x: number; y: number; media: number } | null
+  >(null)
   const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const showBubble = (id: string, text: string, x: number, y: number) => {
-    setBubble({ id, text, x, y })
+  const showBubble = (id: string, text: string, x: number, y: number, media = 0) => {
+    setBubble({ id, text, x, y, media })
     if (bubbleTimer.current) clearTimeout(bubbleTimer.current)
-    bubbleTimer.current = setTimeout(() => setBubble(null), 5000)
+    // Recolher sozinho vale só para o balão que é só texto: ele se leu e
+    // acabou. Com foto dentro, o balão virou algo para usar, e o que se usa
+    // fecha quando quem usa decide.
+    if (media === 0) bubbleTimer.current = setTimeout(() => setBubble(null), 5000)
   }
+  // A foto aberta por cima de tudo, em janela própria.
+  const [foto, setFoto] = useState<{ url: string; name: string } | null>(null)
 
   const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
   const updateAnnotation = useUpdateAtlasAnnotation(sheet.id)
@@ -524,6 +629,32 @@ export function SheetViewer({
 
     return () => { alive = false; clearTimeout(timer) }
   }, [finding, needle, source, sheet.pageIndex, centreOn])
+
+  // Chegando de uma task, a prancha vai até o note e o pino pisca.
+  //
+  // A aproximação é moderada de propósito: perto o bastante para o ponto ficar
+  // óbvio, longe o bastante para ainda se enxergar o que há em volta dele, que
+  // é o que dá sentido à marca. Espera a folha estar desenhada, senão centraria
+  // sobre um tamanho de página que ainda não existe.
+  const holofoteFeito = useRef("")
+  useEffect(() => {
+    if (!spotlightNote || !ready || !size.width) return
+    if (holofoteFeito.current === spotlightNote) return
+    const alvo = events?.find(e => e.id === spotlightNote)
+    if (!alvo || alvo.pageX == null || alvo.pageY == null) return
+
+    holofoteFeito.current = spotlightNote
+    const escala = Math.min(2.2, Math.max(1.4, (size.height / pageHeight) * 2.5))
+    setView(clampView({
+      scale: escala,
+      x: size.width / 2 - alvo.pageX * pageWidth * escala,
+      y: size.height / 2 - alvo.pageY * pageHeight * escala,
+    }, size, pageWidth, pageHeight))
+
+    setPulsando(spotlightNote)
+    const t = setTimeout(() => setPulsando(""), 3000)
+    return () => clearTimeout(t)
+  }, [spotlightNote, ready, size, events, pageWidth, pageHeight])
 
   const goToHit = useCallback((step: number) => {
     if (!hits.length) return
@@ -816,14 +947,29 @@ export function SheetViewer({
     router.push(`/atlas/${jobsiteId}/documents/${target.documentId}?sheet=${target.sheetId}`)
   }
 
-  function saveNote() {
-    if (!noteAt || !noteText.trim()) return
-    createEvent.mutate({
-      kind: "issue", title: noteText.trim(), sheetId: sheet.id,
-      pageX: noteAt.x, pageY: noteAt.y,
-    })
-    setNoteAt(null)
-    setNoteText("")
+  async function saveNote() {
+    if (!noteAt || !noteText.trim() || savingNote) return
+    setSavingNote(true)
+    try {
+      // O evento primeiro, as fotos depois: a mídia se pendura no note, então
+      // ele precisa existir antes de haver onde pendurar.
+      const { id } = await createEvent.mutateAsync({
+        kind: "issue", title: noteText.trim(), sheetId: sheet.id,
+        pageX: noteAt.x, pageY: noteAt.y,
+      })
+      // Uma foto que falha não desfaz o note. Quem está em obra escreveu o que
+      // viu, e isso é o que não pode se perder; a imagem se reanexa depois.
+      for (const foto of notePhotos) {
+        try {
+          await uploadMedia.mutateAsync({ file: foto, eventId: id })
+        } catch { /* a nota fica, a foto se tenta de novo */ }
+      }
+    } finally {
+      setSavingNote(false)
+      setNoteAt(null)
+      setNoteText("")
+      setNotePhotos([])
+    }
   }
 
   // Trocar de ferramenta não mexe em tinta nenhuma: cada uma volta exatamente
@@ -1166,24 +1312,29 @@ export function SheetViewer({
           {layers.notes && events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
             <g
               key={e.id}
-              transform={`translate(${(e.pageX ?? 0) * pageWidth} ${(e.pageY ?? 0) * pageHeight})`}
+              // O ponto vem da página; o tamanho, da tela. O `scale(px)` desfaz
+              // o zoom da prancha só de dentro desta marca para dentro, então
+              // tudo o que vem a seguir se mede em pixels e não em pontos do
+              // papel.
+              transform={`translate(${(e.pageX ?? 0) * pageWidth} ${(e.pageY ?? 0) * pageHeight}) scale(${px})`}
               onPointerEnter={() => tool === "erase" && setUnder(e.id)}
               onPointerLeave={() => setUnder(u => u === e.id ? null : u)}
               onPointerDown={ev => {
                 ev.stopPropagation()
                 if (tool === "erase" && canAnnotate) {
                   setErasing(list => [...list, e.id])
-                  // Soltar o pino não apaga o evento: ele fica em Tasks, com o
-                  // que já foi respondido nele. O que sai é a marca da prancha.
-                  updateEvent.mutate(
-                    { eventId: e.id, patch: { detach: true } },
-                    { onSettled: () => setErasing(list => list.filter(id => id !== e.id)) },
-                  )
+                  // Apaga o note e a task junto: são a mesma linha, e soltar só
+                  // o pino deixava em Tasks um registro que ninguém mais
+                  // conseguia localizar no desenho, porque a marca que dizia
+                  // onde ele ficava era justamente a que tinha sido apagada.
+                  deleteEvent.mutate(e.id, {
+                    onSettled: () => setErasing(list => list.filter(id => id !== e.id)),
+                  })
                   return
                 }
                 // Com qualquer outra ferramenta o pino se lê, não se altera: o
                 // toque abre o que foi anotado ali e devolve o desenho depois.
-                showBubble(e.id, e.title || e.body || "No title", e.pageX ?? 0, e.pageY ?? 0)
+                showBubble(e.id, e.title || e.body || "No title", e.pageX ?? 0, e.pageY ?? 0, e.media)
               }}
               style={{
                 cursor: "pointer",
@@ -1196,13 +1347,46 @@ export function SheetViewer({
                   se ler como anotação e não como parte do desenho. Resolvido
                   fica verde; o resto é laranja, a cor reservada da nota. */}
               <circle
-                r={pageHeight / 70}
+                r={PIN_R}
                 fill="none"
-                stroke={e.status === "resolved" ? "#10b981" : NOTE_COLOR}
-                strokeWidth={strokeScale * 1.5}
-                strokeDasharray={`${strokeScale * 4} ${strokeScale * 3}`}
-              />
-              <circle r={strokeScale * 1.5} fill={e.status === "resolved" ? "#10b981" : NOTE_COLOR} />
+                stroke={corDaNota(e)}
+                strokeWidth={PIN_STROKE}
+                strokeDasharray={`${PIN_STROKE * 2.7} ${PIN_STROKE * 2}`}
+              >
+                {/* Três segundos pulsando quando se chega aqui vindo de uma
+                    task: a prancha é grande e o pino é pequeno, e sem isso a
+                    pessoa cai no desenho sem saber para onde olhar. */}
+                {pulsando === e.id && (
+                  <animate
+                    attributeName="stroke-width"
+                    values={`${PIN_STROKE};${PIN_STROKE * 3.3};${PIN_STROKE}`}
+                    dur="0.8s"
+                    repeatCount="4"
+                  />
+                )}
+              </circle>
+              {e.media > 0 ? (
+                // A câmera desenhada à mão: corpo, visor e lente. Um ícone de
+                // biblioteca aqui viraria outro componente React dentro do SVG
+                // da prancha, com escala própria para acertar.
+                //
+                // Ela toma o lugar do ponto central: a cor da marca diz em que
+                // pé a nota está, e o ícone diz que há foto ali. São duas
+                // perguntas diferentes, e misturá-las na cor fazia a marca
+                // competir consigo mesma.
+                <g
+                  transform={`translate(${-11 * PIN_CAM} ${-11.7 * PIN_CAM}) scale(${PIN_CAM})`}
+                  fill={corDaNota(e)}
+                >
+                  <path d="M4 6h3l1.2-1.6h5.6L15 6h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+                  {/* A lente é vazada de branco, e não preta: é o que dá
+                      contraste dentro do corpo cheio sem plantar uma mancha
+                      escura sobre o desenho. */}
+                  <circle cx="11" cy="12.5" r="3.4" fill="#ffffff" />
+                </g>
+              ) : (
+                <circle r={PIN_STROKE * 1.5} fill={corDaNota(e)} />
+              )}
               <title>{e.title || e.body}</title>
             </g>
           ))}
@@ -1212,18 +1396,50 @@ export function SheetViewer({
         {/* Ancorado no ponto e acima dele, como um balão de fala. Fora do SVG
             porque texto em SVG não quebra linha nem herda a tipografia da casa. */}
         {bubble && (
-          <div
-            className="pointer-events-none absolute max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95"
-            style={(([left, top]) => ({ left, top }))(naTela(
-              view.x + bubble.x * pageWidth * view.scale,
-              view.y + bubble.y * pageHeight * view.scale - pageHeight / 70 * view.scale - 10,
-            ))}
-          >
-            <div className="rounded-lg bg-neutral-900 px-3 py-2 text-sm leading-snug text-white shadow-xl ring-1 ring-white/15">
-              {bubble.text}
+          <>
+            {/* Balão com foto não se recolhe sozinho: quem vê a miniatura vai
+                estender a mão até ela, e um balão que some em cinco segundos
+                tira a foto do caminho justamente quando ela passou a ser o
+                assunto. Some ao tocar fora, como a janelinha do vínculo. */}
+            {bubble.media > 0 && (
+              <div
+                className="absolute inset-0 z-40"
+                onPointerDown={e => { e.stopPropagation(); setBubble(null) }}
+              />
+            )}
+            <div
+              className={`absolute z-50 max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95 ${
+                bubble.media > 0 ? "" : "pointer-events-none"
+              }`}
+              // O ponteiro morre aqui dentro, e não é detalhe: a prancha captura
+              // o ponteiro no `pointerdown` para o arraste não escapar dela, e a
+              // captura desvia o `pointerup` do botão da miniatura para a
+              // prancha. Sem isto o `click` nunca chega a acontecer, e clicar na
+              // foto não faz absolutamente nada.
+              onPointerDown={e => e.stopPropagation()}
+              onPointerMove={e => e.stopPropagation()}
+              onPointerUp={e => e.stopPropagation()}
+              style={(([left, top]) => ({ left, top }))(naTela(
+                view.x + bubble.x * pageWidth * view.scale,
+                // O balão sobe o raio da marca mais um respiro. A marca tem
+                // tamanho de tela, então este afastamento também: multiplicá-lo
+                // pelo zoom mandaria o balão para fora da tela ao aproximar.
+                view.y + bubble.y * pageHeight * view.scale - PIN_R - 10,
+              ))}
+            >
+              <div className="rounded-lg bg-neutral-900 px-3 py-2 text-sm leading-snug text-white shadow-xl ring-1 ring-white/15">
+                {bubble.text}
+                {bubble.media > 0 && (
+                  <NotePreview
+                    jobsiteId={jobsiteId}
+                    eventId={bubble.id}
+                    onOpen={setFoto}
+                  />
+                )}
+              </div>
+              <div className="mx-auto h-0 w-0 border-x-[6px] border-t-[7px] border-x-transparent border-t-neutral-900" />
             </div>
-            <div className="mx-auto h-0 w-0 border-x-[6px] border-t-[7px] border-x-transparent border-t-neutral-900" />
-          </div>
+          </>
         )}
 
         {(!source || !ready) && (
@@ -1382,6 +1598,15 @@ export function SheetViewer({
         onClose={() => setRevisions(false)}
         onReplaced={onClose}
       />
+
+      {/* A foto em tela cheia, no corpo da página. Vai por portal pelo mesmo
+          motivo do histórico de revisão: o leitor é uma camada fixa com
+          transformação dentro, e `fixed` num descendente de elemento
+          transformado passa a valer o elemento, não a tela. */}
+      {foto && createPortal(
+        <ImageWindow url={foto.url} name={foto.name} onClose={() => setFoto(null)} />,
+        document.body,
+      )}
 
       {/* A barra e o painel são dois blocos, não um que estica. Grudados, a
           largura do painel esticava a fileira de ícones e sobrava vão depois do
@@ -1798,7 +2023,7 @@ export function SheetViewer({
         onPick={saveLink}
       />
 
-      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) setNoteAt(null) }}>
+      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) { setNoteAt(null); setNotePhotos([]) } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>New note on this sheet</DialogTitle></DialogHeader>
           <div className="flex flex-col gap-1.5">
@@ -1815,9 +2040,92 @@ export function SheetViewer({
               It lands on Tasks, anchored to this point of the drawing.
             </p>
           </div>
+
+          {/* A foto do que se está descrevendo, tirada na hora.
+
+              Uma porta só, e é a câmera: `capture` manda o celular abrir a
+              traseira direto, sem passar pelo rolo. O note documenta o que está
+              na frente de quem escreve, agora, e uma foto vinda da galeria pode
+              ser de qualquer lugar e de qualquer dia. Provar a obra com imagem
+              que ninguém sabe de quando é vale menos do que não ter imagem.
+
+              No computador o navegador ignora o `capture` e cai no seletor de
+              arquivos de qualquer jeito. Isso não é contornável pelo código, e
+              também não é o caso que importa: quem anota de frente para o
+              problema está com o celular na mão. */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Photos</Label>
+            <input
+              ref={cameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={e => {
+                const escolhidas = Array.from(e.target.files ?? [])
+                e.target.value = ""
+                if (escolhidas.length) setNotePhotos(list => [...list, ...escolhidas])
+              }}
+            />
+            {/* O bloco inteiro é a área de anexo, e ocupa a largura do diálogo.
+                Antes era um quadrado de oitenta encostado na esquerda, com o
+                resto da linha vazio: lido assim, ele parecia um item de uma
+                lista que não existe, e não o lugar onde se anexa.
+
+                A moldura tracejada é o convite, o conteúdo se centra dentro
+                dela, e a fila de fotos cresce por cima do botão em vez de ao
+                lado dele. Assim o bloco tem a mesma forma com nenhuma foto e
+                com seis. */}
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-4">
+              {notePhotos.length > 0 && (
+                <div className="flex w-full flex-wrap justify-center gap-2">
+                  {notePhotos.map((f, i) => (
+                    <div
+                      key={`${f.name}-${i}`}
+                      className="group/foto relative h-20 w-20 overflow-hidden rounded-lg border border-border/60"
+                      title={f.name}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={URL.createObjectURL(f)}
+                        alt={f.name}
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setNotePhotos(list => list.filter((_, k) => k !== i))}
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900/70 text-white opacity-0 backdrop-blur transition-opacity group-hover/foto:opacity-100 focus-visible:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-col items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={() => cameraRef.current?.click()}
+                >
+                  <Camera className="h-4 w-4" />
+                  {notePhotos.length ? "Take another" : "Take a photo"}
+                </Button>
+                <span className="text-center text-[11px] leading-tight text-muted-foreground">
+                  {/* Dizer que a câmera abre direto evita o susto de quem espera
+                      o seletor de arquivos e recebe a lente na cara. */}
+                  Opens the camera. The photo is of what you are looking at now.
+                </span>
+              </div>
+            </div>
+          </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setNoteAt(null)}>Cancel</Button>
-            <Button onClick={saveNote} disabled={!noteText.trim()}>Add note</Button>
+            <Button variant="outline" disabled={savingNote} onClick={() => { setNoteAt(null); setNotePhotos([]) }}>Cancel</Button>
+            <Button onClick={saveNote} disabled={!noteText.trim() || savingNote}>
+              {savingNote ? "Saving…" : "Add note"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

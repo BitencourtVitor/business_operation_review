@@ -92,12 +92,16 @@ export function AtlasHeader() {
         <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Atlas Project Control</span>
       </div>
 
-      {/* Desktop: título + frase. Em tablet a frase sai: é a tela em que o
-          Atlas mais vai ser usado, e ali a barra vale mais como espaço de
-          trabalho do que como vitrine. */}
+      {/* Desktop largo: título + frase. Abaixo disso a frase sai. O Atlas vive
+          em tablet e em notebook, e ali a barra vale mais como espaço de
+          trabalho do que como vitrine.
+
+          A frase e o rótulo do crachá saem juntos, no mesmo limiar: são os dois
+          textos elásticos da barra, e deixá-los entrar em pontos diferentes
+          fazia um comer a largura que o outro tinha acabado de ganhar. */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
         <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
-        <p className="text-[10px] text-muted-foreground md:max-lg:hidden">
+        <p className="text-[10px] text-muted-foreground md:max-xl:hidden">
           Unless commitment is made, there are only promises and hopes, but no plans.
         </p>
       </div>
@@ -110,9 +114,12 @@ export function AtlasHeader() {
             <div className="flex items-end gap-2">
               {/* Embaixo do nome, a empresa quando é gente de fora: numa lista
                   de acesso, "John Carter" sozinho não diz de quem ele é. */}
-              {/* Em tablet o nome aparece só de primeiro nome e o crachá fica
-                  no ícone: identifica quem está logado sem gastar a largura que
-                  falta para o trabalho. */}
+              {/* Os dois crescem em degraus separados, e é essa a correção: o
+                  nome inteiro entra em lg, e o rótulo do cargo só em xl. Antes
+                  os dois trocavam no mesmo ponto, então a 1029 px o nome
+                  crescia e o cargo aparecia na mesma largura, disputando o
+                  espaço que tinha acabado de surgir. Em tablet fica o primeiro
+                  nome com o crachá reduzido ao ícone. */}
               <span className="hidden flex-col items-end leading-tight md:flex">
                 <span className="text-sm text-muted-foreground">
                   <span className="lg:hidden">{user.name.split(" ")[0]}</span>
@@ -126,9 +133,9 @@ export function AtlasHeader() {
                 )}
               </span>
 
-              <span className={`hidden items-center gap-1.5 rounded-full border py-1 text-xs font-semibold tracking-wide md:inline-flex md:max-lg:px-1.5 lg:px-3 ${badgeStyle}`}>
+              <span className={`hidden items-center gap-1.5 rounded-full border py-1 text-xs font-semibold tracking-wide md:inline-flex md:max-xl:px-1.5 xl:px-3 ${badgeStyle}`}>
                 <BadgeIcon className="h-3 w-3" />
-                <span className="md:max-lg:hidden">{badge.label}</span>
+                <span className="md:max-xl:hidden">{badge.label}</span>
               </span>
             </div>
           )}
