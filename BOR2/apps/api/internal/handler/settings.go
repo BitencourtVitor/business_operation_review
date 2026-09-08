@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -26,10 +28,46 @@ func cryptoRandN(max int64) (int64, error) {
 type SettingsHandler struct {
 	db    *pgxpool.Pool
 	audit *service.AuditService
+	// A mesma entrega transacional do resto da plataforma, para a credencial
+	// provisória sair por e-mail em vez de ser ditada. Pode ser nula em ambiente
+	// sem credencial de envio, e nesse caso o cadastro continua funcionando e o
+	// e-mail apenas não sai.
+	email service.EmailSender
 }
 
-func NewSettingsHandler(db *pgxpool.Pool, audit *service.AuditService) *SettingsHandler {
-	return &SettingsHandler{db: db, audit: audit}
+func NewSettingsHandler(db *pgxpool.Pool, audit *service.AuditService, email service.EmailSender) *SettingsHandler {
+	return &SettingsHandler{db: db, audit: audit, email: email}
+}
+
+// A senha provisória por e-mail, para ela não precisar ser ditada.
+//
+// Sai daqui, de dentro de quem acabou de gerá-la, e não de uma segunda chamada
+// que a devolvesse ao servidor: a senha em claro existe por alguns
+// milissegundos em memória, e é nesse instante que ela tem que virar mensagem.
+//
+// Falha de envio não desfaz o cadastro. A conta existe, a senha está na
+// resposta, e a tela continua podendo mostrá-la: o e-mail é o caminho
+// preferido, não o único.
+func (h *SettingsHandler) sendCredentials(c *fiber.Ctx, name, email, password string) string {
+	if h.email == nil {
+		return "e-mail não configurado neste ambiente"
+	}
+	base := strings.TrimRight(os.Getenv("PLATFORM_URL"), "/")
+	if base == "" {
+		base = "https://pg-dip.up.railway.app"
+	}
+	body := service.BuildAtlasWelcomeEmail(service.AtlasWelcome{
+		PersonName: name,
+		Login:      email,
+		Password:   password,
+		URL:        base + "/login",
+	})
+	if _, err := h.email.Send(c.Context(), service.EmailMessage{
+		To: []string{email}, Subject: body.Subject, Text: body.Text, HTML: body.HTML,
+	}); err != nil {
+		return err.Error()
+	}
+	return ""
 }
 
 // Screen represents a page/tela in the system
@@ -152,6 +190,10 @@ type createUserReq struct {
 	Name  string      `json:"name"`
 	Email string      `json:"email"`
 	Role  domain.Role `json:"role"`
+	// Manda a credencial por e-mail no ato. A tela do Atlas liga isto sempre; a
+	// de Settings do BOR não, porque lá quem cadastra costuma estar ao lado de
+	// quem vai usar.
+	Notify bool `json:"notify"`
 }
 
 type updateUserReq struct {
@@ -201,13 +243,23 @@ func (h *SettingsHandler) CreateUser(c *fiber.Ctx) error {
 
 	uid, uname := actor(c)
 	h.audit.Log(c.Context(), uid, uname, "create", "users", userID)
+
+	notified := false
+	notifyError := ""
+	if req.Notify {
+		notifyError = h.sendCredentials(c, req.Name, req.Email, tempPass)
+		notified = notifyError == ""
+	}
+
 	return c.Status(201).JSON(fiber.Map{
 		"data": fiber.Map{
-			"id":                userID,
-			"name":              req.Name,
-			"email":             req.Email,
-			"role":              req.Role,
+			"id":                  userID,
+			"name":                req.Name,
+			"email":               req.Email,
+			"role":                req.Role,
 			"provisionalPassword": tempPass,
+			"notified":            notified,
+			"notifyError":         notifyError,
 		},
 	})
 }
@@ -283,6 +335,13 @@ func (h *SettingsHandler) ResetUserPassword(c *fiber.Ctx) error {
 	}
 
 	userID := c.Params("id")
+	// Mesmo tratamento do cadastro: gerar outra senha e avisar precisa ser um
+	// gesto só, senão a senha nova volta a ser ditada como a primeira era.
+	var body struct {
+		Notify bool `json:"notify"`
+	}
+	_ = c.BodyParser(&body)
+
 	tempPass, err := generateSettingsPassword(10)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to generate password"})
@@ -300,7 +359,26 @@ func (h *SettingsHandler) ResetUserPassword(c *fiber.Ctx) error {
 
 	uid, uname := actor(c)
 	h.audit.Log(c.Context(), uid, uname, "reset_password", "users", c.Params("id"))
-	return c.JSON(fiber.Map{"data": fiber.Map{"provisionalPassword": tempPass}})
+
+	notified := false
+	notifyError := ""
+	if body.Notify {
+		var name, mail string
+		if err := h.db.QueryRow(c.Context(),
+			`SELECT COALESCE(name,''), COALESCE(email,'') FROM users WHERE id=$1`,
+			userID).Scan(&name, &mail); err != nil || mail == "" {
+			notifyError = "this person has no e-mail on file"
+		} else {
+			notifyError = h.sendCredentials(c, name, mail, tempPass)
+			notified = notifyError == ""
+		}
+	}
+
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"provisionalPassword": tempPass,
+		"notified":            notified,
+		"notifyError":         notifyError,
+	}})
 }
 
 // GetMyPermissions returns the authenticated user's own screen permissions.

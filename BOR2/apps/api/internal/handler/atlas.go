@@ -1290,6 +1290,10 @@ type atlasSheet struct {
 	RevisedAt   string `json:"revisedAt"`
 	VersionName string `json:"versionName"`
 	Revisions   int    `json:"revisions"`
+	// A impressão digital da página: o texto e a geometria do desenho. É o que
+	// separa "outra prancha com o mesmo nome" de "a mesma prancha de novo".
+	TextHash string `json:"textHash"`
+	GeomHash string `json:"geomHash"`
 }
 
 // GET /atlas/versions/:id/sheets
@@ -1306,7 +1310,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		SELECT s.id, s.version_id, s.page_index, s.sheet_number, s.discipline, s.level,
 		       s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
 		       s.r2_key, s.byte_size, s.confidence, s.needs_review,
-		       s.revised_at, s.version_name,
+		       s.revised_at, s.version_name, s.text_hash, s.geom_hash,
 		       -- Quantas revisões esta página já teve. Um é a original: o cartão
 		       -- só precisa dizer alguma coisa a partir de duas.
 		       (SELECT count(*) FROM atlas_sheet h
@@ -1333,7 +1337,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		if err := rows.Scan(&s.ID, &s.VersionID, &s.PageIndex, &s.SheetNumber, &s.Discipline,
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
 			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview,
-			&revised, &s.VersionName, &s.Revisions, &s.Annotations,
+			&revised, &s.VersionName, &s.TextHash, &s.GeomHash, &s.Revisions, &s.Annotations,
 			&s.Links, &s.Highlights, &s.Notes); err != nil {
 			return internalErr(c, err)
 		}
@@ -1382,8 +1386,8 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 			INSERT INTO atlas_sheet
 				(id, version_id, page_index, sheet_number, discipline, level, title,
 				 revision, thumb_key, width_pt, height_pt, confidence, needs_review,
-				 r2_key, byte_size)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+				 r2_key, byte_size, text_hash, geom_hash)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
 			ON CONFLICT (version_id, page_index) WHERE superseded_at IS NULL DO UPDATE SET
 				sheet_number = EXCLUDED.sheet_number,
 				discipline   = EXCLUDED.discipline,
@@ -1398,10 +1402,14 @@ func (h *AtlasHandler) ReplaceSheets(c *fiber.Ctx) error {
 				-- Chave de plano vazia não apaga a que existe: reprocessar o
 				-- metadado não pode derrubar o recorte já no bucket.
 				r2_key       = COALESCE(NULLIF(EXCLUDED.r2_key,''), atlas_sheet.r2_key),
-				byte_size    = GREATEST(EXCLUDED.byte_size, atlas_sheet.byte_size)`,
+				byte_size    = GREATEST(EXCLUDED.byte_size, atlas_sheet.byte_size),
+				-- Impressão vazia não apaga a que existe: reprocessar o metadado
+				-- não pode cegar a comparação de conteúdo.
+				text_hash    = COALESCE(NULLIF(EXCLUDED.text_hash,''), atlas_sheet.text_hash),
+				geom_hash    = COALESCE(NULLIF(EXCLUDED.geom_hash,''), atlas_sheet.geom_hash)`,
 			id, versionID, s.PageIndex, s.SheetNumber, s.Discipline, s.Level, s.Title,
 			s.Revision, s.ThumbKey, s.WidthPt, s.HeightPt, s.Confidence, s.NeedsReview,
-			s.R2Key, s.ByteSize,
+			s.R2Key, s.ByteSize, s.TextHash, s.GeomHash,
 		); err != nil {
 			return internalErr(c, err)
 		}
@@ -1845,6 +1853,19 @@ type atlasEvent struct {
 	ResolvedAt *string         `json:"resolvedAt"`
 	Replies    int             `json:"replies"`
 	Media      int             `json:"media"`
+	// Quem abriu, com o cargo: na lista de tasks o crachá vem antes do nome, do
+	// mesmo jeito que no histórico de revisão de folha.
+	CreatedByName string `json:"createdByName"`
+	CreatedByRole string `json:"createdByRole"`
+	// De que obra é. A lista de tasks de uma obra só não precisaria disto, mas
+	// o container mostra a obra, e quem lê uma task fora da sala dela não tem
+	// como saber onde aquilo aconteceu.
+	JobsiteName string `json:"jobsiteName"`
+	JobsiteUnit string `json:"jobsiteUnit"`
+	// A que documento a folha marcada pertence. O evento guarda a folha e o
+	// ponto nela, mas não o documento, e sem ele não há link para montar: a
+	// página de uma prancha mora sob o documento dela.
+	DocumentID string `json:"documentId"`
 }
 
 // GET /atlas/jobsites/:id/events — aceita ?sheetId= para a folha aberta.
@@ -1859,10 +1880,21 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		       e.page_x, e.page_y, e.region, e.created_by, e.created_at,
 		       e.resolved_by, e.resolved_at,
 		       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
-		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded')
+		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'),
+		       COALESCE(u.name, ''), COALESCE(u.role, ''),
+		       COALESCE(NULLIF(j.community,''), j.name), COALESCE(NULLIF(j.unit,''), j.code, ''),
+		       COALESCE(v.document_id, '')
 		FROM atlas_event e
+		-- Todos LEFT: autor apagado, folha solta e versão removida não podem
+		-- sumir com a task. O que se perde é o nome, nunca o registro.
+		LEFT JOIN users u ON u.id = e.created_by
+		LEFT JOIN atlas_jobsite j ON j.id = e.jobsite_id
+		LEFT JOIN atlas_sheet s ON s.id = e.sheet_id
+		LEFT JOIN atlas_document_version v ON v.id = s.version_id
 		WHERE e.jobsite_id = $1 AND ($2 = '' OR e.sheet_id = $2)
-		ORDER BY e.created_at DESC`, jobsiteID, sheetID)
+		-- Aberta primeiro, e dentro de cada grupo a mais recente. Quem abre
+		-- Tasks vai atrás do que falta fazer, não do que já foi encerrado.
+		ORDER BY (e.status = 'resolved'), e.created_at DESC`, jobsiteID, sheetID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1875,7 +1907,9 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		var resolved *time.Time
 		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body,
 			&e.Status, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
-			&e.ResolvedBy, &resolved, &e.Replies, &e.Media); err != nil {
+			&e.ResolvedBy, &resolved, &e.Replies, &e.Media,
+			&e.CreatedByName, &e.CreatedByRole, &e.JobsiteName, &e.JobsiteUnit,
+			&e.DocumentID); err != nil {
 			return internalErr(c, err)
 		}
 		e.CreatedAt = created.Format(time.RFC3339)

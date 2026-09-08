@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 )
@@ -17,6 +18,7 @@ type UserRepository interface {
 type SessionRepository interface {
 	Create(ctx context.Context, session *domain.Session) error
 	FindByToken(ctx context.Context, token string) (*domain.Session, error)
+	Touch(ctx context.Context, token string, expiresAt time.Time) error
 	DeleteByToken(ctx context.Context, token string) error
 	DeleteExpired(ctx context.Context) error
 }
