@@ -676,6 +676,52 @@ func main() {
 	atlas.Put("/jobsites/:id/access/:userId", atlasHandler.GrantAccess)
 	atlas.Delete("/jobsites/:id/access/:userId", atlasHandler.RevokeAccess)
 	atlas.Post("/jobsites/:id/access/:userId/notify", atlasHandler.NotifyAccess)
+	// Concessão em lote. Fica fora de /jobsites/:id porque o lote não é de uma
+	// obra: o critério é que escolhe quais obras entram.
+	atlas.Post("/access/bulk", atlasHandler.GrantAccessBulk)
+	// E o mesmo controle visto pelo lado da pessoa: quais obras ela alcança.
+	atlas.Get("/users/:id/access", atlasHandler.ListUserAccess)
+	// Seleção offline. Metadado apenas: nada aqui move byte de prancha, e é
+	// esta conversa que o aparelho tem com o servidor toda vez que a rede volta.
+	atlas.Get("/offline/folders", atlasHandler.ListOfflineFolders)
+	atlas.Put("/offline/folders/:documentId", atlasHandler.SetOfflineFolder)
+	atlas.Delete("/offline/folders/:documentId", atlasHandler.UnsetOfflineFolder)
+	atlas.Get("/documents/:id/offline-holders", atlasHandler.ListOfflineHolders)
+
+	// Lista de verificação. Escopada por subcategoria, que é o pavimento: o
+	// andar atravessa as pastas, então a consulta agrupa por documento e não
+	// por uma delas.
+	atlas.Get("/jobsites/:id/punch-list", atlasHandler.ListPunchList)
+	atlas.Get("/jobsites/:id/punch-list/summary", atlasHandler.PunchListSummary)
+	atlas.Get("/jobsites/:id/punch-list/subcategories", atlasHandler.PunchListSubcategories)
+
+	// Exclusão. Nasce com a limpeza do bucket embutida: a cascata do esquema
+	// não alcança o R2, e apagar só o banco deixa o objeto pago e sem dono.
+	atlas.Delete("/jobsites/:id", atlasHandler.DeleteJobsite)
+	atlas.Delete("/documents/:id", atlasHandler.DeleteDocument)
+	atlas.Delete("/versions/:id", atlasHandler.DeleteVersion)
+
+	// Fila de campo. O cliente manda eventos carimbados, não estado final: sem
+	// rede, estado final não se acumula e os passos do meio somem.
+	atlas.Post("/sync", atlasHandler.SyncEvents)
+	atlas.Get("/sync/queue", atlasHandler.SyncQueue)
+	atlas.Post("/sync/retry/:id", atlasHandler.SyncRetry)
+
+	// Vínculos automáticos entre folhas. O cliente lê o PDF com o pdf.js que já
+	// tem; o servidor resolve o destino e grava. Dry-run por padrão, porque
+	// vínculo falso é pior que vínculo ausente.
+	atlas.Post("/versions/:id/autolink", atlasHandler.Autolink)
+
+	// Escala da prancha e medição sobre ela.
+	atlas.Put("/sheets/:id/scale", atlasHandler.SetSheetScale)
+
+	// Parâmetros de operação, mutáveis sem deploy.
+	atlas.Get("/policy", atlasHandler.ListPolicy)
+	atlas.Put("/policy/:key", atlasHandler.SetPolicy)
+
+	// Revisão parcial: trocar algumas folhas sem reemitir o set.
+	atlas.Post("/versions/:id/inherit", atlasHandler.InheritSheets)
+	atlas.Get("/versions/:id/diff", atlasHandler.VersionDiff)
 	atlas.Get("/blockable-users", atlasHandler.ListBlockableUsers)
 	atlas.Get("/jobsites/:id/blocked", atlasHandler.ListBlocked)
 	atlas.Put("/jobsites/:id/blocked", atlasHandler.SetBlocked)
