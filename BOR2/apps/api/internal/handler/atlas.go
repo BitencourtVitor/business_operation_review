@@ -1987,12 +1987,35 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 			body   = COALESCE($3, body),
 			kind   = COALESCE($4, kind),
 			status = COALESCE($5, status),
-			resolved_by = CASE WHEN $5 = 'resolved' THEN $6 ELSE resolved_by END,
-			resolved_at = CASE WHEN $5 = 'resolved' THEN now() ELSE resolved_at END
+			-- Reabrir apaga quem fechou.
+			--
+			-- O CASE antigo só tinha braço para 'resolved': mandar o ponto de
+			-- volta para pendente gravava a condição nova e deixava resolved_by
+			-- e resolved_at como estavam. Ele voltava para a lista de pendentes
+			-- ainda afirmando quem o tinha encerrado e quando, e um relatório de
+			-- punch list montado sobre esse campo contaria como concluído um
+			-- ponto que está pendente.
+			--
+			-- Sem status no corpo, nada muda: é edição de título ou texto.
+			resolved_by = CASE
+				WHEN $5 IS NULL      THEN resolved_by
+				WHEN $5 = 'resolved' THEN $6
+				ELSE NULL END,
+			resolved_at = CASE
+				WHEN $5 IS NULL      THEN resolved_at
+				WHEN $5 = 'resolved' THEN now()
+				ELSE NULL END
 		WHERE id = $1`,
 		eventID, strPtr(patch, "title"), strPtr(patch, "body"), strPtr(patch, "kind"),
 		status, userID)
 	if err != nil {
+		// A exigência da foto do depois é trigger, não código daqui (migração
+		// 000156). Sem esta tradução ela chegaria à tela como erro 500, e quem
+		// clicou em Done concluiria que o sistema quebrou em vez de entender que
+		// falta a prova da correção.
+		if isCheckViolation(err) {
+			return badRequest(c, "este ponto foi registrado com foto e precisa de uma foto do depois para ser concluído")
+		}
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": eventID}})
@@ -2069,13 +2092,14 @@ func (h *AtlasHandler) CreateReply(c *fiber.Ctx) error {
 		id, eventID, userID, strings.TrimSpace(in.Body)); err != nil {
 		return internalErr(c, err)
 	}
-	// Responder move o evento de "aberto" para "respondido"; um evento já
-	// resolvido não volta atrás por causa de um comentário.
-	if _, err := tx.Exec(c.Context(), `
-		UPDATE atlas_event SET status='answered' WHERE id=$1 AND status='open'`,
-		eventID); err != nil {
-		return internalErr(c, err)
-	}
+	// Comentar não mexe na condição do ponto.
+	//
+	// Havia aqui um UPDATE que levava o ponto de 'open' para 'answered' assim que
+	// alguém respondia. Num punch list isso mente: quem escreve "vi, vou olhar
+	// amanhã" não mudou nada na obra, e anexar a foto do depois também não. A
+	// lista responde uma pergunta só, se aquilo ainda está pendente ou já foi
+	// feito, e quem responde é quem executou, marcando. Por isso a condição
+	// passou a ter dois estados, e o do meio deixou de existir (migração 000154).
 	if err := tx.Commit(c.Context()); err != nil {
 		return internalErr(c, err)
 	}
@@ -2220,6 +2244,18 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 		// ordenado pelo upload conta a história errada.
 		Album   string  `json:"album"`
 		TakenAt *string `json:"takenAt"`
+		// Em que momento do ciclo do ponto esta imagem entra: `before` é a foto
+		// do problema, `after` é a prova da correção.
+		//
+		// É declarado e não inferido da hora do upload, porque a hora não sabe:
+		// uma foto anexada dias depois pode ser a do problema, refeita porque a
+		// primeira saiu tremida, e uma anexada no mesmo minuto pode já ser a da
+		// correção num conserto imediato. Quem sabe é quem anexa.
+		//
+		// Vazio vira `before`, que é o caso comum e o que todo o acervo anterior
+		// é. Um ponto com foto do antes só fecha quando ganha uma do depois, e a
+		// trava disso está no banco (migração 000156), não aqui.
+		Phase string `json:"phase"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
@@ -2243,11 +2279,12 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_media
 			(id, jobsite_id, event_id, daily_log_id, sheet_id, version_id, kind, r2_key,
-			 file_name, content_type, byte_size, caption, uploaded_by, album, taken_at)
-		VALUES ($1,$2,$3,$4,$5,$6,COALESCE(NULLIF($7,''),'photo'),$8,$9,$10,$11,$12,$13,$14,$15)`,
+			 file_name, content_type, byte_size, caption, uploaded_by, album, taken_at, phase)
+		VALUES ($1,$2,$3,$4,$5,$6,COALESCE(NULLIF($7,''),'photo'),$8,$9,$10,$11,$12,$13,$14,$15,
+		        CASE WHEN $16 = 'after' THEN 'after' ELSE 'before' END)`,
 		id, jobsiteID, in.EventID, in.DailyLogID, in.SheetID, in.VersionID, in.Kind, key,
 		in.FileName, in.ContentType, in.ByteSize, in.Caption, userID,
-		strings.TrimSpace(in.Album), takenAt)
+		strings.TrimSpace(in.Album), takenAt, in.Phase)
 	if err != nil {
 		return internalErr(c, err)
 	}
