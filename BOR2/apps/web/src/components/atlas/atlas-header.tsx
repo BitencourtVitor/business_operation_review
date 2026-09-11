@@ -1,10 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSidebar } from "@/components/ui/sidebar"
 import { isSubcontractor } from "@/components/atlas/atlas-user-dialogs"
@@ -14,17 +10,22 @@ import { useAuth } from "@/hooks/use-auth"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, Building2, CircleGauge, Compass, Ellipsis, CodeXml, HardHat, LogOut, Menu, Moon,
+  Award, Building2, CircleGauge, Compass, CodeXml, HardHat, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-function Tip({ label, children }: { label: string; children: React.ReactNode }) {
+// A classe vai no invólucro do tooltip, e não só no botão: escondido só o botão,
+// o invólucro vazio continuava ocupando o espaçamento da fila, e o perfil no
+// celular ficava afastado da borda direita.
+function Tip({ label, className = "inline-flex", children }: {
+  label: string; className?: string; children: React.ReactNode
+}) {
   return (
     <Tooltip>
-      <TooltipTrigger render={<span className="inline-flex" />}>{children}</TooltipTrigger>
+      <TooltipTrigger render={<span className={className} />}>{children}</TooltipTrigger>
       <TooltipContent side="bottom">{label}</TooltipContent>
     </Tooltip>
   )
@@ -108,22 +109,26 @@ export function AtlasHeader() {
 
       <TooltipProvider>
         <div className="flex items-center gap-2">
-          {/* Nome com etiqueta: alinhados por baixo, senão a linha da empresa
-              desce abaixo da etiqueta e o par fica torto. */}
+          {/* Nome e etiqueta centrados na mesma altura, em qualquer tela.
+              Alinhados por baixo, o nome ficava abaixo do meio do crachá e o par
+              parecia desnivelado. */}
           {user && (
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
               {/* Embaixo do nome, a empresa quando é gente de fora: numa lista
                   de acesso, "John Carter" sozinho não diz de quem ele é. */}
+              {/* No tablet o perfil vai completo, nome inteiro e rótulo do cargo:
+                  sem os botões, que moram na barra lateral, sobra largura. No
+                  celular, primeiro nome e crachá só com o ícone. */}
               {/* Os dois crescem em degraus separados, e é essa a correção: o
                   nome inteiro entra em lg, e o rótulo do cargo só em xl. Antes
                   os dois trocavam no mesmo ponto, então a 1029 px o nome
                   crescia e o cargo aparecia na mesma largura, disputando o
                   espaço que tinha acabado de surgir. Em tablet fica o primeiro
                   nome com o crachá reduzido ao ícone. */}
-              <span className="hidden flex-col items-end leading-tight md:flex">
+              <span className="flex flex-col items-end leading-tight">
                 <span className="text-sm text-muted-foreground">
-                  <span className="lg:hidden">{user.name.split(" ")[0]}</span>
-                  <span className="hidden lg:inline">{user.name}</span>
+                  <span className="md:hidden">{user.name.split(" ")[0]}</span>
+                  <span className="hidden md:inline">{user.name}</span>
                 </span>
                 {company && (
                   <span className="flex items-center gap-1 text-[10px] leading-none text-muted-foreground">
@@ -133,26 +138,26 @@ export function AtlasHeader() {
                 )}
               </span>
 
-              <span className={`hidden items-center gap-1.5 rounded-full border py-1 text-xs font-semibold tracking-wide md:inline-flex md:max-xl:px-1.5 xl:px-3 ${badgeStyle}`}>
+              <span title={badge.label} className={`inline-flex items-center gap-1.5 rounded-full border py-1 text-xs font-semibold tracking-wide max-md:px-1.5 md:px-3 lg:max-xl:px-1.5 ${badgeStyle}`}>
                 <BadgeIcon className="h-3 w-3" />
-                <span className="md:max-xl:hidden">{badge.label}</span>
+                <span className="max-md:hidden lg:max-xl:hidden">{badge.label}</span>
               </span>
             </div>
           )}
 
-          <div className="mx-1.5 w-px self-stretch bg-border" />
+          <div className="mx-1.5 hidden w-px self-stretch bg-border lg:block" />
 
-          <Tip label="Refresh data">
-            <Button variant="ghost" size="icon" onClick={handleRefresh} className="hidden md:inline-flex">
+          <Tip className="hidden lg:inline-flex" label="Refresh data">
+            <Button variant="ghost" size="icon" onClick={handleRefresh} className="hidden lg:inline-flex">
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
             </Button>
           </Tip>
 
-          <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
+          <Tip className="hidden lg:inline-flex" label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
             <Button
               variant="ghost" size="icon"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="hidden md:inline-flex"
+              className="hidden lg:inline-flex"
             >
               {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
@@ -163,53 +168,30 @@ export function AtlasHeader() {
               Vem colado no sair porque é a outra forma de deixar esta tela, e
               as duas juntas se leem como uma decisão só: para onde eu vou. */}
           {hasBOR && (
-            <Tip label="Go to BOR">
+            <Tip className="hidden lg:inline-flex" label="Go to BOR">
               <Button
                 variant="ghost" size="icon"
                 onClick={() => router.push("/bor/monthly-execution")}
-                className="hidden md:inline-flex"
+                className="hidden lg:inline-flex"
               >
                 <CircleGauge className="h-4 w-4" />
               </Button>
             </Tip>
           )}
 
-          <Tip label="Sign out">
+          <Tip className="hidden lg:inline-flex" label="Sign out">
             <Button
               variant="ghost" size="icon" onClick={() => logout()}
-              className="hidden text-destructive hover:bg-destructive/10 hover:text-destructive md:inline-flex"
+              className="hidden text-destructive hover:bg-destructive/10 hover:text-destructive lg:inline-flex"
             >
               <LogOut className="h-4 w-4" />
             </Button>
           </Tip>
 
-          {/* Mobile: as mesmas ações num menu só */}
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="md:hidden" />}>
-              <Ellipsis className="h-5 w-5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="w-52">
-              {user && <DropdownMenuGroup><DropdownMenuLabel>{user.name}</DropdownMenuLabel></DropdownMenuGroup>}
-              <DropdownMenuItem onClick={handleRefresh}>
-                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-                Refresh data
-              </DropdownMenuItem>
-              {hasBOR && (
-                <DropdownMenuItem onClick={() => router.push("/bor/monthly-execution")}>
-                  <CircleGauge className="h-4 w-4" />
-                  Go to BOR
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-                {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
-              </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => logout()}>
-                <LogOut className="h-4 w-4" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* No celular e no tablet estas ações moram no rodapé da barra
+              lateral, junto de Settings, e o cabeçalho fica só com o perfil. O
+              menu de três pontos que havia aqui era uma segunda porta para o
+              mesmo lugar. No computador, onde há largura, os botões seguem aqui. */}
         </div>
       </TooltipProvider>
     </header>

@@ -49,7 +49,7 @@ const AXES = [
 ]
 
 const AXIS_LABEL: Record<string, string> = {
-  none: "—",
+  none: "-",
   floor: "Per floor",
   unit: "Per unit",
 }
@@ -320,7 +320,7 @@ export default function AtlasDefinitionsPage() {
                     <TableCell className="text-sm font-medium">{row.name}</TableCell>
                     <TableCell className="text-sm">
                       {row.axis === "none" ? (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                           <Layers className="h-3 w-3" />
@@ -396,7 +396,7 @@ export default function AtlasDefinitionsPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      title={inUse ? "In use by a project — cannot remove" : "Remove"}
+                                      title={inUse ? "In use by a project, cannot remove" : "Remove"}
                                       disabled={inUse}
                                       onClick={() => removeValue(row, opt)}
                                       className="rounded p-0.5 text-destructive hover:bg-background/60 disabled:cursor-not-allowed disabled:opacity-30"
@@ -444,7 +444,7 @@ export default function AtlasDefinitionsPage() {
           </DialogHeader>
           <div className="space-y-3 py-1">
             <Input
-              placeholder="Category name — Trusses, Wall Panels…"
+              placeholder="Category name: Trusses, Wall Panels…"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               onKeyDown={e => { if (e.key === "Enter") handleAdd() }}

@@ -23,7 +23,6 @@ import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
   useAtlasJobsiteCategories, useCreateAtlasDocument, useCreateDocCategory,
 } from "@/hooks/use-atlas"
-import { aquecerRotas } from "@/lib/offline/aquecer"
 import { marcarAcesso } from "@/lib/offline/sync"
 import { atlasService } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -36,7 +35,7 @@ import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/uplo
 import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, FileQuestion, FolderOpen,
-  FileDown, Layers, MapPin, Pencil, Plus,
+  FileDown, Layers, MapPin, Pencil, Plus, Tag,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -132,9 +131,23 @@ function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
 
   return (
     <Dialog open={open} onOpenChange={v => (v ? setOpen(true) : close())}>
-      <DialogTrigger render={<Button variant="outline" />}>
-        <Plus className="h-4 w-4" />
-        Add category
+      {/* Um bloco com cara de item da lista, sempre no topo dela, e não um botão
+          no cabeçalho. Acrescentar categoria é acrescentar uma linha ao que a
+          obra guarda, e é ali, junto das linhas, que a pessoa procura. A borda
+          tracejada, na cor primária, diz que é um lugar para acrescentar, e não
+          um documento. */}
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-lg border border-dashed border-primary/50 p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
+          />
+        }
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-dashed border-primary/50 text-primary">
+          <Plus className="h-4 w-4" />
+        </span>
+        <span className="text-sm font-medium text-primary">Add category</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader><DialogTitle>What this jobsite should have</DialogTitle></DialogHeader>
@@ -167,8 +180,8 @@ function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
                 <SelectContent alignItemWithTrigger={false}>
                   {available.map(o => (
                     <SelectItem key={o.id} value={String(o.id)}>
-                      {o.axis === "floor" ? `${o.name} — one per floor`
-                        : o.axis === "unit" ? `${o.name} — one per unit`
+                      {o.axis === "floor" ? `${o.name} · one per floor`
+                        : o.axis === "unit" ? `${o.name} · one per unit`
                         : o.name}
                     </SelectItem>
                   ))}
@@ -206,7 +219,7 @@ function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Saved for every jobsite to use later — added here only for now.
+                  Saved for every jobsite to use later, added here only for now.
                 </p>
               </div>
             </>
@@ -282,56 +295,64 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     <>
       <Panel
         title="Documents"
-        action={canManage && (
-          <div className="flex items-center gap-2">
-            <NewCategoryDialog
-              jobsiteId={jobsiteId}
-              client={client}
-              kind={kind}
-              usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
-            />
-            <Button onClick={() => setUploading(true)}>
-              <Plus className="h-4 w-4" />
-              New document
-            </Button>
+        action={(
+          <div className="flex min-w-0 items-center gap-2">
+            {/* As categorias como filtro, e não como pasta: o documento continua
+                à vista, e escolher uma etiqueta encolhe a lista em vez de abrir
+                outra tela. Num dropdown antes do + New, e não em chips numa
+                linha própria: os chips quebravam em várias linhas no celular e
+                empurravam a lista para baixo. */}
+            {slots.length > 0 && docs.length > 0 && (
+              <Select value={filter || "all"} onValueChange={v => setFilter(!v || v === "all" ? "" : v)}>
+                <SelectTrigger size="sm" className="h-8 min-w-0 max-w-[11rem]">
+                  {/* Ícone de etiqueta na frente e o nome, sem contador: o que o
+                      botão precisa dizer é qual filtro está valendo. A contagem
+                      já está na lista logo abaixo. */}
+                  <Tag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate text-left text-xs">
+                    {(() => {
+                      const sl = slots.find(x => `${x.categoryId}:${x.subcategory}` === filter)
+                      return sl ? tagLabel(sl) : "All"
+                    })()}
+                  </span>
+                </SelectTrigger>
+                {/* A lista aberta tem a largura do nome mais longo, e não a do
+                    botão: o botão é estreito de propósito, para caber ao lado do
+                    + New, e herdar a largura dele cortava o nome da categoria.
+                    O teto evita que um nome enorme passe da borda da tela. */}
+                <SelectContent
+                  alignItemWithTrigger={false}
+                  className="w-max min-w-(--anchor-width) max-w-[min(22rem,calc(100vw-2rem))]"
+                >
+                  <SelectItem value="all">All</SelectItem>
+                  {slots.map(sl => {
+                    const key = `${sl.categoryId}:${sl.subcategory}`
+                    return (
+                      <SelectItem key={key} value={key}>
+                        {tagLabel(sl)}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            )}
+            {canManage && (
+              <Button size="sm" className="h-8 shrink-0" onClick={() => setUploading(true)}>
+                <Plus className="h-4 w-4" />
+                New
+              </Button>
+            )}
           </div>
         )}
       >
-        {/* As categorias como filtro, e não como pasta: o documento continua à
-            vista, e escolher uma etiqueta encolhe a lista em vez de abrir outra
-            tela. */}
-        {slots.length > 0 && docs.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => setFilter("")}
-              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                filter === ""
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-              }`}
-            >
-              All {docs.length}
-            </button>
-            {slots.map(sl => {
-              const key = `${sl.categoryId}:${sl.subcategory}`
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setFilter(f => (f === key ? "" : key))}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                    filter === key
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                  }`}
-                >
-                  {tagLabel(sl)}
-                  <span className="ml-1.5 text-muted-foreground">{sl.documents}</span>
-                </button>
-              )
-            })}
-          </div>
+        <div className="flex flex-col gap-2">
+        {canManage && (
+          <NewCategoryDialog
+            jobsiteId={jobsiteId}
+            client={client}
+            kind={kind}
+            usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
+          />
         )}
 
         {shown.length === 0 ? (
@@ -408,6 +429,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
             ))}
           </div>
         )}
+        </div>
       </Panel>
 
 
@@ -436,8 +458,11 @@ function Panel({ title, action, children }: {
     <section className="overflow-hidden rounded-lg border border-border/60 bg-card/20">
       {/* Cabeçalho sem fio embaixo. A linha cortando a largura inteira fazia a
           seção parecer formulário; o respiro já diz onde o cabeçalho termina. */}
-      <header className="flex flex-wrap items-center justify-between gap-2 px-4 pb-1.5 pt-3">
-        <h2 className="min-w-0 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+      {/* Título e ações na mesma linha, sempre. Com quebra de linha, no celular
+          as ações desciam e o cabeçalho virava dois andares. O título não
+          encolhe; quem cede espaço são as ações, que cortam o texto. */}
+      <header className="flex items-center justify-between gap-3 px-4 pb-1.5 pt-3">
+        <h2 className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           {title}
         </h2>
         {action}
@@ -500,12 +525,11 @@ export default function JobsiteRoomPage() {
     },
   })
 
-  // Abrir a obra carimba o acesso neste aparelho, que é o relógio da expiração,
-  // e pede ao worker que guarde esta página e a lista. Quem entrou clicando na
-  // lista não baixou o HTML de nenhuma das duas.
+  // Abrir a obra carimba o acesso neste aparelho, que é o relógio da expiração.
+  // Não guarda página nem dado: o que fica no aparelho é decisão da pessoa, pelo
+  // botão de download do Data Details.
   useEffect(() => {
     void marcarAcesso(jobsiteId).catch(() => undefined)
-    aquecerRotas(["/atlas", `/atlas/${jobsiteId}`])
   }, [jobsiteId])
 
   if (isLoading) {
@@ -530,24 +554,13 @@ export default function JobsiteRoomPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-lg font-semibold">{meta.title}</h1>
-          {/* No lugar da frase de apoio, o que a obra é. A linha que antes
-              explicava a seção agora carrega o dado que a pessoa confere. */}
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <IdentityFact icon={Briefcase} label="Client" value={jobsite.client} />
-            <IdentityFact icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
-            <IdentityFact
-              icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
-              label="Build type"
-              value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
-                .filter(Boolean).join(" ")}
-            />
-            <IdentityFact icon={MapPin} label="Address" value={jobsite.address} />
-          </div>
-        </div>
+    // A página ocupa ao menos a altura inteira da área de conteúdo. É o que deixa
+    // o Data Details descer até o fim da tela quando a lista de documentos é curta.
+    <div className="mx-auto flex min-h-full max-w-5xl flex-col gap-5">
+      {/* Título e ações na mesma linha. Com os dados da obra entre os dois, os
+          botões ficavam alinhados ao topo de um bloco alto e pareciam soltos. */}
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="min-w-0 truncate text-lg font-semibold">{meta.title}</h1>
         {canManage && (
           <div className="flex shrink-0 items-center gap-2">
             {/* Ícone e palavra: um lápis sozinho obriga a passar o mouse para
@@ -581,13 +594,40 @@ export default function JobsiteRoomPage() {
         )}
       </div>
 
+      {/* O que a obra é, num contêiner discreto. Cliente, local e tipo no corpo;
+          o endereço no rodapé, porque é a linha mais longa e a que menos se
+          consulta, e solta junto das outras ela quebrava a leitura das três. */}
+      <div className="overflow-hidden rounded-lg border border-border/60 bg-card/30 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2.5">
+          <IdentityFact icon={Briefcase} label="Client" value={jobsite.client} />
+          <IdentityFact icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
+          <IdentityFact
+            icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
+            label="Build type"
+            value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
+              .filter(Boolean).join(" ")}
+          />
+        </div>
+        {jobsite.address && (
+          <div className="border-t border-border/60 bg-muted/20 px-3 py-2">
+            <IdentityFact icon={MapPin} label="Address" value={jobsite.address} />
+          </div>
+        )}
+      </div>
+
       {tab === "documents" && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-1 flex-col gap-4">
           <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
           {/* A escolha do que fica no aparelho mora junto das pastas, e não numa
               tela de configuração. É a mesma decisão, tomada no mesmo lugar em
-              que se olha a pasta. */}
-          <OfflineFolders jobsiteId={jobsiteId} />
+              que se olha a pasta.
+
+              Fica sempre no fim da página, qualquer que seja o tamanho da lista:
+              é rodapé, e rodapé que sobe e desce com o conteúdo deixa de ser lido
+              como rodapé. O `mt-auto` empurra para baixo o que sobra de altura. */}
+          <div className="mt-auto">
+            <OfflineFolders jobsiteId={jobsiteId} />
+          </div>
         </div>
       )}
       {tab === "tasks" && (

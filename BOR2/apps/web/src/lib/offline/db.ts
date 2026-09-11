@@ -92,6 +92,12 @@ export interface PlanoLocal {
    * arquivo, e o leitor precisa pular para a página da folha.
    */
   inteiro?: boolean
+  /**
+   * O tamanho do arquivo da prancha no servidor. É com ele que o progresso de
+   * download se mede antes de o arquivo existir no aparelho: o tamanho da pasta
+   * é o do PDF original, e a soma dos recortes não bate com ele.
+   */
+  bytes?: number
 }
 
 /** Um ponto do punch list, como o aparelho o conhece. */

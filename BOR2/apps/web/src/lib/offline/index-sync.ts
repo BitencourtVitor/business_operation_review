@@ -2,7 +2,7 @@ import { getQueryClient } from "@/lib/query-client"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { aquecerRotas } from "./aquecer"
 import { local } from "./db"
-import { cabe, gravarArquivo } from "./storage"
+import { cabe, gravarArquivo, liberarObra } from "./storage"
 
 /**
  * O índice da obra, e o download de uma pasta.
@@ -92,6 +92,12 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
     const atual = versoes[0]
     if (!atual) continue
 
+    const folhas = await atlasService.listSheets(atual.id)
+    qc.setQueryData(["atlas", "sheets", atual.id], folhas)
+    // O tamanho da pasta é a soma das pranchas, que é o que de fato desce. O do
+    // PDF original fica só de reserva, para versão sem recorte.
+    const somaFolhas = folhas.reduce((t, s) => t + (s.byteSize ?? 0), 0)
+
     const pastaAntes = await local.pastas.get(d.id)
     await local.pastas.put({
       id: d.id, obraId, name: d.name,
@@ -99,12 +105,9 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
       estado: pastaAntes?.estado ?? "ausente",
       revisaoLocal: pastaAntes?.revisaoLocal ?? 0,
       revisaoServidor: versoes.length,
-      bytes: atual.byteSize ?? 0,
+      bytes: somaFolhas || (atual.byteSize ?? 0),
       baixadoEm: pastaAntes?.baixadoEm ?? null,
     })
-
-    const folhas = await atlasService.listSheets(atual.id)
-    qc.setQueryData(["atlas", "sheets", atual.id], folhas)
     for (const s of folhas) {
       const antes = await local.planos.get(s.id)
       await local.planos.put({
@@ -115,6 +118,7 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
         // só porque abriu a obra de novo.
         arquivo: antes?.arquivo ?? null,
         inteiro: antes?.inteiro,
+        bytes: s.byteSize ?? 0,
         thumb: antes?.thumb ?? null,
         widthPt: s.widthPt ?? 0, heightPt: s.heightPt ?? 0,
         scaleUnitsPerPt: antes?.scaleUnitsPerPt ?? null,
@@ -208,6 +212,49 @@ export async function baixarPasta(pastaId: string): Promise<{
   }
 }
 
+/**
+ * Baixa a obra inteira: o índice e, depois, cada pasta que ainda não está em dia
+ * no aparelho.
+ *
+ * É a decisão por obra que a faixa Data Details oferece. Todas as pastas a
+ * baixar ficam marcadas como "baixando" antes do primeiro arquivo descer, para
+ * o progresso somar a obra inteira e não só a pasta da vez.
+ */
+export async function baixarObra(obraId: string): Promise<{ ok: boolean; mensagem: string }> {
+  await baixarIndice(obraId)
+  const alvo = (await local.pastas.where("obraId").equals(obraId).toArray())
+    .filter(p => p.estado !== "disponivel")
+  for (const p of alvo) await local.pastas.update(p.id, { estado: "baixando" })
+  aquecerRotas(["/atlas", `/atlas/${obraId}`])
+
+  const falhas: string[] = []
+  for (const p of alvo) {
+    const r = await baixarPasta(p.id)
+    if (r.ok) continue
+    falhas.push(r.mensagem)
+    // Pasta que não chegou a começar (sem espaço, por exemplo) volta ao estado
+    // de antes, em vez de ficar girando para sempre.
+    if (r.baixados === 0) await local.pastas.update(p.id, { estado: p.estado === "baixando" ? "ausente" : p.estado })
+  }
+  await recalcularSelecao(obraId)
+  return { ok: falhas.length === 0, mensagem: falhas[0] ?? "" }
+}
+
+/**
+ * Tira a obra inteira do aparelho: pranchas, miniaturas e o registro de quem a
+ * mantém. O índice fica, que é pequeno e não pesa; a obra volta a "nada salvo".
+ */
+export async function removerObra(obraId: string): Promise<void> {
+  const pastas = await local.pastas.where("obraId").equals(obraId).toArray()
+  for (const p of pastas) {
+    if (p.estado !== "ausente") await liberarPasta(p.id)
+  }
+  await liberarObra(obraId)
+  await local.planos.where("obraId").equals(obraId)
+    .modify({ arquivo: null, thumb: null, inteiro: undefined })
+  await recalcularSelecao(obraId)
+}
+
 /** Devolve os bytes de uma pasta, preservando índice e miniatura. */
 export async function liberarPasta(pastaId: string): Promise<void> {
   const { apagarArquivo } = await import("./storage")
@@ -248,6 +295,10 @@ export async function baixarMiniaturas(pastaId: string): Promise<number> {
     for (let p = fila.shift(); p; p = fila.shift()) {
       const url = urls.get(p.id)
       if (!url) continue
+      // A pasta pode ter sido limpa enquanto a fila andava. Sem conferir, a
+      // miniatura seguinte seria gravada de novo num aparelho que acabou de
+      // apagar tudo, e ficaria ali ocupando espaço sem pasta nenhuma.
+      if ((await local.pastas.get(pastaId))?.estado === "ausente") { fila.length = 0; return }
       try {
         const res = await fetch(url)
         if (!res.ok) continue
