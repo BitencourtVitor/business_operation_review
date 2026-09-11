@@ -1,16 +1,16 @@
 "use client"
 
+import { onlineManager, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
 import { instalarSincronizacao } from "@/lib/offline/sync"
-import { medirEspaco, type Espaco } from "@/lib/offline/storage"
+import { persistirConsultas, restaurarConsultas } from "@/lib/query-client"
 
 /**
  * Liga o offline quando o Atlas abre.
  *
- * Faz três coisas, e nenhuma delas bloqueia a tela: registra o Service Worker,
- * instala os gatilhos de sincronização, e mede o espaço uma vez para o resto do
- * app poder consultar sem medir de novo a cada pergunta.
+ * Registra o Service Worker, instala os gatilhos de sincronização, e devolve ao
+ * cache as consultas que o aparelho guardou.
  *
  * Fica num componente e não num efeito solto na página porque precisa viver
  * enquanto o Atlas estiver aberto, e desmontar limpo quando a pessoa sair para o
@@ -18,7 +18,11 @@ import { medirEspaco, type Espaco } from "@/lib/offline/storage"
  * obra que ninguém está mais olhando.
  */
 export function OfflineProvider({ children }: { children: React.ReactNode }) {
-  const [espaco, setEspaco] = useState<Espaco | null>(null)
+  const qc = useQueryClient()
+  // As telas só montam depois da restauração. Montando antes, a consulta sem
+  // rede não encontra dado, e a tela desenha "nada aqui" por um instante antes
+  // do retrato chegar, ou para sempre se a consulta falhar primeiro.
+  const [pronto, setPronto] = useState(false)
 
   useEffect(() => {
     // O registro é silencioso de propósito. Navegador sem suporte, contexto sem
@@ -38,16 +42,37 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           .catch(() => undefined)
       }
     }
-    const desligar = instalarSincronizacao()
-    void medirEspaco().then(setEspaco)
-    return desligar
-  }, [])
 
-  // O espaço é medido e guardado, mas nada é mostrado aqui. Quem mostra é a tela
-  // que vai baixar, no momento em que a pergunta "cabe?" importa. Um indicador
-  // permanente de armazenamento seria ruído em toda visita para uma informação
-  // que só interessa duas vezes por mês.
-  void espaco
+    // O TanStack começa supondo que há rede e só muda de ideia no evento
+    // `offline`. O app aberto já sem sinal nunca recebe esse evento: as consultas
+    // tentavam, falhavam, e a tela trocava o dado guardado por erro. Dizendo a
+    // verdade logo de início, a consulta sem rede fica em pausa e o dado fica.
+    onlineManager.setOnline(navigator.onLine)
+
+    let vivo = true
+    let pararDeGravar = () => {}
+    // Teto de espera: banco travado não pode prender o app numa tela em branco.
+    const teto = new Promise<void>(r => setTimeout(r, 1500))
+    void Promise.race([restaurarConsultas(qc), teto]).finally(() => {
+      if (!vivo) return
+      pararDeGravar = persistirConsultas(qc)
+      setPronto(true)
+    })
+    const desligar = instalarSincronizacao()
+    return () => {
+      vivo = false
+      desligar()
+      pararDeGravar()
+    }
+  }, [qc])
+
+  if (!pronto) {
+    return (
+      <div className="flex h-dvh w-full items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-foreground" />
+      </div>
+    )
+  }
 
   return <>{children}</>
 }

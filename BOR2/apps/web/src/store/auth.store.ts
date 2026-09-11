@@ -15,6 +15,7 @@ interface AuthState {
   token: string | null
   isAuthenticated: boolean
   setAuth: (user: User, token: string, remember: boolean) => void
+  setUser: (user: User) => void
   clearAuth: () => void
 }
 
@@ -29,14 +30,15 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== "undefined") {
           localStorage.setItem(REMEMBER_KEY, String(remember))
           if (remember) {
-            localStorage.setItem("bor2-auth", JSON.stringify({ state: { token }, version: 0 }))
+            localStorage.setItem("bor2-auth", JSON.stringify({ state: { token, user }, version: 0 }))
           } else {
             localStorage.removeItem("bor2-auth")
-            sessionStorage.setItem("bor2-auth", JSON.stringify({ state: { token }, version: 0 }))
+            sessionStorage.setItem("bor2-auth", JSON.stringify({ state: { token, user }, version: 0 }))
           }
         }
         set({ user, token, isAuthenticated: true })
       },
+      setUser: (user) => set({ user }),
       clearAuth: () => {
         if (typeof window !== "undefined") {
           localStorage.removeItem("bor2-auth")
@@ -53,7 +55,10 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window === "undefined") return sessionStorage
         return getStorage() ?? sessionStorage
       }),
-      partialize: (state) => ({ token: state.token }),
+      // O usuário vai junto do token. Só com o token, o app aberto sem rede
+      // entrava na conta sem saber de quem ela era: sem nome, sem cargo e sem
+      // permissão, porque quem repunha isso era a consulta ao servidor.
+      partialize: (state) => ({ token: state.token, user: state.user }),
     }
   )
 )
