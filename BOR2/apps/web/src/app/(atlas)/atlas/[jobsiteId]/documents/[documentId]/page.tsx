@@ -1,5 +1,6 @@
 "use client"
 
+import { aquecerRotas } from "@/lib/offline/aquecer"
 import { downloadPlan } from "@/components/atlas/pdf-page"
 import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
@@ -286,6 +287,13 @@ export default function DocumentPage() {
   const { data: slots = [] } = useAtlasJobsiteCategories(jobsiteId)
   const { data: versions, isLoading } = useAtlasVersions(documentId)
   const publish = usePublishAtlasVersion(documentId)
+
+  // A página do documento fica guardada no aparelho a cada visita com rede.
+  // Quem chega aqui pelo roteador do Next não baixou o HTML dela, e sem ele
+  // tocar na pasta sem sinal devolvia a pessoa para a lista de obras.
+  useEffect(() => {
+    aquecerRotas([`/atlas/${jobsiteId}/documents/${documentId}`])
+  }, [jobsiteId, documentId])
 
   const doc = useMemo(() => documents?.find(d => d.id === documentId), [documents, documentId])
   // O gabarito de nomenclatura mora na categoria, e o documento agora tem

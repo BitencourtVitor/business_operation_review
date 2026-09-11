@@ -7,8 +7,25 @@
  *
  * O worker baixa o HTML de cada rota e os arquivos de código que ele cita. Roda
  * em segundo plano e só com rede; falhar aqui não é erro, é adiantamento.
+ *
+ * O pedido vai ao worker ativo do registro, e não ao `controller` da página. Na
+ * primeira abertura depois de uma atualização a página ainda não é controlada
+ * pelo worker novo, o `controller` é nulo, e o pedido se perdia sem aviso.
  */
 export function aquecerRotas(rotas: string[]) {
-  if (typeof navigator === "undefined" || !navigator.onLine) return
-  navigator.serviceWorker?.controller?.postMessage({ tipo: "aquecer", rotas })
+  if (typeof navigator === "undefined" || !navigator.onLine || !("serviceWorker" in navigator)) return
+  if (!rotas.length) return
+  void navigator.serviceWorker.ready
+    .then(reg => reg.active?.postMessage({ tipo: "aquecer", rotas }))
+    .catch(() => undefined)
+}
+
+/** Se a página já está guardada no aparelho. Nulo quando não há como saber. */
+export async function paginaGuardada(rota: string): Promise<boolean | null> {
+  if (typeof caches === "undefined" || !navigator.serviceWorker?.controller) return null
+  try {
+    return !!(await caches.match(rota))
+  } catch {
+    return null
+  }
 }

@@ -4,8 +4,9 @@ import { useLiveQuery } from "dexie-react-hooks"
 import {
   AlertTriangle, Check, Download, HardDrive, Loader2, Trash2, WifiOff,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
+import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { local, type PastaLocal } from "@/lib/offline/db"
 import { baixarIndice, baixarPasta, liberarPasta } from "@/lib/offline/index-sync"
 import { mb, medirEspaco, type Espaco } from "@/lib/offline/storage"
@@ -30,10 +31,17 @@ const ESTADO: Record<PastaLocal["estado"], { rotulo: string; classe: string }> =
   desatualizada: { rotulo: "Out of date",    classe: "text-amber-600 dark:text-amber-400" },
 }
 
+const rotaDaPasta = (jobsiteId: string, pastaId: string) =>
+  `/atlas/${jobsiteId}/documents/${pastaId}`
+
 export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
   const [espaco, setEspaco] = useState<Espaco | null>(null)
   const [ocupada, setOcupada] = useState<string | null>(null)
   const [erro, setErro] = useState("")
+  const [online, setOnline] = useState(true)
+  // Se a página de cada pasta baixada já está guardada. O arquivo no disco não
+  // basta: sem a página, tocar na pasta sem rede devolvia a pessoa para a lista.
+  const [paginas, setPaginas] = useState<Record<string, boolean | null>>({})
 
   const pastas = useLiveQuery(
     () => local.pastas.where("obraId").equals(jobsiteId).sortBy("name"),
@@ -50,6 +58,49 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     void baixarIndice(jobsiteId).catch(() => undefined)
     void medirEspaco().then(setEspaco)
   }, [jobsiteId])
+
+  useEffect(() => {
+    const m = () => setOnline(navigator.onLine)
+    m()
+    window.addEventListener("online", m)
+    window.addEventListener("offline", m)
+    return () => {
+      window.removeEventListener("online", m)
+      window.removeEventListener("offline", m)
+    }
+  }, [])
+
+  const guardadas = useMemo(
+    () => (pastas ?? []).filter(p => p.estado !== "ausente").map(p => p.id),
+    [pastas],
+  )
+  const chave = guardadas.join(",")
+
+  useEffect(() => {
+    if (!guardadas.length) return
+    // Toda visita com rede guarda de novo a página de cada pasta baixada.
+    //
+    // Guardar só no momento do download deixava de fora quem baixou antes de o
+    // worker saber guardar páginas, e pasta baixada não mostra mais o botão de
+    // baixar: não havia como corrigir pela tela. Reaquecer é barato, porque o
+    // código que a página cita já está guardado e não desce de novo.
+    aquecerRotas(guardadas.map(id => rotaDaPasta(jobsiteId, id)))
+    void import("@/components/atlas/pdf-page").then(m => m.aquecerPdf()).catch(() => undefined)
+
+    let vivo = true
+    const conferir = async () => {
+      const r: Record<string, boolean | null> = {}
+      for (const id of guardadas) r[id] = await paginaGuardada(rotaDaPasta(jobsiteId, id))
+      if (vivo) setPaginas(r)
+    }
+    void conferir()
+    // O worker guarda em segundo plano e não avisa quando termina. Conferir de
+    // novo depois de alguns segundos é o bastante para o rótulo mudar sozinho.
+    const t1 = setTimeout(conferir, 4000)
+    const t2 = setTimeout(conferir, 12000)
+    return () => { vivo = false; clearTimeout(t1); clearTimeout(t2) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobsiteId, chave])
 
   async function baixar(pasta: PastaLocal) {
     setOcupada(pasta.id); setErro("")
@@ -99,12 +150,21 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
         {pastas.map(p => {
           const e = ESTADO[p.estado]
           const trabalhando = ocupada === p.id || p.estado === "baixando"
+          // A pasta só se diz pronta para o offline quando arquivo e página estão
+          // no aparelho. Nulo é não haver como conferir (sem worker), e aí vale o
+          // rótulo de sempre.
+          const pagina = paginas[p.id]
+          const faltaPagina = p.estado === "disponivel" && pagina === false
           return (
             <div key={p.id} className="flex items-center gap-3 py-2">
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm">{p.name}</span>
-                <span className={`text-xs ${e.classe}`}>
-                  {e.rotulo}
+                <span className={`text-xs ${faltaPagina ? "text-amber-600 dark:text-amber-400" : e.classe}`}>
+                  {p.estado === "disponivel" && pagina === true
+                    ? "Ready offline"
+                    : faltaPagina
+                      ? online ? "Downloaded · saving the page" : "Downloaded, but the page was not saved. Open once with a connection"
+                      : e.rotulo}
                   {p.bytes > 0 && ` · ${mb(p.bytes)}`}
                   {p.estado === "desatualizada" &&
                     ` · rev ${p.revisaoLocal} → ${p.revisaoServidor}`}
