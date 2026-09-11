@@ -27,6 +27,15 @@
   -ms-overflow-style: none;
 }
 
+/* Sem zoom de pinça nem de toque duplo na página, em nenhuma tela.
+   A página é desenhada para caber no celular, e o zoom do navegador só a
+   desalinhava. Rolar continua livre nos dois eixos. O visualizador de plano não
+   perde nada: o zoom dele é da prancha, feito pelo próprio componente, e a área
+   da prancha já tem `touch-action: none`. */
+html {
+  touch-action: pan-x pan-y;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
