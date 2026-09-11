@@ -8,7 +8,9 @@ import { useEffect, useMemo, useState } from "react"
 
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { local, type PastaLocal } from "@/lib/offline/db"
-import { baixarIndice, baixarPasta, liberarPasta } from "@/lib/offline/index-sync"
+import {
+  baixarIndice, baixarMiniaturas, baixarPasta, liberarPasta,
+} from "@/lib/offline/index-sync"
 import { mb, medirEspaco, type Espaco } from "@/lib/offline/storage"
 
 /**
@@ -48,6 +50,20 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     [jobsiteId],
   )
 
+  // Quantas folhas de cada pasta têm o arquivo no aparelho. É a resposta a "está
+  // guardado mesmo?", que o rótulo sozinho não dava: "Available" dizia que a
+  // pasta foi baixada, não quantas pranchas de fato estão no disco.
+  const contagem = useLiveQuery(async () => {
+    const planos = await local.planos.where("obraId").equals(jobsiteId).toArray()
+    const r: Record<string, { total: number; arquivos: number }> = {}
+    for (const p of planos) {
+      const c = (r[p.pastaId] ??= { total: 0, arquivos: 0 })
+      c.total++
+      if (p.arquivo) c.arquivos++
+    }
+    return r
+  }, [jobsiteId])
+
   useEffect(() => {
     // O índice desce sempre, e desce em segundo plano.
     //
@@ -86,6 +102,9 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     // código que a página cita já está guardado e não desce de novo.
     aquecerRotas(guardadas.map(id => rotaDaPasta(jobsiteId, id)))
     void import("@/components/atlas/pdf-page").then(m => m.aquecerPdf()).catch(() => undefined)
+    // E completa as miniaturas que faltam, pelo mesmo motivo: pasta baixada antes
+    // de as miniaturas descerem abriria sem rede com a grade girando.
+    for (const id of guardadas) void baixarMiniaturas(id).catch(() => 0)
 
     let vivo = true
     const conferir = async () => {
@@ -165,6 +184,8 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
                     : faltaPagina
                       ? online ? "Downloaded · saving the page" : "Downloaded, but the page was not saved. Open once with a connection"
                       : e.rotulo}
+                  {p.estado !== "ausente" && contagem?.[p.id] &&
+                    ` · ${contagem[p.id].arquivos}/${contagem[p.id].total} plans`}
                   {p.bytes > 0 && ` · ${mb(p.bytes)}`}
                   {p.estado === "desatualizada" &&
                     ` · rev ${p.revisaoLocal} → ${p.revisaoServidor}`}
