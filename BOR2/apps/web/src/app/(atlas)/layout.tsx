@@ -31,11 +31,20 @@ export default async function AtlasLayout({ children }: { children: React.ReactN
       {/* O offline liga aqui, e só aqui: o BOR não é aplicação de campo, e
           um Service Worker registrado para ele guardaria casca que ninguém usa. */}
       <OfflineProvider>
-      <SidebarProvider defaultOpen={sidebarOpen} className="atlas-shell">
+      {/* A casca tem a altura exata da área visível, e só o conteúdo rola.
+          `100vh` no celular inclui a barra do navegador: a moldura ficava maior
+          que a tela e a página inteira rolava. `dvh` acompanha o que aparece.
+
+          O conteúdo ocupa o que sobra do cabeçalho por flex, e não por conta
+          (`100vh - 3.5rem`): a conta precisava repetir a altura do cabeçalho, e
+          no dia em que ela mudasse o fim da lista ficaria escondido atrás da
+          borda. O `overscroll-contain` impede que o fim de uma lista puxe a
+          página. */}
+      <SidebarProvider defaultOpen={sidebarOpen} className="atlas-shell h-dvh min-h-0 overflow-hidden">
         <AtlasSidebar />
-        <SidebarInset className="min-w-0 overflow-x-hidden">
+        <SidebarInset className="min-h-0 min-w-0 overflow-x-hidden">
           <AtlasHeader />
-          <main className="h-[calc(100vh-3.5rem)] overflow-y-auto p-6">
+          <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">
             {children}
           </main>
         </SidebarInset>

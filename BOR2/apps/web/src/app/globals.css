@@ -36,6 +36,18 @@ html {
   touch-action: pan-x pan-y;
 }
 
+/* No Atlas a página não rola, e não quica. Quem rola são as áreas de lista.
+   A tela do Atlas é uma moldura fixa (barra, cabeçalho e conteúdo), e deixar o
+   documento rolar no celular arrastava a moldura inteira junto com o dedo, com
+   o efeito elástico do iPhone por cima. Vale só enquanto a casca do Atlas está
+   montada, por isso o `:has`; o BOR segue rolando como sempre. */
+html:has(.atlas-shell),
+html:has(.atlas-shell) body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
