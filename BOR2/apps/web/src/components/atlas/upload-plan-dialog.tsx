@@ -1,8 +1,9 @@
 "use client"
 
 import { AttachmentPicker } from "@/components/atlas/attachment-picker"
-import { tagLabel } from "@/components/atlas/document-tags-dialog"
-import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
+import {
+  NamingTemplateDialog, NamingTemplateEditor, type NamingEditorContext,
+} from "@/components/atlas/naming-template-dialog"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
 import { IconInput } from "@/components/common/icon-input"
@@ -44,7 +45,7 @@ export type DocumentIdentity = { name: string; tags: TagKey[] }
  * só, a marcação disputava atenção com o cadastro e parecia opcional.
  */
 export function UploadPlanDialog({
-  categoryId, naming, revisionCount, open, categorias, onStart, onClose,
+  categoryId, naming, revisionCount, open, categorias, ocupadas, onStart, onClose,
 }: {
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
   categoryId?: number
@@ -58,6 +59,8 @@ export function UploadPlanDialog({
    * ele só troca o set de um documento que já existe, numa tela só.
    */
   categorias?: AtlasDocCategory[]
+  /** Vagas já tomadas por outro documento da obra, para o seletor apagar. */
+  ocupadas?: Map<string, string>
   /** Quem envia é a página: o envio precisa sobreviver ao fechamento daqui. */
   onStart: (
     file: File,
@@ -134,9 +137,10 @@ export function UploadPlanDialog({
     return () => URL.revokeObjectURL(href)
   }, [file])
 
-  // Gabarito conhecido: os nomes saem sozinhos assim que o arquivo entra.
+  // Gabarito conhecido: os nomes saem sozinhos assim que o arquivo entra. No
+  // documento novo quem lê é a etapa de marcação, na hora do envio.
   useEffect(() => {
-    if (!localUrl || !template?.levels?.length) { setNames(null); return }
+    if (novo || !localUrl || !template?.levels?.length) { setNames(null); return }
     let alive = true
     setReading("0")
     readPageNames(localUrl, template, (done, total) => {
@@ -159,15 +163,24 @@ export function UploadPlanDialog({
     onClose()
   }
 
+  // Documento novo: o que está marcado na tela é o gabarito, e os nomes são os
+  // da prévia, que é obrigatória. Quem sobe viu antes o nome de cada folha.
+  function enviarNomeado(ctx: NamingEditorContext) {
+    if (!file || !ctx.preview) return
+    const nomes = new Map(ctx.preview.filter(n => n.name).map(n => [n.pageIndex, n.name] as [number, string]))
+    // Guardado na categoria, para o próximo envio do mesmo relatório já vir
+    // marcado. É conveniência do próximo envio, não condição deste.
+    const alvo = tags[0]?.categoryId
+    if (alvo) updateCategory.mutate({ id: alvo, naming: ctx.template })
+    onStart(file, nomes,
+      { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags },
+      { name: "", notes: "", attachments: [] })
+    onClose()
+  }
+
   const busy = false
   const nomeacaoOk = !!template?.levels?.length && !reading
   const podeAvancar = !!file && !!name.trim() && categoriaOk
-
-  // O rótulo das categorias escolhidas, para o resumo da segunda etapa.
-  const rotulos = tags.map(t => {
-    const c = categorias?.find(x => x.id === t.categoryId)
-    return tagLabel({ name: c?.name ?? "", subcategory: t.subcategory, axis: c?.axis ?? "none" })
-  })
 
   const zonaDoArquivo = (
     <>
@@ -265,7 +278,13 @@ export function UploadPlanDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={o => { if (!o && !busy) onClose() }}>
-        <DialogContent className="sm:max-w-lg">
+        {/* Na marcação o diálogo cresce até o tamanho da janela de marcar: a
+            região que se desenha tem poucos milímetros no papel. */}
+        <DialogContent
+          className={novo && etapa === 2
+            ? "flex h-[92vh] w-[min(96vw,80rem)] max-w-none flex-col gap-4 sm:max-w-none"
+            : "sm:max-w-lg"}
+        >
           <DialogHeader>
             <DialogTitle>
               {novo ? "New document"
@@ -295,6 +314,54 @@ export function UploadPlanDialog({
             )}
           </DialogHeader>
 
+          {novo && etapa === 2 ? (
+            // A segunda etapa é a própria marcação, e não um resumo com um botão
+            // que abre outra janela por cima.
+            <NamingTemplateEditor
+              url={localUrl}
+              open={open}
+              initial={template}
+              fileName={file?.name}
+              actions={ctx => (
+                <>
+                  {error && <p className="text-xs text-destructive">{error}</p>}
+                  {/* A prévia é obrigatória: é nela que se vê o nome que cada
+                      folha vai ter, antes de subir. */}
+                  {!ctx.preview && !ctx.reading && (
+                    <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                      <ScanText className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>Run the preview before uploading.</span>
+                    </p>
+                  )}
+                  <Button variant="outline" disabled={!ctx.ready || !!ctx.reading} onClick={ctx.runPreview}>
+                    <ScanText className="h-4 w-4" />
+                    {ctx.reading ? `Reading ${ctx.reading}` : "Preview names"}
+                  </Button>
+                  <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    disabled={!!ctx.reading}
+                    onClick={() => {
+                      // Voltar não apaga o que foi marcado.
+                      marked.current = true
+                      setTemplate(ctx.template)
+                      setError("")
+                      setEtapa(1)
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button className="flex-1" disabled={!ctx.preview || !!ctx.reading} onClick={() => enviarNomeado(ctx)}>
+                    <CloudUpload className="h-4 w-4" />
+                    Upload
+                  </Button>
+                  </div>
+                </>
+              )}
+            />
+          ) : (
+          <>
           <div className="flex flex-col gap-3">
             {novo && etapa === 1 && (
               <>
@@ -318,32 +385,10 @@ export function UploadPlanDialog({
                         Cada linha tem a categoria e, quando ela pede, o andar ou
                         a unidade na mesma linha. */}
                     <div className="flex flex-col gap-1.5">
-                      <CategoryPicker categorias={categorias ?? []} linhas={linhas} onChange={setLinhas} />
+                      <CategoryPicker categorias={categorias ?? []} linhas={linhas} onChange={setLinhas} ocupadas={ocupadas} />
                     </div>
                   </>
                 )}
-              </>
-            )}
-
-            {novo && etapa === 2 && (
-              <>
-                {/* O que foi decidido na primeira etapa, em uma linha de
-                    consulta: marcar os nomes é olhar o desenho, e o cadastro já
-                    não se mexe aqui. Para mudar, volta. */}
-                <div className="flex flex-col gap-1.5 rounded-lg border border-border/60 bg-muted/30 p-3">
-                  <span className="flex items-start gap-2">
-                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span className="min-w-0 break-all text-sm font-medium">{name.trim() || file?.name}</span>
-                  </span>
-                  <span className="flex flex-wrap gap-1 pl-6">
-                    {rotulos.map(r => (
-                      <span key={r} className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-                        {r}
-                      </span>
-                    ))}
-                  </span>
-                </div>
-                {botaoNomeacao}
               </>
             )}
 
@@ -412,15 +457,8 @@ export function UploadPlanDialog({
                 <span>Pick the subcategory for every category that has one.</span>
               </p>
             )}
-            {novo && etapa === 2 ? (
-              <Button variant="outline" disabled={busy} onClick={() => setEtapa(1)}>
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-            ) : (
-              <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
-            )}
-            {novo && etapa === 1 ? (
+            <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            {novo ? (
               <Button onClick={() => setEtapa(2)} disabled={!podeAvancar}>
                 Next
                 <ArrowRight className="h-4 w-4" />
@@ -433,6 +471,8 @@ export function UploadPlanDialog({
               </Button>
             )}
           </DialogFooter>
+          </>
+          )}
         </DialogContent>
       </Dialog>
 

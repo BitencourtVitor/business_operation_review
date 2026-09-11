@@ -24,6 +24,11 @@ import type { AtlasDocCategory } from "@/services/atlas.service"
  * andar ou unidade, o valor. A metade do valor fica apagada enquanto a
  * categoria não pede um. Um set que cobre o 3º e o 4º andar é uma pasta com duas
  * linhas.
+ *
+ * Cada vaga (categoria com subcategoria) tem um documento só na obra. A vaga que
+ * já tem dono aparece apagada como "in use": para trocar o conteúdo, abre o
+ * documento que a ocupa e sobe nova versão. Esconder a opção faria a pessoa
+ * achar que a categoria sumiu.
  */
 
 /** Uma linha do seletor. Categoria nula é a linha ainda vazia. */
@@ -78,10 +83,12 @@ export function paraEtiquetas(linhas: LinhaCategoria[], categorias: AtlasDocCate
   return { etiquetas, incompleta }
 }
 
-export function CategoryPicker({ categorias, linhas, onChange }: {
+export function CategoryPicker({ categorias, linhas, onChange, ocupadas }: {
   categorias: AtlasDocCategory[]
   linhas: LinhaCategoria[]
   onChange: (linhas: LinhaCategoria[]) => void
+  /** Vagas já tomadas por outro documento: "categoria:subcategoria" para o nome dele. */
+  ocupadas?: Map<string, string>
 }) {
   const trocar = (i: number, nova: LinhaCategoria) =>
     onChange(linhas.map((l, j) => (j === i ? nova : l)))
@@ -115,6 +122,12 @@ export function CategoryPicker({ categorias, linhas, onChange }: {
         const c = categorias.find(x => x.id === l.categoryId)
         const valores = valoresDe(c)
         const pedeValor = valores.length > 0
+        // As vagas escolhidas nas outras linhas deste mesmo documento.
+        const outras = new Set(
+          linhas.filter((x, j) => j !== i && x.categoryId !== null).map(x => `${x.categoryId}:${x.subcategory}`),
+        )
+        const dono = (chave: string) => ocupadas?.get(chave)
+        const tomada = (chave: string) => !!dono(chave) || outras.has(chave)
         return (
           <div key={i} className="flex items-center gap-1.5">
             <div className="flex min-w-0 flex-1">
@@ -133,9 +146,22 @@ export function CategoryPicker({ categorias, linhas, onChange }: {
                   alignItemWithTrigger={false}
                   className="w-max min-w-(--anchor-width) max-w-[min(22rem,calc(100vw-2rem))]"
                 >
-                  {categorias.map(o => (
-                    <SelectItem key={o.id} value={String(o.id)}>{o.name}</SelectItem>
-                  ))}
+                  {categorias.map(o => {
+                    const vals = valoresDe(o)
+                    const semVaga = vals.length === 0
+                      ? tomada(`${o.id}:`)
+                      : vals.every(v => tomada(`${o.id}:${v}`))
+                    const bloqueada = semVaga && o.id !== l.categoryId
+                    const motivo = vals.length > 0 ? " · all taken"
+                      : dono(`${o.id}:`) ? " · in use"
+                      : " · already picked"
+                    return (
+                      <SelectItem key={o.id} value={String(o.id)} disabled={bloqueada}>
+                        {o.name}
+                        {bloqueada && <span className="text-muted-foreground">{motivo}</span>}
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
 
@@ -159,9 +185,20 @@ export function CategoryPicker({ categorias, linhas, onChange }: {
                   </span>
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false} className="w-max min-w-(--anchor-width)">
-                  {valores.map(v => (
-                    <SelectItem key={v} value={v}>{rotuloDoValor(c, v)}</SelectItem>
-                  ))}
+                  {valores.map(v => {
+                    const chave = `${l.categoryId}:${v}`
+                    const bloqueada = tomada(chave) && v !== l.subcategory
+                    return (
+                      <SelectItem key={v} value={v} disabled={bloqueada}>
+                        {rotuloDoValor(c, v)}
+                        {bloqueada && (
+                          <span className="text-muted-foreground">
+                            {dono(chave) ? " · in use" : " · already picked"}
+                          </span>
+                        )}
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>

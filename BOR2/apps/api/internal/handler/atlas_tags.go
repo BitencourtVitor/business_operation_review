@@ -61,6 +61,11 @@ func (h *AtlasHandler) SetDocumentTags(c *fiber.Ctx) error {
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
 	}
+	if dono, err := h.vagaOcupada(c.Context(), jobsiteID, docID, in.Tags); err != nil {
+		return internalErr(c, err)
+	} else if dono != "" {
+		return vagaOcupadaResposta(c, dono)
+	}
 	if err := h.writeTags(c.Context(), docID, in.Tags); err != nil {
 		return internalErr(c, err)
 	}
@@ -132,4 +137,45 @@ func (h *AtlasHandler) RemoveCategorySlot(c *fiber.Ctx) error {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"ok": true}})
+}
+
+// vagaOcupada diz se alguma das etiquetas já pertence a outro documento da obra.
+//
+// Uma vaga é a categoria com a subcategoria ("2nd Floor Wall Panels"), e cada
+// vaga tem um documento só. Para trocar o conteúdo, sobe nova versão no documento
+// que já a ocupa. Documento arquivado não segura vaga. Devolve o nome do
+// documento dono, ou vazio quando todas estão livres.
+func (h *AtlasHandler) vagaOcupada(ctx context.Context, jobsiteID, excluirDoc string, tags []atlasDocTag) (string, error) {
+	for _, t := range tags {
+		if t.CategoryID == 0 {
+			continue
+		}
+		var dono string
+		if err := h.db.QueryRow(ctx, `
+			SELECT COALESCE((
+				SELECT d.name
+				  FROM atlas_document_tag t
+				  JOIN atlas_document d ON d.id = t.document_id
+				 WHERE d.jobsite_id = $1
+				   AND d.id <> $2
+				   AND d.archived_at IS NULL
+				   AND t.category_id = $3
+				   AND t.subcategory = $4
+				 LIMIT 1), '')`,
+			jobsiteID, excluirDoc, t.CategoryID, strings.TrimSpace(t.Subcategory)).Scan(&dono); err != nil {
+			return "", err
+		}
+		if dono != "" {
+			return dono, nil
+		}
+	}
+	return "", nil
+}
+
+// vagaOcupadaResposta é o 409 de quando a vaga já tem documento.
+func vagaOcupadaResposta(c *fiber.Ctx, dono string) error {
+	return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+		"error": "This category is already taken by " + dono + ". Upload a new version there instead.",
+		"code":  "CATEGORY_TAKEN",
+	})
 }

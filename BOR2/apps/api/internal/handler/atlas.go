@@ -946,6 +946,13 @@ func (h *AtlasHandler) CreateDocument(c *fiber.Ctx) error {
 	if strings.TrimSpace(in.Name) == "" {
 		return badRequest(c, "name is required")
 	}
+	// Cada vaga (categoria com subcategoria) tem um documento só. Confere antes
+	// de criar, para não sobrar documento sem etiqueta quando a vaga está tomada.
+	if dono, err := h.vagaOcupada(c.Context(), id, "", in.Tags); err != nil {
+		return internalErr(c, err)
+	} else if dono != "" {
+		return vagaOcupadaResposta(c, dono)
+	}
 	userID, _ := actor(c)
 	docID := uuid.NewString()
 	_, err := h.db.Exec(c.Context(), `

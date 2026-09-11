@@ -106,6 +106,13 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     for (const d of docs) for (const t of tagsOf(d)) m.set(`${t.categoryId}:${t.subcategory}`, t)
     return [...m.entries()].sort((a, b) => tagLabel(a[1]).localeCompare(tagLabel(b[1])))
   }, [docs])
+  // Quem ocupa cada vaga: o seletor do documento novo apaga as tomadas e diz de
+  // quem são.
+  const ocupadas = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const d of docs) for (const t of tagsOf(d)) m.set(`${t.categoryId}:${t.subcategory}`, d.name)
+    return m
+  }, [docs])
   const shown = filter
     ? docs.filter(d => tagsOf(d).some(t => `${t.categoryId}:${t.subcategory}` === filter))
     : docs
@@ -269,6 +276,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           revisionCount={0}
           open={uploading}
           categorias={categorias}
+          ocupadas={ocupadas}
           onStart={startNew}
           onClose={() => setUploading(false)}
         />
@@ -425,11 +433,12 @@ export default function JobsiteRoomPage() {
         )}
       </div>
 
-      {/* O que a obra é, num contêiner discreto. Cliente, local e tipo no corpo;
-          o endereço no rodapé, porque é a linha mais longa e a que menos se
-          consulta, e solta junto das outras ela quebrava a leitura das três. */}
-      <div className="overflow-hidden rounded-lg border border-border/60 bg-card/30 text-sm text-muted-foreground">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2.5">
+      {/* O que a obra é, num contêiner discreto de dois pedaços: cliente, local
+          e tipo num, o endereço no outro, com fundo próprio e borda entre eles.
+          Em tela larga ficam lado a lado (sobrava meia faixa ao lado das três
+          primeiras); em tela estreita o endereço desce para baixo. */}
+      <div className="flex flex-col overflow-hidden rounded-lg border border-border/60 bg-card/30 text-sm text-muted-foreground lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2.5">
           <IdentityFact icon={Briefcase} label="Client" value={jobsite.client} />
           <IdentityFact icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
           <IdentityFact
@@ -440,7 +449,7 @@ export default function JobsiteRoomPage() {
           />
         </div>
         {jobsite.address && (
-          <div className="border-t border-border/60 bg-muted/20 px-3 py-2">
+          <div className="flex min-w-0 items-center border-t border-border/60 bg-muted/20 px-3 py-2 lg:max-w-[50%] lg:border-t-0 lg:border-l">
             <IdentityFact icon={MapPin} label="Address" value={jobsite.address} />
           </div>
         )}
