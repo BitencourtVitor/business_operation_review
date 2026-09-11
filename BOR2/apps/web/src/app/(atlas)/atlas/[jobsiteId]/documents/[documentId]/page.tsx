@@ -311,6 +311,16 @@ export default function DocumentPage() {
   }, [jobsiteId, documentId])
 
   const doc = useMemo(() => documents?.find(d => d.id === documentId), [documents, documentId])
+  // As vagas tomadas pelos outros documentos da obra. As deste ficam livres para
+  // ele mesmo continuar editando as próprias categorias.
+  const ocupadas = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const d of documents ?? []) {
+      if (d.id === documentId) continue
+      for (const t of d.tags ?? []) m.set(`${t.categoryId}:${t.subcategory}`, d.name)
+    }
+    return m
+  }, [documents, documentId])
   // O gabarito de nomenclatura mora na categoria, e o documento agora tem
   // várias. A primeira manda: é a que a pessoa escolheu primeiro ao anexar, e
   // um set tem um layout só de carimbo.
@@ -948,6 +958,7 @@ export default function DocumentPage() {
         jobsiteId={jobsiteId}
         doc={doc}
         categorias={categoriasDaObra}
+        ocupadas={ocupadas}
         open={tagging}
         onClose={() => setTagging(false)}
       />

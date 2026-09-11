@@ -33,10 +33,12 @@ export function tagLabel(t: { category?: string; name?: string; subcategory: str
     : `${t.subcategory} Floor ${name}`
 }
 
-export function DocumentTagsDialog({ jobsiteId, doc, categorias, open, onClose }: {
+export function DocumentTagsDialog({ jobsiteId, doc, categorias, ocupadas, open, onClose }: {
   jobsiteId: string
   doc?: AtlasDocument
   categorias: AtlasDocCategory[]
+  /** Vagas tomadas pelos outros documentos da obra (sem este). */
+  ocupadas?: Map<string, string>
   open: boolean
   onClose: () => void
 }) {
@@ -60,7 +62,7 @@ export function DocumentTagsDialog({ jobsiteId, doc, categorias, open, onClose }
     <Dialog open={open} onOpenChange={o => { if (!o) onClose() }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader><DialogTitle>Categories of this document</DialogTitle></DialogHeader>
-        <CategoryPicker categorias={categorias} linhas={linhas} onChange={setLinhas} />
+        <CategoryPicker categorias={categorias} linhas={linhas} onChange={setLinhas} ocupadas={ocupadas} />
         <DialogFooter>
           {/* Mesmo lugar do envio: o aviso à esquerda dos botões, com quebra de linha. */}
           {incompleta && (

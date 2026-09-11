@@ -7,14 +7,14 @@ import {
 } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Crop, Minus, Plus, Trash2, ZoomIn, ZoomOut } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 const EMPTY_REGION: NamingRegion = { x0: 0, y0: 0, x1: 0, y1: 0, rotation: 0 }
 
@@ -30,38 +30,54 @@ const MAX_ZOOM = 6
 const has = (r: NamingRegion) => r.x1 > r.x0 && r.y1 > r.y0
 
 /**
- * Reacomoda as faixas depois de alguém mexer numa ponta.
+ * As faixas repartem o arquivo inteiro, na ordem.
  *
- * As faixas cobrem o arquivo em sequência, e sequência não tem buraco nem
- * sobreposição: se a primeira passa a terminar na 92, a segunda começa na 93,
- * não na 92. Sem isto, mudar um limite obrigava a corrigir o vizinho à mão, e
- * quem esquecesse ficava com uma página pertencendo a duas faixas ou a nenhuma.
+ * A primeira começa na página 1, a última termina na última página, cada uma
+ * começa logo depois da anterior e tem ao menos uma página. Sem buraco e sem
+ * página em duas faixas: página em duas faixas teria duas marcações brigando
+ * pelo mesmo nome, e faixa que começa na 9 e termina na 8 não é faixa.
  *
- * O empurrão anda para os dois lados a partir de onde se mexeu, e uma faixa
- * espremida a nada vira uma página só, em vez de virar faixa invertida.
+ * Gabarito antigo, com limite em branco ou sobreposto, entra aqui e sai
+ * repartido. Faixa que não cabe (mais faixas que páginas) sai.
  */
-function tidy(levels: NamingRegion[], moved: number, pages: number): NamingRegion[] {
+function particionar(levels: NamingRegion[], pages: number): NamingRegion[] {
+  if (!levels.length) return levels
+  const n = Math.max(1, Math.min(levels.length, pages))
+  const out = levels.slice(0, n).map(l => ({ ...l }))
+  for (let i = 0; i < n; i++) {
+    const from = i === 0 ? 1 : (out[i - 1].toPage as number) + 1
+    const teto = pages - (n - 1 - i)
+    out[i].fromPage = from
+    out[i].toPage = i === n - 1 ? pages : Math.min(teto, Math.max(from, out[i].toPage ?? from))
+  }
+  return out
+}
+
+/**
+ * O fim da faixa `i` vai para `v`, e as seguintes andam junto: cada uma começa
+ * logo depois da anterior e, espremida, fica com uma página. `v` chega já
+ * limitado para sobrar uma página a cada faixa seguinte.
+ */
+function empurrarFim(levels: NamingRegion[], i: number, v: number): NamingRegion[] {
   const out = levels.map(l => ({ ...l }))
-  const clamp = (n?: number) => n === undefined ? undefined : Math.min(pages, Math.max(1, n))
-
-  for (const l of out) { l.fromPage = clamp(l.fromPage); l.toPage = clamp(l.toPage) }
-
-  for (let i = moved; i < out.length - 1; i++) {
-    const end = out[i].toPage
-    if (end === undefined) continue
-    const next = out[i + 1]
-    if ((next.fromPage ?? 0) <= end) next.fromPage = Math.min(pages, end + 1)
-    if (next.toPage !== undefined && next.toPage < (next.fromPage ?? 1)) next.toPage = next.fromPage
+  out[i].toPage = v
+  for (let k = i + 1; k < out.length; k++) {
+    const from = (out[k - 1].toPage as number) + 1
+    out[k].fromPage = from
+    if ((out[k].toPage ?? 0) < from) out[k].toPage = from
   }
+  return out
+}
 
-  for (let i = moved; i > 0; i--) {
-    const start = out[i].fromPage
-    if (start === undefined) continue
-    const prev = out[i - 1]
-    if ((prev.toPage ?? Infinity) >= start) prev.toPage = Math.max(1, start - 1)
-    if (prev.fromPage !== undefined && prev.fromPage > (prev.toPage ?? pages)) prev.fromPage = prev.toPage
+/** O começo da faixa `i` vai para `v`, e as anteriores cedem do mesmo jeito. */
+function empurrarInicio(levels: NamingRegion[], i: number, v: number): NamingRegion[] {
+  const out = levels.map(l => ({ ...l }))
+  out[i].fromPage = v
+  for (let k = i - 1; k >= 0; k--) {
+    const to = (out[k + 1].fromPage as number) - 1
+    out[k].toPage = to
+    if ((out[k].fromPage ?? 1) > to) out[k].fromPage = to
   }
-
   return out
 }
 
@@ -103,38 +119,50 @@ const MODES: { value: NamingMode; label: string; hint: string }[] = [
  * campo: ajustar de uma em uma é o gesto de quem procura onde o layout muda, e
  * ele não pode depender de digitar.
  */
-function PageField({ value, placeholder, max, onChange }: {
-  value?: number
-  placeholder: string
+function PageField({ value, min, max, disabled, onChange }: {
+  value: number
+  min: number
   max: number
-  onChange: (v: number | undefined) => void
+  disabled?: boolean
+  onChange: (v: number) => void
 }) {
-  const step = (by: number) => {
-    const base = value ?? (Number(placeholder) || 1)
-    onChange(Math.min(max, Math.max(1, base + by)))
+  // O que se digita só vale ao sair do campo: conferir o limite a cada tecla
+  // impediria digitar "12" num campo cujo mínimo é 5.
+  const [texto, setTexto] = useState(String(value))
+  useEffect(() => setTexto(String(value)), [value])
+  const aplicar = (n: number) => {
+    const v = Math.min(max, Math.max(min, n))
+    setTexto(String(v))
+    if (v !== value) onChange(v)
   }
   return (
-    <div className="flex h-8 min-w-0 flex-1 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+    <div className={`flex h-8 min-w-0 flex-1 items-center rounded-lg border border-input bg-transparent dark:bg-input/30 ${
+      disabled ? "opacity-50" : ""
+    }`}>
       <button
         type="button"
-        onClick={() => step(-1)}
-        className="flex h-full w-7 shrink-0 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        disabled={disabled || value <= min}
+        onClick={() => aplicar(value - 1)}
+        className="flex h-full w-7 shrink-0 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
       >
         <Minus className="h-3.5 w-3.5" />
       </button>
       <input
         type="number"
-        min={1}
+        min={min}
         max={max}
-        value={value ?? ""}
-        placeholder={placeholder}
-        onChange={e => onChange(Number(e.target.value) || undefined)}
-        className="h-full min-w-0 flex-1 bg-transparent text-center text-sm tabular-nums outline-none placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        disabled={disabled}
+        value={texto}
+        onChange={e => setTexto(e.target.value)}
+        onBlur={() => aplicar(Number(texto) || value)}
+        onKeyDown={e => { if (e.key === "Enter") aplicar(Number(texto) || value) }}
+        className="h-full min-w-0 flex-1 bg-transparent text-center text-sm tabular-nums outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <button
         type="button"
-        onClick={() => step(1)}
-        className="flex h-full w-7 shrink-0 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        disabled={disabled || value >= max}
+        onClick={() => aplicar(value + 1)}
+        className="flex h-full w-7 shrink-0 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
       >
         <Plus className="h-3.5 w-3.5" />
       </button>
@@ -142,15 +170,34 @@ function PageField({ value, placeholder, max, onChange }: {
   )
 }
 
-export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
+/** O que a marcação entrega a quem monta os botões em volta dela. */
+export type NamingEditorContext = {
+  template: NamingTemplate
+  /** Há o que ler: uma região desenhada, ou o modo que tira o nome do arquivo. */
+  ready: boolean
+  reading: string
+  preview: PageName[] | null
+  runPreview: () => Promise<PageName[] | undefined>
+}
+
+/**
+ * A marcação sem moldura. Vive num diálogo próprio, para trocar o set de um
+ * documento que já existe, e é a segunda etapa do documento novo: lá ela não
+ * é um botão que abre outra janela, é a própria etapa.
+ */
+export function NamingTemplateEditor({ url, open, initial, fileName, actions }: {
   url: string
   open: boolean
   initial?: NamingTemplate
-  onClose: () => void
-  onSave: (template: NamingTemplate) => void
+  /** O nome do arquivo anexado, de onde o modo "From the file" tira o título. */
+  fileName?: string
+  /** Os botões, no pé da coluna de controles. */
+  actions: (ctx: NamingEditorContext) => ReactNode
 }) {
   const [page, setPage] = useState(0)
-  const [pages, setPages] = useState(1)
+  // Zero enquanto o arquivo não contou as páginas: as faixas só se repartem
+  // com o número certo, senão uma conta de uma página só apagaria faixas.
+  const [pages, setPages] = useState(0)
   const [mode, setMode] = useState<NamingMode>("layout")
   const [levels, setLevels] = useState<NamingRegion[]>([{ ...EMPTY_REGION }])
   const [drawing, setDrawing] = useState<number | null>(null)
@@ -176,6 +223,12 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
     setLevels(initial?.levels?.length ? initial.levels.map(l => ({ ...l })) : [{ ...EMPTY_REGION }])
     setPage(0)
   }, [open, initial])
+
+  // Por trecho, as faixas sempre repartem o arquivo inteiro: confere ao abrir,
+  // ao trocar para este modo e quando o arquivo termina de contar as páginas.
+  useEffect(() => {
+    if (open && mode === "ranges" && pages) setLevels(l => particionar(l, pages))
+  }, [open, initial, mode, pages])
 
   // A folha esticada até preencher a área não serve para marcar nada: a região
   // é lida no PDF, onde a prancha tem a proporção dela. Então o espaço livre é
@@ -251,19 +304,48 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
     setDrawing(null)
   }
 
-  function setRange(i: number, patch: Partial<NamingRegion>) {
-    setLevels(l => tidy(l.map((r, k) => k === i ? { ...r, ...patch } : r), i, pages))
+  function mudarFim(i: number, v: number) {
+    setLevels(l => empurrarFim(l, i, v))
     setPreview(null)
   }
 
-  async function runPreview() {
+  function mudarInicio(i: number, v: number) {
+    setLevels(l => empurrarInicio(l, i, v))
+    setPreview(null)
+  }
+
+  // A faixa nova toma a última página da última faixa: 1 a 9 vira 1 a 8 e 9 a
+  // 9. Com a última faixa numa página só, não há de onde tirar.
+  const ultima = levels[levels.length - 1]
+  const cabeOutraFaixa = !!pages && (ultima?.toPage ?? pages) > (ultima?.fromPage ?? 1)
+
+  function novaFaixa() {
+    if (!cabeOutraFaixa) return
+    setLevels(l => [
+      ...l.slice(0, -1),
+      { ...l[l.length - 1], toPage: pages - 1 },
+      { ...EMPTY_REGION, fromPage: pages, toPage: pages },
+    ])
+    setPreview(null)
+  }
+
+  function removerNivel(i: number) {
+    // Por trecho, as páginas da faixa que sai voltam para a de antes.
+    setLevels(l => mode === "ranges"
+      ? l.flatMap((r, k) => k === i ? [] : k === i - 1 ? [{ ...r, toPage: l[i].toPage }] : [r])
+      : l.slice(0, i))
+    setPreview(null)
+  }
+
+  async function runPreview(): Promise<PageName[] | undefined> {
     const usable = levels.filter(has)
     if (mode !== "file" && !usable.length) return
     setReading("0")
     try {
       const names = await readPageNames(url, { mode, levels: usable },
-        (done, total) => setReading(`${done}/${total}`))
+        (done, total) => setReading(`${done}/${total}`), undefined, fileName)
       setPreview(names)
+      return names
     } finally {
       setReading("")
     }
@@ -276,17 +358,14 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
   const suffixed = preview?.filter(p => p.name !== p.read).length ?? 0
   const pending = preview ? preview.length - named : 0
 
-  return (
-    <Dialog open={open} onOpenChange={o => { if (!o) onClose() }}>
-      {/* Altura fixa, não teto: com `max-h` o diálogo encolhia até o tamanho do
-          conteúdo, e como a folha é quem cede espaço, ela ficava do tamanho de
-          um selo. Aqui se marca uma região de poucos milímetros no papel, então
-          a folha usa toda a tela que houver. */}
-      <DialogContent className="flex h-[92vh] w-[min(96vw,80rem)] max-w-none flex-col gap-4 sm:max-w-none">
-        <DialogHeader>
-          <DialogTitle>Where the sheet name is printed</DialogTitle>
-        </DialogHeader>
+  const ctx: NamingEditorContext = {
+    template: { mode, levels: usable },
+    ready: mode === "file" || usable.length > 0,
+    reading, preview, runPreview,
+  }
 
+  return (
+    <>
         <div className="flex min-h-0 flex-1 gap-4">
           {/* Só a folha deste lado. */}
           <div
@@ -315,7 +394,9 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 onSize={onSize}
               />
 
-              {levels.map((region, i) => has(region) && (
+              {/* Tirando o nome do arquivo, nada na folha é lido: as áreas
+                  marcadas saem de vista, e voltam ao trocar de modo. */}
+              {mode !== "file" && levels.map((region, i) => has(region) && (
                 <div
                   key={i}
                   className={`pointer-events-none absolute border-2 ${
@@ -339,7 +420,8 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
           </div>
 
           {/* Todo controle deste. */}
-          <div className="flex w-80 shrink-0 flex-col gap-3 overflow-y-auto pr-1">
+          <div className="flex min-h-0 w-80 shrink-0 flex-col gap-3">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
             {/* A primeira decisão, e a que mudaria o sentido de tudo abaixo se
                 ficasse implícita: como o arquivo está organizado. */}
             <div className="flex flex-col gap-1.5 rounded-lg border border-border/60 p-2">
@@ -348,8 +430,13 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                   <button
                     key={m.value}
                     type="button"
-                    onClick={() => { setMode(m.value); setPreview(null) }}
-                    className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+                    onClick={() => {
+                      setMode(m.value)
+                      // Por layout são dois níveis no máximo.
+                      if (m.value === "layout") setLevels(l => l.slice(0, 2))
+                      setPreview(null)
+                    }}
+                    className={`flex-1 whitespace-nowrap rounded-md px-1.5 py-1.5 text-xs font-medium transition-colors ${
                       mode === m.value
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:bg-muted"
@@ -368,17 +455,17 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
               <Button
                 size="icon" variant="ghost" className="h-8 w-8"
                 disabled={page === 0}
-                onClick={() => { setPage(p => Math.max(0, p - 1)); setPreview(null) }}
+                onClick={() => setPage(p => Math.max(0, p - 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-xs tabular-nums text-muted-foreground">
-                Page {page + 1} of {pages}
+                Page {page + 1} of {pages || "…"}
               </span>
               <Button
                 size="icon" variant="ghost" className="h-8 w-8"
                 disabled={page + 1 >= pages}
-                onClick={() => { setPage(p => p + 1); setPreview(null) }}
+                onClick={() => setPage(p => p + 1)}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -430,7 +517,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                   {i > 0 && (
                     <Button
                       size="icon" variant="ghost" className="h-7 w-7"
-                      onClick={() => setLevels(l => l.slice(0, i))}
+                      onClick={() => removerNivel(i)}
                       title="Remove this level"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -454,18 +541,24 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-xs text-muted-foreground">Pages</Label>
                   <div className="flex items-center gap-1.5">
+                    {/* A primeira faixa começa sempre na página 1 e a última
+                        termina sempre na última: esses dois limites ficam
+                        travados. O começo não passa do fim, e cada faixa
+                        deixa ao menos uma página para as vizinhas. */}
                     <PageField
-                      value={region.fromPage}
-                      placeholder="1"
-                      max={pages}
-                      onChange={v => setRange(i, { fromPage: v })}
+                      value={region.fromPage ?? 1}
+                      min={i + 1}
+                      max={region.toPage ?? pages}
+                      disabled={i === 0 || !pages}
+                      onChange={v => mudarInicio(i, v)}
                     />
                     <span className="shrink-0 text-xs text-muted-foreground">to</span>
                     <PageField
-                      value={region.toPage}
-                      placeholder={String(pages)}
-                      max={pages}
-                      onChange={v => setRange(i, { toPage: v })}
+                      value={region.toPage ?? pages}
+                      min={region.fromPage ?? 1}
+                      max={pages - (levels.length - 1 - i)}
+                      disabled={i === levels.length - 1 || !pages}
+                      onChange={v => mudarFim(i, v)}
                     />
                   </div>
                 </div>
@@ -475,8 +568,12 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                   <Label className="text-xs text-muted-foreground">Text direction</Label>
                   <Select
                     value={String(region.rotation)}
-                    onValueChange={v => v && setLevels(l => l.map((r, k) =>
-                      k === i ? { ...r, rotation: Number(v) } : r))}
+                    onValueChange={v => {
+                      if (!v) return
+                      setLevels(l => l.map((r, k) => k === i ? { ...r, rotation: Number(v) } : r))
+                      // A leitura antiga era da outra direção: o envio não pode usá-la.
+                      setPreview(null)
+                    }}
                   >
                     <SelectTrigger className="w-full">
                       <span className="flex-1 truncate text-left text-sm">
@@ -496,16 +593,19 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
             {/* Por layout são dois, porque precedência com três já é regra que
                 ninguém acompanha. Por trecho não há teto: o arquivo tem os
                 trechos que tiver. */}
-            {mode !== "file" && (mode === "ranges" || levels.length < 2) && (
+            {mode === "layout" && levels.length < 2 && (
               <Button
                 variant="outline"
-                onClick={() => setLevels(l => [...l, {
-                  ...EMPTY_REGION,
-                  ...(mode === "ranges" ? { fromPage: (l[l.length - 1]?.toPage ?? 0) + 1 } : {}),
-                }])}
+                onClick={() => { setLevels(l => [...l, { ...EMPTY_REGION }]); setPreview(null) }}
               >
                 <Plus className="h-3.5 w-3.5" />
-                {mode === "ranges" ? "Add a page range" : "Add a second level"}
+                Add a second level
+              </Button>
+            )}
+            {mode === "ranges" && (
+              <Button variant="outline" disabled={!cabeOutraFaixa} onClick={novaFaixa}>
+                <Plus className="h-3.5 w-3.5" />
+                {cabeOutraFaixa || !pages ? "Add a page range" : "No page left for another range"}
               </Button>
             )}
 
@@ -527,11 +627,10 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                       procurando a página que destoa, então a linha é o caminho
                       mais curto até ela.
 
-                      Ao contrário das setas, isto não limpa a prévia. As setas
-                      limpam porque quem vira página costuma estar recortando
-                      outra região, e a leitura antiga deixaria de valer. Aqui é
-                      o contrário: a prévia é o motivo de estar navegando, e
-                      apagá-la ao chegar destruiria o que se veio ver. */}
+                      Nem isto nem as setas limpam a prévia: virar página não
+                      muda o que é lido. Quem limpa é mexer na leitura (a área,
+                      a direção, as faixas, o modo), e sem prévia o envio não
+                      sai. */}
                   {preview.map(p => (
                     <button
                       key={p.pageIndex}
@@ -574,25 +673,54 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                 </div>
               </div>
             )}
+            </div>
+
+            {/* As ações moram no pé da coluna, e não num rodapé embaixo de
+                tudo: a folha fica com a altura inteira da tela. */}
+            <div className="flex shrink-0 flex-col gap-2 border-t border-border/60 pt-3">
+              {actions(ctx)}
+            </div>
           </div>
         </div>
+    </>
+  )
+}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button
-            variant="outline"
-            disabled={(mode !== "file" && !usable.length) || !!reading}
-            onClick={runPreview}
-          >
-            {reading ? `Reading ${reading}` : "Preview names"}
-          </Button>
-          <Button
-            disabled={mode !== "file" && !usable.length}
-            onClick={() => onSave({ mode, levels: usable })}
-          >
-            Save template
-          </Button>
-        </DialogFooter>
+export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
+  url: string
+  open: boolean
+  initial?: NamingTemplate
+  onClose: () => void
+  onSave: (template: NamingTemplate) => void
+}) {
+  return (
+    <Dialog open={open} onOpenChange={o => { if (!o) onClose() }}>
+      {/* Altura fixa, não teto: com `max-h` o diálogo encolhia até o tamanho do
+          conteúdo, e como a folha é quem cede espaço, ela ficava do tamanho de
+          um selo. Aqui se marca uma região de poucos milímetros no papel, então
+          a folha usa toda a tela que houver. */}
+      <DialogContent className="flex h-[92vh] w-[min(96vw,80rem)] max-w-none flex-col gap-4 sm:max-w-none">
+        <DialogHeader>
+          <DialogTitle>Where the sheet name is printed</DialogTitle>
+        </DialogHeader>
+        <NamingTemplateEditor
+          url={url}
+          open={open}
+          initial={initial}
+          actions={({ template, ready, reading, runPreview }) => (
+            <>
+              <Button variant="outline" disabled={!ready || !!reading} onClick={runPreview}>
+                {reading ? `Reading ${reading}` : "Preview names"}
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onClose}>Cancel</Button>
+                <Button className="flex-1" disabled={!ready} onClick={() => onSave(template)}>
+                  Save template
+                </Button>
+              </div>
+            </>
+          )}
+        />
       </DialogContent>
     </Dialog>
   )
