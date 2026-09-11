@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist } from "next/font/google"
 import { Providers } from "@/lib/providers"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -25,6 +25,17 @@ export const metadata: Metadata = {
     title: "Premium Group",
     statusBarStyle: "default",
   },
+}
+
+// Sem zoom da página no celular. O Android respeita isto; o iPhone ignora por
+// acessibilidade, e por isso o bloqueio também está no CSS (`touch-action`) e no
+// `gesturestart` dos providers. O teto de escala ainda evita que o iPhone amplie
+// a tela sozinho ao tocar num campo de texto.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
