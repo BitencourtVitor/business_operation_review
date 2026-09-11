@@ -9,7 +9,6 @@ import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
 import {
   CLOSED_TAXONOMY, JobsiteFormDialog, KIND_META,
 } from "@/components/atlas/jobsite-form-dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
@@ -36,7 +35,7 @@ import { useCategoriasDaObra } from "@/components/atlas/category-picker"
 import type { AtlasDocTag, AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, FileQuestion, FolderOpen,
-  FileDown, Layers, MapPin, Pencil, Plus, Tag,
+  FileDown, FileText, Layers, MapPin, Pencil, Plus, Tag,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -144,7 +143,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   return (
     <>
       <Panel
-        title="Documents"
+        title="Document List"
         action={(
           <div className="flex min-w-0 items-center gap-2">
             {/* As categorias como filtro, e não como pasta: o documento continua
@@ -219,21 +218,19 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                     {doc.versions ? <FolderOpen className="h-4 w-4" /> : <FileQuestion className="h-4 w-4" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium leading-tight">
-                      {doc.name}
+                    {/* A categoria é o título, e o arquivo vira o subtítulo: o
+                        que identifica o documento na obra é o que ele cobre, e
+                        não como o PDF foi nomeado na máquina de quem enviou. */}
+                    <span className={`block truncate text-sm font-medium leading-tight ${
+                      tagsOf(doc).length === 0 ? "text-muted-foreground" : ""
+                    }`}>
+                      {tagsOf(doc).length === 0
+                        ? "No category"
+                        : tagsOf(doc).map(tagLabel).join(" · ")}
                     </span>
-                    <span className="mt-1 flex flex-wrap items-center gap-1">
-                      {tagsOf(doc).length === 0 ? (
-                        <span className="text-xs text-muted-foreground">No category</span>
-                      ) : tagsOf(doc).map(t => (
-                        <Badge
-                          key={`${t.categoryId}:${t.subcategory}`}
-                          variant="outline"
-                          className="text-[11px] font-normal text-muted-foreground"
-                        >
-                          {tagLabel(t)}
-                        </Badge>
-                      ))}
+                    <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{doc.name}</span>
                     </span>
                   </span>
                 </Link>
@@ -294,19 +291,22 @@ function Panel({ title, action, children }: {
   children: React.ReactNode
 }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-border/60 bg-card/20">
-      {/* Cabeçalho sem fio embaixo. A linha cortando a largura inteira fazia a
-          seção parecer formulário; o respiro já diz onde o cabeçalho termina. */}
-      {/* Título e ações na mesma linha, sempre. Com quebra de linha, no celular
+    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/20">
+      {/* Cabeçalho com fio embaixo: o corpo rola por dentro, e sem a linha o
+          conteúdo passava por baixo do título como se fosse a mesma faixa.
+          Título e ações na mesma linha, sempre: com quebra de linha, no celular
           as ações desciam e o cabeçalho virava dois andares. O título não
           encolhe; quem cede espaço são as ações, que cortam o texto. */}
-      <header className="flex items-center justify-between gap-3 px-4 pb-1.5 pt-3">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 px-4 pb-2.5 pt-3">
         <h2 className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           {title}
         </h2>
         {action}
       </header>
-      <div className="px-4 pb-4 pt-1">{children}</div>
+      {/* A lista rola dentro do painel, e não a página inteira: o cabeçalho da
+          seção e o rodapé do aparelho ficam no lugar, e a obra com trinta
+          documentos não empurra tudo para fora da tela. */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
     </section>
   )
 }
@@ -393,9 +393,9 @@ export default function JobsiteRoomPage() {
   }
 
   return (
-    // A página ocupa ao menos a altura inteira da área de conteúdo. É o que deixa
-    // o Data Details descer até o fim da tela quando a lista de documentos é curta.
-    <div className="mx-auto flex min-h-full max-w-5xl flex-col gap-5">
+    // A página ocupa a altura da área de conteúdo, nem mais nem menos: quem rola
+    // é a lista dentro do painel, e o Data Details fica no pé da tela.
+    <div className="mx-auto flex h-full max-w-5xl flex-col gap-5">
       {/* Título e ações na mesma linha. Com os dados da obra entre os dois, os
           botões ficavam alinhados ao topo de um bloco alto e pareciam soltos. */}
       <div className="flex items-center justify-between gap-3">
@@ -456,16 +456,16 @@ export default function JobsiteRoomPage() {
       </div>
 
       {tab === "documents" && (
-        <div className="flex flex-1 flex-col gap-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-4">
           <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
           {/* A escolha do que fica no aparelho mora junto das pastas, e não numa
               tela de configuração. É a mesma decisão, tomada no mesmo lugar em
               que se olha a pasta.
 
-              Fica sempre no fim da página, qualquer que seja o tamanho da lista:
+              Fica sempre no pé da tela, qualquer que seja o tamanho da lista:
               é rodapé, e rodapé que sobe e desce com o conteúdo deixa de ser lido
-              como rodapé. O `mt-auto` empurra para baixo o que sobra de altura. */}
-          <div className="mt-auto">
+              como rodapé. Quem cresce e rola é o painel acima dele. */}
+          <div className="shrink-0">
             <OfflineFolders jobsiteId={jobsiteId} />
           </div>
         </div>
