@@ -1,6 +1,7 @@
 "use client"
 
 import { aquecerRotas } from "@/lib/offline/aquecer"
+import { useCategoriasDaObra } from "@/components/atlas/category-picker"
 import { local } from "@/lib/offline/db"
 import { lerArquivo } from "@/lib/offline/storage"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -295,7 +296,7 @@ export default function DocumentPage() {
   const { jobsiteId, documentId } = useParams<{ jobsiteId: string; documentId: string }>()
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { data: documents } = useAtlasDocuments(jobsiteId)
-  const { data: slots = [] } = useAtlasJobsiteCategories(jobsiteId)
+  const categoriasDaObra = useCategoriasDaObra(jobsite?.client ?? "", jobsite?.kind ?? "")
   const { data: versions, isLoading } = useAtlasVersions(documentId)
   const publish = usePublishAtlasVersion(documentId)
 
@@ -946,7 +947,7 @@ export default function DocumentPage() {
       <DocumentTagsDialog
         jobsiteId={jobsiteId}
         doc={doc}
-        slots={slots}
+        categorias={categoriasDaObra}
         open={tagging}
         onClose={() => setTagging(false)}
       />

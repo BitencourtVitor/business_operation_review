@@ -32,14 +32,15 @@ import { stashUpload } from "@/components/atlas/pending-upload"
 import { RoleName } from "@/components/atlas/role-icon"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
 
-import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
+import { useCategoriasDaObra } from "@/components/atlas/category-picker"
+import type { AtlasDocTag, AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, FileQuestion, FolderOpen,
   FileDown, Layers, MapPin, Pencil, Plus, Tag,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 
 // A data do envio como se fala dela: hoje, ontem, e depois disso o dia.
@@ -62,12 +63,6 @@ function when(iso: string) {
   return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()}`
 }
 
-const AXIS_OPTIONS = [
-  { value: "none", label: "Single folder" },
-  { value: "floor", label: "One per floor" },
-  { value: "unit", label: "One per unit" },
-]
-
 // O topo diz em que seção da obra a pessoa está. Que obra é já está dito pela
 // barra lateral, e repetir o endereço aqui gastava o título com o que não muda
 // ao navegar entre as seções.
@@ -79,165 +74,6 @@ const TAB_META: Record<string, { title: string }> = {
   documents: { title: "Documents" },
   tasks:     { title: "Punch List" },
   access:    { title: "Access" },
-}
-
-function NewCategoryDialog({ jobsiteId, client, kind, usedCategoryIds }: {
-  jobsiteId: string; client: string; kind: string; usedCategoryIds: Set<number>
-}) {
-  const [open, setOpen] = useState(false)
-  const addSlot = useAddCategorySlot(jobsiteId)
-  const createCategory = useCreateDocCategory()
-
-  // A categoria é etiqueta, e etiqueta não se inventa por obra: ou se escolhe
-  // uma que a taxonomia já conhece, ou se cria uma, que fica guardada para as
-  // outras obras poderem usar depois. Sem isso volta o problema do Fieldwire,
-  // três grafias para a mesma coisa.
-  const { data: categories = [] } = useAtlasDocCategories()
-  // Tipo fechado só enxerga o que é dele; os demais somam as categorias de
-  // build type vazio, que valem para qualquer obra levantada.
-  const closed = CLOSED_TAXONOMY.has(kind.toLowerCase())
-  const available = categories
-    .filter(c => !c.client || c.client.toLowerCase() === client.toLowerCase())
-    .filter(c => closed
-      ? c.buildType.toLowerCase() === kind.toLowerCase()
-      : !c.buildType || c.buildType.toLowerCase() === kind.toLowerCase())
-    .filter(c => !usedCategoryIds.has(c.id))
-
-  const [mode, setMode] = useState<"pick" | "new">("pick")
-  const [picked, setPicked] = useState("")
-  const [draft, setDraft] = useState({ name: "", axis: "none" })
-
-  function close() {
-    setOpen(false)
-    setMode("pick"); setPicked(""); setDraft({ name: "", axis: "none" })
-  }
-
-  function confirm() {
-    if (mode === "pick") {
-      if (!picked) return
-      addSlot.mutate(Number(picked), { onSuccess: close })
-      return
-    }
-    if (!draft.name.trim()) return
-    // Nasce como sugestão: só esta obra recebe a pasta agora. As demais a
-    // acrescentam quando precisarem — inclusive as já cadastradas.
-    createCategory.mutate(
-      { client: "", buildType: kind, name: draft.name.trim(), axis: draft.axis, defaultSlot: false, jobsiteId },
-      { onSuccess: close },
-    )
-  }
-
-  const pending = addSlot.isPending || createCategory.isPending
-
-  return (
-    <Dialog open={open} onOpenChange={v => (v ? setOpen(true) : close())}>
-      {/* Um bloco com cara de item da lista, sempre no topo dela, e não um botão
-          no cabeçalho. Acrescentar categoria é acrescentar uma linha ao que a
-          obra guarda, e é ali, junto das linhas, que a pessoa procura. A borda
-          tracejada, na cor primária, diz que é um lugar para acrescentar, e não
-          um documento. */}
-      <DialogTrigger
-        render={
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-lg border border-dashed border-primary/50 p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
-          />
-        }
-      >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-dashed border-primary/50 text-primary">
-          <Plus className="h-4 w-4" />
-        </span>
-        <span className="text-sm font-medium text-primary">Add category</span>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>What this jobsite should have</DialogTitle></DialogHeader>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-1 rounded-lg border border-border/60 p-1">
-            {(["pick", "new"] as const).map(m => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
-                  mode === m ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {m === "pick" ? "From the taxonomy" : "New category"}
-              </button>
-            ))}
-          </div>
-
-          {mode === "pick" ? (
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="slot-category">Category</Label>
-              <Select value={picked} onValueChange={v => setPicked(v ?? "")}>
-                <SelectTrigger id="slot-category" className="w-full">
-                  <span className="flex-1 truncate text-left text-sm">
-                    {available.find(o => String(o.id) === picked)?.name ?? "Select a category…"}
-                  </span>
-                </SelectTrigger>
-                <SelectContent alignItemWithTrigger={false}>
-                  {available.map(o => (
-                    <SelectItem key={o.id} value={String(o.id)}>
-                      {o.axis === "floor" ? `${o.name} · one per floor`
-                        : o.axis === "unit" ? `${o.name} · one per unit`
-                        : o.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                {available.length === 0
-                  ? "Every category in the taxonomy is already here."
-                  : "Only what this jobsite doesn't have yet."}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="cat-name">Category name</Label>
-                <Input
-                  id="cat-name"
-                  value={draft.name}
-                  placeholder="Panels - Elevation - Bearing Walls…"
-                  onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="cat-axis">Subcategory</Label>
-                <Select value={draft.axis} onValueChange={v => setDraft(d => ({ ...d, axis: v ?? "none" }))}>
-                  <SelectTrigger id="cat-axis" className="w-full">
-                    <span className="flex-1 text-left text-sm">
-                      {AXIS_OPTIONS.find(a => a.value === draft.axis)?.label}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
-                    {AXIS_OPTIONS.map(a => (
-                      <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Saved for every jobsite to use later, added here only for now.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={close}>Cancel</Button>
-          <Button
-            disabled={pending || (mode === "pick" ? !picked : !draft.name.trim())}
-            onClick={confirm}
-          >
-            {pending ? "Adding…" : "Add"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
 }
 
 /**
@@ -254,7 +90,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   jobsiteId: string; client: string; kind: string; canManage: boolean
 }) {
   const { data: documents, isLoading } = useAtlasDocuments(jobsiteId)
-  const { data: slots = [] } = useAtlasJobsiteCategories(jobsiteId)
+  const categorias = useCategoriasDaObra(client, kind)
   const createDocument = useCreateAtlasDocument(jobsiteId)
   const router = useRouter()
 
@@ -263,6 +99,13 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   const [filter, setFilter] = useState("")
 
   const docs = documents ?? []
+  // As opções do filtro são as categorias que as pastas desta obra carregam. A
+  // pasta é a dona da categoria: não há lista de categorias cadastradas antes.
+  const categoriasDasPastas = useMemo(() => {
+    const m = new Map<string, AtlasDocTag>()
+    for (const d of docs) for (const t of tagsOf(d)) m.set(`${t.categoryId}:${t.subcategory}`, t)
+    return [...m.entries()].sort((a, b) => tagLabel(a[1]).localeCompare(tagLabel(b[1])))
+  }, [docs])
   const shown = filter
     ? docs.filter(d => tagsOf(d).some(t => `${t.categoryId}:${t.subcategory}` === filter))
     : docs
@@ -302,7 +145,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                 outra tela. Num dropdown antes do + New, e não em chips numa
                 linha própria: os chips quebravam em várias linhas no celular e
                 empurravam a lista para baixo. */}
-            {slots.length > 0 && docs.length > 0 && (
+            {categoriasDasPastas.length > 0 && (
               <Select value={filter || "all"} onValueChange={v => setFilter(!v || v === "all" ? "" : v)}>
                 <SelectTrigger size="sm" className="h-8 min-w-0 max-w-[11rem]">
                   {/* Ícone de etiqueta na frente e o nome, sem contador: o que o
@@ -311,8 +154,8 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                   <Tag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <span className="min-w-0 flex-1 truncate text-left text-xs">
                     {(() => {
-                      const sl = slots.find(x => `${x.categoryId}:${x.subcategory}` === filter)
-                      return sl ? tagLabel(sl) : "All"
+                      const t = categoriasDasPastas.find(([k]) => k === filter)?.[1]
+                      return t ? tagLabel(t) : "All"
                     })()}
                   </span>
                 </SelectTrigger>
@@ -325,14 +168,11 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                   className="w-max min-w-(--anchor-width) max-w-[min(22rem,calc(100vw-2rem))]"
                 >
                   <SelectItem value="all">All</SelectItem>
-                  {slots.map(sl => {
-                    const key = `${sl.categoryId}:${sl.subcategory}`
-                    return (
-                      <SelectItem key={key} value={key}>
-                        {tagLabel(sl)}
-                      </SelectItem>
-                    )
-                  })}
+                  {categoriasDasPastas.map(([key, t]) => (
+                    <SelectItem key={key} value={key}>
+                      {tagLabel(t)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
@@ -346,15 +186,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
         )}
       >
         <div className="flex flex-col gap-2">
-        {canManage && (
-          <NewCategoryDialog
-            jobsiteId={jobsiteId}
-            client={client}
-            kind={kind}
-            usedCategoryIds={new Set(slots.map(sl => sl.categoryId))}
-          />
-        )}
-
         {shown.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
             <p className="text-sm font-medium">
@@ -437,7 +268,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
         <UploadPlanDialog
           revisionCount={0}
           open={uploading}
-          slots={slots}
+          categorias={categorias}
           onStart={startNew}
           onClose={() => setUploading(false)}
         />

@@ -1,9 +1,11 @@
 "use client"
 
 import { AttachmentPicker } from "@/components/atlas/attachment-picker"
+import { tagLabel } from "@/components/atlas/document-tags-dialog"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
+import { IconInput } from "@/components/common/icon-input"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,24 +13,20 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
-import { Check, CloudUpload, FileUp, ScanText } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { ArrowLeft, ArrowRight, Check, CloudUpload, FileText, ListTree, ScanText } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
-import type { AtlasJobsiteCategory } from "@/services/atlas.service"
+import {
+  CategoryPicker, LINHA_VAZIA, paraEtiquetas, type LinhaCategoria,
+} from "@/components/atlas/category-picker"
+
+import type { AtlasDocCategory } from "@/services/atlas.service"
 
 /** Uma etiqueta escolhida: a categoria e o valor do eixo. */
 type TagKey = { categoryId: number; subcategory: string }
 
 /** O que um documento novo precisa saber de si além do arquivo. */
 export type DocumentIdentity = { name: string; tags: TagKey[] }
-
-/** "3rd Floor Trusses", "C Unit Cabinet Layout", ou só "Permit Set". */
-function slotLabel(sl: AtlasJobsiteCategory) {
-  if (!sl.subcategory) return sl.name
-  return sl.axis === "unit"
-    ? `${sl.subcategory} Unit ${sl.name}`
-    : `${sl.subcategory} Floor ${sl.name}`
-}
 
 /**
  * Subir um plan set, do arquivo às folhas nomeadas.
@@ -38,9 +36,15 @@ function slotLabel(sl: AtlasJobsiteCategory) {
  * assunto de quem tem o PDF na mão: o que existe é o arquivo, onde os nomes
  * estão impressos nele, e o envio. A revisão passa a ser contada sozinha, e a
  * folha que vale é sempre a última.
+ *
+ * Documento novo vai em duas etapas. Na primeira, o arquivo, o nome e as
+ * categorias: é o que diz o que a pasta é. Na segunda, onde o nome de cada
+ * folha está impresso, que é trabalho de outra natureza (olhar o desenho e
+ * marcar) e só faz sentido depois de a pasta estar decidida. Juntas numa tela
+ * só, a marcação disputava atenção com o cadastro e parecia opcional.
  */
 export function UploadPlanDialog({
-  categoryId, naming, revisionCount, open, slots, onStart, onClose,
+  categoryId, naming, revisionCount, open, categorias, onStart, onClose,
 }: {
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
   categoryId?: number
@@ -49,11 +53,11 @@ export function UploadPlanDialog({
   revisionCount: number
   open: boolean
   /**
-   * Documento novo: as categorias que esta obra espera receber. Presente,
-   * o diálogo também pergunta nome e etiquetas; ausente, ele só troca o set de
-   * um documento que já existe.
+   * Documento novo: as categorias da taxonomia que valem para esta obra.
+   * Presente, o diálogo pergunta nome e categoria numa primeira etapa; ausente,
+   * ele só troca o set de um documento que já existe, numa tela só.
    */
-  slots?: AtlasJobsiteCategory[]
+  categorias?: AtlasDocCategory[]
   /** Quem envia é a página: o envio precisa sobreviver ao fechamento daqui. */
   onStart: (
     file: File,
@@ -65,15 +69,25 @@ export function UploadPlanDialog({
 }) {
   const updateCategory = useUpdateDocCategory()
   const inputRef = useRef<HTMLInputElement>(null)
+  const novo = !!categorias
 
+  const [etapa, setEtapa] = useState<1 | 2>(1)
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
+  const [arrastando, setArrastando] = useState(false)
 
   // O nome do documento e como ele se classifica. O nome nasce do arquivo:
   // quem anexou já escolheu como chamar aquilo, e digitar de novo é pedir a
   // mesma coisa duas vezes. Fica editável aqui e depois, na própria página.
   const [name, setName] = useState("")
-  const [tags, setTags] = useState<TagKey[]>([])
+  // A categoria da pasta, escolhida junto com ela: a pasta é a dona da
+  // categoria. As linhas completas viram as etiquetas do documento.
+  const [linhas, setLinhas] = useState<LinhaCategoria[]>([LINHA_VAZIA])
+  const { etiquetas: tags, incompleta } = useMemo(
+    () => paraEtiquetas(linhas, categorias ?? []),
+    [linhas, categorias],
+  )
+  const categoriaOk = !novo || (tags.length > 0 && !incompleta)
 
   // O apelido desta versão e o que mudou nela. A versão se identifica pela data
   // e hora do envio; isto é o que a data não conta.
@@ -88,9 +102,10 @@ export function UploadPlanDialog({
 
   useEffect(() => {
     if (open) return
+    setEtapa(1)
     setFile(null); setError("")
     setNames(null); setReading("")
-    setName(""); setTags([])
+    setName(""); setLinhas([LINHA_VAZIA])
     setVersionName(""); setVersionNotes(""); setAttachments([])
   }, [open])
 
@@ -139,12 +154,113 @@ export function UploadPlanDialog({
   function submit() {
     if (!file) return
     onStart(file, names ?? undefined,
-      slots ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined,
+      novo ? { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags } : undefined,
       { name: versionName.trim(), notes: versionNotes.trim(), attachments })
     onClose()
   }
 
   const busy = false
+  const nomeacaoOk = !!template?.levels?.length && !reading
+  const podeAvancar = !!file && !!name.trim() && categoriaOk
+
+  // O rótulo das categorias escolhidas, para o resumo da segunda etapa.
+  const rotulos = tags.map(t => {
+    const c = categorias?.find(x => x.id === t.categoryId)
+    return tagLabel({ name: c?.name ?? "", subcategory: t.subcategory, axis: c?.axis ?? "none" })
+  })
+
+  const zonaDoArquivo = (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={e => choose(e.target.files?.[0] ?? null)}
+      />
+      {/* O arquivo entra pela mesma área de soltar do resto do sistema
+          (Workforce, Building Schedule): borda tracejada, arrastar ou clicar. O
+          nome quebra linha: nome de arquivo não tem espaço para a quebra natural
+          ("DADOS_ADICIONAIS_..."). */}
+      <div
+        role="button"
+        tabIndex={busy ? -1 : 0}
+        aria-disabled={busy}
+        onClick={() => !busy && inputRef.current?.click()}
+        onKeyDown={e => {
+          if (busy || (e.key !== "Enter" && e.key !== " ")) return
+          e.preventDefault()
+          inputRef.current?.click()
+        }}
+        onDragOver={e => { e.preventDefault(); if (!busy) setArrastando(true) }}
+        onDragLeave={() => setArrastando(false)}
+        onDrop={e => {
+          e.preventDefault()
+          setArrastando(false)
+          if (busy) return
+          const f = e.dataTransfer.files?.[0]
+          if (!f) return
+          if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) {
+            setError("Only PDF files.")
+            return
+          }
+          choose(f)
+        }}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center outline-none transition-all focus-visible:ring-3 focus-visible:ring-ring/50 ${
+          arrastando
+            ? "scale-[1.01] border-primary bg-primary/10"
+            : file
+              ? "border-primary/40 bg-primary/5"
+              : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
+        }`}
+      >
+        {file ? (
+          <>
+            <FileText className="h-8 w-8 text-primary" />
+            <span className="max-w-full break-all text-sm font-medium text-primary">{file.name}</span>
+            <span className="text-xs text-muted-foreground">
+              {(file.size / 1024 / 1024).toFixed(1)} MB · click or drop to replace
+            </span>
+          </>
+        ) : (
+          <>
+            <CloudUpload className={`h-8 w-8 transition-colors ${arrastando ? "text-primary" : "text-muted-foreground/50"}`} />
+            <span className="text-sm font-medium text-muted-foreground">
+              {arrastando ? "Drop to attach" : "Drag & drop or click to choose the PDF"}
+            </span>
+            <span className="text-xs text-muted-foreground/60">PDF files only</span>
+          </>
+        )}
+      </div>
+    </>
+  )
+
+  // Onde o nome de cada folha está impresso. Obrigatório: set sem nome sobe com
+  // as folhas chamadas pelo número da página, e ninguém volta depois para nomear.
+  const botaoNomeacao = (
+    <Button
+      variant="outline"
+      className="h-auto justify-start whitespace-normal py-3 text-left"
+      disabled={!localUrl || busy}
+      onClick={() => setMarking(true)}
+    >
+      <ScanText className="h-4 w-4 shrink-0 self-start" />
+      <span className="flex min-w-0 flex-1 flex-col items-start">
+        <span>{template?.levels?.length ? "Naming marked" : "Mark the naming"}</span>
+        <span className={`text-xs font-normal ${
+          template?.levels?.length || !localUrl ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"
+        }`}>
+          {reading ? `Reading the sheets ${reading}`
+            : names ? `${names.size} sheets named by the template`
+            : template?.levels?.length ? "Tap to check or redo it"
+            : "Required. Mark where the sheet name is printed"}
+        </span>
+      </span>
+      {!!names?.size && !reading && (
+        <Check className="ml-auto h-4 w-4 text-emerald-500" />
+      )}
+    </Button>
+  )
 
   return (
     <>
@@ -152,173 +268,170 @@ export function UploadPlanDialog({
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {slots ? "New document"
+              {novo ? "New document"
                 : revisionCount ? "Replace the plan set"
                 : "Upload the plan set"}
             </DialogTitle>
+            {/* As duas etapas à vista desde o começo: quem abre sabe que depois
+                do cadastro ainda vem a marcação dos nomes. */}
+            {novo && (
+              <div className="flex items-center gap-2 text-xs">
+                {[{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }].map(({ n, t }) => (
+                  <span key={n} className="flex items-center gap-2">
+                    {n > 1 && <span className="h-px w-6 bg-border" aria-hidden="true" />}
+                    <span className={`flex items-center gap-1.5 ${etapa === n ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                      <span className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] ${
+                        etapa > n ? "border-emerald-500 bg-emerald-500 text-white"
+                          : etapa === n ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border"
+                      }`}>
+                        {etapa > n ? <Check className="h-3 w-3" /> : n}
+                      </span>
+                      {t}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
           </DialogHeader>
 
           <div className="flex flex-col gap-3">
-            {/* 1. O arquivo. */}
-            <input
-              ref={inputRef}
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={e => choose(e.target.files?.[0] ?? null)}
-            />
-            <Button
-              variant="outline"
-              className="h-auto justify-start py-3"
-              disabled={busy}
-              onClick={() => inputRef.current?.click()}
-            >
-              <FileUp className="h-4 w-4" />
-              <span className="flex min-w-0 flex-col items-start">
-                <span className="truncate">{file ? file.name : "Choose the PDF"}</span>
-                {file && (
-                  <span className="text-xs font-normal text-muted-foreground">
-                    {(file.size / 1024 / 1024).toFixed(1)} MB
-                  </span>
-                )}
-              </span>
-            </Button>
-
-            {/* 2. Como o documento se chama e como ele se classifica. Só para
-                documento novo: trocar o set de um que já existe não é hora de
-                mexer no nome dele. */}
-            {slots && !!file && (
+            {novo && etapa === 1 && (
               <>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="doc-name">Document name</Label>
-                  <Input
-                    id="doc-name"
-                    value={name}
-                    placeholder="Comes from the file"
-                    onChange={e => setName(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label>Categories</Label>
-                  {slots.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">
-                      This jobsite has no category yet. Add one from the folder list, or upload
-                      it plain and tag it later.
-                    </p>
-                  ) : (
-                    <div className="flex flex-wrap gap-1.5">
-                      {slots.map(sl => {
-                        const key = `${sl.categoryId}:${sl.subcategory}`
-                        const on = tags.some(t => `${t.categoryId}:${t.subcategory}` === key)
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            onClick={() => setTags(prev => on
-                              ? prev.filter(t => `${t.categoryId}:${t.subcategory}` !== key)
-                              : [...prev, { categoryId: sl.categoryId, subcategory: sl.subcategory }])}
-                            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                              on
-                                ? "border-primary bg-primary/10 text-foreground"
-                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                            }`}
-                          >
-                            {slotLabel(sl)}
-                          </button>
-                        )
-                      })}
+                {zonaDoArquivo}
+                {!!file && (
+                  <>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="doc-name">Document name</Label>
+                      {/* O ícone dentro do campo, como prefixo, igual aos campos
+                          de categoria logo abaixo. */}
+                      <IconInput
+                        id="doc-name"
+                        startIcon={FileText}
+                        value={name}
+                        placeholder="Comes from the file"
+                        onChange={e => setName(e.target.value)}
+                      />
                     </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    A document can carry more than one. A set covering the 3rd and the 4th
-                    floor is one document with two.
-                  </p>
-                </div>
+
+                    {/* A categoria é da pasta e se escolhe aqui, junto com ela.
+                        Cada linha tem a categoria e, quando ela pede, o andar ou
+                        a unidade na mesma linha. */}
+                    <div className="flex flex-col gap-1.5">
+                      <CategoryPicker categorias={categorias ?? []} linhas={linhas} onChange={setLinhas} />
+                    </div>
+                  </>
+                )}
               </>
             )}
 
-            {/* 3. Onde o nome de cada folha está impresso. Opcional: dá para
-                subir agora e nomear depois, na própria pasta, que é o caminho
-                de quem recebeu o arquivo e ainda não sabe como ele é
-                organizado. */}
-            <Button
-              variant="outline"
-              className="h-auto justify-start py-3"
-              disabled={!localUrl || busy}
-              onClick={() => setMarking(true)}
-            >
-              <ScanText className="h-4 w-4" />
-              <span className="flex min-w-0 flex-col items-start">
-                <span>{template?.levels?.length ? "Naming marked" : "Mark the naming (optional)"}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {reading ? `Reading the sheets ${reading}`
-                    : names ? `${names.size} sheets named by the template`
-                    : template?.levels?.length ? "Tap to check or redo it"
-                    : "Skip it and the sheets go by page number until you name them"}
-                </span>
-              </span>
-              {!!names?.size && !reading && (
-                <Check className="ml-auto h-4 w-4 text-emerald-500" />
-              )}
-            </Button>
-
-            {/* Trocar o set é o momento de dizer o que mudou. Num documento
-                novo não há o que comparar, e o campo só pediria texto por
-                pedir. */}
-            {revisionCount > 0 && !!file && (
+            {novo && etapa === 2 && (
               <>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="ver-name">Version name</Label>
-                  <Input
-                    id="ver-name"
-                    value={versionName}
-                    placeholder="What changed, in a few words"
-                    onChange={e => setVersionName(e.target.value)}
-                  />
+                {/* O que foi decidido na primeira etapa, em uma linha de
+                    consulta: marcar os nomes é olhar o desenho, e o cadastro já
+                    não se mexe aqui. Para mudar, volta. */}
+                <div className="flex flex-col gap-1.5 rounded-lg border border-border/60 bg-muted/30 p-3">
+                  <span className="flex items-start gap-2">
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span className="min-w-0 break-all text-sm font-medium">{name.trim() || file?.name}</span>
+                  </span>
+                  <span className="flex flex-wrap gap-1 pl-6">
+                    {rotulos.map(r => (
+                      <span key={r} className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                        {r}
+                      </span>
+                    ))}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="ver-notes">Why it changed</Label>
-                  {/* Uma linha só não cabia o motivo. Quem troca um set conta o
-                      que foi achado em obra, quem pediu e o que a correção
-                      resolve, e isso não é uma frase. */}
-                  <Textarea
-                    id="ver-notes"
-                    rows={4}
-                    value={versionNotes}
-                    placeholder="What was found, who asked for it, what the correction solves"
-                    onChange={e => setVersionNotes(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label>Attachments</Label>
-                  {/* A foto do que se achou em obra, o recorte do e-mail do
-                      projetista. Sem lugar para isso, a justificativa vira "ver
-                      anexo no e-mail" e o anexo fica fora do Atlas. */}
-                  <AttachmentPicker files={attachments} onChange={setAttachments} />
-                </div>
+                {botaoNomeacao}
               </>
             )}
 
-            {revisionCount > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {/* A regra fica dita onde a decisão acontece, não num aviso à
-                    parte: o que sobe passa a valer e o que estava vale como
-                    histórico. */}
-                The current plan set becomes the previous one. The sheet that counts is always the last one uploaded.
-              </p>
+            {!novo && (
+              <>
+                {zonaDoArquivo}
+                {botaoNomeacao}
+
+                {/* Trocar o set é o momento de dizer o que mudou. */}
+                {revisionCount > 0 && !!file && (
+                  <>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="ver-name">Version name</Label>
+                      <Input
+                        id="ver-name"
+                        value={versionName}
+                        placeholder="What changed, in a few words"
+                        onChange={e => setVersionName(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="ver-notes">Why it changed</Label>
+                      {/* Uma linha só não cabia o motivo. Quem troca um set conta
+                          o que foi achado em obra, quem pediu e o que a correção
+                          resolve, e isso não é uma frase. */}
+                      <Textarea
+                        id="ver-notes"
+                        rows={4}
+                        value={versionNotes}
+                        placeholder="What was found, who asked for it, what the correction solves"
+                        onChange={e => setVersionNotes(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <Label>Attachments</Label>
+                      {/* A foto do que se achou em obra, o recorte do e-mail do
+                          projetista. Sem lugar para isso, a justificativa vira
+                          "ver anexo no e-mail" e o anexo fica fora do Atlas. */}
+                      <AttachmentPicker files={attachments} onChange={setAttachments} />
+                    </div>
+                  </>
+                )}
+
+                {revisionCount > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {/* A regra fica dita onde a decisão acontece: o que sobe
+                        passa a valer e o que estava vale como histórico. */}
+                    The current plan set becomes the previous one. The sheet that counts is always the last one uploaded.
+                  </p>
+                )}
+              </>
             )}
 
             {error && <p className="text-center text-xs text-destructive">{error}</p>}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
-            <Button onClick={submit} disabled={!file}>
-              <CloudUpload className="h-4 w-4" />
-              Upload
-            </Button>
+            {/* O aviso mora no rodapé, à esquerda dos botões: é o motivo de o
+                Next estar apagado, e fica ao lado dele. Quebra linha quando não
+                cabe; no celular, onde os botões se empilham, vai por cima deles. */}
+            {novo && etapa === 1 && incompleta && (
+              <p className="order-last flex min-w-0 max-w-[13rem] items-start gap-1.5 text-left text-xs text-amber-600 dark:text-amber-400 sm:order-first sm:mr-auto sm:self-center">
+                {/* O mesmo ícone da metade da subcategoria: aponta para o campo que falta. */}
+                <ListTree className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>Pick the subcategory for every category that has one.</span>
+              </p>
+            )}
+            {novo && etapa === 2 ? (
+              <Button variant="outline" disabled={busy} onClick={() => setEtapa(1)}>
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            ) : (
+              <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            )}
+            {novo && etapa === 1 ? (
+              <Button onClick={() => setEtapa(2)} disabled={!podeAvancar}>
+                Next
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              // Sem gabarito marcado, ou ainda lendo os nomes, não sobe.
+              <Button onClick={submit} disabled={!file || !nomeacaoOk || !categoriaOk}>
+                <CloudUpload className="h-4 w-4" />
+                Upload
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -334,10 +447,9 @@ export function UploadPlanDialog({
             setTemplate(next)
             setMarking(false)
             // Guardado na categoria: o próximo envio do mesmo relatório já sobe
-            // nomeado, sem ninguém remarcar nada.
-            // Gravar o gabarito é conveniência do próximo envio, não condição
-            // deste: se falhar, o envio segue com o que está marcado aqui, e o
-            // aviso diz que da próxima vez vai precisar remarcar.
+            // nomeado, sem ninguém remarcar nada. Gravar o gabarito é
+            // conveniência do próximo envio, não condição deste: se falhar, o
+            // envio segue com o que está marcado aqui.
             const target = categoryId ?? tags[0]?.categoryId
             if (target) {
               updateCategory.mutate({ id: target, naming: next }, {
