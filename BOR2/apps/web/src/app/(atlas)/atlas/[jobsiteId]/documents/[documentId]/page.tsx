@@ -1,6 +1,9 @@
 "use client"
 
 import { aquecerRotas } from "@/lib/offline/aquecer"
+import { local } from "@/lib/offline/db"
+import { lerArquivo } from "@/lib/offline/storage"
+import { useLiveQuery } from "dexie-react-hooks"
 import { downloadPlan } from "@/components/atlas/pdf-page"
 import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
@@ -23,7 +26,7 @@ import {
 import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ArrowLeft, Check, CloudUpload, Download, Highlighter, History, Images, Layers, Link2, MapPin,
+  ArrowLeft, Check, CloudUpload, Download, FileText, Highlighter, History, Images, Layers, Link2, MapPin,
   Paperclip, Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
@@ -110,6 +113,14 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover object-top"
           />
+        ) : typeof navigator !== "undefined" && !navigator.onLine ? (
+          // Sem rede e sem miniatura guardada não há o que esperar: girar para
+          // sempre dizia "carregando" sobre algo que não vai chegar, e fazia a
+          // pasta inteira parecer quebrada. A folha continua abrindo pelo toque.
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-muted/40 text-muted-foreground">
+            <FileText className="h-5 w-5" />
+            <span className="text-[11px]">No preview offline</span>
+          </span>
         ) : (
           // Sem miniatura ainda: ou a folha está na fila do corte, ou acabou de
           // ser trocada e a prévia nova está a caminho. Nos dois casos é espera,
@@ -350,6 +361,40 @@ export default function DocumentPage() {
 
   const { data: sheets } = useAtlasSheets(versionId)
   const { data: thumbs, refetch: refetchThumbs } = useAtlasThumbs(versionId)
+  // As miniaturas guardadas no aparelho, para quando a do servidor não vem.
+  //
+  // A do servidor é URL assinada e não abre sem rede; a guardada é arquivo no
+  // OPFS e vira endereço local na hora. Só se monta quando falta a do servidor,
+  // que é o caso sem rede: com rede ela é sempre a mais nova.
+  const planosLocais = useLiveQuery(
+    () => local.planos.where("pastaId").equals(documentId).toArray(),
+    [documentId],
+  )
+  const chaveThumbs = (planosLocais ?? [])
+    .filter(p => p.thumb).map(p => `${p.id}:${p.thumb}`).join("|")
+  const [thumbsLocais, setThumbsLocais] = useState<Map<string, string>>(new Map())
+  useEffect(() => {
+    if (thumbs || !chaveThumbs) return
+    let vivo = true
+    const criadas: string[] = []
+    ;(async () => {
+      const m = new Map<string, string>()
+      for (const p of planosLocais ?? []) {
+        if (!p.thumb) continue
+        const f = await lerArquivo(p.thumb)
+        if (!f) continue
+        const u = URL.createObjectURL(f)
+        criadas.push(u)
+        m.set(p.id, u)
+      }
+      if (vivo) setThumbsLocais(m)
+    })()
+    return () => {
+      vivo = false
+      criadas.forEach(u => URL.revokeObjectURL(u))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chaveThumbs, !!thumbs])
   // Chegar direto numa folha, que é o outro lado do vínculo desenhado na
   // prancha: sem isto o link entre pastas abriria a lista e devolveria a
   // procura para quem clicou justamente para não procurar.
@@ -878,7 +923,7 @@ export default function DocumentPage() {
                         sheet={s}
                         versionId={versionId}
                         canManage={!!canManage}
-                        thumb={thumbs?.get(s.id) ?? previews.get(s.pageIndex)}
+                        thumb={thumbs?.get(s.id) ?? thumbsLocais.get(s.id) ?? previews.get(s.pageIndex)}
                         waiting={!s.r2Key && !previews.has(s.pageIndex)}
                         picking={!!picking}
                         picked={chosen.has(s.id)}

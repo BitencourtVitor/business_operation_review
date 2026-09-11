@@ -189,6 +189,9 @@ export async function baixarPasta(pastaId: string): Promise<{
     baixadoEm: Date.now(),
   })
   await recalcularSelecao(pasta.obraId)
+  // As miniaturas descem depois, em segundo plano: são o que desenha a grade de
+  // folhas, e sem elas a pasta abre sem rede com um cartão girando por folha.
+  void baixarMiniaturas(pastaId).catch(() => 0)
   // O servidor precisa saber quem mantém esta pasta, para poder avisar quando
   // uma sobrescrita atingi-la. É o cenário perigoso: gente no canteiro com
   // revisão vencida sem saber que venceu.
@@ -217,4 +220,46 @@ export async function liberarPasta(pastaId: string): Promise<void> {
   await local.pastas.update(pastaId, { estado: "ausente", baixadoEm: null })
   if (pasta) await recalcularSelecao(pasta.obraId)
   try { await atlasService.unsetOfflineFolder(pastaId) } catch { /* reconcilia depois */ }
+}
+
+/**
+ * Traz as miniaturas das folhas de uma pasta para o aparelho.
+ *
+ * A miniatura vem do bucket por URL assinada, que vence e não abre sem rede.
+ * Guardada no OPFS ela é o que desenha a grade de folhas sem sinal. Pesa pouco
+ * perto da prancha, e só desce a que falta: chamar de novo não baixa nada.
+ */
+export async function baixarMiniaturas(pastaId: string): Promise<number> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return 0
+  const faltam = (await local.planos.where("pastaId").equals(pastaId).toArray())
+    .filter(p => !p.thumb)
+  if (!faltam.length) return 0
+
+  const urls = new Map<string, string>()
+  for (const versao of new Set(faltam.map(p => p.versaoId))) {
+    for (const t of await atlasService.versionThumbs(versao)) urls.set(t.sheetId, t.url)
+  }
+
+  let gravadas = 0
+  // Seis por vez: uma a uma, 97 miniaturas levariam o tempo de uma pasta
+  // inteira; todas juntas, o celular abre 97 conexões de uma vez.
+  const fila = [...faltam]
+  async function trabalhar() {
+    for (let p = fila.shift(); p; p = fila.shift()) {
+      const url = urls.get(p.id)
+      if (!url) continue
+      try {
+        const res = await fetch(url)
+        if (!res.ok) continue
+        const caminho = await gravarArquivo(p.obraId, `${p.id}.thumb`, await res.blob())
+        if (!caminho) continue
+        await local.planos.update(p.id, { thumb: caminho })
+        gravadas++
+      } catch {
+        // A que falhar fica para a próxima visita com rede.
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: 6 }, trabalhar))
+  return gravadas
 }
