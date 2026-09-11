@@ -17,7 +17,7 @@ import { useAtlasJobsites } from "@/hooks/use-atlas"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, ChevronDown, CircleDot, Layers, MapPin, Pencil, Plus, Search,
+  Archive, ArchiveRestore, ChevronDown, CircleDot, Layers, MapPin, Pencil, Plus, Search, WifiOff,
 } from "lucide-react"
 import Link from "next/link"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -65,6 +65,15 @@ export default function AtlasJobsitesPage() {
   const [adding, setAdding] = useState<"import" | "new" | null>(null)
   const [editing, setEditing] = useState<AtlasJobsite | null>(null)
   const [archiving, setArchiving] = useState<AtlasJobsite | null>(null)
+  // A obra que está mostrando o aviso de "não salva". Volta sozinha ao normal:
+  // é um recado de relance, e um aviso que precisa ser fechado vira mais uma
+  // tarefa na tela.
+  const [aviso, setAviso] = useState<string | null>(null)
+  useEffect(() => {
+    if (!aviso) return
+    const t = setTimeout(() => setAviso(null), 3000)
+    return () => clearTimeout(t)
+  }, [aviso])
   const qc = useQueryClient()
   const archive = useMutation({
     mutationFn: ({ id, archived }: { id: string; archived: boolean }) =>
@@ -216,22 +225,69 @@ export default function AtlasJobsitesPage() {
                   // arquivamento fez com a obra.
                   <div
                     key={j.id}
-                    className={`flex items-stretch overflow-hidden rounded-md border transition-colors hover:border-primary/40 ${
-                      archived
-                        ? "border-dashed border-border/50 bg-muted/30 opacity-75 hover:opacity-100"
-                        : "border-border/60 bg-card"
+                    className={`flex items-stretch overflow-hidden rounded-md border transition-colors duration-300 ${
+                      aviso === j.id
+                        ? "border-red-500/50 bg-red-500/[0.06]"
+                        : archived
+                          ? "border-dashed border-border/50 bg-muted/30 opacity-75 hover:border-primary/40 hover:opacity-100"
+                          : "border-border/60 bg-card hover:border-primary/40"
                     }`}
                   >
                     <Link
                       href={alcancavel ? `/atlas/${j.id}` : "#"}
                       aria-disabled={!alcancavel}
-                      title={alcancavel ? undefined
-                        : "Sem conexão, e esta obra não foi mantida neste aparelho"}
-                      onClick={e => { if (!alcancavel) e.preventDefault() }}
-                      className={`flex min-w-0 flex-1 flex-col gap-1 p-4 transition-colors ${
-                        alcancavel ? "hover:bg-accent/30" : "cursor-not-allowed opacity-50"
+                      // O toque em qualquer ponto do card explica, e não só no
+                      // ícone: no celular ninguém mira num ícone de 16 px, e o
+                      // `title` que havia aqui nunca aparece em tela de toque.
+                      onClick={e => {
+                        if (alcancavel) return
+                        e.preventDefault()
+                        setAviso(j.id)
+                      }}
+                      className={`relative flex min-w-0 flex-1 flex-col gap-1 p-4 transition-colors ${
+                        alcancavel ? "hover:bg-accent/30"
+                          : `cursor-not-allowed pr-10 [&>span]:transition-opacity [&>span]:duration-300 ${
+                            aviso === j.id ? "[&>span]:opacity-0" : "[&>span]:opacity-50"
+                          }`
                       }`}
                     >
+                      {/* O esmaecido vai só no texto. Aplicado ao card inteiro,
+                          apagava junto o ícone, e o vermelho é o que faz a pessoa
+                          perceber de longe por que a obra não abre.
+
+                          O ícone fica à direita do texto, na altura do meio,
+                          encostado nos botões de arquivar e editar: é o lado das
+                          ações, e é ali que a pessoa procura por que não pode
+                          agir sobre a obra. */}
+                      {/* Tocar no card troca a aparência dele inteiro por alguns
+                          segundos, e não abre balão: a borda e o fundo puxam
+                          para o vermelho, o texto some, e no lugar dele entra o
+                          ícone maior com o motivo. Depois tudo volta esmaecendo.
+                          O aviso mora dentro do próprio card, que é onde o olho
+                          já está quando o toque não abre nada. */}
+                      {!alcancavel && (
+                        <>
+                          <WifiOff
+                            aria-label="Offline"
+                            className={`absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-500 transition-opacity duration-300 dark:text-red-400 ${
+                              aviso === j.id ? "opacity-0" : "opacity-100"
+                            }`}
+                          />
+                          <div
+                            role="status"
+                            aria-hidden={aviso !== j.id}
+                            className={`pointer-events-none absolute inset-0 flex items-center gap-3 px-4 transition-opacity duration-300 ${
+                              aviso === j.id ? "opacity-100" : "opacity-0"
+                            }`}
+                          >
+                            <WifiOff className="h-6 w-6 shrink-0 text-red-500 dark:text-red-400" />
+                            <div className="flex min-w-0 flex-col">
+                              <span className="text-sm font-semibold text-red-600 dark:text-red-400">You're offline</span>
+                              <span className="text-xs text-muted-foreground">This project isn't saved on this device</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       {/* Do geral ao particular: cliente, lugar, e por fim a
                           obra. A identificação vem por último porque é onde a
                           leitura chega, e é como a obra é chamada no dia a dia. */}
@@ -262,13 +318,16 @@ export default function AtlasJobsitesPage() {
                       </span>
                     </Link>
 
+                    {/* Sem rede, arquivar e editar ficam desabilitados em toda
+                        obra, salva ou não. Os dois gravam no servidor, e sem
+                        conexão o toque não faria nada além de parecer quebrado. */}
                     <div className="flex shrink-0 flex-col border-l border-border/60">
                       <button
                         type="button"
                         title={archived ? "Reactivate project" : "Archive project"}
                         onClick={() => archived ? archive.mutate({ id: j.id, archived: false }) : setArchiving(j)}
-                        disabled={archive.isPending}
-                        className={`flex flex-1 items-center justify-center px-2.5 transition-colors disabled:opacity-50 ${
+                        disabled={archive.isPending || !online}
+                        className={`flex flex-1 items-center justify-center px-2.5 transition-colors disabled:pointer-events-none disabled:opacity-40 ${
                           archived
                             ? "text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
                             : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
@@ -282,7 +341,8 @@ export default function AtlasJobsitesPage() {
                         type="button"
                         title="Edit project"
                         onClick={() => setEditing(j)}
-                        className="flex flex-1 items-center justify-center border-t border-border/60 px-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        disabled={!online}
+                        className="flex flex-1 items-center justify-center border-t border-border/60 px-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
