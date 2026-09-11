@@ -139,6 +139,28 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     void tamanhosDaObra(jobsiteId).then(setDisco)
   }
 
+  // O peso acompanha o download. A contagem de pranchas vem do banco local e se
+  // atualiza sozinha; o peso vem do disco, e sem isto só era medido ao abrir a
+  // página, ao abrir o modal e no fim do download, então ficava parado em 0 KB
+  // enquanto as pranchas subiam. Mede de novo quando entra arquivo, no máximo
+  // uma vez a cada 0,8 s, para não ler o disco a cada prancha.
+  const arquivosNoAparelho = useMemo(
+    () => (planos ?? []).reduce((n, p) => n + (p.arquivo ? 1 : 0) + (p.thumb ? 1 : 0), 0),
+    [planos],
+  )
+  const medidaAgendada = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (medidaAgendada.current) return
+    medidaAgendada.current = setTimeout(() => {
+      medidaAgendada.current = null
+      medirTudo()
+    }, 800)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arquivosNoAparelho])
+  useEffect(() => () => {
+    if (medidaAgendada.current) clearTimeout(medidaAgendada.current)
+  }, [])
+
   useEffect(() => {
     medirTudo()
     // eslint-disable-next-line react-hooks/exhaustive-deps
