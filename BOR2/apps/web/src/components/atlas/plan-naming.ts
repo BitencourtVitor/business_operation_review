@@ -75,15 +75,30 @@ export interface PageName {
   reads: string[]
 }
 
-/** A letra do sufixo: 0 vira A, 25 vira Z, 26 vira AA. */
-function letter(i: number): string {
-  let out = ""
-  let n = i
-  do {
-    out = String.fromCharCode(65 + (n % 26)) + out
-    n = Math.floor(n / 26) - 1
-  } while (n >= 0)
-  return out
+/**
+ * O sufixo de desempate: 0 vira "(1)", 1 vira "(2)".
+ *
+ * Era letra colada por hífen ("-A", "-B"), e a troca não é cosmética. O hífen
+ * entra no meio do nome e o descaracteriza: "129-A" deixa de casar com o texto
+ * "129" que aparece escrito na prancha de conjunto, e é exatamente esse
+ * casamento que a geração automática de links usa para saber para onde apontar.
+ * Entre parênteses, o título base sobrevive inteiro à esquerda do sufixo.
+ */
+export function suffix(i: number): string {
+  return ` (${i + 1})`
+}
+
+/**
+ * Separa o nome no que é título e no que é sufixo, para a interface poder
+ * pintar os dois de forma diferente.
+ *
+ * Mora aqui, e não na tela, porque quem decide o formato do sufixo é esta
+ * função. Deixar a tela procurar um parêntese no fim da string faria a regra
+ * existir em dois lugares, e o dia em que o formato mudar só um deles muda.
+ */
+export function splitSuffix(name: string): { base: string; suffix: string } {
+  const m = /^(.*?)(\s\(\d+\))$/.exec(name)
+  return m ? { base: m[1], suffix: m[2] } : { base: name, suffix: "" }
 }
 
 /**
@@ -92,7 +107,7 @@ function letter(i: number): string {
  * Acontece de verdade: num relatório de produção, o mesmo código de bundle
  * aparece na folha de montagem e na de posicionamento, e as duas são folhas
  * diferentes. Sem desempate as duas ficam com o mesmo nome e ninguém sabe qual
- * é qual; com ele viram "1-01-L-A" e "1-01-L-B", na ordem em que estão no
+ * é qual; com ele viram "1-01-L (1)" e "1-01-L (2)", na ordem em que estão no
  * arquivo.
  *
  * Só quem repete recebe sufixo. Nome único continua exatamente como foi lido,
@@ -109,7 +124,7 @@ export function disambiguate(pages: PageName[]): PageName[] {
     if (!p.read || (count.get(p.read) ?? 0) < 2) return p
     const i = seen.get(p.read) ?? 0
     seen.set(p.read, i + 1)
-    return { ...p, name: `${p.read}-${letter(i)}` }
+    return { ...p, name: `${p.read}${suffix(i)}` }
   })
 }
 

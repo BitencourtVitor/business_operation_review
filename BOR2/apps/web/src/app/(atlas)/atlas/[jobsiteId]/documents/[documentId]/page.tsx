@@ -197,11 +197,20 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
             <p className="min-w-0 flex-1 truncate text-sm font-medium leading-tight">
               {sheet.sheetNumber || <span className="text-muted-foreground">Sheet name</span>}
             </p>
+            {/* Onde não há mouse, o lápis fica sempre visível.
+                Ele nasce invisível e aparece no hover do cartão, o que mantém a
+                grade limpa em quem usa mouse. Em iPad e iPhone não existe
+                hover: o dedo toca e o `group-hover` só vale enquanto o toque
+                dura, então o botão nunca chegava a aparecer e a renomeação
+                ficava inalcançável justamente no aparelho em que o Atlas mais é
+                usado. `pointer: coarse` é o teste certo, e não a largura da
+                tela: o que decide é o aparelho ter ou não ponteiro fino, não
+                caber ou não num breakpoint. */}
             <button
               type="button"
               title="Rename"
               onClick={() => { setDraft({ sheetNumber: sheet.sheetNumber, title: sheet.title }); setEditing(true) }}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-colors hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover/card:opacity-100"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-colors hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover/card:opacity-100 [@media(pointer:coarse)]:opacity-100"
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>

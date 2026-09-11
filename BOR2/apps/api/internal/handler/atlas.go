@@ -1837,13 +1837,17 @@ func (h *AtlasHandler) DeleteAnnotation(c *fiber.Ctx) error {
 // ── Eventos ─────────────────────────────────────────────────────────────────
 
 type atlasEvent struct {
-	ID         string          `json:"id"`
-	JobsiteID  string          `json:"jobsiteId"`
-	SheetID    *string         `json:"sheetId"`
-	Kind       string          `json:"kind"`
-	Title      string          `json:"title"`
-	Body       string          `json:"body"`
-	Status     string          `json:"status"`
+	ID        string  `json:"id"`
+	JobsiteID string  `json:"jobsiteId"`
+	SheetID   *string `json:"sheetId"`
+	Kind      string  `json:"kind"`
+	Title     string  `json:"title"`
+	Body      string  `json:"body"`
+	Status    string  `json:"status"`
+	// O número do ponto, contínuo por obra. É por ele que o ponto é chamado no
+	// canteiro e citado no relatório impresso, e é o que a colisão de
+	// sincronização protege.
+	Number     *int            `json:"number"`
 	PageX      *float64        `json:"pageX"`
 	PageY      *float64        `json:"pageY"`
 	Region     json.RawMessage `json:"region"`
@@ -1876,7 +1880,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 	}
 	sheetID := c.Query("sheetId")
 	rows, err := h.db.Query(c.Context(), `
-		SELECT e.id, e.jobsite_id, e.sheet_id, e.kind, e.title, e.body, e.status,
+		SELECT e.id, e.jobsite_id, e.sheet_id, e.kind, e.title, e.body, e.status, e.point_number,
 		       e.page_x, e.page_y, e.region, e.created_by, e.created_at,
 		       e.resolved_by, e.resolved_at,
 		       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
@@ -1892,9 +1896,10 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		LEFT JOIN atlas_sheet s ON s.id = e.sheet_id
 		LEFT JOIN atlas_document_version v ON v.id = s.version_id
 		WHERE e.jobsite_id = $1 AND ($2 = '' OR e.sheet_id = $2)
-		-- Aberta primeiro, e dentro de cada grupo a mais recente. Quem abre
-		-- Tasks vai atrás do que falta fazer, não do que já foi encerrado.
-		ORDER BY (e.status = 'resolved'), e.created_at DESC`, jobsiteID, sheetID)
+		-- Pendente primeiro, e dentro de cada grupo o número mais alto: quem
+		-- abre o punch list vai atrás do que falta fazer, e do que acabou de
+		-- ser levantado.
+		ORDER BY (e.status = 'resolved'), e.point_number DESC NULLS LAST, e.created_at DESC`, jobsiteID, sheetID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1906,7 +1911,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		var created time.Time
 		var resolved *time.Time
 		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body,
-			&e.Status, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
+			&e.Status, &e.Number, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
 			&e.ResolvedBy, &resolved, &e.Replies, &e.Media,
 			&e.CreatedByName, &e.CreatedByRole, &e.JobsiteName, &e.JobsiteUnit,
 			&e.DocumentID); err != nil {

@@ -1,5 +1,8 @@
 "use client"
 
+import { OfflineFolders } from "@/components/atlas/offline-folders"
+import { PunchReportDialog } from "@/components/atlas/punch-report-dialog"
+import { SyncIndicator } from "@/components/atlas/sync-indicator"
 import { EventsPanel } from "@/components/atlas/events-panel"
 import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
 import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
@@ -31,7 +34,7 @@ import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/uplo
 import type { AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
 import {
   Archive, ArchiveRestore, Briefcase, Building2, CalendarDays, FileQuestion, FolderOpen,
-  Layers, MapPin, Pencil, Plus,
+  FileDown, Layers, MapPin, Pencil, Plus,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -73,7 +76,7 @@ const AXIS_OPTIONS = [
 // ver é a lista. A altura que ela gastava passa a ser lista.
 const TAB_META: Record<string, { title: string }> = {
   documents: { title: "Documents" },
-  tasks:     { title: "Tasks" },
+  tasks:     { title: "Punch List" },
   access:    { title: "Access" },
 }
 
@@ -481,6 +484,7 @@ export default function JobsiteRoomPage() {
   // guardado por alguém não pode abrir uma sala vazia.
   const pedida = params.get("tab") ?? "documents"
   const tab = pedida in TAB_META ? pedida : "documents"
+  const [relatorio, setRelatorio] = useState(false)
   const meta = TAB_META[tab]
   const [editing, setEditing] = useState(false)
   const [archiving, setArchiving] = useState(false)
@@ -564,9 +568,38 @@ export default function JobsiteRoomPage() {
       </div>
 
       {tab === "documents" && (
-        <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
+        <div className="flex flex-col gap-4">
+          <DocumentsPanel jobsiteId={jobsiteId} client={jobsite.client} kind={jobsite.kind} canManage={!!canManage} />
+          {/* A escolha do que fica no aparelho mora junto das pastas, e não numa
+              tela de configuração. É a mesma decisão, tomada no mesmo lugar em
+              que se olha a pasta. */}
+          <OfflineFolders jobsiteId={jobsiteId} />
+        </div>
       )}
-      {tab === "tasks" && <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />}
+      {tab === "tasks" && (
+        <div className="flex flex-col gap-3">
+          {/* O relatório sai daqui e não de uma tela à parte: quem está olhando
+              a lista é quem quer levá-la para a reunião. */}
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" className="gap-1.5"
+              onClick={() => setRelatorio(true)}>
+              <FileDown className="h-3.5 w-3.5" />
+              Report
+            </Button>
+          </div>
+          <PunchReportDialog
+            jobsiteId={jobsiteId}
+            jobsiteName={jobsite.name}
+            open={relatorio}
+            onOpenChange={setRelatorio}
+          />
+          {/* O estado da fila desta obra, acima da lista. Aqui e não no
+              cabeçalho global porque a pergunta que ele responde é sobre esta
+              obra: dá para sair do canteiro, ou ainda tem coisa por subir? */}
+          <SyncIndicator jobsiteId={jobsiteId} />
+          <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />
+        </div>
+      )}
       {/* O mesmo formulário da lista de projetos: a obra se edita de um jeito
           só, esteja quem edita na lista ou dentro dela. */}
       <ArchiveConfirm
