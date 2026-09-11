@@ -17,7 +17,7 @@ import { useAtlasJobsites } from "@/hooks/use-atlas"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, ChevronDown, CircleDot, Layers, MapPin, Pencil, Plus, Search, WifiOff,
+  Archive, ArchiveRestore, ChevronDown, CircleDot, CloudCheck, Layers, MapPin, Pencil, Plus, Search, WifiOff,
 } from "lucide-react"
 import Link from "next/link"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -50,6 +50,17 @@ export default function AtlasJobsitesPage() {
     () => new Set((locais ?? []).filter(o => o.selecionada && !o.expiradaEm).map(o => o.id)),
     [locais],
   )
+  // As obras baixadas por inteiro: todas as pastas com as pranchas no aparelho.
+  // É o que acende a nuvem no card, com ou sem rede.
+  const pastasLocais = useLiveQuery(() => local.pastas.toArray(), [])
+  const completas = useMemo(() => {
+    const porObra = new Map<string, boolean>()
+    for (const p of pastasLocais ?? []) {
+      const noAparelho = p.estado === "disponivel" || p.estado === "desatualizada"
+      porObra.set(p.obraId, (porObra.get(p.obraId) ?? true) && noAparelho)
+    }
+    return new Set([...porObra].filter(([, ok]) => ok).map(([id]) => id))
+  }, [pastasLocais])
   useEffect(() => {
     const m = () => setOnline(navigator.onLine)
     m()
@@ -216,6 +227,7 @@ export default function AtlasJobsitesPage() {
                 const Kind = (KIND_META[j.kind] ?? KIND_META.house).icon
                 const archived = j.status === "archived"
                 const alcancavel = online || guardadas.has(j.id)
+                const salva = completas.has(j.id)
                 return (
                   // Link e botões lado a lado, nunca aninhados: botão dentro de
                   // link é HTML inválido, e o clique de um roubaria o do outro.
@@ -245,7 +257,7 @@ export default function AtlasJobsitesPage() {
                         setAviso(j.id)
                       }}
                       className={`relative flex min-w-0 flex-1 flex-col gap-1 p-4 transition-colors ${
-                        alcancavel ? "hover:bg-accent/30"
+                        alcancavel ? `hover:bg-accent/30 ${salva ? "pr-10" : ""}`
                           : `cursor-not-allowed pr-10 [&>span]:transition-opacity [&>span]:duration-300 ${
                             aviso === j.id ? "[&>span]:opacity-0" : "[&>span]:opacity-50"
                           }`
@@ -265,6 +277,18 @@ export default function AtlasJobsitesPage() {
                           ícone maior com o motivo. Depois tudo volta esmaecendo.
                           O aviso mora dentro do próprio card, que é onde o olho
                           já está quando o toque não abre nada. */}
+                      {/* Obra baixada por inteiro leva a nuvem no mesmo lugar do
+                          aviso de sem rede, na cor do texto. Aparece também com
+                          rede: é como se vê de relance o que já está no aparelho
+                          antes de sair para onde não há sinal. */}
+                      {alcancavel && salva && (
+                        <CloudCheck
+                          aria-label="Saved on this device"
+                          className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        >
+                          <title>Saved on this device</title>
+                        </CloudCheck>
+                      )}
                       {!alcancavel && (
                         <>
                           <WifiOff
