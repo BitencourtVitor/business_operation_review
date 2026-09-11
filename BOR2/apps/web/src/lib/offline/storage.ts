@@ -185,6 +185,36 @@ export async function apagarArquivo(caminho: string): Promise<void> {
 }
 
 /**
+ * Quanto cada arquivo de uma obra ocupa no aparelho, medido no disco.
+ *
+ * Só lê: pede o tamanho de cada arquivo sem abrir o conteúdo. É o número real,
+ * e não a estimativa do servidor, que conta o PDF original e não os recortes e
+ * miniaturas que de fato ficaram guardados.
+ */
+export async function tamanhosDaObra(obraId: string): Promise<{
+  total: number
+  /** Tamanho por caminho, no mesmo formato gravado no plano (`obras/<obra>/<arquivo>`). */
+  porArquivo: Map<string, number>
+}> {
+  const porArquivo = new Map<string, number>()
+  const dir = await pastaDaObra(obraId, false)
+  if (!dir) return { total: 0, porArquivo }
+  let total = 0
+  try {
+    // @ts-expect-error a iteração de diretório ainda não está no lib.dom padrão
+    for await (const [nome, h] of dir.entries()) {
+      if (h.kind !== "file") continue
+      const tamanho = (await h.getFile()).size
+      porArquivo.set(`obras/${obraId}/${nome}`, tamanho)
+      total += tamanho
+    }
+  } catch {
+    // Diretório sumiu no meio da leitura: vale o que foi medido até ali.
+  }
+  return { total, porArquivo }
+}
+
+/**
  * Libera os bytes de uma obra inteira, preservando o resto.
  *
  * É o que a expiração por inatividade faz. Os arquivos saem; a seleção, o

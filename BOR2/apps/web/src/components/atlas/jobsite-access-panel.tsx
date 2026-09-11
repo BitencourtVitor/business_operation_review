@@ -67,7 +67,7 @@ export function JobsiteAccessPanel({ jobsiteId }: { jobsiteId: string }) {
             </SelectTrigger>
             <SelectContent alignItemWithTrigger={false}>
               {candidates.map(u => (
-                <SelectItem key={u.id} value={u.id}>{u.name} — {u.email}</SelectItem>
+                <SelectItem key={u.id} value={u.id}>{u.name} · {u.email}</SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -53,7 +53,7 @@ const STATUS: Record<string, { label: string; className: string }> = {
 }
 
 function bytes(n: number) {
-  if (!n) return "—"
+  if (!n) return "-"
   const units = ["B", "KB", "MB", "GB"]
   let v = n, i = 0
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
@@ -299,11 +299,14 @@ export default function DocumentPage() {
   const { data: versions, isLoading } = useAtlasVersions(documentId)
   const publish = usePublishAtlasVersion(documentId)
 
-  // A página do documento fica guardada no aparelho a cada visita com rede.
+  // A página do documento se guarda no aparelho a cada visita com rede, mas só
+  // quando a pasta foi baixada: o que fica no aparelho é decisão da pessoa.
   // Quem chega aqui pelo roteador do Next não baixou o HTML dela, e sem ele
   // tocar na pasta sem sinal devolvia a pessoa para a lista de obras.
   useEffect(() => {
-    aquecerRotas([`/atlas/${jobsiteId}/documents/${documentId}`])
+    void local.pastas.get(documentId).then(p => {
+      if (p && p.estado !== "ausente") aquecerRotas([`/atlas/${jobsiteId}/documents/${documentId}`])
+    }).catch(() => undefined)
   }, [jobsiteId, documentId])
 
   const doc = useMemo(() => documents?.find(d => d.id === documentId), [documents, documentId])
@@ -910,7 +913,7 @@ export default function DocumentPage() {
                 <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
                   <p className="text-sm font-medium">No plans yet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Plans are created from the PDF when a revision is uploaded — one per page, the
+                    Plans are created from the PDF when a revision is uploaded, one per page, the
                     way Fieldwire does it. The sheet number is yours to fill in.
                   </p>
                 </div>

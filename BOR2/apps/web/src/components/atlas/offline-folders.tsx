@@ -2,28 +2,37 @@
 
 import { useLiveQuery } from "dexie-react-hooks"
 import {
-  AlertTriangle, Check, Download, HardDrive, Loader2, Trash2, WifiOff,
+  AlertTriangle, CloudAlert, CloudCheck, CloudDownload, Download, Eye, HardDrive, Layers, Loader2,
+  Eraser, WifiOff,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
+import { tagLabel } from "@/components/atlas/document-tags-dialog"
+import { Badge } from "@/components/ui/badge"
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import { useAtlasDocuments } from "@/hooks/use-atlas"
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { local, type PastaLocal } from "@/lib/offline/db"
 import {
-  baixarIndice, baixarMiniaturas, baixarPasta, liberarPasta,
+  baixarIndice, baixarMiniaturas, baixarObra, removerObra,
 } from "@/lib/offline/index-sync"
-import { mb, medirEspaco, type Espaco } from "@/lib/offline/storage"
+import { mb, medirEspaco, tamanhosDaObra, type Espaco } from "@/lib/offline/storage"
 
 /**
- * As pastas da obra, e o que cada uma tem no aparelho.
+ * O que esta obra guarda no aparelho, e a decisão de guardar.
  *
- * Não existe botão de obra offline inteira, e isso é decisão e não omissão. A
- * pasta é a unidade porque corresponde a um documento anexado e a uma categoria,
- * que é como o pessoal de campo raciocina: "a planta de painéis do primeiro
- * andar", não "a obra". Um botão de obra faria a pessoa baixar 2.800 pranchas
- * para consultar quarenta.
+ * Nada desce sozinho. Abrir uma obra não grava índice, página nem miniatura: a
+ * pessoa escolhe o que leva para o canteiro, e o espaço do aparelho é dela. A
+ * decisão é por obra, tomada nesta faixa no fim da página:
+ *   - nada salvo: o botão é Download, e baixa a obra inteira;
+ *   - baixando: a faixa mostra o progresso;
+ *   - salva: o botão volta a ser View, e abre o detalhe por pasta;
+ *   - salva, mas com pasta nova ou revisão: o botão é Update, e baixa o que falta.
  *
- * Cada pasta mostra o próprio estado, e o tamanho **antes** da confirmação: sem
- * o número, escolher é apostar.
+ * O modal é consulta: cada pasta com a categoria, o estado e o peso, e o total da
+ * obra contra o espaço do aparelho. As ações por pasta saíram dele.
  */
 
 const ESTADO: Record<PastaLocal["estado"], { rotulo: string; classe: string }> = {
@@ -36,45 +45,16 @@ const ESTADO: Record<PastaLocal["estado"], { rotulo: string; classe: string }> =
 const rotaDaPasta = (jobsiteId: string, pastaId: string) =>
   `/atlas/${jobsiteId}/documents/${pastaId}`
 
-export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
-  const [espaco, setEspaco] = useState<Espaco | null>(null)
-  const [ocupada, setOcupada] = useState<string | null>(null)
-  const [erro, setErro] = useState("")
+/** Baixado sobre total na mesma unidade, escolhida pelo total: "2.7 / 5.1 MB". */
+function fracao(feito: number, total: number): string {
+  const [div, unidade, casas] = total >= 1024 ** 3 ? [1024 ** 3, "GB", 2]
+    : total >= 1024 ** 2 ? [1024 ** 2, "MB", 1]
+    : [1024, "KB", 0]
+  return `${(feito / div).toFixed(casas)} / ${(total / div).toFixed(casas)} ${unidade}`
+}
+
+function useOnline(): boolean {
   const [online, setOnline] = useState(true)
-  // Se a página de cada pasta baixada já está guardada. O arquivo no disco não
-  // basta: sem a página, tocar na pasta sem rede devolvia a pessoa para a lista.
-  const [paginas, setPaginas] = useState<Record<string, boolean | null>>({})
-
-  const pastas = useLiveQuery(
-    () => local.pastas.where("obraId").equals(jobsiteId).sortBy("name"),
-    [jobsiteId],
-  )
-
-  // Quantas folhas de cada pasta têm o arquivo no aparelho. É a resposta a "está
-  // guardado mesmo?", que o rótulo sozinho não dava: "Available" dizia que a
-  // pasta foi baixada, não quantas pranchas de fato estão no disco.
-  const contagem = useLiveQuery(async () => {
-    const planos = await local.planos.where("obraId").equals(jobsiteId).toArray()
-    const r: Record<string, { total: number; arquivos: number }> = {}
-    for (const p of planos) {
-      const c = (r[p.pastaId] ??= { total: 0, arquivos: 0 })
-      c.total++
-      if (p.arquivo) c.arquivos++
-    }
-    return r
-  }, [jobsiteId])
-
-  useEffect(() => {
-    // O índice desce sempre, e desce em segundo plano.
-    //
-    // Custa poucas dezenas de MB e garante que, sem internet, a pessoa navegue,
-    // busque e saiba que o plano existe. É a diferença entre "não tenho o
-    // arquivo" e "não sei o que existe", e a segunda é a que faz alguém voltar
-    // ao escritório.
-    void baixarIndice(jobsiteId).catch(() => undefined)
-    void medirEspaco().then(setEspaco)
-  }, [jobsiteId])
-
   useEffect(() => {
     const m = () => setOnline(navigator.onLine)
     m()
@@ -85,6 +65,68 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
       window.removeEventListener("offline", m)
     }
   }, [])
+  return online
+}
+
+export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
+  const [espaco, setEspaco] = useState<Espaco | null>(null)
+  const [aberto, setAberto] = useState(false)
+  const [baixandoObra, setBaixandoObra] = useState(false)
+  const [removendo, setRemovendo] = useState(false)
+  const [erro, setErro] = useState("")
+  const online = useOnline()
+  // Se a página de cada pasta baixada já está guardada. O arquivo no disco não
+  // basta: sem a página, tocar na pasta sem rede devolvia a pessoa para a lista.
+  const [paginas, setPaginas] = useState<Record<string, boolean | null>>({})
+  // O que cada arquivo desta obra ocupa de fato no disco.
+  const [disco, setDisco] = useState<{ total: number; porArquivo: Map<string, number> } | null>(null)
+
+  // As pastas vêm do servidor (ou do cache das consultas, sem rede). O banco
+  // local só conhece as pastas de obra que já foi baixada, e a faixa precisa
+  // existir antes disso: é nela que se decide baixar.
+  const { data: documentos = [] } = useAtlasDocuments(jobsiteId)
+
+  const pastas = useLiveQuery(
+    () => local.pastas.where("obraId").equals(jobsiteId).toArray(),
+    [jobsiteId],
+  )
+  const planos = useLiveQuery(
+    () => local.planos.where("obraId").equals(jobsiteId).toArray(),
+    [jobsiteId],
+  )
+
+  // Por pasta: quantas folhas têm arquivo no aparelho, quais caminhos usam, e
+  // quanto das pranchas já desceu. Os caminhos somam o tamanho real no disco.
+  const porPasta = useMemo(() => {
+    const r: Record<string, {
+      total: number; arquivos: number; caminhos: Set<string>
+      bytesTotal: number; bytesFeitos: number
+    }> = {}
+    for (const p of planos ?? []) {
+      const c = (r[p.pastaId] ??= {
+        total: 0, arquivos: 0, caminhos: new Set(), bytesTotal: 0, bytesFeitos: 0,
+      })
+      c.total++
+      c.bytesTotal += p.bytes ?? 0
+      if (p.arquivo) { c.arquivos++; c.caminhos.add(p.arquivo); c.bytesFeitos += p.bytes ?? 0 }
+      if (p.thumb) c.caminhos.add(p.thumb)
+    }
+    return r
+  }, [planos])
+
+  const mapaPastas = useMemo(() => new Map((pastas ?? []).map(p => [p.id, p])), [pastas])
+
+  // As linhas do modal: os documentos da obra, cada um com o que o aparelho
+  // sabe dele. Sem a lista do servidor (sem rede e sem cache), valem as pastas
+  // do banco local.
+  const linhas = useMemo(() => documentos.length
+    ? [...documentos]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(d => ({ id: d.id, nome: d.name, etiquetas: d.tags ?? [], pasta: mapaPastas.get(d.id) }))
+    : [...(pastas ?? [])]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(p => ({ id: p.id, nome: p.name, etiquetas: [], pasta: p as PastaLocal | undefined })),
+  [documentos, pastas, mapaPastas])
 
   const guardadas = useMemo(
     () => (pastas ?? []).filter(p => p.estado !== "ausente").map(p => p.id),
@@ -92,18 +134,31 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
   )
   const chave = guardadas.join(",")
 
+  const medirTudo = () => {
+    void medirEspaco().then(setEspaco)
+    void tamanhosDaObra(jobsiteId).then(setDisco)
+  }
+
+  useEffect(() => {
+    medirTudo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobsiteId])
+
+  // Abrir o modal mede de novo: miniaturas e páginas descem em segundo plano, e
+  // o número de quando a página abriu já pode estar velho.
+  useEffect(() => {
+    if (aberto) medirTudo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aberto])
+
   useEffect(() => {
     if (!guardadas.length) return
-    // Toda visita com rede guarda de novo a página de cada pasta baixada.
-    //
-    // Guardar só no momento do download deixava de fora quem baixou antes de o
-    // worker saber guardar páginas, e pasta baixada não mostra mais o botão de
-    // baixar: não havia como corrigir pela tela. Reaquecer é barato, porque o
-    // código que a página cita já está guardado e não desce de novo.
-    aquecerRotas(guardadas.map(id => rotaDaPasta(jobsiteId, id)))
+    // Só obra que a pessoa escolheu guardar se mantém em dia sozinha: a cada
+    // visita com rede o índice, as páginas, o leitor e as miniaturas que faltam
+    // são conferidos. Obra que nunca foi baixada não grava nada ao ser aberta.
+    if (navigator.onLine) void baixarIndice(jobsiteId).catch(() => undefined)
+    aquecerRotas(["/atlas", `/atlas/${jobsiteId}`, ...guardadas.map(id => rotaDaPasta(jobsiteId, id))])
     void import("@/components/atlas/pdf-page").then(m => m.aquecerPdf()).catch(() => undefined)
-    // E completa as miniaturas que faltam, pelo mesmo motivo: pasta baixada antes
-    // de as miniaturas descerem abriria sem rede com a grade girando.
     for (const id of guardadas) void baixarMiniaturas(id).catch(() => 0)
 
     let vivo = true
@@ -121,106 +176,295 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobsiteId, chave])
 
-  async function baixar(pasta: PastaLocal) {
-    setOcupada(pasta.id); setErro("")
-    const r = await baixarPasta(pasta.id)
-    if (!r.ok) setErro(r.mensagem)
-    void medirEspaco().then(setEspaco)
-    setOcupada(null)
+  async function baixar() {
+    if (!navigator.onLine || baixandoObra) return
+    setBaixandoObra(true); setErro("")
+    try {
+      const r = await baixarObra(jobsiteId)
+      if (!r.ok) setErro(r.mensagem)
+    } catch {
+      setErro("The download stopped. Try again with a connection.")
+    } finally {
+      medirTudo()
+      setBaixandoObra(false)
+    }
   }
 
-  async function liberar(pasta: PastaLocal) {
-    setOcupada(pasta.id)
-    await liberarPasta(pasta.id)
-    void medirEspaco().then(setEspaco)
-    setOcupada(null)
+  async function remover() {
+    setRemovendo(true)
+    try {
+      await removerObra(jobsiteId)
+    } finally {
+      medirTudo()
+      setRemovendo(false)
+    }
   }
 
-  if (!pastas?.length) return null
+  if (!linhas.length) return null
+
+  // O estado da obra no aparelho, que decide o botão da faixa.
+  const emAndamento = (pastas ?? []).filter(p => p.estado === "baixando")
+  const baixando = baixandoObra || emAndamento.length > 0
+  // Salva é ter prancha no aparelho, não qualquer arquivo: miniatura sozinha não
+  // abre planta nenhuma sem rede.
+  const salva = Object.values(porPasta).some(c => c.arquivos > 0)
+  const faltando = linhas.filter(l => !l.pasta || l.pasta.estado === "ausente" || l.pasta.estado === "desatualizada")
+  const acao: "download" | "update" | "view" = baixando ? "view"
+    : !salva ? "download"
+    : faltando.length ? "update"
+    : "view"
+  const bloqueada = acao !== "view" && !online
+
+  // O tamanho real, somado do disco, para pasta que tem algo guardado. Pasta
+  // ausente mostra a estimativa do servidor, com til, que é o que ela vai custar.
+  const tamanhoDaPasta = (p: PastaLocal | undefined) => {
+    if (!p) return ""
+    const c = porPasta[p.id]
+    if (p.estado === "ausente" || !c || !disco) return p.bytes > 0 ? `~${mb(p.bytes)}` : ""
+    let soma = 0
+    for (const caminho of c.caminhos) soma += disco.porArquivo.get(caminho) ?? 0
+    return mb(soma)
+  }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
-      <div className="flex items-center gap-2">
-        <HardDrive className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="text-sm font-medium">Keep on this device</span>
-        {espaco?.suportado && espaco.cota > 0 && (
-          <span className="ml-auto text-xs text-muted-foreground">
-            {mb(espaco.usado)} de {mb(espaco.cota)}
-            {/* Sem a promessa de persistência, o sistema pode descartar tudo sob
-                aperto de espaço. Vale dizer, porque a saída é instalar o app na
-                tela de início e isso a pessoa consegue fazer. */}
-            {!espaco.persistente && (
-              <span className="ml-1.5 text-amber-600 dark:text-amber-400">
-                · install to the home screen to keep it safe
+    <>
+      {/* O rodapé inteiro é o botão. Um alvo do tamanho da faixa é o que se
+          acerta com o polegar; um botão pequeno no canto obrigava a mirar. */}
+      <button
+        type="button"
+        disabled={bloqueada}
+        onClick={() => (acao === "view" ? setAberto(true) : void baixar())}
+        className="flex w-full items-center gap-2 rounded-lg border border-border/60 bg-card/40 px-3 py-2.5 text-left transition-colors hover:bg-accent/40 disabled:cursor-not-allowed"
+      >
+        <HardDrive className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="shrink-0 whitespace-nowrap text-sm font-medium">Data Details</span>
+        {/* A nuvem diz o estado dos documentos desta obra no aparelho, e o texto
+            ao lado diz quanto:
+              - baixando: nuvem descendo, em azul e pulsando, com o baixado sobre
+                o total ("2.7 / 5.1 MB");
+              - salva: nuvem com ok, em verde, com o peso medido no disco;
+              - nada salvo: nuvem com alerta, em âmbar. */}
+        {baixando ? (() => {
+          let feito = 0, total = 0
+          for (const p of emAndamento) {
+            const c = porPasta[p.id]
+            feito += c?.bytesFeitos ?? 0
+            total += c?.bytesTotal || p.bytes
+          }
+          return (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <CloudDownload
+                aria-hidden="true"
+                className="h-4 w-4 shrink-0 animate-pulse text-sky-600 dark:text-sky-400"
+              />
+              <span className="truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+                {total > 0 ? fracao(Math.min(feito, total), total) : "Preparing"}
               </span>
-            )}
+            </span>
+          )
+        })() : (
+          <span className="flex min-w-0 items-center gap-1.5">
+            {salva
+              ? <CloudCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              : <CloudAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />}
+            <span className="truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+              {salva && disco ? mb(disco.total) : "Nothing saved"}
+            </span>
           </span>
         )}
-      </div>
+        <span
+          className={`ml-auto flex shrink-0 items-center gap-1.5 text-xs font-medium ${
+            acao === "view" ? "text-muted-foreground" : "text-primary"
+          } ${bloqueada ? "opacity-40" : ""}`}
+        >
+          {acao === "view" ? <Eye className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+          {acao === "view" ? "View" : acao === "update" ? "Update" : "Download"}
+        </span>
+      </button>
 
       {erro && (
-        <div className="flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs">
+        <div className="mt-2 flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
           <span>{erro}</span>
         </div>
       )}
 
-      <div className="flex flex-col divide-y divide-border/50">
-        {pastas.map(p => {
-          const e = ESTADO[p.estado]
-          const trabalhando = ocupada === p.id || p.estado === "baixando"
-          // A pasta só se diz pronta para o offline quando arquivo e página estão
-          // no aparelho. Nulo é não haver como conferir (sem worker), e aí vale o
-          // rótulo de sempre.
-          const pagina = paginas[p.id]
-          const faltaPagina = p.estado === "disponivel" && pagina === false
-          return (
-            <div key={p.id} className="flex items-center gap-3 py-2">
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm">{p.name}</span>
-                <span className={`text-xs ${faltaPagina ? "text-amber-600 dark:text-amber-400" : e.classe}`}>
-                  {p.estado === "disponivel" && pagina === true
-                    ? "Ready offline"
-                    : faltaPagina
-                      ? online ? "Downloaded · saving the page" : "Downloaded, but the page was not saved. Open once with a connection"
-                      : e.rotulo}
-                  {p.estado !== "ausente" && contagem?.[p.id] &&
-                    ` · ${contagem[p.id].arquivos}/${contagem[p.id].total} plans`}
-                  {p.bytes > 0 && ` · ${mb(p.bytes)}`}
-                  {p.estado === "desatualizada" &&
-                    ` · rev ${p.revisaoLocal} → ${p.revisaoServidor}`}
-                </span>
-              </span>
+      <Dialog open={aberto} onOpenChange={setAberto}>
+        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-lg">
+          <DialogHeader className="border-b border-border/60 p-4">
+            <DialogTitle>Data Details</DialogTitle>
+            <DialogDescription>
+              Folders saved on this device.
+            </DialogDescription>
+          </DialogHeader>
 
-              {trabalhando ? (
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
-              ) : p.estado === "disponivel" ? (
-                <>
-                  <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                  <button
-                    type="button"
-                    title="Remove from this device"
-                    onClick={() => liberar(p)}
-                    className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => baixar(p)}
-                  className="flex shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-accent"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  {p.estado === "desatualizada" ? "Update" : "Download"}
-                </button>
-              )}
+          {/* A lista tem teto próprio e rola por dentro. Com muitas pastas e
+              categorias, o modal crescia até a borda da tela e empurrava o total
+              e o Delete para fora da vista; assim o rodapé fica sempre à mostra. */}
+          <div className="max-h-[min(50dvh,22rem)] min-h-0 flex-1 divide-y divide-border/50 overflow-y-auto overscroll-contain px-4">
+            {linhas.map(l => {
+              const p = l.pasta
+              const estado = p?.estado ?? "ausente"
+              const e = ESTADO[estado]
+              const pagina = paginas[l.id]
+              const faltaPagina = estado === "disponivel" && pagina === false
+              const c = porPasta[l.id]
+              // O estado não se escreve mais: vira a cor da contagem de pranchas.
+              // O texto fica no title, para quem passa o mouse ou usa leitor de tela.
+              const rotulo = estado === "disponivel" && pagina === true
+                ? "Ready offline"
+                : faltaPagina
+                  ? online ? "Downloaded, saving the page" : "Page not saved. Open once with a connection"
+                  : e.rotulo
+              const cor = faltaPagina ? "text-amber-600 dark:text-amber-400" : e.classe
+              return (
+                <div key={l.id} className="flex items-center gap-3 py-3">
+                  <span className="min-w-0 flex-1">
+                    {/* O nome e, sempre embaixo dele, a categoria que a pasta
+                        ocupa: é pela categoria que se reconhece o que está
+                        guardado. Ao lado do nome, a etiqueta ora cabia na linha
+                        ora descia, e a lista ficava com alturas desencontradas. */}
+                    <span className="flex min-w-0 flex-col items-start gap-1">
+                      <span className="max-w-full truncate text-sm">{l.nome}</span>
+                      {l.etiquetas.length > 0 && (
+                        <span className="flex flex-wrap gap-1">
+                          {l.etiquetas.map(t => (
+                            <Badge
+                              key={`${t.categoryId}:${t.subcategory}`}
+                              variant="outline"
+                              className="text-[11px] font-normal text-muted-foreground"
+                            >
+                              {tagLabel(t)}
+                            </Badge>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+
+                  {/* À direita, o peso e, embaixo dele, as pranchas que já estão
+                      no aparelho sobre o total. Na linha do estado as duas
+                      contagens disputavam espaço com a etiqueta e quebravam. */}
+                  <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs tabular-nums text-muted-foreground">
+                    <span>{tamanhoDaPasta(p)}</span>
+                    {c && (
+                      <span title={rotulo} aria-label={`${rotulo}, ${c.arquivos} of ${c.total} plans`} className={`flex items-center gap-1 ${cor}`}>
+                        <Layers className="h-3 w-3" />
+                        {c.arquivos}/{c.total}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* O rodapé tem dois andares. Em cima, o total da obra contra o espaço
+              do aparelho, de ponta a ponta. Embaixo, a saída para liberar esse
+              espaço, com a frase que diz o que ela apaga e o que não apaga: sem
+              as ações por pasta, é o único jeito de devolver o que foi baixado. */}
+          <div className="flex flex-col gap-3 border-t border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <span>This project on this device</span>
+              <span className="shrink-0 tabular-nums">
+                <span className="font-medium text-foreground">{mb(disco?.total ?? 0)}</span>
+                {espaco?.suportado && espaco.cota > 0 && ` of ${mb(espaco.cota)}`}
+              </span>
             </div>
-          )
-        })}
-      </div>
-    </div>
+            {salva && !baixando && (
+              <SegurarParaLimpar ocupado={removendo} onConfirmar={() => void remover()} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+const DURACAO_SEGURAR = 1500
+
+/**
+ * O botão de limpar a memória, que só age se for segurado.
+ *
+ * Limpar apaga o que a pessoa baixou no Wi-Fi para usar no canteiro, e um toque
+ * sem querer no rodapé do modal não pode custar isso. Segurando, o fundo enche da
+ * esquerda para a direita; soltar antes do fim, ou arrastar o dedo para fora,
+ * desfaz o preenchimento e não apaga nada. Pelo teclado vale o mesmo, segurando
+ * Enter ou espaço.
+ */
+function SegurarParaLimpar({ ocupado, onConfirmar }: {
+  ocupado: boolean
+  onConfirmar: () => void
+}) {
+  const [progresso, setProgresso] = useState(0)
+  const [segurando, setSegurando] = useState(false)
+  const quadro = useRef<number | null>(null)
+  const inicio = useRef(0)
+
+  const parar = () => {
+    if (quadro.current !== null) cancelAnimationFrame(quadro.current)
+    quadro.current = null
+    setSegurando(false)
+    setProgresso(0)
+  }
+
+  const comecar = () => {
+    if (ocupado || quadro.current !== null) return
+    setSegurando(true)
+    inicio.current = performance.now()
+    const passo = (agora: number) => {
+      const p = Math.min(1, (agora - inicio.current) / DURACAO_SEGURAR)
+      setProgresso(p)
+      if (p >= 1) {
+        quadro.current = null
+        setSegurando(false)
+        setProgresso(0)
+        onConfirmar()
+        return
+      }
+      quadro.current = requestAnimationFrame(passo)
+    }
+    quadro.current = requestAnimationFrame(passo)
+  }
+
+  useEffect(() => () => {
+    if (quadro.current !== null) cancelAnimationFrame(quadro.current)
+  }, [])
+
+  return (
+    <button
+      type="button"
+      disabled={ocupado}
+      aria-label="Hold to clear memory"
+      onPointerDown={comecar}
+      onPointerUp={parar}
+      onPointerLeave={parar}
+      onPointerCancel={parar}
+      onKeyDown={e => {
+        if ((e.key === "Enter" || e.key === " ") && !e.repeat) { e.preventDefault(); comecar() }
+      }}
+      onKeyUp={e => { if (e.key === "Enter" || e.key === " ") parar() }}
+      // Segurar no celular abre o menu de contexto e seleciona o texto; os dois
+      // interromperiam o gesto no meio.
+      onContextMenu={e => e.preventDefault()}
+      className="relative flex w-full touch-none select-none items-center gap-3 overflow-hidden rounded-md border border-destructive/30 bg-background px-3 py-2 text-left disabled:opacity-50"
+    >
+      {/* O preenchimento. Enquanto segura, a largura acompanha o tempo quadro a
+          quadro; ao soltar, volta a zero com uma transição curta, para a
+          desistência ser vista e não parecer um salto. */}
+      <span
+        aria-hidden="true"
+        className={`absolute inset-y-0 left-0 bg-destructive/15 ${segurando ? "" : "transition-[width] duration-300"}`}
+        style={{ width: `${progresso * 100}%` }}
+      />
+      {ocupado
+        ? <Loader2 className="relative h-4 w-4 shrink-0 animate-spin text-destructive" />
+        : <Eraser className="relative h-4 w-4 shrink-0 text-destructive" />}
+      <span className="relative flex min-w-0 flex-col">
+        <span className="text-sm font-medium text-destructive">Clear memory</span>
+        <span className="text-xs text-muted-foreground">Hold to delete the plans saved here.</span>
+      </span>
+    </button>
   )
 }
 
@@ -239,17 +483,7 @@ export function PlanoAusente({ thumb, nome, pastaId, onBaixar }: {
   thumb: string | null; nome: string; pastaId: string
   onBaixar: (pastaId: string) => void
 }) {
-  const [online, setOnline] = useState(true)
-  useEffect(() => {
-    const m = () => setOnline(navigator.onLine)
-    m()
-    window.addEventListener("online", m)
-    window.addEventListener("offline", m)
-    return () => {
-      window.removeEventListener("online", m)
-      window.removeEventListener("offline", m)
-    }
-  }, [])
+  const online = useOnline()
 
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border/60 p-8 text-center">

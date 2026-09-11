@@ -18,14 +18,18 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { AtlasJobsitePicker } from "@/components/atlas/atlas-jobsite-picker"
 import { onLastJobsiteCleared, readLastJobsite, writeLastJobsite } from "@/components/atlas/last-jobsite"
 import { useAtlasJobsite } from "@/hooks/use-atlas"
+import { useAuth } from "@/hooks/use-auth"
 import { usePermission } from "@/hooks/use-permission"
+import { useProducts } from "@/lib/products"
+import { useQueryClient } from "@tanstack/react-query"
 import {
-  ClipboardList, FolderOpen, ListChecks,
-  Notebook, PanelLeftClose, PanelLeftOpen, Ruler, ShieldCheck,
-  Settings,
+  CircleGauge, ClipboardList, FolderOpen, ListChecks, LogOut, Moon,
+  Notebook, PanelLeftClose, PanelLeftOpen, RefreshCw, Ruler, ShieldCheck,
+  Settings, Sun,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
 // As abas da sala da obra vivem aqui, e não dentro da página: a navegação do
@@ -59,8 +63,23 @@ const SOON = [
 ] as const
 
 export function AtlasSidebar() {
-  const { open, toggleSidebar } = useSidebar()
+  const { open, toggleSidebar, setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
+  const { logout } = useAuth()
+  const { hasBOR } = useProducts()
+  const { resolvedTheme, setTheme } = useTheme()
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      await queryClient.invalidateQueries()
+    } finally {
+      setTimeout(() => setRefreshing(false), 600)
+    }
+  }
   const pathname = usePathname()
   const params = useSearchParams()
 
@@ -118,7 +137,7 @@ export function AtlasSidebar() {
       <SidebarContent className="overflow-x-hidden">
         {/* Obra e navegação da obra num bloco só: as abas não são seções do
             produto, são o que existe dentro daquela obra. Separá-las em outro
-            grupo obrigava a repetir o nome dela como rótulo — a mesma
+            grupo obrigava a repetir o nome dela como rótulo: a mesma
             informação duas vezes, uma delas truncada. */}
         <SidebarGroup>
           <SidebarGroupContent>
@@ -236,21 +255,69 @@ export function AtlasSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="h-px bg-sidebar-border" />
-        {isMobile ? (
-          <div className="px-4 py-3 text-xs leading-relaxed text-muted-foreground/70">
-            The plan reader is built for tablet and desktop. On a phone, expect the drawings
-            to be hard to read.
-          </div>
-        ) : (
+        {/* O aviso de que a planta é difícil de ler no celular saiu: o leitor
+            funciona ali, e o aviso só desencorajava quem abre a obra pelo
+            telefone no canteiro.
+
+            No celular e no tablet, depois de Settings vêm as ações que no
+            computador ficam no cabeçalho: atualizar, ir ao BOR, tema e sair. O
+            cabeçalho dessas telas fica só com o perfil. `lg:hidden` e não o
+            `isMobile`: o tablet usa a barra do desktop, e é abaixo de 1024 px
+            que o cabeçalho deixa de ter os botões. Ir ao BOR e sair fecham a
+            barra do celular, porque levam para fora desta tela. */}
+        <div className="lg:hidden">
+          <div className="h-px bg-sidebar-border" />
           <SidebarMenu className="p-2">
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
-                {open ? <PanelLeftClose /> : <PanelLeftOpen />}
-                <span>Collapse</span>
+              <SidebarMenuButton onClick={handleRefresh} tooltip="Refresh data">
+                <RefreshCw className={refreshing ? "animate-spin" : ""} />
+                <span>Refresh data</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {hasBOR && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Go to BOR"
+                  onClick={() => { setOpenMobile(false); router.push("/bor/monthly-execution") }}
+                >
+                  <CircleGauge />
+                  <span>Go to BOR</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              >
+                {resolvedTheme === "dark" ? <Moon /> : <Sun />}
+                <span>{resolvedTheme === "dark" ? "Light mode" : "Dark mode"}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Sign out"
+                onClick={() => { setOpenMobile(false); logout() }}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut />
+                <span>Sign out</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+        </div>
+        {!isMobile && (
+          <>
+            <div className="h-px bg-sidebar-border" />
+            <SidebarMenu className="p-2">
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
+                  {open ? <PanelLeftClose /> : <PanelLeftOpen />}
+                  <span>Collapse</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </>
         )}
       </SidebarFooter>
     </Sidebar>

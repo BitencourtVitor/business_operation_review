@@ -243,19 +243,21 @@ body {
   background-size: 20px 20px;
   background-attachment: fixed;
 }
-/* Atlas em tablet: a barra fechada encolhe.
+/* Atlas em tablet: a barra aberta encolhe, a fechada não.
  *
- * O leitor de planta disputa cada centímetro com a navegação, e em tablet a
- * tela é a metade da do desktop. A barra aberta continua com a mesma largura —
- * é ela que precisa caber o nome da obra —, e o desktop não muda nada.
+ * Aberta, a barra vai a 80% da largura de desktop (15rem para 12rem): o leitor
+ * de planta disputa cada centímetro com a navegação, e em tablet a tela é a
+ * metade da do desktop.
+ *
+ * Fechada, fica com a largura padrão, 3.5rem, que é a altura do cabeçalho. A
+ * versão encolhida (2.75rem) deixava o canto do logo mais estreito que alto, e o
+ * quadrado do topo não fechava com a linha do cabeçalho.
  *
  * `!important` porque o SidebarProvider grava a variável no style inline do
  * próprio wrapper, e style inline ganha de classe.
  */
 @media (min-width: 768px) and (max-width: 1023px) {
   .atlas-shell {
-    --sidebar-width-icon: 2.75rem !important;
-    /* Aberta, a barra vai a 80% da largura de desktop: 15rem → 12rem. */
     --sidebar-width: 12rem !important;
   }
 }
