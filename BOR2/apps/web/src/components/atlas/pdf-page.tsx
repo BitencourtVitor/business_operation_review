@@ -59,6 +59,22 @@ export function loadPdf(url: string): Promise<PDFDocument> {
 }
 
 /**
+ * Traz o pdf.js e o worker dele para o cache do aparelho, sem abrir documento.
+ *
+ * Os dois carregam sob demanda, na primeira prancha aberta. Quem baixa a pasta
+ * e perde o sinal antes de abrir alguma teria o arquivo no disco e nada que o
+ * desenhasse.
+ */
+export async function aquecerPdf(): Promise<void> {
+  try {
+    await import("pdfjs-dist")
+    await fetch(new URL("pdfjs-dist/build/pdf.worker.mjs", import.meta.url).toString())
+  } catch {
+    // Sem rede, ou já guardado. Adiantamento não vira erro.
+  }
+}
+
+/**
  * Contagem de páginas e dimensão da folha, lidas no navegador antes do upload.
  *
  * É o mínimo estrutural para a folha existir: uma linha por página, com o

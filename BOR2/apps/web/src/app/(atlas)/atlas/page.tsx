@@ -22,6 +22,7 @@ import {
 import Link from "next/link"
 import { useLiveQuery } from "dexie-react-hooks"
 import { local } from "@/lib/offline/db"
+import { guardarObras } from "@/lib/offline/index-sync"
 import { useEffect, useMemo, useState } from "react"
 
 // A obra arquivada não some, ela sai da frente. O padrão é ver só as ativas,
@@ -70,6 +71,12 @@ export default function AtlasJobsitesPage() {
       atlasService.updateJobsite(id, { status: archived ? "archived" : "active" }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas", "jobsites"] }),
   })
+
+  // Toda lista que chega do servidor vai para o aparelho. É dela que sai a
+  // resposta a "esta obra está guardada aqui?" quando o sinal falta.
+  useEffect(() => {
+    if (jobsites?.length) void guardarObras(jobsites).catch(() => undefined)
+  }, [jobsites])
 
   // Os clientes sugeridos são os que já entraram por alguma obra: não há
   // catálogo à parte, e inventar um seria mais uma lista para divergir.
@@ -189,7 +196,9 @@ export default function AtlasJobsitesPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 {jobsites?.length
                   ? "Nothing matches this search."
-                  : "Import from the Forecast, or create one by hand, to start uploading documents."}
+                  : !online
+                    ? "No connection, and this list hasn't been saved on this device yet. Open the Atlas once with a connection."
+                    : "Import from the Forecast, or create one by hand, to start uploading documents."}
               </p>
             </div>
           ) : (

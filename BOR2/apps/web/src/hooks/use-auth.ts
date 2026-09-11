@@ -1,3 +1,4 @@
+import { apagarConsultas } from "@/lib/query-client"
 import { authService } from "@/services/auth.service"
 import { useAuthStore } from "@/store/auth.store"
 import { useFinancialStore } from "@/store/financial.store"
@@ -34,7 +35,7 @@ interface LoginParams {
 }
 
 export function useAuth() {
-  const { user, token, isAuthenticated, setAuth, clearAuth } = useAuthStore()
+  const { user, token, isAuthenticated, setAuth, clearAuth, setUser } = useAuthStore()
   const { resetFinancial } = useFinancialStore()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -55,10 +56,15 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: () => authService.logout(token!),
-    onSuccess: () => {
-      // Clear ALL cached query data before navigating — prevents previous user's
-      // data (name, profile, business data) from flashing on the next login.
+    // Sair tem de funcionar sem rede. No modo padrão a mutação fica em pausa
+    // esperando conexão e o botão não fazia nada. E se o servidor não responde,
+    // a sessão local sai do mesmo jeito, que é o que a pessoa pediu.
+    networkMode: "always",
+    onSettled: () => {
+      // Limpa todo o cache antes de navegar, inclusive o guardado no aparelho:
+      // quem entrar em seguida não pode ver nome nem dado de quem saiu.
       queryClient.clear()
+      void apagarConsultas()
       resetFinancial()
       clearAuth()
       router.push("/login")
@@ -73,7 +79,7 @@ export function useAuth() {
   // não vinha.
   //
   // Offline ela nem roda, e o `user` do store responde. É o dado do último
-  // login, e para o que ele serve na obra — nome, cargo, permissão — isso é
+  // login, e para o que ele serve na obra (nome, cargo, permissão) isso é
   // exatamente o que vale: nada disso muda entre uma prancha e outra.
   //
   // Voltando a rede, o `refetchOnReconnect` do TanStack revalida sozinho, que é
@@ -88,6 +94,12 @@ export function useAuth() {
     refetchOnReconnect: true,
     staleTime: 5 * 60 * 1000,
   })
+
+  // O que o servidor devolve vira o último conhecido, e é esse que responde na
+  // próxima vez que o app abrir sem rede.
+  useEffect(() => {
+    if (meQuery.data && meQuery.data !== useAuthStore.getState().user) setUser(meQuery.data)
+  }, [meQuery.data, setUser])
 
   return {
     user: meQuery.data ?? user,

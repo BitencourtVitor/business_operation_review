@@ -1,6 +1,8 @@
 "use client"
 
 import { loadPdf } from "@/components/atlas/pdf-page"
+import { local } from "@/lib/offline/db"
+import { lerArquivo } from "@/lib/offline/storage"
 import { atlasService, type AtlasSheet } from "@/services/atlas.service"
 import { useEffect, useState } from "react"
 
@@ -16,11 +18,33 @@ export interface PlanSource {
 // página seria uma ida à API por virada.
 const cache = new Map<string, Promise<PlanSource>>()
 
+/**
+ * A folha guardada no aparelho, quando ela serve.
+ *
+ * Vem antes do servidor sempre, e não só sem rede: abrir do disco é mais rápido
+ * que assinar URL e baixar. A exceção é a folha marcada como vencida com rede
+ * disponível, que vai ao servidor buscar a revisão nova. Sem rede ela abre
+ * assim mesmo, e a tarja de desatualizada avisa.
+ */
+async function fromDevice(sheetId: string): Promise<PlanSource | null> {
+  const p = await local.planos.get(sheetId)
+  if (!p?.arquivo) return null
+  if (p.desatualizado && navigator.onLine) return null
+  const file = await lerArquivo(p.arquivo)
+  if (!file) return null
+  return { url: URL.createObjectURL(file), whole: !!p.inteiro, pageIndex: p.pageIndex }
+}
+
 function resolve(sheetId: string): Promise<PlanSource> {
   const hit = cache.get(sheetId)
   if (hit) return hit
-  const promise = atlasService.sheetUrl(sheetId)
+  const promise = fromDevice(sheetId)
+    .catch(() => null)
+    .then(s => s ?? atlasService.sheetUrl(sheetId))
   cache.set(sheetId, promise)
+  // Falha não fica guardada. Sem isto, a folha que falhou sem rede continuava
+  // falhando depois que o sinal voltava, até recarregar a página.
+  promise.catch(() => cache.delete(sheetId))
   return promise
 }
 
@@ -45,7 +69,7 @@ export function usePlanSource(sheet: AtlasSheet, neighbours: AtlasSheet[]) {
 
   useEffect(() => {
     // Adianta o vizinho em silêncio: assina a URL e manda o pdf.js já baixar o
-    // arquivo. Falha aqui não vira erro na tela — é adiantamento, não leitura.
+    // arquivo. Falha aqui não vira erro na tela: é adiantamento, não leitura.
     let alive = true
     for (const neighbour of neighbours) {
       if (!neighbour || neighbour.id === sheet.id) continue

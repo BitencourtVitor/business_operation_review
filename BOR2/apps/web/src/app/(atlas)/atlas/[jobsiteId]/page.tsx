@@ -23,6 +23,8 @@ import {
   useAddCategorySlot, useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite,
   useAtlasJobsiteCategories, useCreateAtlasDocument, useCreateDocCategory,
 } from "@/hooks/use-atlas"
+import { aquecerRotas } from "@/lib/offline/aquecer"
+import { marcarAcesso } from "@/lib/offline/sync"
 import { atlasService } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
@@ -498,6 +500,14 @@ export default function JobsiteRoomPage() {
     },
   })
 
+  // Abrir a obra carimba o acesso neste aparelho, que é o relógio da expiração,
+  // e pede ao worker que guarde esta página e a lista. Quem entrou clicando na
+  // lista não baixou o HTML de nenhuma das duas.
+  useEffect(() => {
+    void marcarAcesso(jobsiteId).catch(() => undefined)
+    aquecerRotas(["/atlas", `/atlas/${jobsiteId}`])
+  }, [jobsiteId])
+
   if (isLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
@@ -509,7 +519,11 @@ export default function JobsiteRoomPage() {
   if (isError || !jobsite) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
-        <p className="text-sm text-muted-foreground">Jobsite not found, or no access.</p>
+        <p className="text-sm text-muted-foreground">
+          {typeof navigator !== "undefined" && !navigator.onLine
+            ? "No connection, and this project hasn't been opened on this device yet."
+            : "Jobsite not found, or no access."}
+        </p>
         <Button variant="outline" render={<Link href="/atlas" />}>Back to jobsites</Button>
       </div>
     )

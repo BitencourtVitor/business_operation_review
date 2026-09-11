@@ -86,6 +86,12 @@ export interface PlanoLocal {
   scaleUnitsPerPt: number | null
   scaleLabel: string
   desatualizado: boolean
+  /**
+   * Se o arquivo guardado é o set inteiro e não o recorte da página. Acontece
+   * com versão que nunca foi recortada: todas as folhas apontam para o mesmo
+   * arquivo, e o leitor precisa pular para a página da folha.
+   */
+  inteiro?: boolean
 }
 
 /** Um ponto do punch list, como o aparelho o conhece. */
