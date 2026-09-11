@@ -1,32 +1,31 @@
 import type { MetadataRoute } from "next"
 
 /**
- * O manifesto que torna o Atlas instalável.
+ * O manifesto que torna a plataforma instalável na tela de início.
  *
- * Não é enfeite: no WebKit, o armazenamento persistente é concedido por
- * heurística, e o critério que mais pesa é o app estar instalado na tela de
- * início. PWA aberto como aba comum do Safari tem tratamento de armazenamento
- * significativamente pior e perde o offline no primeiro aperto de espaço.
+ * Nome e ícone são da empresa, e não de um produto: quem salva no iPad, no
+ * iPhone ou no Android está salvando a Premium Group, e dentro dela escolhe
+ * Atlas ou BOR.
  *
- * Por isso a instalação é requisito de onboarding de quem vai a campo, e não
- * sugestão: sem ela, tudo que o resto do offline constrói pode ser descartado
- * pelo sistema sem aviso.
+ * Os ícones saem do mesmo logo do favicon, com fundo branco chapado. O original
+ * tem os cantos transparentes, e o iOS pinta transparência de preto na tela de
+ * início. O maskable tem o logo menor porque o Android recorta em círculo e só
+ * garante os 80% do centro.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Atlas · Premium Group",
-    short_name: "Atlas",
-    description: "Plantas, marcas e fotos da obra, com ou sem sinal.",
+    name: "Premium Group",
+    short_name: "Premium Group",
+    description: "Premium Group operational intelligence platform",
     start_url: "/atlas",
-    // `standalone` faz o app abrir sem a barra do navegador, e é também o que o
-    // iOS usa para tratá-lo como aplicativo em vez de aba.
     display: "standalone",
     orientation: "any",
     background_color: "#ffffff",
-    theme_color: "#0a0a0a",
+    theme_color: "#ffffff",
     icons: [
-      { src: "/favicon.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/favicon.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   }
 }

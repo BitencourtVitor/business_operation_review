@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
+  // O nome que aparece embaixo do ícone quando alguém salva no iPhone ou iPad.
+  // O Safari não lê o manifesto para isso: sem esta chave ele usaria o título
+  // da página, que muda de tela para tela.
+  appleWebApp: {
+    capable: true,
+    title: "Premium Group",
+    statusBarStyle: "default",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
