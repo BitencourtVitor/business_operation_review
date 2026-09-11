@@ -2,7 +2,8 @@
 
 import { PdfPage, loadPdf } from "@/components/atlas/pdf-page"
 import {
-  readPageNames, type NamingMode, type NamingRegion, type NamingTemplate, type PageName,
+  readPageNames, splitSuffix,
+  type NamingMode, type NamingRegion, type NamingTemplate, type PageName,
 } from "@/components/atlas/plan-naming"
 import { Button } from "@/components/ui/button"
 import {
@@ -518,16 +519,47 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                   )}
                 </p>
                 <div className="max-h-56 overflow-y-auto">
+                  {/* A linha leva até a página que ela descreve.
+
+                      Conferir a leitura era navegar à mão: a lista dizia que a
+                      página 47 leu errado, e chegar lá custava quarenta e seis
+                      cliques na seta. Quem lê a prévia está justamente
+                      procurando a página que destoa, então a linha é o caminho
+                      mais curto até ela.
+
+                      Ao contrário das setas, isto não limpa a prévia. As setas
+                      limpam porque quem vira página costuma estar recortando
+                      outra região, e a leitura antiga deixaria de valer. Aqui é
+                      o contrário: a prévia é o motivo de estar navegando, e
+                      apagá-la ao chegar destruiria o que se veio ver. */}
                   {preview.map(p => (
-                    <div
+                    <button
                       key={p.pageIndex}
-                      className="flex items-baseline gap-2 py-0.5 text-xs"
+                      type="button"
+                      onClick={() => setPage(p.pageIndex)}
+                      title="Show this page"
+                      className={`flex w-full items-baseline gap-2 rounded px-1 py-0.5 text-left text-xs transition-colors hover:bg-accent ${
+                        p.pageIndex === page ? "bg-accent/60" : ""
+                      }`}
                     >
                       <span className="w-8 shrink-0 tabular-nums text-muted-foreground">
                         {p.pageIndex + 1}
                       </span>
+                      {/* O sufixo de desempate sai em itálico e cinza: ele não
+                          faz parte do que foi lido da prancha, é o que o
+                          sistema acrescentou para separar duas folhas
+                          homônimas. Misturado ao título, pareceria nome. */}
                       <span className={`min-w-0 flex-1 truncate ${p.name ? "" : "text-destructive"}`}>
-                        {p.name || "no name"}
+                        {p.name ? (
+                          <>
+                            {splitSuffix(p.name).base}
+                            {splitSuffix(p.name).suffix && (
+                              <span className="italic text-muted-foreground">
+                                {splitSuffix(p.name).suffix}
+                              </span>
+                            )}
+                          </>
+                        ) : "no name"}
                       </span>
                       {p.level > 0 && (
                         <span className={`shrink-0 rounded px-1 text-[10px] ${
@@ -537,7 +569,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
                           {p.level === 1 ? "1st" : "2nd"}
                         </span>
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>

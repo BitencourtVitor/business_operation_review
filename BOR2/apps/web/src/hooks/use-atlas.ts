@@ -521,8 +521,9 @@ export function useAtlasMedia(
 export function useUploadAtlasMedia(jobsiteId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, eventId, dailyLogId, caption, album }: {
+    mutationFn: async ({ file, eventId, dailyLogId, caption, album, phase }: {
       file: File; eventId?: string; dailyLogId?: string; caption?: string; album?: string
+      phase?: "before" | "after"
     }) => {
       const contentType = file.type || "application/octet-stream"
       const kind = contentType.startsWith("image/") ? "photo"
@@ -531,7 +532,7 @@ export function useUploadAtlasMedia(jobsiteId: string) {
         : "file"
       const ticket = await atlasService.openMedia(jobsiteId, {
         eventId, dailyLogId, kind, fileName: file.name, contentType, byteSize: file.size, caption,
-        album,
+        album, phase,
         // A data do arquivo é o mais perto da hora da foto que dá para saber sem
         // ler EXIF; melhor que a hora do upload, que é sempre a da noite.
         takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : undefined,

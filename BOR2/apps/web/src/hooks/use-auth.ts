@@ -3,6 +3,29 @@ import { useAuthStore } from "@/store/auth.store"
 import { useFinancialStore } from "@/store/financial.store"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+
+/**
+ * Se há rede, agora.
+ *
+ * `navigator.onLine` mente para cima (diz que há rede quando só há Wi-Fi sem
+ * saída), mas nunca mente para baixo: quando ele diz que não há, não há mesmo.
+ * É a direção que importa aqui, porque o uso é decidir o que **não** tentar.
+ */
+function useOnline() {
+  const [online, setOnline] = useState(true)
+  useEffect(() => {
+    const m = () => setOnline(navigator.onLine)
+    m()
+    window.addEventListener("online", m)
+    window.addEventListener("offline", m)
+    return () => {
+      window.removeEventListener("online", m)
+      window.removeEventListener("offline", m)
+    }
+  }, [])
+  return online
+}
 
 interface LoginParams {
   email: string
@@ -42,11 +65,28 @@ export function useAuth() {
     },
   })
 
+  // A sessão precisa sobreviver sem rede.
+  //
+  // O token e o usuário já ficam no store persistido, então entrar não depende
+  // do servidor. O que dependia era esta consulta: sem sinal ela falhava a cada
+  // abertura, e a tela ficava em carregamento eterno esperando uma resposta que
+  // não vinha.
+  //
+  // Offline ela nem roda, e o `user` do store responde. É o dado do último
+  // login, e para o que ele serve na obra — nome, cargo, permissão — isso é
+  // exatamente o que vale: nada disso muda entre uma prancha e outra.
+  //
+  // Voltando a rede, o `refetchOnReconnect` do TanStack revalida sozinho, que é
+  // o mesmo stale-while-revalidate do resto do offline: mostra o que tem,
+  // conserta quando puder.
+  const online = useOnline()
   const meQuery = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => authService.me(token!),
-    enabled: !!token,
+    enabled: !!token && online,
     retry: false,
+    refetchOnReconnect: true,
+    staleTime: 5 * 60 * 1000,
   })
 
   return {

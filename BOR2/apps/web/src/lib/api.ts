@@ -39,7 +39,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     res.status === 204 ? null : await res.json()
 
   if (!res.ok) {
-    if (res.status === 401 && typeof window !== "undefined") {
+    // 401 derruba a sessão, mas nunca quando a causa pode ser a rede.
+    //
+    // No canteiro isso é a diferença entre trabalhar e não trabalhar: um proxy
+    // de hotel, um portal cativo ou um gateway mal configurado devolvem 401 para
+    // requisição que nunca chegou ao servidor, e mandar a pessoa para o login
+    // apagaria a fila local dela — quinze pontos levantados na manhã — por causa
+    // de um Wi-Fi ruim.
+    //
+    // Offline, o erro sobe e quem chamou decide. Com rede, o 401 é o que ele diz
+    // ser.
+    const semRede = typeof navigator !== "undefined" && !navigator.onLine
+    if (res.status === 401 && typeof window !== "undefined" && !semRede) {
       const { useAuthStore } = await import("@/store/auth.store")
       useAuthStore.getState().clearAuth()
       window.location.href = "/login"

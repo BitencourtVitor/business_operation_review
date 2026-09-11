@@ -1,6 +1,7 @@
 "use client"
 
 import { IconInput } from "@/components/common/icon-input"
+import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,9 +11,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { api } from "@/lib/api"
+import { useAuth } from "@/hooks/use-auth"
 import { useAuthStore } from "@/store/auth.store"
-import { Check, Eye, EyeOff, Loader2, Lock, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { Check, Eye, EyeOff, Loader2, Lock, LogOut, X } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 
 interface PasswordResetModalProps {
   open: boolean
@@ -55,12 +58,18 @@ const strengthLabels = {
 
 export function PasswordResetModal({ open, onSuccess, onClose }: PasswordResetModalProps) {
   const token = useAuthStore((s) => s.token)
+  const { logout } = useAuth()
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  // O canto de tema e sair vai por portal, e portal só existe no navegador. Sem
+  // esperar a montagem, o servidor desenha a tela sem os botões e o navegador
+  // com eles, e o React acusa erro de hidratação.
+  const [montado, setMontado] = useState(false)
+  useEffect(() => setMontado(true), [])
 
   const strength = useMemo(() => checkStrength(password), [password])
   const passwordsMatch = password === confirm && confirm.length > 0
@@ -90,7 +99,50 @@ export function PasswordResetModal({ open, onSuccess, onClose }: PasswordResetMo
   ] as const
 
   return (
-    <Dialog open={open} onOpenChange={v => { if (!v) onClose?.() }}>
+    <>
+    {/* A saída da tela, fora da janela, no canto superior direito da tela.
+
+        Quem entra com senha provisória cai aqui e o modal não fecha: sem
+        `onClose` não há X, e trocar a senha é a única porta. Quem entrou com a
+        conta errada, ou só queria conferir uma credencial, ficava preso tendo
+        que definir uma senha permanente que não pediu.
+
+        Fica fora da janela porque sair da conta não é parte do formulário: é
+        sair da tela inteira, e o lugar disso é o canto da tela, como em qualquer
+        outra página do sistema. Dentro da janela ele se lia como uma ação do
+        formulário.
+
+        Três detalhes sustentam isso, e os três quebram em silêncio se forem
+        desfeitos:
+          - vai por portal para o `body`. Dentro da janela, que é centralizada
+            com `translate`, um filho `fixed` se posiciona em relação a ela e não
+            à tela;
+          - fica acima do fundo escuro (`z-[60]` contra `z-50`);
+          - nesse modo o diálogo não é modal. Modal deixa inerte tudo que está
+            fora dele, e o botão apareceria no lugar certo sem receber clique.
+            Não há o que proteger: o AuthGuard não desenha mais nada na página
+            enquanto a senha é provisória.
+
+        O botão só existe quando não há X, porque aí ele é a única saída. */}
+    {/* O canto da tela é o mesmo da seleção de produto (`select/page.tsx`):
+        tema e sair, na mesma ordem, com os mesmos botões. É a mesma moldura de
+        quem ainda não entrou num produto, e as duas telas se leem como uma. */}
+    {open && !onClose && montado && createPortal(
+      <div className="fixed right-4 top-4 z-[60] flex items-center gap-2">
+        <ThemeToggle />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => logout()}
+          aria-label="Log out"
+          className="text-muted-foreground"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
+      </div>,
+      document.body,
+    )}
+    <Dialog open={open} modal={!!onClose} onOpenChange={v => { if (!v) onClose?.() }}>
       <DialogContent className="sm:max-w-md" showCloseButton={!!onClose}>
         <DialogHeader>
           <DialogTitle>Create New Password</DialogTitle>
@@ -185,5 +237,6 @@ export function PasswordResetModal({ open, onSuccess, onClose }: PasswordResetMo
         </form>
       </DialogContent>
     </Dialog>
+    </>
   )
 }

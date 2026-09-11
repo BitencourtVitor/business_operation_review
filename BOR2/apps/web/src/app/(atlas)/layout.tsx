@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { AtlasHeader } from "@/components/atlas/atlas-header"
 import { AtlasSidebar } from "@/components/atlas/atlas-sidebar"
 import { AuthGuard } from "@/components/auth/auth-guard"
+import { OfflineProvider } from "@/components/atlas/offline-provider"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cookies } from "next/headers"
 
@@ -27,6 +28,9 @@ export default async function AtlasLayout({ children }: { children: React.ReactN
   const sidebarOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     <AuthGuard>
+      {/* O offline liga aqui, e só aqui: o BOR não é aplicação de campo, e
+          um Service Worker registrado para ele guardaria casca que ninguém usa. */}
+      <OfflineProvider>
       <SidebarProvider defaultOpen={sidebarOpen} className="atlas-shell">
         <AtlasSidebar />
         <SidebarInset className="min-w-0 overflow-x-hidden">
@@ -36,6 +40,7 @@ export default async function AtlasLayout({ children }: { children: React.ReactN
           </main>
         </SidebarInset>
       </SidebarProvider>
+      </OfflineProvider>
     </AuthGuard>
   )
 }

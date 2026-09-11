@@ -277,7 +277,18 @@ export interface AtlasEvent {
   kind: "comment" | "issue" | "task" | "rfi"
   title: string
   body: string
-  status: "open" | "answered" | "resolved"
+  /**
+   * Dois estados, e não três. "answered" existia e nascia sozinho quando alguém
+   * comentava; num punch list isso mentia, porque comentar não é resolver.
+   * Saiu do banco na migração 000154.
+   */
+  status: "open" | "resolved"
+  /**
+   * O número do ponto, contínuo por obra. É por ele que o ponto é chamado no
+   * canteiro e citado no relatório impresso, e é o que a colisão de
+   * sincronização protege: ponto que colide é invalidado, nunca renumerado.
+   */
+  number: number | null
   pageX: number | null
   pageY: number | null
   region: unknown
@@ -342,6 +353,16 @@ export interface AtlasMedia {
   album: string
   takenAt: string
   url: string
+  /**
+   * Em que momento do ciclo do ponto a imagem entra: `before` é a foto do
+   * problema, `after` é a prova da correção.
+   *
+   * Não se infere da hora do upload, porque a hora não sabe: uma foto anexada
+   * dias depois pode ser a do problema, refeita porque a primeira saiu tremida.
+   * Quem sabe é quem anexa. Ponto com foto do antes só fecha quando ganha uma
+   * do depois, e a trava disso está no banco.
+   */
+  phase: "before" | "after"
 }
 
 export interface AtlasUser {
@@ -579,12 +600,109 @@ export const atlasService = {
     kind: string
     fileName: string; contentType: string; byteSize: number; caption?: string
     album?: string; takenAt?: string
+    /** `before` (padrão) é a foto do problema; `after` é a prova da correção. */
+    phase?: "before" | "after"
   }) => api.post<UploadTicket & { mediaId: string }>(
     `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
   confirmMedia: (mediaId: string) =>
     api.post(`${base}/media/${mediaId}/confirm`, {}, getToken()),
   mediaUrl: (mediaId: string) =>
     api.get<{ url: string }>(`${base}/media/${mediaId}/url`, getToken()),
+
+  // ── Offline ───────────────────────────────────────────────────────────────
+
+  /**
+   * Sobe a fila de campo num lote só.
+   *
+   * Um lote e não um por um porque a ordem importa e o servidor precisa vê-la
+   * junta: em separado, o comentário pode chegar antes do ponto que ele comenta
+   * num aparelho com mais de uma conexão, e o servidor recusaria um fato válido.
+   */
+  sync: (events: Array<{
+    id: string; jobsiteId: string; kind: string; targetId: string
+    payload: Record<string, unknown>
+    deviceId: string; deviceSeq: number
+    occurredAt: string; occurredOffsetMinutes: number
+  }>) => api.post<Array<{ id: string; status: string; reason?: string; blockedBy?: string }>>(
+    `${base}/sync`, { events }, getToken()),
+
+  syncQueue: () => api.get<{
+    items: Array<{ id: string; jobsiteId: string; jobsiteName: string; kind: string
+      targetId: string; status: string; reason?: string; blockedBy?: string; occurredAt: string }>
+    byJobsite: Record<string, Record<string, number>>
+    total: number
+  }>(`${base}/sync/queue`, getToken()),
+
+  /** As pastas que este usuário mantém no aparelho, com a revisão dos dois lados. */
+  offlineFolders: () => api.get<Array<{
+    jobsiteId: string; jobsiteName: string
+    documentId: string; documentName: string
+    localRevision: number; serverRevision: number; stale: boolean
+    selectedAt: string; lastAccessAt: string
+  }>>(`${base}/offline/folders`, getToken()),
+
+  /**
+   * Marca a pasta como mantida offline, ou carimba o acesso.
+   *
+   * O mesmo verbo serve para as duas coisas de propósito: são a mesma afirmação,
+   * "este aparelho tem esta pasta neste estado". `touch` sozinho é o que o app
+   * manda ao abrir a pasta, para o relógio da expiração andar mesmo sem download.
+   */
+  setOfflineFolder: (documentId: string, body: { localRevision?: number; touch?: boolean }) =>
+    api.put(`${base}/offline/folders/${documentId}`, body, getToken()),
+
+  unsetOfflineFolder: (documentId: string) =>
+    api.delete(`${base}/offline/folders/${documentId}`, getToken()),
+
+  policy: () => api.get<Record<string, unknown>>(`${base}/policy`, getToken()),
+
+  /**
+   * Cria os vínculos automáticos de uma versão.
+   *
+   * O cliente manda todo o texto com posição; quem decide o que é referência é o
+   * índice de títulos, que mora no servidor. Sem `apply`, devolve o que faria.
+   */
+  autolink: (versionId: string, body: {
+    pages: Array<{ sheetId: string; tokens: unknown[]; noText: boolean }>
+    minRefs?: number
+    apply?: boolean
+  }) => api.post<{
+    dryRun: boolean
+    destinos: number
+    links: number
+    forma: Record<string, number>
+    paginas: Array<{ sheetId: string; refs: number; shape: string; spread: number; linked: number }>
+  }>(`${base}/versions/${versionId}/autolink`, body, getToken()),
+
+  /** Herda as folhas não trocadas de uma revisão parcial. */
+  inheritSheets: (versionId: string, body: { scope: "range" | "single"; pages: number[] }) =>
+    api.post<{ herdadas: number; trocadas: number; total: number }>(
+      `${base}/versions/${versionId}/inherit`, body, getToken()),
+
+  versionDiff: (versionId: string) => api.get<{
+    scope: string; scopePages: number[]; novas: number; herdadas: number; total: number
+  }>(`${base}/versions/${versionId}/diff`, getToken()),
+
+  /** Os pontos do punch list, por obra e opcionalmente por pavimento. */
+  punchList: (jobsiteId: string, params?: { subcategory?: string; status?: string }) => {
+    const q = new URLSearchParams()
+    if (params?.subcategory) q.set("subcategory", params.subcategory)
+    if (params?.status) q.set("status", params.status)
+    const qs = q.toString()
+    return api.get<Array<{
+      id: string; number: number | null; title: string; body: string; status: string
+      sheetId: string; sheetNumber: string; pageIndex: number
+      documentId: string; document: string; category: string; subcategory: string
+      pageX: number | null; pageY: number | null
+      photos: number; comments: number
+      createdName: string; createdAt: string; resolvedAt: string
+    }>>(`${base}/jobsites/${jobsiteId}/punch-list${qs ? `?${qs}` : ""}`, getToken())
+  },
+
+  punchSummary: (jobsiteId: string) => api.get<{
+    bySubcategory: Array<{ subcategory: string; category: string; open: number; resolved: number; total: number }>
+    jobsite: { open: number; resolved: number; total: number }
+  }>(`${base}/jobsites/${jobsiteId}/punch-list/summary`, getToken()),
 }
 
 /**

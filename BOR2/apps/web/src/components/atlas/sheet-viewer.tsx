@@ -2094,7 +2094,7 @@ export function SheetViewer({
                       <button
                         type="button"
                         onClick={() => setNotePhotos(list => list.filter((_, k) => k !== i))}
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900/70 text-white opacity-0 backdrop-blur transition-opacity group-hover/foto:opacity-100 focus-visible:opacity-100"
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900/70 text-white opacity-0 backdrop-blur transition-opacity group-hover/foto:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:opacity-100"
                       >
                         <X className="h-3 w-3" />
                       </button>

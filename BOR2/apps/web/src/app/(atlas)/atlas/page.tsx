@@ -20,6 +20,8 @@ import {
   Archive, ArchiveRestore, ChevronDown, CircleDot, Layers, MapPin, Pencil, Plus, Search,
 } from "lucide-react"
 import Link from "next/link"
+import { useLiveQuery } from "dexie-react-hooks"
+import { local } from "@/lib/offline/db"
 import { useEffect, useMemo, useState } from "react"
 
 // A obra arquivada não some, ela sai da frente. O padrão é ver só as ativas,
@@ -36,6 +38,27 @@ type StatusFilter = (typeof STATUS_OPTIONS)[number]["value"]
 
 export default function AtlasJobsitesPage() {
   const { data: jobsites, isLoading } = useAtlasJobsites()
+  // Sem rede, só as obras mantidas no aparelho abrem.
+  //
+  // As demais continuam listadas e desabilitadas. Sumir da lista pareceria perda
+  // de acesso, e a pessoa concluiria que foi tirada do projeto quando o que
+  // houve foi ela ter escolhido não guardar aquela obra.
+  const [online, setOnline] = useState(true)
+  const locais = useLiveQuery(() => local.obras.toArray(), [])
+  const guardadas = useMemo(
+    () => new Set((locais ?? []).filter(o => o.selecionada && !o.expiradaEm).map(o => o.id)),
+    [locais],
+  )
+  useEffect(() => {
+    const m = () => setOnline(navigator.onLine)
+    m()
+    window.addEventListener("online", m)
+    window.addEventListener("offline", m)
+    return () => {
+      window.removeEventListener("online", m)
+      window.removeEventListener("offline", m)
+    }
+  }, [])
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<StatusFilter>("active")
   const [adding, setAdding] = useState<"import" | "new" | null>(null)
@@ -174,6 +197,7 @@ export default function AtlasJobsitesPage() {
               {filtered.map(j => {
                 const Kind = (KIND_META[j.kind] ?? KIND_META.house).icon
                 const archived = j.status === "archived"
+                const alcancavel = online || guardadas.has(j.id)
                 return (
                   // Link e botões lado a lado, nunca aninhados: botão dentro de
                   // link é HTML inválido, e o clique de um roubaria o do outro.
@@ -190,8 +214,14 @@ export default function AtlasJobsitesPage() {
                     }`}
                   >
                     <Link
-                      href={`/atlas/${j.id}`}
-                      className="flex min-w-0 flex-1 flex-col gap-1 p-4 transition-colors hover:bg-accent/30"
+                      href={alcancavel ? `/atlas/${j.id}` : "#"}
+                      aria-disabled={!alcancavel}
+                      title={alcancavel ? undefined
+                        : "Sem conexão, e esta obra não foi mantida neste aparelho"}
+                      onClick={e => { if (!alcancavel) e.preventDefault() }}
+                      className={`flex min-w-0 flex-1 flex-col gap-1 p-4 transition-colors ${
+                        alcancavel ? "hover:bg-accent/30" : "cursor-not-allowed opacity-50"
+                      }`}
                     >
                       {/* Do geral ao particular: cliente, lugar, e por fim a
                           obra. A identificação vem por último porque é onde a

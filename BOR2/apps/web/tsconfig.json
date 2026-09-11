@@ -34,5 +34,7 @@
   ],
   // `scripts/` roda no Bun, fora do build do Next: usa APIs do runtime (S3, Bun.file)
   // que o tsconfig do app não conhece, e não vai para o bundle.
-  "exclude": ["node_modules", "scripts"]
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx","node_modules", "scripts"]
 }
