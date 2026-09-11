@@ -1,13 +1,15 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { useUsers, useUpdateUserPermissions } from "@/hooks/use-settings"
 import type { UserWithPermissions, PermissionLevel } from "@/services/settings.service"
+import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import {
-  BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX,
+  ArrowLeft, BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX, ChevronRight,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, CodeXml, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
@@ -167,6 +169,135 @@ function UserCard({
   )
 }
 
+// ─── Page list ────────────────────────────────────────────────────────────────
+
+/** "Forecast · Framing" para as filhas; o nome puro para as demais. */
+function pageLabel(key: string) {
+  for (const g of PERMISSION_GROUPS) {
+    for (const p of g.permissions) {
+      if (p.key === key) return p.label
+      const child = p.children?.find(c => c.key === key)
+      if (child) return `${p.label} · ${child.label}`
+    }
+  }
+  return key
+}
+
+function PageIcon({ perm, className }: { perm: PermDef; className: string }) {
+  if (perm.image) {
+    return (
+      <>
+        <img src={perm.image} className={cn(className, "shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
+        {perm.imageDark && <img src={perm.imageDark} className={cn(className, "hidden shrink-0 object-contain dark:block")} alt="" />}
+      </>
+    )
+  }
+  return perm.icon ? <perm.icon className={cn(className, "shrink-0")} /> : null
+}
+
+/**
+ * A lista de páginas. No desktop é a coluna da esquerda; no celular é a
+ * primeira tela, com linha mais alta para o dedo e a seta dizendo que o toque
+ * abre a página.
+ */
+function PageList({ selectedKey, onSelect, touch = false }: {
+  selectedKey: string
+  onSelect:    (key: string) => void
+  touch?:      boolean
+}) {
+  const itemCls = (key: string, indent: boolean) => cn(
+    "flex w-full items-center gap-2 rounded-md pr-2 text-left text-sm transition-colors",
+    indent ? "pl-6" : "pl-2",
+    touch ? "py-2.5" : "py-1.5",
+    !touch && selectedKey === key
+      ? "bg-background text-foreground font-medium shadow-sm"
+      : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
+  )
+
+  const item = (perm: PermDef, indent: boolean) => (
+    <button key={perm.key} onClick={() => onSelect(perm.key!)} className={itemCls(perm.key!, indent)}>
+      <PageIcon perm={perm} className="h-3.5 w-3.5" />
+      <span className="min-w-0 flex-1 truncate">{perm.label}</span>
+      {touch && <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />}
+    </button>
+  )
+
+  return (
+    <>
+      {PERMISSION_GROUPS.map(group => (
+        <div key={group.label} className="mb-3">
+          {group.label && (
+            <p className="mb-1 px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
+              {group.label}
+            </p>
+          )}
+          {group.permissions.map(perm =>
+            perm.children ? (
+              /* ── Parent grouper (e.g. QBTime Reports) ── */
+              <div key={perm.label} className="mb-0.5">
+                <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/40">
+                  <PageIcon perm={perm} className="h-3 w-3" />
+                  {perm.label}
+                </div>
+                {perm.children.map(child => item(child, true))}
+              </div>
+            ) : item(perm, false)
+          )}
+        </div>
+      ))}
+    </>
+  )
+}
+
+// ─── Mobile user row ──────────────────────────────────────────────────────────
+
+/**
+ * Uma pessoa na página escolhida, no celular. O acesso é uma chave, e não um
+ * arrastar entre colunas, que não existe no toque; com acesso, aparece embaixo
+ * a caixa de edição.
+ */
+function MobileUserRow({ user, level, canChange, writeLabel, onAccess, onLevel }: {
+  user:       UserWithPermissions
+  level:      PermissionLevel | null
+  canChange:  boolean
+  writeLabel: string
+  onAccess:   (granted: boolean) => void
+  onLevel:    (l: PermissionLevel) => void
+}) {
+  const meta = roleMeta[user.role] ?? roleMeta.user
+  const Icon = meta.icon
+
+  return (
+    <div className={cn("flex flex-col rounded-lg border border-border bg-card", !canChange && "opacity-50")}>
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{user.name}</span>
+        <span className={cn("inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold", meta.className)}>
+          <Icon className="h-2.5 w-2.5" />
+          {meta.label}
+        </span>
+        <Switch
+          checked={!!level}
+          disabled={!canChange}
+          onCheckedChange={checked => onAccess(checked)}
+          aria-label={`Access for ${user.name}`}
+        />
+      </div>
+      {level && (
+        <label className="flex cursor-pointer items-center gap-2 border-t border-border/50 px-3 py-2">
+          <input
+            type="checkbox"
+            checked={level === "write"}
+            disabled={!canChange}
+            onChange={e => onLevel(e.target.checked ? "write" : "read")}
+            className="h-4 w-4 cursor-pointer accent-primary"
+          />
+          <span className="text-xs text-muted-foreground">{writeLabel}</span>
+        </label>
+      )}
+    </div>
+  )
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 export function PermissionsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -179,6 +310,10 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
 
   const dragUserId = useRef<string | null>(null)
   const [dragOver, setDragOver] = useState<"access" | "no-access" | null>(null)
+
+  // Celular: a lista de páginas ou a página aberta. Toda abertura começa na lista.
+  const [onPage, setOnPage] = useState(false)
+  useEffect(() => { if (open) setOnPage(false) }, [open])
 
   function getEffective(user: UserWithPermissions): Record<string, PermissionLevel> {
     const local  = overrides[user.id] ?? {}
@@ -231,16 +366,81 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="flex max-h-[85vh] sm:max-w-[960px] flex-col gap-0 overflow-hidden p-0">
+      {/* dvh, e não vh: no celular o vh conta a altura sem a barra do navegador,
+          e o modal passava da tela com o título cortado em cima. */}
+      <DialogContent className="flex max-h-[85dvh] sm:max-w-[960px] flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="flex-row items-center gap-3 border-b border-border px-5 py-4">
           <ShieldCheck className="h-4 w-4 shrink-0 text-muted-foreground" />
           <DialogTitle className="flex-1 text-base">Edit Permissions</DialogTitle>
           {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         </DialogHeader>
 
+        {/* ── Celular ──
+            Três colunas não cabem na largura, e arrastar não existe no toque. A
+            mesma decisão vira duas telas: a lista de páginas e, ao tocar numa,
+            cada pessoa com uma chave de acesso. A lista fica em ordem de nome,
+            e não separada por quem tem acesso, para a linha não pular de lugar
+            no momento em que se liga a chave. */}
+        <div className="flex min-h-0 flex-1 flex-col md:hidden">
+          {!onPage ? (
+            <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20 p-2">
+              <PageList touch selectedKey={selectedKey} onSelect={k => { setSelectedKey(k); setOnPage(true) }} />
+            </div>
+          ) : (
+            <>
+              <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Back to pages" onClick={() => setOnPage(false)}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">{pageLabel(selectedKey)}</span>
+              </div>
+              {lockedMessage ? (
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+                  <Lock className="h-6 w-6 text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground">{lockedMessage}</p>
+                </div>
+              ) : (
+                <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-3">
+                  {[...withAccess, ...withoutAccess].sort(byName).map(u => {
+                    const level = getEffective(u)[selectedKey] ?? null
+                    const allowed = canManage(me?.role ?? "", u.role)
+                    return (
+                      <MobileUserRow
+                        key={u.id}
+                        user={u}
+                        level={level}
+                        canChange={allowed}
+                        writeLabel={writeLabel}
+                        onAccess={granted => applyChange(u.id, selectedKey, granted ? (level ?? "read") : null)}
+                        onLevel={l => applyChange(u.id, selectedKey, l)}
+                      />
+                    )
+                  })}
+                  {fixedAccess.length > 0 && (
+                    <div className="mt-2 flex flex-col gap-1.5 border-t border-border/50 pt-2.5">
+                      <p className="px-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">Always have access</p>
+                      {fixedAccess.map(u => (
+                        <UserCard
+                          key={u.id}
+                          user={u}
+                          level="write"
+                          isFixed={true}
+                          isDraggable={false}
+                          onDragStart={() => {}}
+                          onLevelChange={null}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
         {/* ── Column headers ── */}
         {!lockedMessage && (
-          <div className="flex shrink-0 border-b border-border">
+          <div className="hidden shrink-0 border-b border-border md:flex">
             <div className="flex w-56 shrink-0 flex-col border-r border-border bg-muted/20 px-3 py-2.5">
               <span className="text-xs font-semibold">Page</span>
               <span className="text-[11px] text-muted-foreground">Select a page to manage access</span>
@@ -256,78 +456,11 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
           </div>
         )}
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="hidden flex-1 overflow-hidden md:flex">
 
           {/* ── Sidebar: pages ── */}
           <aside className="flex w-56 shrink-0 flex-col overflow-y-auto border-r border-border bg-muted/20 p-2">
-            {PERMISSION_GROUPS.map(group => (
-              <div key={group.label} className="mb-3">
-                {group.label && (
-                  <p className="mb-1 px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
-                    {group.label}
-                  </p>
-                )}
-                {group.permissions.map(perm =>
-                  perm.children ? (
-                    /* ── Parent grouper (e.g. QBTime Reports) ── */
-                    <div key={perm.label} className="mb-0.5">
-                      <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/40">
-                        {perm.image
-                          ? <>
-                              <img src={perm.image} className={cn("h-3 w-3 shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
-                              {perm.imageDark && <img src={perm.imageDark} className="hidden h-3 w-3 shrink-0 object-contain dark:block" alt="" />}
-                            </>
-                          : perm.icon && <perm.icon className="h-3 w-3 shrink-0" />
-                        }
-                        {perm.label}
-                      </div>
-                      {perm.children.map(child => (
-                        <button
-                          key={child.key}
-                          onClick={() => setSelectedKey(child.key!)}
-                          className={cn(
-                            "flex w-full items-center gap-2 rounded-md py-1.5 pl-6 pr-2 text-left text-sm transition-colors",
-                            selectedKey === child.key
-                              ? "bg-background text-foreground font-medium shadow-sm"
-                              : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
-                          )}
-                        >
-                          {child.image
-                            ? <>
-                                <img src={child.image} className={cn("h-3.5 w-3.5 shrink-0 object-contain", child.imageDark && "dark:hidden")} alt="" />
-                                {child.imageDark && <img src={child.imageDark} className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" alt="" />}
-                              </>
-                            : child.icon && <child.icon className="h-3.5 w-3.5 shrink-0" />
-                          }
-                          <span className="truncate">{child.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    /* ── Regular permission item ── */
-                    <button
-                      key={perm.key}
-                      onClick={() => setSelectedKey(perm.key!)}
-                      className={cn(
-                        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-                        selectedKey === perm.key
-                          ? "bg-background text-foreground font-medium shadow-sm"
-                          : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
-                      )}
-                    >
-                      {perm.image
-                        ? <>
-                            <img src={perm.image} className={cn("h-3.5 w-3.5 shrink-0 object-contain", perm.imageDark && "dark:hidden")} alt="" />
-                            {perm.imageDark && <img src={perm.imageDark} className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" alt="" />}
-                          </>
-                        : perm.icon && <perm.icon className="h-3.5 w-3.5 shrink-0" />
-                      }
-                      <span className="truncate">{perm.label}</span>
-                    </button>
-                  )
-                )}
-              </div>
-            ))}
+            <PageList selectedKey={selectedKey} onSelect={setSelectedKey} />
           </aside>
 
           {/* ── DnD columns, or a locked-page notice ── */}
