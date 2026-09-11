@@ -39,7 +39,7 @@ const BUILD_TYPES = [
   // Painel tem documento que não existe em obra levantada: layout de placa,
   // desenho de produção, lista de corte. Separado aqui, essas pastas não
   // aparecem em casa nem em prédio.
-  { value: "panels", label: "Building Panels" },
+  { value: "panels", label: "Panels" },
 ]
 
 const AXES = [
@@ -67,7 +67,7 @@ type SortKey = (typeof SORTABLE)[number]["key"]
 
 // Derivado do próprio catálogo em vez de reescrito à mão: era uma cópia, e a
 // cópia esqueceu de painel, então a tabela mostrava "panels" cru enquanto o
-// formulário logo acima dizia "Building Panels". Tipo novo agora aparece nos
+// formulário logo acima dizia "Panels". Tipo novo agora aparece nos
 // dois lugares sem ninguém lembrar de nada.
 const BUILD_LABEL: Record<string, string> = Object.fromEntries(
   BUILD_TYPES.map(t => [t.value, t.value === "" ? "Any" : t.label]),

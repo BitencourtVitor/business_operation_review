@@ -42,7 +42,7 @@ export function composeName(community: string, kind: string, unit: string): stri
 export const KIND_META: Record<string, { label: string; icon: React.ElementType }> = {
   building: { label: "Building", icon: Building },
   house:    { label: "Lot",      icon: Home },
-  panels:   { label: "Building Panels", icon: PanelsTopLeft },
+  panels:   { label: "Panels",   icon: PanelsTopLeft },
 }
 
 // O lugar, sem o que se repete. "Riverview at East Point, East Providence, RI"
