@@ -339,6 +339,10 @@ export default function DocumentPage() {
   // assinada. Some sozinha quando a do servidor chega.
   const [previews, setPreviews] = useState<Map<number, string>>(new Map())
   const [sending, setSending] = useState<{ done: number; total: number } | null>(null)
+  // Em que pé o envio está antes de as folhas existirem. Sem isto a página ficava
+  // dizendo "No plan set here yet" durante todo o tempo em que o arquivo subia,
+  // e quem acabou de anexar um set de 100 MB lia aquilo como envio perdido.
+  const [fase, setFase] = useState<{ passo: string; enviado: number; total: number } | null>(null)
   const [sendError, setSendError] = useState("")
 
   // Nomear é etapa à parte do envio, e pode acontecer dias depois: o set sobe,
@@ -568,6 +572,7 @@ export default function DocumentPage() {
     setPreviews(new Map())
     setSendError("")
     setSending({ done: 0, total: 0 })
+    setFase({ passo: "opening", enviado: 0, total: file.size })
     // A versão nasce no meio do envio, e é dela que os vínculos precisam.
     let versaoId = ""
     upload.mutate({
@@ -576,7 +581,12 @@ export default function DocumentPage() {
       name: version?.name,
       notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
+      onProgress: (passo, detalhe) => {
+        const [enviado, total] = (detalhe ?? "").split("/").map(Number)
+        setFase({ passo, enviado: enviado || 0, total: total || file.size })
+      },
       onSheets: (id, pageCount) => {
+        setFase(null)
         setSending({ done: 0, total: pageCount })
         versaoId = id
         setVersionId(id)
@@ -593,6 +603,7 @@ export default function DocumentPage() {
     }, {
       onSuccess: () => {
         setSending(null)
+        setFase(null)
         // O set subiu: a cópia de segurança do arquivo já não serve para nada e
         // sai do aparelho. Antes disso ela fica, para uma falha no meio do
         // caminho ainda poder ser retomada.
@@ -610,6 +621,7 @@ export default function DocumentPage() {
       },
       onError: e => {
         setSending(null)
+        setFase(null)
         setSendError(e instanceof Error ? e.message : "could not upload")
       },
     })
@@ -786,7 +798,42 @@ export default function DocumentPage() {
             />
           )}
 
-          {!isLoading && !versions?.length && (
+          {/* O envio antes de as folhas existirem. Enquanto o arquivo sobe não há
+              versão nem folha para mostrar, e sem este bloco a página dizia que
+              não havia plan set nenhum justamente enquanto ele subia. */}
+          {fase && (
+            <div className="flex h-full min-h-40 flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 p-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground">
+                <CloudUpload className="h-6 w-6" />
+              </span>
+              <span>
+                <p className="text-sm font-medium">
+                  {fase.passo === "uploading" ? "Sending the plan set" : "Preparing the plan set"}
+                </p>
+                <p className="mt-1 text-sm tabular-nums text-muted-foreground">
+                  {fase.passo === "uploading"
+                    ? `${bytes(fase.enviado)} of ${bytes(fase.total)}`
+                    : fase.passo === "confirming"
+                      ? "Reading the pages"
+                      : "Opening the upload"}
+                </p>
+              </span>
+              {/* A barra só é exata durante o envio dos bytes. Nos outros passos
+                  ela corre sozinha, porque tempo ali não se mede. */}
+              <span className="h-1.5 w-56 overflow-hidden rounded-full bg-muted">
+                <span
+                  className={`block h-full bg-primary ${
+                    fase.passo === "uploading" ? "transition-[width]" : "w-1/3 animate-pulse"
+                  }`}
+                  style={fase.passo === "uploading"
+                    ? { width: `${Math.round((fase.enviado / (fase.total || 1)) * 100)}%` }
+                    : undefined}
+                />
+              </span>
+            </div>
+          )}
+
+          {!isLoading && !versions?.length && !fase && (
             /* O vazio ocupa a area toda, como o da lista da obra: a tira baixa
                no topo, com a pagina em branco embaixo, parecia conteudo
                cortado no meio. */

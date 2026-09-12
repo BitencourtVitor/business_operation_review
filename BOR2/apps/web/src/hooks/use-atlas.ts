@@ -250,8 +250,9 @@ export function useUploadAtlasVersion(documentId: string) {
       const ticket = await atlasService.openVersion(documentId, {
         revision, fileName: file.name, contentType, byteSize: file.size, name, notes,
       })
-      onProgress?.("uploading")
-      await uploadToR2(ticket.uploadUrl, file, contentType)
+      onProgress?.("uploading", `0/${file.size}`)
+      await uploadToR2(ticket.uploadUrl, file, contentType,
+        (enviado, total) => onProgress?.("uploading", `${enviado}/${total}`))
 
       onProgress?.("confirming")
       // A estrutura sai do próprio arquivo, no navegador: contagem de páginas e

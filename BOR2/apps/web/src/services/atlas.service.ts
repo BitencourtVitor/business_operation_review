@@ -751,15 +751,35 @@ export const atlasService = {
  * não com o backend, e mandar o header de Authorization aqui invalidaria a
  * assinatura.
  */
-export async function uploadToR2(url: string, file: Blob, contentType: string): Promise<void> {
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: { "Content-Type": contentType || "application/octet-stream" },
-    body: file,
-  })
-  if (!res.ok) {
-    throw new Error(`upload falhou (${res.status})`)
+export async function uploadToR2(
+  url: string, file: Blob, contentType: string,
+  /** Quanto já foi pelo fio, em bytes. Um set de 100 MB leva minutos. */
+  andamento?: (enviado: number, total: number) => void,
+): Promise<void> {
+  // XHR e não fetch só por isto: o fetch não conta o que já subiu, e sem essa
+  // conta a tela fica parada durante o envio inteiro, sem jeito de saber se
+  // está andando ou travou.
+  if (!andamento || typeof XMLHttpRequest === "undefined") {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": contentType || "application/octet-stream" },
+      body: file,
+    })
+    if (!res.ok) throw new Error(`upload falhou (${res.status})`)
+    return
   }
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open("PUT", url)
+    xhr.setRequestHeader("Content-Type", contentType || "application/octet-stream")
+    xhr.upload.onprogress = e => andamento(e.loaded, e.lengthComputable ? e.total : file.size)
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve()
+      else reject(new Error(`upload falhou (${xhr.status})`))
+    }
+    xhr.onerror = () => reject(new Error("upload falhou"))
+    xhr.send(file)
+  })
 }
 
 /** Um vínculo proposto pela varredura automática, ainda sem nada gravado. */
