@@ -1,8 +1,8 @@
 import { getQueryClient } from "@/lib/query-client"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { aquecerRotas } from "./aquecer"
-import { local } from "./db"
-import { cabe, gravarArquivo, liberarObra } from "./storage"
+import { local, type PlanoLocal } from "./db"
+import { cabe, gravarArquivo, liberarObra, ultimoErroDeArquivo } from "./storage"
 
 /**
  * O índice da obra, e o download de uma pasta.
@@ -132,6 +132,151 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
 }
 
 /**
+ * Desce o arquivo de um conjunto de planos.
+ *
+ * Seis por vez, e com as URLs assinadas pedidas em lote por versão. Antes era
+ * uma folha de cada vez, e cada uma começava perguntando ao servidor onde ela
+ * estava: num set de 97 folhas são 97 idas antes do primeiro byte de cada
+ * arquivo, e essa espera dominava o download inteiro. No canteiro dava 0,1 MB
+ * por segundo numa rede que dá muito mais.
+ *
+ * Devolve também o motivo da primeira falha. Contar quantas faltaram sem dizer
+ * por quê deixa a pessoa adivinhando entre rede, espaço e permissão.
+ */
+async function descerPlanos(obraId: string, planos: PlanoLocal[]): Promise<{
+  baixados: number; falharam: number; motivo: string
+}> {
+  const faltam = planos.filter(p => !p.arquivo)
+  let baixados = planos.length - faltam.length
+  let falharam = 0
+  let motivo = ""
+  const anotar = (m: string) => { if (!motivo) motivo = m }
+  if (!faltam.length) return { baixados, falharam, motivo }
+
+  const fontes = new Map<string, { url: string; whole: boolean }>()
+  for (const versao of new Set(faltam.map(p => p.versaoId))) {
+    try {
+      for (const f of await atlasService.versionSheetUrls(versao)) {
+        fontes.set(f.sheetId, { url: f.url, whole: f.whole })
+      }
+    } catch {
+      // Servidor antigo não conhece a rota em lote. Cada folha volta a
+      // perguntar por si, mais devagar mas funcionando.
+    }
+  }
+
+  // Versão que nunca foi recortada devolve o set inteiro para toda folha. Ele
+  // desce uma vez e todas apontam para o mesmo arquivo: baixar de novo a cada
+  // folha multiplicaria o set pelo número de páginas. Com várias descidas ao
+  // mesmo tempo, quem chega primeiro busca e as outras esperam a mesma promessa.
+  const inteiros = new Map<string, Promise<string | null>>()
+
+  async function descer(p: PlanoLocal) {
+    const fonte = fontes.get(p.id) ?? await atlasService.sheetUrl(p.id)
+    if (fonte.whole) {
+      let pendente = inteiros.get(p.versaoId)
+      if (!pendente) {
+        pendente = fetch(fonte.url)
+          .then(res => res.ok ? res.blob() : Promise.reject(new Error(`storage answered ${res.status}`)))
+          .then(blob => gravarArquivo(obraId, `${p.versaoId}.pdf`, blob))
+        inteiros.set(p.versaoId, pendente)
+      }
+      const caminho = await pendente
+      if (!caminho) { falharam++; anotar(ultimoErroDeArquivo() || "no room on this device"); return }
+      await local.planos.update(p.id, { arquivo: caminho, inteiro: true })
+      baixados++
+      return
+    }
+    const res = await fetch(fonte.url)
+    if (!res.ok) { falharam++; anotar(`storage answered ${res.status}`); return }
+    const caminho = await gravarArquivo(obraId, `${p.id}.pdf`, await res.blob())
+    if (!caminho) { falharam++; anotar(ultimoErroDeArquivo() || "no room on this device"); return }
+    await local.planos.update(p.id, { arquivo: caminho, inteiro: false })
+    baixados++
+  }
+
+  // Seis por vez, a mesma largura das miniaturas: uma a uma a rede fica ociosa
+  // entre um arquivo e o seguinte; todas juntas o celular abre 97 conexões.
+  const fila = [...faltam]
+  async function trabalhar() {
+    for (let p = fila.shift(); p; p = fila.shift()) {
+      try {
+        await descer(p)
+      } catch (e) {
+        // Uma folha que não desce não derruba a pasta. A fila segue e o
+        // relatório final diz quantas faltaram e por quê, para a pessoa tentar
+        // de novo só o que faltou em vez de rebaixar tudo.
+        falharam++
+        anotar(e instanceof Error ? e.message : "network failed")
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: 6 }, trabalhar))
+  return { baixados, falharam, motivo }
+}
+
+/**
+ * Guarda as marcações da pasta e desce o alvo de cada vínculo.
+ *
+ * Duas coisas que andam juntas de propósito. A marcação precisa estar no
+ * aparelho, senão o vínculo desaparece sem rede: ele vem da API a cada abertura
+ * de folha. E o destino precisa estar no aparelho também, senão o toque leva a
+ * lugar nenhum, o que é pior que não ter link, porque parece defeito.
+ *
+ * O alvo pode morar em outra pasta, e desce mesmo assim. Não é desperdício: no
+ * dia em que essa outra pasta for baixada, as folhas que já vieram por aqui são
+ * puladas, e o download dela sai mais curto.
+ */
+async function guardarMarcasEAlvos(obraId: string, planos: PlanoLocal[]): Promise<number> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return 0
+  const daPasta = new Set(planos.map(p => p.id))
+  const destinos = new Set<string>()
+
+  for (const versao of new Set(planos.map(p => p.versaoId))) {
+    let marcas
+    try {
+      marcas = await atlasService.versionAnnotations(versao)
+    } catch {
+      // Servidor sem a rota em lote, ou rede caindo agora. A pasta continua
+      // válida: o que falta é o vínculo sem rede, e ele volta na próxima visita.
+      continue
+    }
+    await local.marcas.bulkPut(marcas.map(m => {
+      const alvo = (m.geometry?.target?.sheetId ?? "")
+      if (alvo && !daPasta.has(alvo)) destinos.add(alvo)
+      return {
+        id: m.id,
+        planoId: m.sheetId,
+        obraId,
+        pastaId: planos.find(p => p.id === m.sheetId)?.pastaId ?? "",
+        tool: m.tool,
+        color: m.color,
+        width: m.width,
+        opacity: m.opacity,
+        shared: m.shared,
+        geometry: m.geometry as unknown as Record<string, unknown>,
+        createdAt: m.createdAt,
+        destinoPlanoId: alvo,
+      }
+    }))
+  }
+
+  if (!destinos.size) return 0
+  const alvos = (await local.planos.bulkGet([...destinos]))
+    .filter((p): p is PlanoLocal => !!p && !p.arquivo)
+  if (!alvos.length) return 0
+
+  // O espaço do alvo é conferido à parte: a pasta já coube, e o que vem por
+  // vínculo é acréscimo. Não cabendo, a pasta segue baixada e só o atalho fica
+  // para depois, em vez de o download inteiro falhar por causa do extra.
+  const espaco = await cabe(alvos.reduce((t, p) => t + (p.bytes ?? 0), 0))
+  if (!espaco.cabe) return 0
+
+  const { baixados } = await descerPlanos(obraId, alvos)
+  return baixados
+}
+
+/**
  * Baixa uma pasta para o aparelho.
  *
  * Confere o espaço **antes** de começar, porque falhar no meio no canteiro é o
@@ -157,35 +302,13 @@ export async function baixarPasta(pastaId: string): Promise<{
   aquecerRotas(["/atlas", `/atlas/${pasta.obraId}`, `/atlas/${pasta.obraId}/documents/${pastaId}`])
   void import("@/components/atlas/pdf-page").then(m => m.aquecerPdf()).catch(() => undefined)
 
-  let baixados = 0, falharam = 0
-  // Versão que nunca foi recortada devolve o set inteiro para toda folha. Ele
-  // desce uma vez e todas as folhas apontam para o mesmo arquivo: baixar de
-  // novo a cada folha multiplicaria o set pelo número de páginas.
-  let setInteiro: string | null = null
-  for (const p of planos) {
-    if (p.arquivo) { baixados++; continue }
-    try {
-      const fonte = await atlasService.sheetUrl(p.id)
-      if (fonte.whole && setInteiro) {
-        await local.planos.update(p.id, { arquivo: setInteiro, inteiro: true })
-        baixados++
-        continue
-      }
-      const res = await fetch(fonte.url)
-      if (!res.ok) { falharam++; continue }
-      const nome = fonte.whole ? `${p.versaoId}.pdf` : `${p.id}.pdf`
-      const caminho = await gravarArquivo(pasta.obraId, nome, await res.blob())
-      if (!caminho) { falharam++; continue }
-      if (fonte.whole) setInteiro = caminho
-      await local.planos.update(p.id, { arquivo: caminho, inteiro: fonte.whole })
-      baixados++
-    } catch {
-      // Uma folha que não desce não derruba a pasta. O laço segue e o relatório
-      // final diz quantas faltaram, para a pessoa poder tentar de novo só o
-      // que faltou em vez de rebaixar tudo.
-      falharam++
-    }
-  }
+  const { baixados, falharam, motivo } = await descerPlanos(pasta.obraId, planos)
+
+  // Os vínculos e seus alvos. Obra mapeada automaticamente tem link em quase
+  // toda folha, e link que aponta para folha ausente é pior que link nenhum:
+  // ele some sem rede e parece defeito do sistema. Por isso a marcação desce
+  // junto com a pasta, e o alvo que mora em outra pasta desce com ela.
+  await guardarMarcasEAlvos(pasta.obraId, planos)
 
   await local.pastas.update(pastaId, {
     estado: falharam === 0 ? "disponivel" : "baixando",
@@ -206,9 +329,15 @@ export async function baixarPasta(pastaId: string): Promise<{
     // jeito, e o próximo ciclo de sincronização reconcilia.
   }
 
+  // A mensagem é de interface, e a interface é em inglês. Além disso ela diz o
+  // motivo da primeira falha: "97 sheets did not come down" manda a pessoa
+  // adivinhar se foi rede, espaço ou permissão, e no canteiro não há como
+  // adivinhar.
   return {
     ok: falharam === 0, baixados, falharam,
-    mensagem: falharam === 0 ? "" : `${falharam} ${falharam === 1 ? "folha não desceu" : "folhas não desceram"}`,
+    mensagem: falharam === 0
+      ? ""
+      : `${falharam} ${falharam === 1 ? "sheet" : "sheets"} did not come down${motivo ? `: ${motivo}` : ""}`,
   }
 }
 

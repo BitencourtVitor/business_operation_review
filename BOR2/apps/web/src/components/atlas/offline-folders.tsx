@@ -243,7 +243,7 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
   // branco o espaço do aparelho.
   const pesoPendente = useMemo(() => {
     const porDoc = new Map(documentos.map(d => [d.id, d.bytes ?? 0]))
-    return faltando.reduce((t, l) => t + (porDoc.get(l.id) ?? l.pasta?.bytes ?? 0), 0)
+    return faltando.reduce((t, l) => t + (porDoc.get(l.id) || l.pasta?.bytes || 0), 0)
   }, [faltando, documentos])
 
   // Cabe no aparelho? A medida é do navegador e muda com o tempo, então é
@@ -313,7 +313,13 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
             {salva
               ? <CloudCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               : <CloudAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />}
-            <span className="truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+            {/* No celular a barra não tem largura para as duas coisas, e "Not
+                saved" é justamente a que o ícone já diz sozinho: nuvem com
+                alerta, em âmbar. O peso guardado fica, porque esse número o
+                ícone não tem como dar. */}
+            <span className={`truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground ${
+              salva && disco ? "" : "hidden sm:inline"
+            }`}>
               {salva && disco ? mb(disco.total) : "Not saved"}
             </span>
           </span>

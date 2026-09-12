@@ -49,7 +49,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
     permissions: [
       { key: "atlas_documents", label: "Documents", icon: FolderOpen },
       { key: "atlas_photos",  label: "Photos",  icon: Images },
-      { key: "atlas_tasks",   label: "Tasks",   icon: ListChecks },
+      { key: "atlas_tasks",   label: "Punch List", icon: ListChecks },
       { key: "atlas_diary",   label: "Diary",   icon: Notebook },
       { key: "atlas_reports", label: "Reports", icon: ClipboardList, upcoming: true },
       { key: "atlas_takeoff", label: "Takeoff", icon: Ruler,         upcoming: true },
