@@ -205,7 +205,11 @@ export default function AtlasJobsitesPage() {
           obras leva o cabeçalho e a busca embora justamente quando a busca
           passa a ser necessária. */}
       <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border/60 bg-card/20 p-3">
-        <div className="h-full overflow-y-auto pr-3">
+        {/* O respiro à direita é para a barra de rolagem do desktop não encostar
+            no cartão. No celular não há barra ocupando lugar, e ele virava um
+            vão: 12px de moldura à esquerda contra 24px à direita, com o cartão
+            visivelmente fora do centro. */}
+        <div className="h-full overflow-y-auto sm:pr-3">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />

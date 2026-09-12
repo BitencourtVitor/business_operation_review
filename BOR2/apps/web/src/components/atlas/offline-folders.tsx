@@ -15,7 +15,7 @@ import { useAtlasDocuments } from "@/hooks/use-atlas"
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { local, type PastaLocal } from "@/lib/offline/db"
 import {
-  baixarIndice, baixarMiniaturas, baixarObra, pararDownload, removerObra,
+  atualizarMarcas, baixarIndice, baixarMiniaturas, baixarObra, pararDownload, removerObra,
 } from "@/lib/offline/index-sync"
 import {
   cabe, mb, medirEspaco, tamanhosDaObra, type Cabimento, type Espaco,
@@ -183,6 +183,10 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     aquecerRotas(["/atlas", `/atlas/${jobsiteId}`, ...guardadas.map(id => rotaDaPasta(jobsiteId, id))])
     void import("@/components/atlas/pdf-page").then(m => m.aquecerPdf()).catch(() => undefined)
     for (const id of guardadas) void baixarMiniaturas(id).catch(() => 0)
+    // O vínculo é metadado: coordenada, tamanho e destino. Ele desce junto com
+    // a miniatura, e não só no download da pasta, senão quem baixou antes de
+    // isto existir nunca teria link sem sinal.
+    if (navigator.onLine) for (const id of guardadas) void atualizarMarcas(id).catch(() => 0)
 
     let vivo = true
     const conferir = async () => {
@@ -204,7 +208,9 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     setBaixandoObra(true); setErro("")
     try {
       const r = await baixarObra(jobsiteId)
-      if (!r.ok) setErro(r.mensagem)
+      // Sem mensagem não há o que dizer: é o caso do cancelamento, pedido por
+      // quem está na frente da tela.
+      if (!r.ok && r.mensagem) setErro(r.mensagem)
     } catch {
       setErro("The download stopped. Try again with a connection.")
     } finally {
