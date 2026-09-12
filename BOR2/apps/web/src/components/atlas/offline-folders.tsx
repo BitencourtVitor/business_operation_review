@@ -3,7 +3,7 @@
 import { useLiveQuery } from "dexie-react-hooks"
 import {
   AlertTriangle, CloudAlert, CloudCheck, CloudDownload, Download, Eye, FileText, HardDrive, Layers,
-  Loader2, Eraser, WifiOff,
+  Loader2, Eraser, WifiOff, X,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -15,7 +15,7 @@ import { useAtlasDocuments } from "@/hooks/use-atlas"
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { local, type PastaLocal } from "@/lib/offline/db"
 import {
-  baixarIndice, baixarMiniaturas, baixarObra, removerObra,
+  baixarIndice, baixarMiniaturas, baixarObra, pararDownload, removerObra,
 } from "@/lib/offline/index-sync"
 import {
   cabe, mb, medirEspaco, tamanhosDaObra, type Cabimento, type Espaco,
@@ -275,13 +275,21 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
   return (
     <>
       {/* O rodapé inteiro é o botão. Um alvo do tamanho da faixa é o que se
-          acerta com o polegar; um botão pequeno no canto obrigava a mirar. */}
-      <button
-        type="button"
-        disabled={bloqueada}
-        onClick={() => (acao === "view" ? setAberto(true) : void baixar())}
-        className="flex w-full items-center gap-2 rounded-lg border border-border/60 bg-card/40 px-3 py-2.5 text-left transition-colors hover:bg-accent/40 disabled:cursor-not-allowed"
-      >
+          acerta com o polegar; um botão pequeno no canto obrigava a mirar.
+
+          Baixando, a faixa se parte em dois: o corpo continua abrindo o modal,
+          e a ponta vira Cancel. Antes não havia como parar, e download que
+          trava, por rede que cai ou por versão nova do app entrar no lugar,
+          deixava a pasta girando para sempre. */}
+      <div className={`flex w-full items-center gap-2 rounded-lg border border-border/60 bg-card/40 px-3 py-2.5 text-left transition-colors ${
+        bloqueada ? "" : "hover:bg-accent/40"
+      }`}>
+        <button
+          type="button"
+          disabled={bloqueada}
+          onClick={() => (acao === "view" ? setAberto(true) : void baixar())}
+          className="flex min-w-0 flex-1 items-center gap-2 text-left disabled:cursor-not-allowed"
+        >
         <HardDrive className="h-4 w-4 shrink-0 text-muted-foreground" />
         <span className="shrink-0 whitespace-nowrap text-sm font-medium">Data Details</span>
         {/* A nuvem diz o estado dos documentos desta obra no aparelho, e o texto
@@ -324,10 +332,34 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
             </span>
           </span>
         )}
-        <span
-          className={`ml-auto flex shrink-0 items-center gap-1.5 text-xs font-medium ${
-            acao === "view" ? "text-muted-foreground" : "text-primary"
-          } ${bloqueada ? "opacity-40" : ""}`}
+        </button>
+
+        {/* Cancelar vem antes da ação e é só o X, em vermelho: no celular a
+            faixa não tem largura para duas palavras, e parar um download é o
+            gesto que precisa ser achado de primeira. Não apaga o que já desceu,
+            as folhas ficam no aparelho e a próxima tentativa as pula. */}
+        {baixando && (
+          <button
+            type="button"
+            title="Cancel the download"
+            aria-label="Cancel the download"
+            onClick={() => { void pararDownload(jobsiteId); setBaixandoObra(false) }}
+            className="ml-auto flex shrink-0 items-center rounded-md p-1 text-destructive transition-colors hover:bg-destructive/10"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+
+        {/* A ação é botão à parte, e não o fim do primeiro: é entre ela e o
+            corpo da faixa que o Cancel precisa caber. Os dois fazem a mesma
+            coisa, para o alvo continuar sendo a faixa inteira. */}
+        <button
+          type="button"
+          disabled={bloqueada}
+          onClick={() => (acao === "view" ? setAberto(true) : void baixar())}
+          className={`flex shrink-0 items-center gap-1.5 text-xs font-medium disabled:cursor-not-allowed ${
+            baixando ? "" : "ml-auto"
+          } ${acao === "view" ? "text-muted-foreground" : "text-primary"} ${bloqueada ? "opacity-40" : ""}`}
         >
           {acao === "view" ? <Eye className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
           {acao === "view" ? "View" : acao === "update" ? "Update" : "Download"}
@@ -337,8 +369,8 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
           {acao !== "view" && pesoPendente > 0 && (
             <span className="tabular-nums font-normal opacity-70">{mb(pesoPendente)}</span>
           )}
-        </span>
-      </button>
+        </button>
+      </div>
 
       {/* O motivo de o botão estar apagado fica logo abaixo dele, como etiqueta
           e não como caixa: é um aviso curto pendurado no botão, e um bloco de
@@ -412,6 +444,22 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
                       </span>
                     )}
                   </span>
+
+                  {/* Parar também daqui: é nesta lista que se vê qual pasta está
+                      descendo, e mandar a pessoa fechar o modal para achar o
+                      Cancel na faixa é fazer ela procurar o que está na frente
+                      dela. O mesmo X vermelho, pelo mesmo motivo. */}
+                  {estado === "baixando" && (
+                    <button
+                      type="button"
+                      title="Cancel the download"
+                      aria-label="Cancel the download"
+                      onClick={() => { void pararDownload(jobsiteId); setBaixandoObra(false) }}
+                      className="flex shrink-0 items-center rounded-md p-1 text-destructive transition-colors hover:bg-destructive/10"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               )
             })}

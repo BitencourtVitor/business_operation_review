@@ -132,6 +132,57 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
 }
 
 /**
+ * As obras cujo download foi interrompido pela pessoa.
+ *
+ * O download roda em laço, sem tela por trás: quem cancela precisa de um lugar
+ * para dizer isso, e o laço confere entre uma folha e a próxima. Cancelar não
+ * apaga o que já desceu; as folhas ficam no aparelho e a próxima tentativa as
+ * pula, então recomeçar é barato.
+ */
+const cancelados = new Set<string>()
+
+export function cancelarDownload(obraId: string): void {
+  cancelados.add(obraId)
+}
+
+/**
+ * Para o download agora e destrava a faixa.
+ *
+ * Marca o cancelamento, para o laço que estiver rodando parar na folha
+ * seguinte, e já devolve as pastas ao estado de repouso. Os dois passos juntos
+ * são de propósito: quando o laço morreu no meio, por recarga ou por uma versão
+ * nova do app entrar no lugar, não há quem responda à marca, e sem isto a pasta
+ * ficaria girando para sempre sem jeito de sair.
+ */
+export async function pararDownload(obraId: string): Promise<void> {
+  cancelados.add(obraId)
+  await encerrarPendentes(obraId)
+}
+
+export function downloadCancelado(obraId: string): boolean {
+  return cancelados.has(obraId)
+}
+
+/**
+ * Devolve ao estado de repouso as pastas que ficaram em "baixando".
+ *
+ * Pasta com todas as folhas no aparelho fica disponível; a que ficou pela
+ * metade volta a ausente, e não presa girando. É o que também conserta o
+ * download que travou por causa de um deploy no meio do caminho: a pessoa
+ * cancela, e a faixa volta a oferecer o download em vez de girar para sempre.
+ */
+async function encerrarPendentes(obraId: string): Promise<void> {
+  const pastas = await local.pastas.where("obraId").equals(obraId).toArray()
+  for (const p of pastas) {
+    if (p.estado !== "baixando") continue
+    const planos = await local.planos.where("pastaId").equals(p.id).toArray()
+    const completa = planos.length > 0 && planos.every(x => x.arquivo)
+    await local.pastas.update(p.id, { estado: completa ? "disponivel" : "ausente" })
+  }
+  await recalcularSelecao(obraId)
+}
+
+/**
  * Desce o arquivo de um conjunto de planos.
  *
  * Seis por vez, e com as URLs assinadas pedidas em lote por versão. Antes era
@@ -200,6 +251,7 @@ async function descerPlanos(obraId: string, planos: PlanoLocal[]): Promise<{
   const fila = [...faltam]
   async function trabalhar() {
     for (let p = fila.shift(); p; p = fila.shift()) {
+      if (cancelados.has(obraId)) { fila.length = 0; return }
       try {
         await descer(p)
       } catch (e) {
@@ -310,6 +362,11 @@ export async function baixarPasta(pastaId: string): Promise<{
   // junto com a pasta, e o alvo que mora em outra pasta desce com ela.
   await guardarMarcasEAlvos(pasta.obraId, planos)
 
+  if (cancelados.has(pasta.obraId)) {
+    await encerrarPendentes(pasta.obraId)
+    return { ok: false, baixados, falharam, mensagem: "download cancelled" }
+  }
+
   await local.pastas.update(pastaId, {
     estado: falharam === 0 ? "disponivel" : "baixando",
     revisaoLocal: pasta.revisaoServidor,
@@ -350,6 +407,8 @@ export async function baixarPasta(pastaId: string): Promise<{
  * o progresso somar a obra inteira e não só a pasta da vez.
  */
 export async function baixarObra(obraId: string): Promise<{ ok: boolean; mensagem: string }> {
+  // Começar limpa a marca: cancelar valia para aquele download, não para sempre.
+  cancelados.delete(obraId)
   await baixarIndice(obraId)
   const alvo = (await local.pastas.where("obraId").equals(obraId).toArray())
     .filter(p => p.estado !== "disponivel")
@@ -358,12 +417,18 @@ export async function baixarObra(obraId: string): Promise<{ ok: boolean; mensage
 
   const falhas: string[] = []
   for (const p of alvo) {
+    if (cancelados.has(obraId)) break
     const r = await baixarPasta(p.id)
     if (r.ok) continue
     falhas.push(r.mensagem)
     // Pasta que não chegou a começar (sem espaço, por exemplo) volta ao estado
     // de antes, em vez de ficar girando para sempre.
     if (r.baixados === 0) await local.pastas.update(p.id, { estado: p.estado === "baixando" ? "ausente" : p.estado })
+  }
+  if (cancelados.has(obraId)) {
+    cancelados.delete(obraId)
+    await encerrarPendentes(obraId)
+    return { ok: false, mensagem: "download cancelled" }
   }
   await recalcularSelecao(obraId)
   return { ok: falhas.length === 0, mensagem: falhas[0] ?? "" }
