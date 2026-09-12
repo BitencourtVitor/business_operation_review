@@ -19,7 +19,8 @@ import {
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
-import { takeUpload } from "@/components/atlas/pending-upload"
+import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
+import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -359,13 +360,23 @@ export default function DocumentPage() {
   // Documento recém-criado: o arquivo foi escolhido na sala da obra e ficou
   // esperando aqui, porque é aqui que as folhas aparecem uma a uma. Roda uma
   // vez só: quem pega, sobe.
+  // Não achando na memória, procura no aparelho: é o caso de a navegação ter
+  // falhado no meio, e sem isso o arquivo, os nomes lidos e os vínculos já
+  // conferidos se perderiam com um documento criado e vazio no lugar.
   const started = useRef(false)
   useEffect(() => {
     if (started.current) return
     const pending = takeUpload(documentId)
-    if (!pending) return
-    started.current = true
-    startUpload(pending.file, pending.names)
+    if (pending) {
+      started.current = true
+      startUpload(pending.file, pending.names, undefined, undefined, pending.links)
+      return
+    }
+    void retomarUpload(documentId).then(guardado => {
+      if (!guardado || started.current) return
+      started.current = true
+      startUpload(guardado.file, guardado.names, undefined, undefined, guardado.links)
+    }).catch(() => undefined)
   }, [documentId])
 
   useEffect(() => {
@@ -551,10 +562,14 @@ export default function DocumentPage() {
     names?: Map<number, string>,
     _identity?: unknown,
     version?: { name: string; notes: string; attachments?: File[] },
+    /** Os vínculos confirmados antes do envio, gravados quando as folhas existirem. */
+    links?: VinculoConfirmado[],
   ) {
     setPreviews(new Map())
     setSendError("")
     setSending({ done: 0, total: 0 })
+    // A versão nasce no meio do envio, e é dela que os vínculos precisam.
+    let versaoId = ""
     upload.mutate({
       file,
       names,
@@ -563,6 +578,7 @@ export default function DocumentPage() {
       revision: String((versions?.length ?? 0) + 1),
       onSheets: (id, pageCount) => {
         setSending({ done: 0, total: pageCount })
+        versaoId = id
         setVersionId(id)
         qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
         // Os anexos da justificativa vão assim que a versão existe, em paralelo
@@ -577,9 +593,20 @@ export default function DocumentPage() {
     }, {
       onSuccess: () => {
         setSending(null)
+        // O set subiu: a cópia de segurança do arquivo já não serve para nada e
+        // sai do aparelho. Antes disso ela fica, para uma falha no meio do
+        // caminho ainda poder ser retomada.
+        void descartarUpload(documentId)
         // O recorte e a miniatura do bucket entram no lugar da prévia local.
         qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
         refetchThumbs()
+        // Os vínculos confirmados antes do envio só podem ser gravados agora:
+        // é neste momento que a página vira folha com identificador.
+        if (links?.length && versaoId) {
+          void atlasService.autolinkApply(versaoId, { links }).then(() => {
+            qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
+          }).catch(() => {})
+        }
       },
       onError: e => {
         setSending(null)
@@ -760,12 +787,20 @@ export default function DocumentPage() {
           )}
 
           {!isLoading && !versions?.length && (
-            <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-              <p className="text-sm font-medium">No plan set here yet</p>
-              <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                Upload the PDF and say where each sheet name is printed. The pages become
-                sheets with a preview, named by the drawing itself.
-              </p>
+            /* O vazio ocupa a area toda, como o da lista da obra: a tira baixa
+               no topo, com a pagina em branco embaixo, parecia conteudo
+               cortado no meio. */
+            <div className="flex h-full min-h-40 flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 p-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground">
+                <Layers className="h-6 w-6" />
+              </span>
+              <span>
+                <p className="text-sm font-medium">No plan set here yet</p>
+                <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                  Upload the PDF and say where each sheet name is printed. The pages become
+                  sheets with a preview, named by the drawing itself.
+                </p>
+              </span>
             </div>
           )}
 

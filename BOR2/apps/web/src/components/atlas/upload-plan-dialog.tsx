@@ -1,6 +1,7 @@
 "use client"
 
 import { AttachmentPicker } from "@/components/atlas/attachment-picker"
+import { AutolinkStep, type VinculoConfirmado } from "@/components/atlas/autolink-step"
 import {
   NamingTemplateDialog, NamingTemplateEditor, type NamingEditorContext,
 } from "@/components/atlas/naming-template-dialog"
@@ -14,7 +15,9 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
-import { ArrowLeft, ArrowRight, Check, CloudUpload, FileText, ListTree, ScanText } from "lucide-react"
+import {
+  ArrowLeft, ArrowRight, Check, CloudUpload, FileText, Link2, ListTree, ScanText,
+} from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import {
@@ -45,8 +48,10 @@ export type DocumentIdentity = { name: string; tags: TagKey[] }
  * só, a marcação disputava atenção com o cadastro e parecia opcional.
  */
 export function UploadPlanDialog({
-  categoryId, naming, revisionCount, open, categorias, ocupadas, onStart, onClose,
+  categoryId, jobsiteId, naming, revisionCount, open, categorias, ocupadas, onStart, onClose,
 }: {
+  /** A obra: o índice de destinos dos hiperlinks é dela inteira. */
+  jobsiteId?: string
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
   categoryId?: number
   naming?: NamingTemplate
@@ -67,6 +72,8 @@ export function UploadPlanDialog({
     names?: Map<number, string>,
     identity?: DocumentIdentity,
     version?: { name: string; notes: string; attachments: File[] },
+    /** Os vínculos confirmados na terceira etapa, gravados depois do envio. */
+    links?: VinculoConfirmado[],
   ) => void
   onClose: () => void
 }) {
@@ -74,7 +81,14 @@ export function UploadPlanDialog({
   const inputRef = useRef<HTMLInputElement>(null)
   const novo = !!categorias
 
-  const [etapa, setEtapa] = useState<1 | 2>(1)
+  const [etapa, setEtapa] = useState<1 | 2 | 3>(1)
+  // A terceira etapa: a pergunta de sim ou não, e os vínculos confirmados.
+  const [querLinks, setQuerLinks] = useState<boolean | null>(null)
+  const [vinculos, setVinculos] = useState<VinculoConfirmado[]>([])
+  // Quantas páginas o arquivo tem, contadas pela leitura dos nomes.
+  const [paginasDoArquivo, setPaginasDoArquivo] = useState(0)
+  // Como vai a conferência dos vínculos, que é o que libera o envio.
+  const [estadoDosLinks, setEstadoDosLinks] = useState({ varrido: false, pendentes: 0 })
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
   const [arrastando, setArrastando] = useState(false)
@@ -110,6 +124,7 @@ export function UploadPlanDialog({
     setNames(null); setReading("")
     setName(""); setLinhas([LINHA_VAZIA])
     setVersionName(""); setVersionNotes(""); setAttachments([])
+    setQuerLinks(null); setVinculos([]); setEstadoDosLinks({ varrido: false, pendentes: 0 })
   }, [open])
 
   function choose(picked: File | null) {
@@ -165,20 +180,37 @@ export function UploadPlanDialog({
 
   // Documento novo: o que está marcado na tela é o gabarito, e os nomes são os
   // da prévia, que é obrigatória. Quem sobe viu antes o nome de cada folha.
-  function enviarNomeado(ctx: NamingEditorContext) {
+  //
+  // Daqui não se envia: com os nomes lidos, o caminho segue para a terceira
+  // etapa, onde os hiperlinks do desenho são propostos e confirmados. Enviar
+  // antes disso deixaria a pasta no ar sem os vínculos que ela pede.
+  function seguirParaLinks(ctx: NamingEditorContext) {
     if (!file || !ctx.preview) return
-    const nomes = new Map(ctx.preview.filter(n => n.name).map(n => [n.pageIndex, n.name] as [number, string]))
+    setNames(new Map(ctx.preview.filter(n => n.name).map(n => [n.pageIndex, n.name] as [number, string])))
+    setPaginasDoArquivo(ctx.preview.length)
     // Guardado na categoria, para o próximo envio do mesmo relatório já vir
     // marcado. É conveniência do próximo envio, não condição deste.
     const alvo = tags[0]?.categoryId
     if (alvo) updateCategory.mutate({ id: alvo, naming: ctx.template })
-    onStart(file, nomes,
+    setEtapa(3)
+  }
+
+  /** O envio de documento novo, com os nomes lidos e os vínculos confirmados. */
+  function enviarNomeado() {
+    if (!file || !names) return
+    onStart(file, names,
       { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags },
-      { name: "", notes: "", attachments: [] })
+      { name: "", notes: "", attachments: [] },
+      querLinks ? vinculos : [])
     onClose()
   }
 
   const busy = false
+  // Dizendo não aos vínculos, sobe direto. Dizendo sim, sobe com a varredura
+  // feita e nenhuma sugestão pendente.
+  const faltaDecidir = querLinks === true && estadoDosLinks.varrido ? estadoDosLinks.pendentes : 0
+  const podeEnviar = querLinks === false
+    || (querLinks === true && estadoDosLinks.varrido && estadoDosLinks.pendentes === 0)
   const nomeacaoOk = !!template?.levels?.length && !reading
   const podeAvancar = !!file && !!name.trim() && categoriaOk
 
@@ -281,7 +313,7 @@ export function UploadPlanDialog({
         {/* Na marcação o diálogo cresce até o tamanho da janela de marcar: a
             região que se desenha tem poucos milímetros no papel. */}
         <DialogContent
-          className={novo && etapa === 2
+          className={novo && etapa >= 2
             ? "flex h-[92vh] w-[min(96vw,80rem)] max-w-none flex-col gap-4 sm:max-w-none"
             : "sm:max-w-lg"}
         >
@@ -294,8 +326,8 @@ export function UploadPlanDialog({
             {/* As duas etapas à vista desde o começo: quem abre sabe que depois
                 do cadastro ainda vem a marcação dos nomes. */}
             {novo && (
-              <div className="flex items-center gap-2 text-xs">
-                {[{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }].map(({ n, t }) => (
+              <div className="flex items-center justify-center gap-2 text-xs">
+                {[{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }, { n: 3, t: "Links" }].map(({ n, t }) => (
                   <span key={n} className="flex items-center gap-2">
                     {n > 1 && <span className="h-px w-6 bg-border" aria-hidden="true" />}
                     <span className={`flex items-center gap-1.5 ${etapa === n ? "font-medium text-foreground" : "text-muted-foreground"}`}>
@@ -325,41 +357,84 @@ export function UploadPlanDialog({
               actions={ctx => (
                 <>
                   {error && <p className="text-xs text-destructive">{error}</p>}
-                  {/* A prévia é obrigatória: é nela que se vê o nome que cada
-                      folha vai ter, antes de subir. */}
-                  {!ctx.preview && !ctx.reading && (
-                    <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                      <ScanText className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                      <span>Run the preview before uploading.</span>
-                    </p>
+                  {/* Enquanto se marca, os botões são voltar ao cadastro e ler
+                      os nomes. O envio só aparece depois da leitura, na guia em
+                      que se confere o que saiu: subir sem ter visto o nome de
+                      cada folha é descobrir o erro em campo. */}
+                  {ctx.etapa === 1 ? (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        disabled={!!ctx.reading}
+                        onClick={() => {
+                          // Voltar não apaga o que foi marcado.
+                          marked.current = true
+                          setTemplate(ctx.template)
+                          setError("")
+                          setEtapa(1)
+                        }}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button className="flex-1" disabled={!ctx.ready || !!ctx.reading} onClick={ctx.runPreview}>
+                        <ScanText className="h-4 w-4" />
+                        {ctx.reading ? `Reading ${ctx.reading}` : "Preview names"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button className="w-full" disabled={!ctx.preview || !!ctx.reading} onClick={() => seguirParaLinks(ctx)}>
+                      Next
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
                   )}
-                  <Button variant="outline" disabled={!ctx.ready || !!ctx.reading} onClick={ctx.runPreview}>
-                    <ScanText className="h-4 w-4" />
-                    {ctx.reading ? `Reading ${ctx.reading}` : "Preview names"}
-                  </Button>
-                  <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    disabled={!!ctx.reading}
-                    onClick={() => {
-                      // Voltar não apaga o que foi marcado.
-                      marked.current = true
-                      setTemplate(ctx.template)
-                      setError("")
-                      setEtapa(1)
-                    }}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </Button>
-                  <Button className="flex-1" disabled={!ctx.preview || !!ctx.reading} onClick={() => enviarNomeado(ctx)}>
-                    <CloudUpload className="h-4 w-4" />
-                    Upload
-                  </Button>
-                  </div>
                 </>
               )}
             />
+          ) : novo && etapa === 3 ? (
+            // A terceira etapa: os códigos que o desenho cita viram hiperlinks,
+            // um a um, com a decisão de quem envia.
+            <>
+              <AutolinkStep
+                jobsiteId={jobsiteId ?? ""}
+                url={localUrl}
+                nomes={names ?? new Map()}
+                paginas={paginasDoArquivo}
+                ligado={querLinks}
+                onLigado={setQuerLinks}
+                onChange={setVinculos}
+                onEstado={setEstadoDosLinks}
+              />
+              <DialogFooter>
+                {error && (
+                  <p className="order-last max-w-[16rem] text-left text-xs text-destructive sm:order-first sm:mr-auto sm:self-center">
+                    {error}
+                  </p>
+                )}
+                {/* O envio espera a conferência: enquanto houver sugestão sem
+                    decisão, subir seria deixar a automação decidir por quem
+                    enviou, que é justamente o que esta etapa existe para evitar. */}
+                {faltaDecidir > 0 && (
+                  <p className="order-last flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 sm:order-first sm:mr-auto">
+                    <Link2 className="h-3.5 w-3.5 shrink-0" />
+                    {faltaDecidir} link{faltaDecidir === 1 ? "" : "s"} still to confirm or reject.
+                  </p>
+                )}
+                <Button variant="outline" onClick={() => setEtapa(2)}>
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <Button disabled={!podeEnviar} onClick={enviarNomeado}>
+                  <CloudUpload className="h-4 w-4" />
+                  Upload
+                  {querLinks && vinculos.length > 0 && (
+                    <span className="tabular-nums font-normal opacity-70">
+                      · {vinculos.length} link{vinculos.length === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </Button>
+              </DialogFooter>
+            </>
           ) : (
           <>
           <div className="flex flex-col gap-3">
