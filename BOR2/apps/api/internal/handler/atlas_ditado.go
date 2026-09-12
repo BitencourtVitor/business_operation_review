@@ -160,16 +160,23 @@ func (h *AtlasHandler) UpdateMedia(c *fiber.Ctx) error {
 	if texto, ok := fase.(string); ok && texto != "before" && texto != "after" {
 		return badRequest(c, "phase must be before or after")
 	}
+	// O ponto a que esta peça pertence pode chegar depois dela.
+	//
+	// É o caso da descrição falada: a gravação sobe e é transcrita enquanto a
+	// pessoa ainda está escrevendo o título, e o ponto só existe quando ela
+	// salva. Sem isto o áudio ficaria solto na obra, sem o ponto que ele
+	// descreve. Só entra quando ainda não há ponto: mídia não muda de dono.
 	if _, err := h.db.Exec(c.Context(), `
 		UPDATE atlas_media SET
 			title       = COALESCE($2, title),
 			description = COALESCE($3, description),
 			caption     = COALESCE($4, caption),
 			transcript  = COALESCE($5, transcript),
-			phase       = COALESCE($6, phase)
+			phase       = COALESCE($6, phase),
+			event_id    = COALESCE(event_id, $7)
 		WHERE id = $1`, mediaID,
 		strPtr(patch, "title"), strPtr(patch, "description"), strPtr(patch, "caption"),
-		strPtr(patch, "transcript"), fase); err != nil {
+		strPtr(patch, "transcript"), fase, strPtr(patch, "eventId")); err != nil {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": mediaID}})
