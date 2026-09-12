@@ -343,6 +343,8 @@ export default function DocumentPage() {
   // dizendo "No plan set here yet" durante todo o tempo em que o arquivo subia,
   // e quem acabou de anexar um set de 100 MB lia aquilo como envio perdido.
   const [fase, setFase] = useState<{ passo: string; enviado: number; total: number } | null>(null)
+  /** As folhas já nasceram: daqui para a frente quem mostra o andamento é a grade. */
+  const temFolhas = useRef(false)
   const [sendError, setSendError] = useState("")
 
   // Nomear é etapa à parte do envio, e pode acontecer dias depois: o set sobe,
@@ -572,6 +574,7 @@ export default function DocumentPage() {
     setPreviews(new Map())
     setSendError("")
     setSending({ done: 0, total: 0 })
+    temFolhas.current = false
     setFase({ passo: "opening", enviado: 0, total: file.size })
     // A versão nasce no meio do envio, e é dela que os vínculos precisam.
     let versaoId = ""
@@ -581,11 +584,17 @@ export default function DocumentPage() {
       name: version?.name,
       notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
+      // A fase só vale antes de a folha existir. Depois do `onSheets` vem o
+      // corte, que também reporta andamento, e ele pertence à grade: repetir na
+      // caixa de cima deixava "Preparing the plan set" no ar com as 97 folhas
+      // já à vista logo abaixo.
       onProgress: (passo, detalhe) => {
+        if (temFolhas.current) return
         const [enviado, total] = (detalhe ?? "").split("/").map(Number)
         setFase({ passo, enviado: enviado || 0, total: total || file.size })
       },
       onSheets: (id, pageCount) => {
+        temFolhas.current = true
         setFase(null)
         setSending({ done: 0, total: pageCount })
         versaoId = id
