@@ -82,6 +82,10 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
   const documentos = await atlasService.listDocuments(obraId)
   qc.setQueryData(["atlas", "documents", obraId], documentos)
   let planos = 0
+  // O que o servidor ainda reconhece. O que não estiver aqui no fim da varredura
+  // é resto de documento apagado ou de versão trocada, e sai do aparelho.
+  const vivos = new Set<string>()
+  const pastasVivas = new Set<string>()
 
   for (const d of documentos) {
     const versoes = await atlasService.listVersions(d.id)
@@ -92,6 +96,7 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
     const atual = versoes[0]
     if (!atual) continue
 
+    pastasVivas.add(d.id)
     const folhas = await atlasService.listSheets(atual.id)
     qc.setQueryData(["atlas", "sheets", atual.id], folhas)
     // O tamanho da pasta é a soma das pranchas, que é o que de fato desce. O do
@@ -125,10 +130,50 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
         scaleLabel: antes?.scaleLabel ?? "",
         desatualizado: false,
       })
+      vivos.add(s.id)
       planos++
     }
   }
+
+  await limparRestos(obraId, pastasVivas, vivos)
   return { planos }
+}
+
+/**
+ * Tira do aparelho o que o servidor já não tem.
+ *
+ * Documento apagado, ou versão trocada por outra, deixava a folha antiga no
+ * índice local para sempre. O download então tentava baixar uma folha que não
+ * existe mais e o servidor respondia "folha não encontrado" para cada uma
+ * delas: foi assim que um set inteiro falhou, 97 de 97, sem nada de errado com
+ * o arquivo nem com a rede.
+ *
+ * O arquivo guardado sai junto, senão o aparelho ficaria carregando peso de
+ * prancha que ninguém mais consegue abrir.
+ */
+async function limparRestos(
+  obraId: string, pastasVivas: Set<string>, folhasVivas: Set<string>,
+): Promise<void> {
+  const { apagarArquivo } = await import("./storage")
+  const planos = await local.planos.where("obraId").equals(obraId).toArray()
+  const mortos = planos.filter(p => !folhasVivas.has(p.id))
+  for (const p of mortos) {
+    // O arquivo do set inteiro é o mesmo para várias folhas: só sai quando
+    // nenhuma folha viva aponta para ele.
+    if (p.arquivo && !planos.some(o => o.arquivo === p.arquivo && folhasVivas.has(o.id))) {
+      await apagarArquivo(p.arquivo)
+    }
+    if (p.thumb) await apagarArquivo(p.thumb)
+    await local.marcas.where("planoId").equals(p.id).delete()
+  }
+  if (mortos.length) await local.planos.bulkDelete(mortos.map(p => p.id))
+
+  const pastas = await local.pastas.where("obraId").equals(obraId).toArray()
+  const orfas = pastas.filter(p => !pastasVivas.has(p.id))
+  if (orfas.length) {
+    await local.pastas.bulkDelete(orfas.map(p => p.id))
+    await recalcularSelecao(obraId)
+  }
 }
 
 /**
@@ -329,6 +374,22 @@ async function guardarMarcasEAlvos(obraId: string, planos: PlanoLocal[]): Promis
 }
 
 /**
+ * Põe em dia as marcações de uma pasta já baixada.
+ *
+ * O download guarda as marcações no caminho, mas quem baixou antes disso
+ * existir, ou baixou e depois recebeu vínculo novo, ficaria sem elas para
+ * sempre. Roda a cada visita com rede, junto das miniaturas, pelo mesmo motivo
+ * delas: é metadado, custa pouco, e é o que faz o link existir sem sinal.
+ */
+export async function atualizarMarcas(pastaId: string): Promise<number> {
+  const pasta = await local.pastas.get(pastaId)
+  if (!pasta) return 0
+  const planos = await local.planos.where("pastaId").equals(pastaId).toArray()
+  if (!planos.length) return 0
+  return guardarMarcasEAlvos(pasta.obraId, planos)
+}
+
+/**
  * Baixa uma pasta para o aparelho.
  *
  * Confere o espaço **antes** de começar, porque falhar no meio no canteiro é o
@@ -364,7 +425,9 @@ export async function baixarPasta(pastaId: string): Promise<{
 
   if (cancelados.has(pasta.obraId)) {
     await encerrarPendentes(pasta.obraId)
-    return { ok: false, baixados, falharam, mensagem: "download cancelled" }
+    // Cancelar foi decisão de quem está olhando a tela: avisar de volta o que
+    // a pessoa acabou de mandar fazer é ruído, e pior, com cara de erro.
+    return { ok: false, baixados, falharam, mensagem: "" }
   }
 
   await local.pastas.update(pastaId, {
@@ -428,7 +491,7 @@ export async function baixarObra(obraId: string): Promise<{ ok: boolean; mensage
   if (cancelados.has(obraId)) {
     cancelados.delete(obraId)
     await encerrarPendentes(obraId)
-    return { ok: false, mensagem: "download cancelled" }
+    return { ok: false, mensagem: "" }
   }
   await recalcularSelecao(obraId)
   return { ok: falhas.length === 0, mensagem: falhas[0] ?? "" }
