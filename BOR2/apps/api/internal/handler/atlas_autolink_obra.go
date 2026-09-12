@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"sort"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -130,6 +131,10 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 			NoText    bool            `json:"noText"`
 		} `json:"pages"`
 		MinRefs int `json:"minRefs"`
+		// Procurar destino nas outras pastas da obra. Falso por padrão: o caso
+		// comum é o código citado ser folha do próprio arquivo, e sair da pasta
+		// sem ser pedido aumenta a chance de casar código parecido de outro set.
+		OutrasPastas bool `json:"otherFolders"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
@@ -138,18 +143,30 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 		in.MinRefs = 2
 	}
 
-	indice, err := h.indiceDaObra(c.Context(), jobsiteID, "")
-	if err != nil {
-		return internalErr(c, err)
+	indice := map[string]destino{}
+	if in.OutrasPastas {
+		var err error
+		indice, err = h.indiceDaObra(c.Context(), jobsiteID, "")
+		if err != nil {
+			return internalErr(c, err)
+		}
 	}
 	// As folhas que estão subindo entram na frente: dentro do próprio arquivo, o
 	// código citado quase sempre é de uma folha do próprio arquivo, e mandar a
 	// pessoa para outra pasta nesse caso seria levá-la ao lugar errado.
+	//
+	// Entre as próprias folhas vale a mesma regra do resto: a primeira ganha. O
+	// código escrito na prancha se refere ao componente, e o componente começa na
+	// primeira página; sem esta trava a última sobrescrevia as anteriores, e o
+	// vínculo de `E1005-L` caía na segunda folha de mesmo nome.
+	sort.SliceStable(in.Local, func(a, b int) bool { return in.Local[a].PageIndex < in.Local[b].PageIndex })
+	locais := map[string]bool{}
 	for _, l := range in.Local {
 		k := chaveTitulo(l.Name)
-		if k == "" {
+		if k == "" || locais[k] {
 			continue
 		}
+		locais[k] = true
 		indice[k] = destino{PageIndex: l.PageIndex, Name: l.Name}
 	}
 
