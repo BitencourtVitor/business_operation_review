@@ -67,6 +67,38 @@ type chatRequest struct {
 	Tools    []Tool        `json:"tools,omitempty"`
 }
 
+// Uma mensagem cujo conteúdo é uma lista de pedaços, e não uma string.
+//
+// É o formato que o protocolo exige quando entra áudio ou imagem junto do
+// texto. Vive separado de ChatMessage de propósito: mensagem de texto é a
+// esmagadora maioria das chamadas do sistema, e afrouxar o tipo dela para caber
+// o caso raro faria todo chamador existente lidar com uma forma que nunca usa.
+type chatRequestPartes struct {
+	Model    string             `json:"model"`
+	Messages []mensagemComPecas `json:"messages"`
+	// Transcrição não é lugar de criatividade: o que se quer é o que foi dito.
+	Temperature float64 `json:"temperature"`
+}
+
+type mensagemComPecas struct {
+	Role    string           `json:"role"`
+	Content []pecaDeConteudo `json:"content"`
+}
+
+type pecaDeConteudo struct {
+	Type       string       `json:"type"`
+	Text       string       `json:"text,omitempty"`
+	InputAudio *audioEmBase `json:"input_audio,omitempty"`
+}
+
+type audioEmBase struct {
+	// O arquivo inteiro em base64. O protocolo não aceita URL para áudio: o
+	// modelo precisa dos bytes.
+	Data string `json:"data"`
+	// Hoje, wav ou mp3.
+	Format string `json:"format"`
+}
+
 type ChatResponse struct {
 	Text         string
 	ToolCalls    []ToolCall
@@ -96,6 +128,29 @@ func (c *OpenRouterClient) Chat(ctx context.Context, messages []ChatMessage) (*C
 	return c.ChatWithTools(ctx, messages, nil)
 }
 
+// ChatAudio manda um áudio junto do texto.
+//
+// Existe para a descrição falada do punch list. O áudio vai em base64 dentro da
+// própria mensagem porque o protocolo não aceita URL para som, e por isso quem
+// chama precisa ter os bytes em mãos.
+func (c *OpenRouterClient) ChatAudio(ctx context.Context, prompt, audioBase64, formato string) (*ChatResponse, error) {
+	body, err := json.Marshal(chatRequestPartes{
+		Model:       c.model,
+		Temperature: 0,
+		Messages: []mensagemComPecas{{
+			Role: "user",
+			Content: []pecaDeConteudo{
+				{Type: "text", Text: prompt},
+				{Type: "input_audio", InputAudio: &audioEmBase{Data: audioBase64, Format: formato}},
+			},
+		}},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("openrouter: marshal: %w", err)
+	}
+	return c.enviar(ctx, body)
+}
+
 // ChatWithTools sends messages and, when tools are provided, lets the model
 // request tool calls. The returned ChatResponse carries either Text or ToolCalls.
 func (c *OpenRouterClient) ChatWithTools(ctx context.Context, messages []ChatMessage, tools []Tool) (*ChatResponse, error) {
@@ -103,7 +158,12 @@ func (c *OpenRouterClient) ChatWithTools(ctx context.Context, messages []ChatMes
 	if err != nil {
 		return nil, fmt.Errorf("openrouter: marshal: %w", err)
 	}
+	return c.enviar(ctx, body)
+}
 
+// enviar é a parte que não muda de uma chamada para outra: credencial, envio,
+// leitura do erro real e a conta de tokens.
+func (c *OpenRouterClient) enviar(ctx context.Context, body []byte) (*ChatResponse, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, openRouterURL, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("openrouter: request: %w", err)

@@ -32,10 +32,17 @@ type AtlasHandler struct {
 	// ambiente sem credencial, e nesse caso o convite recusa em vez de fingir
 	// que saiu.
 	email service.EmailSender
+	// A descrição falada do punch list virando texto. Nula em ambiente sem
+	// credencial de IA, e nesse caso a rota recusa dizendo isso em vez de
+	// devolver uma transcrição vazia como se tivesse dado certo.
+	ditado *service.DitadoService
 }
 
-func NewAtlasHandler(db *pgxpool.Pool, r2 *service.R2Service, email service.EmailSender) *AtlasHandler {
-	return &AtlasHandler{db: db, r2: r2, email: email}
+func NewAtlasHandler(
+	db *pgxpool.Pool, r2 *service.R2Service, email service.EmailSender,
+	ditado *service.DitadoService,
+) *AtlasHandler {
+	return &AtlasHandler{db: db, r2: r2, email: email, ditado: ditado}
 }
 
 // ── Permissão por obra ──────────────────────────────────────────────────────
@@ -1960,17 +1967,22 @@ func (h *AtlasHandler) CreateEvent(c *fiber.Ctx) error {
 	if strings.TrimSpace(id) == "" {
 		id = uuid.NewString()
 	}
+	// A passagem de verificação em que este ponto entra. Sai do escopo da pasta
+	// da folha, e é aberta na hora quando o escopo ainda não tem uma. Ninguém
+	// precisa abrir a verificação antes de sair a campo: etapa a mais entre ver
+	// o problema e registrar o problema é onde o registro se perde.
+	punchID := h.punchDaFolha(c, jobsiteID, strings.TrimSpace(*in.SheetID), userID)
 	_, err := h.db.Exec(c.Context(), `
 		INSERT INTO atlas_event
-			(id, jobsite_id, sheet_id, kind, title, body, page_x, page_y, region, created_by)
-		VALUES ($1,$2,$3,COALESCE(NULLIF($4,''),'comment'),$5,$6,$7,$8,$9,$10)
+			(id, jobsite_id, sheet_id, kind, title, body, page_x, page_y, region, created_by, punch_id)
+		VALUES ($1,$2,$3,COALESCE(NULLIF($4,''),'comment'),$5,$6,$7,$8,$9,$10,NULLIF($11,''))
 		ON CONFLICT (id) DO NOTHING`,
 		id, jobsiteID, in.SheetID, in.Kind, in.Title, in.Body,
-		in.PageX, in.PageY, rawOrNil(in.Region), userID)
+		in.PageX, in.PageY, rawOrNil(in.Region), userID, punchID)
 	if err != nil {
 		return internalErr(c, err)
 	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": id, "punchId": punchID}})
 }
 
 // PATCH /atlas/events/:id
@@ -2272,6 +2284,12 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 		// é. Um ponto com foto do antes só fecha quando ganha uma do depois, e a
 		// trava disso está no banco (migração 000156), não aqui.
 		Phase string `json:"phase"`
+		// O que este registro mostra. Numa foto de álbum bastava a legenda; na
+		// peça que documenta a solução de um ponto são duas coisas, o título
+		// curto que encabeça o container do relatório e o parágrafo que conta o
+		// que foi feito.
+		Title       string `json:"title"`
+		Description string `json:"description"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
@@ -2295,12 +2313,14 @@ func (h *AtlasHandler) CreateMedia(c *fiber.Ctx) error {
 	_, err = h.db.Exec(c.Context(), `
 		INSERT INTO atlas_media
 			(id, jobsite_id, event_id, daily_log_id, sheet_id, version_id, kind, r2_key,
-			 file_name, content_type, byte_size, caption, uploaded_by, album, taken_at, phase)
+			 file_name, content_type, byte_size, caption, uploaded_by, album, taken_at, phase,
+			 title, description)
 		VALUES ($1,$2,$3,$4,$5,$6,COALESCE(NULLIF($7,''),'photo'),$8,$9,$10,$11,$12,$13,$14,$15,
-		        CASE WHEN $16 = 'after' THEN 'after' ELSE 'before' END)`,
+		        CASE WHEN $16 = 'after' THEN 'after' ELSE 'before' END, $17, $18)`,
 		id, jobsiteID, in.EventID, in.DailyLogID, in.SheetID, in.VersionID, in.Kind, key,
 		in.FileName, in.ContentType, in.ByteSize, in.Caption, userID,
-		strings.TrimSpace(in.Album), takenAt, in.Phase)
+		strings.TrimSpace(in.Album), takenAt, in.Phase,
+		strings.TrimSpace(in.Title), strings.TrimSpace(in.Description))
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -2417,7 +2437,7 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT id, event_id, daily_log_id, kind, r2_key, file_name, content_type,
 		       byte_size, caption, uploaded_by, uploaded_at, album,
-		       COALESCE(taken_at, uploaded_at)
+		       COALESCE(taken_at, uploaded_at), phase, title, description, transcript
 		FROM atlas_media
 		WHERE jobsite_id = $1 AND status = 'uploaded'
 		  AND ($2 = '' OR event_id = $2)
@@ -2446,6 +2466,14 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		Album       string  `json:"album"`
 		TakenAt     string  `json:"takenAt"`
 		URL         string  `json:"url"`
+		// Em que momento do ciclo do ponto o registro entra, e o que ele mostra.
+		// A solução de um ponto tem mais de uma peça, e cada uma precisa dizer o
+		// que documenta: legenda de uma linha não dá conta.
+		Phase       string `json:"phase"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		// O texto da descrição falada, quando esta mídia é áudio.
+		Transcript string `json:"transcript"`
 	}
 	out := []media{}
 	keys := []string{}
@@ -2456,7 +2484,7 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		var taken time.Time
 		if err := rows.Scan(&m.ID, &m.EventID, &m.DailyLogID, &m.Kind, &key, &m.FileName,
 			&m.ContentType, &m.ByteSize, &m.Caption, &m.UploadedBy, &uploaded,
-			&m.Album, &taken); err != nil {
+			&m.Album, &taken, &m.Phase, &m.Title, &m.Description, &m.Transcript); err != nil {
 			return internalErr(c, err)
 		}
 		m.UploadedAt = uploaded.Format(time.RFC3339)
