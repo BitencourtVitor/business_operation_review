@@ -311,9 +311,15 @@ type punchScope struct {
 	// quer saber o tamanho do que vai percorrer.
 	Documents int `json:"documents"`
 	Sheets    int `json:"sheets"`
-	// A passagem aberta neste escopo, quando há uma.
-	PunchID  string `json:"punchId"`
-	OpenedAt string `json:"openedAt"`
+	// A passagem aberta neste escopo, quando há uma, e quem a abriu.
+	//
+	// O nome vem junto porque o cartão o mostra ao lado do título: numa obra com
+	// subcontratado dentro, quem conduz a verificação é informação de primeira
+	// linha, e o cargo aparece como ícone antes de alguém ler o nome.
+	PunchID    string `json:"punchId"`
+	OpenedAt   string `json:"openedAt"`
+	OpenedName string `json:"openedName"`
+	OpenedRole string `json:"openedRole"`
 	// O andamento da passagem aberta.
 	Open     int `json:"open"`
 	Resolved int `json:"resolved"`
@@ -338,6 +344,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		SELECT esc.scope_kind, esc.scope_value,
 		       count(DISTINCT d.id), count(s.id),
 		       COALESCE(p.id,''), p.opened_at,
+		       COALESCE(pu.name,''), COALESCE(pu.role::text,''),
 		       COALESCE((SELECT count(*) FROM atlas_event e
 		                  WHERE e.punch_id = p.id AND e.status <> 'resolved'), 0),
 		       COALESCE((SELECT count(*) FROM atlas_event e
@@ -358,8 +365,10 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		                                      AND p.scope_kind = esc.scope_kind
 		                                      AND p.scope_value = esc.scope_value
 		                                      AND p.closed_at IS NULL
+		  LEFT JOIN users pu                   ON pu.id = p.opened_by
 		 WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
-		 GROUP BY esc.scope_kind, esc.scope_value, p.id, p.opened_at, d.jobsite_id
+		 GROUP BY esc.scope_kind, esc.scope_value, p.id, p.opened_at,
+		          pu.name, pu.role, d.jobsite_id
 		 ORDER BY esc.scope_value`, jobsiteID)
 	if err != nil {
 		return internalErr(c, err)
@@ -371,7 +380,8 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		var s punchScope
 		var aberto *time.Time
 		if err := rows.Scan(&s.Kind, &s.Value, &s.Documents, &s.Sheets,
-			&s.PunchID, &aberto, &s.Open, &s.Resolved, &s.Closed); err != nil {
+			&s.PunchID, &aberto, &s.OpenedName, &s.OpenedRole,
+			&s.Open, &s.Resolved, &s.Closed); err != nil {
 			continue
 		}
 		if aberto != nil {
