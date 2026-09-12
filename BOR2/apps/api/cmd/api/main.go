@@ -711,6 +711,8 @@ func main() {
 	// tem; o servidor resolve o destino e grava. Dry-run por padrão, porque
 	// vínculo falso é pior que vínculo ausente.
 	atlas.Post("/versions/:id/autolink", atlasHandler.Autolink)
+	atlas.Post("/versions/:id/autolink/apply", atlasHandler.AutolinkApply)
+	atlas.Post("/jobsites/:id/autolink/preview", atlasHandler.AutolinkPreview)
 
 	// Escala da prancha e medição sobre ela.
 	atlas.Put("/sheets/:id/scale", atlasHandler.SetSheetScale)
