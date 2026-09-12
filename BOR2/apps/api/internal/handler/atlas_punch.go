@@ -347,7 +347,12 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		                    AND f.scope_value = esc.scope_value AND f.closed_at IS NOT NULL), 0)
 		  FROM atlas_document d
 		  JOIN atlas_documento_escopo esc      ON esc.document_id = d.id
-		  LEFT JOIN atlas_document_version v   ON v.document_id = d.id
+		  LEFT JOIN LATERAL (
+		      SELECT v.id FROM atlas_document_version v
+		       WHERE v.document_id = d.id
+		       ORDER BY v.uploaded_at DESC
+		       LIMIT 1
+		  ) v ON true
 		  LEFT JOIN atlas_sheet s              ON s.version_id  = v.id
 		  LEFT JOIN atlas_punch p              ON p.jobsite_id = d.jobsite_id
 		                                      AND p.scope_kind = esc.scope_kind
