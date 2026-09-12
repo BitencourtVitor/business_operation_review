@@ -2,14 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
-import { local } from "@/lib/offline/db"
+import { local, type PlanoLocal } from "@/lib/offline/db"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
   type AtlasDocCategory, type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
-  type AtlasStrokeGeometry,
+  type AtlasStrokeGeometry, type AtlasVersion,
 } from "@/services/atlas.service"
 
 const KEY = {
@@ -172,18 +172,81 @@ export function useRemoveCategorySlot(jobsiteId: string) {
   })
 }
 
+/** Sem rede neste instante. No servidor não há navegador, e lá sempre há rede. */
+function semRede() {
+  return typeof navigator !== "undefined" && !navigator.onLine
+}
+
+// A versão e as folhas como o aparelho as conhece, para a pasta que nunca foi
+// aberta com rede. É o caso da pasta vizinha alcançada por um vínculo: o índice
+// desceu, a prancha de destino desceu, e a tela que as abre não tinha de onde
+// montar a lista. Só o que o leitor usa vem preenchido; o resto fica vazio.
+function versaoLocal(documentId: string, planos: PlanoLocal[]): AtlasVersion[] {
+  const atual = planos[0]
+  if (!atual) return []
+  return [{
+    id: atual.versaoId, documentId, revision: "", r2Key: "", byteSize: 0,
+    pageCount: planos.length, checksum: "", contentType: "application/pdf",
+    status: "published", name: "", notes: "", uploadedBy: "", uploadedAt: "",
+    publishedAt: null, sheets: planos.length, attachments: [],
+  }]
+}
+
+function folhasLocais(planos: PlanoLocal[]): AtlasSheet[] {
+  return planos
+    .sort((a, b) => a.pageIndex - b.pageIndex)
+    .map(p => ({
+      id: p.id, versionId: p.versaoId, pageIndex: p.pageIndex,
+      sheetNumber: p.sheetNumber, discipline: "", level: "", title: p.title,
+      // O caminho no aparelho faz as vezes da chave no bucket: é ele que diz
+      // que a prancha existe e o cartão pode abrir. Folha sem arquivo fica
+      // como está, que sem rede é o mesmo que folha ainda não cortada.
+      revision: "", thumbKey: p.thumb ?? "", widthPt: p.widthPt || null, heightPt: p.heightPt || null,
+      r2Key: p.arquivo ?? "", byteSize: p.bytes ?? 0, confidence: 1, needsReview: false,
+      links: 0, highlights: 0, notes: 0, annotations: 0,
+      revisedAt: "", versionName: "", revisions: 1, textHash: "", geomHash: "",
+    }))
+}
+
+// As consultas do leitor rodam mesmo sem rede (`networkMode: "always"`). O
+// padrão do TanStack pausa a consulta quando o navegador diz que não há sinal, e
+// pausada ela nunca chega ao aparelho: a pasta baixada abria, mas a folha que
+// não tinha sido vista com rede ficava sem lista e sem vínculo. Sem rede, o que
+// já está no cache vale; faltando, monta-se do índice guardado.
 export function useAtlasVersions(documentId: string) {
+  const qc = useQueryClient()
   return useQuery({
     queryKey: KEY.versions(documentId),
-    queryFn: () => atlasService.listVersions(documentId),
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const emCache = qc.getQueryData<AtlasVersion[]>(KEY.versions(documentId))
+        if (emCache) return emCache
+        const planos = await local.planos.where("pastaId").equals(documentId).toArray()
+        if (!planos.length) throw new Error("offline")
+        return versaoLocal(documentId, planos)
+      }
+      return atlasService.listVersions(documentId)
+    },
     enabled: !!documentId,
   })
 }
 
 export function useAtlasSheets(versionId: string) {
+  const qc = useQueryClient()
   return useQuery({
     queryKey: KEY.sheets(versionId),
-    queryFn: () => atlasService.listSheets(versionId),
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const emCache = qc.getQueryData<AtlasSheet[]>(KEY.sheets(versionId))
+        if (emCache) return emCache
+        const planos = await local.planos.filter(p => p.versaoId === versionId).toArray()
+        if (!planos.length) throw new Error("offline")
+        return folhasLocais(planos)
+      }
+      return atlasService.listSheets(versionId)
+    },
     enabled: !!versionId,
   })
 }
@@ -375,29 +438,43 @@ export function useAtlasAnnotations(sheetId: string) {
     // Sem rede, as marcações vêm do aparelho. Elas descem junto com a pasta, e
     // sem esta volta o vínculo simplesmente sumia no canteiro: a prancha abria
     // e o toque não levava a lugar nenhum, o que parece defeito e não falta de
-    // sinal.
+    // sinal. Roda sem rede de propósito: pausada, a consulta nunca chegaria ao
+    // aparelho, e a folha que não tinha sido aberta com sinal ficava sem nada.
+    networkMode: "always",
     queryFn: async () => {
-      try {
-        return await atlasService.listAnnotations(sheetId)
-      } catch (erro) {
-        const guardadas = await local.marcas.where("planoId").equals(sheetId).toArray()
-        if (!guardadas.length) throw erro
-        return guardadas.map(m => ({
-          id: m.id,
-          sheetId: m.planoId,
-          authorId: "",
-          tool: m.tool,
-          color: m.color,
-          width: m.width,
-          opacity: m.opacity,
-          shared: m.shared,
-          geometry: m.geometry,
-          createdAt: m.createdAt,
-        })) as AtlasAnnotation[]
+      if (!semRede()) {
+        try {
+          return await atlasService.listAnnotations(sheetId)
+        } catch (erro) {
+          const guardadas = await marcasDoAparelho(sheetId)
+          if (!guardadas.length) throw erro
+          return guardadas
+        }
       }
+      const guardadas = await marcasDoAparelho(sheetId)
+      // Nada guardado: o erro mantém o que o cache já tinha, se tinha, em vez
+      // de trocar o vínculo visto com rede por lista vazia.
+      if (!guardadas.length) throw new Error("offline")
+      return guardadas
     },
     enabled: !!sheetId,
   })
+}
+
+async function marcasDoAparelho(sheetId: string): Promise<AtlasAnnotation[]> {
+  const guardadas = await local.marcas.where("planoId").equals(sheetId).toArray()
+  return guardadas.map(m => ({
+    id: m.id,
+    sheetId: m.planoId,
+    authorId: "",
+    tool: m.tool,
+    color: m.color,
+    width: m.width,
+    opacity: m.opacity,
+    shared: m.shared,
+    geometry: m.geometry,
+    createdAt: m.createdAt,
+  })) as AtlasAnnotation[]
 }
 
 export function useCreateAtlasAnnotation(sheetId: string) {

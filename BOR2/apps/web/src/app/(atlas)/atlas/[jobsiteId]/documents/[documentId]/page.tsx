@@ -3,6 +3,7 @@
 import { aquecerRotas } from "@/lib/offline/aquecer"
 import { useCategoriasDaObra } from "@/components/atlas/category-picker"
 import { local } from "@/lib/offline/db"
+import { atualizarMarcas } from "@/lib/offline/index-sync"
 import { lerArquivo } from "@/lib/offline/storage"
 import { useLiveQuery } from "dexie-react-hooks"
 import { downloadPlan } from "@/components/atlas/pdf-page"
@@ -306,9 +307,14 @@ export default function DocumentPage() {
   // quando a pasta foi baixada: o que fica no aparelho é decisão da pessoa.
   // Quem chega aqui pelo roteador do Next não baixou o HTML dela, e sem ele
   // tocar na pasta sem sinal devolvia a pessoa para a lista de obras.
+  // As marcações vão junto: são o que faz o vínculo existir sem sinal, e a
+  // pasta baixada antes de elas descerem ficaria sem elas até a próxima visita
+  // à sala da obra.
   useEffect(() => {
     void local.pastas.get(documentId).then(p => {
-      if (p && p.estado !== "ausente") aquecerRotas([`/atlas/${jobsiteId}/documents/${documentId}`])
+      if (!p || p.estado === "ausente") return
+      aquecerRotas([`/atlas/${jobsiteId}/documents/${documentId}`])
+      if (navigator.onLine) void atualizarMarcas(documentId).catch(() => 0)
     }).catch(() => undefined)
   }, [jobsiteId, documentId])
 
@@ -915,7 +921,7 @@ export default function DocumentPage() {
                   {fillError && (
                     <span className="text-xs text-destructive">{fillError}</span>
                   )}
-                  {canManage && missingThumbs > 0 && (
+                  {canManage && missingThumbs > 0 && typeof navigator !== "undefined" && navigator.onLine && (
                     <Button variant="outline" onClick={fillThumbs} disabled={!!filling}>
                       <Images className="h-3.5 w-3.5" />
                       {filling ? `Making previews ${filling}` : `Make ${missingThumbs} previews`}
