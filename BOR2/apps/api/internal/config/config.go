@@ -29,6 +29,11 @@ type AIConfig struct {
 	OpenRouterKey string
 	SQLModel      string // agentic SQL loop (writes/refines queries) — e.g. google/gemini-2.5-flash
 	AnalystModel  string // final analytical answer — e.g. anthropic/claude-sonnet-4.5
+	// Transcrição da descrição falada do punch list. Precisa ser um modelo que
+	// aceite áudio na entrada, o que nem todo modelo de texto aceita.
+	AudioModel string
+	// Leitura da transcrição em tópicos. Texto puro, e por isso o rápido.
+	TopicsModel   string
 	ReadOnlyDBURL string // DSN for the read-only aria_ro role (falls back to main DB if empty)
 }
 
@@ -74,6 +79,8 @@ func Load() (*Config, error) {
 			OpenRouterKey: getEnv("OPENROUTER_API_KEY", ""),
 			SQLModel:      getEnv("AI_SQL_MODEL", "google/gemini-2.5-flash"),
 			AnalystModel:  getEnv("AI_ANALYST_MODEL", "anthropic/claude-sonnet-4.5"),
+			AudioModel:    getEnv("AI_AUDIO_MODEL", "google/gemini-2.5-pro"),
+			TopicsModel:   getEnv("AI_TOPICS_MODEL", "google/gemini-2.5-flash"),
 			ReadOnlyDBURL: getEnv("ARIA_READONLY_DATABASE_URL", ""),
 		},
 		R2: R2Config{

@@ -155,7 +155,10 @@ func main() {
 	// Atlas — o storage é opcional na subida: sem as variáveis do R2 o serviço
 	// continua de pé e é o Atlas que responde 503, não a API inteira.
 	r2Service := service.NewR2Service(cfg.R2.Endpoint, cfg.R2.Bucket, cfg.R2.AccessKey, cfg.R2.SecretKey)
-	atlasHandler := handler.NewAtlasHandler(db, r2Service, emailSender)
+	// O ditado usa a mesma conta de IA do resto da plataforma. Modelo à parte
+	// porque este precisa aceitar áudio, e o que responde SQL não precisa.
+	atlasDitado := service.NewDitadoService(cfg.AI.OpenRouterKey, cfg.AI.AudioModel, cfg.AI.TopicsModel)
+	atlasHandler := handler.NewAtlasHandler(db, r2Service, emailSender, atlasDitado)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -694,6 +697,12 @@ func main() {
 	atlas.Get("/jobsites/:id/punch-list", atlasHandler.ListPunchList)
 	atlas.Get("/jobsites/:id/punch-list/summary", atlasHandler.PunchListSummary)
 	atlas.Get("/jobsites/:id/punch-list/subcategories", atlasHandler.PunchListSubcategories)
+	atlas.Get("/jobsites/:id/punch-list/scopes", atlasHandler.PunchListScopes)
+	atlas.Get("/jobsites/:id/punch-list/media", atlasHandler.PunchListMedia)
+	atlas.Get("/jobsites/:id/punches", atlasHandler.ListPunches)
+	atlas.Post("/jobsites/:id/punches", atlasHandler.OpenPunch)
+	atlas.Post("/punches/:id/close", atlasHandler.ClosePunch)
+	atlas.Post("/punches/:id/reopen", atlasHandler.ReopenPunch)
 
 	// Exclusão. Nasce com a limpeza do bucket embutida: a cascata do esquema
 	// não alcança o R2, e apagar só o banco deixa o objeto pago e sem dono.
@@ -768,6 +777,9 @@ func main() {
 	atlas.Post("/jobsites/:id/media", atlasHandler.CreateMedia)
 	atlas.Post("/media/:id/confirm", atlasHandler.ConfirmMedia)
 	atlas.Get("/media/:id/url", atlasHandler.MediaURL)
+	atlas.Patch("/media/:id", atlasHandler.UpdateMedia)
+	atlas.Post("/media/:id/transcribe", atlasHandler.TranscribeMedia)
+	atlas.Post("/media/:id/topics", atlasHandler.MediaTopics)
 
 	// AI Chat (Aria)
 	ai := api.Group("/ai")
