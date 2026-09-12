@@ -39,7 +39,8 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	fmt.Println("=== BOR1 → BOR2 Data Migration ===\n")
+	fmt.Println("=== BOR1 → BOR2 Data Migration ===")
+	fmt.Println()
 
 	// Migrate each table
 	migrateForecasts()

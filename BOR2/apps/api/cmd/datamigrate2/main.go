@@ -36,7 +36,8 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	fmt.Println("=== BOR1 → BOR2 Data Migration (Round 2) ===\n")
+	fmt.Println("=== BOR1 → BOR2 Data Migration (Round 2) ===")
+	fmt.Println()
 
 	migrate("wex_transactions", func(r map[string]interface{}) error {
 		_, err := conn.Exec(context.Background(), `
