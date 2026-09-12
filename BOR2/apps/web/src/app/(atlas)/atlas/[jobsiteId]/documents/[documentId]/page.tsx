@@ -648,70 +648,71 @@ export default function DocumentPage() {
             </Link>
             <span className="h-9 w-px shrink-0 bg-border" />
             <div className="min-w-0 flex-1">
-              {/* O nome veio do arquivo, e arquivo chega com nome que ninguém
-                  escolheu direito. Editar é operação normal, e ela acontece
-                  onde o nome está, não numa tela de configuração. */}
-              {renaming ? (
-                <div className="flex items-center gap-1.5">
-                  <Input
-                    autoFocus
-                    value={draftName}
-                    className="h-8"
-                    onChange={e => setDraftName(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === "Enter") saveName()
-                      if (e.key === "Escape") setRenaming(false)
-                    }}
-                  />
-                  <Button variant="ghost" className="h-8 w-8 shrink-0 p-0" onClick={saveName}>
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 shrink-0 p-0"
-                    onClick={() => setRenaming(false)}
+              {/* A categoria é o título, como na lista da obra: é ela que diz o
+                  que este documento é. Classificar acontece aqui, olhando para
+                  o que se classifica, e sem categoria o título diz isso, que é
+                  justamente o que precisa ser resolvido. */}
+              <h1 className="flex items-center gap-1.5 text-lg font-semibold leading-tight">
+                <span className={`truncate ${(doc?.tags ?? []).length ? "" : "text-muted-foreground"}`}>
+                  {(doc?.tags ?? []).length
+                    ? (doc?.tags ?? []).map(tagLabel).join(" · ")
+                    : "No category"}
+                </span>
+                {canManage && (
+                  <button
+                    type="button"
+                    onClick={() => setTagging(true)}
+                    className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    title={(doc?.tags ?? []).length ? "Edit the categories" : "Add a category"}
                   >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <h1 className="flex items-center gap-1.5 text-lg font-semibold leading-tight">
-                  <span className="truncate">{doc?.name ?? "Document"}</span>
-                  {canManage && (
-                    <button
-                      type="button"
-                      onClick={() => { setDraftName(doc?.name ?? ""); setRenaming(true) }}
-                      className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                      title="Rename this document"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </h1>
-              )}
-              {/* As categorias do documento, aqui e não na lista da obra:
-                  classificar é olhar para o que se classifica. Vazio, o bloco
-                  ainda existe, porque documento sem categoria é justamente o
-                  que precisa ser resolvido. */}
+                    <Tags className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </h1>
+              {/* Embaixo, a obra e o arquivo. O nome veio do arquivo, e arquivo
+                  chega com nome que ninguém escolheu direito: editar é operação
+                  normal, e acontece onde o nome está. */}
               <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
                 <span className="truncate text-sm text-muted-foreground">{jobsite?.name}</span>
-                {!!(doc?.tags ?? []).length && (
-                  <span className="text-sm text-muted-foreground">·</span>
-                )}
-                {(doc?.tags ?? []).map(t => (
-                  <Badge
-                    key={`${t.categoryId}:${t.subcategory}`}
-                    variant="outline"
-                    className="text-[11px] font-normal text-muted-foreground"
-                  >
-                    {tagLabel(t)}
-                  </Badge>
-                ))}
-                {canManage && (
-                  <Button variant="ghost" size="xs" onClick={() => setTagging(true)}>
-                    <Tags />
-                    {(doc?.tags ?? []).length ? "Edit" : "Add a category"}
-                  </Button>
+                <span className="text-sm text-muted-foreground">·</span>
+                {renaming ? (
+                  <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                    <Input
+                      autoFocus
+                      value={draftName}
+                      className="h-8"
+                      onChange={e => setDraftName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") saveName()
+                        if (e.key === "Escape") setRenaming(false)
+                      }}
+                    />
+                    <Button variant="ghost" className="h-8 w-8 shrink-0 p-0" onClick={saveName}>
+                      <Check className="h-4 w-4 text-emerald-500" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-8 shrink-0 p-0"
+                      onClick={() => setRenaming(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </span>
+                ) : (
+                  <span className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+                    <FileText className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{doc?.name ?? "Document"}</span>
+                    {canManage && (
+                      <button
+                        type="button"
+                        onClick={() => { setDraftName(doc?.name ?? ""); setRenaming(true) }}
+                        className="shrink-0 rounded p-1 transition-colors hover:bg-muted hover:text-foreground"
+                        title="Rename this document"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </span>
                 )}
               </div>
             </div>

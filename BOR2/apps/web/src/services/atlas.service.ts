@@ -128,6 +128,8 @@ export interface AtlasDocument {
   latestRevision: string
   latestStatus: string
   sheets: number
+  /** O que a versão vigente pesa, somando as pranchas. */
+  bytes: number
   /** Quem subiu o set que vale, o cargo dessa pessoa, e quando. */
   uploadedBy: string
   uploadedRole: string

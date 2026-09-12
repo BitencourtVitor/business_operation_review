@@ -2,13 +2,12 @@
 
 import { useLiveQuery } from "dexie-react-hooks"
 import {
-  AlertTriangle, CloudAlert, CloudCheck, CloudDownload, Download, Eye, HardDrive, Layers, Loader2,
-  Eraser, WifiOff,
+  AlertTriangle, CloudAlert, CloudCheck, CloudDownload, Download, Eye, FileText, HardDrive, Layers,
+  Loader2, Eraser, WifiOff,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { tagLabel } from "@/components/atlas/document-tags-dialog"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
@@ -18,7 +17,9 @@ import { local, type PastaLocal } from "@/lib/offline/db"
 import {
   baixarIndice, baixarMiniaturas, baixarObra, removerObra,
 } from "@/lib/offline/index-sync"
-import { mb, medirEspaco, tamanhosDaObra, type Espaco } from "@/lib/offline/storage"
+import {
+  cabe, mb, medirEspaco, tamanhosDaObra, type Cabimento, type Espaco,
+} from "@/lib/offline/storage"
 
 /**
  * O que esta obra guarda no aparelho, e a decisão de guardar.
@@ -222,20 +223,43 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     }
   }
 
-  if (!linhas.length) return null
-
   // O estado da obra no aparelho, que decide o botão da faixa.
   const emAndamento = (pastas ?? []).filter(p => p.estado === "baixando")
   const baixando = baixandoObra || emAndamento.length > 0
   // Salva é ter prancha no aparelho, não qualquer arquivo: miniatura sozinha não
   // abre planta nenhuma sem rede.
   const salva = Object.values(porPasta).some(c => c.arquivos > 0)
-  const faltando = linhas.filter(l => !l.pasta || l.pasta.estado === "ausente" || l.pasta.estado === "desatualizada")
+  const faltando = useMemo(
+    () => linhas.filter(l => !l.pasta || l.pasta.estado === "ausente" || l.pasta.estado === "desatualizada"),
+    [linhas],
+  )
   const acao: "download" | "update" | "view" = baixando ? "view"
     : !salva ? "download"
     : faltando.length ? "update"
     : "view"
-  const bloqueada = acao !== "view" && !online
+
+  // O que ainda falta descer, pelo tamanho que o servidor informa. É o número
+  // que o botão mostra antes de baixar: aceitar sem saber o peso é assinar em
+  // branco o espaço do aparelho.
+  const pesoPendente = useMemo(() => {
+    const porDoc = new Map(documentos.map(d => [d.id, d.bytes ?? 0]))
+    return faltando.reduce((t, l) => t + (porDoc.get(l.id) ?? l.pasta?.bytes ?? 0), 0)
+  }, [faltando, documentos])
+
+  // Cabe no aparelho? A medida é do navegador e muda com o tempo, então é
+  // refeita quando o que falta muda e quando a faixa volta a aparecer.
+  const [cabimento, setCabimento] = useState<Cabimento | null>(null)
+  useEffect(() => {
+    if (!pesoPendente) { setCabimento(null); return }
+    let vivo = true
+    void cabe(pesoPendente).then(r => { if (vivo) setCabimento(r) })
+    return () => { vivo = false }
+  }, [pesoPendente, espaco?.livre])
+
+  if (!linhas.length) return null
+
+  const semEspaco = acao !== "view" && !!cabimento && !cabimento.cabe
+  const bloqueada = acao !== "view" && (!online || semEspaco)
 
   // O tamanho real, somado do disco, para pasta que tem algo guardado. Pasta
   // ausente mostra a estimativa do servidor, com til, que é o que ela vai custar.
@@ -290,7 +314,7 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
               ? <CloudCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               : <CloudAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />}
             <span className="truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground">
-              {salva && disco ? mb(disco.total) : "Nothing saved"}
+              {salva && disco ? mb(disco.total) : "Not saved"}
             </span>
           </span>
         )}
@@ -301,13 +325,22 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
         >
           {acao === "view" ? <Eye className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
           {acao === "view" ? "View" : acao === "update" ? "Update" : "Download"}
+          {/* O peso do que vai descer fica no próprio botão: é a informação que
+              decide o toque, e ela não pode estar dentro do modal que só abre
+              depois de a obra já estar baixada. */}
+          {acao !== "view" && pesoPendente > 0 && (
+            <span className="tabular-nums font-normal opacity-70">{mb(pesoPendente)}</span>
+          )}
         </span>
       </button>
 
-      {erro && (
-        <div className="mt-2 flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span>{erro}</span>
+      {/* O motivo de o botão estar apagado fica logo abaixo dele, como etiqueta
+          e não como caixa: é um aviso curto pendurado no botão, e um bloco de
+          fundo cheio pesava mais do que a própria faixa. */}
+      {(erro || (semEspaco && cabimento?.mensagem)) && (
+        <div className="mt-2 flex w-full items-start gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-[11px] font-medium text-destructive">
+          <AlertTriangle className="mt-px h-3 w-3 shrink-0" />
+          <span className="min-w-0">{erro || cabimento?.mensagem}</span>
         </div>
       )}
 
@@ -342,25 +375,22 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
               return (
                 <div key={l.id} className="flex items-center gap-3 py-3">
                   <span className="min-w-0 flex-1">
-                    {/* O nome e, sempre embaixo dele, a categoria que a pasta
-                        ocupa: é pela categoria que se reconhece o que está
-                        guardado. Ao lado do nome, a etiqueta ora cabia na linha
-                        ora descia, e a lista ficava com alturas desencontradas. */}
+                    {/* A categoria em cima e o arquivo embaixo, como na lista de
+                        documentos: é pela categoria que se reconhece o que está
+                        guardado, e não pelo nome que o PDF tinha na máquina de
+                        quem o enviou. */}
                     <span className="flex min-w-0 flex-col items-start gap-1">
-                      <span className="max-w-full truncate text-sm">{l.nome}</span>
-                      {l.etiquetas.length > 0 && (
-                        <span className="flex flex-wrap gap-1">
-                          {l.etiquetas.map(t => (
-                            <Badge
-                              key={`${t.categoryId}:${t.subcategory}`}
-                              variant="outline"
-                              className="text-[11px] font-normal text-muted-foreground"
-                            >
-                              {tagLabel(t)}
-                            </Badge>
-                          ))}
-                        </span>
-                      )}
+                      <span className={`max-w-full truncate text-sm font-medium leading-tight ${
+                        l.etiquetas.length === 0 ? "text-muted-foreground" : ""
+                      }`}>
+                        {l.etiquetas.length === 0
+                          ? "No category"
+                          : l.etiquetas.map(tagLabel).join(" · ")}
+                      </span>
+                      <span className="flex min-w-0 max-w-full items-center gap-1.5 text-xs text-muted-foreground">
+                        <FileText className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{l.nome}</span>
+                      </span>
                     </span>
                   </span>
 
