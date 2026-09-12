@@ -691,7 +691,7 @@ export default function DocumentPage() {
           o cabeçalho e o botão de enviar do campo de visão logo no primeiro
           gesto. */}
       <div className="mx-auto flex h-full max-w-5xl flex-col gap-6">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* O fio separa sair de estar: sem ele a seta encosta no título e
                 parece parte dele. */}
             <Link
@@ -702,7 +702,7 @@ export default function DocumentPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <span className="h-9 w-px shrink-0 bg-border" />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 basis-[calc(100%-4rem)] sm:basis-auto">
               {/* A categoria é o título, como na lista da obra: é ela que diz o
                   que este documento é. Classificar acontece aqui, olhando para
                   o que se classifica, e sem categoria o título diz isso, que é
@@ -772,6 +772,10 @@ export default function DocumentPage() {
             {/* As versões do set. A identificação é a data e a hora do envio,
                 com o nome ao lado quando alguém deu um: número de revisão era
                 um campo que ninguém sabia preencher, e que não dizia quando. */}
+            {/* Os botões formam um bloco só, que no celular ocupa a linha
+                inteira e encosta à direita. Soltos, cada um quebrava para uma
+                linha própria e o cabeçalho virava uma escada. */}
+            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
             {(versions?.length ?? 0) > 1 && (
               <Button
                 variant="outline"
@@ -797,6 +801,7 @@ export default function DocumentPage() {
                 Download all
               </Button>
             )}
+            </div>
           </div>
 
           {/* A mesma identificação da sala da obra, com o endereço junto: dentro

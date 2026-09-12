@@ -15,19 +15,25 @@ import { Label } from "@/components/ui/label"
 import { Kbd } from "@/components/ui/kbd"
 import { ImageWindow } from "@/components/atlas/image-window"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
+import { local } from "@/lib/offline/db"
+import { lerArquivo } from "@/lib/offline/storage"
 import {
-  useAtlasAnnotations, useAtlasEvents, useAtlasJobsite,
+  useAtlasAnnotations, useAtlasDocuments, useAtlasEvents, useAtlasJobsite, useAtlasThumbs,
   useCreateAtlasEvent, useDeleteAtlasAnnotation, useDeleteAtlasEvent,
-  useAtlasMedia, useUpdateAtlasAnnotation, useUploadAtlasMedia,
+  useAtlasMedia, useUpdateAtlasAnnotation, useUpdateAtlasMedia, useUploadAtlasMedia,
 } from "@/hooks/use-atlas"
-import type { AtlasAnnotation, AtlasSheet, AtlasStrokeGeometry } from "@/services/atlas.service"
+import type {
+  AtlasAnnotation, AtlasDocument, AtlasSheet, AtlasStrokeGeometry,
+} from "@/services/atlas.service"
 import {
-  Camera, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser, FileUp,
-  Eye, EyeOff, Highlighter, History, Link2, Maximize, MapPin, Minus, Pen, Plus,
-  RotateCcw, RotateCw, Search,
+  ArrowRight, Camera, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
+  FileText, FileUp,
+  Eye, EyeOff, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, Plus,
+  RotateCcw, RotateCw, Search, Tag,
   User, Users, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
+import { VoiceNote } from "@/components/atlas/voice-note"
 import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
@@ -307,8 +313,106 @@ function NotePreview({ jobsiteId, eventId, onOpen }: {
   )
 }
 
+/**
+ * Como a pasta de destino se classifica, separando o lugar da categoria.
+ *
+ * A etiqueta de um vínculo carrega o nome da pasta e o da folha, e não a
+ * classificação: ela nasce da varredura automática, que só conhece o texto
+ * impresso na prancha. O resto vem da lista de pastas da obra, que já está no
+ * cache.
+ *
+ * **Categoria e subcategoria são coisas diferentes e não saem na mesma linha.**
+ * "Wall Panels" responde o quê, "2nd" responde onde. Escritas juntas viram uma
+ * frase só, "2nd Floor Wall Panels", que a pessoa precisa desmontar na leitura
+ * para saber onde termina uma e começa a outra. Cada uma ganha sua linha, seu
+ * ícone e seu peso, e um fio à esquerda diz que as duas são do mesmo par.
+ *
+ * Pasta sem classificação devolve lista vazia, e a janelinha simplesmente não
+ * mostra a linha: um rótulo vazio seria pior que nenhum.
+ */
+interface EtiquetaDoDestino {
+  /** "2nd Floor", "C Unit", ou vazio quando a categoria não tem eixo. */
+  lugar: string
+  categoria: string
+}
+
+function etiquetasDoDestino(
+  documentos: AtlasDocument[] | undefined, documentId: string,
+): EtiquetaDoDestino[] {
+  const pasta = documentos?.find(d => d.id === documentId)
+  if (!pasta) return []
+  const tags = (pasta.tags ?? []).map(t => ({
+    lugar: !t.subcategory ? "" : t.axis === "unit"
+      ? `${t.subcategory} Unit`
+      : `${t.subcategory} Floor`,
+    categoria: t.category ?? "",
+  })).filter(e => e.lugar || e.categoria)
+  if (tags.length) return tags
+  // Pasta antiga, que ainda guarda a classificação nas colunas de texto: ali não
+  // há eixo declarado, então o valor entra como lugar sem sufixo.
+  const legado = { lugar: pasta.subcategory ?? "", categoria: pasta.category ?? "" }
+  return legado.lugar || legado.categoria ? [legado] : []
+}
+
+/**
+ * A prévia da folha de destino, dentro da janelinha do vínculo.
+ *
+ * O nome da prancha diz para onde o toque leva, e não diz o que há lá. Numa
+ * folha de produção os nomes são códigos, N1033-L e N1034-L, e quem está no
+ * canteiro reconhece o painel pelo desenho antes de reconhecer o código. A
+ * miniatura é o que transforma "abrir para ver se é essa" em "é essa".
+ *
+ * Procura no aparelho primeiro. A prévia guardada é arquivo local e aparece na
+ * hora; a do servidor é URL assinada e não abre sem rede, que é justamente onde
+ * o vínculo mais é usado.
+ */
+function PreviaDoDestino({ documentos, sheetId, documentId }: {
+  documentos: AtlasDocument[] | undefined
+  sheetId: string
+  documentId: string
+}) {
+  const versionId = documentos?.find(d => d.id === documentId)?.latestVersionId ?? ""
+  const { data: thumbs } = useAtlasThumbs(versionId)
+  const [doAparelho, setDoAparelho] = useState("")
+
+  useEffect(() => {
+    let vivo = true
+    let criada = ""
+    void (async () => {
+      const plano = await local.planos.get(sheetId).catch(() => null)
+      if (!plano?.thumb) return
+      const arquivo = await lerArquivo(plano.thumb)
+      if (!arquivo || !vivo) return
+      criada = URL.createObjectURL(arquivo)
+      setDoAparelho(criada)
+    })()
+    return () => {
+      vivo = false
+      if (criada) URL.revokeObjectURL(criada)
+    }
+  }, [sheetId])
+
+  const url = doAparelho || thumbs?.get(sheetId) || ""
+
+  return (
+    <span className="block h-28 w-56 overflow-hidden rounded-md border border-white/10 bg-white/5">
+      {url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt="" className="h-full w-full object-cover object-top" />
+      ) : (
+        // O quadro fica de pé mesmo sem imagem: some, a janelinha encolheria e
+        // o botão saltaria para debaixo do dedo no meio do toque.
+        <span className="flex h-full w-full items-center justify-center text-white/30">
+          <Frame className="h-5 w-5" />
+        </span>
+      )}
+    </span>
+  )
+}
+
 export function SheetViewer({
   sheet, sheets, jobsiteId, canAnnotate, canManage, spotlightNote, onClose, onNavigate,
+  onFollowOutside,
 }: {
   sheet: AtlasSheet
   sheets: AtlasSheet[]
@@ -324,9 +428,23 @@ export function SheetViewer({
   spotlightNote?: string
   onClose: () => void
   onNavigate: (sheet: AtlasSheet) => void
+  /**
+   * O que fazer quando o vínculo aponta para folha de outra pasta.
+   *
+   * Sem isto, o leitor troca de endereço e leva a pessoa para a página do
+   * documento de destino. É o certo quando ela veio de Documents, e é errado
+   * quando ela veio da verificação: seguir um vínculo a tiraria do punch e a
+   * deixaria em Documents, que é outra tela e outro assunto. Quem abre o leitor
+   * de lá passa esta função e resolve o salto sem sair do lugar.
+   */
+  onFollowOutside?: (target: AtlasLinkTarget) => void
 }) {
   const [revisions, setRevisions] = useState(false)
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
+  // As pastas da obra, para a janelinha do vínculo poder dizer de que categoria
+  // é a folha de destino. A lista já está no cache: a sala da obra a carrega ao
+  // abrir, e aqui ela não custa uma chamada nova.
+  const { data: documentos } = useAtlasDocuments(jobsiteId)
   const { data: annotations, refetch: refetchAnnotations } = useAtlasAnnotations(sheet.id)
   const { data: events } = useAtlasEvents(jobsiteId, sheet.id)
   const deleteAnnotation = useDeleteAtlasAnnotation(sheet.id)
@@ -337,6 +455,7 @@ export function SheetViewer({
   // rolo. Sobe depois do note existir, porque a mídia se pendura nele.
   const [notePhotos, setNotePhotos] = useState<File[]>([])
   const [savingNote, setSavingNote] = useState(false)
+  const atualizarMidia = useUpdateAtlasMedia(jobsiteId)
   const cameraRef = useRef<HTMLInputElement>(null)
   // Qual pino está piscando agora, e por quanto tempo ainda.
   const [pulsando, setPulsando] = useState("")
@@ -395,12 +514,28 @@ export function SheetViewer({
   const [linking, setLinking] = useState<string | null>(null)
   // Onde o dedo tocou, para a janelinha nascer ali. Ela não é um diálogo: é a
   // resposta a "para onde isto vai", e some ao tocar fora.
-  const [peek, setPeek] = useState<{ x: number; y: number; target: AtlasLinkTarget } | null>(null)
+  const [peek, setPeek] = useState<
+    { id: string; x: number; y: number; target: AtlasLinkTarget } | null
+  >(null)
+  // Sobre qual vínculo o ponteiro está agora.
+  //
+  // O ícone de corrente só aparece aqui: parado, a prancha fica com a etiqueta e
+  // nada mais. Uma folha de produção tem dezenas de vínculos, e o ícone em todos
+  // eles ao mesmo tempo enche o desenho de corrente e esconde justamente o que
+  // se foi ler. Ele volta quando o ponteiro passa por cima, e fica enquanto a
+  // janelinha do destino estiver aberta naquele vínculo.
+  const [sobreVinculo, setSobreVinculo] = useState<string | null>(null)
   // A trilha de quem chegou por vínculo. Sem ela, seguir um link é entrar num
   // desenho de 97 folhas sem porta de volta.
   const [trail, setTrail] = useState<AtlasSheet[]>([])
   const router = useRouter()
   const [noteText, setNoteText] = useState("")
+  // A descrição, que pode ser ditada. O título continua sendo digitado: é uma
+  // linha, e quem está de luva consegue escrever uma linha. O parágrafo é que
+  // ninguém escreve em obra, e é ele que sai da fala.
+  const [noteBody, setNoteBody] = useState("")
+  const [noteTranscript, setNoteTranscript] = useState("")
+  const [audioDaNota, setAudioDaNota] = useState("")
 
   // Pelo hook e não pelo store: o store guarda só o token entre recargas, e sem
   // o id do usuário toda marcação virava "de outra pessoa", inclusive a sua.
@@ -944,6 +1079,7 @@ export function SheetViewer({
     setPeek(null)
     const here = sheets.find(s => s.id === target.sheetId)
     if (here) { setTrail(t => [...t, sheet]); onNavigate(here); return }
+    if (onFollowOutside) { onFollowOutside(target); return }
     router.push(`/atlas/${jobsiteId}/documents/${target.documentId}?sheet=${target.sheetId}`)
   }
 
@@ -954,9 +1090,17 @@ export function SheetViewer({
       // O evento primeiro, as fotos depois: a mídia se pendura no note, então
       // ele precisa existir antes de haver onde pendurar.
       const { id } = await createEvent.mutateAsync({
-        kind: "issue", title: noteText.trim(), sheetId: sheet.id,
+        kind: "issue", title: noteText.trim(), body: noteBody.trim(),
+        sheetId: sheet.id,
         pageX: noteAt.x, pageY: noteAt.y,
       })
+      // A gravação subiu antes de o ponto existir, e agora ele a adota. Sem
+      // isto o áudio ficaria solto na obra, sem o ponto que ele descreve.
+      if (audioDaNota) {
+        try {
+          await atualizarMidia.mutateAsync({ mediaId: audioDaNota, patch: { eventId: id } })
+        } catch { /* o texto já está no ponto; o áudio se reanexa depois */ }
+      }
       // Uma foto que falha não desfaz o note. Quem está em obra escreveu o que
       // viu, e isso é o que não pode se perder; a imagem se reanexa depois.
       for (const foto of notePhotos) {
@@ -968,6 +1112,8 @@ export function SheetViewer({
       setSavingNote(false)
       setNoteAt(null)
       setNoteText("")
+      setNoteBody("")
+      setAudioDaNota("")
       setNotePhotos([])
     }
   }
@@ -1188,8 +1334,8 @@ export function SheetViewer({
               const tag = (e.currentTarget as SVGGraphicsElement).closest("g")?.getBoundingClientRect()
               if (target) {
                 setPeek(tag
-                  ? { x: tag.left + tag.width / 2, y: tag.top, target }
-                  : { x: e.clientX, y: e.clientY, target })
+                  ? { id: a.id, x: tag.left + tag.width / 2, y: tag.top, target }
+                  : { id: a.id, x: e.clientX, y: e.clientY, target })
               }
               else if (canAnnotate) setLinking(a.id)
             }
@@ -1201,29 +1347,44 @@ export function SheetViewer({
             const cell = deitada ? hgt : w
             const ox = deitada ? x - cell : x
             const oy = deitada ? y : y - cell
+            // O ícone só existe sob o ponteiro, ou enquanto a janelinha do
+            // destino estiver aberta neste vínculo.
+            const mostrarIcone = !!target && (sobreVinculo === a.id || peek?.id === a.id)
 
             return (
               <g key={a.id} opacity={fade(a.id)}>
-                {/* Uma forma só quando o vínculo está resolvido: a célula do
-                    ícone e a área marcada dividem o mesmo contorno e o mesmo
-                    fundo, sem linha entre elas. Dois retângulos encostados
-                    desenhavam um fio no meio da etiqueta, que é justamente o
-                    que uma etiqueta não tem. */}
+                {/* Parada, a etiqueta é do tamanho do que está escrito. Sob o
+                    ponteiro, ela cresce e abre espaço para a corrente.
+
+                    O ícone vinha em toda etiqueta o tempo todo, e numa folha de
+                    produção com dezenas de vínculos o desenho sumia atrás das
+                    correntes. Mas ele também não pode entrar como um quadrado
+                    solto encostado ao lado: são duas formas para uma coisa só, e
+                    a leitura fica de remendo. Então é a própria etiqueta que se
+                    estica, mantendo um contorno e um fundo únicos, como ela
+                    sempre teve quando o vínculo está resolvido. */}
                 <rect
-                  x={target ? ox : x}
-                  y={target ? oy : y}
-                  width={target ? (deitada ? w + cell : w) : w}
-                  height={target ? (deitada ? hgt : hgt + cell) : hgt}
+                  className="atlas-link-tag"
+                  x={mostrarIcone ? ox : x}
+                  y={mostrarIcone ? oy : y}
+                  width={mostrarIcone ? (deitada ? w + cell : w) : w}
+                  height={mostrarIcone ? (deitada ? hgt : hgt + cell) : hgt}
                   // Quina bem redonda, como a de um chip: é o que separa a
                   // etiqueta do traço técnico impresso embaixo dela, todo em
                   // canto vivo. O raio acompanha o lado curto, então uma área
                   // fina não vira cápsula nem uma grande vira caixa.
-                  rx={Math.min(deitada ? hgt : w, target ? cell : hgt) * 0.32}
+                  rx={Math.min(deitada ? hgt : w, mostrarIcone ? cell : hgt) * 0.32}
                   fill={LINK_COLOR} fillOpacity={0.08}
                   stroke={LINK_COLOR} strokeWidth={1.25 * px}
                   strokeDasharray={target ? undefined : `${4 * px} ${3 * px}`}
-                  onPointerEnter={() => tool === "erase" && setUnder(a.id)}
-                  onPointerLeave={() => setUnder(u => u === a.id ? null : u)}
+                  onPointerEnter={() => {
+                    if (tool === "erase") setUnder(a.id)
+                    if (target) setSobreVinculo(a.id)
+                  }}
+                  onPointerLeave={() => {
+                    setUnder(u => u === a.id ? null : u)
+                    setSobreVinculo(v => v === a.id ? null : v)
+                  }}
                   onPointerDown={hold}
                   onClick={act}
                   style={{ cursor: "pointer", pointerEvents: "all" }}
@@ -1233,7 +1394,13 @@ export function SheetViewer({
                   // O mesmo ícone da barra de ferramentas, o link-2 do lucide,
                   // desenhado em coordenada de página: o botão que cria e a
                   // marca que fica não podem ser dois desenhos da mesma ideia.
+                  //
+                  // Fica sempre montado e vive pela opacidade: desmontado, ele
+                  // sumiria de uma vez quando o ponteiro saísse, enquanto a
+                  // etiqueta ainda estivesse encolhendo.
                   <g
+                    className="atlas-link-icon"
+                    opacity={mostrarIcone ? 1 : 0}
                     transform={`translate(${ox + cell / 2 - cell * 0.3} ${oy + cell / 2 - cell * 0.3}) scale(${cell * 0.6 / 24})`}
                     stroke={LINK_COLOR}
                     strokeWidth={2}
@@ -2000,17 +2167,73 @@ export function SheetViewer({
       {peek && (
         <>
           <div className="fixed inset-0 z-40" onPointerDown={() => setPeek(null)} />
+          {/* Para onde este vínculo leva, de cima para baixo.
+
+              Eram três coisas numa linha só, com a pasta e a folha separadas por
+              um ponto: cabia, e obrigava a ler tudo junto para saber o que era
+              cada pedaço. Empilhadas e com ícone na frente, cada linha se
+              identifica sozinha, e a largura acompanha a mais longa em vez de um
+              teto fixo que cortava nome de pasta.
+
+              A ordem é a do caminho: a pasta, como ela se classifica, e a folha
+              dentro dela. */}
           <div
-            className="fixed z-50 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-lg border border-white/10 bg-neutral-800/95 px-2.5 py-2 text-white shadow-xl backdrop-blur"
+            className="fixed z-50 flex w-max max-w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-full flex-col gap-1.5 rounded-lg border border-white/10 bg-neutral-800/95 p-2.5 text-white shadow-xl backdrop-blur"
             // Centrada na etiqueta e um respiro acima dela.
             style={{ left: peek.x, top: Math.max(64, peek.y - 10) }}
           >
-            <span className="max-w-56 truncate text-sm">
-              <span className="text-white/50">{peek.target.documentName} · </span>
-              {peek.target.sheetName}
+            {/* O nome da pasta é o dado mais fraco dos três.
+
+                Ele vem do arquivo que alguém subiu, e arquivo chega com nome que
+                ninguém escolheu direito. O que de fato diz onde o vínculo cai é
+                a classificação: o pavimento, a unidade, a categoria. Por isso a
+                pasta entra pequena e apagada, e a classificação vem em cima do
+                peso do texto. */}
+            <span className="flex items-center gap-1.5 text-xs text-white/50">
+              <FileText className="h-3 w-3 shrink-0" />
+              <span className="truncate">{peek.target.documentName}</span>
             </span>
-            <Button size="sm" onClick={() => follow(peek.target)}>
+
+            {/* A classificação da pasta de destino, quando ela tem.
+
+                Uma linha para a categoria, outra para a subcategoria, e um fio
+                vertical à esquerda quando há as duas: sem ele, quatro linhas
+                soltas numa janelinha pequena não dizem quais formam par. Com uma
+                categoria só, o fio não tem o que ligar e não aparece. */}
+            {etiquetasDoDestino(documentos, peek.target.documentId).map(e => (
+              <span
+                key={`${e.lugar}:${e.categoria}`}
+                className={`flex flex-col gap-1 ${e.lugar ? "border-l border-white/20 pl-2" : ""}`}
+              >
+                {e.categoria && (
+                  <span className="flex items-center gap-1.5 text-sm font-medium">
+                    <Tag className="h-3.5 w-3.5 shrink-0 text-white/40" />
+                    <span className="truncate">{e.categoria}</span>
+                  </span>
+                )}
+                {e.lugar && (
+                  <span className="flex items-center gap-1.5 text-sm font-medium">
+                    <Layers className="h-3.5 w-3.5 shrink-0 text-sky-300/80" />
+                    <span className="truncate">{e.lugar}</span>
+                  </span>
+                )}
+              </span>
+            ))}
+
+            <span className="flex items-center gap-1.5 text-sm font-medium">
+              <Frame className="h-3.5 w-3.5 shrink-0 text-white/50" />
+              <span className="truncate">{peek.target.sheetName}</span>
+            </span>
+
+            <PreviaDoDestino
+              documentos={documentos}
+              sheetId={peek.target.sheetId}
+              documentId={peek.target.documentId}
+            />
+
+            <Button size="sm" className="mt-0.5 w-full gap-1.5" onClick={() => follow(peek.target)}>
               Open
+              <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </>
@@ -2023,7 +2246,7 @@ export function SheetViewer({
         onPick={saveLink}
       />
 
-      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) { setNoteAt(null); setNotePhotos([]) } }}>
+      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) { setNoteAt(null); setNotePhotos([]); setNoteBody(""); setNoteTranscript(""); setAudioDaNota("") } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>New note on this sheet</DialogTitle></DialogHeader>
           <div className="flex flex-col gap-1.5">
@@ -2037,8 +2260,60 @@ export function SheetViewer({
               onKeyDown={e => { if (e.key === "Enter") saveNote() }}
             />
             <p className="text-xs text-muted-foreground">
-              It lands on Tasks, anchored to this point of the drawing.
+              It lands on the punch list, anchored to this point of the drawing.
             </p>
+          </div>
+
+          {/* A descrição, falada.
+
+              O título é uma linha e cabe digitar com luva. A descrição é um
+              parágrafo, e parágrafo ninguém digita em obra: ou se fala, ou não
+              se escreve, e o que não se escreve vira "tem um problema ali" numa
+              conversa de rádio que não fica em lugar nenhum.
+
+              O texto que volta é rascunho e fica editável aqui mesmo. Abaixo
+              dele, o que foi de fato ouvido: é o que permite a quem falou dizer
+              "não foi isso" e ter como provar. */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="note-body">Description</Label>
+            <textarea
+              id="note-body"
+              rows={3}
+              value={noteBody}
+              placeholder="Say it out loud, or write it here"
+              onChange={e => setNoteBody(e.target.value)}
+              className="w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+            <VoiceNote
+              jobsiteId={jobsiteId}
+              disabled={savingNote}
+              onResult={r => {
+                setAudioDaNota(r.mediaId)
+                setNoteTranscript(r.transcript)
+                // O que já estava escrito não se perde: os tópicos entram
+                // embaixo. Quem ditou depois de escrever quis somar, não
+                // substituir, e apagar o que a pessoa digitou é o tipo de coisa
+                // que faz ninguém mais usar o botão.
+                setNoteBody(atual => atual.trim() ? `${atual.trim()}\n${r.topics}` : r.topics)
+                if (!noteText.trim()) {
+                  // Sem título, a primeira linha dos tópicos vira o título: ele
+                  // é obrigatório, e obrigar a digitar depois de falar é
+                  // devolver à pessoa o trabalho que o ditado veio tirar.
+                  const primeira = r.topics.split("\n")[0]?.replace(/^[-•\s]+/, "").trim()
+                  if (primeira) setNoteText(primeira.slice(0, 120))
+                }
+              }}
+            />
+            {noteTranscript && (
+              <details className="rounded-md bg-muted/60 px-2.5 py-2">
+                <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+                  What was heard
+                </summary>
+                <p className="mt-1.5 whitespace-pre-wrap text-xs text-muted-foreground">
+                  {noteTranscript}
+                </p>
+              </details>
+            )}
           </div>
 
           {/* A foto do que se está descrevendo, tirada na hora.
@@ -2122,7 +2397,7 @@ export function SheetViewer({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" disabled={savingNote} onClick={() => { setNoteAt(null); setNotePhotos([]) }}>Cancel</Button>
+            <Button variant="outline" disabled={savingNote} onClick={() => { setNoteAt(null); setNotePhotos([]); setNoteBody(""); setNoteTranscript(""); setAudioDaNota("") }}>Cancel</Button>
             <Button onClick={saveNote} disabled={!noteText.trim() || savingNote}>
               {savingNote ? "Saving…" : "Add note"}
             </Button>

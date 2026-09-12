@@ -9,7 +9,7 @@ import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
   type AtlasDocCategory, type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
-  type AtlasStrokeGeometry, type AtlasVersion,
+  type AtlasStrokeGeometry, type AtlasVersion, type PunchFiltro,
 } from "@/services/atlas.service"
 
 const KEY = {
@@ -528,6 +528,7 @@ export function useCreateAtlasEvent(jobsiteId: string, sheetId?: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
+      tocarPunch(qc, jobsiteId)
     },
   })
 }
@@ -540,6 +541,7 @@ export function useUpdateAtlasEvent(jobsiteId: string, sheetId?: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
+      tocarPunch(qc, jobsiteId)
     },
   })
 }
@@ -560,6 +562,8 @@ export function useDeleteAtlasEvent(jobsiteId: string, sheetId?: string) {
       qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
       if (sheetId) qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
+      tocarPunch(qc, jobsiteId)
+
     },
   })
 }
@@ -647,6 +651,8 @@ export function useUploadAtlasMedia(jobsiteId: string) {
       qc.invalidateQueries({ queryKey: ["atlas", "albums", jobsiteId] })
       qc.invalidateQueries({ queryKey: KEY.dailyLogs(jobsiteId) })
       qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
+      tocarPunch(qc, jobsiteId)
+
     },
   })
 }
@@ -712,5 +718,157 @@ export function useRegenerateSlots() {
   return useMutation({
     mutationFn: (jobsiteId: string) => atlasService.regenerateSlots(jobsiteId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["atlas"] }),
+  })
+}
+
+// ─── Punch list ───────────────────────────────────────────────────────────────
+//
+// A verificação da obra, agora que ela é uma coisa e não um filtro. As chaves
+// carregam o recorte inteiro porque é o recorte que define a lista: a mesma obra
+// tem uma lista por escopo e outra por condição, e uma chave só faria a segunda
+// sobrescrever a primeira no cache.
+
+const PUNCH = {
+  scopes: (id: string) => ["atlas", "punch-scopes", id] as const,
+  points: (id: string, f?: PunchFiltro) =>
+    ["atlas", "punch-points", id, f?.punch ?? "", f?.scope ?? "", f?.status ?? ""] as const,
+  media: (id: string, f?: PunchFiltro) =>
+    ["atlas", "punch-media", id, f?.punch ?? "", f?.scope ?? "", f?.status ?? ""] as const,
+  list: (id: string) => ["atlas", "punches", id] as const,
+}
+
+/**
+ * Mexeu num ponto, a verificação mudou.
+ *
+ * Encerrar um ponto muda a conta do bloco, apagar muda o total, e anexar a prova
+ * do depois muda o aviso da lista. Sem esta invalidação o bloco continuava
+ * dizendo "3 pendentes" depois de o terceiro ter sido encerrado, e bloco que
+ * mente é pior que bloco que não existe.
+ */
+function tocarPunch(qc: ReturnType<typeof useQueryClient>, jobsiteId: string) {
+  qc.invalidateQueries({ queryKey: PUNCH.scopes(jobsiteId) })
+  qc.invalidateQueries({ queryKey: ["atlas", "punch-points", jobsiteId] })
+  qc.invalidateQueries({ queryKey: ["atlas", "punch-media", jobsiteId] })
+  qc.invalidateQueries({ queryKey: PUNCH.list(jobsiteId) })
+}
+
+export function useAtlasPunchScopes(jobsiteId: string) {
+  return useQuery({
+    queryKey: PUNCH.scopes(jobsiteId),
+    queryFn: () => atlasService.punchScopes(jobsiteId),
+    enabled: !!jobsiteId,
+  })
+}
+
+export function useAtlasPunchPoints(jobsiteId: string, filtro?: PunchFiltro, enabled = true) {
+  return useQuery({
+    queryKey: PUNCH.points(jobsiteId, filtro),
+    queryFn: () => atlasService.punchList(jobsiteId, filtro),
+    enabled: !!jobsiteId && enabled,
+  })
+}
+
+export function useAtlasPunchMedia(jobsiteId: string, filtro?: PunchFiltro, enabled = true) {
+  return useQuery({
+    queryKey: PUNCH.media(jobsiteId, filtro),
+    queryFn: () => atlasService.punchMedia(jobsiteId, filtro),
+    enabled: !!jobsiteId && enabled,
+  })
+}
+
+export function useAtlasPunches(jobsiteId: string, params?: { scope?: string; open?: boolean }) {
+  return useQuery({
+    queryKey: [...PUNCH.list(jobsiteId), params?.scope ?? "", params?.open ? "abertas" : ""],
+    queryFn: () => atlasService.punches(jobsiteId, params),
+    enabled: !!jobsiteId,
+  })
+}
+
+// Abrir, fechar e reabrir mexem na mesma coisa vista em três telas: a lista de
+// escopos, a de passagens e a de pontos. Por isso invalidam o ramo inteiro do
+// punch em vez de uma consulta só.
+function useMexerNoPunch<T>(fn: (arg: T) => Promise<unknown>, jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PUNCH.scopes(jobsiteId) })
+      qc.invalidateQueries({ queryKey: PUNCH.list(jobsiteId) })
+      qc.invalidateQueries({ queryKey: ["atlas", "punch-points", jobsiteId] })
+    },
+  })
+}
+
+export function useOpenAtlasPunch(jobsiteId: string) {
+  return useMexerNoPunch<{
+    scopeKind: "subcategory" | "category"; scopeValue: string; name?: string; notes?: string
+  }>(body => atlasService.openPunch(jobsiteId, body), jobsiteId)
+}
+
+export function useCloseAtlasPunch(jobsiteId: string) {
+  return useMexerNoPunch<string>(id => atlasService.closePunch(id), jobsiteId)
+}
+
+export function useReopenAtlasPunch(jobsiteId: string) {
+  return useMexerNoPunch<string>(id => atlasService.reopenPunch(id), jobsiteId)
+}
+
+// ─── A descrição falada ───────────────────────────────────────────────────────
+
+/**
+ * Sobe a gravação, transcreve e lê em tópicos, nessa ordem.
+ *
+ * As três etapas numa mutação só porque para quem grava é um gesto só, e o que
+ * ela precisa ver é em que pé está. O `andamento` é o que a tela usa para dizer
+ * "sending", "transcribing" e "reading", em vez de girar uma roda por quarenta
+ * segundos sem explicar o que está acontecendo.
+ *
+ * O ponto ainda não existe neste momento, e é de propósito: a gravação sobe sem
+ * dono e é adotada quando o ponto é salvo. Esperar o ponto para só então subir
+ * faria a pessoa olhar a tela parada depois de escrever o título.
+ */
+export function useAtlasDictation(jobsiteId: string) {
+  return useMutation({
+    mutationFn: async ({ audio, eventId, andamento }: {
+      audio: Blob
+      eventId?: string
+      andamento?: (passo: "sending" | "transcribing" | "reading") => void
+    }) => {
+      andamento?.("sending")
+      const nome = `note-${Date.now()}.wav`
+      const ticket = await atlasService.openMedia(jobsiteId, {
+        eventId, kind: "audio", fileName: nome,
+        contentType: "audio/wav", byteSize: audio.size,
+      })
+      await uploadToR2(ticket.uploadUrl, audio, "audio/wav")
+      await atlasService.confirmMedia(ticket.mediaId)
+
+      andamento?.("transcribing")
+      const { transcript } = await atlasService.transcribeMedia(ticket.mediaId)
+      if (!transcript.trim()) {
+        return { mediaId: ticket.mediaId, transcript: "", topics: "" }
+      }
+
+      andamento?.("reading")
+      const { topics } = await atlasService.mediaTopics(ticket.mediaId)
+      return { mediaId: ticket.mediaId, transcript, topics }
+    },
+  })
+}
+
+export function useUpdateAtlasMedia(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ mediaId, patch }: {
+      mediaId: string
+      patch: {
+        title?: string; description?: string; caption?: string
+        transcript?: string; phase?: "before" | "after"; eventId?: string
+      }
+    }) => atlasService.updateMedia(mediaId, patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
+      qc.invalidateQueries({ queryKey: ["atlas", "punch-media", jobsiteId] })
+    },
   })
 }

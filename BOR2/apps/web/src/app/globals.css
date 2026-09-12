@@ -372,3 +372,33 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .atlas-ants::after { animation: none; }
 }
+
+/* A etiqueta de vínculo crescendo para mostrar a corrente.
+ *
+ * Parada, ela é o contorno do código impresso. Sob o ponteiro, ela se estica
+ * para abrir espaço para o ícone. Sem transição o salto é seco e parece outro
+ * elemento aparecendo no lugar; com ela, é a mesma etiqueta se abrindo, que é o
+ * que de fato acontece.
+ *
+ * A geometria do SVG é animável por CSS nos navegadores atuais. Onde não for, a
+ * etiqueta simplesmente salta como antes: o desenho continua certo, só não fica
+ * macio. */
+.atlas-link-tag {
+  transition:
+    x 140ms cubic-bezier(0.2, 0, 0, 1),
+    y 140ms cubic-bezier(0.2, 0, 0, 1),
+    width 140ms cubic-bezier(0.2, 0, 0, 1),
+    height 140ms cubic-bezier(0.2, 0, 0, 1),
+    rx 140ms cubic-bezier(0.2, 0, 0, 1),
+    fill-opacity 140ms ease;
+}
+
+/* O ícone mora sempre no desenho e vive pela opacidade: montado e desmontado,
+ * ele não teria como desaparecer suavemente quando o ponteiro sai. */
+.atlas-link-icon {
+  transition: opacity 140ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-link-tag, .atlas-link-icon { transition: none; }
+}

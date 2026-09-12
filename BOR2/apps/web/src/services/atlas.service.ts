@@ -365,6 +365,110 @@ export interface AtlasMedia {
    * do depois, e a trava disso está no banco.
    */
   phase: "before" | "after"
+  /**
+   * O que esta peça mostra, escrito por quem anexou.
+   *
+   * A solução de um ponto tem mais de uma peça, e cada uma documenta uma coisa:
+   * a viga refeita, a ferragem trocada, a medida conferida. Legenda de uma linha
+   * não dá conta, e é o título que encabeça o container no relatório.
+   */
+  title: string
+  description: string
+  /** O texto da descrição falada, quando esta mídia é áudio. */
+  transcript: string
+}
+
+/**
+ * Uma passagem de verificação: um punch de verdade, com data e fim.
+ *
+ * Percorrer o primeiro andar em março e de novo em junho são duas passagens, e
+ * não um monte só. É o que permite dizer o que foi levantado em cada uma e
+ * fechar a primeira sem apagar o histórico.
+ */
+export interface AtlasPunch {
+  id: string
+  jobsiteId: string
+  /** `subcategory` é o pavimento ou a unidade; `category` é a pasta sem eixo. */
+  scopeKind: "subcategory" | "category"
+  scopeValue: string
+  name: string
+  notes: string
+  openedAt: string
+  openedBy: string
+  openedName: string
+  closedAt: string
+  closedBy: string
+  open: number
+  resolved: number
+  total: number
+}
+
+/** Um escopo da obra, com a passagem aberta nele, se houver. */
+export interface AtlasPunchScope {
+  kind: "subcategory" | "category"
+  value: string
+  /** floor ou unit, quando o escopo é uma subcategoria. Vazio na categoria. */
+  axis: string
+  documents: number
+  sheets: number
+  /** De quais categorias são as pastas deste escopo. */
+  folders: string[]
+  punchId: string
+  openedAt: string
+  /** Quem abriu a passagem, e o cargo, para o crachá ao lado do título. */
+  openedName: string
+  openedRole: string
+  open: number
+  resolved: number
+  total: number
+  /** Quantas passagens já foram fechadas neste escopo. */
+  closed: number
+}
+
+/** Um ponto do punch list, como a lista e o relatório o leem. */
+export interface AtlasPunchPoint {
+  id: string
+  number: number | null
+  title: string
+  body: string
+  status: string
+  punchId: string
+  sheetId: string
+  sheetNumber: string
+  pageIndex: number
+  documentId: string
+  document: string
+  category: string
+  subcategory: string
+  scopeKind: string
+  scopeValue: string
+  pageX: number | null
+  pageY: number | null
+  photos: number
+  videos: number
+  audios: number
+  /** Quantas peças documentam a solução. Zero é ponto sem prova do depois. */
+  after: number
+  comments: number
+  createdName: string
+  /** O cargo de quem levantou: na tela vira o crachá ao lado do nome. */
+  createdRole: string
+  createdAt: string
+  resolvedAt: string
+}
+
+/** Uma peça de mídia de um ponto, já com endereço assinado. */
+export interface AtlasPunchMedia {
+  id: string
+  eventId: string
+  contentType: string
+  phase: "before" | "after"
+  title: string
+  description: string
+  caption: string
+  transcript: string
+  takenAt: string
+  url: string
 }
 
 export interface AtlasUser {
@@ -730,26 +834,87 @@ export const atlasService = {
     scope: string; scopePages: number[]; novas: number; herdadas: number; total: number
   }>(`${base}/versions/${versionId}/diff`, getToken()),
 
-  /** Os pontos do punch list, por obra e opcionalmente por pavimento. */
-  punchList: (jobsiteId: string, params?: { subcategory?: string; status?: string }) => {
-    const q = new URLSearchParams()
-    if (params?.subcategory) q.set("subcategory", params.subcategory)
-    if (params?.status) q.set("status", params.status)
-    const qs = q.toString()
-    return api.get<Array<{
-      id: string; number: number | null; title: string; body: string; status: string
-      sheetId: string; sheetNumber: string; pageIndex: number
-      documentId: string; document: string; category: string; subcategory: string
-      pageX: number | null; pageY: number | null
-      photos: number; comments: number
-      createdName: string; createdAt: string; resolvedAt: string
-    }>>(`${base}/jobsites/${jobsiteId}/punch-list${qs ? `?${qs}` : ""}`, getToken())
-  },
+  /** Os pontos do punch list, por passagem, por escopo, ou a obra inteira. */
+  punchList: (jobsiteId: string, params?: PunchFiltro) =>
+    api.get<AtlasPunchPoint[]>(
+      `${base}/jobsites/${jobsiteId}/punch-list${queryDoPunch(params)}`, getToken(),
+    ).then(r => r ?? []),
+
+  /** Toda a mídia dos pontos de um escopo, de uma vez. É o que o relatório lê. */
+  punchMedia: (jobsiteId: string, params?: PunchFiltro) =>
+    api.get<AtlasPunchMedia[]>(
+      `${base}/jobsites/${jobsiteId}/punch-list/media${queryDoPunch(params)}`, getToken(),
+    ).then(r => r ?? []),
 
   punchSummary: (jobsiteId: string) => api.get<{
-    bySubcategory: Array<{ subcategory: string; category: string; open: number; resolved: number; total: number }>
+    bySubcategory: Array<{
+      scopeKind: string; scopeValue: string
+      subcategory: string; category: string
+      open: number; resolved: number; total: number
+    }>
     jobsite: { open: number; resolved: number; total: number }
   }>(`${base}/jobsites/${jobsiteId}/punch-list/summary`, getToken()),
+
+  /** Os escopos da obra, com a passagem aberta de cada um. */
+  punchScopes: (jobsiteId: string) =>
+    api.get<AtlasPunchScope[]>(`${base}/jobsites/${jobsiteId}/punch-list/scopes`, getToken())
+      .then(r => r ?? []),
+
+  punches: (jobsiteId: string, params?: { scope?: string; open?: boolean }) => {
+    const q = new URLSearchParams()
+    if (params?.scope) q.set("scope", params.scope)
+    if (params?.open) q.set("open", "1")
+    const qs = q.toString()
+    return api.get<AtlasPunch[]>(
+      `${base}/jobsites/${jobsiteId}/punches${qs ? `?${qs}` : ""}`, getToken(),
+    ).then(r => r ?? [])
+  },
+  openPunch: (jobsiteId: string, body: {
+    scopeKind: "subcategory" | "category"; scopeValue: string; name?: string; notes?: string
+  }) => api.post<AtlasPunch>(`${base}/jobsites/${jobsiteId}/punches`, body, getToken()),
+  closePunch: (punchId: string) =>
+    api.post<AtlasPunch>(`${base}/punches/${punchId}/close`, {}, getToken()),
+  reopenPunch: (punchId: string) =>
+    api.post<AtlasPunch>(`${base}/punches/${punchId}/reopen`, {}, getToken()),
+
+  // ── A descrição falada ────────────────────────────────────────────────────
+
+  /** Transcreve o áudio guardado. Devolve vazio quando não havia fala. */
+  transcribeMedia: (mediaId: string) =>
+    api.post<{ transcript: string }>(`${base}/media/${mediaId}/transcribe`, {}, getToken()),
+
+  /**
+   * Lê a transcrição e devolve tópicos curtos.
+   *
+   * Aceita um texto corrigido à mão: quem ouviu o áudio sabe mais que o modelo,
+   * e a correção vira a base da leitura em vez de ser descartada.
+   */
+  mediaTopics: (mediaId: string, transcript?: string) =>
+    api.post<{ transcript: string; topics: string }>(
+      `${base}/media/${mediaId}/topics`, { transcript: transcript ?? "" }, getToken()),
+
+  updateMedia: (mediaId: string, patch: {
+    title?: string; description?: string; caption?: string
+    transcript?: string; phase?: "before" | "after"; eventId?: string
+  }) => api.patch(`${base}/media/${mediaId}`, patch, getToken()),
+}
+
+/** Os três jeitos de recortar o punch list, e o que eles têm em comum. */
+export interface PunchFiltro {
+  /** Uma passagem específica. É o filtro mais preciso: identidade, não texto. */
+  punch?: string
+  /** Um escopo, pegando a passagem aberta e as fechadas dele. */
+  scope?: string
+  status?: "open" | "resolved"
+}
+
+function queryDoPunch(params?: PunchFiltro): string {
+  const q = new URLSearchParams()
+  if (params?.punch) q.set("punch", params.punch)
+  if (params?.scope) q.set("scope", params.scope)
+  if (params?.status) q.set("status", params.status)
+  const qs = q.toString()
+  return qs ? `?${qs}` : ""
 }
 
 /**
