@@ -314,6 +314,13 @@ type punchScope struct {
 	// quer saber o tamanho do que vai percorrer.
 	Documents int `json:"documents"`
 	Sheets    int `json:"sheets"`
+	// De quais categorias são essas pastas.
+	//
+	// Um escopo de subcategoria junta categorias diferentes: o primeiro andar
+	// tem Wall Panels, Floor Layout e Trusses, e a rodada daquele andar percorre
+	// os três. A contagem sozinha escondia isso, e saber o que ia ser percorrido
+	// exigia abrir.
+	Folders []string `json:"folders"`
 	// A passagem aberta neste escopo, quando há uma, e quem a abriu.
 	//
 	// O nome vem junto porque o cartão o mostra ao lado do título: numa obra com
@@ -346,6 +353,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT esc.scope_kind, esc.scope_value, esc.scope_axis,
 		       count(DISTINCT d.id), count(s.id),
+		       array_agg(DISTINCT esc.category_name),
 		       COALESCE(p.id,''), p.opened_at,
 		       COALESCE(pu.name,''), COALESCE(pu.role::text,''),
 		       COALESCE((SELECT count(*) FROM atlas_event e
@@ -372,7 +380,15 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		 WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
 		 GROUP BY esc.scope_kind, esc.scope_value, esc.scope_axis, p.id, p.opened_at,
 		          pu.name, pu.role, d.jobsite_id
-		 ORDER BY esc.scope_value`, jobsiteID)
+		 -- O que está sendo percorrido vem primeiro, depois o que já foi
+		 -- percorrido alguma vez, e por último o que ninguém começou. A tela
+		 -- apaga o escopo sem rodada, e deixá-lo no meio da grade obrigava a
+		 -- procurar o que interessa entre o que não interessa.
+		 ORDER BY (p.id IS NULL),
+		          (SELECT count(*) FROM atlas_punch f
+		            WHERE f.jobsite_id = d.jobsite_id AND f.scope_kind = esc.scope_kind
+		              AND f.scope_value = esc.scope_value AND f.closed_at IS NOT NULL) = 0,
+		          esc.scope_value`, jobsiteID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -382,7 +398,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 	for rows.Next() {
 		var s punchScope
 		var aberto *time.Time
-		if err := rows.Scan(&s.Kind, &s.Value, &s.Axis, &s.Documents, &s.Sheets,
+		if err := rows.Scan(&s.Kind, &s.Value, &s.Axis, &s.Documents, &s.Sheets, &s.Folders,
 			&s.PunchID, &aberto, &s.OpenedName, &s.OpenedRole,
 			&s.Open, &s.Resolved, &s.Closed); err != nil {
 			continue
