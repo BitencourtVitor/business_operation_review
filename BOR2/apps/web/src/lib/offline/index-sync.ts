@@ -359,8 +359,13 @@ async function guardarMarcasEAlvos(obraId: string, planos: PlanoLocal[]): Promis
   }
 
   if (!destinos.size) return 0
-  const alvos = (await local.planos.bulkGet([...destinos]))
-    .filter((p): p is PlanoLocal => !!p && !p.arquivo)
+  const conhecidos = (await local.planos.bulkGet([...destinos]))
+    .filter((p): p is PlanoLocal => !!p)
+  // A página da pasta vizinha vai para o cache junto com a prancha de destino.
+  // Sem ela o vínculo entre pastas tinha o arquivo no aparelho e não tinha a
+  // tela que o abre: sem rede, o toque devolvia a lista de obras.
+  aquecerRotas([...new Set(conhecidos.map(p => `/atlas/${obraId}/documents/${p.pastaId}`))])
+  const alvos = conhecidos.filter(p => !p.arquivo)
   if (!alvos.length) return 0
 
   // O espaço do alvo é conferido à parte: a pasta já coube, e o que vem por
