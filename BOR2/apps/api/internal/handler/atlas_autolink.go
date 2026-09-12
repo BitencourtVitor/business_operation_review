@@ -53,6 +53,22 @@ import (
 //     sumário do set, e não uma prancha. Ela continua ganhando links, e sinalizá-la
 //     evita que alguém a confunda com um desenho que deu errado.
 
+// destino é a folha para onde um código escrito na prancha aponta.
+//
+// Ela não é necessariamente do documento que está sendo lido: o código citado no
+// meio do desenho pode ser folha de outra pasta da mesma obra, e era essa a
+// limitação do primeiro desenho, que só olhava a própria versão. Por isso o
+// destino carrega de que documento ele é: a tela precisa avisar que o link
+// atravessa a fronteira da pasta.
+type destino struct {
+	SheetID      string
+	PageIndex    int
+	Name         string
+	DocumentID   string
+	DocumentName string
+	Categoria    string
+}
+
 type autolinkToken struct {
 	// O texto reconhecido na página, como veio da prancha.
 	Text string `json:"text"`
@@ -122,44 +138,10 @@ func (h *AtlasHandler) Autolink(c *fiber.Ctx) error {
 		in.MinRefs = 2
 	}
 
-	// O índice de destinos: título normalizado apontando para a primeira folha
-	// que o carrega.
-	//
-	// A busca é dentro da **mesma versão**, e isso não é detalhe. O mesmo título
-	// existe na revisão 1 e na 2 do mesmo documento, e casar entre versões faria
-	// a prancha da revisão nova apontar para a folha da revisão velha, que é
-	// exatamente o erro que a versão no meio do esquema existe para impedir.
-	rows, err := h.db.Query(c.Context(), `
-		SELECT s.id, s.page_index, COALESCE(s.sheet_number,'')
-		  FROM atlas_sheet s
-		 WHERE s.version_id = $1 AND COALESCE(s.sheet_number,'') <> ''
-		 ORDER BY s.page_index`, versionID)
+	indice, err := h.indiceDaObra(c.Context(), jobsiteID, documentID)
 	if err != nil {
 		return internalErr(c, err)
 	}
-	type destino struct {
-		SheetID   string
-		PageIndex int
-		Name      string
-	}
-	indice := map[string]destino{}
-	for rows.Next() {
-		var d destino
-		if rows.Scan(&d.SheetID, &d.PageIndex, &d.Name) != nil {
-			continue
-		}
-		// Primeira vence, e a consulta vem ordenada por página. Decisão de
-		// 09/09: quando o mesmo título aparece em mais de uma folha, as
-		// seguintes são páginas de ancoragem, suporte ou detalhe da primeira, e
-		// o código escrito na prancha se refere ao componente, que começa na
-		// primeira.
-		if k := chaveTitulo(d.Name); k != "" {
-			if _, existe := indice[k]; !existe {
-				indice[k] = d
-			}
-		}
-	}
-	rows.Close()
 
 	userID, _ := actor(c)
 
