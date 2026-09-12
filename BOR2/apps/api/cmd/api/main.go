@@ -751,6 +751,8 @@ func main() {
 	atlas.Delete("/annotations/:id", atlasHandler.DeleteAnnotation)
 	atlas.Post("/versions/:id/thumb-uploads", atlasHandler.ThumbUploadURLs)
 	atlas.Get("/versions/:id/thumbs", atlasHandler.VersionThumbs)
+	atlas.Get("/versions/:id/urls", atlasHandler.VersionSheetURLs)
+	atlas.Get("/versions/:id/annotations", atlasHandler.VersionAnnotations)
 	atlas.Get("/users/:id/jobsites", atlasHandler.UserJobsites)
 	atlas.Get("/jobsites/:id/events", atlasHandler.ListEvents)
 	atlas.Post("/jobsites/:id/events", atlasHandler.CreateEvent)

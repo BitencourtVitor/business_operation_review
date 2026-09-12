@@ -19,6 +19,7 @@ import {
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
+import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
 import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
@@ -721,8 +722,6 @@ export default function DocumentPage() {
                   chega com nome que ninguém escolheu direito: editar é operação
                   normal, e acontece onde o nome está. */}
               <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
-                <span className="truncate text-sm text-muted-foreground">{jobsite?.name}</span>
-                <span className="text-sm text-muted-foreground">·</span>
                 {renaming ? (
                   <span className="flex min-w-0 flex-1 items-center gap-1.5">
                     <Input
@@ -793,6 +792,11 @@ export default function DocumentPage() {
               </Button>
             )}
           </div>
+
+          {/* A mesma identificação da sala da obra, com o endereço junto: dentro
+              da pasta a pessoa continua precisando saber de que obra ela é e
+              onde essa obra fica, sem voltar uma tela para conferir. */}
+          {jobsite && <JobsiteIdentity jobsite={jobsite} />}
 
           {/* A categoria vai junto: é nela que o gabarito de nomenclatura fica
               guardado, e é dela que ele volta no próximo envio. */}

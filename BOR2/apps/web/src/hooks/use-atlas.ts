@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
+import { local } from "@/lib/offline/db"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
@@ -371,7 +372,30 @@ export function usePublishAtlasVersion(documentId: string) {
 export function useAtlasAnnotations(sheetId: string) {
   return useQuery({
     queryKey: KEY.annotations(sheetId),
-    queryFn: () => atlasService.listAnnotations(sheetId),
+    // Sem rede, as marcações vêm do aparelho. Elas descem junto com a pasta, e
+    // sem esta volta o vínculo simplesmente sumia no canteiro: a prancha abria
+    // e o toque não levava a lugar nenhum, o que parece defeito e não falta de
+    // sinal.
+    queryFn: async () => {
+      try {
+        return await atlasService.listAnnotations(sheetId)
+      } catch (erro) {
+        const guardadas = await local.marcas.where("planoId").equals(sheetId).toArray()
+        if (!guardadas.length) throw erro
+        return guardadas.map(m => ({
+          id: m.id,
+          sheetId: m.planoId,
+          authorId: "",
+          tool: m.tool,
+          color: m.color,
+          width: m.width,
+          opacity: m.opacity,
+          shared: m.shared,
+          geometry: m.geometry,
+          createdAt: m.createdAt,
+        })) as AtlasAnnotation[]
+      }
+    },
     enabled: !!sheetId,
   })
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { OfflineFolders } from "@/components/atlas/offline-folders"
 import { PunchReportDialog } from "@/components/atlas/punch-report-dialog"
 import { SyncIndicator } from "@/components/atlas/sync-indicator"
@@ -337,20 +338,6 @@ function Panel({ title, action, children }: {
 // O rótulo saiu junto: o ícone diz de que campo se trata, e "CLIENT" escrito
 // acima de "Tara Construction" era a mesma informação duas vezes. Quem precisar
 // da palavra a encontra ao passar o mouse.
-function IdentityFact({ icon: Icon, label, value }: {
-  icon: React.ElementType
-  label: string
-  value: string
-}) {
-  if (!value) return null
-  return (
-    <span className="flex min-w-0 items-center gap-1.5" title={label}>
-      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      <span className="truncate">{value}</span>
-    </span>
-  )
-}
-
 export default function JobsiteRoomPage() {
   const { jobsiteId } = useParams<{ jobsiteId: string }>()
   const params = useSearchParams()
@@ -449,27 +436,7 @@ export default function JobsiteRoomPage() {
         )}
       </div>
 
-      {/* O que a obra é, num contêiner discreto de dois pedaços: cliente, local
-          e tipo num, o endereço no outro, com fundo próprio e borda entre eles.
-          Em tela larga ficam lado a lado (sobrava meia faixa ao lado das três
-          primeiras); em tela estreita o endereço desce para baixo. */}
-      <div className="flex flex-col overflow-hidden rounded-lg border border-border/60 bg-card/30 text-sm text-muted-foreground lg:flex-row">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2.5">
-          <IdentityFact icon={Briefcase} label="Client" value={jobsite.client} />
-          <IdentityFact icon={Building2} label="Jobsite" value={jobsite.community || jobsite.name} />
-          <IdentityFact
-            icon={(KIND_META[jobsite.kind] ?? KIND_META.house).icon}
-            label="Build type"
-            value={[(KIND_META[jobsite.kind] ?? KIND_META.house).label, jobsite.unit || jobsite.code]
-              .filter(Boolean).join(" ")}
-          />
-        </div>
-        {jobsite.address && (
-          <div className="flex min-w-0 items-center border-t border-border/60 bg-muted/20 px-3 py-2 lg:max-w-[50%] lg:border-t-0 lg:border-l">
-            <IdentityFact icon={MapPin} label="Address" value={jobsite.address} />
-          </div>
-        )}
-      </div>
+      <JobsiteIdentity jobsite={jobsite} />
 
       {tab === "documents" && (
         <div className="flex min-h-0 flex-1 flex-col gap-4">

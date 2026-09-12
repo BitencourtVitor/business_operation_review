@@ -41,7 +41,10 @@ import { useEffect, useState } from "react"
 // ainda não existe, com o resto do que falta.
 const ROOM_TABS = [
   { key: "documents", title: "Documents", icon: FolderOpen },
-  { key: "tasks",     title: "Tasks",    icon: ListChecks },
+  // "Punch List" e não "Tasks": é o nome que o canteiro usa, e é o mesmo que a
+  // aba carrega lá dentro. A chave da rota segue `tasks`, para não quebrar link
+  // salvo nem o que já está gravado.
+  { key: "tasks",     title: "Punch List", icon: ListChecks },
 ] as const
 
 // O que o Fieldwire e o Buildertrend fazem e o Atlas ainda não faz.

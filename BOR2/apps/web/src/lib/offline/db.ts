@@ -150,12 +150,39 @@ export interface EventoFila {
   arquivoLocal: string | null
 }
 
+
+/**
+ * Uma marcação guardada no aparelho.
+ *
+ * Só existe por causa do vínculo: sem rede, a prancha abria e o link não, porque
+ * a marcação vinha da API a cada abertura de folha. O traço e o marca-texto vêm
+ * junto porque moram na mesma tabela do servidor, e separá-los custaria uma
+ * segunda chamada para guardar metade.
+ */
+export interface MarcaLocal {
+  id: string
+  planoId: string
+  obraId: string
+  /** Qual pasta trouxe esta marcação, para poder sair junto com ela. */
+  pastaId: string
+  tool: string
+  color: string
+  width: number
+  opacity: number
+  shared: boolean
+  geometry: Record<string, unknown>
+  createdAt: string
+  /** O destino, quando é vínculo. Fora daqui é string vazia. */
+  destinoPlanoId: string
+}
+
 class AtlasLocal extends Dexie {
   obras!: Table<ObraLocal, string>
   pastas!: Table<PastaLocal, string>
   planos!: Table<PlanoLocal, string>
   pontos!: Table<PontoLocal, string>
   fila!: Table<EventoFila, string>
+  marcas!: Table<MarcaLocal, string>
 
   constructor() {
     super("atlas")
@@ -168,6 +195,12 @@ class AtlasLocal extends Dexie {
       planos: "id, pastaId, obraId, sheetNumber, [obraId+sheetNumber]",
       pontos: "id, obraId, planoId, status, [obraId+status], numero",
       fila:   "id, obraId, estado, deviceSeq, [obraId+estado]",
+    })
+    // A tabela das marcações entrou depois. Dexie aplica só o que falta, e as
+    // outras tabelas seguem como estão: quem já tinha pasta baixada não perde
+    // nada, apenas passa a ter onde guardar o vínculo.
+    this.version(2).stores({
+      marcas: "id, planoId, pastaId, obraId, destinoPlanoId",
     })
   }
 }

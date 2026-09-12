@@ -536,6 +536,12 @@ export const atlasService = {
       `${base}/versions/${versionId}/thumbs`, getToken(),
     ).then(r => r ?? []),
 
+  /** Todas as folhas de uma versão de uma vez, para baixar a pasta sem 97 idas. */
+  versionSheetUrls: (versionId: string) =>
+    api.get<{ sheetId: string; url: string; whole: boolean; pageIndex: number }[]>(
+      `${base}/versions/${versionId}/urls`, getToken(),
+    ).then(r => r ?? []),
+
   sheetUrl: (sheetId: string) =>
     api.get<{ url: string; whole: boolean; pageIndex: number }>(
       `${base}/sheets/${sheetId}/url`, getToken()),
@@ -545,6 +551,10 @@ export const atlasService = {
 
   listAnnotations: (sheetId: string) =>
     api.get<AtlasAnnotation[]>(`${base}/sheets/${sheetId}/annotations`, getToken()).then(r => r ?? []),
+  /** As marcações de todas as folhas de uma versão, para guardar sem rede. */
+  versionAnnotations: (versionId: string) =>
+    api.get<AtlasAnnotation[]>(`${base}/versions/${versionId}/annotations`, getToken())
+      .then(r => r ?? []),
   createAnnotation: (sheetId: string, body: Partial<AtlasAnnotation>) =>
     api.post(`${base}/sheets/${sheetId}/annotations`, body, getToken()),
   updateAnnotation: (id: string, geometry: AtlasStrokeGeometry) =>

@@ -141,21 +141,42 @@ async function pastaDaObra(obraId: string, criar: boolean) {
   }
 }
 
+/**
+ * Por que a última gravação falhou.
+ *
+ * `gravarArquivo` devolve nulo para o chamador poder seguir com as próximas
+ * folhas, e nulo sozinho não diz nada. No canteiro a diferença importa: sem
+ * espaço se resolve apagando outra obra, navegador que não deixa gravar não se
+ * resolve de jeito nenhum, e as duas coisas apareciam como o mesmo silêncio.
+ */
+let ultimoErro = ""
+
+export function ultimoErroDeArquivo(): string {
+  return ultimoErro
+}
+
 export async function gravarArquivo(
   obraId: string, nome: string, dados: Blob,
 ): Promise<string | null> {
   const dir = await pastaDaObra(obraId, true)
-  if (!dir) return null
+  if (!dir) {
+    ultimoErro = 'this browser has no offline storage'
+    return null
+  }
   try {
     const h = await dir.getFileHandle(nome, { create: true })
     const w = await h.createWritable()
     await w.write(dados)
     await w.close()
     return `obras/${obraId}/${nome}`
-  } catch {
-    // Quase sempre cota estourada. Devolver nulo em vez de lançar deixa o
-    // chamador decidir: um download em lote continua com os próximos e reporta
-    // o que faltou, em vez de morrer na primeira folha.
+  } catch (e) {
+    // Quase sempre cota estourada, mas nem sempre: há navegador que não deixa
+    // gravar. Devolver nulo em vez de lançar deixa o chamador decidir, e o
+    // motivo fica guardado para ele poder dizer qual dos dois foi.
+    const erro = e as { name?: string; message?: string }
+    ultimoErro = erro?.name === "QuotaExceededError"
+      ? "no room on this device"
+      : `could not write to this device (${erro?.name || "unknown"})`
     return null
   }
 }
