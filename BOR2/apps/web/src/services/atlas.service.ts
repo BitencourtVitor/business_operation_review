@@ -676,6 +676,41 @@ export const atlasService = {
     paginas: Array<{ sheetId: string; refs: number; shape: string; spread: number; linked: number }>
   }>(`${base}/versions/${versionId}/autolink`, body, getToken()),
 
+  /** Um vínculo proposto pela varredura, ainda sem nada gravado. */
+  // (o tipo vive aqui porque a etapa de envio e a página do documento usam o mesmo)
+
+  /**
+   * Sugere os vínculos de um arquivo que ainda não subiu.
+   *
+   * O índice de destinos é a obra inteira, e não só o documento: o código citado
+   * no desenho pode ser folha de outra pasta. As folhas que estão subindo entram
+   * pelo número da página, porque ainda não têm identificador.
+   */
+  autolinkPreview: (jobsiteId: string, body: {
+    local: Array<{ pageIndex: number; name: string }>
+    pages: Array<{ pageIndex: number; tokens: unknown[]; noText: boolean }>
+    minRefs?: number
+    /** Procurar destino também nas outras pastas da obra. */
+    otherFolders?: boolean
+  }) => api.post<{
+    destinos: number
+    links: number
+    paginas: AtlasAutolinkPage[]
+  }>(`${base}/jobsites/${jobsiteId}/autolink/preview`, body, getToken()),
+
+  /** Grava os vínculos confirmados, depois de as folhas existirem. */
+  autolinkApply: (versionId: string, body: {
+    links: Array<{
+      pageIndex: number
+      x0: number; y0: number; x1: number; y1: number
+      text: string
+      targetSheetId: string
+      targetPageIndex: number
+      targetName: string
+    }>
+  }) => api.post<{ links: number }>(
+    `${base}/versions/${versionId}/autolink/apply`, body, getToken()),
+
   /** Herda as folhas não trocadas de uma revisão parcial. */
   inheritSheets: (versionId: string, body: { scope: "range" | "single"; pages: number[] }) =>
     api.post<{ herdadas: number; trocadas: number; total: number }>(
@@ -725,4 +760,33 @@ export async function uploadToR2(url: string, file: Blob, contentType: string): 
   if (!res.ok) {
     throw new Error(`upload falhou (${res.status})`)
   }
+}
+
+/** Um vínculo proposto pela varredura automática, ainda sem nada gravado. */
+export interface AtlasAutolinkSuggestion {
+  /** O texto lido na prancha, como está escrito lá. */
+  text: string
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  /** Vazio quando o destino é folha do próprio arquivo que está subindo. */
+  sheetId: string
+  pageIndex: number
+  sheetName: string
+  documentId: string
+  documentName: string
+  category: string
+  /** O destino mora em outra pasta da obra. */
+  otherFolder: boolean
+}
+
+/** O que a varredura achou numa página. */
+export interface AtlasAutolinkPage {
+  pageIndex: number
+  refs: number
+  /** `referencing` cita outras, `terminal` não cita, `index` cita quase todas, `no-text` é rasterizada. */
+  shape: string
+  spread: number
+  links: AtlasAutolinkSuggestion[]
 }

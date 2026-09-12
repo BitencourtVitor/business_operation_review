@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import { depurar } from "@/lib/depurar"
+
 // pdf.js roda no cliente e traz um worker próprio. O import é dinâmico para o
 // bundle do servidor não tentar carregá-lo, e o documento fica em cache por URL:
 // um set de 51 páginas é um download só, e trocar de folha não baixa de novo.
@@ -143,14 +145,21 @@ export function PdfPage({ url, pageIndex, scale = 1.5, onSize }: {
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [state, setState] = useState<"loading" | "ready" | "error">("loading")
+  // Que folha já está desenhada na tela. Trocar só a escala não é folha nova:
+  // o que está à mostra continua valendo enquanto o desenho fino não chega.
+  const desenhada = useRef("")
 
   useEffect(() => {
     let cancelled = false
     let task: { cancel: () => void } | null = null
+    const chave = `${url}#${pageIndex}`
 
     ;(async () => {
       try {
-        setState("loading")
+        // O aviso de "desenhando" só aparece quando não há nada no lugar. Numa
+        // troca de escala ele piscava por cima da prancha a cada passo do zoom.
+        depurar("zoom", "render inicio", { chave, scale })
+        if (desenhada.current !== chave) setState("loading")
         const pdf = await loadPdf(url)
         const page = await pdf.getPage(pageIndex + 1)
         if (cancelled) return
@@ -158,16 +167,29 @@ export function PdfPage({ url, pageIndex, scale = 1.5, onSize }: {
         const viewport = page.getViewport({ scale })
         const canvas = canvasRef.current
         if (!canvas) return
-        canvas.width = Math.floor(viewport.width)
-        canvas.height = Math.floor(viewport.height)
         onSize?.({ width: viewport.width, height: viewport.height })
+
+        // O desenho vai primeiro para uma tela fora do documento e só depois é
+        // copiado: mudar a largura de um canvas o apaga, e apagar o que está à
+        // vista para desenhar de novo é o clarão que se via a cada zoom.
+        const fora = document.createElement("canvas")
+        fora.width = Math.floor(viewport.width)
+        fora.height = Math.floor(viewport.height)
+        const ctxFora = fora.getContext("2d")
+        if (!ctxFora) return
+        const render = page.render({ canvasContext: ctxFora, viewport })
+        task = render
+        await render.promise
+        if (cancelled) return
 
         const ctx = canvas.getContext("2d")
         if (!ctx) return
-        const render = page.render({ canvasContext: ctx, viewport })
-        task = render
-        await render.promise
-        if (!cancelled) setState("ready")
+        canvas.width = fora.width
+        canvas.height = fora.height
+        ctx.drawImage(fora, 0, 0)
+        desenhada.current = chave
+        depurar("zoom", "render fim", { chave, scale, w: fora.width, h: fora.height })
+        setState("ready")
       } catch {
         if (!cancelled) setState("error")
       }

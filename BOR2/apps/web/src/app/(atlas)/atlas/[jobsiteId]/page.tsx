@@ -30,6 +30,7 @@ import { tagLabel } from "@/components/atlas/document-tags-dialog"
 import { stashUpload } from "@/components/atlas/pending-upload"
 import { RoleName } from "@/components/atlas/role-icon"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
+import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 
 import { useCategoriasDaObra } from "@/components/atlas/category-picker"
 import type { AtlasDocTag, AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
@@ -119,13 +120,19 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   // Documento novo nasce do arquivo: cria a linha com o nome e as etiquetas, e
   // manda a pessoa para a página dele, onde as folhas sobem uma a uma. O
   // arquivo viaja por fora da navegação, que não carrega `File`.
-  function startNew(file: File, names?: Map<number, string>, identity?: DocumentIdentity) {
+  function startNew(
+    file: File,
+    names?: Map<number, string>,
+    identity?: DocumentIdentity,
+    _version?: unknown,
+    links?: VinculoConfirmado[],
+  ) {
     if (!identity) return
     createDocument.mutate(
       { name: identity.name, tags: identity.tags as AtlasDocument["tags"] },
       {
         onSuccess: ({ id }) => {
-          stashUpload(id, { file, names })
+          stashUpload(id, { file, names, links }, jobsiteId)
           router.push(`/atlas/${jobsiteId}/documents/${id}`)
         },
       },
@@ -191,17 +198,25 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           </div>
         )}
       >
-        <div className="flex flex-col gap-2">
+        <div className="flex h-full flex-col gap-2">
         {shown.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-            <p className="text-sm font-medium">
-              {docs.length ? "Nothing with this category" : "No documents yet"}
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {docs.length
-                ? "Clear the filter to see everything attached here."
-                : "Attach the PDF and it becomes a document, named after the file."}
-            </p>
+          /* O vazio ocupa o painel inteiro, e não uma tira no topo: é o estado
+             da obra agora, e uma caixa baixa com espaço morto embaixo parecia
+             que a lista tinha sido cortada. */
+          <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 p-10 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground">
+              <FileQuestion className="h-6 w-6" />
+            </span>
+            <span>
+              <p className="text-sm font-medium">
+                {docs.length ? "Nothing with this category" : "No documents yet"}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {docs.length
+                  ? "Clear the filter to see everything attached here."
+                  : "Attach the PDF and it becomes a document, named after the file."}
+              </p>
+            </span>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -273,6 +288,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
           revisionCount={0}
           open={uploading}
           categorias={categorias}
+          jobsiteId={jobsiteId}
           ocupadas={ocupadas}
           onStart={startNew}
           onClose={() => setUploading(false)}
