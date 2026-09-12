@@ -846,6 +846,9 @@ type atlasDocument struct {
 	LatestRevision  string `json:"latestRevision"`
 	LatestStatus    string `json:"latestStatus"`
 	Sheets          int    `json:"sheets"`
+	// O que a versão vigente pesa, somando as pranchas. É o que a obra vai
+	// ocupar no aparelho, e o que a faixa de Data Details mostra antes de baixar.
+	Bytes int64 `json:"bytes"`
 	// Quem subiu o set que está valendo, e quando. É a auditoria que a lista de
 	// pastas mostra: sem isso, uma pasta cheia não diz de onde veio o conteúdo.
 	UploadedBy string `json:"uploadedBy"`
@@ -882,6 +885,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		       (SELECT count(*) FROM atlas_document_version v WHERE v.document_id = d.id),
 		       COALESCE(u.id,''), COALESCE(u.revision,''), COALESCE(u.status,''),
 		       COALESCE((SELECT count(*) FROM atlas_sheet s WHERE s.version_id = u.id), 0),
+		       COALESCE((SELECT sum(s.byte_size) FROM atlas_sheet s WHERE s.version_id = u.id), 0),
 		       COALESCE(au.name,''), COALESCE(au.role::text,''), u.uploaded_at,
 		       COALESCE((
 		           SELECT json_agg(json_build_object(
@@ -916,7 +920,7 @@ func (h *AtlasHandler) ListDocuments(c *fiber.Ctx) error {
 		var tags string
 		if err := rows.Scan(&d.ID, &d.JobsiteID, &d.Name, &d.Discipline, &d.Category,
 			&d.CategoryID, &d.Subcategory, &d.CreatedBy, &created, &d.Versions,
-			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets,
+			&d.LatestVersionID, &d.LatestRevision, &d.LatestStatus, &d.Sheets, &d.Bytes,
 			&d.UploadedBy, &d.UploadedRole, &uploaded, &tags); err != nil {
 			return internalErr(c, err)
 		}

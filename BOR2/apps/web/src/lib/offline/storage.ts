@@ -96,9 +96,11 @@ export async function cabe(bytes: number): Promise<Cabimento> {
   return {
     cabe: faltam === 0,
     precisa: bytes, livre: e.livre, faltam,
+    // Em inglês, como o resto da tela. O número é o que falta, não o que ocupa:
+    // é ele que diz quanto se precisa liberar.
     mensagem: faltam === 0
       ? ""
-      : `Faltam ${mb(faltam)} para esta pasta caber. Libere outra pasta ou conecte no Wi-Fi para ampliar o espaço.`,
+      : `Not enough space on this device. ${mb(faltam)} short. Clear another project to make room.`,
   }
 }
 
