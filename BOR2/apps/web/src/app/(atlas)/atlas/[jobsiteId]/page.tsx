@@ -2,9 +2,9 @@
 
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { OfflineFolders } from "@/components/atlas/offline-folders"
-import { PunchReportDialog } from "@/components/atlas/punch-report-dialog"
 import { SyncIndicator } from "@/components/atlas/sync-indicator"
-import { EventsPanel } from "@/components/atlas/events-panel"
+import { Panel } from "@/components/atlas/panel"
+import { PunchPanel } from "@/components/atlas/punch-panel"
 import { JobsiteVisibilityDialog } from "@/components/atlas/jobsite-visibility-dialog"
 import { ArchiveConfirm } from "@/components/atlas/archive-confirm"
 import {
@@ -299,35 +299,6 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
   )
 }
 
-// Contêiner com cabeçalho próprio. As duas partes da sala, a obra e o que está
-// guardado nela, são coisas de natureza diferente: uma se lê, a outra se
-// percorre. Numa moldura só, a segunda parecia continuação da primeira.
-function Panel({ title, action, children }: {
-  title: string
-  action?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/20">
-      {/* Cabeçalho com fio embaixo: o corpo rola por dentro, e sem a linha o
-          conteúdo passava por baixo do título como se fosse a mesma faixa.
-          Título e ações na mesma linha, sempre: com quebra de linha, no celular
-          as ações desciam e o cabeçalho virava dois andares. O título não
-          encolhe; quem cede espaço são as ações, que cortam o texto. */}
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 px-4 pb-2.5 pt-3">
-        <h2 className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </h2>
-        {action}
-      </header>
-      {/* A lista rola dentro do painel, e não a página inteira: o cabeçalho da
-          seção e o rodapé do aparelho ficam no lugar, e a obra com trinta
-          documentos não empurra tudo para fora da tela. */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
-    </section>
-  )
-}
-
 // O que a obra é, numa linha só.
 //
 // Era um painel inteiro, com cabeçalho próprio e quatro colunas de rótulo em
@@ -353,7 +324,6 @@ export default function JobsiteRoomPage() {
   // guardado por alguém não pode abrir uma sala vazia.
   const pedida = params.get("tab") ?? "documents"
   const tab = pedida in TAB_META ? pedida : "documents"
-  const [relatorio, setRelatorio] = useState(false)
   const meta = TAB_META[tab]
   const [editing, setEditing] = useState(false)
   const [archiving, setArchiving] = useState(false)
@@ -412,24 +382,33 @@ export default function JobsiteRoomPage() {
               <Pencil className="h-3.5 w-3.5" />
               Edit
             </Button>
+            {/* No celular arquivar fica só com o ícone.
+
+                Editar e arquivar são duas ações de peso diferente: uma é o que
+                se faz toda semana, a outra é o fim da obra. Escritas por extenso
+                lado a lado numa tela de 375, elas empurram o nome da seção e
+                ainda aparecem com o mesmo tamanho, como se fossem irmãs. O
+                rótulo volta assim que há espaço. */}
             {archived ? (
               <Button
                 variant="outline"
                 className="gap-1.5 text-emerald-600 dark:text-emerald-400"
                 disabled={archive.isPending}
+                title="Reactivate this jobsite"
                 onClick={() => archive.mutate(false)}
               >
                 <ArchiveRestore className="h-3.5 w-3.5" />
-                Reactivate
+                <span className="hidden sm:inline">Reactivate</span>
               </Button>
             ) : (
               <Button
                 variant="outline"
                 className="gap-1.5 hover:text-destructive"
+                title="Archive this jobsite"
                 onClick={() => setArchiving(true)}
               >
                 <Archive className="h-3.5 w-3.5" />
-                Archive
+                <span className="hidden sm:inline">Archive</span>
               </Button>
             )}
           </div>
@@ -454,27 +433,23 @@ export default function JobsiteRoomPage() {
         </div>
       )}
       {tab === "tasks" && (
-        <div className="flex flex-col gap-3">
-          {/* O relatório sai daqui e não de uma tela à parte: quem está olhando
-              a lista é quem quer levá-la para a reunião. */}
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" className="gap-1.5"
-              onClick={() => setRelatorio(true)}>
-              <FileDown className="h-3.5 w-3.5" />
-              Report
-            </Button>
-          </div>
-          <PunchReportDialog
-            jobsiteId={jobsiteId}
-            jobsiteName={jobsite.name}
-            open={relatorio}
-            onOpenChange={setRelatorio}
-          />
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           {/* O estado da fila desta obra, acima da lista. Aqui e não no
               cabeçalho global porque a pergunta que ele responde é sobre esta
               obra: dá para sair do canteiro, ou ainda tem coisa por subir? */}
           <SyncIndicator jobsiteId={jobsiteId} />
-          <EventsPanel jobsiteId={jobsiteId} canWrite={!!canAnnotate} />
+          {/* A verificação por escopo, e não a lista crua da obra.
+
+              Quem chega aqui quer o primeiro andar, ou o permit set, não os
+              cento e vinte pontos de sete escopos misturados. O subcontratado é
+              o caso extremo: ele abre para saber o que falta no andar em que
+              está hoje. */}
+          <PunchPanel
+            jobsiteId={jobsiteId}
+            jobsiteName={jobsite.name}
+            canWrite={!!canAnnotate}
+            canManage={!!canManage}
+          />
         </div>
       )}
       {/* O mesmo formulário da lista de projetos: a obra se edita de um jeito

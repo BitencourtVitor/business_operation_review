@@ -237,7 +237,11 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 gap-3">
+        {/* Lado a lado no computador, empilhadas no celular. Em 375 as duas
+            colunas ficavam com 150 cada, e um nome de pessoa não cabe em 150:
+            a lista virava "Clayton De S…" e "Matheus San…", que é justamente o
+            que ela existe para mostrar. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto sm:flex-row sm:overflow-visible">
           <Column
             title="Premium Group"
             logo

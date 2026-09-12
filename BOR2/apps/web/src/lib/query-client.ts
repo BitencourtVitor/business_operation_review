@@ -48,6 +48,10 @@ export function getQueryClient(): QueryClient {
 const GUARDADAS = new Set([
   "jobsites", "jobsite", "documents", "jobsite-categories", "versions", "sheets",
   "doc-categories", "user-companies", "events", "annotations", "replies",
+  // A verificação também: sem ela a aba do punch list abria vazia no canteiro,
+  // que é exatamente onde ela é consultada. Fica de fora a mídia do punch, que
+  // é URL assinada e não abre sem rede de qualquer jeito.
+  "punch-scopes", "punch-points", "punches",
 ])
 
 function guardavel(q: Query) {
