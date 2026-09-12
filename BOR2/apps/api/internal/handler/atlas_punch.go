@@ -307,6 +307,9 @@ func (h *AtlasHandler) PunchListMedia(c *fiber.Ctx) error {
 type punchScope struct {
 	Kind  string `json:"kind"`
 	Value string `json:"value"`
+	// floor ou unit, quando o escopo é uma subcategoria. É o que deixa a tela
+	// escrever "1st Floor" em vez de "1st", que sozinho não diz nada.
+	Axis string `json:"axis"`
 	// Quantas pastas e quantas folhas o escopo alcança. Quem escolhe o andar
 	// quer saber o tamanho do que vai percorrer.
 	Documents int `json:"documents"`
@@ -341,7 +344,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 	}
 
 	rows, err := h.db.Query(c.Context(), `
-		SELECT esc.scope_kind, esc.scope_value,
+		SELECT esc.scope_kind, esc.scope_value, esc.scope_axis,
 		       count(DISTINCT d.id), count(s.id),
 		       COALESCE(p.id,''), p.opened_at,
 		       COALESCE(pu.name,''), COALESCE(pu.role::text,''),
@@ -367,7 +370,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 		                                      AND p.closed_at IS NULL
 		  LEFT JOIN users pu                   ON pu.id = p.opened_by
 		 WHERE d.jobsite_id = $1 AND d.archived_at IS NULL
-		 GROUP BY esc.scope_kind, esc.scope_value, p.id, p.opened_at,
+		 GROUP BY esc.scope_kind, esc.scope_value, esc.scope_axis, p.id, p.opened_at,
 		          pu.name, pu.role, d.jobsite_id
 		 ORDER BY esc.scope_value`, jobsiteID)
 	if err != nil {
@@ -379,7 +382,7 @@ func (h *AtlasHandler) PunchListScopes(c *fiber.Ctx) error {
 	for rows.Next() {
 		var s punchScope
 		var aberto *time.Time
-		if err := rows.Scan(&s.Kind, &s.Value, &s.Documents, &s.Sheets,
+		if err := rows.Scan(&s.Kind, &s.Value, &s.Axis, &s.Documents, &s.Sheets,
 			&s.PunchID, &aberto, &s.OpenedName, &s.OpenedRole,
 			&s.Open, &s.Resolved, &s.Closed); err != nil {
 			continue
