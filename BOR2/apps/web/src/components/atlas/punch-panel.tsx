@@ -20,7 +20,7 @@ import {
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
   Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
-  Layers, MapPin,
+  Clock, Layers, LocateFixed, MapPin,
   RotateCcw, Stamp, Tag, Trash2, Video,
 } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -470,6 +470,50 @@ function PunchScopeView({
       onBack={onBack}
       backLabel="Scopes"
       stackActions
+      // Só os pontos rolam. As rodadas assinadas, o aviso e o filtro da
+      // condição ficam parados entre o cabeçalho e a lista.
+      fixoSoNoCelular={fechadas.length === 0 && !erro}
+      fixo={(fechadas.length > 0 || !!erro) ? (
+        <div className="flex flex-col gap-3">
+      {/* As rodadas já assinadas deste escopo. Existem para provar que a
+          verificação aconteceu, e para reabrir quando alguém assinou cedo. */}
+      {fechadas.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+          <span className="shrink-0">Signed off:</span>
+          {fechadas.map(p => (
+            <span key={p.id} className="flex items-center gap-1 rounded-md border border-border/60 bg-card px-2 py-0.5">
+              {dataCurta(p.openedAt)} to {dataCurta(p.closedAt)} · {p.total} points
+              {canManage && (
+                <button
+                  type="button"
+                  title="Reopen this round"
+                  disabled={reabrir.isPending || !!aberta}
+                  onClick={() => reabrir.mutate(p.id)}
+                  className="ml-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </button>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {erro && (
+        <p className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          {erro}
+        </p>
+      )}
+
+      {/* No celular o controle mora aqui, em cima da lista, ocupando a largura
+          toda: um terço para cada, que é alvo de dedo. Do tablet para cima ele
+          sobe para o cabeçalho, onde sobra espaço e ele fica na mesma faixa das
+          outras ações da rodada. */}
+      <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
+        </div>
+      ) : (
+        <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
+      )}
       action={(
         // Duas ações de gravidade diferente, e o desenho diz qual é qual: o
         // relatório é contorno, porque só produz um arquivo e se refaz quantas
@@ -567,41 +611,6 @@ function PunchScopeView({
       )}
     >
       <div className="flex flex-col gap-3">
-      {/* As rodadas já assinadas deste escopo. Existem para provar que a
-          verificação aconteceu, e para reabrir quando alguém assinou cedo. */}
-      {fechadas.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-          <span className="shrink-0">Signed off:</span>
-          {fechadas.map(p => (
-            <span key={p.id} className="flex items-center gap-1 rounded-md border border-border/60 bg-card px-2 py-0.5">
-              {dataCurta(p.openedAt)} to {dataCurta(p.closedAt)} · {p.total} points
-              {canManage && (
-                <button
-                  type="button"
-                  title="Reopen this round"
-                  disabled={reabrir.isPending || !!aberta}
-                  onClick={() => reabrir.mutate(p.id)}
-                  className="ml-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </button>
-              )}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {erro && (
-        <p className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          {erro}
-        </p>
-      )}
-
-      {/* No celular o controle mora aqui, em cima da lista, ocupando a largura
-          toda: um terço para cada, que é alvo de dedo. Do tablet para cima ele
-          sobe para o cabeçalho, onde sobra espaço e ele fica na mesma faixa das
-          outras ações da rodada. */}
-      <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
 
 
       {isLoading ? (
@@ -663,7 +672,11 @@ function PunchScopeView({
                             : "border-amber-500/40 text-amber-600 dark:text-amber-400"
                         }`}
                       >
-                        {p.status === "resolved" ? "Resolved" : "Pending"}
+                        {p.status === "resolved"
+                          ? <CheckCircle2 className="h-3 w-3" />
+                          : <Clock className="h-3 w-3" />}
+                        {/* No celular só o ícone: o título do ponto precisa da largura. */}
+                        <span className="hidden sm:inline">{p.status === "resolved" ? "Resolved" : "Pending"}</span>
                       </Badge>
                     </span>
                     <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-xs text-muted-foreground">
@@ -691,7 +704,7 @@ function PunchScopeView({
                         própria, do lado de fora dela. */}
                     <span className="flex items-center gap-1.5">
                     {temRegistro && (
-                    <span className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-2 text-xs text-muted-foreground">
                       {p.photos > 0 && (
                         <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
                           <Camera className="h-3 w-3" />
@@ -757,8 +770,8 @@ function PunchScopeView({
                               onClick={() => setNoDesenho(p)}
                               className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted"
                             >
-                              <MapPin className="h-3.5 w-3.5" />
-                              Show issue
+                              <LocateFixed className="h-3.5 w-3.5" />
+                              Issue
                             </button>
 
                             <span className="flex-1" />
@@ -778,7 +791,7 @@ function PunchScopeView({
                                 className="flex h-8 items-center rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                               >
                                 <RotateCcw className="h-3.5 w-3.5" />
-                                Hold to reopen
+                                Reopen
                               </HoldButton>
                             )}
                             {canWrite && semProva && (

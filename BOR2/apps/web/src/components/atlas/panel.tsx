@@ -19,9 +19,18 @@ import Link from "next/link"
  * monta a grade que o conteúdo pede, e ela é que se adapta entre o computador e
  * o celular. O contêiner cuida da moldura, do cabeçalho e da rolagem.
  */
-export function Panel({ title, action, onBack, backLabel = "Back", stackActions = false, children }: {
+export function Panel({ title, action, onBack, backLabel = "Back", stackActions = false, fixo, fixoSoNoCelular = false, children }: {
   title: string
   action?: React.ReactNode
+  /**
+   * O que fica parado entre o cabeçalho e a lista, fora da rolagem.
+   *
+   * Filtro é comando da lista: rolando junto com os itens, ele sumia justo
+   * quando a pessoa queria trocar de condição no meio de trinta pontos.
+   */
+  fixo?: React.ReactNode
+  /** A faixa fixa só existe no celular: do tablet para cima o que ela guarda sobe para o cabeçalho. */
+  fixoSoNoCelular?: boolean
   /**
    * O cabeçalho em duas linhas até o computador: título em cima, ações embaixo.
    *
@@ -43,7 +52,7 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
   children: React.ReactNode
 }) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain rounded-lg border border-border/60 bg-card/20 sm:overflow-hidden">
+    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/20">
       {/* Cabeçalho com fio embaixo: o corpo rola por dentro, e sem a linha o
           conteúdo passava por baixo do título como se fosse a mesma faixa.
           Título e ações na mesma linha, sempre: com quebra de linha, no celular
@@ -78,11 +87,10 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
       {/* A lista rola dentro do painel, e não a página inteira: o cabeçalho da
           seção e o rodapé do aparelho ficam no lugar, e a obra com trinta
           documentos não empurra tudo para fora da tela. */}
-      {/* No celular o cabeçalho rola junto com a lista: preso no alto, ele
-          tomava um quarto da tela que já é pequena, e a lista passava por baixo
-          de uma faixa que não precisava estar sempre à vista. Do tablet para
-          cima ele fica no lugar e só a lista rola. */}
-      <div className="px-4 pb-4 pt-3 sm:min-h-0 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain">{children}</div>
+      {fixo && (
+        <div className={`shrink-0 border-b border-border/60 px-4 py-3 ${fixoSoNoCelular ? "sm:hidden" : ""}`}>{fixo}</div>
+      )}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
     </section>
   )
 }
