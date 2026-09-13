@@ -19,7 +19,7 @@ import {
 } from "@/hooks/use-atlas"
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
-  Building2, CalendarDays, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
+  Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
   Clock, FileText, Layers, LocateFixed,
   RotateCcw, Stamp, Tag, Trash2, Video,
 } from "lucide-react"
@@ -70,14 +70,6 @@ function useColunas() {
     }
   }, [])
   return n
-}
-
-/** mm/dd/aaaa, como a data se escreve na obra. */
-const dataCompleta = (iso: string) => {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ""
-  const p2 = (n: number) => String(n).padStart(2, "0")
-  return `${p2(d.getMonth() + 1)}/${p2(d.getDate())}/${d.getFullYear()}`
 }
 
 type Aberto = { escopo: AtlasPunchScope; condicao: "" | "open" | "resolved" }
@@ -739,17 +731,12 @@ function PunchScopeView({
                         alinhada, e não um chevron solto ao lado da foto. */}
                     <ChevronDown className={`ml-auto h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </span>
+                  {/* Quem registrou e quando saíram do cabeçalho: aparecem no
+                      corpo do ponto, junto do problema ou da solução a que
+                      pertencem, e não soltos aqui como um terceiro fato. */}
                   <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
                     <FileText className="h-3 w-3 shrink-0" />
                     <span className="truncate">{p.document}</span>
-                  </span>
-                  <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-                    <RoleName name={p.createdName} role={p.createdRole} />
-                    <span aria-hidden className="h-3 w-px shrink-0 bg-border" />
-                    <span className="flex shrink-0 items-center gap-1.5 tabular-nums">
-                      <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                      {dataCompleta(p.createdAt)}
-                    </span>
                     {temRegistro && (
                       <span className="ml-auto flex shrink-0 items-center gap-2">
                         {p.photos > 0 && (

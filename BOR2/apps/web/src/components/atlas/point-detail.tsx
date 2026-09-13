@@ -5,7 +5,7 @@ import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasMedia, useUpdateAtlasEvent } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
 import { SolutionDialog } from "@/components/atlas/solution-dialog"
-import { CheckCircle2, Flag } from "lucide-react"
+import { CalendarDays, CheckCircle2, Flag } from "lucide-react"
 import { useState } from "react"
 
 /** Data e hora como quem confere: dia curto e relógio de 24 horas. */
@@ -19,10 +19,12 @@ function quando(iso: string) {
 /**
  * Uma metade do ponto: o problema, ou a correção.
  *
- * O escrito à esquerda, as peças à direita, e a assinatura encostada no pé.
- * É a mesma forma que o ponto tem na janelinha sobre a prancha e no relatório
- * impresso: três superfícies mostram a mesma coisa, e quem aprende uma sabe
- * ler as outras.
+ * O escrito à esquerda, as peças à direita, e a assinatura embaixo das duas,
+ * na largura inteira. Presa dentro da coluna do texto, ela ficava espremida
+ * na metade da largura sempre que o baralho de fotos era mais baixo que o
+ * texto, com o resto da linha vazio ao lado. É a mesma forma que o ponto tem
+ * na janelinha sobre a prancha e no relatório impresso: três superfícies
+ * mostram a mesma coisa, e quem aprende uma sabe ler as outras.
  */
 function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, data, children }: {
   rotulo: string
@@ -39,33 +41,41 @@ function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, 
   children: React.ReactNode
 }) {
   return (
-    <div className="flex gap-3 py-3 first:pt-0 last:pb-0">
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <span className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider ${
-          tom === "solucao" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
-        }`}>
-          <Icone className="h-3.5 w-3.5 shrink-0" />
-          {rotulo}
-        </span>
-
-        {titulo && <p className="text-sm font-semibold leading-snug">{titulo}</p>}
-        {texto
-          ? <p className="whitespace-pre-wrap text-sm leading-snug">{texto}</p>
-          : !titulo && <p className="text-sm italic text-muted-foreground">{vazio}</p>}
-
-        {/* `mt-auto` prende a assinatura no pé, mesmo quando a coluna das peças
-            é mais alta que a do texto: quem fez e quando é o fecho do registro,
-            e fechar no meio deixava um vão. */}
-        {(nome || data) && (
-          <span className="mt-auto flex flex-wrap items-center gap-x-1.5 gap-y-1 pt-1 text-[11px] text-muted-foreground">
-            {nome && <RoleName name={nome} role={cargo} />}
-            {nome && data && <span aria-hidden>·</span>}
-            {data && <span>{quando(data)}</span>}
+    <div className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0">
+      <div className="flex gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider ${
+            tom === "solucao" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+          }`}>
+            <Icone className="h-3.5 w-3.5 shrink-0" />
+            {rotulo}
           </span>
-        )}
+
+          {titulo && <p className="text-sm font-semibold leading-snug">{titulo}</p>}
+          {texto
+            ? <p className="whitespace-pre-wrap text-sm leading-snug">{texto}</p>
+            : !titulo && <p className="text-sm italic text-muted-foreground">{vazio}</p>}
+        </div>
+
+        {children}
       </div>
 
-      {children}
+      {/* Fora da coluna do texto, na largura inteira: quem fez e quando é o
+          fecho do registro, e não um detalhe amarrado a uma das duas metades.
+          Mesma forma do cabeçalho do ponto (nome, barra, data com ícone): o
+          responsável e a hora só aparecem aqui agora, e não lá em cima. */}
+      {(nome || data) && (
+        <span className="flex flex-wrap items-center justify-evenly gap-2 pt-1 text-[11px] text-muted-foreground">
+          {nome && <RoleName name={nome} role={cargo} />}
+          {nome && data && <span aria-hidden className="h-3 w-px shrink-0 bg-border" />}
+          {data && (
+            <span className="flex items-center gap-1.5 tabular-nums">
+              <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+              {quando(data)}
+            </span>
+          )}
+        </span>
+      )}
     </div>
   )
 }
