@@ -54,6 +54,24 @@ const dataCurta = (iso: string) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
+/** Quantas colunas de pontos cabem: 1 abaixo de sm, 2 até lg, 3 dali para cima. */
+function useColunas() {
+  const [n, setN] = useState(1)
+  useEffect(() => {
+    const sm = window.matchMedia("(min-width: 640px)")
+    const lg = window.matchMedia("(min-width: 1024px)")
+    const medir = () => setN(lg.matches ? 3 : sm.matches ? 2 : 1)
+    medir()
+    sm.addEventListener("change", medir)
+    lg.addEventListener("change", medir)
+    return () => {
+      sm.removeEventListener("change", medir)
+      lg.removeEventListener("change", medir)
+    }
+  }, [])
+  return n
+}
+
 /** mm/dd/aaaa, como a data se escreve na obra. */
 const dataCompleta = (iso: string) => {
   const d = new Date(iso)
@@ -432,6 +450,8 @@ function PunchScopeView({
 }) {
   const [condicao, setCondicao] = useState(condicaoInicial)
   const [expandido, setExpandido] = useState<string | null>(null)
+  // Uma coluna no celular, duas no tablet, três no computador.
+  const colunas = useColunas()
   // A prancha aberta por cima da lista. Ver documento é uma coisa, conduzir a
   // verificação é outra, e trocar de tela para ver o desenho tirava a pessoa do
   // meio do percurso.
@@ -634,10 +654,14 @@ function PunchScopeView({
           </p>
         </div>
       ) : (
-        // Dois pontos por linha no tablet, três no computador. O aberto toma a linha
-        // inteira: problema, solução e fotos não cabem na metade.
-        <div className="grid items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {pontos.map(p => {
+        // Colunas independentes, e não grade: abrir um ponto estica só a coluna
+        // dele. Na grade o aberto tomava a linha inteira e deixava o vizinho da
+        // esquerda sozinho, com um buraco do lado. A distribuição é por linha
+        // (1, 2, 3 em cima; 4, 5, 6 embaixo), então a leitura continua a mesma.
+        <div className="flex items-start gap-2">
+          {Array.from({ length: colunas }, (_, c) => (
+          <div key={c} className="flex min-w-0 flex-1 flex-col gap-2">
+          {pontos.filter((_, i) => i % colunas === c).map(p => {
             const isOpen = expandido === p.id
             const temRegistro = p.photos > 0 || p.videos > 0
               || (p.status !== "resolved" && p.after > 0)
@@ -645,7 +669,7 @@ function PunchScopeView({
               <div
                 key={p.id}
                 className={`overflow-hidden rounded-lg border bg-card transition-colors ${
-                  isOpen ? "border-primary/40 sm:col-span-2 lg:col-span-3" : "border-border/60 hover:border-border"
+                  isOpen ? "border-primary/40" : "border-border/60 hover:border-border"
                 }`}
               >
                 {/* O cartão fechado é um botão só, em três linhas que começam na
@@ -805,6 +829,8 @@ function PunchScopeView({
               </div>
             )
           })}
+          </div>
+          ))}
         </div>
       )}
       </div>
