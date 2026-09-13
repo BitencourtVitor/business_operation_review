@@ -2,6 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import { HoldButton } from "@/components/atlas/hold-button"
 import { Panel } from "@/components/atlas/panel"
 import { PointDetail } from "@/components/atlas/point-detail"
 import { PunchSheet } from "@/components/atlas/punch-sheet"
@@ -451,6 +455,8 @@ function PunchScopeView({
   const eu = useAuthStore(st => st.user)
   // O ponto que pediu confirmação para fechar sem prova. Ver o botão Resolve.
   const [semProvaConfirmar, setSemProvaConfirmar] = useState<string | null>(null)
+  // O ponto que pediu para ser apagado, esperando o sim.
+  const [apagando, setApagando] = useState<{ id: string; number: number | null; title: string } | null>(null)
 
   const aberta = (passagens ?? []).find(p => !p.closedAt)
   // Assinar com ponto em aberto é o que o banco recusa de qualquer jeito: a
@@ -752,7 +758,7 @@ function PunchScopeView({
                               className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted"
                             >
                               <MapPin className="h-3.5 w-3.5" />
-                              View point
+                              Show issue
                             </button>
 
                             <span className="flex-1" />
@@ -762,7 +768,20 @@ function PunchScopeView({
                                 ponto já se resolveu sozinho, e o botão ali dizia
                                 para fazer de novo o que estava feito. Sem prova,
                                 fechar é decisão, e pede o segundo toque. */}
-                            {canWrite && (resolvido || semProva) && (
+                            {canWrite && resolvido && (
+                              // Reabrir desfaz a solução de alguém: segurando.
+                              <HoldButton
+                                title="Hold to reopen"
+                                disabled={condicaoDoPonto.isPending}
+                                onConfirm={() => condicaoDoPonto.mutate({ eventId: p.id, patch: { status: "open" } })}
+                                faixa="bg-amber-500/20"
+                                className="flex h-8 items-center rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" />
+                                Hold to reopen
+                              </HoldButton>
+                            )}
+                            {canWrite && semProva && (
                               <button
                                 type="button"
                                 disabled={condicaoDoPonto.isPending}
@@ -772,24 +791,16 @@ function PunchScopeView({
                                     return
                                   }
                                   setSemProvaConfirmar(null)
-                                  condicaoDoPonto.mutate({
-                                    eventId: p.id,
-                                    patch: { status: resolvido ? "open" : "resolved" },
-                                  })
+                                  condicaoDoPonto.mutate({ eventId: p.id, patch: { status: "resolved" } })
                                 }}
                                 className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${
-                                  resolvido
-                                    ? "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-                                    : confirmando
-                                      ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                      : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                                  confirmando
+                                    ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                    : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
                                 }`}
                               >
-                                {resolvido
-                                  ? <><RotateCcw className="h-3.5 w-3.5" />Reopen</>
-                                  : confirmando
-                                    ? <><CheckCircle2 className="h-3.5 w-3.5" />Close with no fix?</>
-                                    : <><CheckCircle2 className="h-3.5 w-3.5" />Close without fix</>}
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                {confirmando ? "Close with no fix?" : "Close without fix"}
                               </button>
                             )}
 
@@ -799,7 +810,7 @@ function PunchScopeView({
                                 title="Delete this point"
                                 aria-label="Delete this point"
                                 disabled={remover.isPending}
-                                onClick={() => remover.mutate(p.id)}
+                                onClick={() => setApagando(p)}
                                 className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -818,6 +829,31 @@ function PunchScopeView({
         </div>
       )}
       </div>
+
+      <Dialog open={!!apagando} onOpenChange={o => { if (!o) setApagando(null) }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {apagando?.number != null ? `Point #${apagando.number}` : "This point"}
+            {apagando?.title ? `, "${apagando.title}",` : ""} will be deleted with its photos.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApagando(null)}>No</Button>
+            <Button
+              variant="destructive"
+              disabled={remover.isPending}
+              onClick={() => {
+                if (!apagando) return
+                remover.mutate(apagando.id, { onSuccess: () => setApagando(null) })
+              }}
+            >
+              Yes, delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {noDesenho && (
         <PunchSheet

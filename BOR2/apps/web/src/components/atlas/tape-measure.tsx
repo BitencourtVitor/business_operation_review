@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Check, Pentagon, RotateCcw, Ruler, Trash2, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { HoldButton } from "@/components/atlas/hold-button"
+import { useRef, useState } from "react"
 
 /**
  * A trena do leitor de prancha.
@@ -210,47 +211,17 @@ export function TapeOverlay({ pontos, fechada, calibrando, escala, largura, altu
   )
 }
 
-/**
- * O botão que só age segurado por um segundo. A faixa vermelha enche enquanto
- * se segura; soltar antes esvazia e não faz nada.
- */
+/** Apagar a escala, segurando: vale para todos, então não sai num toque. */
 function SegurarParaConfirmar({ onConfirmar }: { onConfirmar: () => void }) {
-  const [segurando, setSegurando] = useState(false)
-  const relogio = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const soltar = () => {
-    if (relogio.current) clearTimeout(relogio.current)
-    relogio.current = null
-    setSegurando(false)
-  }
-  const segurar = () => {
-    if (relogio.current) return
-    setSegurando(true)
-    relogio.current = setTimeout(() => {
-      relogio.current = null
-      setSegurando(false)
-      onConfirmar()
-    }, 1000)
-  }
-  useEffect(() => soltar, [])
-
   return (
-    <button type="button"
-      onPointerDown={e => { e.preventDefault(); segurar() }}
-      onPointerUp={soltar}
-      onPointerLeave={soltar}
-      onPointerCancel={soltar}
-      onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && !e.repeat) { e.preventDefault(); segurar() } }}
-      onKeyUp={e => { if (e.key === "Enter" || e.key === " ") soltar() }}
-      onContextMenu={e => e.preventDefault()}
-      className="relative flex h-8 flex-1 touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-md border border-red-400/40 bg-red-500/5 px-3 text-sm text-red-300"
+    <HoldButton
+      onConfirm={onConfirmar}
+      faixa="bg-red-500/25"
+      className="flex h-8 flex-1 items-center justify-center rounded-md border border-red-400/40 bg-red-500/5 px-3 text-sm text-red-300"
     >
-      <span
-        className={`absolute inset-y-0 left-0 bg-red-500/25 ${segurando ? "w-full transition-[width] duration-1000 ease-linear" : "w-0"}`}
-      />
-      <Trash2 className="relative h-3.5 w-3.5" />
-      <span className="relative">Hold to delete</span>
-    </button>
+      <Trash2 className="h-3.5 w-3.5" />
+      Hold to delete
+    </HoldButton>
   )
 }
 
