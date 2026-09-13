@@ -241,9 +241,20 @@ export async function readPageNames(
   measure: (text: string) => number = ruler,
   /** O nome do arquivo anexado: é dele que o modo `file` tira o título. */
   fallbackTitle = "",
+  /**
+   * Quais páginas ler, quando a leitura vale só para um trecho escolhido.
+   *
+   * Vazio é o arquivo inteiro. Com folhas escolhidas na grade, ler as outras
+   * noventa e seis é trabalho jogado fora e ainda faz a barra contar um total
+   * que não é o da pessoa: ela escolheu onze e via "lendo 3 de 97".
+   */
+  paginas?: number[],
 ): Promise<PageName[]> {
   const pdf = await loadPdf(url)
   const out: PageName[] = []
+  const escolhidas = paginas?.length ? new Set(paginas) : null
+  const total = escolhidas ? escolhidas.size : pdf.numPages
+  let lidas = 0
 
   if (template.mode === "file") {
     // O nome do arquivo manda, e o `/Title` de dentro do PDF só entra quando não
@@ -259,17 +270,19 @@ export async function readPageNames(
     }
     title = title || "Sheet"
     for (let n = 1; n <= pdf.numPages; n++) {
+      if (escolhidas && !escolhidas.has(n - 1)) continue
       // Numerado porque folha precisa ser distinguível: sem o número, as 97
       // páginas ficariam com o mesmo nome e o desempate resolveria isso com
       // letras, que é resposta pior para a mesma pergunta.
       const name = pdf.numPages > 1 ? `${title} ${n}` : title
       out.push({ pageIndex: n - 1, name, read: name, level: 1, reads: [name] })
-      onProgress?.(n, pdf.numPages)
+      onProgress?.(++lidas, total)
     }
     return out
   }
 
   for (let n = 1; n <= pdf.numPages; n++) {
+    if (escolhidas && !escolhidas.has(n - 1)) continue
     const page = await pdf.getPage(n)
     const viewport = page.getViewport({ scale: 1 })
     const content = await (page as unknown as {
@@ -300,7 +313,7 @@ export async function readPageNames(
       level: level === -1 ? 0 : level + 1,
       reads,
     })
-    onProgress?.(n, pdf.numPages)
+    onProgress?.(++lidas, total)
   }
 
   return disambiguate(out)

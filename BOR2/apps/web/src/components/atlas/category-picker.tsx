@@ -1,6 +1,6 @@
 "use client"
 
-import { ListTree, Plus, Tag, X } from "lucide-react"
+import { ListTree, Plus, Tag, Trash2 } from "lucide-react"
 import { useMemo } from "react"
 
 import { CLOSED_TAXONOMY } from "@/components/atlas/jobsite-form-dialog"
@@ -113,8 +113,10 @@ export function CategoryPicker({ categorias, linhas, onChange, ocupadas }: {
           campo tem duas partes, e a metade apagada não parece um defeito. */}
       <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         <div className="flex min-w-0 flex-1">
-          <span className="min-w-0 flex-1 px-0.5">Category</span>
-          <span className="w-32 shrink-0 px-0.5 sm:w-48">Subcategory</span>
+          {/* Três para dois: o nome da categoria é longo e é o que identifica a
+              linha; a subcategoria é "2nd", "C" ou "N/A". */}
+          <span className="min-w-0 flex-[3] px-0.5">Category</span>
+          <span className="min-w-0 flex-[2] px-0.5">Subcategory</span>
         </div>
         <span className="w-9 shrink-0" aria-hidden="true" />
       </div>
@@ -135,7 +137,7 @@ export function CategoryPicker({ categorias, linhas, onChange, ocupadas }: {
                 value={l.categoryId === null ? "" : String(l.categoryId)}
                 onValueChange={v => trocar(i, { categoryId: v ? Number(v) : null, subcategory: "" })}
               >
-                <SelectTrigger className="h-9 min-w-0 flex-1 rounded-r-none">
+                <SelectTrigger className="h-9 min-w-0 flex-[3] rounded-r-none">
                   {/* O ícone mora dentro do campo, como prefixo. */}
                   <Tag className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <span className={`min-w-0 flex-1 truncate text-left text-sm ${c ? "" : "text-muted-foreground"}`}>
@@ -173,13 +175,16 @@ export function CategoryPicker({ categorias, linhas, onChange, ocupadas }: {
                 onValueChange={v => trocar(i, { ...l, subcategory: v ?? "" })}
               >
                 <SelectTrigger
-                  className={`h-9 w-32 shrink-0 rounded-l-none border-l-0 sm:w-48 ${
+                  className={`h-9 min-w-0 flex-[2] rounded-l-none border-l-0 ${
                     pedeValor && !l.subcategory ? "border-amber-500/60" : ""
                   }`}
                 >
                   <ListTree className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <span className={`min-w-0 flex-1 truncate text-left text-sm ${l.subcategory ? "" : "text-muted-foreground"}`}>
-                    {!pedeValor ? "-"
+                    {/* "N/A" e não "-": o traço parecia campo vazio esperando
+                        escolha, e o que ele quer dizer é que esta categoria não
+                        tem andar nem unidade. Por extenso não cabia na metade. */}
+                    {!pedeValor ? "N/A"
                       : l.subcategory ? rotuloDoValor(c, l.subcategory)
                       : c?.axis === "unit" ? "Unit" : "Floor"}
                   </span>
@@ -203,16 +208,21 @@ export function CategoryPicker({ categorias, linhas, onChange, ocupadas }: {
               </Select>
             </div>
 
+            {/* A lixeira sem moldura nem fundo: a linha já é um campo com
+                moldura, e um segundo retângulo colado nela fazia a linha parecer
+                dois controles. A cor só vira vermelho sob o ponteiro, porque
+                apagar é o que ela faz, não o que ela é. */}
             <Button
               type="button"
               variant="ghost"
               size="icon"
               aria-label="Remove this category"
-              className="h-9 w-9 shrink-0 text-muted-foreground"
+              title="Remove this category"
+              className="h-9 w-9 shrink-0 text-muted-foreground hover:bg-transparent hover:text-destructive"
               disabled={linhas.length === 1 && l.categoryId === null}
               onClick={() => remover(i)}
             >
-              <X className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         )

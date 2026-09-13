@@ -111,14 +111,29 @@ export async function readPdfOutline(file: File): Promise<{
  * cima.
  */
 export async function downloadPlan(url: string, pageIndex: number, fileName: string) {
+  return downloadPlans(url, [pageIndex], fileName)
+}
+
+/**
+ * Salva um trecho do set como **um** PDF.
+ *
+ * Onze folhas escolhidas viravam onze downloads, uma janela de salvar para cada
+ * uma, e no fim onze arquivos soltos na pasta de downloads para a pessoa juntar
+ * à mão. O que ela pediu foi o trecho, e trecho é um documento.
+ *
+ * A ordem é a das páginas no arquivo, e não a da escolha: um caderno de obra se
+ * lê na ordem em que foi impresso.
+ */
+export async function downloadPlans(url: string, pageIndexes: number[], fileName: string) {
+  if (!pageIndexes.length) return
+  const paginas = [...new Set(pageIndexes)].sort((a, b) => a - b)
   const [{ PDFDocument }, pdf] = await Promise.all([import("pdf-lib"), loadPdf(url)])
   const source = await PDFDocument.load(await pdf.getData())
   const out = await PDFDocument.create()
-  const [page] = await out.copyPages(source, [pageIndex])
-  out.addPage(page)
+  for (const page of await out.copyPages(source, paginas)) out.addPage(page)
 
   // `slice()` devolve um ArrayBuffer próprio: o Blob não aceita a view que o
-  // pdf-lib entrega, e copiar uma página é barato.
+  // pdf-lib entrega, e copiar página é barato.
   const bytes = await out.save()
   const blob = new Blob([bytes.slice().buffer], { type: "application/pdf" })
   const href = URL.createObjectURL(blob)
@@ -213,4 +228,57 @@ export function PdfPage({ url, pageIndex, scale = 1.5, onSize }: {
       )}
     </div>
   )
+}
+
+/**
+ * Costura o PDF novo dentro do set atual, no lugar das folhas escolhidas.
+ *
+ * ── Por que a versão continua sendo o set inteiro ──
+ *
+ * O que chega da prancheta quase nunca é o caderno completo: é a folha que foi
+ * revisada, ou um punhado delas. Guardar isso como uma versão de duas páginas
+ * quebraria tudo o que se apoia na versão: a numeração das folhas, o histórico
+ * lado a lado, o download do caderno. Então a troca parcial é feita aqui, antes
+ * do envio: sai um arquivo que é o set atual com aquelas folhas substituídas, e
+ * daí para a frente o caminho é o de sempre.
+ *
+ * As folhas que saem não precisam ser vizinhas, porque a escolha da grade
+ * também não é: o PDF novo entra inteiro na vaga da primeira delas, e as outras
+ * simplesmente saem. O que entra também não precisa ter o tamanho do que sai.
+ * Três páginas novas no lugar de uma antiga é uma revisão que abriu detalhe, e
+ * o set cresce.
+ */
+export async function costurarSet(
+  urlDoSetAtual: string,
+  novo: File,
+  /** Os índices de página do set atual que saem. */
+  paginas: number[],
+): Promise<File> {
+  const { PDFDocument } = await import("pdf-lib")
+  const [atual, entrando] = await Promise.all([
+    fetch(urlDoSetAtual).then(r => r.arrayBuffer()).then(b => PDFDocument.load(b)),
+    novo.arrayBuffer().then(b => PDFDocument.load(b)),
+  ])
+
+  const total = atual.getPageCount()
+  const saindo = new Set(paginas.filter(i => i >= 0 && i < total))
+  const vaga = saindo.size ? Math.min(...saindo) : total
+
+  const out = await PDFDocument.create()
+  const novas = await out.copyPages(entrando, entrando.getPageIndices())
+  const ficam = await out.copyPages(
+    atual,
+    Array.from({ length: total }, (_, i) => i).filter(i => !saindo.has(i)),
+  )
+
+  let k = 0
+  for (let i = 0; i < total; i++) {
+    if (i === vaga) for (const p of novas) out.addPage(p)
+    if (saindo.has(i)) continue
+    out.addPage(ficam[k++])
+  }
+  if (vaga >= total) for (const p of novas) out.addPage(p)
+
+  const bytes = await out.save()
+  return new File([bytes.slice().buffer], novo.name, { type: "application/pdf" })
 }
