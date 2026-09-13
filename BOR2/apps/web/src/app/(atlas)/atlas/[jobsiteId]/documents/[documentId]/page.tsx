@@ -720,6 +720,9 @@ export default function DocumentPage() {
   // A folha tocada no gap de uma versão. Abre quando as folhas daquela versão
   // chegam, que é depois de a grade trocar de versão.
   const [folhaPedida, setFolhaPedida] = useState("")
+  // Quem abriu a folha pela janela de versões volta para ela ao fechar a folha,
+  // com a mesma versão aberta, e a grade volta para a versão em que estava.
+  const [volta, setVolta] = useState<{ versao: string; grade: string } | null>(null)
   useEffect(() => {
     if (!folhaPedida || !sheets?.length) return
     const alvo = sheets.find(s => s.id === folhaPedida)
@@ -1235,13 +1238,14 @@ export default function DocumentPage() {
 
       {/* Qual set está aberto, e o que cada um trouxe. Trocar aqui abre as
           folhas daquele envio, com as marcações que foram feitas sobre elas. */}
-      <Dialog open={history} onOpenChange={o => { if (!o) setHistory(false) }}>
+      <Dialog open={history} onOpenChange={o => { if (!o) { setHistory(false); setVolta(null) } }}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader><DialogTitle>Versions of this plan set</DialogTitle></DialogHeader>
           <VersionGaps
             versions={versions ?? []}
-            versionId={versionId}
+            expandida={volta?.versao}
             onOpenSheet={(vid, sid) => {
+              setVolta({ versao: vid, grade: versionId })
               setVersionId(vid)
               setFolhaPedida(sid)
               setHistory(false)
@@ -1258,7 +1262,12 @@ export default function DocumentPage() {
           canAnnotate={!!canAnnotate}
           canManage={!!canManage}
           spotlightNote={spotlightNote}
-          onClose={() => setOpenSheet(null)}
+          onClose={() => {
+            setOpenSheet(null)
+            if (!volta) return
+            setVersionId(volta.grade)
+            setHistory(true)
+          }}
           onNavigate={setOpenSheet}
         />
       )}
