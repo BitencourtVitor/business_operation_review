@@ -453,8 +453,6 @@ function PunchScopeView({
   const remover = useDeleteAtlasEvent(jobsiteId)
   const condicaoDoPonto = useUpdateAtlasEvent(jobsiteId)
   const eu = useAuthStore(st => st.user)
-  // O ponto que pediu confirmação para fechar sem prova. Ver o botão Resolve.
-  const [semProvaConfirmar, setSemProvaConfirmar] = useState<string | null>(null)
   // O ponto que pediu para ser apagado, esperando o sim.
   const [apagando, setApagando] = useState<{ id: string; number: number | null; title: string } | null>(null)
 
@@ -758,8 +756,6 @@ function PunchScopeView({
                           || ["dev", "owner", "manager"].includes(String(eu?.role ?? ""))
                         )
                         const resolvido = p.status === "resolved"
-                        const semProva = !resolvido && p.after === 0
-                        const confirmando = semProvaConfirmar === p.id
                         return (
                           <>
                             {/* Ver o ponto, e não "abrir o desenho": quem toca
@@ -776,11 +772,8 @@ function PunchScopeView({
 
                             <span className="flex-1" />
 
-                            {/* Fechar o ponto à mão só existe enquanto não há
-                                solução registrada. Com a prova do conserto, o
-                                ponto já se resolveu sozinho, e o botão ali dizia
-                                para fazer de novo o que estava feito. Sem prova,
-                                fechar é decisão, e pede o segundo toque. */}
+                            {/* Não há fechar à mão: o ponto se resolve quando a
+                                solução é registrada, pelo "Problem solved". */}
                             {canWrite && resolvido && (
                               // Reabrir desfaz a solução de alguém: segurando.
                               <HoldButton
@@ -795,28 +788,6 @@ function PunchScopeView({
                                 <RotateCcw className="h-3.5 w-3.5" />
                                 Reopen
                               </HoldButton>
-                            )}
-                            {canWrite && semProva && (
-                              <button
-                                type="button"
-                                disabled={condicaoDoPonto.isPending}
-                                onClick={() => {
-                                  if (semProva && !confirmando) {
-                                    setSemProvaConfirmar(p.id)
-                                    return
-                                  }
-                                  setSemProvaConfirmar(null)
-                                  condicaoDoPonto.mutate({ eventId: p.id, patch: { status: "resolved" } })
-                                }}
-                                className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${
-                                  confirmando
-                                    ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                    : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-                                }`}
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                {confirmando ? "Close with no fix?" : "Close without fix"}
-                              </button>
                             )}
 
                             {podeApagar && (
