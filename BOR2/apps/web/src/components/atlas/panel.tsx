@@ -43,7 +43,7 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
   children: React.ReactNode
 }) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/20">
+    <section className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain rounded-lg border border-border/60 bg-card/20 sm:overflow-hidden">
       {/* Cabeçalho com fio embaixo: o corpo rola por dentro, e sem a linha o
           conteúdo passava por baixo do título como se fosse a mesma faixa.
           Título e ações na mesma linha, sempre: com quebra de linha, no celular
@@ -78,7 +78,11 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
       {/* A lista rola dentro do painel, e não a página inteira: o cabeçalho da
           seção e o rodapé do aparelho ficam no lugar, e a obra com trinta
           documentos não empurra tudo para fora da tela. */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
+      {/* No celular o cabeçalho rola junto com a lista: preso no alto, ele
+          tomava um quarto da tela que já é pequena, e a lista passava por baixo
+          de uma faixa que não precisava estar sempre à vista. Do tablet para
+          cima ele fica no lugar e só a lista rola. */}
+      <div className="px-4 pb-4 pt-3 sm:min-h-0 sm:flex-1 sm:overflow-y-auto sm:overscroll-contain">{children}</div>
     </section>
   )
 }
