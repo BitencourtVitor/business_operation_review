@@ -30,7 +30,7 @@ import {
 import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ArrowLeft, Check, CloudUpload, Download, FileText, Highlighter, History, Images, Layers, Link2, MapPin,
+  ArrowLeft, Check, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
   Paperclip, Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
@@ -268,7 +268,9 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
         )}
         {sheet.notes > 0 && (
           <span className="flex items-center gap-1" title={`${sheet.notes} note${sheet.notes > 1 ? "s" : ""}`}>
-            <MapPin className="h-3.5 w-3.5" style={{ color: MARK_COLORS.note }} />
+            {/* Bandeira, e não alfinete de mapa: o alfinete diz "lugar", e o que
+                se conta aqui é problema apontado na folha. */}
+            <Flag className="h-3.5 w-3.5" style={{ color: MARK_COLORS.note }} />
             {sheet.notes}
           </span>
         )}

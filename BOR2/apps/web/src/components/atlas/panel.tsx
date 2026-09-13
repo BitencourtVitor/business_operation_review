@@ -1,5 +1,7 @@
 "use client"
 
+import { ChevronLeft } from "lucide-react"
+
 /**
  * O contêiner de listagem da sala da obra.
  *
@@ -16,9 +18,27 @@
  * monta a grade que o conteúdo pede, e ela é que se adapta entre o computador e
  * o celular. O contêiner cuida da moldura, do cabeçalho e da rolagem.
  */
-export function Panel({ title, action, children }: {
+export function Panel({ title, action, onBack, backLabel = "Back", stackActions = false, children }: {
   title: string
   action?: React.ReactNode
+  /**
+   * O cabeçalho em duas linhas até o computador: título em cima, ações embaixo.
+   *
+   * Vale para quem carrega uma fileira de controles no cabeçalho. Numa tela de
+   * mil e quatrocentos tudo cabe na mesma linha; no tablet e no celular o título
+   * e os botões passam a se espremer, e espremer significa cortar o nome do que
+   * se está vendo. Duas faixas resolvem sem tirar nada da tela.
+   */
+  stackActions?: boolean
+  /**
+   * Voltar para a listagem de onde se entrou.
+   *
+   * Mora no cabeçalho, colado ao título, porque navegação não é conteúdo: solto
+   * na primeira linha do corpo ele disputava a leitura com a metadata do que se
+   * está vendo, e quem procura o caminho de volta procura no canto de cima.
+   */
+  onBack?: () => void
+  backLabel?: string
   children: React.ReactNode
 }) {
   return (
@@ -28,16 +48,61 @@ export function Panel({ title, action, children }: {
           Título e ações na mesma linha, sempre: com quebra de linha, no celular
           as ações desciam e o cabeçalho virava dois andares. O título não
           encolhe; quem cede espaço são as ações, que cortam o texto. */}
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 px-4 pb-2.5 pt-3">
-        <h2 className="min-w-0 shrink-0 truncate text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </h2>
-        {action}
+      <header
+        className={`flex shrink-0 border-b border-border/60 px-4 pb-2.5 pt-3 ${
+          stackActions
+            ? "flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-3"
+            : "items-center justify-between gap-3"
+        }`}
+      >
+        {/* Com o cabeçalho em duas faixas, o voltar desce junto com o resto dos
+            controles: ele é comando como os outros, e a faixa de cima fica só
+            com o nome de onde a pessoa está. Na tela larga volta para o lugar
+            dele, antes do título. */}
+        <div className="flex min-w-0 items-center gap-2">
+          {onBack && <Voltar onBack={onBack} rotulo={backLabel} className={stackActions ? "hidden lg:flex" : "flex"} />}
+          <h2 className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            {title}
+          </h2>
+        </div>
+        {stackActions
+          ? (
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              {onBack && <Voltar onBack={onBack} rotulo={backLabel} className="flex lg:hidden" />}
+              {action}
+            </div>
+          )
+          : action}
       </header>
       {/* A lista rola dentro do painel, e não a página inteira: o cabeçalho da
           seção e o rodapé do aparelho ficam no lugar, e a obra com trinta
           documentos não empurra tudo para fora da tela. */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
     </section>
+  )
+}
+
+/**
+ * O caminho de volta.
+ *
+ * No celular sobra só a seta: o rótulo ali roubava a largura do nome do escopo,
+ * que é o que diz onde a pessoa está. Tem 32 de altura, a medida de tudo que
+ * mora na faixa do cabeçalho, senão ele desalinha da fileira.
+ */
+function Voltar({ onBack, rotulo, className = "" }: {
+  onBack: () => void
+  rotulo: string
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onBack}
+      aria-label={rotulo}
+      className={`-ml-1.5 h-8 shrink-0 items-center gap-1 rounded-md border border-border/60 px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground ${className}`}
+    >
+      <ChevronLeft className="h-3.5 w-3.5" />
+      <span className="hidden sm:inline">{rotulo}</span>
+    </button>
   )
 }

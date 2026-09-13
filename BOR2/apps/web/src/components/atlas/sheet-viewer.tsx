@@ -3,6 +3,7 @@
 import { downloadPlan } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
 import { findInPlan, type TextHit } from "@/components/atlas/plan-text"
+import { RoleName } from "@/components/atlas/role-icon"
 import { atlasService } from "@/services/atlas.service"
 import { useAuth } from "@/hooks/use-auth"
 import { usePlanSource } from "@/components/atlas/use-plan-url"
@@ -13,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Kbd } from "@/components/ui/kbd"
+import { CameraShot } from "@/components/atlas/camera-shot"
+import { PhotoGrid } from "@/components/atlas/photo-grid"
 import { ImageWindow } from "@/components/atlas/image-window"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import { local } from "@/lib/offline/db"
@@ -20,20 +23,19 @@ import { lerArquivo } from "@/lib/offline/storage"
 import {
   useAtlasAnnotations, useAtlasDocuments, useAtlasEvents, useAtlasJobsite, useAtlasThumbs,
   useCreateAtlasEvent, useDeleteAtlasAnnotation, useDeleteAtlasEvent,
-  useAtlasMedia, useUpdateAtlasAnnotation, useUpdateAtlasMedia, useUploadAtlasMedia,
+  useAtlasMedia, useUpdateAtlasAnnotation, useUploadAtlasMedia,
 } from "@/hooks/use-atlas"
 import type {
-  AtlasAnnotation, AtlasDocument, AtlasSheet, AtlasStrokeGeometry,
+  AtlasAnnotation, AtlasDocument, AtlasEvent, AtlasMedia, AtlasSheet, AtlasStrokeGeometry,
 } from "@/services/atlas.service"
 import {
-  ArrowRight, Camera, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
+  ArrowRight, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
   FileText, FileUp,
-  Eye, EyeOff, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, Plus,
+  AlignLeft, Eye, EyeOff, Flag, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, PenLine, Plus,
   RotateCcw, RotateCw, Search, Tag,
   User, Users, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
-import { VoiceNote } from "@/components/atlas/voice-note"
 import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
@@ -80,7 +82,7 @@ type Tool = "pen" | "highlighter" | "pin" | "link" | "erase" | null
 const TOOLS = [
   { value: "pen",         key: "p", label: "Pen",      hint: "Draw over the sheet",          icon: Pen },
   { value: "highlighter", key: "m", label: "Marker",   hint: "Highlight over the sheet",     icon: Highlighter },
-  { value: "pin",         key: "n", label: "Note pin", hint: "Tap the sheet to open a note", icon: MapPin },
+  { value: "pin",         key: "n", label: "Punch point", hint: "Tap the sheet to raise a point", icon: Flag },
   { value: "link",        key: "l", label: "Link",     hint: "Drag over the sheet, then pick where it goes", icon: Link2 },
   { value: "erase",       key: "e", label: "Eraser",   hint: "Tap a stroke or a pin",        icon: Eraser },
 ] as const satisfies readonly {
@@ -94,7 +96,9 @@ const TOOLS = [
 // Laranja não entra em paleta nenhuma: é a cor da nota, e uma cor que quer dizer
 // "há algo a resolver aqui" só funciona se não aparecer também em traço solto.
 const NOTE_COLOR = "#f97316"
-const NOTE_DONE_COLOR = "#10b981"
+// Verde fechado, e não o claro de antes: a marca resolvida leva o número branco
+// por dentro, e sobre o verde claro o branco quase não se separava.
+const NOTE_DONE_COLOR = "#059669"
 
 // O tamanho da marca da nota, em pixels de tela, e não em unidades da página.
 //
@@ -109,10 +113,6 @@ const NOTE_DONE_COLOR = "#10b981"
 // alfinete sobre mapa.
 const PIN_R = 15
 const PIN_STROKE = 2.5
-// A câmera ocupa sessenta por cento do diâmetro: grande o bastante para se ler
-// de relance, com folga até o anel. O ícone nasce numa grade de 24 e mede 18 de
-// largura, que por sorte é exatamente a largura pedida, então a escala é 1.
-const PIN_CAM = (PIN_R * 2 * 0.6) / 18
 
 // A cor da nota diz uma coisa só: em que pé ela está. Laranja é o que falta
 // resolver, verde é o que já foi.
@@ -127,6 +127,36 @@ function corDaNota(e: { status: string }) {
 // O vínculo tem cor própria pelo mesmo motivo da nota: ele não é marca de
 // leitura, é caminho, e precisa se distinguir de traço solto na prancha.
 const LINK_COLOR = "#0ea5e9"
+// A tinta do número, dentro da esfera.
+//
+// A esfera e o anel são da cor do estado, laranja ou verde, porque é a marca
+// inteira que precisa denunciar em que pé está o ponto. O número sai branco:
+// contra as duas cores cheias, é o maior contraste que existe.
+const PIN_INK = "#ffffff"
+// O miolo tem 62% do raio da marca de altura, e o algarismo quase toda essa
+// altura. Os dois são fixos: o que cresce com o número é a largura.
+const PIN_NUM = PIN_R * 0.62
+const PIN_FONTE = PIN_R * 0.9
+
+/**
+ * A largura da marca, que cresce com o número.
+ *
+ * Um algarismo dá a marca redonda de sempre. Do segundo em diante ela vira
+ * pílula: a altura fica, a largura acompanha o texto, e o algarismo nunca
+ * encolhe. Encolher era o que se fazia antes, e com três algarismos o número
+ * virava um borrão dentro da bolinha, ilegível no tablet em obra.
+ *
+ * A largura do texto sai de uma conta, e não de medição: medir texto em SVG
+ * obriga a desenhar primeiro, e a marca é desenhada uma vez por ponto a cada
+ * quadro de zoom. Bold nesta fonte ocupa cerca de 60% do corpo por algarismo,
+ * e a folga de dois lados cobre a diferença entre um "1" e um "8".
+ */
+function medidaDaMarca(numero: number | null) {
+  const algarismos = numero == null ? 1 : String(numero).length
+  const texto = algarismos * PIN_FONTE * 0.62
+  const dentro = Math.max(PIN_NUM * 2, texto + PIN_NUM * 1.1)
+  return { dentro, fora: dentro + (PIN_R - PIN_NUM) * 2 }
+}
 
 // Nenhuma delas é preta de propósito: a prancha é desenhada em preto sobre
 // branco, e um traço preto some dentro do desenho que ele deveria comentar. A
@@ -238,7 +268,7 @@ const LAYERS = [
   { key: "theirPen",    label: "Pen from others",   icon: Pen },
   { key: "myMarker",    label: "My marker",         icon: Highlighter },
   { key: "theirMarker", label: "Marker from others", icon: Highlighter },
-  { key: "notes",       label: "Notes",             icon: MapPin },
+  { key: "notes",       label: "Points",            icon: Flag },
   { key: "links",       label: "Links",             icon: Link2 },
 ] as const
 
@@ -272,43 +302,263 @@ function pointsToPath(points: [number, number][], w: number, h: number): string 
  * Busca só quando o balão está aberto: montar isto para as vinte notas de uma
  * prancha custaria vinte consultas para mostrar nenhuma.
  */
-function NotePreview({ jobsiteId, eventId, onOpen }: {
-  jobsiteId: string
-  eventId: string
-  onOpen: (foto: { url: string; name: string }) => void
-}) {
-  const { data: media } = useAtlasMedia(jobsiteId, { eventId })
-  const fotos = (media ?? []).filter(m => m.url && m.contentType.startsWith("image/"))
-  if (!fotos.length) return null
+/** "Sep 12, 2026 7:31 PM": o carimbo de tempo do ponto, por extenso. */
+function carimbo(iso: string) {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ""
+  return d.toLocaleString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit",
+  })
+}
 
-  // Foto sozinha ocupa a largura do balão; várias viram fila de miniaturas.
-  //
-  // Um quadrado de sessenta e quatro encostado na esquerda desperdiçava o balão
-  // inteiro e mostrava pouco demais para a prévia valer alguma coisa: quem
-  // clicou no pino quer saber se é aquela foto mesmo antes de abrir. Com duas ou
-  // mais, a fila volta, porque aí o que importa é escolher entre elas.
-  const sozinha = fotos.length === 1
+/**
+ * O ponto aberto sobre a prancha, no formato do relatório impresso.
+ *
+ * ── Dois containers, um em cima do outro ──
+ *
+ * O de cima é o problema: o que foi visto, por quem e quando. O de baixo é a
+ * solução, e só existe quando há prova dela. Cada um com a sua moldura, porque
+ * são registros de momentos diferentes e de gente que pode ser diferente.
+ *
+ * ── Dentro de cada um, texto à esquerda e imagem à direita ──
+ *
+ * É a disposição do relatório, e existe pelo mesmo motivo: quem lê varre a
+ * coluna de texto de cima a baixo e confere a imagem ao lado sem perder a
+ * linha. Empilhado, como estava, cada foto empurrava o texto seguinte para
+ * fora da janela e obrigava a rolar para juntar as duas coisas.
+ *
+ * **Número e condição ficam fora dos containers**, na primeira linha da janela:
+ * eles identificam o ponto inteiro, e não o problema nem a solução.
+ */
+function NoteBubble({ jobsiteId, evento, onOpen }: {
+  jobsiteId: string
+  evento: AtlasEvent
+  onOpen: (pecas: { url: string; name: string }[], indice: number) => void
+}) {
+  const { data: media } = useAtlasMedia(jobsiteId, { eventId: evento.id })
+  const fotos = (media ?? []).filter(m => m.url && m.contentType.startsWith("image/"))
+  const antes = fotos.filter(m => m.phase !== "after")
+  const depois = fotos.filter(m => m.phase === "after")
+
+  // A solução aparece quando existe prova dela ou quando alguém marcou o ponto
+  // como resolvido. Ponto pendente não ganha container vazio.
+  const temSolucao = depois.length > 0 || evento.status === "resolved"
+  // Quem resolveu: o nome de quem marcou, e na falta dele o de quem anexou a
+  // prova. Enquanto a API nova não sobe, os dois vêm vazios e a linha some.
+  const solucaoNome = evento.resolvedByName || depois[0]?.uploadedByName || ""
+  const solucaoCargo = evento.resolvedByRole || depois[0]?.uploadedByRole || ""
+  const solucaoData = evento.resolvedAt || depois[0]?.uploadedAt || ""
+  // O que foi feito, escrito peça por peça na hora de documentar a correção.
+  const oQueFoiFeito = depois
+    .map(m => [m.title, m.description].filter(Boolean).join(": "))
+    .filter(Boolean)
 
   return (
-    <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-      {fotos.map(m => (
-        <button
-          key={m.id}
-          type="button"
-          title={m.fileName}
-          onClick={() => onOpen({ url: m.url, name: m.fileName })}
-          className={`overflow-hidden rounded-md ring-1 ring-white/20 transition-opacity hover:opacity-75 ${
-            sozinha ? "w-full" : "h-16 w-16"
-          }`}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={m.url}
-            alt={m.caption || m.fileName}
-            className={`w-full object-cover ${sozinha ? "aspect-[4/3]" : "h-full"}`}
-          />
-        </button>
-      ))}
+    <div className="flex flex-col gap-2 p-2.5">
+      <span className="flex items-center gap-2 text-xs">
+        <span className="rounded bg-white/10 px-1.5 py-0.5 font-semibold tabular-nums text-white/80">
+          {evento.number ?? "—"}
+        </span>
+        <span className={`rounded border px-1.5 py-0.5 font-medium ${
+          evento.status === "resolved"
+            ? "border-emerald-400/40 text-emerald-300"
+            : "border-amber-400/40 text-amber-300"
+        }`}>
+          {evento.status === "resolved" ? "Resolved" : "Pending"}
+        </span>
+      </span>
+
+      <Fato
+        titulo={(
+          <span className="text-sm font-medium leading-snug">
+            {evento.title || evento.body || "No title"}
+          </span>
+        )}
+        corpo={evento.body && evento.title ? (
+          <span className="block whitespace-pre-line text-xs leading-snug text-white/70">
+            {evento.body}
+          </span>
+        ) : null}
+        nome={evento.createdByName}
+        cargo={evento.createdByRole}
+        quando={evento.createdAt}
+        fotos={antes}
+        onOpen={onOpen}
+      />
+
+      {temSolucao && (
+        <Fato
+          titulo={(
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+              Solution
+            </span>
+          )}
+          corpo={oQueFoiFeito.length > 0 ? (
+            <span className="flex flex-col gap-0.5 text-xs leading-snug text-white/80">
+              {oQueFoiFeito.map((linha, i) => <span key={i}>{linha}</span>)}
+            </span>
+          ) : (
+            <span className="block text-xs leading-snug text-white/50">
+              Marked as resolved with no note.
+            </span>
+          )}
+          nome={solucaoNome}
+          cargo={solucaoCargo}
+          quando={solucaoData}
+          fotos={depois}
+          onOpen={onOpen}
+        />
+      )}
+    </div>
+  )
+}
+
+/**
+ * Um fato do ponto: o que aconteceu, quem fez, quando, e as imagens.
+ *
+ * ── O texto se dobra ──
+ *
+ * Vinte peças documentadas, ou uma descrição longa, faziam a janela crescer até
+ * virar o relatório inteiro dentro da prancha. Aqui ela mostra o começo e
+ * oferece o resto: aberto, o texto cresce até a altura de um parágrafo e dali em
+ * diante rola por dentro, sem empurrar as imagens nem a assinatura.
+ *
+ * **O botão de abrir mora no rodapé, depois do nome e da data.** Entre o texto e
+ * a assinatura, ele partia o bloco em dois e a leitura tropeçava nele; no fim da
+ * linha de quem e quando, ele é o último recurso da caixa, que é o que ele é.
+ *
+ * O botão só aparece quando há o que abrir, e isso se mede: comparar a altura do
+ * conteúdo com a da caixa é a única forma honesta de saber se o texto foi
+ * cortado, já que ele vem de quem escreveu e não tem tamanho previsível.
+ */
+function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
+  titulo: React.ReactNode
+  corpo: React.ReactNode
+  nome: string
+  cargo: string
+  quando: string
+  fotos: AtlasMedia[]
+  onOpen: (pecas: { url: string; name: string }[], indice: number) => void
+}) {
+  const caixa = useRef<HTMLDivElement | null>(null)
+  const [aberto, setAberto] = useState(false)
+  const [cortado, setCortado] = useState(false)
+
+  useEffect(() => {
+    const el = caixa.current
+    if (!el) return
+    setCortado(el.scrollHeight > el.clientHeight + 1)
+  }, [aberto, corpo])
+
+  return (
+    <div className="flex gap-2.5 rounded-lg border border-white/10 p-2.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {titulo}
+
+        {corpo && (
+          // A altura anda, não salta: os dois limites são fixos, então a
+          // transição de max-height dá conta sem medir nada. Sem ela o bloco
+          // pulava de três linhas para o parágrafo inteiro e a janela parecia
+          // outra a cada toque.
+          <div
+            ref={caixa}
+            className={`overscroll-contain transition-[max-height] duration-200 ease-out motion-reduce:transition-none ${
+              aberto ? "max-h-40 overflow-y-auto pr-1" : "max-h-[3.25rem] overflow-hidden"
+            }`}
+          >
+            {corpo}
+          </div>
+        )}
+
+        {/* `mt-auto` prende a assinatura no pé do container, mesmo quando a
+            coluna de imagens é mais alta que a de texto: quem fez e quando é o
+            fecho do registro, e fechar no meio da moldura deixava um vão. */}
+        <span className="mt-auto flex flex-wrap items-center gap-x-1.5 gap-y-1 pt-1 text-[11px] text-white/50">
+          {nome && <RoleName name={nome} role={cargo} />}
+          {nome && quando && <span aria-hidden>·</span>}
+          {quando && <span>{carimbo(quando)}</span>}
+
+          {(cortado || aberto) && (
+            <button
+              type="button"
+              onClick={() => {
+                // Fechado, a caixa volta ao começo: ela guardava a rolagem de
+                // quando estava aberta, e as três linhas visíveis passavam a ser
+                // as do meio do texto, sem começo nem fim.
+                if (aberto && caixa.current) caixa.current.scrollTop = 0
+                setAberto(v => !v)
+              }}
+              className="flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-1.5 py-0.5 font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              {aberto
+                ? <ChevronUp className="h-3 w-3 shrink-0" />
+                : <ChevronDown className="h-3 w-3 shrink-0" />}
+              {/* "More" e "Less", e não "Show more": a linha já leva o crachá,
+                  o nome e a data por extenso, e num container de vinte e seis
+                  o botão era a gota que jogava tudo para a linha de baixo. */}
+              {aberto ? "Less" : "More"}
+            </button>
+          )}
+        </span>
+      </div>
+
+      <Fotos fotos={fotos} onOpen={onOpen} />
+    </div>
+  )
+}
+
+/**
+ * A coluna de imagens, à direita do texto.
+ *
+ * **Ela não cresce com a quantidade.** Uma fila de vinte fotos empilhadas virava
+ * uma torre: o container do problema ficava com dois palmos de altura de foto
+ * para três linhas de texto, e a janela inteira passava a ser rolagem de imagem.
+ *
+ * Então são quatro na grade, e o resto se conta: a última leva o "+16" por cima
+ * e abre a quinta, de onde se segue vendo. Quatro é o que cabe ao lado de um
+ * texto de três linhas sem esticar nada.
+ */
+function Fotos({ fotos, onOpen }: {
+  fotos: AtlasMedia[]
+  onOpen: (pecas: { url: string; name: string }[], indice: number) => void
+}) {
+  if (!fotos.length) return null
+  const TETO = 4
+  const visiveis = fotos.slice(0, TETO)
+  const restantes = fotos.length - visiveis.length
+
+  return (
+    <div className="grid w-[104px] shrink-0 grid-cols-2 content-start gap-1">
+      {visiveis.map((m, i) => {
+        const ultima = i === visiveis.length - 1 && restantes > 0
+        // A última com resto abre na primeira escondida, e não nela mesma: quem
+        // toca no "mais dezesseis" quer ver as dezesseis, e dali segue pela fita.
+        return (
+          <button
+            key={m.id}
+            type="button"
+            title={ultima ? `${restantes} more` : (m.title || m.fileName)}
+            onClick={() => onOpen(
+              fotos.map(f => ({ url: f.url, name: f.title || f.fileName })),
+              ultima ? TETO : i,
+            )}
+            className="relative h-12 w-full overflow-hidden rounded-md ring-1 ring-white/20 transition-opacity hover:opacity-75"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={m.url}
+              alt={m.title || m.caption || m.fileName}
+              className="h-full w-full object-cover"
+            />
+            {ultima && (
+              <span className="absolute inset-0 flex items-center justify-center bg-black/65 text-[11px] font-semibold">
+                +{restantes}
+              </span>
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -455,7 +705,10 @@ export function SheetViewer({
   // rolo. Sobe depois do note existir, porque a mídia se pendura nele.
   const [notePhotos, setNotePhotos] = useState<File[]>([])
   const [savingNote, setSavingNote] = useState(false)
-  const atualizarMidia = useUpdateAtlasMedia(jobsiteId)
+  // A câmera do Atlas por cima do formulário: ela fica aberta enquanto a pessoa
+  // dispara, e o formulário espera embaixo com as fotos entrando na fila.
+  const [camera, setCamera] = useState(false)
+
   const cameraRef = useRef<HTMLInputElement>(null)
   // Qual pino está piscando agora, e por quanto tempo ainda.
   const [pulsando, setPulsando] = useState("")
@@ -493,21 +746,24 @@ export function SheetViewer({
   // círculo tracejado no meio da prancha não diz o que foi anotado ali, e abrir
   // Tasks para descobrir é sair do desenho.
   const [bubble, setBubble] = useState<
-    { id: string; text: string; x: number; y: number; media: number } | null
+    { evento: AtlasEvent; x: number; y: number } | null
   >(null)
   const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const showBubble = (id: string, text: string, x: number, y: number, media = 0) => {
-    setBubble({ id, text, x, y, media })
+  const showBubble = (evento: AtlasEvent, x: number, y: number) => {
+    const media = evento.media
+    setBubble({ evento, x, y })
     if (bubbleTimer.current) clearTimeout(bubbleTimer.current)
     // Recolher sozinho vale só para o balão que é só texto: ele se leu e
     // acabou. Com foto dentro, o balão virou algo para usar, e o que se usa
     // fecha quando quem usa decide.
     if (media === 0) bubbleTimer.current = setTimeout(() => setBubble(null), 5000)
   }
-  // A foto aberta por cima de tudo, em janela própria.
-  const [foto, setFoto] = useState<{ url: string; name: string } | null>(null)
+  // A foto aberta por cima de tudo, em janela própria, com o conjunto a que ela
+  // pertence: o ponto pode ter vinte, e trocar de foto é dentro da janela.
+  const [foto, setFoto] = useState<{ pecas: { url: string; name: string }[]; inicial: number } | null>(null)
 
   const [noteAt, setNoteAt] = useState<{ x: number; y: number } | null>(null)
+
   const updateAnnotation = useUpdateAtlasAnnotation(sheet.id)
   // A área sendo cercada agora, e o vínculo vazio que espera destino.
   const [linkBox, setLinkBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
@@ -534,8 +790,6 @@ export function SheetViewer({
   // linha, e quem está de luva consegue escrever uma linha. O parágrafo é que
   // ninguém escreve em obra, e é ele que sai da fala.
   const [noteBody, setNoteBody] = useState("")
-  const [noteTranscript, setNoteTranscript] = useState("")
-  const [audioDaNota, setAudioDaNota] = useState("")
 
   // Pelo hook e não pelo store: o store guarda só o token entre recargas, e sem
   // o id do usuário toda marcação virava "de outra pessoa", inclusive a sua.
@@ -708,7 +962,6 @@ export function SheetViewer({
   // Enquadra ao abrir, ao trocar de folha e quando a tela muda de tamanho sem
   // que ninguém tenha mexido no zoom ainda.
   useEffect(() => { fit() }, [fit, sheet.id])
-
 
   const zoom = fitScale ? view.scale / fitScale : 1
 
@@ -1094,13 +1347,6 @@ export function SheetViewer({
         sheetId: sheet.id,
         pageX: noteAt.x, pageY: noteAt.y,
       })
-      // A gravação subiu antes de o ponto existir, e agora ele a adota. Sem
-      // isto o áudio ficaria solto na obra, sem o ponto que ele descreve.
-      if (audioDaNota) {
-        try {
-          await atualizarMidia.mutateAsync({ mediaId: audioDaNota, patch: { eventId: id } })
-        } catch { /* o texto já está no ponto; o áudio se reanexa depois */ }
-      }
       // Uma foto que falha não desfaz o note. Quem está em obra escreveu o que
       // viu, e isso é o que não pode se perder; a imagem se reanexa depois.
       for (const foto of notePhotos) {
@@ -1113,7 +1359,7 @@ export function SheetViewer({
       setNoteAt(null)
       setNoteText("")
       setNoteBody("")
-      setAudioDaNota("")
+      
       setNotePhotos([])
     }
   }
@@ -1194,7 +1440,9 @@ export function SheetViewer({
   // Um pixel de tela, dito em unidade de página. O traço pertence ao papel e
   // acompanha o zoom; o botão pertence à tela e não pode: ampliar oito vezes o
   // transformaria numa bola tapando o desenho que ele serve para deixar ver.
-  const px = 1 / view.scale
+  // Antes de a prancha ser medida a escala é zero, e o inverso dela vira
+  // infinito: o navegador recusa o transform e enche o console de erro.
+  const px = view.scale > 0 ? 1 / view.scale : 1
   const pageStyle = {
     left: view.x,
     top: view.y,
@@ -1476,7 +1724,9 @@ export function SheetViewer({
             />
           ))}
 
-          {layers.notes && events?.filter(e => e.pageX != null && e.pageY != null).map(e => (
+          {layers.notes && events?.filter(e => e.pageX != null && e.pageY != null).map(e => {
+            const medida = medidaDaMarca(e.number)
+            return (
             <g
               key={e.id}
               // O ponto vem da página; o tamanho, da tela. O `scale(px)` desfaz
@@ -1501,7 +1751,7 @@ export function SheetViewer({
                 }
                 // Com qualquer outra ferramenta o pino se lê, não se altera: o
                 // toque abre o que foi anotado ali e devolve o desenho depois.
-                showBubble(e.id, e.title || e.body || "No title", e.pageX ?? 0, e.pageY ?? 0, e.media)
+                showBubble(e, e.pageX ?? 0, e.pageY ?? 0)
               }}
               style={{
                 cursor: "pointer",
@@ -1510,11 +1760,22 @@ export function SheetViewer({
                 transition: "opacity 150ms ease",
               }}
             >
+              {/* A marca, medida pelo número que ela carrega. */}
               {/* Vazado, para não esconder o que está marcado, e tracejado, para
                   se ler como anotação e não como parte do desenho. Resolvido
-                  fica verde; o resto é laranja, a cor reservada da nota. */}
-              <circle
-                r={PIN_R}
+                  fica verde; o resto é laranja, a cor reservada da nota.
+
+                  **Pílula, e não círculo.** Com número de três algarismos, o
+                  círculo obrigava a encolher o algarismo até o borrão. Aqui o
+                  número mantém o tamanho e a marca é que se alarga, do jeito que
+                  etiqueta de obra se comporta. Com um algarismo ela continua
+                  redonda, porque largura e altura se igualam. */}
+              <rect
+                x={-medida.fora / 2}
+                y={-PIN_R}
+                width={medida.fora}
+                height={PIN_R * 2}
+                rx={PIN_R}
                 fill="none"
                 stroke={corDaNota(e)}
                 strokeWidth={PIN_STROKE}
@@ -1531,53 +1792,103 @@ export function SheetViewer({
                     repeatCount="4"
                   />
                 )}
-              </circle>
-              {e.media > 0 ? (
-                // A câmera desenhada à mão: corpo, visor e lente. Um ícone de
-                // biblioteca aqui viraria outro componente React dentro do SVG
-                // da prancha, com escala própria para acertar.
-                //
-                // Ela toma o lugar do ponto central: a cor da marca diz em que
-                // pé a nota está, e o ícone diz que há foto ali. São duas
-                // perguntas diferentes, e misturá-las na cor fazia a marca
-                // competir consigo mesma.
-                <g
-                  transform={`translate(${-11 * PIN_CAM} ${-11.7 * PIN_CAM}) scale(${PIN_CAM})`}
-                  fill={corDaNota(e)}
-                >
-                  <path d="M4 6h3l1.2-1.6h5.6L15 6h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
-                  {/* A lente é vazada de branco, e não preta: é o que dá
-                      contraste dentro do corpo cheio sem plantar uma mancha
-                      escura sobre o desenho. */}
-                  <circle cx="11" cy="12.5" r="3.4" fill="#ffffff" />
-                </g>
+              </rect>
+              {/* O número do ponto dentro da marca.
+
+                  Ali morava uma câmera, que dizia "tem foto" e nada mais. O que
+                  identifica o ponto é o número: é por ele que se chama o
+                  problema no canteiro, é ele que sai no relatório e é ele que a
+                  lista usa. Com a câmera, achar na prancha o ponto 7 da lista
+                  era ler um por um até o balão dizer qual era.
+
+                  Texto em SVG não herda a tipografia da casa, então a família e
+                  o peso vêm escritos aqui. Ponto sem número, que é o ponto ainda
+                  na fila de sincronização, volta a ser o pingo de sempre. */}
+              {e.number != null ? (
+                <>
+                  {/* O número vai dentro de uma pílula cheia, e não solto sobre
+                      o desenho: a prancha embaixo é amarela, rosa, azul, e um
+                      número sem fundo some em cima de qualquer uma delas.
+
+                      A pílula tem a cor do anel, laranja para o que falta e
+                      verde para o que foi feito: a marca inteira diz o estado de
+                      longe, sem que se precise ler o número para saber. */}
+                  <rect
+                    x={-medida.dentro / 2}
+                    y={-PIN_NUM}
+                    width={medida.dentro}
+                    height={PIN_NUM * 2}
+                    rx={PIN_NUM}
+                    fill={corDaNota(e)}
+                    stroke="#ffffff"
+                    // O traço fica metade para fora: um e meio de espessura
+                    // desenha três quartos de pixel de branco em volta da
+                    // esfera, que é o fio mais fino que ainda se enxerga.
+                    strokeWidth={1.5}
+                  />
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontFamily="var(--font-geist-sans), system-ui, sans-serif"
+                    // O algarismo tem sempre o mesmo tamanho, com um ou com
+                    // quatro: no tablet em obra, número encolhido para caber
+                    // numa bolinha é número que não se lê.
+                    fontSize={PIN_FONTE}
+                    fontWeight={700}
+                    fill={PIN_INK}
+                  >
+                    {e.number}
+                  </text>
+                </>
               ) : (
                 <circle r={PIN_STROKE * 1.5} fill={corDaNota(e)} />
               )}
               <title>{e.title || e.body}</title>
             </g>
-          ))}
+            )
+          })}
         </svg>
        </div>
 
         {/* Ancorado no ponto e acima dele, como um balão de fala. Fora do SVG
             porque texto em SVG não quebra linha nem herda a tipografia da casa. */}
-        {bubble && (
+        {bubble && (() => {
+          // Onde cabe o balão, medido na hora.
+          //
+          // Acima da marca é o lugar natural dele. Só que o ponto pode estar no
+          // alto da prancha, e aí o balão nascia para fora da tela e aparecia
+          // cortado: sem número, sem título, começando no meio da descrição.
+          //
+          // Então o lado é o que tiver mais espaço, e a altura do balão é presa
+          // ao que esse lado oferece. Passando disso, ele rola por dentro em vez
+          // de vazar. A foto é o que faz o balão crescer, e ela chega depois do
+          // primeiro desenho: por isso o limite é de espaço, e não de conteúdo.
+          const [bx, by] = naTela(
+            view.x + bubble.x * pageWidth * view.scale,
+            view.y + bubble.y * pageHeight * view.scale,
+          )
+          const alturaDaCaixa = boxRef.current?.getBoundingClientRect().height ?? 0
+          const folga = PIN_R + 14
+          const espacoAcima = by - folga
+          const espacoAbaixo = alturaDaCaixa - by - folga
+          const balaoAcima = espacoAcima >= espacoAbaixo
+          const limite = Math.max(160, balaoAcima ? espacoAcima : espacoAbaixo)
+          return (
           <>
             {/* Balão com foto não se recolhe sozinho: quem vê a miniatura vai
                 estender a mão até ela, e um balão que some em cinco segundos
                 tira a foto do caminho justamente quando ela passou a ser o
                 assunto. Some ao tocar fora, como a janelinha do vínculo. */}
-            {bubble.media > 0 && (
+            {bubble.evento.media > 0 && (
               <div
                 className="absolute inset-0 z-40"
                 onPointerDown={e => { e.stopPropagation(); setBubble(null) }}
               />
             )}
             <div
-              className={`absolute z-50 max-w-[16rem] -translate-x-1/2 -translate-y-full duration-150 animate-in fade-in-0 zoom-in-95 ${
-                bubble.media > 0 ? "" : "pointer-events-none"
-              }`}
+              className={`absolute z-50 -translate-x-1/2 duration-150 animate-in fade-in-0 zoom-in-95 ${
+                balaoAcima ? "-translate-y-full" : ""
+              } ${bubble.evento.media > 0 ? "" : "pointer-events-none"}`}
               // O ponteiro morre aqui dentro, e não é detalhe: a prancha captura
               // o ponteiro no `pointerdown` para o arraste não escapar dela, e a
               // captura desvia o `pointerup` do botão da miniatura para a
@@ -1586,28 +1897,27 @@ export function SheetViewer({
               onPointerDown={e => e.stopPropagation()}
               onPointerMove={e => e.stopPropagation()}
               onPointerUp={e => e.stopPropagation()}
-              style={(([left, top]) => ({ left, top }))(naTela(
-                view.x + bubble.x * pageWidth * view.scale,
-                // O balão sobe o raio da marca mais um respiro. A marca tem
-                // tamanho de tela, então este afastamento também: multiplicá-lo
-                // pelo zoom mandaria o balão para fora da tela ao aproximar.
-                view.y + bubble.y * pageHeight * view.scale - PIN_R - 10,
-              ))}
+              // O balão se afasta da marca o raio dela mais um respiro. A marca
+              // tem tamanho de tela, então este afastamento também: multiplicá-lo
+              // pelo zoom mandaria o balão para longe ao aproximar.
+              style={{ left: bx, top: by + (balaoAcima ? -PIN_R - 10 : PIN_R + 10) }}
             >
-              <div className="rounded-lg bg-neutral-900 px-3 py-2 text-sm leading-snug text-white shadow-xl ring-1 ring-white/15">
-                {bubble.text}
-                {bubble.media > 0 && (
-                  <NotePreview
-                    jobsiteId={jobsiteId}
-                    eventId={bubble.id}
-                    onOpen={setFoto}
-                  />
-                )}
+              {/* O ponto no formato do relatório: o problema em cima, a solução
+                  embaixo, e em cada um o texto à esquerda e a imagem à direita. */}
+              <div
+                style={{ maxHeight: limite }}
+                className="flex w-[26rem] max-w-[86vw] flex-col overflow-y-auto overscroll-contain rounded-lg border border-white/10 bg-neutral-800/95 text-white shadow-xl backdrop-blur"
+              >
+                <NoteBubble
+                  jobsiteId={jobsiteId}
+                  evento={bubble.evento}
+                  onOpen={(pecas, inicial) => setFoto({ pecas, inicial })}
+                />
               </div>
-              <div className="mx-auto h-0 w-0 border-x-[6px] border-t-[7px] border-x-transparent border-t-neutral-900" />
             </div>
           </>
-        )}
+          )
+        })()}
 
         {(!source || !ready) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-neutral-900">
@@ -1770,8 +2080,24 @@ export function SheetViewer({
           motivo do histórico de revisão: o leitor é uma camada fixa com
           transformação dentro, e `fixed` num descendente de elemento
           transformado passa a valer o elemento, não a tela. */}
+      {camera && createPortal(
+        <CameraShot
+          fotos={notePhotos}
+          onCapture={f => setNotePhotos(list => [...list, f])}
+          onClose={() => setCamera(false)}
+          onSistema={() => { setCamera(false); cameraRef.current?.click() }}
+        />,
+        document.body,
+      )}
+
       {foto && createPortal(
-        <ImageWindow url={foto.url} name={foto.name} onClose={() => setFoto(null)} />,
+        <ImageWindow
+          url={foto.pecas[foto.inicial]?.url ?? ""}
+          name={foto.pecas[foto.inicial]?.name ?? ""}
+          pecas={foto.pecas}
+          inicial={foto.inicial}
+          onClose={() => setFoto(null)}
+        />,
         document.body,
       )}
 
@@ -2178,7 +2504,7 @@ export function SheetViewer({
               A ordem é a do caminho: a pasta, como ela se classifica, e a folha
               dentro dela. */}
           <div
-            className="fixed z-50 flex w-max max-w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-full flex-col gap-1.5 rounded-lg border border-white/10 bg-neutral-800/95 p-2.5 text-white shadow-xl backdrop-blur"
+            className="fixed z-50 flex w-max max-w-[min(22rem,90vw)] -translate-x-1/2 -translate-y-full flex-col gap-1.5 rounded-lg border border-white/10 bg-neutral-800/95 p-2.5 text-white shadow-xl backdrop-blur"
             // Centrada na etiqueta e um respiro acima dela.
             style={{ left: peek.x, top: Math.max(64, peek.y - 10) }}
           >
@@ -2246,19 +2572,33 @@ export function SheetViewer({
         onPick={saveLink}
       />
 
-      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) { setNoteAt(null); setNotePhotos([]); setNoteBody(""); setNoteTranscript(""); setAudioDaNota("") } }}>
+      <Dialog open={!!noteAt} onOpenChange={o => { if (!o) { setNoteAt(null); setNotePhotos([]); setNoteBody("") } }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>New note on this sheet</DialogTitle></DialogHeader>
+          {/* "Report an issue", e não "New point on this sheet": o título diz o
+              que a pessoa está fazendo, e não onde o registro vai parar. Onde
+              ele para já está escrito embaixo do primeiro campo. */}
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Flag className="h-4 w-4 shrink-0 text-amber-500" />
+              Report an issue
+            </DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="note-text">What happened here?</Label>
-            <Input
-              id="note-text"
-              autoFocus
-              value={noteText}
-              placeholder="Beam is 2 in. off the grid line"
-              onChange={e => setNoteText(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") saveNote() }}
-            />
+            {/* O ícone mora dentro do campo, como prefixo: ao lado do rótulo ele
+                era enfeite de legenda; no campo ele marca onde se escreve. */}
+            <div className="relative">
+              <PenLine className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="note-text"
+                autoFocus
+                value={noteText}
+                placeholder="Beam is 2 in. off the grid line"
+                onChange={e => setNoteText(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") saveNote() }}
+                className="pl-8"
+              />
+            </div>
             <p className="text-xs text-muted-foreground">
               It lands on the punch list, anchored to this point of the drawing.
             </p>
@@ -2276,44 +2616,19 @@ export function SheetViewer({
               "não foi isso" e ter como provar. */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="note-body">Description</Label>
-            <textarea
-              id="note-body"
-              rows={3}
-              value={noteBody}
-              placeholder="Say it out loud, or write it here"
-              onChange={e => setNoteBody(e.target.value)}
-              className="w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            />
-            <VoiceNote
-              jobsiteId={jobsiteId}
-              disabled={savingNote}
-              onResult={r => {
-                setAudioDaNota(r.mediaId)
-                setNoteTranscript(r.transcript)
-                // O que já estava escrito não se perde: os tópicos entram
-                // embaixo. Quem ditou depois de escrever quis somar, não
-                // substituir, e apagar o que a pessoa digitou é o tipo de coisa
-                // que faz ninguém mais usar o botão.
-                setNoteBody(atual => atual.trim() ? `${atual.trim()}\n${r.topics}` : r.topics)
-                if (!noteText.trim()) {
-                  // Sem título, a primeira linha dos tópicos vira o título: ele
-                  // é obrigatório, e obrigar a digitar depois de falar é
-                  // devolver à pessoa o trabalho que o ditado veio tirar.
-                  const primeira = r.topics.split("\n")[0]?.replace(/^[-•\s]+/, "").trim()
-                  if (primeira) setNoteText(primeira.slice(0, 120))
-                }
-              }}
-            />
-            {noteTranscript && (
-              <details className="rounded-md bg-muted/60 px-2.5 py-2">
-                <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
-                  What was heard
-                </summary>
-                <p className="mt-1.5 whitespace-pre-wrap text-xs text-muted-foreground">
-                  {noteTranscript}
-                </p>
-              </details>
-            )}
+            <div className="relative">
+              {/* No parágrafo o prefixo se alinha com a primeira linha, e não com
+                  o meio da caixa: a caixa cresce e o ícone ficaria boiando. */}
+              <AlignLeft className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+              <textarea
+                id="note-body"
+                rows={3}
+                value={noteBody}
+                placeholder="What is wrong, and where exactly"
+                onChange={e => setNoteBody(e.target.value)}
+                className="w-full resize-y rounded-md border border-input bg-transparent py-2 pl-8 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              />
+            </div>
           </div>
 
           {/* A foto do que se está descrevendo, tirada na hora.
@@ -2328,78 +2643,16 @@ export function SheetViewer({
               arquivos de qualquer jeito. Isso não é contornável pelo código, e
               também não é o caso que importa: quem anota de frente para o
               problema está com o celular na mão. */}
-          <div className="flex flex-col gap-1.5">
-            <Label>Photos</Label>
-            <input
-              ref={cameraRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={e => {
-                const escolhidas = Array.from(e.target.files ?? [])
-                e.target.value = ""
-                if (escolhidas.length) setNotePhotos(list => [...list, ...escolhidas])
-              }}
-            />
-            {/* O bloco inteiro é a área de anexo, e ocupa a largura do diálogo.
-                Antes era um quadrado de oitenta encostado na esquerda, com o
-                resto da linha vazio: lido assim, ele parecia um item de uma
-                lista que não existe, e não o lugar onde se anexa.
-
-                A moldura tracejada é o convite, o conteúdo se centra dentro
-                dela, e a fila de fotos cresce por cima do botão em vez de ao
-                lado dele. Assim o bloco tem a mesma forma com nenhuma foto e
-                com seis. */}
-            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-4">
-              {notePhotos.length > 0 && (
-                <div className="flex w-full flex-wrap justify-center gap-2">
-                  {notePhotos.map((f, i) => (
-                    <div
-                      key={`${f.name}-${i}`}
-                      className="group/foto relative h-20 w-20 overflow-hidden rounded-lg border border-border/60"
-                      title={f.name}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={URL.createObjectURL(f)}
-                        alt={f.name}
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setNotePhotos(list => list.filter((_, k) => k !== i))}
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900/70 text-white opacity-0 backdrop-blur transition-opacity group-hover/foto:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:opacity-100"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-col items-center gap-1.5">
-                <Button
-                  variant="outline"
-                  className="gap-1.5"
-                  onClick={() => cameraRef.current?.click()}
-                >
-                  <Camera className="h-4 w-4" />
-                  {notePhotos.length ? "Take another" : "Take a photo"}
-                </Button>
-                <span className="text-center text-[11px] leading-tight text-muted-foreground">
-                  {/* Dizer que a câmera abre direto evita o susto de quem espera
-                      o seletor de arquivos e recebe a lente na cara. */}
-                  Opens the camera. The photo is of what you are looking at now.
-                </span>
-              </div>
-            </div>
-          </div>
+          <PhotoGrid
+            fotos={notePhotos}
+            onAdd={() => setCamera(true)}
+            onRemove={i => setNotePhotos(list => list.filter((_, k) => k !== i))}
+          />
 
           <DialogFooter>
-            <Button variant="outline" disabled={savingNote} onClick={() => { setNoteAt(null); setNotePhotos([]); setNoteBody(""); setNoteTranscript(""); setAudioDaNota("") }}>Cancel</Button>
+            <Button variant="outline" disabled={savingNote} onClick={() => { setNoteAt(null); setNotePhotos([]); setNoteBody("") }}>Cancel</Button>
             <Button onClick={saveNote} disabled={!noteText.trim() || savingNote}>
-              {savingNote ? "Saving…" : "Add note"}
+              {savingNote ? "Saving…" : "Add point"}
             </Button>
           </DialogFooter>
         </DialogContent>

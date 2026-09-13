@@ -303,6 +303,9 @@ export interface AtlasEvent {
   /** Quem abriu, com o cargo: na lista o crachá vem antes do nome. */
   createdByName: string
   createdByRole: string
+  /** Quem marcou como resolvido, com o cargo. */
+  resolvedByName: string
+  resolvedByRole: string
   /** De que obra é, para a task se ler fora da sala dela. */
   jobsiteName: string
   jobsiteUnit: string
@@ -376,6 +379,9 @@ export interface AtlasMedia {
   description: string
   /** O texto da descrição falada, quando esta mídia é áudio. */
   transcript: string
+  /** Quem anexou, com o cargo: a solução costuma ser de outra pessoa. */
+  uploadedByName: string
+  uploadedByRole: string
 }
 
 /**

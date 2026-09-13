@@ -39,7 +39,9 @@ export function PointMedia({ jobsiteId, eventId, canWrite }: {
   jobsiteId: string; eventId: string; canWrite: boolean
 }) {
   const { data: media } = useAtlasMedia(jobsiteId, { eventId })
-  const [aberta, setAberta] = useState<{ url: string; name: string } | null>(null)
+  // A foto aberta, com o conjunto da faixa a que ela pertence: quem abre a
+  // terceira de vinte troca de foto dentro da janela, sem voltar para a lista.
+  const [aberta, setAberta] = useState<{ pecas: { url: string; name: string }[]; inicial: number } | null>(null)
   const [editando, setEditando] = useState("")
   const upload = useUploadAtlasMedia(jobsiteId)
   const atualizar = useUpdateAtlasMedia(jobsiteId)
@@ -63,11 +65,20 @@ export function PointMedia({ jobsiteId, eventId, canWrite }: {
     ;(tipo === "foto" ? cameraRef : videoRef).current?.click()
   }
 
-  const peca = (m: AtlasMedia) => (
+  const peca = (m: AtlasMedia, faixa: AtlasMedia[] = visuais) => (
     <div key={m.id} className="relative flex w-20 flex-col gap-1">
       <button
         type="button"
-        onClick={() => setAberta({ url: m.url, name: m.title || m.fileName })}
+        onClick={() => {
+          // Vídeo não entra na fita: a janela é de imagem, e misturar os dois
+          // faria a seta cair num quadro que ela não sabe mostrar.
+          const fotos = faixa.filter(f => !ehVideo(f))
+          const i = fotos.findIndex(f => f.id === m.id)
+          setAberta({
+            pecas: fotos.map(f => ({ url: f.url, name: f.title || f.fileName })),
+            inicial: Math.max(0, i),
+          })
+        }}
         className="relative h-20 w-20 overflow-hidden rounded-lg border border-border/60 transition-opacity hover:opacity-80"
         title={m.title || m.fileName}
       >
@@ -135,7 +146,7 @@ export function PointMedia({ jobsiteId, eventId, canWrite }: {
             Before
           </span>
           <div className="flex flex-wrap items-start gap-2">
-            {antes.map(peca)}
+            {antes.map(m => peca(m, antes))}
             {canWrite && botao("before", "foto", antes.length ? "Add" : "Photo")}
             {canWrite && botao("before", "video", "Video")}
           </div>
@@ -153,7 +164,7 @@ export function PointMedia({ jobsiteId, eventId, canWrite }: {
             )}
           </span>
           <div className="flex flex-wrap items-start gap-2">
-            {depois.map(peca)}
+            {depois.map(m => peca(m, depois))}
             {canWrite && botao("after", "foto", depois.length ? "Add" : "Proof")}
             {canWrite && botao("after", "video", "Video")}
           </div>
@@ -211,7 +222,13 @@ export function PointMedia({ jobsiteId, eventId, canWrite }: {
       )}
 
       {aberta && createPortal(
-        <ImageWindow url={aberta.url} name={aberta.name} onClose={() => setAberta(null)} />,
+        <ImageWindow
+          url={aberta.pecas[aberta.inicial]?.url ?? ""}
+          name={aberta.pecas[aberta.inicial]?.name ?? ""}
+          pecas={aberta.pecas}
+          inicial={aberta.inicial}
+          onClose={() => setAberta(null)}
+        />,
         document.body,
       )}
     </div>
