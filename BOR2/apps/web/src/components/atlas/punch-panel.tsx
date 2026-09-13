@@ -7,6 +7,7 @@ import { PointDetail } from "@/components/atlas/point-detail"
 import { PunchSheet } from "@/components/atlas/punch-sheet"
 import { RoleName } from "@/components/atlas/role-icon"
 import { PunchReportButton } from "@/components/atlas/punch-report-dialog"
+import { useAuthStore } from "@/store/auth.store"
 import {
   useAtlasPunchPoints, useAtlasPunchScopes, useAtlasPunches,
   useCloseAtlasPunch, useDeleteAtlasEvent, useOpenAtlasPunch, useReopenAtlasPunch,
@@ -16,7 +17,7 @@ import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
   Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
   ExternalLink, FileVolume, Layers, MapPin, MessageSquare,
-  RotateCcw, Stamp, Tag, Video,
+  RotateCcw, Stamp, Tag, Trash2, Video,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -447,6 +448,9 @@ function PunchScopeView({
   const reabrir = useReopenAtlasPunch(jobsiteId)
   const remover = useDeleteAtlasEvent(jobsiteId)
   const condicaoDoPonto = useUpdateAtlasEvent(jobsiteId)
+  const eu = useAuthStore(st => st.user)
+  // O ponto que pediu confirmação para fechar sem prova. Ver o botão Resolve.
+  const [semProvaConfirmar, setSemProvaConfirmar] = useState<string | null>(null)
 
   const aberta = (passagens ?? []).find(p => !p.closedAt)
   // Assinar com ponto em aberto é o que o banco recusa de qualquer jeito: a
@@ -720,41 +724,7 @@ function PunchScopeView({
                       )}
                     </span>
                     )}
-                      {/* Resolver mora aqui, ao lado de abrir no desenho.
-                          Estava lá dentro, no pé do ponto aberto, o que obrigava
-                          a expandir a ficha inteira para dizer que a coisa foi
-                          feita: numa passagem de obra são vinte pontos, e vinte
-                          aberturas para vinte cliques. */}
-                      {canWrite && (
-                        <button
-                          type="button"
-                          title={p.status === "resolved" ? "Reopen this point" : "Mark it as resolved"}
-                          aria-label={p.status === "resolved" ? "Reopen this point" : "Mark it as resolved"}
-                          disabled={condicaoDoPonto.isPending}
-                          onClick={() => condicaoDoPonto.mutate({
-                            eventId: p.id,
-                            patch: { status: p.status === "resolved" ? "open" : "resolved" },
-                          })}
-                          className={`flex h-7 shrink-0 items-center gap-1.5 rounded-md border px-2 text-xs font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${
-                            p.status === "resolved"
-                              ? "border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                              : "border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
-                          }`}
-                        >
-                          {p.status === "resolved"
-                            ? <><RotateCcw className="h-3.5 w-3.5" />Reopen</>
-                            : <><CheckCircle2 className="h-3.5 w-3.5" />Resolve</>}
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        title="Open it on the drawing"
-                        aria-label="Open it on the drawing"
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/60 text-primary transition-colors hover:bg-muted"
-                        onClick={() => setNoDesenho(p)}
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </button>
+
                     </span>
                   </div>
                 </div>
@@ -770,8 +740,85 @@ function PunchScopeView({
                       jobsiteId={jobsiteId}
                       point={p}
                       canWrite={canWrite}
-                      onDelete={() => remover.mutate(p.id)}
-                      deleting={remover.isPending}
+                      rodape={(() => {
+                        // Apagar é de quem cadastrou, e de quem responde pela
+                        // obra: owner, manager e dev. É a mesma regra que a API
+                        // aplica, dita aqui para o botão nem aparecer a quem ia
+                        // levar um "sem permissão" de volta.
+                        const podeApagar = canWrite && (
+                          (!!eu && p.createdBy === eu.id)
+                          || canManage
+                          || ["dev", "owner", "manager"].includes(String(eu?.role ?? ""))
+                        )
+                        const resolvido = p.status === "resolved"
+                        const semProva = !resolvido && p.after === 0
+                        const confirmando = semProvaConfirmar === p.id
+                        return (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setNoDesenho(p)}
+                              className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Open on drawing</span>
+                              <span className="sm:hidden">Drawing</span>
+                            </button>
+
+                            <span className="flex-1" />
+
+                            {podeApagar && (
+                              <button
+                                type="button"
+                                title="Delete this point"
+                                aria-label="Delete this point"
+                                disabled={remover.isPending}
+                                onClick={() => remover.mutate(p.id)}
+                                className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Delete</span>
+                              </button>
+                            )}
+
+                            {canWrite && (
+                              <button
+                                type="button"
+                                disabled={condicaoDoPonto.isPending}
+                                onClick={() => {
+                                  // Sem prova nenhuma do conserto, o primeiro
+                                  // toque pede confirmação em vez de marcar
+                                  // calado: ponto resolvido sem foto nem
+                                  // descrição entra no relatório sem nada que
+                                  // se confira. O segundo toque é decisão.
+                                  if (semProva && !confirmando) {
+                                    setSemProvaConfirmar(p.id)
+                                    return
+                                  }
+                                  setSemProvaConfirmar(null)
+                                  condicaoDoPonto.mutate({
+                                    eventId: p.id,
+                                    patch: { status: resolvido ? "open" : "resolved" },
+                                  })
+                                }}
+                                className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+                                  resolvido
+                                    ? "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    : confirmando
+                                      ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                      : "border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
+                                }`}
+                              >
+                                {resolvido
+                                  ? <><RotateCcw className="h-3.5 w-3.5" />Reopen</>
+                                  : confirmando
+                                    ? <><CheckCircle2 className="h-3.5 w-3.5" />Resolve without proof</>
+                                    : <><CheckCircle2 className="h-3.5 w-3.5" />Resolve</>}
+                              </button>
+                            )}
+                          </>
+                        )
+                      })()}
                     />
                   </div>
                 )}

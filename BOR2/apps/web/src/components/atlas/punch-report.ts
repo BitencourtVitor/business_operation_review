@@ -174,7 +174,22 @@ function assinatura(nome: string, cargo: string, quando: string): string {
   }${nome && carimbado ? " · " : ""}${carimbado}</span>`
 }
 
-export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
+/**
+ * Para onde o documento vai, que decide como as fotos entram nele.
+ *
+ * `navegador`: embutidas. O documento é aberto num quadro que não herda a
+ * sessão, e a URL assinada vence em trinta minutos.
+ *
+ * `servidor`: por endereço. Embutidas, sessenta pontos passavam do limite de
+ * corpo da requisição; por endereço o HTML é texto, e o Chromium de lá busca as
+ * fotos na hora de imprimir, bem dentro dos trinta minutos.
+ */
+export type DestinoDoRelatorio = "navegador" | "servidor"
+
+export async function montarRelatorio(
+  op: OpcoesRelatorio,
+  destino: DestinoDoRelatorio = "navegador",
+): Promise<string> {
   const filtro = { scope: op.scope || undefined, status: op.status }
   const [pontos, midias, obra, logo] = await Promise.all([
     atlasService.punchList(op.jobsiteId, filtro),
@@ -194,16 +209,14 @@ export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
     porPonto.set(m.eventId, par)
   }
 
-  // As fotos entram embutidas. A janela do relatório é outro documento, e a URL
-  // assinada nela vence em trinta minutos: impressa depois disso, a folha sairia
-  // com o quadro vazio no lugar da prova.
+  // Como as fotos entram depende do destino: ver `DestinoDoRelatorio`.
   const escolhidas: AtlasPunchMedia[] = []
   for (const par of porPonto.values()) {
     escolhidas.push(...par.antes.slice(0, TETO_FOTOS), ...par.depois.slice(0, TETO_FOTOS))
   }
   const embutidas = new Map<string, string>()
   await Promise.all(escolhidas.map(async m => {
-    const dado = await embutir(m.url)
+    const dado = destino === "servidor" ? m.url : await embutir(m.url)
     if (dado) embutidas.set(m.id, dado)
   }))
 
@@ -233,7 +246,7 @@ export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
         ${oQueFoiFeito
           ? corpoDoPonto(oQueFoiFeito)
           : `<p class="corpo">Marked as resolved.</p>`}
-        ${assinatura("", "", p.resolvedAt)}
+        ${assinatura(p.resolvedName ?? "", p.resolvedRole ?? "", p.resolvedAt)}
       </div>
       ${coluna(dataUri(par.depois))}
     </div>` : ""
@@ -311,7 +324,7 @@ export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
   * { box-sizing: border-box; }
   body {
     margin: 0; color: #18181b;
-    font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
     background: #fff;
   }
@@ -505,7 +518,7 @@ export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
   @media print {
     /* Na impressão a margem é do papel, e a folha deixa de ter a dela: o
        tamanho já vem do @page, e repetir o padding aqui daria margem dobrada. */
-    @page { margin: 10mm; }
+    @page { size: A4; margin: 10mm; }
     /* A folha continua sendo uma folha: a altura é a da página menos as
        margens (297 menos dois de dez), e não "o que o conteúdo pedir". Com
        altura automática o rodapé colava no fim do último ponto e o resto do
@@ -626,8 +639,8 @@ ${blocos}
  * pagina medindo a si mesmo, e num quadro sem largura ele não teria onde caber.
  * Fica fora da tela, à esquerda, onde ninguém o vê.
  */
-export async function gerarRelatorio(op: OpcoesRelatorio): Promise<void> {
-  const html = await montarRelatorio(op)
+export async function imprimirRelatorio(op: OpcoesRelatorio): Promise<void> {
+  const html = await montarRelatorio(op, "navegador")
   if (!html) return
 
   // O nome do arquivo sai do título do documento. Imprimindo de um quadro de
@@ -659,4 +672,37 @@ export async function gerarRelatorio(op: OpcoesRelatorio): Promise<void> {
   }
 
   document.body.appendChild(quadro)
+}
+
+/**
+ * Emite o relatório: baixa o PDF pronto, com nome.
+ *
+ * O documento é montado aqui e impresso no servidor, que devolve o arquivo. Ver
+ * o porquê em `internal/handler/atlas_report_pdf.go`, na API.
+ *
+ * Se o servidor falhar, a emissão cai para o diálogo de impressão do próprio
+ * navegador em vez de morrer: quem está na reunião com o cliente precisa do
+ * documento, e o diálogo, com "salvar como PDF", entrega o mesmo documento.
+ *
+ * Devolve `false` quando não há ponto nenhum com os filtros pedidos.
+ */
+export async function gerarRelatorio(op: OpcoesRelatorio): Promise<boolean> {
+  const html = await montarRelatorio(op, "servidor")
+  if (!html) return false
+
+  const nome = (html.match(/<title>([^<]*)<\/title>/) ?? [])[1] ?? "Punch List Report"
+  try {
+    const arquivo = await atlasService.punchReportPdf(op.jobsiteId, html, nome)
+    const endereco = URL.createObjectURL(arquivo)
+    const link = document.createElement("a")
+    link.href = endereco
+    link.download = nome.toLowerCase().endsWith(".pdf") ? nome : `${nome}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(endereco), 30_000)
+  } catch {
+    await imprimirRelatorio(op)
+  }
+  return true
 }

@@ -35,6 +35,19 @@ FROM alpine:3.21
 
 RUN apk --no-cache add ca-certificates tzdata
 
+# Chromium sem tela, para o relatório do punch sair como PDF de verdade (ver
+# internal/handler/atlas_report_pdf.go). As fontes vêm junto porque o Alpine não
+# traz nenhuma: sem elas o Chromium imprime o texto em quadradinhos. Noto cobre
+# o latim acentuado e os símbolos que o documento usa.
+#
+# Isto engorda a imagem das três services que a usam, e não só a da API. O
+# preço foi aceito para não quebrar o desenho de uma imagem só com START_BIN.
+#
+# O caminho do binário não é fixado: o chromedp procura "chromium" e
+# "chromium-browser" no PATH, e o Alpine já mudou esse nome de uma versão para
+# outra. CHROME_BIN, se existir, manda.
+RUN apk --no-cache add chromium font-noto
+
 WORKDIR /root/
 
 COPY --from=builder /out/api .

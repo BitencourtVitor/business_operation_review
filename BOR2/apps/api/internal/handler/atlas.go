@@ -1303,6 +1303,10 @@ type atlasSheet struct {
 	Highlights  int `json:"highlights"`
 	Notes       int `json:"notes"`
 	Annotations int `json:"annotations"`
+	// A escala da folha, calibrada por alguém da obra e valendo para todos.
+	// Unidades do mundo (pés) por ponto de PDF; nulo enquanto ninguém calibrou.
+	ScaleUnitsPerPt *float64 `json:"scaleUnitsPerPt"`
+	ScaleLabel      string   `json:"scaleLabel"`
 	// Desde quando esta prancha é a que vale, e o nome que quem a trocou deu à
 	// troca. Quantas revisões a página já teve: um é a original.
 	RevisedAt   string `json:"revisedAt"`
@@ -1339,7 +1343,8 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL AND a.tool = 'link'),
 		       (SELECT count(*) FROM atlas_annotation a
 		         WHERE a.sheet_id = s.id AND a.deleted_at IS NULL AND a.tool = 'highlighter'),
-		       (SELECT count(*) FROM atlas_event e WHERE e.sheet_id = s.id)
+		       (SELECT count(*) FROM atlas_event e WHERE e.sheet_id = s.id),
+		       s.scale_units_per_pt, s.scale_label
 		FROM atlas_sheet s
 		WHERE s.version_id = $1 AND s.superseded_at IS NULL
 		ORDER BY s.page_index`, versionID)
@@ -1356,7 +1361,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
 			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview,
 			&revised, &s.VersionName, &s.TextHash, &s.GeomHash, &s.Revisions, &s.Annotations,
-			&s.Links, &s.Highlights, &s.Notes); err != nil {
+			&s.Links, &s.Highlights, &s.Notes, &s.ScaleUnitsPerPt, &s.ScaleLabel); err != nil {
 			return internalErr(c, err)
 		}
 		s.RevisedAt = revised.Format(time.RFC3339)

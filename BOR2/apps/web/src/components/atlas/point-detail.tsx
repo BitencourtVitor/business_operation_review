@@ -4,7 +4,7 @@ import { PointAudio, PointPhase, ehAudio, ehImagem, ehVideo } from "@/components
 import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasMedia, useAtlasReplies } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
-import { CheckCircle2, Flag, Trash2 } from "lucide-react"
+import { CheckCircle2, Flag } from "lucide-react"
 
 /** Data e hora como quem confere: dia curto e relógio de 24 horas. */
 function quando(iso: string) {
@@ -87,10 +87,9 @@ function Metade({ rotulo, icone: Icone, tom, texto, vazio, nome, cargo, data, ch
  * O campo de comentário solto. O que ele produzia era conversa perdida, um
  * "ok", um "amanhã", que não vira registro de nada e não entra no relatório. O
  * que já foi escrito continua à vista: apagar o passado de alguém não é decisão
- * de layout. Resolver também saiu, para o cabeçalho do ponto, onde se alcança
- * sem abrir a ficha.
+ * de layout.
  */
-export function PointDetail({ jobsiteId, point, canWrite, onDelete, deleting }: {
+export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   jobsiteId: string
   point: {
     id: string
@@ -100,10 +99,20 @@ export function PointDetail({ jobsiteId, point, canWrite, onDelete, deleting }: 
     createdRole?: string
     createdAt?: string
     resolvedAt?: string
+    resolvedName?: string
+    resolvedRole?: string
   }
   canWrite: boolean
-  onDelete: () => void
-  deleting: boolean
+  /**
+   * As ações do ponto, no pé da ficha.
+   *
+   * O cabeçalho ficou só com o que identifica o ponto e o chevron que abre: as
+   * ações pediam a ficha aberta de qualquer jeito, porque resolver sem ver a
+   * prova e apagar sem ler o problema são os dois enganos que se quer evitar.
+   * Quem monta a lista decide o que entra aqui, porque é ela que sabe quem pode
+   * o quê.
+   */
+  rodape?: React.ReactNode
 }) {
   const { data: media } = useAtlasMedia(jobsiteId, { eventId: point.id })
   const pecas = (media ?? []).filter((m: AtlasMedia) => m.url)
@@ -154,7 +163,9 @@ export function PointDetail({ jobsiteId, point, canWrite, onDelete, deleting }: 
             texto={oQueFoiFeito}
             vazio={point.status === "resolved"
               ? "Marked as resolved, with nothing written about the fix."
-              : "Not fixed yet. Photograph what was done and describe it here."}
+              : "Not fixed yet. Photograph what was done and describe it before resolving."}
+            nome={point.resolvedName}
+            cargo={point.resolvedRole}
             data={point.resolvedAt}
           >
             <PointPhase
@@ -183,19 +194,9 @@ export function PointDetail({ jobsiteId, point, canWrite, onDelete, deleting }: 
         </div>
       )}
 
-      {/* Apagar é o fim do outro tipo: a task que não deveria existir. */}
-      {canWrite && (
-        <div className="flex justify-end border-t border-border/50 pt-3">
-          <button
-            type="button"
-            title="Delete this point"
-            disabled={deleting}
-            onClick={onDelete}
-            className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete
-          </button>
+      {rodape && (
+        <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">
+          {rodape}
         </div>
       )}
     </div>

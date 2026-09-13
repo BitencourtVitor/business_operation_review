@@ -119,6 +119,34 @@ func (h *AtlasHandler) SetSheetScale(c *fiber.Ctx) error {
 	}})
 }
 
+// DELETE /atlas/sheets/:id/scale
+//
+// Apaga a escala da folha, para todos. A trena volta a pedir calibração. Serve
+// para a calibração errada, que é pior que nenhuma: mede com confiança um número
+// que não vale.
+func (h *AtlasHandler) ClearSheetScale(c *fiber.Ctx) error {
+	sheetID := c.Params("id")
+	var jobsiteID string
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT d.jobsite_id
+		  FROM atlas_sheet s
+		  JOIN atlas_document_version v ON v.id = s.version_id
+		  JOIN atlas_document d ON d.id = v.document_id
+		 WHERE s.id = $1`, sheetID).Scan(&jobsiteID); err != nil {
+		return atlasNotFound(c, "folha")
+	}
+	if err := h.require(c, jobsiteID, "annotate"); err != nil {
+		return atlasForbidden(c)
+	}
+	if _, err := h.db.Exec(c.Context(), `
+		UPDATE atlas_sheet
+		   SET scale_units_per_pt = NULL, scale_label = '', scale_source = ''
+		 WHERE id = $1`, sheetID); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"sheetId": sheetID}})
+}
+
 // A notação arquitetônica de escala, como aparece no carimbo.
 //
 // Cobre as formas que os sets reais usam: `1/4" = 1'-0"`, `3/16"=1'`, `1" = 20'`.
