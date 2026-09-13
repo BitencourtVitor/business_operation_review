@@ -168,6 +168,22 @@ export interface AtlasVersion {
   sheets: number
   /** O que foi anexado à justificativa desta versão. */
   attachments: { id: string; fileName: string; contentType: string; byteSize: number }[]
+  uploaderName: string
+  uploaderRole: string
+  /** full: o set inteiro subiu. range/single: só as folhas trocadas. */
+  scope: "full" | "range" | "single"
+  gap: AtlasVersionGap
+}
+
+/** O que uma versão mudou em relação à anterior. */
+export interface AtlasVersionGap {
+  /** first: não há anterior. partial: subiu só o trecho. full: subiu o set inteiro. */
+  kind: "first" | "partial" | "full"
+  /** No set inteiro, se deu para comparar folha a folha. */
+  compared: boolean
+  changed: { sheetId: string; pageIndex: number; sheetNumber: string }[]
+  /** Folhas nomeadas que existiam na anterior e não existem nesta. */
+  removed: string[]
 }
 
 export interface PlanUploadTicket {
@@ -853,7 +869,7 @@ export const atlasService = {
     `${base}/versions/${versionId}/autolink/apply`, body, getToken()),
 
   /** Herda as folhas não trocadas de uma revisão parcial. */
-  inheritSheets: (versionId: string, body: { scope: "range" | "single"; pages: number[] }) =>
+  inheritSheets: (versionId: string, body: { scope: "range" | "single"; pages: number[]; inserted: number }) =>
     api.post<{ herdadas: number; trocadas: number; total: number }>(
       `${base}/versions/${versionId}/inherit`, body, getToken()),
 

@@ -189,6 +189,8 @@ function versaoLocal(documentId: string, planos: PlanoLocal[]): AtlasVersion[] {
     pageCount: planos.length, checksum: "", contentType: "application/pdf",
     status: "published", name: "", notes: "", uploadedBy: "", uploadedAt: "",
     publishedAt: null, sheets: planos.length, attachments: [],
+    uploaderName: "", uploaderRole: "", scope: "full",
+    gap: { kind: "first", compared: false, changed: [], removed: [] },
   }]
 }
 
@@ -288,9 +290,16 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, name, notes, names, prints, onProgress, onSheets, onPage }: {
+    mutationFn: async ({ file, revision, name, notes, names, prints, alvo, onProgress, onSheets, onPage }: {
       file: File
       revision: string
+      /**
+       * As páginas do set atual que este arquivo substitui. Presente, o arquivo
+       * não é o set: é só o trecho novo. Sobem só as páginas dele, e as outras
+       * folhas vêm da versão anterior apontando para os mesmos arquivos. O que
+       * se guarda é o gap, e não uma segunda cópia do caderno.
+       */
+      alvo?: number[]
       /** O apelido desta versão, e o que mudou nela. */
       name?: string
       notes?: string
@@ -329,10 +338,58 @@ export function useUploadAtlasVersion(documentId: string) {
         // PDF que o pdf.js não abre não pode travar o upload: a versão fica
         // gravada e as folhas entram depois, pelo mesmo endpoint idempotente.
       }
+      if (alvo?.length && !outline) {
+        throw new Error("Could not read this PDF to put it into the set.")
+      }
       const confirmed = await atlasService.confirmVersion(ticket.versionId, {
         pageCount: outline?.pageCount ?? 0,
       })
       if (!outline) return confirmed
+
+      if (alvo?.length) {
+        // O trecho entra na vaga da primeira página que sai.
+        const vaga = Math.min(...alvo)
+        onProgress?.("splitting", `0/${outline.pageCount}`)
+        // Aqui o corte não pode falhar em silêncio: a folha sem recorte abre
+        // pelo arquivo da versão, e o arquivo desta versão é só o trecho. A
+        // página 12 do set seria procurada na página 12 de um PDF de três.
+        const parts = await splitAndUploadPlans(file, ticket.versionId, (done, count) => {
+          onProgress?.("splitting", `${done}/${count}`)
+        }, (part, preview) => onPage?.(vaga + part.pageIndex, preview))
+        if (parts.length !== outline.pageCount || parts.some(p => !p.r2Key)) {
+          throw new Error("Some of the new sheets did not upload. Try again.")
+        }
+        let marcas = prints
+        if (!marcas) {
+          try {
+            const href = URL.createObjectURL(file)
+            const list = await fingerprintPages(href)
+            URL.revokeObjectURL(href)
+            marcas = new Map(list.map((f, i) => [i, f]))
+          } catch {
+            // Sem impressão a folha sobe do mesmo jeito.
+          }
+        }
+        await atlasService.replaceSheets(ticket.versionId, parts.map(p => ({
+          pageIndex: vaga + p.pageIndex,
+          widthPt: p.widthPt,
+          heightPt: p.heightPt,
+          r2Key: p.r2Key,
+          thumbKey: p.thumbKey,
+          byteSize: p.byteSize,
+          sheetNumber: names?.get(p.pageIndex) ?? "",
+          needsReview: !names?.get(p.pageIndex),
+          textHash: marcas?.get(p.pageIndex)?.text ?? "",
+          geomHash: marcas?.get(p.pageIndex)?.geom ?? "",
+        })))
+        const herdou = await atlasService.inheritSheets(ticket.versionId, {
+          scope: alvo.length === 1 && outline.pageCount === 1 ? "single" : "range",
+          pages: alvo,
+          inserted: outline.pageCount,
+        })
+        onSheets?.(ticket.versionId, herdou.total)
+        return confirmed
+      }
 
       // As folhas entram no banco antes do corte, com o nome que o gabarito já
       // leu e sem recorte nenhum. É o que permite fechar o modal aqui: a página

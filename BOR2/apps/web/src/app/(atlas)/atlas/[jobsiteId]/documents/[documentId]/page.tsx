@@ -7,10 +7,11 @@ import { atualizarMarcas } from "@/lib/offline/index-sync"
 import { lerArquivo } from "@/lib/offline/storage"
 import { useLiveQuery } from "dexie-react-hooks"
 import { Voltar } from "@/components/atlas/panel"
-import { downloadPlans } from "@/components/atlas/pdf-page"
+import { downloadPlans, juntarFolhas } from "@/components/atlas/pdf-page"
 import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
 import { UploadPlanDialog } from "@/components/atlas/upload-plan-dialog"
+import { VersionGaps } from "@/components/atlas/version-gaps"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,7 +33,7 @@ import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.serv
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft, Check, CheckCheck, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
-  Paperclip, Pencil, ScanText, SquareDashedMousePointer, Tags, X,
+  Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -290,14 +291,6 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   )
 }
 
-/** "09/04/2026 14:32": o que identifica uma versão. */
-function stamp(iso: string) {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return ""
-  const pad = (n: number) => String(n).padStart(2, "0")
-  return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
-
 export default function DocumentPage() {
   const { jobsiteId, documentId } = useParams<{ jobsiteId: string; documentId: string }>()
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
@@ -481,13 +474,27 @@ export default function DocumentPage() {
   const updateCategory = useUpdateDocCategory()
   const unnamed = (sheets ?? []).filter(s => !s.sheetNumber).length
 
+  /**
+   * O endereço do caderno inteiro desta versão.
+   *
+   * Versão que subiu inteira tem o caderno no próprio arquivo. A parcial guarda
+   * só o trecho que mudou, e o caderno sai das folhas, montado no navegador.
+   */
+  async function urlDoSet(): Promise<string> {
+    if (!version || version.scope === "full") {
+      return (await atlasService.versionDownloadUrl(versionId)).url
+    }
+    const folhas = (await atlasService.versionSheetUrls(versionId))
+      .sort((a, b) => a.pageIndex - b.pageIndex)
+    return URL.createObjectURL(await juntarFolhas(folhas.map(f => f.url)))
+  }
+
   async function openNaming() {
     setNamingError("")
     try {
-      // O gabarito se marca sobre o original, não sobre o recorte: é ali que
-      // estão todas as páginas, e é o mesmo arquivo que a leitura vai varrer.
-      const { url } = await atlasService.versionDownloadUrl(versionId)
-      setNamingUrl(url)
+      // O gabarito se marca sobre o caderno inteiro, e não sobre o recorte: é
+      // ali que estão todas as páginas, e é o mesmo que a leitura vai varrer.
+      setNamingUrl(await urlDoSet())
       setNaming(true)
     } catch (e) {
       setNamingError(e instanceof Error ? e.message : "could not open the plan set")
@@ -538,11 +545,20 @@ export default function DocumentPage() {
     if (!list.length) return
     setSaving(`${list.length}`)
     try {
-      const { url } = await atlasService.versionDownloadUrl(versionId)
+      // Versão parcial: as folhas escolhidas já existem soltas, e baixar o
+      // caderno montado para cortar de novo seria trabalho dobrado.
+      const parcial = !!version && version.scope !== "full"
+      const url = parcial
+        ? URL.createObjectURL(await juntarFolhas(
+          (await atlasService.versionSheetUrls(versionId))
+            .filter(f => list.some(s => s.id === f.sheetId))
+            .sort((a, b) => a.pageIndex - b.pageIndex)
+            .map(f => f.url)))
+        : (await atlasService.versionDownloadUrl(versionId)).url
       const base = (doc?.name ?? "plans").replace(/[\/:*?"<>|]/g, "-")
       await downloadPlans(
         url,
-        list.map(s => s.pageIndex),
+        parcial ? list.map((_, i) => i) : list.map(s => s.pageIndex),
         list.length === 1
           ? `${base} - ${list[0].sheetNumber || `page ${list[0].pageIndex + 1}`}`
           : `${base} (${list.length} sheets)`,
@@ -637,9 +653,13 @@ export default function DocumentPage() {
     setFase({ passo: "opening", enviado: 0, total: file.size })
     // A versão nasce no meio do envio, e é dela que os vínculos precisam.
     let versaoId = ""
+    // O trecho que este arquivo substitui, lido agora: o diálogo limpa a seleção
+    // ao fechar, logo depois de chamar aqui.
+    const alvo = alvoDaTroca?.length ? [...alvoDaTroca] : undefined
     upload.mutate({
       file,
       names,
+      alvo,
       name: version?.name,
       notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
@@ -697,6 +717,16 @@ export default function DocumentPage() {
 
   const [tagging, setTagging] = useState(false)
   const [history, setHistory] = useState(false)
+  // A folha tocada no gap de uma versão. Abre quando as folhas daquela versão
+  // chegam, que é depois de a grade trocar de versão.
+  const [folhaPedida, setFolhaPedida] = useState("")
+  useEffect(() => {
+    if (!folhaPedida || !sheets?.length) return
+    const alvo = sheets.find(s => s.id === folhaPedida)
+    if (!alvo) return
+    setOpenSheet(alvo)
+    setFolhaPedida("")
+  }, [folhaPedida, sheets])
   const [renaming, setRenaming] = useState(false)
   const [draftName, setDraftName] = useState("")
   function saveName() {
@@ -870,7 +900,6 @@ export default function DocumentPage() {
               revisionCount={versions?.length ?? 0}
               alvo={alvoDaTroca}
               alvoRotulo={rotuloDoAlvo}
-              setAtual={async () => (await atlasService.versionDownloadUrl(versionId)).url}
               open={uploading}
               onStart={startUpload}
               onClose={() => { setUploading(false); setAlvoDaTroca(null) }}
@@ -1207,51 +1236,17 @@ export default function DocumentPage() {
       {/* Qual set está aberto, e o que cada um trouxe. Trocar aqui abre as
           folhas daquele envio, com as marcações que foram feitas sobre elas. */}
       <Dialog open={history} onOpenChange={o => { if (!o) setHistory(false) }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader><DialogTitle>Versions of this plan set</DialogTitle></DialogHeader>
-          <div className="flex max-h-96 flex-col gap-1.5 overflow-y-auto">
-            {(versions ?? []).map(v => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => { setVersionId(v.id); setHistory(false) }}
-                className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
-                  v.id === versionId
-                    ? "border-primary bg-primary/5"
-                    : "border-border/60 hover:border-primary/40 hover:bg-accent/30"
-                }`}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium leading-tight">
-                    {stamp(v.uploadedAt)}
-                    {v.name && (
-                      <span className="ml-2 font-normal text-muted-foreground">{v.name}</span>
-                    )}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {v.sheets} {v.sheets === 1 ? "plan" : "plans"}
-                  </p>
-                  {/* A justificativa com as quebras que quem escreveu deu:
-                      cortá-la numa linha faria a segunda frase sumir junto com
-                      o motivo. */}
-                  {v.notes && (
-                    <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
-                      {v.notes}
-                    </p>
-                  )}
-                  {!!v.attachments?.length && (
-                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                      <Paperclip className="h-3 w-3" />
-                      {v.attachments.length} attached
-                    </p>
-                  )}
-                </div>
-                {v.id === versionId && (
-                  <span className="shrink-0 text-xs text-muted-foreground">Open</span>
-                )}
-              </button>
-            ))}
-          </div>
+          <VersionGaps
+            versions={versions ?? []}
+            versionId={versionId}
+            onOpenSheet={(vid, sid) => {
+              setVersionId(vid)
+              setFolhaPedida(sid)
+              setHistory(false)
+            }}
+          />
         </DialogContent>
       </Dialog>
 

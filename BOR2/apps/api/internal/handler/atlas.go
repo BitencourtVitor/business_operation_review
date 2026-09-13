@@ -1054,12 +1054,18 @@ type atlasVersion struct {
 	Status      string `json:"status"`
 	// O que a pessoa chamou esta versão, e o que ela quis dizer sobre a troca.
 	// A identificação na tela é a data e a hora; o nome é o apelido dela.
-	Name        string  `json:"name"`
-	Notes       string  `json:"notes"`
-	UploadedBy  string  `json:"uploadedBy"`
-	UploadedAt  string  `json:"uploadedAt"`
-	PublishedAt *string `json:"publishedAt"`
-	Sheets      int     `json:"sheets"`
+	Name         string  `json:"name"`
+	Notes        string  `json:"notes"`
+	UploadedBy   string  `json:"uploadedBy"`
+	UploaderName string  `json:"uploaderName"`
+	UploaderRole string  `json:"uploaderRole"`
+	UploadedAt   string  `json:"uploadedAt"`
+	PublishedAt  *string `json:"publishedAt"`
+	Sheets       int     `json:"sheets"`
+	// full = o set inteiro subiu de novo; range/single = só as folhas trocadas.
+	Scope string `json:"scope"`
+	// O que mudou em relação à versão anterior. Ver versionGaps.
+	Gap versionGap `json:"gap"`
 	// O que foi anexado à justificativa desta versão.
 	Attachments []atlasRevisionFile `json:"attachments"`
 }
@@ -1077,6 +1083,7 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT v.id, v.document_id, v.revision, v.r2_key, v.byte_size, v.page_count,
 		       v.checksum, v.content_type, v.status, v.name, v.notes, v.uploaded_by,
+		       COALESCE(u.name, ''), COALESCE(u.role::text, ''), v.scope,
 		       v.uploaded_at, v.published_at,
 		       (SELECT count(*) FROM atlas_sheet s
 		         WHERE s.version_id = v.id AND s.superseded_at IS NULL),
@@ -1089,8 +1096,9 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		           WHERE m.version_id = v.id AND m.status <> 'failed'
 		       ), '[]')::text
 		FROM atlas_document_version v
+		LEFT JOIN users u ON u.id = v.uploaded_by
 		WHERE v.document_id = $1
-		ORDER BY v.uploaded_at DESC`, docID)
+		ORDER BY v.seq DESC, v.uploaded_at DESC`, docID)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -1104,7 +1112,8 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		var files string
 		if err := rows.Scan(&v.ID, &v.DocumentID, &v.Revision, &v.R2Key, &v.ByteSize,
 			&v.PageCount, &v.Checksum, &v.ContentType, &v.Status, &v.Name, &v.Notes,
-			&v.UploadedBy, &uploaded, &published, &v.Sheets, &files); err != nil {
+			&v.UploadedBy, &v.UploaderName, &v.UploaderRole, &v.Scope,
+			&uploaded, &published, &v.Sheets, &files); err != nil {
 			return internalErr(c, err)
 		}
 		v.Attachments = []atlasRevisionFile{}
@@ -1114,6 +1123,20 @@ func (h *AtlasHandler) ListVersions(c *fiber.Ctx) error {
 		v.UploadedAt = uploaded.Format(time.RFC3339)
 		v.PublishedAt = isoOrNil(published)
 		out = append(out, v)
+	}
+	rows.Close()
+
+	gaps, err := h.versionGaps(c.Context(), docID)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	for i := range out {
+		if g, ok := gaps[out[i].ID]; ok {
+			out[i].Gap = g
+		} else {
+			// Versão que não terminou de subir não tem gap para mostrar.
+			out[i].Gap = gapVazio("first")
+		}
 	}
 	return c.JSON(fiber.Map{"data": out})
 }
@@ -1148,6 +1171,18 @@ func (h *AtlasHandler) CreateVersion(c *fiber.Ctx) error {
 	}
 	if strings.TrimSpace(in.Revision) == "" {
 		return badRequest(c, "revision is required")
+	}
+	// Sobrescrever pede o porquê. A primeira versão não sobrescreve nada, e é a
+	// única que sobe sem justificativa: sem ela a janela de versões vira uma
+	// lista de datas, que é o que ela existe para não ser.
+	var anteriores int
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT count(*) FROM atlas_document_version
+		 WHERE document_id = $1 AND status IN ('uploaded', 'published')`, docID).Scan(&anteriores); err != nil {
+		return internalErr(c, err)
+	}
+	if anteriores > 0 && strings.TrimSpace(in.Notes) == "" {
+		return badRequest(c, "explain why the plan set is being replaced")
 	}
 	userID, _ := actor(c)
 	versionID := uuid.NewString()
