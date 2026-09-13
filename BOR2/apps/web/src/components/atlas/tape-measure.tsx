@@ -216,6 +216,8 @@ function SegurarParaConfirmar({ onConfirmar }: { onConfirmar: () => void }) {
   return (
     <HoldButton
       onConfirm={onConfirmar}
+      acao="delete"
+      andamento="Deleting"
       faixa="bg-red-500/25"
       className="flex h-8 flex-1 items-center justify-center rounded-md border border-red-400/40 bg-red-500/5 px-3 text-sm text-red-300"
     >
