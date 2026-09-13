@@ -745,6 +745,8 @@ export const atlasService = {
     album?: string; takenAt?: string
     /** `before` (padrão) é a foto do problema; `after` é a prova da correção. */
     phase?: "before" | "after"
+    /** O que a peça mostra, e o que foi feito: o texto da solução mora na prova dela. */
+    title?: string; description?: string
   }) => api.post<UploadTicket & { mediaId: string }>(
     `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
   confirmMedia: (mediaId: string) =>

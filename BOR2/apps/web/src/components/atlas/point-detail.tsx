@@ -4,7 +4,9 @@ import { PointPhase, ehImagem, ehVideo } from "@/components/atlas/point-media"
 import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasMedia, useUpdateAtlasEvent } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
+import { SolutionDialog } from "@/components/atlas/solution-dialog"
 import { CheckCircle2, Flag } from "lucide-react"
+import { useState } from "react"
 
 /** Data e hora como quem confere: dia curto e relógio de 24 horas. */
 function quando(iso: string) {
@@ -119,6 +121,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   const antes = visuais.filter(m => m.phase !== "after")
   const depois = visuais.filter(m => m.phase === "after")
   const condicao = useUpdateAtlasEvent(jobsiteId)
+  const [registrando, setRegistrando] = useState(false)
 
   // A correção aparece quando existe prova dela, quando alguém marcou o ponto
   // como resolvido, ou quando há quem registre. Para quem só lê, ponto pendente
@@ -160,13 +163,27 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
             texto={oQueFoiFeito}
             vazio={point.status === "resolved"
               ? "Marked as resolved, with nothing written about the fix."
-              : "Not fixed yet. Photograph what was done and describe it before resolving."}
+              : "Not fixed yet."}
             nome={point.resolvedName}
             cargo={point.resolvedRole}
             // A solução tem data como o problema tem. Resolvido, é quando foi
             // marcado; ainda sem marca, é quando a última prova do conserto subiu.
             data={point.resolvedAt || depois[depois.length - 1]?.uploadedAt}
           >
+            {/* Sem solução registrada, a metade oferece o registro inteiro, e não
+                uma câmera solta: o mesmo formulário com que o problema entrou. */}
+            {depois.length === 0 ? (
+              canWrite && (
+                <button
+                  type="button"
+                  onClick={() => setRegistrando(true)}
+                  className="flex h-9 shrink-0 items-center gap-1.5 self-start rounded-lg border border-emerald-500/40 px-3 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Problem solved
+                </button>
+              )
+            ) : (
             <PointPhase
               jobsiteId={jobsiteId}
               eventId={point.id}
@@ -182,9 +199,20 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
                 }
               }}
             />
+            )}
           </Metade>
         )}
       </div>
+
+      {canWrite && (
+        <SolutionDialog
+          jobsiteId={jobsiteId}
+          eventId={point.id}
+          jaResolvido={point.status === "resolved"}
+          open={registrando}
+          onClose={() => setRegistrando(false)}
+        />
+      )}
 
       {rodape && (
         <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">
