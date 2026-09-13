@@ -48,8 +48,22 @@ export type DocumentIdentity = { name: string; tags: TagKey[] }
  * só, a marcação disputava atenção com o cadastro e parecia opcional.
  */
 export function UploadPlanDialog({
-  categoryId, jobsiteId, naming, revisionCount, open, categorias, ocupadas, onStart, onClose,
+  categoryId, jobsiteId, naming, revisionCount, open, categorias, ocupadas, alvo, alvoRotulo, setAtual,
+  onStart, onClose,
 }: {
+  /**
+   * O trecho do set que sai, quando a troca é parcial.
+   *
+   * Com ele, o PDF escolhido não é o set: é o que entra no lugar daquele
+   * trecho. A costura acontece na hora da escolha do arquivo, e daí para a
+   * frente (nomenclatura, vínculos, envio) tudo trabalha sobre o set inteiro,
+   * que é o que uma versão sempre é.
+   */
+  alvo?: number[] | null
+  /** Como o trecho se chama na boca de quem trabalha: "A-201", "A-201 to A-204". */
+  alvoRotulo?: string
+  /** Onde buscar o PDF do set de hoje, para a costura. */
+  setAtual?: () => Promise<string>
   /** A obra: o índice de destinos dos hiperlinks é dela inteira. */
   jobsiteId?: string
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
@@ -127,10 +141,28 @@ export function UploadPlanDialog({
     setQuerLinks(null); setVinculos([]); setEstadoDosLinks({ varrido: false, pendentes: 0 })
   }, [open])
 
+  // A costura do trecho no set, quando a troca é parcial. É o único passo que
+  // demora sem nada acontecendo na tela, então ele se anuncia.
+  const [costurando, setCosturando] = useState(false)
+
   function choose(picked: File | null) {
     setFile(picked); setError("")
     // Sem a extensão: ".pdf" é o formato, não o nome do documento.
     if (picked) setName(picked.name.replace(/.pdf$/i, "").trim())
+    if (!picked || !alvo?.length || !setAtual) return
+    setCosturando(true)
+    void (async () => {
+      try {
+        const url = await setAtual()
+        const { costurarSet } = await import("@/components/atlas/pdf-page")
+        setFile(await costurarSet(url, picked, alvo))
+      } catch {
+        setFile(null)
+        setError("Could not open the current set to put this sheet into it.")
+      } finally {
+        setCosturando(false)
+      }
+    })()
   }
 
   // O que veio do servidor só entra enquanto ninguém marcou nada aqui: a
@@ -205,7 +237,9 @@ export function UploadPlanDialog({
     onClose()
   }
 
-  const busy = false
+  // Enquanto a costura corre, o arquivo na mão ainda não é o set: trocar de PDF
+  // ou mandar nomear no meio disso trabalharia sobre o arquivo errado.
+  const busy = costurando
   // Dizendo não aos vínculos, sobe direto. Dizendo sim, sobe com a varredura
   // feita e nenhuma sugestão pendente.
   const faltaDecidir = querLinks === true && estadoDosLinks.varrido ? estadoDosLinks.pendentes : 0
@@ -259,7 +293,15 @@ export function UploadPlanDialog({
               : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
         }`}
       >
-        {file ? (
+        {costurando ? (
+          <>
+            <CloudUpload className="h-8 w-8 animate-pulse text-primary" />
+            <span className="text-sm font-medium text-primary">Putting it into the set</span>
+            <span className="text-xs text-muted-foreground">
+              The rest of the sheets come along untouched
+            </span>
+          </>
+        ) : file ? (
           <>
             <FileText className="h-8 w-8 text-primary" />
             <span className="max-w-full break-all text-sm font-medium text-primary">{file.name}</span>
@@ -511,8 +553,12 @@ export function UploadPlanDialog({
                 {revisionCount > 0 && (
                   <p className="text-xs text-muted-foreground">
                     {/* A regra fica dita onde a decisão acontece: o que sobe
-                        passa a valer e o que estava vale como histórico. */}
-                    The current plan set becomes the previous one. The sheet that counts is always the last one uploaded.
+                        passa a valer e o que estava vale como histórico. Na
+                        troca parcial, dizer qual trecho sai é o que impede a
+                        pessoa de mandar o caderno inteiro sem perceber. */}
+                    {alvo?.length && alvoRotulo
+                      ? `This PDF takes the place of ${alvoRotulo}. The rest of the set comes along untouched, and what is saved is a new version of the whole thing.`
+                      : "The current plan set becomes the previous one. The sheet that counts is always the last one uploaded."}
                   </p>
                 )}
               </>

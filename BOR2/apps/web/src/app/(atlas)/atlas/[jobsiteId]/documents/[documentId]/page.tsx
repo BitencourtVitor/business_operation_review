@@ -6,7 +6,8 @@ import { local } from "@/lib/offline/db"
 import { atualizarMarcas } from "@/lib/offline/index-sync"
 import { lerArquivo } from "@/lib/offline/storage"
 import { useLiveQuery } from "dexie-react-hooks"
-import { downloadPlan } from "@/components/atlas/pdf-page"
+import { Voltar } from "@/components/atlas/panel"
+import { downloadPlans } from "@/components/atlas/pdf-page"
 import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
 import { UploadPlanDialog } from "@/components/atlas/upload-plan-dialog"
@@ -30,7 +31,7 @@ import {
 import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.service"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ArrowLeft, Check, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
+  ArrowLeft, Check, CheckCheck, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
   Paperclip, Pencil, ScanText, SquareDashedMousePointer, Tags, X,
 } from "lucide-react"
 import Link from "next/link"
@@ -341,6 +342,8 @@ export default function DocumentPage() {
   const [versionId, setVersionId] = useState("")
   const [openSheet, setOpenSheet] = useState<AtlasSheet | null>(null)
   const [uploading, setUploading] = useState(false)
+  // As folhas que o proximo envio substitui. Nulo e o caderno inteiro.
+  const [alvoDaTroca, setAlvoDaTroca] = useState<number[] | null>(null)
 
   const upload = useUploadAtlasVersion(documentId)
   // A prévia desenhada no próprio navegador, por página. Ela aparece no cartão
@@ -523,41 +526,88 @@ export default function DocumentPage() {
   // Baixar o que foi escolhido, uma folha por arquivo. O recorte sai do
   // original que o navegador já tem em memória, então nada é baixado de novo.
   const [saving, setSaving] = useState("")
+  /**
+   * A seleção sai num arquivo só.
+   *
+   * Eram onze downloads para onze folhas, com uma janela de salvar para cada
+   * uma. Quem escolhe um trecho quer o trecho, e trecho é um documento: o nome
+   * do arquivo diz de onde ele saiu e quantas folhas tem.
+   */
   async function downloadChosen() {
     const list = (sheets ?? []).filter(s => chosen.has(s.id))
     if (!list.length) return
-    setSaving(`0/${list.length}`)
+    setSaving(`${list.length}`)
     try {
       const { url } = await atlasService.versionDownloadUrl(versionId)
-      for (const [i, s] of list.entries()) {
-        await downloadPlan(url, s.pageIndex, s.sheetNumber || `page-${s.pageIndex + 1}`)
-        setSaving(`${i + 1}/${list.length}`)
-      }
+      const base = (doc?.name ?? "plans").replace(/[\/:*?"<>|]/g, "-")
+      await downloadPlans(
+        url,
+        list.map(s => s.pageIndex),
+        list.length === 1
+          ? `${base} - ${list[0].sheetNumber || `page ${list[0].pageIndex + 1}`}`
+          : `${base} (${list.length} sheets)`,
+      )
     } finally {
       setSaving("")
     }
   }
+
+  /** As folhas escolhidas, em índice de página, para quem lê o arquivo. */
+  function paginasEscolhidas(): number[] {
+    return (sheets ?? []).filter(s => chosen.has(s.id)).map(s => s.pageIndex).sort((a, b) => a - b)
+  }
+
+  /**
+   * Manda as folhas escolhidas para a troca, e abre o envio.
+   *
+   * A seleção se desfaz aqui: o que ela queria dizer já foi dito ao envio, e
+   * deixá-la acesa por baixo do diálogo faria a pessoa voltar de lá para uma
+   * grade marcada sem saber se aquilo ainda valia.
+   */
+  function replaceChosen() {
+    const paginas = paginasEscolhidas()
+    if (!paginas.length) return
+    // Escolhido o caderno inteiro, não há costura: o PDF novo é o set. Costurar
+    // seria baixar noventa e sete folhas para jogar as noventa e sete fora.
+    setAlvoDaTroca(paginas.length === (sheets?.length ?? 0) ? null : paginas)
+    stopPicking()
+    setUploading(true)
+  }
+
+  /** Como o trecho se chama para quem trabalha: pelo número das folhas. */
+  const rotuloDoAlvo = useMemo(() => {
+    if (!alvoDaTroca?.length) return ""
+    const nomes = alvoDaTroca.map(i => {
+      const s = (sheets ?? []).find(f => f.pageIndex === i)
+      return s?.sheetNumber || `page ${i + 1}`
+    })
+    if (nomes.length === 1) return nomes[0]
+    // Trecho corrido se diz pelas pontas; folhas espalhadas, pela contagem.
+    const corrido = alvoDaTroca.every((n, k) => k === 0 || n === alvoDaTroca[k - 1] + 1)
+    return corrido
+      ? `${nomes[0]} to ${nomes[nomes.length - 1]}`
+      : `${nomes.length} sheets`
+  }, [alvoDaTroca, sheets])
 
   async function applyNaming(template: NamingTemplate) {
     setNaming(false)
     setNamingError("")
     setApplying("0")
     try {
+      // Com folhas escolhidas, o gabarito vale só para elas, e a leitura
+      // também: é assim que um trecho com layout próprio se nomeia sem
+      // desmanchar o resto, e sem varrer o arquivo inteiro para descartar
+      // noventa e seis páginas no fim.
+      const escolhidas = chosen.size ? paginasEscolhidas() : undefined
       const names = await readPageNames(namingUrl, template,
         (done, total) => setApplying(`${done}/${total}`),
         undefined,
         // O nome com que o arquivo foi guardado no bucket. O título declarado
         // dentro do PDF vem antes dele; isto é a rede de segurança.
-        version?.r2Key.split("/").pop() ?? "")
-      // Com folhas escolhidas, o gabarito vale só para elas: é assim que um
-      // trecho com layout próprio se nomeia sem desmanchar o resto.
-      const only = chosen.size
-        ? new Set((sheets ?? []).filter(s => chosen.has(s.id)).map(s => s.pageIndex))
-        : null
+        version?.r2Key.split("/").pop() ?? "",
+        escolhidas)
       await rename.mutateAsync(
-        names
-          .filter(n => n.name && (!only || only.has(n.pageIndex)))
-          .map(n => ({ pageIndex: n.pageIndex, sheetNumber: n.name })),
+        names.filter(n => n.name).map(n => ({ pageIndex: n.pageIndex, sheetNumber: n.name })),
       )
       stopPicking()
       // Guardado na categoria: o próximo envio do mesmo relatório já sobe
@@ -681,11 +731,6 @@ export default function DocumentPage() {
     qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
   }
 
-  async function download() {
-    const { url } = await atlasService.versionDownloadUrl(versionId)
-    window.open(url, "_blank", "noopener")
-  }
-
   return (
     <>
       {/* Altura da tela, não do conteúdo: quem rola é a lista de folhas, dentro
@@ -693,18 +738,20 @@ export default function DocumentPage() {
           o cabeçalho e o botão de enviar do campo de visão logo no primeiro
           gesto. */}
       <div className="mx-auto flex h-full max-w-5xl flex-col gap-6">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* O fio separa sair de estar: sem ele a seta encosta no título e
-                parece parte dele. */}
-            <Link
-              href={`/atlas/${jobsiteId}`}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              title="Back to the jobsite"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-            <span className="h-9 w-px shrink-0 bg-border" />
-            <div className="min-w-0 flex-1 basis-[calc(100%-4rem)] sm:basis-auto">
+          {/* O mesmo cabeçalho da rodada do punch: uma linha no computador, duas
+              do tablet para baixo, com o título em cima sozinho e os comandos
+              embaixo. Antes era uma fileira que quebrava por conta própria, e o
+              que descia era o que coubesse, sem ordem nenhuma.
+
+              O voltar desce junto com os comandos, porque ele é comando: na
+              linha de cima fica só o nome de onde a pessoa está. */}
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <Voltar href={`/atlas/${jobsiteId}`} rotulo="Documents" extenso className="hidden lg:flex" />
+              {/* O fio separa sair de estar, senão a peça encosta no título e
+                  parece parte dele. */}
+              <span className="hidden h-9 w-px shrink-0 bg-border lg:block" />
+            <div className="min-w-0 flex-1">
               {/* A categoria é o título, como na lista da obra: é ela que diz o
                   que este documento é. Classificar acontece aqui, olhando para
                   o que se classifica, e sem categoria o título diz isso, que é
@@ -777,32 +824,35 @@ export default function DocumentPage() {
             {/* Os botões formam um bloco só, que no celular ocupa a linha
                 inteira e encosta à direita. Soltos, cada um quebrava para uma
                 linha própria e o cabeçalho virava uma escada. */}
-            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
+            </div>
+
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <Voltar href={`/atlas/${jobsiteId}`} rotulo="Documents" extenso className="flex lg:hidden" />
+              <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
             {(versions?.length ?? 0) > 1 && (
               <Button
                 variant="outline"
                 className="shrink-0"
                 onClick={() => setHistory(true)}
               >
+                {/* Por extenso em qualquer largura: com o envio e o download
+                    fora daqui, sobrou espaço até no celular, e a palavra diz o
+                    que o ícone sozinho fazia adivinhar. */}
                 <History className="h-3.5 w-3.5" />
-                {versions?.length} versions
+                {versions?.length} {versions?.length === 1 ? "version" : "versions"}
               </Button>
             )}
-            {canManage && (
+            {/* Sem set no ar não há o que escolher nem o que trocar, então o
+                envio é um botão só. Com set, quem envia é a barra de seleção:
+                escolher as folhas, ou todas, e trocar. Um "Replace" solto aqui
+                em cima só sabia trocar o caderno inteiro, que é o caso raro. */}
+            {canManage && !versions?.length && (
               <Button className="shrink-0" onClick={() => setUploading(true)}>
                 <CloudUpload className="h-4 w-4" />
-                {versions?.length ? "Replace" : "Upload plan set"}
+                Upload plan set
               </Button>
             )}
-            {/* Dois botões chamados "Download" na mesma tela não são dois botões,
-                são uma dúvida. O de cima leva o plan set inteiro, o de baixo leva
-                o que foi escolhido, e cada um diz isso. */}
-            {version && version.status !== "pending" && (
-              <Button variant="outline" className="shrink-0" onClick={download}>
-                <Download className="h-3.5 w-3.5" />
-                Download all
-              </Button>
-            )}
+              </div>
             </div>
           </div>
 
@@ -818,9 +868,12 @@ export default function DocumentPage() {
               categoryId={templateCategory || undefined}
               naming={categories.find(c => c.id === templateCategory)?.naming}
               revisionCount={versions?.length ?? 0}
+              alvo={alvoDaTroca}
+              alvoRotulo={rotuloDoAlvo}
+              setAtual={async () => (await atlasService.versionDownloadUrl(versionId)).url}
               open={uploading}
               onStart={startUpload}
-              onClose={() => setUploading(false)}
+              onClose={() => { setUploading(false); setAlvoDaTroca(null) }}
             />
           )}
 
@@ -907,6 +960,7 @@ export default function DocumentPage() {
             <NamingTemplateDialog
               url={namingUrl}
               open={naming}
+              paginas={chosen.size ? paginasEscolhidas() : undefined}
               initial={categories.find(c => c.id === templateCategory)?.naming}
               onClose={() => setNaming(false)}
               onSave={applyNaming}
@@ -952,22 +1006,27 @@ export default function DocumentPage() {
                   {canManage && !!sheets?.length && (
                     picking ? (
                       // Trinta e dois de altura, igual aos botões que dividem a
-                      // linha com ele: os dois pedaços somam 28 mais a borda
-                      // interna, e a fileira para de ter um degrau no meio.
+                      // linha com ele. Os pedaços de dentro enchem o que sobra
+                      // (26: os 32 menos a borda e o respiro), em vez de uma
+                      // altura escrita à mão que estourava a faixa em dois.
                       <div className="flex h-8 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
-                          className={`h-7 rounded-md px-2.5 text-xs font-medium transition-colors ${
+                          className={`h-full whitespace-nowrap rounded-md px-2.5 text-xs font-medium transition-colors ${
                             picking === "one" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                           }`}
                         >
-                          One by one
+                          {/* No celular "One by one" quebrava em duas linhas e
+                              esticava a faixa inteira. "Single" diz a mesma
+                              coisa ao lado de "Range" e cabe numa linha. */}
+                          <span className="sm:hidden">Single</span>
+                          <span className="hidden sm:inline">One by one</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => { setPicking("range"); setAnchor(null) }}
-                          className={`h-7 rounded-md px-2.5 text-xs font-medium transition-colors ${
+                          className={`h-full whitespace-nowrap rounded-md px-2.5 text-xs font-medium transition-colors ${
                             picking === "range" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                           }`}
                         >
@@ -996,36 +1055,109 @@ export default function DocumentPage() {
                 // Dentro da caixa, no mesmo respiro da grade, e parada: ela não
                 // é um segundo cabeçalho, é uma peça que divide o espaço interno
                 // com as folhas e continua à vista enquanto elas rolam.
-                <div className="flex shrink-0 items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 duration-200 animate-in fade-in-0 slide-in-from-top-2">
-                  <span className="text-sm">
-                    {chosen.size === 0
-                      ? picking === "range"
-                        ? "Tap the first sheet of the stretch, then the last one."
-                        : "Tap the sheets you want."
-                      : <><span className="font-medium">{chosen.size}</span> selected</>}
-                  </span>
-                  <span className="flex-1" />
+                //
+                // No celular a instrução fica numa linha e os comandos na de
+                // baixo: lado a lado, a frase espremia em uma palavra por linha
+                // e o último botão saía da tela.
+                <div className="flex shrink-0 flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 duration-200 animate-in fade-in-0 slide-in-from-top-2 sm:flex-row sm:items-center sm:gap-3">
+                  {/* A instrução e o "todas" na mesma linha: são o mesmo
+                      assunto, quanto se escolheu e como escolher tudo. */}
+                  {/* No celular os dois vão para as pontas da linha: a frase
+                      começa na esquerda e o "todas" encosta na direita, que é
+                      onde a mão alcança. Onde a barra é uma linha só, ele fica
+                      colado na frase, porque a direita já é dos comandos. */}
+                  <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
+                    <span className="min-w-0 text-sm">
+                      {chosen.size === 0
+                        ? picking === "range"
+                          ? "Tap the first sheet of the stretch, then the last one."
+                          : "Tap the sheets you want."
+                        : <><span className="font-medium">{chosen.size}</span> selected</>}
+                    </span>
+
+                    {/* Todas de uma vez, do lado da contagem, que é onde a
+                        pessoa já está olhando para saber quantas tem. É por
+                        aqui que se troca ou se baixa o caderno inteiro: os
+                        dois botões que faziam isso sozinhos no cabeçalho
+                        saíram, porque cada um só sabia fazer com tudo.
+
+                        Mesmo feitio dos outros três: são a mesma fileira de
+                        comandos, e um botãozinho de outra altura no meio dela
+                        parecia etiqueta, não comando. */}
+                    {!!sheets?.length && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setChosen(
+                          chosen.size === sheets.length ? new Set() : new Set(sheets.map(s => s.id)),
+                        )}
+                      >
+                        {chosen.size === sheets.length ? (
+                          <><X className="h-3.5 w-3.5" />Clear</>
+                        ) : (
+                          <>
+                            <CheckCheck className="h-3.5 w-3.5" />
+                            {/* No celular só "All": o visto duplo já diz que é
+                                marcar, e a linha ainda tem a instrução do lado. */}
+                            <span className="sm:hidden">All</span>
+                            <span className="hidden sm:inline">Select all</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+
+                  <span className="hidden flex-1 sm:block" />
+                  {/* No celular os comandos são só o ícone: quatro palavras
+                      lado a lado não cabem em 375, e cada um destes já tem um
+                      desenho que se lê sem legenda. O aviso de progresso é a
+                      exceção e aparece em qualquer largura, senão o toque não
+                      teria resposta nenhuma enquanto o arquivo se monta. */}
+                  <div className="flex w-full flex-wrap items-center justify-between gap-2 border-t border-primary/20 pt-2 sm:w-auto sm:justify-end sm:border-t-0 sm:pt-0">
                   <Button
                     variant="outline"
+                    aria-label="Download the selected sheets" className="grow basis-0 sm:grow-0 sm:basis-auto"
                     disabled={!chosen.size || !!saving}
                     onClick={downloadChosen}
                   >
                     <Download className="h-3.5 w-3.5" />
-                    {/* "Download selection" e "Download all": o par diz o que cada um
-                        leva. O número já está dito na esquerda da barra, e
-                        repeti-lo no botão trocava o nome da ação por uma
-                        contagem. */}
-                    {saving ? `Saving ${saving}` : "Download selection"}
+                    {/* O verbo só: o que ele leva já está dito na esquerda da
+                        barra, e repetir "selection" no botão trocava o nome da
+                        ação por uma descrição do que estava selecionado. */}
+                    <span className={saving ? "" : "hidden sm:inline"}>
+                      {saving ? `Saving ${saving} sheets` : "Download"}
+                    </span>
                   </Button>
                   <Button
                     variant="outline"
+                    aria-label="Rename the selected sheets" className="grow basis-0 sm:grow-0 sm:basis-auto"
                     disabled={!chosen.size || !!applying}
                     onClick={openNaming}
                   >
                     <ScanText className="h-3.5 w-3.5" />
-                    {applying ? `Reading ${applying}` : "Rename these"}
+                    <span className={applying ? "" : "hidden sm:inline"}>
+                      {applying ? `Reading ${applying}` : "Rename"}
+                    </span>
                   </Button>
-                  <Button variant="ghost" onClick={stopPicking}>Cancel</Button>
+                  {/* Trocar o que está escolhido. A escolha é a mesma que baixa
+                      e renomeia: o que muda é o que se faz com ela. */}
+                  {canManage && !!versions?.length && (
+                    <Button
+                      aria-label="Replace the selected sheets" className="grow basis-0 sm:grow-0 sm:basis-auto"
+                      disabled={!chosen.size}
+                      onClick={replaceChosen}
+                    >
+                      <CloudUpload className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Replace</span>
+                    </Button>
+                  )}
+                  {/* O X vem junto em qualquer largura: sem ele, desistir era a
+                      única coisa na fileira sem desenho, e no celular a palavra
+                      sozinha não parecia da mesma família dos outros três. */}
+                  <Button variant="ghost" aria-label="Cancel" onClick={stopPicking}>
+                    <X className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Cancel</span>
+                  </Button>
+                  </div>
                 </div>
               )}
 

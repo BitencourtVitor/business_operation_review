@@ -208,6 +208,14 @@ func (h *AtlasHandler) aplica(c *fiber.Ctx, e syncEventIn, userID string, ocorri
 			}
 			return "rejected", "folha não existe mais nesta obra"
 		}
+		// A rodada do escopo da folha, igual ao caminho com rede: sem isto o
+		// ponto criado sem sinal entrava no banco solto, fora de qualquer
+		// rodada, e sumia da lista de verificação que era o motivo de existir.
+		if punchID := h.punchDaFolha(c, e.JobsiteID, p.SheetID, userID); punchID != "" {
+			_, _ = h.db.Exec(c.Context(),
+				`UPDATE atlas_event SET punch_id = $2 WHERE id = $1 AND punch_id IS NULL`,
+				e.TargetID, punchID)
+		}
 		return "applied", ""
 
 	case "point.commented":

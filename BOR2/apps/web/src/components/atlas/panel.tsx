@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
 
 /**
  * O contêiner de listagem da sala da obra.
@@ -83,26 +84,37 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
 }
 
 /**
- * O caminho de volta.
+ * O caminho de volta, e ele é o mesmo em toda a sala da obra.
  *
- * No celular sobra só a seta: o rótulo ali roubava a largura do nome do escopo,
- * que é o que diz onde a pessoa está. Tem 32 de altura, a medida de tudo que
- * mora na faixa do cabeçalho, senão ele desalinha da fileira.
+ * Seta, moldura e o nome de **para onde** se volta, porque "voltar" sozinho não
+ * diz o que vem depois do toque. No celular sobra só a seta: o rótulo ali
+ * roubava a largura do nome do lugar onde a pessoa está. Tem 32 de altura, a
+ * medida de tudo que mora na faixa do cabeçalho, senão ele desalinha da fileira.
+ *
+ * Vale como botão, quando a volta é troca de estado dentro da mesma tela, e
+ * como link, quando ela é outra página: o desenho é o mesmo, a natureza não.
  */
-function Voltar({ onBack, rotulo, className = "" }: {
-  onBack: () => void
+export function Voltar({ onBack, href, rotulo, extenso, className = "flex" }: {
+  onBack?: () => void
+  href?: string
   rotulo: string
+  /** O nome do destino aparece em qualquer largura, e não só de `sm` para cima. */
+  extenso?: boolean
   className?: string
 }) {
-  return (
-    <button
-      type="button"
-      onClick={onBack}
-      aria-label={rotulo}
-      className={`-ml-1.5 h-8 shrink-0 items-center gap-1 rounded-md border border-border/60 px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground ${className}`}
-    >
+  const traje = `-ml-1.5 h-8 shrink-0 items-center gap-1 rounded-md border border-border/60 px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground ${className}`
+  const dentro = (
+    <>
       <ChevronLeft className="h-3.5 w-3.5" />
-      <span className="hidden sm:inline">{rotulo}</span>
+      <span className={extenso ? "" : "hidden sm:inline"}>{rotulo}</span>
+    </>
+  )
+  if (href) {
+    return <Link href={href} aria-label={rotulo} title={rotulo} className={traje}>{dentro}</Link>
+  }
+  return (
+    <button type="button" onClick={onBack} aria-label={rotulo} className={traje}>
+      {dentro}
     </button>
   )
 }

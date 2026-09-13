@@ -17,7 +17,7 @@ import {
 import {
   ChevronLeft, ChevronRight, Crop, Minus, Plus, RotateCcw, Trash2, ZoomIn, ZoomOut,
 } from "lucide-react"
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 
 const EMPTY_REGION: NamingRegion = { x0: 0, y0: 0, x1: 0, y1: 0, rotation: 0 }
 
@@ -237,12 +237,20 @@ export type NamingEditorContext = {
  * documento que já existe, e é a segunda etapa do documento novo: lá ela não
  * é um botão que abre outra janela, é a própria etapa.
  */
-export function NamingTemplateEditor({ url, open, initial, fileName, actions }: {
+export function NamingTemplateEditor({ url, open, initial, fileName, paginas, actions }: {
   url: string
   open: boolean
   initial?: NamingTemplate
   /** O nome do arquivo anexado, de onde o modo "From the file" tira o título. */
   fileName?: string
+  /**
+   * As folhas escolhidas na grade, quando a nomeação vale só para elas.
+   *
+   * Vazio é o arquivo inteiro. Com escolha, a virada de página anda só por
+   * dentro dela e a leitura só cobre essas: quem escolheu onze folhas quer
+   * marcar o gabarito numa delas, e não caçá-las no meio de noventa e sete.
+   */
+  paginas?: number[]
   /** Os botões, no pé da coluna de controles. */
   actions: (ctx: NamingEditorContext) => ReactNode
 }) {
@@ -259,6 +267,15 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
   // lido. Conferir é outro trabalho, com outros controles, e misturado ao
   // primeiro virava uma coluna que não cabia na tela.
   const [etapa, setEtapa] = useState<1 | 2>(1)
+
+  // A lista por onde a virada de página anda: a escolha, quando existe, ou o
+  // arquivo inteiro. Os números são índices de página, base zero.
+  const lista = useMemo(
+    () => (paginas?.length ? [...paginas].sort((a, b) => a - b) : null),
+    [paginas],
+  )
+  const ondeEstou = lista ? Math.max(0, lista.indexOf(page)) : page
+  const quantas = lista ? lista.length : pages
 
   const folhaRef = useRef<HTMLDivElement>(null)
   const start = useRef<{ x: number; y: number } | null>(null)
@@ -278,8 +295,8 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
     setEtapa(1)
     setMode(initial?.mode ?? "layout")
     setLevels(initial?.levels?.length ? initial.levels.map(l => ({ ...l })) : [{ ...EMPTY_REGION }])
-    setPage(0)
-  }, [open, initial])
+    setPage(paginas?.length ? Math.min(...paginas) : 0)
+  }, [open, initial, paginas])
 
   // Por trecho, as faixas sempre repartem o arquivo inteiro: confere ao abrir,
   // ao trocar para este modo e quando o arquivo termina de contar as páginas.
@@ -353,15 +370,24 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
 
   // O número da página é campo: quem procura a folha 60 escreve 60.
   const [paginaTexto, setPaginaTexto] = useState("1")
-  useEffect(() => setPaginaTexto(String(page + 1)), [page])
+  useEffect(() => setPaginaTexto(String(ondeEstou + 1)), [ondeEstou])
   const irParaPagina = (texto: string) => {
     const n = Number(texto)
-    if (!pages || !Number.isFinite(n) || n < 1) { setPaginaTexto(String(page + 1)); return }
-    setPage(Math.min(pages, Math.round(n)) - 1)
+    if (!quantas || !Number.isFinite(n) || n < 1) { setPaginaTexto(String(ondeEstou + 1)); return }
+    const alvo = Math.min(quantas, Math.round(n)) - 1
+    setPage(lista ? lista[alvo] : alvo)
   }
 
-  const anterior = useSegurar(() => setPage(p => Math.max(0, p - 1)))
-  const proxima = useSegurar(() => setPage(p => (pages ? Math.min(pages - 1, p + 1) : p)))
+  const anterior = useSegurar(() => setPage(p => {
+    if (!lista) return Math.max(0, p - 1)
+    const i = Math.max(0, lista.indexOf(p))
+    return lista[Math.max(0, i - 1)] ?? p
+  }))
+  const proxima = useSegurar(() => setPage(p => {
+    if (!lista) return pages ? Math.min(pages - 1, p + 1) : p
+    const i = Math.max(0, lista.indexOf(p))
+    return lista[Math.min(lista.length - 1, i + 1)] ?? p
+  }))
   const afastar = useSegurar(() => zoomNoCentro(1 / 1.2))
   const aproximar = useSegurar(() => zoomNoCentro(1.2))
 
@@ -512,7 +538,8 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
     setReading("0")
     try {
       const names = await readPageNames(url, { mode, levels: usable },
-        (done, total) => setReading(`${done}/${total}`), undefined, fileName)
+        (done, total) => setReading(`${done}/${total}`), undefined, fileName,
+        lista ?? undefined)
       setPreview(names)
       // Lida a prévia, o trabalho passa a ser conferir: a coluna troca de guia
       // sozinha, porque é para isso que a pessoa pediu a leitura.
@@ -703,19 +730,19 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
                 <input
                   type="number"
                   min={1}
-                  max={pages || 1}
+                  max={quantas || 1}
                   value={paginaTexto}
-                  disabled={!pages}
+                  disabled={!quantas}
                   onChange={e => setPaginaTexto(e.target.value)}
                   onBlur={() => irParaPagina(paginaTexto)}
                   onKeyDown={e => { if (e.key === "Enter") irParaPagina(paginaTexto) }}
                   className="h-7 w-10 rounded-md border border-input bg-transparent text-center text-xs tabular-nums outline-none focus-visible:border-ring dark:bg-input/30 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                of {pages || "…"}
+                of {quantas || "…"}
               </span>
               <Button
                 size="icon" variant="ghost" className="h-8 w-8"
-                disabled={page + 1 >= pages}
+                disabled={ondeEstou + 1 >= quantas}
                 title="Next page. Hold to run through the file"
                 {...proxima}
               >
@@ -963,10 +990,12 @@ export function NamingTemplateEditor({ url, open, initial, fileName, actions }: 
   )
 }
 
-export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
+export function NamingTemplateDialog({ url, open, initial, paginas, onClose, onSave }: {
   url: string
   open: boolean
   initial?: NamingTemplate
+  /** As folhas escolhidas, quando a nomeação vale só para elas. */
+  paginas?: number[]
   onClose: () => void
   onSave: (template: NamingTemplate) => void
 }) {
@@ -984,6 +1013,7 @@ export function NamingTemplateDialog({ url, open, initial, onClose, onSave }: {
           url={url}
           open={open}
           initial={initial}
+          paginas={paginas}
           actions={({ template, ready, reading, etapa, runPreview }) => (
             <div className="flex gap-2">
               <Button variant="outline" onClick={onClose}>Cancel</Button>
