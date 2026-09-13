@@ -1879,6 +1879,10 @@ type atlasEvent struct {
 	// mesmo jeito que no histórico de revisão de folha.
 	CreatedByName string `json:"createdByName"`
 	CreatedByRole string `json:"createdByRole"`
+	// Quem marcou como resolvido. Raramente é quem levantou o problema, e o
+	// container da solução assina.
+	ResolvedByName string `json:"resolvedByName"`
+	ResolvedByRole string `json:"resolvedByRole"`
 	// De que obra é. A lista de tasks de uma obra só não precisaria disto, mas
 	// o container mostra a obra, e quem lê uma task fora da sala dela não tem
 	// como saber onde aquilo aconteceu.
@@ -1904,12 +1908,14 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
 		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'),
 		       COALESCE(u.name, ''), COALESCE(u.role::text, ''),
+		       COALESCE(ru.name, ''), COALESCE(ru.role::text, ''),
 		       COALESCE(NULLIF(j.community,''), j.name), COALESCE(NULLIF(j.unit,''), j.code, ''),
 		       COALESCE(v.document_id, '')
 		FROM atlas_event e
 		-- Todos LEFT: autor apagado, folha solta e versão removida não podem
 		-- sumir com a task. O que se perde é o nome, nunca o registro.
 		LEFT JOIN users u ON u.id = e.created_by
+		LEFT JOIN users ru ON ru.id = e.resolved_by
 		LEFT JOIN atlas_jobsite j ON j.id = e.jobsite_id
 		LEFT JOIN atlas_sheet s ON s.id = e.sheet_id
 		LEFT JOIN atlas_document_version v ON v.id = s.version_id
@@ -1931,7 +1937,8 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body,
 			&e.Status, &e.Number, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
 			&e.ResolvedBy, &resolved, &e.Replies, &e.Media,
-			&e.CreatedByName, &e.CreatedByRole, &e.JobsiteName, &e.JobsiteUnit,
+			&e.CreatedByName, &e.CreatedByRole, &e.ResolvedByName, &e.ResolvedByRole,
+			&e.JobsiteName, &e.JobsiteUnit,
 			&e.DocumentID); err != nil {
 			return internalErr(c, err)
 		}
@@ -2435,17 +2442,21 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		limit = n
 	}
 	rows, err := h.db.Query(c.Context(), `
-		SELECT id, event_id, daily_log_id, kind, r2_key, file_name, content_type,
-		       byte_size, caption, uploaded_by, uploaded_at, album,
-		       COALESCE(taken_at, uploaded_at), phase, title, description, transcript
-		FROM atlas_media
-		WHERE jobsite_id = $1 AND status = 'uploaded'
-		  AND ($2 = '' OR event_id = $2)
-		  AND ($3 = '' OR daily_log_id = $3)
-		  AND ($5 = '' OR album = $5)
+		SELECT m.id, m.event_id, m.daily_log_id, m.kind, m.r2_key, m.file_name, m.content_type,
+		       m.byte_size, m.caption, m.uploaded_by, m.uploaded_at, m.album,
+		       COALESCE(m.taken_at, m.uploaded_at), m.phase, m.title, m.description, m.transcript,
+		       -- Quem anexou, com o cargo: a solução de um ponto raramente é de
+		       -- quem levantou o problema, e o container da solução assina.
+		       COALESCE(u.name, ''), COALESCE(u.role::text, '')
+		FROM atlas_media m
+		LEFT JOIN users u ON u.id = m.uploaded_by
+		WHERE m.jobsite_id = $1 AND m.status = 'uploaded'
+		  AND ($2 = '' OR m.event_id = $2)
+		  AND ($3 = '' OR m.daily_log_id = $3)
+		  AND ($5 = '' OR m.album = $5)
 		-- Ordenado pela hora da captura, não pela do upload: o álbum tem que
 		-- contar o dia da obra, não a hora em que alguém lembrou de mandar.
-		ORDER BY COALESCE(taken_at, uploaded_at) DESC LIMIT $4`,
+		ORDER BY COALESCE(m.taken_at, m.uploaded_at) DESC LIMIT $4`,
 		jobsiteID, c.Query("eventId"), c.Query("dailyLogId"), limit, c.Query("album"))
 	if err != nil {
 		return internalErr(c, err)
@@ -2474,6 +2485,9 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		Description string `json:"description"`
 		// O texto da descrição falada, quando esta mídia é áudio.
 		Transcript string `json:"transcript"`
+		// Quem anexou, para o container da solução assinar quem a executou.
+		UploadedByName string `json:"uploadedByName"`
+		UploadedByRole string `json:"uploadedByRole"`
 	}
 	out := []media{}
 	keys := []string{}
@@ -2484,7 +2498,8 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		var taken time.Time
 		if err := rows.Scan(&m.ID, &m.EventID, &m.DailyLogID, &m.Kind, &key, &m.FileName,
 			&m.ContentType, &m.ByteSize, &m.Caption, &m.UploadedBy, &uploaded,
-			&m.Album, &taken, &m.Phase, &m.Title, &m.Description, &m.Transcript); err != nil {
+			&m.Album, &taken, &m.Phase, &m.Title, &m.Description, &m.Transcript,
+			&m.UploadedByName, &m.UploadedByRole); err != nil {
 			return internalErr(c, err)
 		}
 		m.UploadedAt = uploaded.Format(time.RFC3339)
