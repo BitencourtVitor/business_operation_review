@@ -99,6 +99,30 @@ function nomeDoEscopo(escopo: AtlasPunchScope): string {
   return escopo.value
 }
 
+/**
+ * O corpo do ponto, abrindo e fechando com transição.
+ *
+ * Fechado de golpe (`isOpen && (...)`), o container aparecia e sumia sem
+ * aviso: a lista pulava embaixo do dedo. A altura anima pela linha da grade
+ * (0fr a 1fr), o mesmo truque da janela de versões, e o conteúdo continua
+ * montado depois da primeira abertura, para fechar também deslizar em vez de
+ * cortar.
+ */
+function Colapsavel({ aberto, children }: { aberto: boolean; children: React.ReactNode }) {
+  const [montado, setMontado] = useState(aberto)
+  if (aberto && !montado) setMontado(true)
+  return (
+    <div
+      inert={!aberto}
+      className={`grid transition-[grid-template-rows] duration-200 ease-out ${aberto ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+    >
+      <div className="min-h-0 overflow-hidden">
+        {montado && children}
+      </div>
+    </div>
+  )
+}
+
 export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
   jobsiteId: string
   jobsiteName: string
@@ -709,6 +733,11 @@ function PunchScopeView({
                       {/* No celular só o ícone: o plano precisa da largura. */}
                       <span className="hidden sm:inline">{p.status === "resolved" ? "Resolved" : "Pending"}</span>
                     </Badge>
+                    {/* O chevron mora na linha do título, e a contagem de
+                        anexos na linha do autor, mas as duas ficam presas na
+                        mesma margem direita: uma coluna que sobe e desce
+                        alinhada, e não um chevron solto ao lado da foto. */}
+                    <ChevronDown className={`ml-auto h-4 w-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </span>
                   <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
                     <FileText className="h-3 w-3 shrink-0" />
@@ -721,42 +750,39 @@ function PunchScopeView({
                       <CalendarDays className="h-3.5 w-3.5 shrink-0" />
                       {dataCompleta(p.createdAt)}
                     </span>
-                    <span className="ml-auto flex shrink-0 items-center gap-2">
-                      {temRegistro && (
-                        <>
-                          {p.photos > 0 && (
-                            <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
-                              <Camera className="h-3 w-3" />
-                              {p.photos}
-                            </span>
-                          )}
-                          {p.videos > 0 && (
-                            <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
-                              <Video className="h-3 w-3" />
-                              {p.videos}
-                            </span>
-                          )}
-                          {p.status !== "resolved" && p.after > 0 && (
-                            <span
-                              className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
-                              title="There is proof of the fix on this point"
-                            >
-                              <CheckCircle2 className="h-3 w-3" />
-                            </span>
-                          )}
-                        </>
-                      )}
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                    </span>
+                    {temRegistro && (
+                      <span className="ml-auto flex shrink-0 items-center gap-2">
+                        {p.photos > 0 && (
+                          <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
+                            <Camera className="h-3 w-3" />
+                            {p.photos}
+                          </span>
+                        )}
+                        {p.videos > 0 && (
+                          <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
+                            <Video className="h-3 w-3" />
+                            {p.videos}
+                          </span>
+                        )}
+                        {p.status !== "resolved" && p.after > 0 && (
+                          <span
+                            className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
+                            title="There is proof of the fix on this point"
+                          >
+                            <CheckCircle2 className="h-3 w-3" />
+                          </span>
+                        )}
+                      </span>
+                    )}
                   </span>
                 </button>
 
-                {isOpen && (
-                  /* Aberto, o ponto vira container com dois blocos: a linha que
+                <Colapsavel aberto={isOpen}>
+                  {/* Aberto, o ponto vira container com dois blocos: a linha que
                      identifica em cima, e o que se faz com ele embaixo, com
                      borda e fundo próprios. Sem essa separação o antes, o
                      depois e a conversa flutuavam soltos dentro do mesmo
-                     retângulo do título. */
+                     retângulo do título. */}
                   <div className="border-t border-border/60 bg-muted/20 px-3 py-3">
                     <PointDetail
                       jobsiteId={jobsiteId}
@@ -825,7 +851,7 @@ function PunchScopeView({
                       })()}
                     />
                   </div>
-                )}
+                </Colapsavel>
               </div>
             )
           })}
