@@ -85,10 +85,10 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegist
   }
 
   return (
-    // A coluna ocupa a altura da metade inteira: o baralho centrado nela, a
-    // câmera na largura toda e o editar no meio do que sobra embaixo. Presos a
-    // 84 e encostados à direita, os três deixavam uma faixa vazia do lado.
-    <div className="flex w-[116px] shrink-0 flex-col items-center gap-1.5 self-stretch">
+    // Tudo colado no topo, na ordem em que se usa: o baralho centrado na
+    // coluna, a câmera e o editar na largura toda logo abaixo dele. O que
+    // sobra de altura fica embaixo, e não espalhado entre os botões.
+    <div className="flex w-[116px] shrink-0 flex-col items-center gap-1.5">
       {pecas.length > 0 && (
         // O baralho não cresce com a coluna: com várias peças ele se alarga
         // pela tira de cada carta, e é essa conta que não pode mudar.
@@ -160,16 +160,14 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegist
       )}
 
       {canWrite && onEditar && (
-        <div className="flex w-full flex-1 items-center">
-          <button
-            type="button"
-            onClick={onEditar}
-            className="flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-border/60 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-          >
-            <Pencil className="h-3.5 w-3.5 shrink-0" />
-            Edit
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onEditar}
+          className="flex h-8 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border/60 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+        >
+          <Pencil className="h-3.5 w-3.5 shrink-0" />
+          Edit
+        </button>
       )}
 
       {canWrite && (

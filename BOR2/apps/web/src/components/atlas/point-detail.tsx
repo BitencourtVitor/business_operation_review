@@ -32,8 +32,13 @@ function quando(iso: string) {
  * texto, com o resto da linha vazio ao lado. É a mesma forma que o ponto tem
  * na janelinha sobre a prancha e no relatório impresso: três superfícies
  * mostram a mesma coisa, e quem aprende uma sabe ler as outras.
+ *
+ * As peças flutuam à direita e o texto contorna. Em duas colunas, o texto
+ * longo descia espremido do lado das peças e, abaixo delas, a coluna da
+ * direita ficava vazia até o fim da metade; contornando, o texto volta à
+ * largura inteira assim que as peças acabam.
  */
-function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, data, children }: {
+function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, data, flutuar = true, children }: {
   rotulo: string
   icone: React.ElementType
   tom: "problema" | "solucao"
@@ -45,27 +50,45 @@ function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, 
   nome?: string
   cargo?: string
   data?: string
+  /**
+   * As peças contornadas pelo texto. Desligado, é a forma de duas colunas com
+   * o lado direito centrado na altura, que serve ao botão sozinho da solução
+   * ainda não registrada.
+   */
+  flutuar?: boolean
   children: React.ReactNode
 }) {
+  const escrito = (
+    <>
+      <span className={`mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider ${
+        tom === "solucao" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+      }`}>
+        <Icone className="h-3.5 w-3.5 shrink-0" />
+        {rotulo}
+      </span>
+
+      {titulo && <p className="mb-1.5 text-sm font-semibold leading-snug">{titulo}</p>}
+      {texto
+        ? <p className="whitespace-pre-wrap text-sm leading-snug">{texto}</p>
+        : !titulo && <p className="text-sm italic text-muted-foreground">{vazio}</p>}
+    </>
+  )
+
   return (
     <div className="flex flex-col gap-1.5 py-3 first:pt-0 last:pb-0">
-      <div className="flex gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <span className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider ${
-            tom === "solucao" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
-          }`}>
-            <Icone className="h-3.5 w-3.5 shrink-0" />
-            {rotulo}
-          </span>
-
-          {titulo && <p className="text-sm font-semibold leading-snug">{titulo}</p>}
-          {texto
-            ? <p className="whitespace-pre-wrap text-sm leading-snug">{texto}</p>
-            : !titulo && <p className="text-sm italic text-muted-foreground">{vazio}</p>}
+      {flutuar ? (
+        // flow-root encerra a flutuação aqui dentro: sem ele, a assinatura
+        // subia para o lado das peças quando o texto era mais curto que elas.
+        <div className="flow-root">
+          <div className="float-right mb-1.5 ml-3">{children}</div>
+          {escrito}
         </div>
-
-        {children}
-      </div>
+      ) : (
+        <div className="flex gap-3">
+          <div className="min-w-0 flex-1">{escrito}</div>
+          {children}
+        </div>
+      )}
 
       {/* Fora da coluna do texto, na largura inteira: quem fez e quando é o
           fecho do registro, e não um detalhe amarrado a uma das duas metades. */}
@@ -191,6 +214,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
             // A solução tem data como o problema tem. Resolvido, é quando foi
             // marcado; ainda sem marca, é quando a última prova do conserto subiu.
             data={point.resolvedAt || depois[depois.length - 1]?.uploadedAt}
+            flutuar={depois.length > 0}
           >
             {/* Sem solução registrada, a metade oferece o registro inteiro, e não
                 uma câmera solta: o mesmo formulário com que o problema entrou. */}
