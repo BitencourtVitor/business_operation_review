@@ -219,25 +219,10 @@ func (h *AtlasHandler) aplica(c *fiber.Ctx, e syncEventIn, userID string, ocorri
 		return "applied", ""
 
 	case "point.commented":
-		var p struct {
-			ReplyID string `json:"replyId"`
-			Body    string `json:"body"`
-		}
-		_ = json.Unmarshal(e.Payload, &p)
-		if !h.pontoVivo(c, e.TargetID) {
-			return "rejected", "o ponto foi excluído por outra pessoa"
-		}
-		id := p.ReplyID
-		if id == "" {
-			id = e.ID
-		}
-		if _, err := h.db.Exec(c.Context(), `
-			INSERT INTO atlas_event_reply (id, event_id, author_id, body, created_at)
-			VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
-			id, e.TargetID, userID, p.Body, ocorrido); err != nil {
-			return "rejected", "não foi possível gravar o comentário"
-		}
-		return "applied", ""
+		// Comentário foi retirado do ponto em 13/09. O que ainda estiver na fila
+		// de algum aparelho é recusado com o motivo, em vez de gravar algo que
+		// não aparece em lugar nenhum.
+		return "rejected", "comentários foram retirados dos pontos"
 
 	case "point.status_changed":
 		var p struct {

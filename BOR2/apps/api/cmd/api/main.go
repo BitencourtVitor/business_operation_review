@@ -769,8 +769,6 @@ func main() {
 	atlas.Post("/jobsites/:id/events", atlasHandler.CreateEvent)
 	atlas.Patch("/events/:id", atlasHandler.UpdateEvent)
 	atlas.Delete("/events/:id", atlasHandler.DeleteEvent)
-	atlas.Get("/events/:id/replies", atlasHandler.ListReplies)
-	atlas.Post("/events/:id/replies", atlasHandler.CreateReply)
 	atlas.Get("/jobsites/:id/daily-logs", atlasHandler.ListDailyLogs)
 	atlas.Post("/jobsites/:id/daily-logs", atlasHandler.CreateDailyLog)
 	atlas.Patch("/daily-logs/:id", atlasHandler.UpdateDailyLog)

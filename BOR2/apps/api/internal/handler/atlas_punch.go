@@ -63,13 +63,11 @@ type punchPoint struct {
 	// A coordenada normalizada do ponto na página. É o que permite ao relatório
 	// recortar a região do desenho em volta dele, em vez de mandar a prancha
 	// inteira e deixar quem lê procurar.
-	PageX    *float64 `json:"pageX"`
-	PageY    *float64 `json:"pageY"`
-	Photos   int      `json:"photos"`
-	Videos   int      `json:"videos"`
-	Audios   int      `json:"audios"`
-	After    int      `json:"after"`
-	Comments int      `json:"comments"`
+	PageX  *float64 `json:"pageX"`
+	PageY  *float64 `json:"pageY"`
+	Photos int      `json:"photos"`
+	Videos int      `json:"videos"`
+	After  int      `json:"after"`
 
 	CreatedBy   string `json:"createdBy"`
 	CreatedName string `json:"createdName"`
@@ -106,12 +104,8 @@ const punchSelect = `
 	         WHERE m.event_id = e.id AND m.status = 'uploaded'
 	           AND m.content_type LIKE 'video/%'),
 	       (SELECT count(*) FROM atlas_media m
-	         WHERE m.event_id = e.id AND m.status = 'uploaded'
-	           AND m.content_type LIKE 'audio/%'),
-	       (SELECT count(*) FROM atlas_media m
 	         WHERE m.event_id = e.id AND m.status = 'uploaded' AND m.phase = 'after'
 	           AND (m.content_type LIKE 'image/%' OR m.content_type LIKE 'video/%')),
-	       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
 	       e.created_by, COALESCE(u.name,''), COALESCE(u.role::text,''), e.created_at, e.resolved_at,
 	       COALESCE(ru.name,''), COALESCE(ru.role::text,'')
 	  FROM atlas_event e
@@ -161,7 +155,7 @@ func (h *AtlasHandler) ListPunchList(c *fiber.Ctx) error {
 			&p.SheetID, &p.SheetNumber, &p.PageIndex,
 			&p.DocumentID, &p.Document, &p.Category, &p.Subcategory,
 			&p.ScopeKind, &p.ScopeValue,
-			&p.PageX, &p.PageY, &p.Photos, &p.Videos, &p.Audios, &p.After, &p.Comments,
+			&p.PageX, &p.PageY, &p.Photos, &p.Videos, &p.After,
 			&p.CreatedBy, &p.CreatedName, &p.CreatedRole, &created, &resolved,
 			&p.ResolvedName, &p.ResolvedRole); err != nil {
 			continue
@@ -267,6 +261,7 @@ func (h *AtlasHandler) PunchListMedia(c *fiber.Ctx) error {
 		  JOIN atlas_document_version v    ON v.id = s.version_id
 		  JOIN atlas_documento_escopo esc  ON esc.document_id = v.document_id
 		 WHERE m.jobsite_id = $1 AND m.status = 'uploaded'
+		   AND m.content_type NOT LIKE 'audio/%'
 		   AND ($2 = '' OR e.punch_id = $2)
 		   AND ($3 = '' OR esc.scope_value = $3)
 		   AND ($4 = '' OR e.status = $4)
