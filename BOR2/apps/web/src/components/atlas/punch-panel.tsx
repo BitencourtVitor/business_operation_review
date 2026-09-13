@@ -634,9 +634,9 @@ function PunchScopeView({
           </p>
         </div>
       ) : (
-        // Do tablet para cima, dois pontos por linha. O aberto toma a linha
+        // Dois pontos por linha no tablet, três no computador. O aberto toma a linha
         // inteira: problema, solução e fotos não cabem na metade.
-        <div className="grid items-start gap-2 sm:grid-cols-2">
+        <div className="grid items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {pontos.map(p => {
             const isOpen = expandido === p.id
             const temRegistro = p.photos > 0 || p.videos > 0
@@ -645,7 +645,7 @@ function PunchScopeView({
               <div
                 key={p.id}
                 className={`overflow-hidden rounded-lg border bg-card transition-colors ${
-                  isOpen ? "border-primary/40 sm:col-span-2" : "border-border/60 hover:border-border"
+                  isOpen ? "border-primary/40 sm:col-span-2 lg:col-span-3" : "border-border/60 hover:border-border"
                 }`}
               >
                 {/* O cartão fechado é um botão só, em três linhas que começam na
