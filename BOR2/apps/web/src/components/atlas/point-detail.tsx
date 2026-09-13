@@ -24,10 +24,12 @@ function quando(iso: string) {
  * impresso: três superfícies mostram a mesma coisa, e quem aprende uma sabe
  * ler as outras.
  */
-function Metade({ rotulo, icone: Icone, tom, texto, vazio, nome, cargo, data, children }: {
+function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, data, children }: {
   rotulo: string
   icone: React.ElementType
   tom: "problema" | "solucao"
+  /** O título do problema, ou da solução, logo abaixo do rótulo. */
+  titulo?: string
   texto: string
   /** O que se diz quando não há texto: a metade existe, o escrito ainda não. */
   vazio: string
@@ -46,9 +48,10 @@ function Metade({ rotulo, icone: Icone, tom, texto, vazio, nome, cargo, data, ch
           {rotulo}
         </span>
 
+        {titulo && <p className="text-sm font-semibold leading-snug">{titulo}</p>}
         {texto
           ? <p className="whitespace-pre-wrap text-sm leading-snug">{texto}</p>
-          : <p className="text-sm italic text-muted-foreground">{vazio}</p>}
+          : !titulo && <p className="text-sm italic text-muted-foreground">{vazio}</p>}
 
         {/* `mt-auto` prende a assinatura no pé, mesmo quando a coluna das peças
             é mais alta que a do texto: quem fez e quando é o fecho do registro,
@@ -95,6 +98,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   point: {
     id: string
     status: string
+    title?: string
     body: string
     createdName?: string
     createdRole?: string
@@ -128,8 +132,12 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   // não ganha metade vazia.
   const temSolucao = depois.length > 0 || point.status === "resolved" || canWrite
   // O que foi feito, escrito peça por peça na hora de documentar a correção.
+  // A primeira peça com título dá o título da solução; o que se escreveu nas
+  // peças vira o corpo, na ordem em que subiram.
+  const pecaTitulo = depois.find(m => m.title)
+  const tituloDaSolucao = pecaTitulo?.title ?? ""
   const oQueFoiFeito = depois
-    .map(m => [m.title, m.description].filter(Boolean).join(": "))
+    .map(m => m === pecaTitulo ? m.description : [m.title, m.description].filter(Boolean).join(": "))
     .filter(Boolean)
     .join("\n")
 
@@ -140,6 +148,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
           rotulo="Problem"
           icone={Flag}
           tom="problema"
+          titulo={point.title}
           texto={point.body}
           vazio="No description."
           nome={point.createdName}
@@ -160,6 +169,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
             rotulo="Solution"
             icone={CheckCircle2}
             tom={depois.length > 0 || point.status === "resolved" ? "solucao" : "problema"}
+            titulo={tituloDaSolucao}
             texto={oQueFoiFeito}
             vazio={point.status === "resolved"
               ? "Marked as resolved, with nothing written about the fix."

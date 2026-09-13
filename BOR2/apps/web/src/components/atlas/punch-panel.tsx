@@ -655,12 +655,12 @@ function PunchScopeView({
                           {p.number}
                         </span>
                       )}
-                      {/* No celular o título quebra em duas linhas em vez de
-                          ser cortado: "King stud out of plumb at the left
-                          header" virava "King stud out d…", que não identifica
-                          ponto nenhum. Na tela larga ele cabe numa linha só. */}
-                      <span className="line-clamp-2 text-sm font-medium leading-tight sm:truncate">
-                        {p.title || p.body.slice(0, 60) || "Untitled"}
+                      {/* O que identifica o ponto é o número e a prancha em que
+                          ele está, e não o título: é assim que se acha o ponto
+                          em obra ("o 5 da 1-04-L"). O título desceu para dentro
+                          do problema, onde é lido junto com o resto dele. */}
+                      <span className="truncate text-sm font-semibold leading-tight">
+                        {p.sheetNumber || `Page ${p.pageIndex + 1}`}
                       </span>
                       <Badge
                         variant="outline"
@@ -680,7 +680,7 @@ function PunchScopeView({
                     <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-xs text-muted-foreground">
                       <MapPin className="h-3 w-3 shrink-0" />
                       <span className="truncate">
-                        {p.sheetNumber || `p. ${p.pageIndex + 1}`} · {p.document}
+                        {p.document}
                       </span>
                     </span>
                   </button>
