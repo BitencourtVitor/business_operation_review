@@ -46,20 +46,22 @@ type punchPoint struct {
 	// O número contínuo por obra. É por ele que o ponto é chamado no canteiro
 	// e citado no relatório impresso, e é o que a colisão de sincronização
 	// protege.
-	Number      *int   `json:"number"`
-	Title       string `json:"title"`
-	Body        string `json:"body"`
-	Status      string `json:"status"`
-	PunchID     string `json:"punchId"`
-	SheetID     string `json:"sheetId"`
-	SheetNumber string `json:"sheetNumber"`
-	PageIndex   int    `json:"pageIndex"`
-	DocumentID  string `json:"documentId"`
-	Document    string `json:"document"`
-	Category    string `json:"category"`
-	Subcategory string `json:"subcategory"`
-	ScopeKind   string `json:"scopeKind"`
-	ScopeValue  string `json:"scopeValue"`
+	Number        *int   `json:"number"`
+	Title         string `json:"title"`
+	Body          string `json:"body"`
+	SolutionTitle string `json:"solutionTitle"`
+	SolutionBody  string `json:"solutionBody"`
+	Status        string `json:"status"`
+	PunchID       string `json:"punchId"`
+	SheetID       string `json:"sheetId"`
+	SheetNumber   string `json:"sheetNumber"`
+	PageIndex     int    `json:"pageIndex"`
+	DocumentID    string `json:"documentId"`
+	Document      string `json:"document"`
+	Category      string `json:"category"`
+	Subcategory   string `json:"subcategory"`
+	ScopeKind     string `json:"scopeKind"`
+	ScopeValue    string `json:"scopeValue"`
 	// A coordenada normalizada do ponto na página. É o que permite ao relatório
 	// recortar a região do desenho em volta dele, em vez de mandar a prancha
 	// inteira e deixar quem lê procurar.
@@ -81,6 +83,7 @@ type punchPoint struct {
 	// solução com isso, do mesmo jeito que assina o problema com quem levantou;
 	// sem estes dois, a correção saía só com a data, e uma correção sem autor
 	// não se confere com ninguém.
+	ResolvedBy   string `json:"resolvedBy"`
 	ResolvedName string `json:"resolvedName"`
 	ResolvedRole string `json:"resolvedRole"`
 }
@@ -92,7 +95,7 @@ type punchPoint struct {
 // contagem só faria a lista dizer que um ponto tem três fotos quando ele tem uma
 // foto, um vídeo e o áudio de quem descreveu o problema.
 const punchSelect = `
-	SELECT e.id, e.point_number, e.title, e.body, e.status, COALESCE(e.punch_id,''),
+	SELECT e.id, e.point_number, e.title, e.body, e.solution_title, e.solution_body, e.status, COALESCE(e.punch_id,''),
 	       e.sheet_id, COALESCE(s.sheet_number,''), COALESCE(s.page_index,0),
 	       d.id, COALESCE(d.name,''), COALESCE(d.category,''), COALESCE(d.subcategory,''),
 	       esc.scope_kind, esc.scope_value,
@@ -106,7 +109,7 @@ const punchSelect = `
 	       (SELECT count(*) FROM atlas_media m
 	         WHERE m.event_id = e.id AND m.status = 'uploaded' AND m.phase = 'after'
 	           AND (m.content_type LIKE 'image/%' OR m.content_type LIKE 'video/%')),
-	       e.created_by, COALESCE(u.name,''), COALESCE(u.role::text,''), e.created_at, e.resolved_at,
+	       e.created_by, COALESCE(u.name,''), COALESCE(u.role::text,''), e.created_at, e.resolved_at, COALESCE(e.resolved_by,''),
 	       COALESCE(ru.name,''), COALESCE(ru.role::text,'')
 	  FROM atlas_event e
 	  JOIN atlas_sheet s              ON s.id = e.sheet_id
@@ -151,12 +154,12 @@ func (h *AtlasHandler) ListPunchList(c *fiber.Ctx) error {
 		var p punchPoint
 		var created time.Time
 		var resolved *time.Time
-		if err := rows.Scan(&p.ID, &p.Number, &p.Title, &p.Body, &p.Status, &p.PunchID,
+		if err := rows.Scan(&p.ID, &p.Number, &p.Title, &p.Body, &p.SolutionTitle, &p.SolutionBody, &p.Status, &p.PunchID,
 			&p.SheetID, &p.SheetNumber, &p.PageIndex,
 			&p.DocumentID, &p.Document, &p.Category, &p.Subcategory,
 			&p.ScopeKind, &p.ScopeValue,
 			&p.PageX, &p.PageY, &p.Photos, &p.Videos, &p.After,
-			&p.CreatedBy, &p.CreatedName, &p.CreatedRole, &created, &resolved,
+			&p.CreatedBy, &p.CreatedName, &p.CreatedRole, &created, &resolved, &p.ResolvedBy,
 			&p.ResolvedName, &p.ResolvedRole); err != nil {
 			continue
 		}

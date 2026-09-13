@@ -298,6 +298,9 @@ export interface AtlasEvent {
   kind: "comment" | "issue" | "task" | "rfi"
   title: string
   body: string
+  /** O que foi feito para resolver, no mesmo formato do problema. */
+  solutionTitle: string
+  solutionBody: string
   /**
    * Dois estados, e não três. "answered" existia e nascia sozinho quando alguém
    * comentava; num punch list isso mentia, porque comentar não é resolver.
@@ -447,6 +450,9 @@ export interface AtlasPunchPoint {
   number: number | null
   title: string
   body: string
+  /** O que foi feito para resolver, no mesmo formato do problema. */
+  solutionTitle: string
+  solutionBody: string
   status: string
   punchId: string
   sheetId: string
@@ -471,6 +477,8 @@ export interface AtlasPunchPoint {
   createdRole: string
   createdAt: string
   resolvedAt: string
+  /** Quem resolveu: é quem pode editar a solução. */
+  resolvedBy: string
   /** Quem marcou como resolvido: assina a metade da solução. */
   resolvedName: string
   resolvedRole: string
@@ -946,11 +954,6 @@ export const atlasService = {
   mediaTopics: (mediaId: string, transcript?: string) =>
     api.post<{ transcript: string; topics: string }>(
       `${base}/media/${mediaId}/topics`, { transcript: transcript ?? "" }, getToken()),
-
-  updateMedia: (mediaId: string, patch: {
-    title?: string; description?: string; caption?: string
-    transcript?: string; phase?: "before" | "after"; eventId?: string
-  }) => api.patch(`${base}/media/${mediaId}`, patch, getToken()),
 }
 
 /** Os três jeitos de recortar o punch list, e o que eles têm em comum. */

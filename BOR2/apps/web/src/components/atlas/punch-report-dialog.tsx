@@ -180,7 +180,6 @@ export function PunchReportButton({ jobsiteId, jobsiteName, scope }: {
     return (
       <>
         <Button
-          variant="outline"
           size="sm"
           className="h-8 shrink-0 gap-1.5"
           onClick={() => setOpen(true)}
@@ -202,7 +201,7 @@ export function PunchReportButton({ jobsiteId, jobsiteName, scope }: {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger render={<Button variant="outline" size="sm" className="h-8 shrink-0 gap-1.5" />}>
+      <PopoverTrigger render={<Button size="sm" className="h-8 shrink-0 gap-1.5" />}>
         <FileDown className="h-3.5 w-3.5" />
         <span>Report</span>
       </PopoverTrigger>

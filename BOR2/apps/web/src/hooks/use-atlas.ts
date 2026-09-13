@@ -5,7 +5,7 @@ import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { local, type PlanoLocal } from "@/lib/offline/db"
 import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
 import {
-  apagarMarca, apagarPonto, criarMarca, criarPonto, descreverMidia, escreverSimples, mudarMarca,
+  apagarMarca, apagarPonto, criarMarca, criarPonto, escreverSimples, mudarMarca,
   mudarPonto, subirMidia, temPendencias,
 } from "@/lib/offline/escrever"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
@@ -981,19 +981,3 @@ export function useAtlasDictation(jobsiteId: string) {
   })
 }
 
-export function useUpdateAtlasMedia(jobsiteId: string) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ mediaId, patch }: {
-      mediaId: string
-      patch: {
-        title?: string; description?: string; caption?: string
-        transcript?: string; phase?: "before" | "after"; eventId?: string
-      }
-    }) => descreverMidia(jobsiteId, mediaId, null, patch, () => atlasService.updateMedia(mediaId, patch)),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
-      qc.invalidateQueries({ queryKey: ["atlas", "punch-media", jobsiteId] })
-    },
-  })
-}

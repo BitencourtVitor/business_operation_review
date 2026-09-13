@@ -19,8 +19,17 @@ import Link from "next/link"
  * monta a grade que o conteúdo pede, e ela é que se adapta entre o computador e
  * o celular. O contêiner cuida da moldura, do cabeçalho e da rolagem.
  */
-export function Panel({ title, action, onBack, backLabel = "Back", stackActions = false, fixo, fixoSoNoCelular = false, children }: {
+export function Panel({ title, subtitulo, action, onBack, backLabel = "Back", stackActions = false, fixo, fixoSoNoCelular = false, children }: {
   title: string
+  /**
+   * O que vem logo abaixo do título, dentro do mesmo bloco.
+   *
+   * Existe para identificação que não cabe no título sem virar uma frase só
+   * (a subcategoria de um escopo do punch e as categorias que a compõem, por
+   * exemplo). Cresce o cabeçalho quando precisa: título é o que nunca corta,
+   * e o que vem abaixo dele pode.
+   */
+  subtitulo?: React.ReactNode
   action?: React.ReactNode
   /**
    * O que fica parado entre o cabeçalho e a lista, fora da rolagem.
@@ -69,16 +78,46 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
             controles: ele é comando como os outros, e a faixa de cima fica só
             com o nome de onde a pessoa está. Na tela larga volta para o lugar
             dele, antes do título. */}
-        <div className="flex min-w-0 items-center gap-2">
+        {/* items-center por padrão: sem subtítulo o bloco é uma linha só, e o
+            voltar (mais alto que o texto) centraliza com ela como sempre foi.
+            items-start só entra quando o subtítulo de fato empilha embaixo do
+            título, porque aí o voltar precisa ficar no topo do bloco, e não
+            no meio dele. */}
+        <div className={`flex min-w-0 gap-2 ${
+          subtitulo ? (stackActions ? "items-center lg:items-start" : "items-start") : "items-center"
+        }`}>
           {onBack && <Voltar onBack={onBack} rotulo={backLabel} className={stackActions ? "hidden lg:flex" : "flex"} />}
-          <h2 className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            {title}
-          </h2>
+          {/* Título e subtítulo são um bloco só, e não embaixo da fileira
+              inteira (que inclui o botão de voltar): uma faixa geral de
+              segunda linha ficaria desalinhada com o nome do escopo,
+              começando lá na altura do "Scopes" em vez de embaixo do "1st
+              Floor".
+              A regra é sobre espaço sobrando, não sobre tamanho de tela: o
+              título mora sozinho na própria fileira sempre que as ações
+              ainda não subiram para o lado dele, e é exatamente aí que sobra
+              largura para jogar o subtítulo para a ponta oposta. Isso
+              acontece abaixo do mesmo "lg" em que `stackActions` junta as
+              duas fileiras (por isso o corte usa a mesma marca); sem
+              `stackActions`, as ações já dividem a fileira com o título
+              desde sempre, e não há sobra nenhuma para explorar. */}
+          <div className={`flex min-w-0 flex-1 items-center justify-between gap-2 ${
+            stackActions ? "lg:flex-col lg:items-start lg:justify-normal lg:gap-1" : "flex-col items-start justify-normal gap-1"
+          }`}>
+            <h2 className={`min-w-0 flex-1 truncate text-[11px] font-bold uppercase tracking-wider text-muted-foreground ${
+              stackActions ? "lg:flex-none" : "flex-none"
+            }`}>
+              {title}
+            </h2>
+            {subtitulo}
+          </div>
         </div>
         {stackActions
           ? (
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              {onBack && <Voltar onBack={onBack} rotulo={backLabel} className="flex lg:hidden" />}
+              {/* extenso: nesta fileira o nome cabe folgado, mesmo no celular,
+                  agora que ela perdeu o Sign off. Cortar para só a seta aqui
+                  seria economizar espaço que já não falta mais. */}
+              {onBack && <Voltar onBack={onBack} rotulo={backLabel} extenso className="flex lg:hidden" />}
               {action}
             </div>
           )
@@ -92,6 +131,33 @@ export function Panel({ title, action, onBack, backLabel = "Back", stackActions 
       )}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">{children}</div>
     </section>
+  )
+}
+
+/**
+ * O vazio padrão de uma listagem da sala da obra.
+ *
+ * Ícone, título e explicação, um embaixo do outro, centralizados dentro de uma
+ * moldura tracejada. É a mesma forma em toda parte que uma lista pode não ter
+ * nada para mostrar; título e texto sozinhos, sem o ícone acima, liam como um
+ * aviso de erro em vez de "ainda não há nada aqui".
+ */
+export function EmptyState({ icon: Icone, title, description, fill = false, className = "" }: {
+  icon: React.ElementType
+  title: string
+  description?: string
+  /** Ocupa a altura toda de quem o envolve, centralizado nela: o vazio de uma
+   *  tela inteira, e não de uma caixa perdida no topo com o resto em branco
+   *  embaixo. */
+  fill?: boolean
+  className?: string
+}) {
+  return (
+    <div className={`flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 p-10 text-center ${fill ? "h-full min-h-56" : ""} ${className}`}>
+      <Icone className="h-6 w-6 text-muted-foreground" />
+      <p className="text-sm font-medium">{title}</p>
+      {description && <p className="text-sm text-muted-foreground">{description}</p>}
+    </div>
   )
 }
 

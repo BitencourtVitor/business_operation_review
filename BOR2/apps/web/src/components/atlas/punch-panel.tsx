@@ -5,23 +5,22 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { HoldButton } from "@/components/atlas/hold-button"
-import { Panel } from "@/components/atlas/panel"
+import { EmptyState, Panel } from "@/components/atlas/panel"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { PointDetail } from "@/components/atlas/point-detail"
 import { PunchSheet } from "@/components/atlas/punch-sheet"
 import { RoleName } from "@/components/atlas/role-icon"
 import { PunchReportButton } from "@/components/atlas/punch-report-dialog"
 import { useAuthStore } from "@/store/auth.store"
 import {
-  useAtlasPunchPoints, useAtlasPunchScopes, useAtlasPunches,
-  useCloseAtlasPunch, useDeleteAtlasEvent, useOpenAtlasPunch, useReopenAtlasPunch,
-  useUpdateAtlasEvent,
+  useAtlasPunchPoints, useAtlasPunchScopes,
+  useDeleteAtlasEvent,
 } from "@/hooks/use-atlas"
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
-  Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
-  Clock, FileText, Layers, LocateFixed,
-  RotateCcw, Stamp, Tag, Trash2, Video,
+  Building2, Camera, CalendarDays, CheckCircle2, ChevronDown, ClipboardCheck,
+  Clock, Eye, FileText, Layers, LocateFixed,
+  Tag, Trash2, Video,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -115,6 +114,50 @@ function Colapsavel({ aberto, children }: { aberto: boolean; children: React.Rea
   )
 }
 
+/**
+ * As pastas de um escopo, ao lado ou embaixo do título do cabeçalho (a
+ * posição é de quem chama, via layout responsivo do próprio Panel).
+ *
+ * Uma pasta só, a etiqueta de sempre. Mais de uma, "N folders" e um olho ao
+ * lado: tocar nele abre o mesmo popover do cartão da grade, listando cada
+ * pasta. Não expande o cabeçalho, porque a linha de baixo do painel é fixa,
+ * e crescer ali empurraria a lista para baixo a cada abertura e fechamento.
+ */
+function CategoriasCabecalho({ categorias }: { categorias: string[] }) {
+  if (!categorias.length) return null
+  if (categorias.length === 1) {
+    return (
+      <span className="flex shrink-0 items-center gap-1 text-[11px] font-normal normal-case tracking-normal text-muted-foreground">
+        <Tag className="h-3 w-3 shrink-0" />
+        {categorias[0]}
+      </span>
+    )
+  }
+  return (
+    <Popover>
+      <span className="flex shrink-0 items-center gap-1 text-[11px] font-normal normal-case tracking-normal text-muted-foreground">
+        <Tag className="h-3 w-3 shrink-0" />
+        {categorias.length} folders
+        <PopoverTrigger
+          render={<button type="button" />}
+          aria-label="See folders"
+          className="text-muted-foreground/70 transition-colors hover:text-foreground"
+        >
+          <Eye className="h-3 w-3" />
+        </PopoverTrigger>
+      </span>
+      <PopoverContent align="center" className="w-max max-w-56 gap-1 p-1.5">
+        {categorias.map(nome => (
+          <span key={nome} className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs text-foreground">
+            <Tag className="h-3 w-3 shrink-0 text-muted-foreground" />
+            <span className="truncate">{nome}</span>
+          </span>
+        ))}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
   jobsiteId: string
   jobsiteName: string
@@ -122,7 +165,6 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
   canManage: boolean
 }) {
   const { data: escopos, isLoading } = useAtlasPunchScopes(jobsiteId)
-  const abrir = useOpenAtlasPunch(jobsiteId)
   const [aberto, setAberto] = useState<Aberto | null>(null)
 
   if (isLoading) {
@@ -149,13 +191,11 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
     )
   }
 
-  // Escopo que ninguém começou só aparece para quem pode começar.
-  //
-  // O cartão apagado é um convite, e convite só serve para quem pode aceitar.
-  // Quem tem acesso de leitura, que é o caso do subcontratado, abre esta tela
-  // para saber o que falta fazer no andar em que está hoje: mostrar a ele cinco
-  // escopos vazios com um botão que ele não pode tocar é ocupar a tela com o que
-  // não lhe diz respeito e ainda insinuar que ele deveria fazer algo ali.
+  // Escopo que ninguém começou só aparece para quem pode registrar um ponto
+  // nele. Quem tem acesso de leitura, que é o caso do subcontratado, abre esta
+  // tela para saber o que falta fazer no andar em que está hoje: mostrar a ele
+  // escopos vazios que ele não pode fazer nascer é ocupar a tela com o que não
+  // lhe diz respeito.
   //
   // Escopo com rodada fechada continua à vista de todos: ali houve verificação,
   // e o histórico é justamente o que ele pode consultar.
@@ -164,16 +204,14 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
   if (!visiveis.length) {
     return (
       <Panel title="Punch rounds">
-        <div className="rounded-lg border border-dashed border-border/60 p-10 text-center">
-          <p className="text-sm font-medium">
-            {escopos?.length ? "Nothing being walked here yet" : "No scope to verify yet"}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {escopos?.length
-              ? "When a round opens on a floor, a unit or a folder of this jobsite, it shows up here."
-              : "A scope comes from the folders of this jobsite: a floor, a unit, or a folder like the permit set. Attach a document and it shows up here."}
-          </p>
-        </div>
+        <EmptyState
+          fill
+          icon={ClipboardCheck}
+          title={escopos?.length ? "Nothing being walked here yet" : "No scope to verify yet"}
+          description={escopos?.length
+            ? "When a round opens on a floor, a unit or a folder of this jobsite, it shows up here."
+            : "A scope comes from the folders of this jobsite: a floor, a unit, or a folder like the permit set. Attach a document and it shows up here."}
+        />
       </Panel>
     )
   }
@@ -191,23 +229,12 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
     >
       {/* A grade se adapta: uma coluna no celular, duas no tablet, três do
           computador para cima. O cartão vive bem com trezentos de largura, e
-          esperar o xl deixava meia tela vazia numa lista de nove escopos.
-
-          Cada cartão tem a altura que o conteúdo dele pede. A grade estica os
-          itens por padrão, e o escopo sem rodada, que tem um botão onde o outro
-          tem três números, ficava com um vão cinza embaixo do botão só para
-          acompanhar a altura do vizinho. */}
+          esperar o xl deixava meia tela vazia numa lista de nove escopos. */}
       <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {visiveis.map(e => (
           <ScopeCard
             key={`${e.kind}:${e.value}`}
             escopo={e}
-            canWrite={canWrite}
-            abrindo={abrir.isPending}
-            onStart={() => abrir.mutate(
-              { scopeKind: e.kind, scopeValue: e.value },
-              { onSuccess: () => setAberto({ escopo: e, condicao: "" }) },
-            )}
             onOpen={condicao => setAberto({ escopo: e, condicao })}
           />
         ))}
@@ -240,14 +267,10 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
  * Agora o cartão tem um destino só. Filtrar é escolha de quem já está dentro,
  * onde as abas de condição ficam grandes e separadas.
  */
-function ScopeCard({ escopo, canWrite, abrindo, onStart, onOpen }: {
+function ScopeCard({ escopo, onOpen }: {
   escopo: AtlasPunchScope
-  canWrite: boolean
-  abrindo: boolean
-  onStart: () => void
   onOpen: (condicao: "" | "open" | "resolved") => void
 }) {
-  const semRodada = !escopo.punchId
   // A categoria que dá nome ao escopo não se repete embaixo dele. No escopo de
   // categoria o título já é o nome da pasta, e escrevê-lo de novo na linha de
   // baixo é a mesma informação duas vezes; sobra a contagem, que ali ainda diz
@@ -272,35 +295,55 @@ function ScopeCard({ escopo, canWrite, abrindo, onStart, onOpen }: {
    */
   const identificacao = (
     <>
+      {/* O título e as pastas na mesma linha, lado oposto: é a mesma regra da
+          faixa de baixo, nome à esquerda e metadata à direita. Aqui a
+          etiqueta de pastas é só leitura, sem toque nem hover: um cartão
+          numa grade de vinte não pode prometer uma ação que ele não cumpre
+          (o clique é do cartão inteiro, para abrir o escopo). */}
       <span className="flex items-center gap-2">
         {/* O ícone diz de que eixo é o escopo sem gastar uma linha de texto:
             camadas para pavimento ou unidade, prédio para categoria sem eixo. */}
         {escopo.kind === "subcategory"
-          ? <Layers className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          ? <Layers className="h-4 w-4 shrink-0 text-muted-foreground" />
           : <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">{nomeDoEscopo(escopo)}</span>
-      </span>
-
-      {pastas.length > 0 && (
-        <span className="flex flex-wrap items-center gap-1">
-          {pastas.map(nome => (
-            <span
-              key={nome}
-              className="flex max-w-full items-center gap-1 rounded border border-border/60 px-1.5 py-0.5 text-[11px] leading-tight text-muted-foreground"
-            >
-              <Tag className="h-3 w-3 shrink-0" />
-              <span className="truncate">{nome}</span>
-            </span>
-          ))}
+        {/* A subcategoria é o que importa na rodada: é ela que corre por
+            andar, por unidade, e é como o canteiro pede o escopo ("a
+            verificação do 1st"). A categoria é só de onde vêm as pastas, e por
+            isso fica embaixo, pequena — nunca ao lado, competindo com o que
+            de fato identifica a rodada. */}
+        <span className={`min-w-0 flex-1 truncate text-sm ${
+          escopo.kind === "subcategory" ? "font-semibold" : "font-medium"
+        }`}>
+          {nomeDoEscopo(escopo)}
         </span>
-      )}
+        {pastas.length === 1 && (
+          <span className="flex max-w-[40%] shrink-0 items-center gap-1 text-[11px] leading-tight text-muted-foreground">
+            <Tag className="h-3 w-3 shrink-0" />
+            <span className="truncate">{pastas[0]}</span>
+          </span>
+        )}
+        {pastas.length > 1 && (
+          <span className="flex shrink-0 items-center gap-1 text-[11px] leading-tight text-muted-foreground">
+            <Tag className="h-3 w-3 shrink-0" />
+            {pastas.length} folders
+          </span>
+        )}
+      </span>
 
       <span className="flex items-center gap-2 text-xs text-muted-foreground">
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
           {escopo.punchId && escopo.openedName && (
             <RoleName name={escopo.openedName} role={escopo.openedRole} />
           )}
-          {escopo.punchId && <span className="shrink-0">· {dataCurta(escopo.openedAt)}</span>}
+          {escopo.punchId && escopo.openedName && (
+            <span aria-hidden className="h-3 w-px shrink-0 bg-border" />
+          )}
+          {escopo.punchId && (
+            <span className="flex shrink-0 items-center gap-1">
+              <CalendarDays className="h-3 w-3 shrink-0" />
+              {dataCurta(escopo.openedAt)}
+            </span>
+          )}
           {!escopo.punchId && escopo.closed > 0 && (
             <span className="truncate">
               {escopo.closed} closed {escopo.closed === 1 ? "round" : "rounds"}
@@ -309,57 +352,15 @@ function ScopeCard({ escopo, canWrite, abrindo, onStart, onOpen }: {
         </span>
         {/* O tamanho do que se vai percorrer. Some quando não há folha: zero
             prancha é a pasta declarada e ainda vazia, e o número não ajuda. */}
-        {escopo.sheets > 0 && <span className="shrink-0">{escopo.sheets} sheets</span>}
+        {escopo.sheets > 0 && <span className="shrink-0">{escopo.sheets} plans</span>}
       </span>
     </>
   )
 
-  // Com rodada, o cartão inteiro é um alvo só: tocar em qualquer parte abre o
-  // escopo. Sem rodada, a identificação abre o histórico e o botão de começar
-  // fica sozinho no bloco de baixo, que é a única outra coisa que se faz aqui.
-  // Escopo que ninguém começou a percorrer se apaga.
-  //
-  // Numa obra com vinte escopos, a maioria não tem rodada, e com todos os
-  // cartões no mesmo peso a grade vira um mural de botões azuis: o olho não
-  // encontra os quatro que de fato têm alguma coisa acontecendo. Aqui a moldura
-  // é tracejada, o fundo quase não existe e o cartão inteiro fica translúcido,
-  // que é como o Atlas já desenha vaga esperando conteúdo. O botão vem como
-  // contorno, e não cheio: ele continua sendo a ação, sem gritar.
-  //
-  // A transparência sai no toque do mouse, para quem for usar o cartão o ver
-  // inteiro.
-  if (semRodada) {
-    return (
-      <div className="flex flex-col overflow-hidden rounded-lg border border-dashed border-border/60 bg-card/30 opacity-70 transition-opacity hover:opacity-100">
-        <button
-          type="button"
-          className="flex flex-col gap-1 px-3 py-2.5 text-left"
-          onClick={() => onOpen("")}
-        >
-          {identificacao}
-        </button>
-        <div className="border-t border-dashed border-border/60 p-2">
-          {canWrite ? (
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full gap-1.5"
-              disabled={abrindo}
-              onClick={onStart}
-            >
-              <ClipboardCheck className="h-3.5 w-3.5" />
-              {escopo.closed > 0 ? "Start a new round" : "Start a punch round"}
-            </Button>
-          ) : (
-            <span className="flex justify-center py-1 text-xs text-muted-foreground">
-              Nothing being walked here right now
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  }
-
+  // O cartão inteiro é um alvo só, com rodada ou sem: tocar em qualquer parte
+  // abre o escopo. Sem rodada, a passagem nasce sozinha no primeiro ponto que
+  // alguém registrar lá dentro; não existe botão de "começar" aqui para não
+  // duplicar o que o próprio ato de apontar um problema já faz.
   return (
     <button
       type="button"
@@ -468,104 +469,39 @@ function PunchScopeView({
   const [expandido, setExpandido] = useState<string | null>(null)
   // Uma coluna no celular, duas no tablet, três no computador.
   const colunas = useColunas()
+  // As categorias deste escopo, sem repetir o nome dele: ver o comentário de
+  // ScopeCard sobre a mesma conta.
+  const pastasDoEscopo = (escopo.folders ?? []).filter(nome => nome !== escopo.value)
   // A prancha aberta por cima da lista. Ver documento é uma coisa, conduzir a
   // verificação é outra, e trocar de tela para ver o desenho tirava a pessoa do
   // meio do percurso.
   const [noDesenho, setNoDesenho] = useState<AtlasPunchPoint | null>(null)
-  const [erro, setErro] = useState("")
-  // Onde desenhar o aviso do Sign off travado: o meio do botão e o topo dele.
-  //
-  // A posição é medida do botão e o aviso sai preso à tela, e não ao painel: o
-  // painel corta o que passa das bordas dele, e o aviso mora justamente acima da
-  // primeira linha do cabeçalho.
-  const [aviso, setAviso] = useState<{ x: number; y: number; toque: boolean } | null>(null)
-
-  // Aberto no toque, ele some sozinho. No celular não existe tirar o ponteiro de
-  // cima, e sem isso ele ficaria de pé esperando um gesto que não vem.
-  useEffect(() => {
-    if (!aviso?.toque) return
-    const t = setTimeout(() => setAviso(null), 2600)
-    return () => clearTimeout(t)
-  }, [aviso])
 
   const filtro = { scope: escopo.value, status: condicao || undefined }
   const { data: pontos, isLoading } = useAtlasPunchPoints(jobsiteId, filtro)
-  const { data: passagens } = useAtlasPunches(jobsiteId, { scope: escopo.value })
-  const abrir = useOpenAtlasPunch(jobsiteId)
-  const fechar = useCloseAtlasPunch(jobsiteId)
-  const reabrir = useReopenAtlasPunch(jobsiteId)
   const remover = useDeleteAtlasEvent(jobsiteId)
-  const condicaoDoPonto = useUpdateAtlasEvent(jobsiteId)
   const eu = useAuthStore(st => st.user)
   // O ponto que pediu para ser apagado, esperando o sim.
   const [apagando, setApagando] = useState<{ id: string; number: number | null; title: string } | null>(null)
 
-  const aberta = (passagens ?? []).find(p => !p.closedAt)
-  // Assinar com ponto em aberto é o que o banco recusa de qualquer jeito: a
-  // tela passa a dizer isso antes, em vez de deixar a pessoa tentar e falhar.
-  const travado = escopo.open > 0
-  const fechadas = (passagens ?? []).filter(p => p.closedAt)
-
   return (
     <Panel
       title={nomeDoEscopo(escopo)}
+      subtitulo={pastasDoEscopo.length > 0 ? <CategoriasCabecalho categorias={pastasDoEscopo} /> : undefined}
       onBack={onBack}
       backLabel="Scopes"
       stackActions
-      // Só os pontos rolam. As rodadas assinadas, o aviso e o filtro da
-      // condição ficam parados entre o cabeçalho e a lista.
-      fixoSoNoCelular={fechadas.length === 0 && !erro}
-      fixo={(fechadas.length > 0 || !!erro) ? (
-        <div className="flex flex-col gap-3">
-      {/* As rodadas já assinadas deste escopo. Existem para provar que a
-          verificação aconteceu, e para reabrir quando alguém assinou cedo. */}
-      {fechadas.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-          <span className="shrink-0">Signed off:</span>
-          {fechadas.map(p => (
-            <span key={p.id} className="flex items-center gap-1 rounded-md border border-border/60 bg-card px-2 py-0.5">
-              {dataCurta(p.openedAt)} to {dataCurta(p.closedAt)} · {p.total} points
-              {canManage && (
-                <button
-                  type="button"
-                  title="Reopen this round"
-                  disabled={reabrir.isPending || !!aberta}
-                  onClick={() => reabrir.mutate(p.id)}
-                  className="ml-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </button>
-              )}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {erro && (
-        <p className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          {erro}
-        </p>
-      )}
-
-      {/* No celular o controle mora aqui, em cima da lista, ocupando a largura
-          toda: um terço para cada, que é alvo de dedo. Do tablet para cima ele
-          sobe para o cabeçalho, onde sobra espaço e ele fica na mesma faixa das
-          outras ações da rodada. */}
-      <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
-        </div>
-      ) : (
-        <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
-      )}
+      // Só os pontos rolam. O filtro da condição fica parado entre o
+      // cabeçalho e a lista.
+      fixoSoNoCelular
+      fixo={<Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />}
       action={(
-        // Duas ações de gravidade diferente, e o desenho diz qual é qual: o
-        // relatório é contorno, porque só produz um arquivo e se refaz quantas
-        // vezes quiser; a ação da rodada é cheia, porque muda o estado da
-        // verificação. Antes as duas saíam idênticas, lado a lado.
+        // O relatório é a prova de que a verificação aconteceu: assinar uma
+        // rodada por cima disso era duplicar o mesmo atestado de duas formas
+        // diferentes. Resolver os pontos e exportar o relatório já fecha o
+        // ciclo; o décimo quarto ponto que aparecer depois só entra na lista,
+        // sem precisar reabrir nada.
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          {/* Tudo colado à direita, do outro lado do voltar: o filtro é comando
-              da lista como Report e Sign off, e os três se leem como um grupo só.
-              Espalhado pela largura, o filtro ficava órfão num canto e o
-              relatório boiando no meio. */}
           <div className="flex shrink-0 items-center gap-2">
           <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} compacto className="hidden sm:flex" />
           <PunchReportButton
@@ -573,102 +509,22 @@ function PunchScopeView({
             jobsiteName={jobsiteName}
             scope={escopo.value}
           />
-
-          {/* Abrir, assinar e reabrir são de quem conduz a verificação.
-
-              Abrir aparece só quando não há passagem: o primeiro ponto de um
-              escopo abre uma sozinho, e o botão existe para quem quer começar a
-              rodada antes de sair a campo, com data marcada. */}
-          {canWrite && !aberta && (
-            <Button
-              size="sm"
-              className="h-8 shrink-0 gap-1.5"
-              disabled={abrir.isPending}
-              onClick={() => abrir.mutate({ scopeKind: escopo.kind, scopeValue: escopo.value })}
-            >
-              <ClipboardCheck className="h-3.5 w-3.5" />
-              <span>Start a round</span>
-            </Button>
-          )}
-          {/* "Sign off" e não "Close the round": encerrar a rodada é assinar
-              embaixo do que foi percorrido, e é assim que se chama a coisa em
-              obra. O rótulo antigo descrevia a mecânica da tela. */}
-          {canManage && aberta && (
-            travado ? (
-              /* Rodada com pendência não assina, e o botão diz isso antes de a
-                 pessoa tentar: sai apagado. Ele continua clicável de propósito,
-                 porque botão morto não explica por que está morto: passar o
-                 ponteiro ou tocar diz quantos pontos ainda faltam. */
-              <>
-                <Button
-                  size="sm"
-                  aria-disabled
-                  className="h-8 shrink-0 gap-1.5 opacity-50"
-                  onPointerEnter={e => {
-                    const r = e.currentTarget.getBoundingClientRect()
-                    setAviso({ x: r.left + r.width / 2, y: r.top, toque: false })
-                  }}
-                  onPointerLeave={() => setAviso(a => (a?.toque ? a : null))}
-                  onClick={e => {
-                    const r = e.currentTarget.getBoundingClientRect()
-                    setAviso({ x: r.left + r.width / 2, y: r.top, toque: true })
-                  }}
-                >
-                  <Stamp className="h-3.5 w-3.5" />
-                  <span>Sign off</span>
-                </Button>
-                {aviso && (
-                  <span
-                    style={{ left: aviso.x, top: aviso.y - 6 }}
-                    className="pointer-events-none fixed z-50 flex w-max -translate-x-1/2 -translate-y-full flex-col items-center rounded-md bg-foreground px-3 py-1.5 text-center text-xs text-background"
-                  >
-                    <span className="font-bold">Not yet</span>
-                    <span>
-                      {escopo.open} {escopo.open === 1 ? "point" : "points"} still pending
-                    </span>
-                  </span>
-                )}
-              </>
-            ) : (
-              <Button
-                size="sm"
-                className="h-8 shrink-0 gap-1.5"
-                disabled={fechar.isPending}
-                onClick={() => {
-                  setErro("")
-                  fechar.mutate(aberta.id, {
-                    onError: () => setErro(
-                      "This round still has pending points. Close them first, or reopen them later.",
-                    ),
-                  })
-                }}
-              >
-                <Stamp className="h-3.5 w-3.5" />
-                <span>Sign off</span>
-              </Button>
-            )
-          )}
           </div>
         </div>
       )}
     >
-      <div className="flex flex-col gap-3">
-
-
+      <div className="flex h-full min-h-0 flex-col gap-3">
       {isLoading ? (
         <div className="flex h-24 items-center justify-center">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
         </div>
       ) : !pontos?.length ? (
-        <div className="rounded-lg border border-dashed border-border/60 p-8 text-center">
-          <p className="text-sm font-medium">
-            {condicao === "open" ? "Nothing pending here" : "Nothing on this scope yet"}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Points start on the drawing: open a sheet, mark the spot, and it
-            shows up here.
-          </p>
-        </div>
+        <EmptyState
+          fill
+          icon={LocateFixed}
+          title={condicao === "open" ? "Nothing pending here" : "Nothing on this scope yet"}
+          description="Points start on the drawing: open a sheet, mark the spot, and it shows up here."
+        />
       ) : (
         // Colunas independentes, e não grade: abrir um ponto estica só a coluna
         // dele. Na grade o aberto tomava a linha inteira e deixava o vizinho da
@@ -785,7 +641,6 @@ function PunchScopeView({
                           || canManage
                           || ["dev", "owner", "manager"].includes(String(eu?.role ?? ""))
                         )
-                        const resolvido = p.status === "resolved"
                         return (
                           <>
                             {/* Ver o ponto, e não "abrir o desenho": quem toca
@@ -800,37 +655,16 @@ function PunchScopeView({
                               Issue
                             </button>
 
-                            <span className="flex-1" />
-
-                            {/* Não há fechar à mão: o ponto se resolve quando a
-                                solução é registrada, pelo "Problem solved". */}
-                            {canWrite && resolvido && (
-                              // Reabrir desfaz a solução de alguém: segurando.
-                              <HoldButton
-                                title="Hold to reopen"
-                                acao="reopen"
-                                andamento="Reopening"
-                                disabled={condicaoDoPonto.isPending}
-                                onConfirm={() => condicaoDoPonto.mutate({ eventId: p.id, patch: { status: "open" } })}
-                                faixa="bg-amber-500/20"
-                                className="flex h-8 items-center rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
-                              >
-                                <RotateCcw className="h-3.5 w-3.5" />
-                                Reopen
-                              </HoldButton>
-                            )}
-
                             {podeApagar && (
                               <button
                                 type="button"
                                 title="Delete this point"
-                                aria-label="Delete this point"
                                 disabled={remover.isPending}
                                 onClick={() => setApagando(p)}
                                 className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">Delete</span>
+                                Delete
                               </button>
                             )}
                           </>
@@ -853,10 +687,15 @@ function PunchScopeView({
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {apagando?.number != null ? `Point #${apagando.number}` : "This point"}
-            {apagando?.title ? `, "${apagando.title}",` : ""} will be deleted with its photos.
-          </p>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm text-muted-foreground">
+              {apagando?.number != null ? `Point #${apagando.number}` : "This point"}
+            </p>
+            {apagando?.title && (
+              <p className="text-sm font-medium">&quot;{apagando.title}&quot;</p>
+            )}
+            <p className="text-sm text-muted-foreground">Will be deleted with its photos.</p>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setApagando(null)}>No</Button>
             <Button

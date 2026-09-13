@@ -229,11 +229,8 @@ export async function montarRelatorio(
     // A solução aparece quando existe prova dela ou quando alguém marcou o
     // ponto como resolvido. Ponto pendente não ganha metade vazia.
     const temSolucao = par.depois.length > 0 || p.status === "resolved"
-    // O que foi feito, escrito peça por peça na hora de documentar a correção.
-    const oQueFoiFeito = par.depois
-      .map(m => [m.title, m.description].filter(Boolean).join(": "))
-      .filter(Boolean)
-      .join("\n")
+    // O que foi feito mora no ponto, com título e relato, como o problema.
+    const tituloDaSolucao = p.solutionTitle || p.solutionBody.slice(0, 80)
 
     // Emitido para a obra inteira, cada ponto precisa dizer de que escopo é;
     // dentro de um escopo, isso já está dito no alto e aqui seria repetição.
@@ -243,8 +240,8 @@ export async function montarRelatorio(
     <div class="metade solucao">
       <div class="escrito">
         <span class="rotulo">${svg(ICONE.visto)} Solution</span>
-        ${oQueFoiFeito
-          ? corpoDoPonto(oQueFoiFeito)
+        ${tituloDaSolucao
+          ? `<h2>${esc(tituloDaSolucao)}</h2>${p.solutionBody && p.solutionTitle ? corpoDoPonto(p.solutionBody) : ""}`
           : `<p class="corpo">Marked as resolved.</p>`}
         ${assinatura(p.resolvedName ?? "", p.resolvedRole ?? "", p.resolvedAt)}
       </div>
