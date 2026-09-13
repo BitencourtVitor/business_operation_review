@@ -262,36 +262,46 @@ function DescreverPecas({ jobsiteId, pecas, open, onClose }: {
         {/* O respiro por dentro da rolagem é o que deixa o anel de foco inteiro:
             sem ele a borda do campo em foco saía cortada pela caixa que rola. */}
         <div className="-m-1 flex max-h-[60vh] flex-col gap-4 overflow-y-auto p-1">
-          {pecas.map(p => (
-            <div key={p.id} className="flex gap-3">
-              <span className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border/60">
-                {ehVideo(p) ? (
-                  <video src={p.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.url} alt="" className="h-full w-full object-cover" />
-                )}
-              </span>
-              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <IconInput
-                  startIcon={Type}
-                  value={textos[p.id]?.title ?? ""}
-                  placeholder="A short title"
-                  aria-label="What it shows"
-                  onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], title: e.target.value } }))}
-                  className="h-8"
-                />
-                <div className="relative">
-                  <AlignLeft className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Textarea
-                    rows={2}
-                    value={textos[p.id]?.description ?? ""}
-                    placeholder="Details"
-                    aria-label="Description"
-                    onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], description: e.target.value } }))}
-                    className="min-h-0 pl-9 text-sm"
+          {pecas.map((p, i) => (
+            // Um contêiner por peça: a foto, o título ao lado dela e a descrição
+            // por baixo, com a largura inteira que um parágrafo pede. Soltos, os
+            // campos de seis fotos viravam uma coluna só de caixas iguais.
+            <div key={p.id} className="flex flex-col gap-2.5 rounded-lg border border-border/60 bg-muted/20 p-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border/60">
+                  {ehVideo(p) ? (
+                    <video src={p.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.url} alt="" className="h-full w-full object-cover" />
+                  )}
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  {pecas.length > 1 && (
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      {ehVideo(p) ? "Video" : "Photo"} {i + 1} of {pecas.length}
+                    </span>
+                  )}
+                  <IconInput
+                    startIcon={Type}
+                    value={textos[p.id]?.title ?? ""}
+                    placeholder="A short title"
+                    aria-label="Title"
+                    onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], title: e.target.value } }))}
+                    className="h-9 bg-background"
                   />
                 </div>
+              </div>
+              <div className="relative">
+                <AlignLeft className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Textarea
+                  rows={3}
+                  value={textos[p.id]?.description ?? ""}
+                  placeholder="Details"
+                  aria-label="Description"
+                  onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], description: e.target.value } }))}
+                  className="min-h-20 bg-background pl-9 text-sm"
+                />
               </div>
             </div>
           ))}
