@@ -1,4 +1,5 @@
 import { atlasService } from "@/services/atlas.service"
+import { reenviarPendencias } from "./pendencias"
 import { local } from "./db"
 import { definirMaxTentativas, sincronizar } from "./queue"
 import { liberarObra, pedirPersistencia } from "./storage"
@@ -116,6 +117,7 @@ export function instalarSincronizacao(): () => void {
     if (rodando) return
     rodando = true
     try {
+      await reenviarPendencias()
       await sincronizar()
       await detectarRevisoes()
       await expirarInativas()

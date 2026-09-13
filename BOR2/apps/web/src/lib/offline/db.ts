@@ -132,6 +132,8 @@ export interface EventoFila {
   obraId: string
   kind: "point.created" | "point.commented" | "point.status_changed"
     | "point.photo_attached" | "point.deleted"
+    /** Uma chamada da API refeita com sinal, e uma foto ou vídeo esperando para subir. */
+    | "api.call" | "api.upload"
   targetId: string
   payload: Record<string, unknown>
   /** Posição na fila deste aparelho. Monotônica, e é ela que dá a ordem. */

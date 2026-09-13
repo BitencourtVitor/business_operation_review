@@ -5,6 +5,7 @@ import { AlertTriangle, Check, CloudOff, Loader2, RotateCcw } from "lucide-react
 import { useEffect, useState } from "react"
 
 import { local } from "@/lib/offline/db"
+import { reenviarPendencias } from "@/lib/offline/pendencias"
 import { sincronizar, tentarDeNovo } from "@/lib/offline/queue"
 
 /**
@@ -55,7 +56,10 @@ export function SyncIndicator({ jobsiteId }: { jobsiteId?: string }) {
 
   async function subir() {
     setSubindo(true)
-    try { await sincronizar() } finally { setSubindo(false) }
+    try {
+      await reenviarPendencias()
+      await sincronizar()
+    } finally { setSubindo(false) }
   }
 
   return (
@@ -66,37 +70,37 @@ export function SyncIndicator({ jobsiteId }: { jobsiteId?: string }) {
             <CloudOff className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <span className="text-sm">
               {pendentes > 0
-                ? `${pendentes} ${pendentes === 1 ? "item guardado" : "itens guardados"} no aparelho`
-                : "Sem conexão"}
+                ? `${pendentes} ${pendentes === 1 ? "change" : "changes"} kept on this device`
+                : "No connection"}
             </span>
             {/* A frase existe porque a dúvida existe. Sem ela, quem levantou
                 quinze pontos numa obra sem sinal fica sem saber se o trabalho
                 está a salvo. */}
             <span className="text-xs text-muted-foreground">
-              {pendentes > 0 && "· sobe quando a rede voltar"}
+              {pendentes > 0 && "· uploads when the signal comes back"}
             </span>
           </>
         ) : subindo ? (
           <>
             <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
-            <span className="text-sm">Enviando…</span>
+            <span className="text-sm">Uploading…</span>
           </>
         ) : pendentes > 0 ? (
           <>
             <Loader2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-sm">{pendentes} para enviar</span>
+            <span className="text-sm">{pendentes} to upload</span>
             <button
               type="button"
               onClick={subir}
               className="ml-auto rounded-md px-2 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-accent"
             >
-              Enviar agora
+              Upload now
             </button>
           </>
         ) : problemas.length === 0 ? (
           <>
             <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-sm">Tudo sincronizado</span>
+            <span className="text-sm">All synced</span>
           </>
         ) : null}
       </div>
@@ -111,15 +115,15 @@ export function SyncIndicator({ jobsiteId }: { jobsiteId?: string }) {
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
           <span className="min-w-0 flex-1">
-            {p.motivo || "não foi possível enviar"}
+            {p.motivo || "could not upload"}
             {p.estado === "bloqueado" && (
-              <span className="text-muted-foreground"> · esperando outro item</span>
+              <span className="text-muted-foreground"> · waiting on another change</span>
             )}
           </span>
           {p.estado === "recusado" && (
             <button
               type="button"
-              title="Tentar de novo"
+              title="Try again"
               onClick={() => tentarDeNovo(p.id)}
               className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >

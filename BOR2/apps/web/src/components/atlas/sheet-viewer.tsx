@@ -23,6 +23,7 @@ import { ImageWindow } from "@/components/atlas/image-window"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import { local } from "@/lib/offline/db"
 import { lerArquivo } from "@/lib/offline/storage"
+import { criarMarca, escreverSimples } from "@/lib/offline/escrever"
 import {
   useAtlasAnnotations, useAtlasDocuments, useAtlasEvents, useAtlasJobsite, useAtlasThumbs,
   useCreateAtlasEvent, useDeleteAtlasAnnotation, useDeleteAtlasEvent,
@@ -1401,7 +1402,9 @@ export function SheetViewer({
 
     async function attempt(mark: AtlasAnnotation) {
       try {
-        await atlasService.createAnnotation(sheet.id, mark)
+        // Sem sinal o traço entra na fila do aparelho e sobe depois, e deixa de
+        // depender desta tela ficar aberta até a rede voltar.
+        await criarMarca(sheet.id, mark, b => atlasService.createAnnotation(sheet.id, b))
         if (alive) refetchAnnotations()
         tries.current.delete(mark.id)
       } catch {
@@ -2524,11 +2527,15 @@ export function SheetViewer({
                     // dizendo isso, em vez de a calibração sumir em silêncio.
                     setSalvandoEscala(true)
                     setErroDaEscala("")
-                    atlasService.setSheetScale(sheet.id, {
+                    const corpoDaEscala = {
                       p1x: a[0], p1y: a[1], p2x: b[0], p2y: b[1],
                       realValue: pes, label: e.rotulo,
                       widthPt: pageWidth, heightPt: pageHeight,
-                    })
+                    }
+                    // Sem sinal a escala fica na fila e sobe depois, como o resto.
+                    escreverSimples(jobsiteId, sheet.id,
+                      { metodo: "PUT", caminho: `/api/v1/atlas/sheets/${sheet.id}/scale`, corpo: { ...corpoDaEscala, unit: "ft" } },
+                      "scale set", () => atlasService.setSheetScale(sheet.id, corpoDaEscala))
                       .then(() => queryClient.invalidateQueries({ queryKey: ["atlas", "sheets"] }))
                       .catch(err => setErroDaEscala(err instanceof Error ? err.message : "not saved"))
                       .finally(() => setSalvandoEscala(false))
@@ -2540,7 +2547,9 @@ export function SheetViewer({
                     setFita([])
                     setFitaFechada(false)
                     setErroDaEscala("")
-                    atlasService.clearSheetScale(sheet.id)
+                    escreverSimples(jobsiteId, sheet.id,
+                      { metodo: "DELETE", caminho: `/api/v1/atlas/sheets/${sheet.id}/scale` },
+                      "scale deleted", () => atlasService.clearSheetScale(sheet.id))
                       .then(() => queryClient.invalidateQueries({ queryKey: ["atlas", "sheets"] }))
                       .catch(err => setErroDaEscala(err instanceof Error ? err.message : "not deleted"))
                   }}

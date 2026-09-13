@@ -4,6 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { local, type PlanoLocal } from "@/lib/offline/db"
 import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
+import {
+  apagarMarca, apagarPonto, criarMarca, criarPonto, descreverMidia, escreverSimples, mudarMarca,
+  mudarPonto, subirMidia, temPendencias,
+} from "@/lib/offline/escrever"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
@@ -501,7 +505,8 @@ export function useAtlasAnnotations(sheetId: string) {
     // aparelho, e a folha que não tinha sido aberta com sinal ficava sem nada.
     networkMode: "always",
     queryFn: async () => {
-      if (!semRede()) {
+      const obra = (await local.planos.get(sheetId).catch(() => undefined))?.obraId
+      if (!semRede() && !(obra && await temPendencias(obra))) {
         try {
           return await atlasService.listAnnotations(sheetId)
         } catch (erro) {
@@ -539,7 +544,9 @@ async function marcasDoAparelho(sheetId: string): Promise<AtlasAnnotation[]> {
 export function useCreateAtlasAnnotation(sheetId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: Partial<AtlasAnnotation>) => atlasService.createAnnotation(sheetId, body),
+    // Sem sinal o traço fica no aparelho e sobe depois. Ver lib/offline/escrever.
+    mutationFn: (body: Partial<AtlasAnnotation>) =>
+      criarMarca(sheetId, body, b => atlasService.createAnnotation(sheetId, b)),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY.annotations(sheetId) }),
   })
 }
@@ -548,7 +555,7 @@ export function useUpdateAtlasAnnotation(sheetId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, geometry }: { id: string; geometry: AtlasStrokeGeometry }) =>
-      atlasService.updateAnnotation(id, geometry),
+      mudarMarca(sheetId, id, geometry, () => atlasService.updateAnnotation(id, geometry)),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY.annotations(sheetId) }),
   })
 }
@@ -562,7 +569,7 @@ export function useDeleteAtlasAnnotation(sheetId: string) {
     // em memória é mais velha que o banco.
     mutationFn: async (annotationId: string) => {
       try {
-        return await atlasService.deleteAnnotation(annotationId)
+        return await apagarMarca(sheetId, annotationId, () => atlasService.deleteAnnotation(annotationId))
       } catch (e) {
         if (e instanceof Error && /404|não encontrad|not found/i.test(e.message)) return null
         throw e
@@ -579,7 +586,7 @@ export function useAtlasEvents(jobsiteId: string, sheetId?: string) {
     // guardada no aparelho, filtrada pela folha como o servidor filtraria.
     networkMode: "always",
     queryFn: async () => {
-      if (semRede()) {
+      if (semRede() || await temPendencias(jobsiteId)) {
         const todos = await lerResposta<AtlasEvent[]>(chaves.events(jobsiteId))
         if (!todos) throw new Error("offline")
         return sheetId ? todos.filter(e => e.sheetId === sheetId) : todos
@@ -596,7 +603,8 @@ export function useAtlasEvents(jobsiteId: string, sheetId?: string) {
 export function useCreateAtlasEvent(jobsiteId: string, sheetId?: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: Partial<AtlasEvent>) => atlasService.createEvent(jobsiteId, body),
+    mutationFn: (body: Partial<AtlasEvent>) =>
+      criarPonto(jobsiteId, body, b => atlasService.createEvent(jobsiteId, b)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
@@ -609,7 +617,7 @@ export function useUpdateAtlasEvent(jobsiteId: string, sheetId?: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ eventId, patch }: { eventId: string; patch: Record<string, unknown> }) =>
-      atlasService.updateEvent(eventId, patch),
+      mudarPonto(jobsiteId, eventId, patch, () => atlasService.updateEvent(eventId, patch)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
@@ -629,7 +637,8 @@ export function useUpdateAtlasEvent(jobsiteId: string, sheetId?: string) {
 export function useDeleteAtlasEvent(jobsiteId: string, sheetId?: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (eventId: string) => atlasService.deleteEvent(eventId),
+    mutationFn: (eventId: string) =>
+      apagarPonto(jobsiteId, eventId, () => atlasService.deleteEvent(eventId)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
       qc.invalidateQueries({ queryKey: KEY.jobsite(jobsiteId) })
@@ -676,7 +685,7 @@ export function useAtlasMedia(
     networkMode: "always",
     queryFn: async () => {
       const soDoEvento = !!filter?.eventId && !filter.dailyLogId && filter.album === undefined
-      if (semRede()) {
+      if (semRede() || (soDoEvento && await temPendencias(jobsiteId))) {
         if (!soDoEvento) throw new Error("offline")
         const guardada = await lerResposta<AtlasMedia[]>(chaves.media(jobsiteId, filter!.eventId!))
         if (!guardada) throw new Error("offline")
@@ -697,7 +706,7 @@ export function useUploadAtlasMedia(jobsiteId: string) {
     mutationFn: async ({ file, eventId, dailyLogId, caption, album, phase, title, description }: {
       file: File; eventId?: string; dailyLogId?: string; caption?: string; album?: string
       phase?: "before" | "after"; title?: string; description?: string
-    }) => {
+    }) => subirMidia(jobsiteId, { file, eventId, phase, title, description }, async () => {
       const contentType = file.type || "application/octet-stream"
       const kind = contentType.startsWith("image/") ? "photo"
         : contentType.startsWith("video/") ? "video"
@@ -712,7 +721,7 @@ export function useUploadAtlasMedia(jobsiteId: string) {
       })
       await uploadToR2(ticket.uploadUrl, file, contentType)
       return atlasService.confirmMedia(ticket.mediaId)
-    },
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
       qc.invalidateQueries({ queryKey: ["atlas", "albums", jobsiteId] })
@@ -844,7 +853,7 @@ export function useAtlasPunchPoints(jobsiteId: string, filtro?: PunchFiltro, ena
     // jeito que o servidor filtra: passagem, escopo e condição.
     networkMode: "always",
     queryFn: async () => {
-      if (semRede()) {
+      if (semRede() || await temPendencias(jobsiteId)) {
         const todos = await lerResposta<AtlasPunchPoint[]>(chaves.punchPoints(jobsiteId))
         if (!todos) throw new Error("offline")
         return todos.filter(p =>
@@ -912,15 +921,21 @@ function useMexerNoPunch<T>(fn: (arg: T) => Promise<unknown>, jobsiteId: string)
 export function useOpenAtlasPunch(jobsiteId: string) {
   return useMexerNoPunch<{
     scopeKind: "subcategory" | "category"; scopeValue: string; name?: string; notes?: string
-  }>(body => atlasService.openPunch(jobsiteId, body), jobsiteId)
+  }>(body => escreverSimples(jobsiteId, body.scopeValue,
+    { metodo: "POST", caminho: `/api/v1/atlas/jobsites/${jobsiteId}/punches`, corpo: body }, "round opened",
+    () => atlasService.openPunch(jobsiteId, body)), jobsiteId)
 }
 
 export function useCloseAtlasPunch(jobsiteId: string) {
-  return useMexerNoPunch<string>(id => atlasService.closePunch(id), jobsiteId)
+  return useMexerNoPunch<string>(id => escreverSimples(jobsiteId, id,
+    { metodo: "POST", caminho: `/api/v1/atlas/punches/${id}/close` }, "round signed off",
+    () => atlasService.closePunch(id)), jobsiteId)
 }
 
 export function useReopenAtlasPunch(jobsiteId: string) {
-  return useMexerNoPunch<string>(id => atlasService.reopenPunch(id), jobsiteId)
+  return useMexerNoPunch<string>(id => escreverSimples(jobsiteId, id,
+    { metodo: "POST", caminho: `/api/v1/atlas/punches/${id}/reopen` }, "round reopened",
+    () => atlasService.reopenPunch(id)), jobsiteId)
 }
 
 // ─── A descrição falada ───────────────────────────────────────────────────────
@@ -975,7 +990,7 @@ export function useUpdateAtlasMedia(jobsiteId: string) {
         title?: string; description?: string; caption?: string
         transcript?: string; phase?: "before" | "after"; eventId?: string
       }
-    }) => atlasService.updateMedia(mediaId, patch),
+    }) => descreverMidia(jobsiteId, mediaId, null, patch, () => atlasService.updateMedia(mediaId, patch)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
       qc.invalidateQueries({ queryKey: ["atlas", "punch-media", jobsiteId] })
