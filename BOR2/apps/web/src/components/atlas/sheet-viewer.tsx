@@ -2859,7 +2859,7 @@ export function SheetViewer({
                 id="note-text"
                 autoFocus
                 value={noteText}
-                placeholder="Beam is 2 in. off the grid line"
+                placeholder="A short title for the issue"
                 onChange={e => setNoteText(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") saveNote() }}
                 className="pl-8"
@@ -2890,7 +2890,7 @@ export function SheetViewer({
                 id="note-body"
                 rows={3}
                 value={noteBody}
-                placeholder="What is wrong, and where exactly"
+                placeholder="Details"
                 onChange={e => setNoteBody(e.target.value)}
                 className="w-full resize-y rounded-md border border-input bg-transparent py-2 pl-8 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               />

@@ -276,7 +276,7 @@ function DescreverPecas({ jobsiteId, pecas, open, onClose }: {
                 <IconInput
                   startIcon={Type}
                   value={textos[p.id]?.title ?? ""}
-                  placeholder="What it shows"
+                  placeholder="A short title"
                   aria-label="What it shows"
                   onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], title: e.target.value } }))}
                   className="h-8"
@@ -286,7 +286,7 @@ function DescreverPecas({ jobsiteId, pecas, open, onClose }: {
                   <Textarea
                     rows={2}
                     value={textos[p.id]?.description ?? ""}
-                    placeholder="Where it is, what is wrong, what was done"
+                    placeholder="Details"
                     aria-label="Description"
                     onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], description: e.target.value } }))}
                     className="min-h-0 pl-9 text-sm"

@@ -89,7 +89,7 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
                 id={`sol-titulo-${eventId}`}
                 autoFocus
                 value={titulo}
-                placeholder="Stud reset and plumbed"
+                placeholder="A short title for the solution"
                 onChange={e => setTitulo(e.target.value)}
                 className="pl-8"
               />
@@ -104,7 +104,7 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
                 id={`sol-desc-${eventId}`}
                 rows={3}
                 value={descricao}
-                placeholder="How it was fixed, and who checked it"
+                placeholder="Details"
                 onChange={e => setDescricao(e.target.value)}
                 className="w-full resize-y rounded-md border border-input bg-transparent py-2 pl-8 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               />
