@@ -20,7 +20,7 @@ import {
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
   Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
-  Clock, Layers, LocateFixed, MapPin,
+  Clock, FileText, Layers, LocateFixed,
   RotateCcw, Stamp, Tag, Trash2, Video,
 } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -678,7 +678,7 @@ function PunchScopeView({
                       </Badge>
                     </span>
                     <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3 shrink-0" />
+                      <FileText className="h-3 w-3 shrink-0" />
                       <span className="truncate">
                         {p.document}
                       </span>
