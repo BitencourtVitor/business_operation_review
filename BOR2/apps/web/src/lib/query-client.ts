@@ -21,6 +21,12 @@ function novo() {
         staleTime: 5 * 60 * 1000,
         retry: 1,
       },
+      // Escrita não espera sinal. Pausada, a mutação nunca chegava à fila do
+      // aparelho: o botão ficava travado e a ação sumia se o app fechasse.
+      // Quem decide entre mandar direto e guardar é lib/offline/escrever.
+      mutations: {
+        networkMode: "always",
+      },
     },
   })
 }
