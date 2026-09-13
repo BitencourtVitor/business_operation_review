@@ -341,11 +341,11 @@ export function TapePanel({
     }
 
     return (
-      <div className="flex items-center gap-2 text-sm">
-        <Ruler className="h-4 w-4 shrink-0 text-yellow-300" />
+      <div className="flex flex-1 items-center gap-2 text-sm sm:flex-none">
+        <Ruler className="mx-1.5 h-4 w-4 shrink-0 text-yellow-300 sm:mx-0" />
         {faltam > 0 ? (
           <span className="whitespace-nowrap text-white/80">
-            {faltam === 2 ? "Tap both ends of a known dimension" : "Now the other end"}
+            {faltam === 2 ? "Tap both ends" : "Now the other end"}
           </span>
         ) : (
           <>
@@ -356,7 +356,7 @@ export function TapePanel({
               aria-label="The real length of that dimension"
               onChange={e => { setValor(e.target.value); setErro("") }}
               onKeyDown={e => { if (e.key === "Enter") confirmar() }}
-              className={`h-8 w-24 bg-black/40 text-white placeholder:text-white/30 ${
+              className={`h-8 w-24 flex-1 bg-black/40 sm:flex-none text-white placeholder:text-white/30 ${
                 erro ? "border-amber-400/70" : "border-white/20"
               }`}
             />
@@ -367,6 +367,7 @@ export function TapePanel({
           </>
         )}
         <Button size="icon" variant="ghost" aria-label="Cancel calibration" title="Cancel"
+          style={{ marginLeft: faltam > 0 ? "auto" : undefined }}
           onClick={() => { setValor(""); setErro(""); onCancelarCalibracao() }}
           className="h-8 w-8 text-white/60 hover:bg-white/10 hover:text-white">
           <X className="h-3.5 w-3.5" />
@@ -393,7 +394,7 @@ export function TapePanel({
     ? areaPt2(pontos, largura, altura) / (escala.ptPorPe * escala.ptPorPe) : null
 
   return (
-    <div ref={raiz} className="flex items-center gap-2 text-sm sm:flex-wrap">
+    <div ref={raiz} className="flex flex-1 items-center gap-2 text-sm sm:flex-none sm:flex-wrap">
       {/* A escala em uso. O chip só diz que há uma; o que ela vale e o que se
           faz com ela moram no popover, para a barra não carregar texto. */}
       <Popover open={menuDaEscala} onOpenChange={aberto => {
@@ -482,7 +483,7 @@ export function TapePanel({
         </span>
       )}
 
-      <span className="flex items-center gap-1">
+      <span className="ml-auto flex items-center gap-1 sm:ml-0">
         {pontos.length > 2 && !fechada && (
           <Button size="sm" variant="ghost" onClick={onFechar} title="Close the shape to get its area"
             className="h-8 gap-1.5 text-white/70 hover:bg-white/10 hover:text-white">
