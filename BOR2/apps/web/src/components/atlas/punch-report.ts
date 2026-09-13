@@ -1,6 +1,5 @@
 "use client"
 
-import { loadPdf } from "@/components/atlas/pdf-page"
 import { atlasService, type AtlasPunchMedia, type AtlasPunchPoint } from "@/services/atlas.service"
 
 /**
@@ -8,33 +7,31 @@ import { atlasService, type AtlasPunchMedia, type AtlasPunchPoint } from "@/serv
  *
  * É o artefato que sai do sistema e vai parar na mão de quem não estava lá: o
  * cliente, o empreiteiro, o gerente que cobra na reunião de terça. Tudo o que o
- * Atlas registra existe para caber aqui, e por isso este arquivo é longo: ele é
- * onde o registro vira documento.
+ * Atlas registra existe para caber aqui.
  *
- * ── O que cada ponto mostra ──
+ * ── Onde o modelo se decide ──
  *
- * Um container por ponto, com o escrito à esquerda e a imagem à direita, em
- * altura cheia. A leitura é a de uma ficha: número e título no topo, a descrição
- * embaixo, o que foi feito depois disso, e o rodapé com quem levantou e quando.
+ * Em `public/modelos/punch-report.html`, um arquivo solto que não busca nada e
+ * se abre no navegador com pontos de mentira. É lá que o desenho se mexe e se
+ * olha, sem depender de obra, de sessão ou de rede; aqui é onde ele encontra os
+ * dados. As classes são as mesmas nos dois lados, de propósito: a passagem de
+ * um para o outro é cópia, e não tradução.
  *
- * **A imagem da direita é a foto do problema.** É ela que responde "o que é",
- * que é a primeira pergunta de quem lê. O recorte da planta entra menor, embaixo
- * dela, respondendo "onde é", e vira a imagem principal quando não há foto.
+ * ── A forma do ponto é a do leitor de prancha ──
  *
- * ── Por que o recorte da planta e não a prancha ──
- *
- * Mandar a prancha inteira e escrever "ponto 17" obriga quem lê a procurar num
- * A0. O recorte em volta da coordenada mostra a viga de que se está falando. A
- * coordenada já está gravada em cada ponto desde que ele nasceu, então o recorte
- * é conta, não trabalho manual.
+ * Quem registra o ponto o vê na janelinha sobre o desenho: número e condição do
+ * lado de fora, e dentro um container com o escrito à esquerda e as fotos à
+ * direita, assinado no pé por quem fez e quando. Aqui é o mesmo desenho, com
+ * uma diferença: no leitor o problema e a solução são dois containers soltos, e
+ * no papel eles são um só, partido por uma linha. São duas metades da mesma
+ * história, e duas molduras seguidas gastavam meia folha a cada ponto.
  *
  * ── Por que imprimir em vez de montar um PDF ──
  *
  * O diálogo do navegador já pagina, já respeita a margem do aparelho, e já
  * oferece "salvar como PDF" em todos eles, iPad incluído. Uma biblioteca de PDF
  * somaria centenas de kB ao pacote de campo para reimplementar pior o que o
- * sistema faz de graça. O cabeçalho e o rodapé que se repetem em toda página
- * saem de elementos fixos, que é como o navegador os repete na impressão.
+ * sistema faz de graça.
  */
 
 export interface OpcoesRelatorio {
@@ -46,73 +43,82 @@ export interface OpcoesRelatorio {
   status?: "open" | "resolved"
 }
 
-/**
- * Recorta a região do desenho em volta de um ponto.
- *
- * A janela é proporcional à prancha e não fixa em pixels: uma fração da largura
- * numa A0 cobre mais ou menos o mesmo pedaço de obra que a mesma fração numa
- * folha carta, porque as duas foram desenhadas para serem lidas inteiras. Uma
- * janela em centímetros de papel mostraria um cômodo numa e um parafuso na
- * outra.
- *
- * A fração era 12% e ficou 18%. Com 12% o recorte caía muitas vezes sobre papel
- * em branco, porque o ponto é marcado sobre o detalhe e o detalhe tem um palmo
- * de espaço em volta. Mostrar o vazio ao lado da viga é pior que mostrar a viga
- * pequena.
- */
-async function recortar(
-  url: string, pageIndex: number, x: number, y: number,
-): Promise<string | null> {
-  try {
-    const pdf = await loadPdf(url)
-    // Qual página abrir dentro do arquivo.
-    //
-    // Depende de o arquivo ser o recorte da folha ou o set inteiro. Recortado, a
-    // folha é a única página do arquivo e a página é sempre a primeira; inteiro,
-    // é preciso pular até a página dela. Usar o índice da folha nos dois casos
-    // pedia a página 43 de um arquivo de uma página só, e o pdf.js recusava: o
-    // relatório saía com recorte apenas dos pontos da primeira prancha, e os
-    // outros apareciam com o quadro vazio.
-    const pagina = pageIndex < pdf.numPages ? pageIndex + 1 : 1
-    const page = await pdf.getPage(pagina)
-    // Escala 2 porque o recorte é ampliado no documento final, e renderizar em 1
-    // para depois esticar produz uma imagem borrada justamente na única coisa
-    // que ela precisa mostrar.
-    const vp = page.getViewport({ scale: 2 })
-    const canvas = document.createElement("canvas")
-    canvas.width = vp.width
-    canvas.height = vp.height
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return null
-    await page.render({ canvasContext: ctx, viewport: vp }).promise
+/** Quantas fotos de cada fase entram no papel. Ver o comentário no modelo. */
+const TETO_FOTOS = 4
 
-    const lado = Math.round(vp.width * 0.18)
-    const cx = Math.round(x * vp.width)
-    const cy = Math.round(y * vp.height)
-    const corte = document.createElement("canvas")
-    corte.width = lado
-    corte.height = lado
-    const cctx = corte.getContext("2d")
-    if (!cctx) return null
-    cctx.fillStyle = "#fff"
-    cctx.fillRect(0, 0, lado, lado)
-    cctx.drawImage(
-      canvas,
-      Math.max(0, cx - lado / 2), Math.max(0, cy - lado / 2), lado, lado,
-      0, 0, lado, lado,
-    )
-    // A marca do ponto, desenhada por cima: sem ela o recorte mostra um pedaço
-    // de planta e deixa quem lê adivinhar qual detalhe dali é o assunto.
-    cctx.strokeStyle = "#dc2626"
-    cctx.lineWidth = Math.max(2, lado * 0.012)
-    cctx.beginPath()
-    cctx.arc(lado / 2, lado / 2, lado * 0.09, 0, Math.PI * 2)
-    cctx.stroke()
-    return corte.toDataURL("image/jpeg", 0.85)
-  } catch {
-    return null
-  }
+/**
+ * Os ícones, desenhados no próprio documento.
+ *
+ * São os mesmos traços do lucide, escritos à mão aqui porque a janela de
+ * impressão é um documento à parte: ela não tem o React, não tem o pacote de
+ * ícones, e não pode buscar nada na rede sem arriscar imprimir com buraco no
+ * lugar do desenho.
+ */
+const ICONE: Record<string, string> = {
+  cliente: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  lugar: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+  obra: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M9 12h12"/>',
+  endereco: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  folha: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+  bandeira: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+  visto: '<path d="M20 6 9 17l-5-5"/>',
 }
+
+/**
+ * O crachá de quem fez, o mesmo da tela de usuários e do leitor de prancha.
+ *
+ * Numa obra com subcontratado dentro, saber de que lado a pessoa está vale mais
+ * que o nome dela: o desenho diz isso antes de a linha ser lida.
+ */
+const CARGO: Record<string, { desenho: string; classe: string }> = {
+  dev: { desenho: '<path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>', classe: "dev" },
+  owner: { desenho: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>', classe: "owner" },
+  manager: { desenho: '<path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/>', classe: "manager" },
+  subcontractor: { desenho: '<path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"/><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M4 15v-3a8 8 0 0 1 16 0v3"/>', classe: "sub" },
+  user: { desenho: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', classe: "" },
+}
+
+const svg = (desenho: string, classe = "ic") =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" class="${classe}">${desenho}</svg>`
+
+const esc = (s: string) =>
+  (s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!))
+
+/** "September 12, 2026 at 9:41 AM": documento que sai da casa escreve por extenso. */
+function carimbo(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ""
+  const dia = d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+  const hora = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+  return `${dia} at ${hora}`
+}
+
+const dataCurta = (iso: string) => {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime())
+    ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+}
+
+/**
+ * O nome do arquivo que o navegador vai sugerir ao salvar.
+ *
+ * Quem recebe guarda numa pasta com outras dezenas, e "documento.pdf" some
+ * ali dentro. O nome carrega o que identifica a emissão: o que é, de quem, de
+ * que trecho da obra, o que foi filtrado e de quando. A data vem ao contrário
+ * (ano, mês, dia) porque é assim que a pasta se ordena sozinha pela data.
+ *
+ * As barras e os dois-pontos saem: o Windows não aceita no nome de arquivo.
+ */
+function nomeDoArquivo(partes: string[]): string {
+  return partes
+    .filter(Boolean)
+    .map(t => t.replace(/[\\/:*?"<>|]/g, "-").trim())
+    .join(" - ")
+}
+
+/** O rótulo do tipo de obra, o mesmo do cadastro. */
+const TIPO: Record<string, string> = { building: "Building", house: "Lot", panels: "Panels" }
 
 /** As imagens do relatório viram data URI: janela nova não herda sessão. */
 async function embutir(url: string): Promise<string | null> {
@@ -131,42 +137,12 @@ async function embutir(url: string): Promise<string | null> {
   }
 }
 
-const esc = (s: string) =>
-  (s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!))
-
-/**
- * Os ícones, desenhados no próprio documento.
- *
- * São os mesmos traços do lucide, escritos à mão aqui porque a janela de
- * impressão é um documento à parte: ela não tem o React, não tem o pacote de
- * ícones, e não pode buscar nada na rede sem arriscar imprimir com buraco no
- * lugar do desenho.
- */
-const ICONE: Record<string, string> = {
-  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/>',
-  sheet: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
-  pin: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-  check: '<path d="M20 6 9 17l-5-5"/>',
-  layers: '<path d="m12 2 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>',
-}
-
-const icone = (nome: string) =>
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-        stroke-linecap="round" stroke-linejoin="round" class="ic">${ICONE[nome] ?? ""}</svg>`
-
-const dataCurta = (iso: string) => {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US")
-}
-
 /**
  * O corpo do ponto, respeitando os tópicos.
  *
- * A descrição falada volta do agente em linhas que começam com travessão, e
- * impressas como texto corrido elas viram um parágrafo com hífens no meio. Sendo
- * lista de verdade, cada tópico é uma linha que se lê de relance, que é o
- * formato em que ele nasceu.
+ * Descrição escrita em linhas que começam com traço, impressa como texto
+ * corrido, vira um parágrafo com hífens no meio. Sendo lista de verdade, cada
+ * tópico é uma linha que se lê de relance, que é o formato em que ele nasceu.
  */
 function corpoDoPonto(texto: string): string {
   const linhas = texto.split("\n").map(l => l.trim()).filter(Boolean)
@@ -179,250 +155,508 @@ function corpoDoPonto(texto: string): string {
   }</ul>`
 }
 
-export async function gerarRelatorio(op: OpcoesRelatorio): Promise<void> {
+/** A coluna de imagens de uma metade do ponto. */
+function coluna(fotos: string[]): string {
+  if (!fotos.length) return ""
+  const classe = fotos.length === 1 ? "grade uma" : fotos.length === 2 ? "grade duas" : "grade"
+  return `<div class="pecas"><div class="${classe}">${
+    fotos.map(src => `<figure><img src="${src}" alt=""></figure>`).join("")
+  }</div></div>`
+}
+
+/** Quem fez e quando, com o crachá do cargo na frente. */
+function assinatura(nome: string, cargo: string, quando: string): string {
+  const marca = CARGO[cargo] ?? CARGO.user
+  const carimbado = carimbo(quando)
+  if (!nome && !carimbado) return ""
+  return `<span class="assina">${
+    nome ? `${svg(marca.desenho, `cargo ${marca.classe}`)} ${esc(nome)}` : ""
+  }${nome && carimbado ? " · " : ""}${carimbado}</span>`
+}
+
+export async function montarRelatorio(op: OpcoesRelatorio): Promise<string> {
   const filtro = { scope: op.scope || undefined, status: op.status }
-  const [pontos, midias] = await Promise.all([
+  const [pontos, midias, obra, logo] = await Promise.all([
     atlasService.punchList(op.jobsiteId, filtro),
     atlasService.punchMedia(op.jobsiteId, filtro).catch(() => [] as AtlasPunchMedia[]),
+    atlasService.getJobsite(op.jobsiteId).catch(() => null),
+    embutir(new URL("/images/logo_black.png", window.location.origin).href),
   ])
-  if (!pontos.length) return
+  if (!pontos.length) return ""
 
-  // As peças de cada ponto, separadas pelo que elas provam.
-  const porPonto = new Map<string, AtlasPunchMedia[]>()
+  // As peças de cada ponto, separadas pelo que elas provam. Só as quatro
+  // primeiras de cada fase entram: ver o porquê no modelo.
+  const porPonto = new Map<string, { antes: AtlasPunchMedia[]; depois: AtlasPunchMedia[] }>()
   for (const m of midias) {
-    const lista = porPonto.get(m.eventId) ?? []
-    lista.push(m)
-    porPonto.set(m.eventId, lista)
-  }
-
-  // Os recortes, agrupados por folha para o PDF de cada prancha ser aberto uma
-  // vez só. Sessenta pontos em vinte plantas seriam sessenta downloads de PDF
-  // sem isto, num aparelho de campo.
-  const porFolha = new Map<string, AtlasPunchPoint[]>()
-  for (const p of pontos) {
-    const lista = porFolha.get(p.sheetId) ?? []
-    lista.push(p)
-    porFolha.set(p.sheetId, lista)
-  }
-  const recortes = new Map<string, string>()
-  for (const [sheetId, doFolha] of porFolha) {
-    try {
-      const folha = await atlasService.sheetUrl(sheetId)
-      for (const p of doFolha) {
-        if (p.pageX == null || p.pageY == null) continue
-        // O set inteiro precisa do índice da folha; o recorte dela, não.
-        const img = await recortar(folha.url, folha.whole ? p.pageIndex : 0, p.pageX, p.pageY)
-        if (img) recortes.set(p.id, img)
-      }
-    } catch {
-      // Prancha inacessível: os pontos dela seguem sem recorte.
-    }
+    if (!m.url || !m.contentType.startsWith("image/")) continue
+    const par = porPonto.get(m.eventId) ?? { antes: [], depois: [] }
+    ;(m.phase === "after" ? par.depois : par.antes).push(m)
+    porPonto.set(m.eventId, par)
   }
 
   // As fotos entram embutidas. A janela do relatório é outro documento, e a URL
   // assinada nela vence em trinta minutos: impressa depois disso, a folha sairia
   // com o quadro vazio no lugar da prova.
+  const escolhidas: AtlasPunchMedia[] = []
+  for (const par of porPonto.values()) {
+    escolhidas.push(...par.antes.slice(0, TETO_FOTOS), ...par.depois.slice(0, TETO_FOTOS))
+  }
   const embutidas = new Map<string, string>()
-  await Promise.all(midias
-    .filter(m => m.url && (m.contentType.startsWith("image/")))
-    .map(async m => {
-      const dado = await embutir(m.url)
-      if (dado) embutidas.set(m.id, dado)
-    }))
+  await Promise.all(escolhidas.map(async m => {
+    const dado = await embutir(m.url)
+    if (dado) embutidas.set(m.id, dado)
+  }))
 
-  const blocos = pontos.map(p => {
-    const pecas = porPonto.get(p.id) ?? []
-    const antes = pecas.filter(m => m.phase !== "after" && embutidas.has(m.id))
-    const depois = pecas.filter(m => m.phase === "after" && embutidas.has(m.id))
-    const falado = pecas.find(m => m.contentType.startsWith("audio/") && m.transcript)
-    const recorte = recortes.get(p.id)
+  const dataUri = (lista: AtlasPunchMedia[]) =>
+    lista.slice(0, TETO_FOTOS).map(m => embutidas.get(m.id)).filter(Boolean) as string[]
 
-    const principal = antes[0] ? embutidas.get(antes[0].id) : recorte
-    const secundaria = antes[0] && recorte ? recorte : null
+  const blocos = pontos.map((p: AtlasPunchPoint) => {
+    const par = porPonto.get(p.id) ?? { antes: [], depois: [] }
 
-    const solucao = depois.length ? `
-      <div class="feito">
-        <span class="rotulo">${icone("check")} What was done</span>
-        <div class="tiras">
-          ${depois.map(m => `
-            <figure>
-              <img src="${embutidas.get(m.id)}" alt="">
-              ${m.title || m.description ? `
-                <figcaption>
-                  ${m.title ? `<strong>${esc(m.title)}</strong>` : ""}
-                  ${m.description ? `<span>${esc(m.description)}</span>` : ""}
-                </figcaption>` : ""}
-            </figure>`).join("")}
-        </div>
-      </div>` : ""
+    // A solução aparece quando existe prova dela ou quando alguém marcou o
+    // ponto como resolvido. Ponto pendente não ganha metade vazia.
+    const temSolucao = par.depois.length > 0 || p.status === "resolved"
+    // O que foi feito, escrito peça por peça na hora de documentar a correção.
+    const oQueFoiFeito = par.depois
+      .map(m => [m.title, m.description].filter(Boolean).join(": "))
+      .filter(Boolean)
+      .join("\n")
+
+    // Emitido para a obra inteira, cada ponto precisa dizer de que escopo é;
+    // dentro de um escopo, isso já está dito no alto e aqui seria repetição.
+    const escopo = !op.scope && (p.scopeValue || p.document)
+
+    const solucao = temSolucao ? `
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo">${svg(ICONE.visto)} Solution</span>
+        ${oQueFoiFeito
+          ? corpoDoPonto(oQueFoiFeito)
+          : `<p class="corpo">Marked as resolved.</p>`}
+        ${assinatura("", "", p.resolvedAt)}
+      </div>
+      ${coluna(dataUri(par.depois))}
+    </div>` : ""
 
     return `
-    <section class="ponto">
-      <div class="linha">
-        <div class="escrito">
-          <div class="cabeca">
-            <span class="numero">${p.number ?? "—"}</span>
-            <h2>${esc(p.title || p.body.slice(0, 80) || "Untitled")}</h2>
-            <span class="cond ${p.status}">${p.status === "resolved" ? "Done" : "Pending"}</span>
-          </div>
-          ${p.body ? corpoDoPonto(p.body) : ""}
-          ${falado ? `<p class="falado">${icone("user")}${esc(falado.transcript)}</p>` : ""}
-          ${solucao}
-          <div class="rodape">
-            <span>${icone("user")}${esc(p.createdName || "Someone")}</span>
-            <span>${icone("calendar")}${dataCurta(p.createdAt)}</span>
-            <span>${icone("sheet")}${esc(p.sheetNumber || `p. ${p.pageIndex + 1}`)}</span>
-            <span>${icone("layers")}${esc(p.scopeValue || p.document)}</span>
-            ${p.resolvedAt ? `<span class="ok">${icone("check")}${dataCurta(p.resolvedAt)}</span>` : ""}
-          </div>
-        </div>
+  <section class="ponto">
+    <div class="etiqueta">
+      <span class="numero"><i>#</i>${p.number ?? "-"}</span>
+      <span class="cond ${p.status === "resolved" ? "resolved" : "open"}">${
+        p.status === "resolved" ? "Resolved" : "Pending"
+      }</span>
+      <span class="onde">
+        <span>${svg(ICONE.folha)}<span class="folha">${
+          esc(p.sheetNumber || `p. ${p.pageIndex + 1}`)
+        }</span></span>
+        ${escopo ? `<span>${svg(ICONE.obra)}${esc(escopo)}</span>` : ""}
+      </span>
+    </div>
 
-        <div class="visual">
-          ${principal
-            ? `<img class="grande" src="${principal}" alt="">`
-            : `<div class="grande vazio">${icone("pin")}</div>`}
-          ${secundaria ? `<img class="pequena" src="${secundaria}" alt="">` : ""}
+    <div class="caixa">
+      <div class="metade">
+        <div class="escrito">
+          <span class="rotulo">${svg(ICONE.bandeira)} Problem</span>
+          <h2>${esc(p.title || p.body.slice(0, 80) || "Untitled")}</h2>
+          ${p.body && p.title ? corpoDoPonto(p.body) : ""}
+          ${assinatura(p.createdName, p.createdRole, p.createdAt)}
         </div>
-      </div>
-    </section>`
+        ${coluna(dataUri(par.antes))}
+      </div>${solucao}
+    </div>
+  </section>`
   }).join("")
 
-  const abertos = pontos.filter(p => p.status !== "resolved").length
+  const tipo = op.status === "open"
+    ? { classe: "tipo aberto", rotulo: "Pending points" }
+    : op.status === "resolved"
+      ? { classe: "tipo feito", rotulo: "Resolved points" }
+      : { classe: "tipo", rotulo: "All points" }
+
+  const emitido = dataCurta(new Date().toISOString())
   const escopo = op.scope || "Whole job"
-  const emitido = new Date().toLocaleDateString("en-US")
+  const cliente = obra?.client || ""
+  const lugar = obra?.community || ""
+  const nomeDaObra = [TIPO[obra?.kind ?? ""] ?? "", obra?.unit || obra?.code || ""]
+    .filter(Boolean).join(" ") || op.jobsiteName
+  const endereco = obra?.address || ""
 
-  const janela = window.open("", "_blank")
-  if (!janela) return
+  // A data em ISO no nome do arquivo, e por extenso no documento.
+  const nome = nomeDoArquivo([
+    "Punch List Report",
+    cliente || op.jobsiteName,
+    op.scope || "",
+    tipo.rotulo,
+    new Date().toISOString().slice(0, 10),
+  ])
 
-  janela.document.write(`<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>Punch list · ${esc(op.jobsiteName)}</title>
+  const fato = (icone: string, valor: string) =>
+    valor ? `<span>${svg(ICONE[icone])}${esc(valor)}</span>` : ""
+
+  const rodape = `
+  <footer class="folha">
+    ${logo ? `<span class="marca"><img src="${logo}" alt="Premium Group"></span>` : ""}
+    <span class="dados">
+      ${cliente ? `<span class="obra">${esc(cliente)}</span>` : ""}
+      ${lugar ? `<span>${esc(lugar)}</span>` : ""}
+      ${nomeDaObra ? `<span>${esc(nomeDaObra)}</span>` : ""}
+      ${endereco ? `<span>${esc(endereco)}</span>` : ""}
+    </span>
+    <span class="doc">${emitido} · <b class="pag"></b></span>
+  </footer>`
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>${esc(nome)}</title>
 <style>
-  /* A margem de cima e a de baixo abrem espaço para o cabeçalho e o rodapé
-     fixos, que se repetem em toda página. Sem essa folga o texto passa por
-     baixo deles a partir da segunda folha. */
-  @page { margin: 22mm 14mm 18mm; }
   * { box-sizing: border-box; }
   body {
     margin: 0; color: #18181b;
     font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    background: #fff;
   }
   .ic { width: 11px; height: 11px; flex: none; }
 
-  header.folha, footer.folha {
-    position: fixed; left: 0; right: 0;
-    display: flex; align-items: baseline; justify-content: space-between;
-    color: #71717a;
-  }
-  header.folha {
-    top: -14mm; padding-bottom: 4px; border-bottom: 1px solid #e4e4e7;
-  }
-  header.folha .obra { font-size: 13px; font-weight: 600; color: #18181b; }
+  /* ── O rodapé, que se repete em toda folha ──────────────────────────── */
+
+  /* Ele leva a obra inteira, e não só o nome dela: a folha viaja solta, sai do
+     e-mail, é impressa, vai para a prancheta e chega na mão de quem não abriu o
+     Atlas. Ali, o nome do cliente não diz qual das obras dele é, nem para onde
+     ir. Cliente, cidade, obra e endereço juntos dizem, e é a mesma
+     identificação que a sala da obra usa na tela. */
   footer.folha {
-    bottom: -11mm; padding-top: 4px; border-top: 1px solid #e4e4e7;
-    font-size: 9px; letter-spacing: .04em; text-transform: uppercase;
+    position: static;
+    /* Tudo alinhado pela base: a logo tem uma altura, o texto tem outra, e
+       centradas as duas ficavam boiando cada uma no seu meio. */
+    display: flex; align-items: flex-end; gap: 10px;
+    padding-top: 5px; border-top: 1px solid #e4e4e7;
+    color: #71717a; font-size: 8.5px; line-height: 1.45;
   }
+  footer.folha .marca { display: flex; align-items: flex-end; flex: none; }
+  footer.folha img { height: 12px; }
+  footer.folha .dados { display: flex; flex-wrap: wrap; gap: 2px 10px; min-width: 0; }
+  footer.folha .dados span { display: flex; align-items: flex-end; gap: 4px; }
+  footer.folha .obra { font-weight: 600; color: #18181b; }
+  footer.folha .doc { margin-left: auto; text-align: right; white-space: nowrap; }
 
-  .resumo {
-    display: flex; gap: 18px; align-items: baseline;
-    margin: 0 0 12px; padding-bottom: 10px; border-bottom: 2px solid #18181b;
-  }
-  .resumo h1 { margin: 0; font-size: 17px; letter-spacing: -.01em; }
-  .resumo .conta { margin-left: auto; display: flex; gap: 14px; }
-  .resumo .conta b { font-size: 15px; }
-  .resumo .conta span { color: #71717a; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+  /* ── A capa da primeira folha ───────────────────────────────────────── */
 
-  /* Um ponto nunca é cortado entre páginas: o recorte numa página e as
-     informações na seguinte torna o documento inútil para conferir em obra. */
-  .ponto { break-inside: avoid; page-break-inside: avoid; margin-bottom: 10px; }
-  .linha {
-    display: flex; gap: 12px; align-items: stretch;
-    border: 1px solid #e4e4e7; border-radius: 8px; padding: 10px; background: #fff;
+  /* A empresa se apresenta uma vez, no alto da primeira folha, dentro de uma
+     moldura como a dos pontos: no papel tudo o que é um assunto fechado mora
+     dentro de um container, e quem manda o documento é um assunto. */
+  .timbre {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; border: 1px solid #d4d4d8; border-radius: 8px; padding: 12px 14px;
   }
-  .escrito { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+  .timbre .logo { height: 30px; }
+  .timbre .empresa { text-align: right; font-size: 9.5px; line-height: 1.55; color: #52525b; }
+  .timbre .empresa b { display: block; font-size: 12px; color: #18181b; }
 
-  .cabeca { display: flex; align-items: baseline; gap: 8px; }
-  .cabeca .numero {
-    font-size: 13px; font-weight: 700; color: #52525b;
-    min-width: 22px; font-variant-numeric: tabular-nums;
+  .titulo {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 20px; margin: 12px 0 10px;
   }
-  .cabeca h2 { margin: 0; font-size: 13px; font-weight: 600; flex: 1; }
-  .cond {
+  .titulo .nome { display: flex; flex-direction: column; gap: 1px; }
+  .titulo h1 { margin: 0; font-size: 20px; letter-spacing: -.015em; line-height: 1.15; }
+  .titulo .sub { font-size: 11.5px; color: #71717a; }
+  .titulo .campos { display: flex; gap: 22px; }
+  .titulo .campo { display: flex; flex-direction: column; gap: 1px; }
+  .titulo .campo i {
+    font-style: normal; font-size: 8px; text-transform: uppercase;
+    letter-spacing: .09em; color: #a1a1aa;
+  }
+  .titulo .campo b { font-size: 10.5px; font-weight: 600; }
+
+  /* A identidade da obra, igual à da sala da obra no sistema: cliente, obra e
+     tipo de um lado, endereço do outro, com um fio entre eles. Repetir o
+     desenho poupa a quem conhece um dos dois de aprender o outro. */
+  .obra-ident {
+    display: flex; align-items: stretch;
+    border: 1px solid #e4e4e7; border-radius: 8px; overflow: hidden;
+    color: #52525b; font-size: 10px; margin-bottom: 10px;
+  }
+  .obra-ident .fatos {
+    flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 7px 10px;
+  }
+  .obra-ident .endereco {
+    max-width: 50%; display: flex; align-items: center;
+    padding: 7px 10px; border-left: 1px solid #e4e4e7; background: #fafafa;
+  }
+  .obra-ident span { display: flex; align-items: center; gap: 5px; }
+
+  /* O tipo do relatório, dito antes do primeiro ponto. São três emissões
+     possíveis e elas saem com a mesma cara: sem esta linha, quem recebe a lista
+     dos pendentes acha que são todos os pontos da obra, e quem recebe a dos
+     resolvidos acha que não sobrou nada. */
+  .tipo {
+    display: flex; align-items: center; gap: 8px;
+    margin: 14px 0 10px; color: #52525b;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+  }
+  .tipo::after { content: ""; flex: 1; height: 1px; background: #d4d4d8; }
+  .tipo.aberto { color: #b45309; }
+  .tipo.aberto::after { background: #fcd34d; }
+  .tipo.feito { color: #047857; }
+  .tipo.feito::after { background: #6ee7b7; }
+
+  /* ── O ponto ────────────────────────────────────────────────────────── */
+
+  /* Um ponto nunca é cortado entre páginas: metade numa folha e metade na
+     outra torna o documento inútil para conferir em obra. Não cabendo no que
+     resta da folha, ele desce inteiro para a próxima, e o branco que fica é o
+     preço de não partir o assunto no meio. */
+  .ponto { break-inside: avoid; page-break-inside: avoid; margin-bottom: 18px; }
+  .etiqueta { break-after: avoid; page-break-after: avoid; }
+  .caixa, .metade { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Número, condição e folha: do lado de fora da moldura, como na janelinha do
+     leitor. São a etiqueta do ponto, não conteúdo dele. */
+  .etiqueta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .etiqueta .numero {
+    font-size: 15px; font-weight: 700; line-height: 1; color: #18181b;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  }
+  .etiqueta .numero i { font-style: normal; color: #a1a1aa; font-weight: 600; }
+  .etiqueta .cond {
     font-size: 8px; text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
     border: 1px solid; border-radius: 999px; padding: 2px 7px; white-space: nowrap;
   }
-  .cond.open { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
-  .cond.resolved { color: #047857; border-color: #6ee7b7; background: #ecfdf5; }
+  .etiqueta .cond.open { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+  .etiqueta .cond.resolved { color: #047857; border-color: #6ee7b7; background: #ecfdf5; }
+  /* A folha é o que o empreiteiro procura primeiro, para saber em que prancha
+     ele vai olhar: vem no tamanho do texto corrido e em negrito, com o ícone
+     cinza para o olho cair na palavra e não no desenho. */
+  .etiqueta .onde {
+    margin-left: auto; display: flex; gap: 14px; color: #3f3f46; font-size: 10.5px;
+  }
+  .etiqueta .onde span { display: flex; align-items: center; gap: 5px; }
+  .etiqueta .onde .folha { font-weight: 600; color: #18181b; }
+  .etiqueta .onde .ic { width: 12px; height: 12px; color: #a1a1aa; }
 
+  .caixa { border: 1px solid #d4d4d8; border-radius: 8px; overflow: hidden; }
+
+  /* Problema e solução: as duas metades da mesma história, separadas por uma
+     linha e não por duas molduras. */
+  .metade { display: flex; gap: 10px; padding: 10px; min-height: 104px; }
+  .metade + .metade { border-top: 1px solid #e4e4e7; background: #fafafa; }
+  .metade .escrito { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+
+  .rotulo {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    color: #a1a1aa;
+  }
+  .metade.solucao .rotulo { color: #047857; }
+
+  .metade h2 { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.35; }
   .corpo { margin: 0; white-space: pre-wrap; }
   .topicos { margin: 0; padding-left: 15px; }
   .topicos li { margin-bottom: 2px; }
-  /* O que foi dito em voz alta entra em itálico e recuado: é citação de alguém
-     que estava lá, e não texto do sistema. */
-  .falado {
-    margin: 0; display: flex; gap: 6px; align-items: flex-start;
-    padding-left: 8px; border-left: 2px solid #e4e4e7;
-    color: #52525b; font-style: italic;
-  }
 
-  .feito { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
-  .rotulo {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
-    color: #047857;
-  }
-  .tiras { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tiras figure { margin: 0; width: 150px; display: flex; flex-direction: column; gap: 3px; }
-  .tiras img { width: 150px; height: 100px; object-fit: cover; border-radius: 5px; border: 1px solid #e4e4e7; }
-  .tiras figcaption { display: flex; flex-direction: column; font-size: 9px; line-height: 1.35; color: #52525b; }
-  .tiras figcaption strong { color: #18181b; }
-
-  .rodape {
-    margin-top: auto; padding-top: 6px; border-top: 1px dashed #e4e4e7;
-    display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end;
+  /* A assinatura fecha o bloco embaixo, encostada no pé, mesmo quando a coluna
+     das fotos é mais alta que a do texto. */
+  .assina {
+    margin-top: auto; padding-top: 6px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
     color: #71717a; font-size: 9px;
   }
-  .rodape span { display: flex; align-items: center; gap: 4px; }
-  .rodape .ok { color: #047857; }
+  /* O cargo é o ícone, e não uma etiqueta escrita: é o mesmo crachá da tela de
+     usuários e do leitor de prancha. */
+  .assina .cargo { width: 11px; height: 11px; flex: none; }
+  .assina .cargo.dev { color: #ca8a04; }
+  .assina .cargo.owner { color: #047857; }
+  .assina .cargo.manager { color: #2563eb; }
+  .assina .cargo.sub { color: #dc2626; }
 
-  /* A coluna da direita ocupa a altura inteira do container, e é o que dá ao
-     bloco a forma de ficha: o olho cai na imagem e volta para o texto. */
-  .visual { width: 168px; flex: none; display: flex; flex-direction: column; gap: 6px; }
-  .visual .grande {
-    width: 168px; flex: 1; min-height: 118px; object-fit: cover;
-    border-radius: 6px; border: 1px solid #e4e4e7; background: #fafafa;
+  /* ── As imagens do ponto ────────────────────────────────────────────── */
+
+  /* Quatro fotos, e não mais. Um ponto de obra tem duas ou três; quem tira
+     vinte está documentando uma reforma inteira. O resto se vê no Atlas, e não
+     há aviso do que ficou de fora: no papel não se abre foto nenhuma, e um selo
+     de "+3" diria um número que quem lê não pode usar. */
+  .pecas { width: 150px; flex: none; display: flex; flex-direction: column; gap: 4px; }
+  .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .grade figure { margin: 0; }
+  .grade img {
+    display: block; width: 100%; height: 52px; object-fit: cover;
+    border-radius: 4px; border: 1px solid #e4e4e7; background: #fafafa;
   }
-  .visual .grande.vazio {
-    display: flex; align-items: center; justify-content: center; color: #d4d4d8;
+  /* Uma ou duas fotos crescem para encher a coluna: em meia altura elas somem
+     no meio do branco, e a metade fica com cara de vazia. */
+  .grade.uma { grid-template-columns: 1fr; }
+  .grade.uma img { height: 108px; }
+  .grade.duas img { height: 108px; }
+
+  /* ── A folha ────────────────────────────────────────────────────────── */
+
+  /* Cada folha é uma página de papel, com o mesmo recheio que a impressão vai
+     ter: a área útil é a folha menos as margens, e é por isso que o padding
+     daqui e a margem do @page dizem o mesmo número. */
+  .pagina {
+    width: 210mm; height: 297mm; padding: 10mm;
+    display: flex; flex-direction: column;
+    background: #fff; margin: 0 auto 18px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
   }
-  .visual .grande.vazio .ic { width: 26px; height: 26px; }
-  .visual .pequena {
-    width: 168px; height: 74px; object-fit: cover;
-    border-radius: 6px; border: 1px solid #e4e4e7;
+  .pagina .conteudo { flex: 1; min-height: 0; overflow: hidden; }
+  .pagina footer.folha { margin-top: auto; }
+
+  @media screen { body { background: #d4d4d8; padding: 18px 0; } }
+  @media print {
+    /* Na impressão a margem é do papel, e a folha deixa de ter a dela: o
+       tamanho já vem do @page, e repetir o padding aqui daria margem dobrada. */
+    @page { margin: 10mm; }
+    /* A folha continua sendo uma folha: a altura é a da página menos as
+       margens (297 menos dois de dez), e não "o que o conteúdo pedir". Com
+       altura automática o rodapé colava no fim do último ponto e o resto do
+       papel ficava em branco embaixo dele. */
+    .pagina {
+      width: auto; height: 277mm; min-height: 0; padding: 0; margin: 0;
+      box-shadow: none; break-after: page; page-break-after: always;
+    }
+    .pagina:last-child { break-after: auto; page-break-after: auto; }
+    .pagina .conteudo { overflow: visible; }
   }
 </style></head><body>
-<header class="folha">
-  <span class="obra">${esc(op.jobsiteName)}</span>
-  <span>${esc(escopo)}</span>
-</header>
-<footer class="folha">
-  <span>Punch list · Premium Group</span>
-  <span>Issued ${emitido}</span>
-</footer>
+<div id="doc">
 
-<div class="resumo">
-  <h1>Punch list</h1>
-  <div class="conta">
-    <div><b>${pontos.length}</b> <span>points</span></div>
-    <div><b>${abertos}</b> <span>pending</span></div>
-    <div><b>${pontos.length - abertos}</b> <span>done</span></div>
+<div class="timbre">
+  ${logo ? `<img class="logo" src="${logo}" alt="Premium Group">` : "<span></span>"}
+  <div class="empresa">
+    <b>Premium Group</b>
+    1B Landing Lane, Hopedale, MA 01747<br>
+    (774) 804 3190 · info@premiumgrpinc.com<br>
+    premiumgrpinc.com
   </div>
 </div>
+
+<div class="titulo">
+  <span class="nome">
+    <h1>Punch List Report</h1>
+    <span class="sub">Findings and corrective actions</span>
+  </span>
+  <div class="campos">
+    <span class="campo"><i>Scope</i><b>${esc(escopo)}</b></span>
+    <span class="campo"><i>Issued</i><b>${emitido}</b></span>
+  </div>
+</div>
+
+<div class="obra-ident">
+  <div class="fatos">
+    ${fato("cliente", cliente)}
+    ${fato("lugar", lugar)}
+    ${fato("obra", nomeDaObra)}
+  </div>
+  ${endereco ? `<div class="endereco">${fato("endereco", endereco)}</div>` : ""}
+</div>
+
+<div class="${tipo.classe}">${tipo.rotulo}</div>
 ${blocos}
-</body></html>`)
-  janela.document.close()
-  // O `onload` espera as imagens entrarem. Chamar `print` antes deixaria o
-  // documento sair com os quadros em branco, que é justamente a parte que ele
-  // existe para mostrar.
-  janela.onload = () => janela.print()
+
+</div>
+
+<template id="rodape">${rodape}</template>
+
+<script>
+/**
+ * A paginação.
+ *
+ * Deixado ao navegador, o corte em folhas acontece só na hora de imprimir, e
+ * com ele não há como numerar a página nem repetir o rodapé no pé de cada uma:
+ * elemento fixo não conta folha, e as caixas de margem do @page o Chrome ignora.
+ *
+ * Então o corte é feito antes, aqui: as peças entram numa folha de tamanho de
+ * papel, uma por vez, e a folha fecha quando a próxima não cabe. Cada uma
+ * termina com o rodapé e com uma quebra de página de verdade, então o que se vê
+ * na tela é o que sai na impressora.
+ */
+;(function paginar() {
+  var doc = document.getElementById("doc")
+  var molde = document.getElementById("rodape")
+  var pecas = Array.prototype.slice.call(doc.children)
+  doc.innerHTML = ""
+
+  var dentro = null
+  function novaFolha() {
+    var folha = document.createElement("div")
+    folha.className = "pagina"
+    dentro = document.createElement("div")
+    dentro.className = "conteudo"
+    folha.appendChild(dentro)
+    folha.appendChild(molde.content.cloneNode(true))
+    doc.appendChild(folha)
+  }
+
+  novaFolha()
+  pecas.forEach(function (peca) {
+    dentro.appendChild(peca)
+    // Não coube: a peça desce inteira para a folha seguinte. Numa folha recém
+    // aberta não há para onde descer, e ela fica mesmo estourando.
+    if (dentro.scrollHeight > dentro.clientHeight + 1 && dentro.children.length > 1) {
+      dentro.removeChild(peca)
+      novaFolha()
+      dentro.appendChild(peca)
+    }
+  })
+
+  var folhas = doc.querySelectorAll(".pagina")
+  Array.prototype.forEach.call(folhas, function (f, i) {
+    f.querySelector(".pag").textContent = "Page " + (i + 1) + " of " + folhas.length
+  })
+})()
+</script>
+</body></html>`
+}
+
+/**
+ * Emite o relatório: monta o documento e abre o diálogo de impressão.
+ *
+ * ── Por que não uma janela nova ──
+ *
+ * Era `window.open`, e bastava um bloqueador de pop-up para o relatório sumir
+ * sem dizer nada: a janela vinha nula, a função voltava em silêncio, e quem
+ * clicou ficava olhando para a tela achando que o botão estava quebrado. E o
+ * bloqueio é o normal, não a exceção: navegador de empresa costuma vir assim.
+ *
+ * Agora o documento entra num quadro escondido da própria página e é ele que
+ * manda imprimir. Nada de janela, nada de permissão, e de dentro do diálogo o
+ * "salvar como PDF" continua sendo o caminho de sempre.
+ *
+ * O quadro precisa ter tamanho de folha de verdade, e não zero: o documento se
+ * pagina medindo a si mesmo, e num quadro sem largura ele não teria onde caber.
+ * Fica fora da tela, à esquerda, onde ninguém o vê.
+ */
+export async function gerarRelatorio(op: OpcoesRelatorio): Promise<void> {
+  const html = await montarRelatorio(op)
+  if (!html) return
+
+  // O nome do arquivo sai do título do documento. Imprimindo de um quadro de
+  // dentro, o Chrome ora usa o título do quadro, ora o da página que o hospeda,
+  // então os dois recebem o mesmo nome e o de fora volta ao que era depois.
+  const nome = (html.match(/<title>([^<]*)<\/title>/) ?? [])[1] ?? "Punch List Report"
+  const tituloDaPagina = document.title
+  document.title = nome
+
+  const endereco = URL.createObjectURL(new Blob([html], { type: "text/html" }))
+  const quadro = document.createElement("iframe")
+  quadro.setAttribute("aria-hidden", "true")
+  quadro.style.cssText = "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0"
+  quadro.src = endereco
+
+  quadro.onload = () => {
+    // O `onload` espera as imagens entrarem. Chamar `print` antes deixaria o
+    // documento sair com os quadros em branco, que é justamente a parte que ele
+    // existe para mostrar.
+    quadro.contentWindow?.focus()
+    quadro.contentWindow?.print()
+    // A limpeza espera o diálogo: tirar o quadro antes de a impressão sair
+    // cancela o trabalho no meio.
+    setTimeout(() => {
+      document.title = tituloDaPagina
+      quadro.remove()
+      URL.revokeObjectURL(endereco)
+    }, 60_000)
+  }
+
+  document.body.appendChild(quadro)
 }

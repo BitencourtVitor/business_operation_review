@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Punch list · model</title>
+<!--
+  O MODELO DO RELATÓRIO DO PUNCH LIST
+
+  Este arquivo é onde o modelo se decide. Ele não busca nada: os pontos, as
+  fotos e os recortes de planta são de mentira, desenhados aqui mesmo, para que
+  o layout possa ser mexido e olhado sem depender de obra, de sessão ou de rede.
+
+  Fechado o desenho aqui, ele é portado para src/components/atlas/punch-report.ts,
+  que é quem monta o documento de verdade com os dados da obra. Os nomes de
+  classe são os mesmos dos dois lados de propósito, para a passagem ser cópia e
+  não tradução.
+
+  ── O ponto tem a forma que ele tem no leitor de prancha ──
+
+  Quem registra o ponto o vê na janelinha sobre o desenho: número e condição do
+  lado de fora, e dentro um container com o escrito à esquerda e as fotos à
+  direita, assinado no pé por quem fez e quando. Aqui é o mesmo desenho, com uma
+  diferença: no leitor o problema e a solução são dois containers soltos, e no
+  papel eles são um só, partido por uma linha. São duas metades da mesma
+  história, e duas molduras seguidas gastavam meia folha a cada ponto.
+
+  Para conferir a paginação, imprimir esta página: a margem, o cabeçalho e o
+  rodapé que se repetem são de impressão, e na tela não aparecem como no papel.
+-->
+<style>
+  /* A margem de cima e a de baixo abrem espaço para o cabeçalho e o rodapé
+     fixos, que se repetem em toda página. Sem essa folga o texto passa por
+     baixo deles a partir da segunda folha. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: #18181b;
+    font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    background: #fff;
+  }
+  .ic { width: 11px; height: 11px; flex: none; }
+
+  /* ── O que se repete em toda folha ──────────────────────────────────── */
+
+  /* Só o rodapé se repete.
+     
+     Havia também uma tira no alto de toda folha, com a marca e a obra. Na
+     primeira ela dizia a mesma coisa que o timbre logo abaixo, e não há como
+     calar um elemento fixo só na primeira página. Quem identifica a folha
+     solta passa a ser o rodapé, que já estava lá e já se repetia. */
+  /* O rodapé leva a obra inteira, e não só o nome dela.
+  
+     A folha viaja solta: sai do e-mail, é impressa, vai para a prancheta e
+     chega na mão de quem não abriu o Atlas. Ali, "Tara Construction" não diz
+     qual das obras da Tara é, nem para onde ir. Cliente, cidade, obra e
+     endereço juntos dizem, e é a mesma identificação que a sala da obra usa na
+     tela. O documento e a data ficam na linha de baixo, encostados à direita. */
+  footer.folha {
+    position: static;
+    /* Tudo alinhado pela base: a logo tem uma altura, o texto tem outra, e
+       centradas as duas ficavam boiando cada uma no seu meio. */
+    display: flex; align-items: flex-end; gap: 10px;
+    padding-top: 5px; border-top: 1px solid #e4e4e7;
+    color: #71717a; font-size: 8.5px; line-height: 1.45;
+  }
+  footer.folha .marca { display: flex; align-items: flex-end; flex: none; }
+  footer.folha img { height: 12px; }
+  footer.folha .dados {
+    display: flex; flex-wrap: wrap; gap: 2px 10px; min-width: 0;
+  }
+  footer.folha .dados span { display: flex; align-items: flex-end; gap: 4px; }
+  footer.folha .obra { font-weight: 600; color: #18181b; }
+  footer.folha .doc { margin-left: auto; text-align: right; }
+  footer.folha .ic { width: 9px; height: 9px; }
+
+  /* ── A capa da primeira folha ───────────────────────────────────────── */
+
+  /* A empresa se apresenta uma vez, no alto da primeira folha: é documento que
+     sai da casa e chega na mão de cliente e de empreiteiro, e quem manda tem
+     que estar escrito com todas as letras. Nas folhas seguintes basta a tira
+     de cima, que já repete a marca em tamanho pequeno. */
+  /* Moldura como a dos pontos: no papel tudo o que é um assunto fechado mora
+     dentro de um container, e quem manda o documento é um assunto. Solto, com
+     um fio embaixo, o timbre parecia papel timbrado de outra peça colada aqui. */
+  .timbre {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; border: 1px solid #d4d4d8; border-radius: 8px; padding: 12px 14px;
+  }
+  .timbre .logo { height: 30px; }
+  .timbre .empresa { text-align: right; font-size: 9.5px; line-height: 1.55; color: #52525b; }
+  .timbre .empresa b { display: block; font-size: 12px; color: #18181b; }
+
+  .titulo {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 20px; margin: 12px 0 10px;
+  }
+  .titulo .nome { display: flex; flex-direction: column; gap: 1px; }
+  .titulo h1 { margin: 0; font-size: 20px; letter-spacing: -.015em; line-height: 1.15; }
+  .titulo .sub { font-size: 11.5px; color: #71717a; }
+  .titulo .campos { display: flex; gap: 22px; }
+  .titulo .campo { display: flex; flex-direction: column; gap: 1px; }
+  .titulo .campo i {
+    font-style: normal; font-size: 8px; text-transform: uppercase;
+    letter-spacing: .09em; color: #a1a1aa;
+  }
+  .titulo .campo b { font-size: 10.5px; font-weight: 600; }
+
+  /* A identidade da obra, igual à da sala da obra no sistema: cliente, obra e
+     tipo de um lado, endereço do outro, com um fio entre eles. Quem lê o
+     relatório precisa das mesmas quatro coisas que quem abre a obra na tela, e
+     repetir o desenho poupa a quem conhece um dos dois de aprender o outro. */
+  .obra-ident {
+    display: flex; align-items: stretch;
+    border: 1px solid #e4e4e7; border-radius: 8px; overflow: hidden;
+    color: #52525b; font-size: 10px; margin-bottom: 10px;
+  }
+  .obra-ident .fatos {
+    flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 16px;
+    padding: 7px 10px;
+  }
+  .obra-ident .endereco {
+    max-width: 50%; display: flex; align-items: center;
+    padding: 7px 10px; border-left: 1px solid #e4e4e7; background: #fafafa;
+  }
+  .obra-ident span { display: flex; align-items: center; gap: 5px; }
+
+  /* O tipo do relatório, dito antes do primeiro ponto.
+  
+     São três emissões possíveis (tudo, só o pendente, só o resolvido) e elas
+     saem com a mesma cara. Sem esta linha, quem recebe a lista dos pendentes
+     acha que são todos os pontos da obra, e quem recebe a dos resolvidos acha
+     que não sobrou nada. O fio corre até a margem para separar a capa do corpo,
+     e a cor é a da própria condição, a mesma da pastilha de cada ponto. */
+  .tipo {
+    display: flex; align-items: center; gap: 8px;
+    margin: 14px 0 10px; color: #52525b;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+  }
+  .tipo::after {
+    content: ""; flex: 1; height: 1px; background: #d4d4d8;
+  }
+  .tipo.aberto { color: #b45309; }
+  .tipo.aberto::after { background: #fcd34d; }
+  .tipo.feito { color: #047857; }
+  .tipo.feito::after { background: #6ee7b7; }
+
+  /* ── O ponto ────────────────────────────────────────────────────────── */
+
+  /* Um ponto nunca é cortado entre páginas: o recorte numa página e as
+     informações na seguinte torna o documento inútil para conferir em obra.
+     Não cabendo no que resta da folha, ele desce inteiro para a próxima, e o
+     branco que fica é o preço de não partir o assunto no meio.
+
+     A regra é dita nas três peças porque uma só não basta: o navegador quebra
+     pelo filho mais interno que permitir, e sem o `avoid` na caixa e nas
+     metades ele partia o container deixando a moldura aberta no pé da página.
+     A etiqueta pede para não se separar do que vem depois dela, senão o número
+     e a condição ficavam órfãos no fim de uma folha e o ponto começava na
+     outra. */
+  .ponto {
+    break-inside: avoid; page-break-inside: avoid;
+    margin-bottom: 18px;
+  }
+  .etiqueta { break-after: avoid; page-break-after: avoid; }
+  .caixa, .metade { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Número, condição e onde fica: do lado de fora da moldura, como na janelinha
+     do leitor. São a etiqueta do ponto, não conteúdo dele. */
+  .etiqueta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  /* O número é número, e não um selo.
+  
+     Era um círculo preto com o algarismo em branco, a única mancha escura de
+     um documento feito de fio fino, e ele puxava o olho antes do título, que é
+     o que interessa. Agora é o próprio algarismo, grande e com o jogo da
+     tralha na frente, como se numera item em lista de obra. */
+  .etiqueta .numero {
+    font-size: 15px; font-weight: 700; line-height: 1; color: #18181b;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  }
+  .etiqueta .numero i { font-style: normal; color: #a1a1aa; font-weight: 600; }
+  .etiqueta .cond {
+    font-size: 8px; text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+    border: 1px solid; border-radius: 999px; padding: 2px 7px; white-space: nowrap;
+  }
+  .etiqueta .cond.open { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+  .etiqueta .cond.resolved { color: #047857; border-color: #6ee7b7; background: #ecfdf5; }
+  /* Onde o ponto fica: a folha.
+
+     O escopo saiu daqui: o relatório inteiro é de um escopo só, e ele está
+     dito no alto da primeira folha. Emitido para a obra inteira, cada ponto
+     volta a precisar dizer de qual escopo é.
+  
+     Estava em nove e no cinza do rodapé, e era a informação que o empreiteiro
+     procura primeiro para saber em que prancha ele vai olhar. Agora tem o
+     tamanho do texto corrido, o número da folha vem em negrito e escuro, e o
+     ícone fica cinza para o olho cair na palavra e não no desenho. */
+  .etiqueta .onde {
+    margin-left: auto; display: flex; gap: 14px;
+    color: #3f3f46; font-size: 10.5px;
+  }
+  .etiqueta .onde span { display: flex; align-items: center; gap: 5px; }
+  .etiqueta .onde .folha { font-weight: 600; color: #18181b; }
+  .etiqueta .onde .ic { width: 12px; height: 12px; color: #a1a1aa; }
+
+  .caixa { border: 1px solid #d4d4d8; border-radius: 8px; overflow: hidden; }
+
+  /* Problema e solução: as duas metades da mesma história, separadas por uma
+     linha e não por duas molduras. */
+  .metade { display: flex; gap: 10px; padding: 10px; min-height: 104px; }
+  .metade + .metade { border-top: 1px solid #e4e4e7; background: #fafafa; }
+  .metade .escrito { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+
+  .rotulo {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    color: #a1a1aa;
+  }
+  .metade.solucao .rotulo { color: #047857; }
+
+  .metade h2 { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.35; }
+  .corpo { margin: 0; white-space: pre-wrap; }
+  .topicos { margin: 0; padding-left: 15px; }
+  .topicos li { margin-bottom: 2px; }
+
+  /* A assinatura fecha o bloco embaixo, encostada no pé, mesmo quando a coluna
+     das fotos é mais alta que a do texto. */
+  .assina {
+    margin-top: auto; padding-top: 6px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
+    color: #71717a; font-size: 9px;
+  }
+  /* O cargo é o ícone, e não uma etiqueta escrita: é o mesmo crachá da tela de
+     usuários e do leitor de prancha, onde o desenho diz de que lado a pessoa
+     está antes de a linha ser lida. Amarelo é dev, verde é owner, azul é
+     manager e vermelho é subcontratado. */
+  .assina .cargo { width: 11px; height: 11px; flex: none; }
+  .assina .cargo.dev { color: #ca8a04; }
+  .assina .cargo.owner { color: #047857; }
+  .assina .cargo.manager { color: #2563eb; }
+  .assina .cargo.sub { color: #dc2626; }
+
+  /* ── As imagens do ponto ────────────────────────────────────────────── */
+
+  /* Quatro fotos, e não mais.
+  
+     Um ponto de obra tem duas ou três fotos; quem tira vinte está documentando
+     uma reforma inteira, não um ponto. Então o papel leva as quatro primeiras,
+     e o resto se vê no Atlas. Assim a coluna tem sempre a mesma altura, e as
+     duas metades do ponto não brigam por espaço.
+
+     Não há aviso do que ficou de fora: no papel não se abre foto nenhuma, e um
+     selo de "+3" só escureceria uma das quatro para dizer um número que quem
+     lê não pode usar. Quem quer as outras abre o ponto no Atlas. */
+  .pecas { width: 150px; flex: none; display: flex; flex-direction: column; gap: 4px; }
+  .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .grade figure { margin: 0; }
+  .grade img {
+    display: block; width: 100%; height: 52px; object-fit: cover;
+    border-radius: 4px; border: 1px solid #e4e4e7; background: #fafafa;
+  }
+  /* Uma ou duas fotos crescem para encher a coluna: em meia altura elas somem
+     no meio do branco, e a metade fica com cara de vazia. */
+  .grade.uma { grid-template-columns: 1fr; }
+  .grade.uma img { height: 108px; }
+  .grade.duas img { height: 108px; }
+
+
+  /* ── A folha ────────────────────────────────────────────────────────── */
+
+  /* Cada folha é uma página de papel, com o mesmo recheio que a impressão vai
+     ter: a área útil é a folha menos as margens, e é por isso que o padding
+     daqui e a margem do @page dizem os mesmos números. A folha termina com o
+     rodapé encostado no pé, e com uma quebra de página de verdade. */
+  .pagina {
+    width: 210mm; height: 297mm; padding: 10mm;
+    display: flex; flex-direction: column;
+    background: #fff; margin: 0 auto 18px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
+  }
+  .pagina .conteudo { flex: 1; min-height: 0; overflow: hidden; }
+  .pagina footer.folha { position: static; margin-top: auto; }
+
+  @media screen {
+    body { background: #d4d4d8; padding: 18px 0; }
+  }
+  @media print {
+    /* Na impressão a margem é do papel, e a folha deixa de ter a dela: o
+       tamanho já vem do @page, e repetir o padding aqui daria margem dobrada. */
+    @page { margin: 10mm; }
+    /* A folha continua sendo uma folha: a altura é a da página menos as
+       margens (297 menos dois de dez), e não "o que o conteúdo pedir". Com
+       altura automática o rodapé colava no fim do último ponto e o resto do
+       papel ficava em branco embaixo dele. */
+    .pagina {
+      width: auto; height: 277mm; min-height: 0; padding: 0; margin: 0;
+      box-shadow: none; break-after: page; page-break-after: always;
+    }
+    .pagina:last-child { break-after: auto; page-break-after: auto; }
+    .pagina .conteudo { overflow: visible; }
+  }
+
+</style>
+</head>
+<body>
+<div id="doc">
+
+<div class="timbre">
+  <img class="logo" src="/images/logo_black.png" alt="Premium Group">
+  <div class="empresa">
+    <b>Premium Group</b>
+    1B Landing Lane, Hopedale, MA 01747<br>
+    (774) 804 3190 · info@premiumgrpinc.com<br>
+    premiumgrpinc.com
+  </div>
+</div>
+
+<div class="titulo">
+  <span class="nome">
+    <h1>Punch List Report</h1>
+    <span class="sub">Findings and corrective actions</span>
+  </span>
+  <div class="campos">
+    <span class="campo"><i>Scope</i><b>Lower Level Wall Panel</b></span>
+    <span class="campo"><i>Issued</i><b>September 13, 2026</b></span>
+  </div>
+</div>
+
+<!-- A obra, com os mesmos quatro dados da sala da obra no sistema. -->
+<div class="obra-ident">
+  <div class="fatos">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Tara Construction</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg>Deerfield, MA</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M9 12h12"/></svg>Panels 1</span>
+  </div>
+  <div class="endereco">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>7 Boyden Lane, Deerfield, MA 01342</span>
+  </div>
+</div>
+
+<!-- Qual das três emissões é esta. Trocando a classe muda a cor e o rótulo:
+     sem classe é a lista inteira, `aberto` é só o que falta e `feito` é só o
+     que já foi corrigido. -->
+<div class="tipo">All points</div>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>1</span>
+    <span class="cond resolved">Resolved</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-01-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>King stud out of plumb at the left header</h2>
+        <ul class="topicos"><li>The king stud on the left side of the header is out of plumb about 1/2 in.</li><li>It leans toward the opening from the top plate down.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 9:41 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 6 9 17l-5-5"/></svg> Solution</span>
+        <p class="corpo">Removed the king stud, reset it plumb and renailed both ends. Checked the header for level after the reset.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 3:20 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>2</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-01-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Bottom plate missing nails at the corner</h2>
+        <ul class="topicos"><li>The bottom plate is missing two nails at the corner of the panel.</li><li>Nailing stops about 8 in. short of the end.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 10:05 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade uma">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>3</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-03-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Hold down anchor not installed</h2>
+        <p class="corpo">The hold down called out at the end of the shear panel is not there. Anchor bolt is in, the hardware is missing.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 11:30 AM</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>4</span>
+    <span class="cond resolved">Resolved</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-03-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Sheathing seam falls off the stud</h2>
+        <ul class="topicos"><li>The seam between two sheets lands about 3/4 in. off the face of the stud.</li><li>There is no blocking behind it.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 11:52 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 6 9 17l-5-5"/></svg> Solution</span>
+        <p class="corpo">Added blocking behind the seam and renailed both sheets to it.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 4:05 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade uma">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>5</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-04-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Top plate splice shorter than called out</h2>
+        <ul class="topicos"><li>The splice on the double top plate laps about 16 in.</li><li>The panel schedule calls for 48 in. over this bay.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 1:12 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>6</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-04-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Window rough opening one inch wide</h2>
+        <ul class="topicos"><li>Rough opening measures 3 ft 1 in. and the schedule calls for 3 ft.</li><li>The extra inch is on the hinge side.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 1:35 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>7</span>
+    <span class="cond resolved">Resolved</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-05-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Cripple studs not aligned with the layout</h2>
+        <ul class="topicos"><li>Cripples under the sill are set to their own spacing instead of following the layout above.</li><li>Two of them fall over the header joint.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 2:02 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 6 9 17l-5-5"/></svg> Solution</span>
+        <p class="corpo">Reset the cripples to the layout and renailed the sill.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 13, 2026 at 8:10 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>8</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-05-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Panel edge nailing spaced too far</h2>
+        <ul class="topicos"><li>Edge nailing measures about 9 in. on center along the left edge.</li><li>The shear schedule calls for 6 in.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 2:20 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade uma">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>9</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-06-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Header bearing stud missing on the right</h2>
+        <p class="corpo">Only one jack stud under the right end of the header, and the detail calls for two.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 2:48 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>10</span>
+    <span class="cond resolved">Resolved</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-07-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Panel mark does not match the drawing</h2>
+        <ul class="topicos"><li>The panel is stamped 1-07-L and the drawing has it as 1-07-R.</li><li>The openings match the right hand panel.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 3:05 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade uma">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 6 9 17l-5-5"/></svg> Solution</span>
+        <p class="corpo">Restamped the panel as 1-07-R and corrected the shop tag.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 13, 2026 at 9:02 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade uma">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>11</span>
+    <span class="cond open">Pending</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-08-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Moisture staining along the bottom plate</h2>
+        <ul class="topicos"><li>About 4 ft of the bottom plate is stained and soft to the touch.</li><li>The panel was stored outside without cover for two days.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 3:40 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ponto">
+  <div class="etiqueta">
+    <span class="numero"><i>#</i>12</span>
+    <span class="cond resolved">Resolved</span>
+    <span class="onde">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="folha">1-09-L (1)</span></span>
+    </span>
+  </div>
+
+  <div class="caixa">
+    <div class="metade">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Problem</span>
+        <h2>Blocking missing at the panel joint</h2>
+        <ul class="topicos"><li>No blocking at the joint between this panel and the one to the right.</li><li>The detail calls for full height blocking at every panel joint.</li></ul>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 12, 2026 at 4:15 PM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="metade solucao">
+      <div class="escrito">
+        <span class="rotulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M20 6 9 17l-5-5"/></svg> Solution</span>
+        <p class="corpo">Installed full height blocking and nailed both panels to it.</p>
+        <span class="assina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="cargo dev"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg> Vitor Bitencourt · September 13, 2026 at 10:30 AM</span>
+      </div>
+      <div class="pecas">
+        <div class="grade duas">
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+          <figure><img src="modelo-foto.svg" alt=""></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<template id="rodape">
+  <footer class="folha">
+    <span class="marca">
+      <img src="/images/logo_black.png" alt="Premium Group">
+    </span>
+    <span class="dados">
+      <span class="obra">Tara Construction</span>
+      <span>Deerfield, MA</span>
+      <span>Panels 1</span>
+      <span>7 Boyden Lane, Deerfield, MA 01342</span>
+    </span>
+    <span class="doc">September 13, 2026 · <b class="pag"></b></span>
+  </footer>
+</template>
+
+<script>
+/**
+ * A paginação, só para conferir o modelo.
+ *
+ * O documento é um fluxo contínuo, e é o navegador que o corta em folhas na
+ * hora de imprimir. Isso serve para imprimir e atrapalha para julgar: na tela
+ * não dá para ver onde uma folha acaba, se o rodapé se repete, nem quanto
+ * branco sobra no pé de uma página em que não coube mais um ponto.
+ *
+ * Então aqui o corte é feito antes, à mão: as peças entram numa folha de
+ * tamanho de papel, uma por vez, e a folha fecha quando a próxima não cabe. O
+ * que se vê na tela é o que sai na impressora, porque cada folha termina com
+ * uma quebra de página de verdade.
+ *
+ * Isto não vai para o gerador: lá o corte continua sendo do navegador, com a
+ * regra de não partir um ponto no meio. Aqui é instrumento de conferência.
+ */
+;(function paginar() {
+  const doc = document.getElementById("doc")
+  const molde = document.getElementById("rodape")
+  const pecas = [...doc.children]
+  doc.innerHTML = ""
+
+  let dentro = null
+  const novaFolha = () => {
+    const folha = document.createElement("div")
+    folha.className = "pagina"
+    dentro = document.createElement("div")
+    dentro.className = "conteudo"
+    folha.appendChild(dentro)
+    folha.appendChild(molde.content.cloneNode(true))
+    doc.appendChild(folha)
+  }
+
+  novaFolha()
+  for (const peca of pecas) {
+    dentro.appendChild(peca)
+    // Não coube: a peça desce inteira para a folha seguinte. Numa folha recém
+    // aberta não há para onde descer, e ela fica mesmo estourando.
+    if (dentro.scrollHeight > dentro.clientHeight + 1 && dentro.children.length > 1) {
+      dentro.removeChild(peca)
+      novaFolha()
+      dentro.appendChild(peca)
+    }
+  }
+
+  const folhas = doc.querySelectorAll(".pagina")
+  folhas.forEach((f, i) => {
+    f.querySelector(".pag").textContent = "Page " + (i + 1) + " of " + folhas.length
+  })
+})()
+</script>
+
+</body>
+</html>
