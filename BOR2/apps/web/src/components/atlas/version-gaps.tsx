@@ -4,7 +4,7 @@ import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasThumbs } from "@/hooks/use-atlas"
 import { atlasService, type AtlasVersion } from "@/services/atlas.service"
 import { useQuery } from "@tanstack/react-query"
-import { BadgeCheck, ChevronDown, FileText, FileX2, Layers, Replace } from "lucide-react"
+import { BadgeCheck, ChevronDown, FileText, FileX2, Images, Layers, MessageSquareText, Replace } from "lucide-react"
 import { useState } from "react"
 
 /**
@@ -100,21 +100,28 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
       {/* A justificativa com as quebras que quem escreveu deu: cortá-la numa
           linha faria a segunda frase sumir junto com o motivo. */}
       {v.notes ? (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">{v.notes}</p>
+        <Secao icone={MessageSquareText} rotulo="Why it changed">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">{v.notes}</p>
+        </Secao>
       ) : gap?.kind !== "first" ? (
         <p className="text-xs italic text-muted-foreground">No reason was written for this version.</p>
       ) : !v.attachments?.length ? (
         <p className="text-xs text-muted-foreground">The first plan set uploaded to this folder.</p>
       ) : null}
 
+      {/* As fotos são da justificativa, e as folhas são o que mudou no set. Lado
+          a lado as duas viravam uma fileira só de quadradinhos, e não se sabia
+          o que era prova e o que era prancha. Cada uma no seu bloco, com nome. */}
       {!!v.attachments?.length && (
-        <div className="flex flex-wrap gap-2">
-          {v.attachments.map(a => <Anexo key={a.id} anexo={a} />)}
-        </div>
+        <Secao icone={Images} rotulo="Photos">
+          <div className="flex flex-wrap gap-2">
+            {v.attachments.map(a => <Anexo key={a.id} anexo={a} />)}
+          </div>
+        </Secao>
       )}
 
       {(mudaram.length > 0 || !!gap?.removed?.length) && (
-      <div className="flex flex-col gap-2">
+      <Secao icone={Replace} rotulo="Changed sheets" separada>
         {comMiniatura ? (
           <div className="flex flex-wrap gap-2">
             {mudaram.map(f => (
@@ -163,11 +170,30 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
             ))}
           </p>
         )}
-      </div>
+      </Secao>
       )}
       </div>
       </div>
       </div>
+    </div>
+  )
+}
+
+/** Um bloco da versão aberta, com o nome do que ele guarda. */
+function Secao({ icone: Icone, rotulo, separada, children }: {
+  icone: React.ElementType
+  rotulo: string
+  /** Com linha em cima: separa o que mudou no set do que justifica a troca. */
+  separada?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className={`flex flex-col gap-2 ${separada ? "border-t border-border/50 pt-2.5" : ""}`}>
+      <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <Icone className="h-3.5 w-3.5" />
+        {rotulo}
+      </span>
+      {children}
     </div>
   )
 }
