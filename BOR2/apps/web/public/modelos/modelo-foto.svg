@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <!-- Foto de mentira: uma parede de madeira vista de perto, que é o que a
+       maioria das fotos do punch é. Serve para julgar enquadramento e cor. -->
+  <defs>
+    <linearGradient id="luz" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5e8d3"/><stop offset="1" stop-color="#d8c3a0"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" fill="url(#luz)"/>
+  <g fill="#c9ad84">
+    <rect x="26" y="0" width="34" height="240"/>
+    <rect x="112" y="0" width="34" height="240"/>
+    <rect x="198" y="0" width="34" height="240"/>
+    <rect x="272" y="0" width="34" height="240"/>
+  </g>
+  <rect x="0" y="26" width="320" height="18" fill="#b99a70"/>
+  <rect x="0" y="206" width="320" height="20" fill="#b99a70"/>
+  <circle cx="205" cy="126" r="30" fill="none" stroke="#dc2626" stroke-width="4"/>
+</svg>

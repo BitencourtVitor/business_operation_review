@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <!-- Recorte da planta: linhas finas, cotas, e a marca vermelha do ponto no
+       meio, que é o que o gerador desenha por cima do corte. -->
+  <rect width="320" height="240" fill="#ffffff"/>
+  <g stroke="#3f3f46" stroke-width="1.4" fill="none">
+    <rect x="34" y="52" width="252" height="136"/>
+    <path d="M34 96h252M34 144h252M118 52v136M202 52v136"/>
+  </g>
+  <g stroke="#a1a1aa" stroke-width="0.8">
+    <path d="M34 32h252M34 26v12M286 26v12"/>
+  </g>
+  <g fill="#52525b" font-family="sans-serif" font-size="11">
+    <text x="146" y="24">12'-4"</text>
+    <text x="44" y="76">A-201</text>
+  </g>
+  <circle cx="160" cy="120" r="22" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+</svg>

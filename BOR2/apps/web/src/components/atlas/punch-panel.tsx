@@ -10,6 +10,7 @@ import { PunchReportButton } from "@/components/atlas/punch-report-dialog"
 import {
   useAtlasPunchPoints, useAtlasPunchScopes, useAtlasPunches,
   useCloseAtlasPunch, useDeleteAtlasEvent, useOpenAtlasPunch, useReopenAtlasPunch,
+  useUpdateAtlasEvent,
 } from "@/hooks/use-atlas"
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
@@ -445,6 +446,7 @@ function PunchScopeView({
   const fechar = useCloseAtlasPunch(jobsiteId)
   const reabrir = useReopenAtlasPunch(jobsiteId)
   const remover = useDeleteAtlasEvent(jobsiteId)
+  const condicaoDoPonto = useUpdateAtlasEvent(jobsiteId)
 
   const aberta = (passagens ?? []).find(p => !p.closedAt)
   // Assinar com ponto em aberto é o que o banco recusa de qualquer jeito: a
@@ -718,6 +720,32 @@ function PunchScopeView({
                       )}
                     </span>
                     )}
+                      {/* Resolver mora aqui, ao lado de abrir no desenho.
+                          Estava lá dentro, no pé do ponto aberto, o que obrigava
+                          a expandir a ficha inteira para dizer que a coisa foi
+                          feita: numa passagem de obra são vinte pontos, e vinte
+                          aberturas para vinte cliques. */}
+                      {canWrite && (
+                        <button
+                          type="button"
+                          title={p.status === "resolved" ? "Reopen this point" : "Mark it as resolved"}
+                          aria-label={p.status === "resolved" ? "Reopen this point" : "Mark it as resolved"}
+                          disabled={condicaoDoPonto.isPending}
+                          onClick={() => condicaoDoPonto.mutate({
+                            eventId: p.id,
+                            patch: { status: p.status === "resolved" ? "open" : "resolved" },
+                          })}
+                          className={`flex h-7 shrink-0 items-center gap-1.5 rounded-md border px-2 text-xs font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+                            p.status === "resolved"
+                              ? "border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              : "border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
+                          }`}
+                        >
+                          {p.status === "resolved"
+                            ? <><RotateCcw className="h-3.5 w-3.5" />Reopen</>
+                            : <><CheckCircle2 className="h-3.5 w-3.5" />Resolve</>}
+                        </button>
+                      )}
                       <button
                         type="button"
                         title="Open it on the drawing"
