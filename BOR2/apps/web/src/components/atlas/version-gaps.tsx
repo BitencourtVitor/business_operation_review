@@ -4,7 +4,7 @@ import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasThumbs } from "@/hooks/use-atlas"
 import { atlasService, type AtlasVersion } from "@/services/atlas.service"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronDown, FileText, FileX2, Layers, Replace } from "lucide-react"
+import { BadgeCheck, ChevronDown, FileText, FileX2, Layers, Replace } from "lucide-react"
 import { useState } from "react"
 
 /**
@@ -77,7 +77,8 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
           )}
           <span className="ml-auto flex items-center gap-2">
             {atual && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <BadgeCheck className="h-3 w-3" />
                 Current
               </span>
             )}
@@ -91,8 +92,11 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
         </span>
       </button>
 
-      {aberta && (
-      <div className="flex flex-col gap-2.5 border-t border-border/50 p-3">
+      {/* Abre e fecha deslizando: a altura anima pela linha da grade, que vai
+          de 0fr a 1fr sem precisar medir o conteúdo. */}
+      <div inert={!aberta} className={`grid transition-[grid-template-rows] duration-200 ease-out ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+      <div className="min-h-0 overflow-hidden">
+      <div className={`flex flex-col gap-2.5 border-t border-border/50 p-3 transition-opacity duration-200 ${aberta ? "opacity-100" : "opacity-0"}`}>
       {/* A justificativa com as quebras que quem escreveu deu: cortá-la numa
           linha faria a segunda frase sumir junto com o motivo. */}
       {v.notes ? (
@@ -162,7 +166,8 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
       </div>
       )}
       </div>
-      )}
+      </div>
+      </div>
     </div>
   )
 }
