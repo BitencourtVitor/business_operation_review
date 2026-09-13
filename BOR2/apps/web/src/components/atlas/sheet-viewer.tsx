@@ -2485,16 +2485,17 @@ export function SheetViewer({
         // vertical sobrando sozinho numa delas.
         //
         // Do tablet para cima volta a ser uma barra só, que é onde cabe.
-        <div ref={barraRef} className="absolute bottom-4 left-4 right-[82px] flex flex-col-reverse items-start gap-2 text-white transition-all duration-200 sm:right-auto sm:min-h-[50px] sm:max-w-[calc(100vw-9rem)] sm:flex-row sm:flex-wrap sm:items-center sm:rounded-lg sm:border sm:border-white/10 sm:bg-neutral-800/90 sm:px-1.5 sm:py-1.5 sm:shadow-lg sm:backdrop-blur">
+        <div ref={barraRef} className="absolute bottom-4 left-4 flex max-w-[calc(100%-98px)] flex-col-reverse items-stretch gap-2 text-white transition-all duration-200 sm:min-h-[50px] sm:max-w-[calc(100vw-9rem)] sm:flex-row sm:flex-wrap sm:items-center sm:rounded-lg sm:border sm:border-white/10 sm:bg-neutral-800/90 sm:px-1.5 sm:py-1.5 sm:shadow-lg sm:backdrop-blur">
           <div className={`flex h-[50px] shrink-0 items-center gap-1 px-1.5 ${MOLDURA} sm:h-auto sm:border-0 sm:bg-transparent sm:px-0 sm:shadow-none sm:backdrop-blur-none`}>
             {(canAnnotate ? TOOLS : TOOLS.filter(t => t.value === "tape")).map(toolButton)}
           </div>
 
           {(tool === "tape" || drawTool) && (
             // No celular, só o Calibrate: o botão voa sozinho, sem moldura em volta.
-            <div className={`flex w-fit max-w-full flex-wrap items-center gap-2 ${
+            // No celular os dois blocos têm a largura do maior, e o de cima estica.
+            <div className={`flex max-w-full flex-wrap items-center gap-2 sm:w-fit ${
               tool === "tape" && !escala && !calibrando
-                ? ""
+                ? "self-start"
                 : `min-h-[50px] px-1.5 py-1.5 ${MOLDURA} sm:min-h-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none`
             }`}>
 
