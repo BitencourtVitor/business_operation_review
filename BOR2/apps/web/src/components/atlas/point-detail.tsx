@@ -1,8 +1,8 @@
 "use client"
 
-import { PointAudio, PointPhase, ehAudio, ehImagem, ehVideo } from "@/components/atlas/point-media"
+import { PointPhase, ehImagem, ehVideo } from "@/components/atlas/point-media"
 import { RoleName } from "@/components/atlas/role-icon"
-import { useAtlasMedia, useAtlasReplies } from "@/hooks/use-atlas"
+import { useAtlasMedia, useUpdateAtlasEvent } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
 import { CheckCircle2, Flag } from "lucide-react"
 
@@ -84,10 +84,9 @@ function Metade({ rotulo, icone: Icone, tom, texto, vazio, nome, cargo, data, ch
  *
  * ── O que saiu ──
  *
- * O campo de comentário solto. O que ele produzia era conversa perdida, um
- * "ok", um "amanhã", que não vira registro de nada e não entra no relatório. O
- * que já foi escrito continua à vista: apagar o passado de alguém não é decisão
- * de layout.
+ * O comentário solto e o áudio. O que eles produziam era conversa perdida, um
+ * "ok", um "amanhã", que não vira registro de nada e não entra no relatório.
+ * Por decisão do Vitor em 13/09, nem o que já existia aparece mais.
  */
 export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   jobsiteId: string
@@ -119,9 +118,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   const visuais = pecas.filter(m => ehImagem(m) || ehVideo(m))
   const antes = visuais.filter(m => m.phase !== "after")
   const depois = visuais.filter(m => m.phase === "after")
-  const gravacoes = pecas.filter(ehAudio)
-
-  const { data: replies } = useAtlasReplies(point.id)
+  const condicao = useUpdateAtlasEvent(jobsiteId)
 
   // A correção aparece quando existe prova dela, quando alguém marcou o ponto
   // como resolvido, ou quando há quem registre. Para quem só lê, ponto pendente
@@ -166,7 +163,9 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
               : "Not fixed yet. Photograph what was done and describe it before resolving."}
             nome={point.resolvedName}
             cargo={point.resolvedRole}
-            data={point.resolvedAt}
+            // A solução tem data como o problema tem. Resolvido, é quando foi
+            // marcado; ainda sem marca, é quando a última prova do conserto subiu.
+            data={point.resolvedAt || depois[depois.length - 1]?.uploadedAt}
           >
             <PointPhase
               jobsiteId={jobsiteId}
@@ -174,25 +173,18 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
               canWrite={canWrite}
               fase="after"
               pecas={depois}
+              // Registrar a solução é resolver o ponto: a prova do conserto
+              // subiu, e deixar o ponto pendente pedia um segundo gesto que
+              // ninguém lembrava de fazer.
+              onRegistrou={() => {
+                if (point.status !== "resolved") {
+                  condicao.mutate({ eventId: point.id, patch: { status: "resolved" } })
+                }
+              }}
             />
           </Metade>
         )}
       </div>
-
-      <PointAudio gravacoes={gravacoes} />
-
-      {/* O que já foi dito continua à vista, mesmo sem se poder dizer mais. */}
-      {(replies?.length ?? 0) > 0 && (
-        <div className="flex flex-col gap-2 border-t border-border/50 pt-3">
-          {replies?.map(r => (
-            <div key={r.id} className="flex flex-col gap-0.5 rounded-md bg-muted/60 p-2.5">
-              <span className="text-xs font-medium">{r.authorName || "Someone"}</span>
-              <span className="whitespace-pre-wrap text-sm">{r.body}</span>
-              <span className="text-[11px] text-muted-foreground">{quando(r.createdAt)}</span>
-            </div>
-          ))}
-        </div>
-      )}
 
       {rodape && (
         <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">

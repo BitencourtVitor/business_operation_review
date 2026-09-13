@@ -16,7 +16,7 @@ import {
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
   Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
-  ExternalLink, FileVolume, Layers, MapPin, MessageSquare,
+  Layers, MapPin,
   RotateCcw, Stamp, Tag, Trash2, Video,
 } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -616,8 +616,8 @@ function PunchScopeView({
         <div className="flex flex-col gap-2">
           {pontos.map(p => {
             const isOpen = expandido === p.id
-            const temRegistro = p.photos > 0 || p.videos > 0 || p.audios > 0
-              || p.comments > 0 || (p.status !== "resolved" && p.after > 0)
+            const temRegistro = p.photos > 0 || p.videos > 0
+              || (p.status !== "resolved" && p.after > 0)
             return (
               <div
                 key={p.id}
@@ -698,18 +698,6 @@ function PunchScopeView({
                           {p.videos}
                         </span>
                       )}
-                      {p.audios > 0 && (
-                        <span className="flex items-center gap-1">
-                          <FileVolume className="h-3 w-3" />
-                          {p.audios}
-                        </span>
-                      )}
-                      {p.comments > 0 && (
-                        <span className="flex items-center gap-1">
-                          <MessageSquare className="h-3 w-3" />
-                          {p.comments}
-                        </span>
-                      )}
                       {/* Ponto pendente com registro do depois é ponto que já
                           foi resolvido e ninguém marcou. Dizer isso aqui é o que
                           faz alguém marcar, em vez de a lista carregar para
@@ -755,42 +743,30 @@ function PunchScopeView({
                         const confirmando = semProvaConfirmar === p.id
                         return (
                           <>
+                            {/* Ver o ponto, e não "abrir o desenho": quem toca
+                                quer o lugar do problema na prancha, e é lá que
+                                a prancha abre, já em cima dele. */}
                             <button
                               type="button"
                               onClick={() => setNoDesenho(p)}
                               className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted"
                             >
-                              <ExternalLink className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">Open on drawing</span>
-                              <span className="sm:hidden">Drawing</span>
+                              <MapPin className="h-3.5 w-3.5" />
+                              View point
                             </button>
 
                             <span className="flex-1" />
 
-                            {podeApagar && (
-                              <button
-                                type="button"
-                                title="Delete this point"
-                                aria-label="Delete this point"
-                                disabled={remover.isPending}
-                                onClick={() => remover.mutate(p.id)}
-                                className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">Delete</span>
-                              </button>
-                            )}
-
-                            {canWrite && (
+                            {/* Fechar o ponto à mão só existe enquanto não há
+                                solução registrada. Com a prova do conserto, o
+                                ponto já se resolveu sozinho, e o botão ali dizia
+                                para fazer de novo o que estava feito. Sem prova,
+                                fechar é decisão, e pede o segundo toque. */}
+                            {canWrite && (resolvido || semProva) && (
                               <button
                                 type="button"
                                 disabled={condicaoDoPonto.isPending}
                                 onClick={() => {
-                                  // Sem prova nenhuma do conserto, o primeiro
-                                  // toque pede confirmação em vez de marcar
-                                  // calado: ponto resolvido sem foto nem
-                                  // descrição entra no relatório sem nada que
-                                  // se confira. O segundo toque é decisão.
                                   if (semProva && !confirmando) {
                                     setSemProvaConfirmar(p.id)
                                     return
@@ -806,14 +782,28 @@ function PunchScopeView({
                                     ? "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
                                     : confirmando
                                       ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                      : "border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
+                                      : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
                                 }`}
                               >
                                 {resolvido
                                   ? <><RotateCcw className="h-3.5 w-3.5" />Reopen</>
                                   : confirmando
-                                    ? <><CheckCircle2 className="h-3.5 w-3.5" />Resolve without proof</>
-                                    : <><CheckCircle2 className="h-3.5 w-3.5" />Resolve</>}
+                                    ? <><CheckCircle2 className="h-3.5 w-3.5" />Close with no fix?</>
+                                    : <><CheckCircle2 className="h-3.5 w-3.5" />Close without fix</>}
+                              </button>
+                            )}
+
+                            {podeApagar && (
+                              <button
+                                type="button"
+                                title="Delete this point"
+                                aria-label="Delete this point"
+                                disabled={remover.isPending}
+                                onClick={() => remover.mutate(p.id)}
+                                className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Delete</span>
                               </button>
                             )}
                           </>
