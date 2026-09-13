@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import { IconInput } from "@/components/common/icon-input"
 import { Textarea } from "@/components/ui/textarea"
 import { useUpdateAtlasMedia, useUploadAtlasMedia } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
-import { Camera, Check, Pencil, Video, X } from "lucide-react"
+import { AlignLeft, Camera, Check, Pencil, Type, Video } from "lucide-react"
 import { useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
@@ -259,7 +259,9 @@ function DescreverPecas({ jobsiteId, pecas, open, onClose }: {
         <DialogHeader>
           <DialogTitle>Describe {pecas.length === 1 ? "this" : `these ${pecas.length}`}</DialogTitle>
         </DialogHeader>
-        <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto">
+        {/* O respiro por dentro da rolagem é o que deixa o anel de foco inteiro:
+            sem ele a borda do campo em foco saía cortada pela caixa que rola. */}
+        <div className="-m-1 flex max-h-[60vh] flex-col gap-4 overflow-y-auto p-1">
           {pecas.map(p => (
             <div key={p.id} className="flex gap-3">
               <span className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border/60">
@@ -271,30 +273,31 @@ function DescreverPecas({ jobsiteId, pecas, open, onClose }: {
                 )}
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <Input
+                <IconInput
+                  startIcon={Type}
                   value={textos[p.id]?.title ?? ""}
                   placeholder="What it shows"
                   aria-label="What it shows"
                   onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], title: e.target.value } }))}
                   className="h-8"
                 />
-                <Textarea
-                  rows={2}
-                  value={textos[p.id]?.description ?? ""}
-                  placeholder="Where it is, what is wrong, what was done"
-                  aria-label="Description"
-                  onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], description: e.target.value } }))}
-                  className="min-h-0 text-sm"
-                />
+                <div className="relative">
+                  <AlignLeft className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Textarea
+                    rows={2}
+                    value={textos[p.id]?.description ?? ""}
+                    placeholder="Where it is, what is wrong, what was done"
+                    aria-label="Description"
+                    onChange={e => setTextos(t => ({ ...t, [p.id]: { ...t[p.id], description: e.target.value } }))}
+                    className="min-h-0 pl-9 text-sm"
+                  />
+                </div>
               </div>
             </div>
           ))}
         </div>
+        {/* Sem Cancel no pé: o X do topo já fecha sem salvar. */}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            <X className="h-4 w-4" />
-            Cancel
-          </Button>
           <Button disabled={salvando} onClick={() => void salvar()}>
             <Check className="h-4 w-4" />
             Save
