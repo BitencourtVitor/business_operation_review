@@ -6,18 +6,18 @@ import { Panel } from "@/components/atlas/panel"
 import { PointDetail } from "@/components/atlas/point-detail"
 import { PunchSheet } from "@/components/atlas/punch-sheet"
 import { RoleName } from "@/components/atlas/role-icon"
-import { PunchReportDialog } from "@/components/atlas/punch-report-dialog"
+import { PunchReportButton } from "@/components/atlas/punch-report-dialog"
 import {
   useAtlasPunchPoints, useAtlasPunchScopes, useAtlasPunches,
   useCloseAtlasPunch, useDeleteAtlasEvent, useOpenAtlasPunch, useReopenAtlasPunch,
 } from "@/hooks/use-atlas"
 import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
-  Building2, Camera, CheckCircle2, ChevronDown, ChevronLeft, ClipboardCheck,
-  ExternalLink, FileDown, FileVolume, Layers, Lock, MapPin, MessageSquare,
-  RotateCcw, Tag, Video,
+  Building2, Camera, CheckCircle2, ChevronDown, ClipboardCheck,
+  ExternalLink, FileVolume, Layers, MapPin, MessageSquare,
+  RotateCcw, Stamp, Tag, Video,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 /**
  * A verificação da obra, escopo por escopo.
@@ -326,7 +326,7 @@ function ScopeCard({ escopo, canWrite, abrindo, onStart, onOpen }: {
           sem nada em aberto é boa notícia e tem que se ler como tal. */}
       <span className="grid w-full grid-cols-3 gap-1.5 border-t border-border/60 bg-muted/20 p-2">
         <Metric valor={escopo.open} rotulo="Pending" tom={escopo.open > 0 ? "aberto" : "feito"} />
-        <Metric valor={escopo.resolved} rotulo="Done" tom="neutro" />
+        <Metric valor={escopo.resolved} rotulo="Resolved" tom="neutro" />
         <Metric valor={escopo.total} rotulo="Total" tom="neutro" />
       </span>
     </button>
@@ -351,6 +351,59 @@ function Metric({ valor, rotulo, tom }: {
   )
 }
 
+/**
+ * As três condições da lista, num controle de três posições.
+ *
+ * Três pastilhas soltas não diziam que a escolha é excludente: o desenho tem que
+ * dizer isso antes de a pessoa descobrir clicando. O número vai junto porque é
+ * ele que responde "quanto falta" sem sair da lista.
+ *
+ * **Compacto** é a versão do cabeçalho: mesma peça, menos folga, para caber na
+ * faixa das outras ações sem esticar a altura do cabeçalho.
+ */
+function Filtros({ escopo, condicao, onChange, compacto = false, className = "" }: {
+  escopo: AtlasPunchScope
+  condicao: "" | "open" | "resolved"
+  onChange: (v: "" | "open" | "resolved") => void
+  compacto?: boolean
+  className?: string
+}) {
+  // No cabeçalho o controle tem 32 de altura, que é a medida das ações da
+  // faixa: Report, Sign off e ele se leem como uma fileira só, e qualquer
+  // diferença de altura aí aparece como desalinho.
+  return (
+    <div className={`flex w-full items-center gap-1 rounded-lg border border-border/60 bg-muted/20 sm:w-fit ${compacto ? "h-8 p-0.5" : "p-1"} ${className}`}>
+      {([
+        ["", "All", escopo.total],
+        ["open", "Pending", escopo.open],
+        ["resolved", "Resolved", escopo.resolved],
+      ] as const).map(([valor, rotulo, quantos]) => (
+        <button
+          key={valor}
+          type="button"
+          onClick={() => onChange(valor)}
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-md text-xs font-medium transition-colors sm:flex-none ${
+            compacto ? "h-full px-2.5" : "px-3 py-1.5"
+          } ${
+            condicao === valor
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+          }`}
+        >
+          {rotulo}
+          <span className={`tabular-nums ${
+            valor === "open" && quantos > 0 ? "text-amber-600 dark:text-amber-400"
+              : valor === "resolved" && quantos > 0 ? "text-emerald-600 dark:text-emerald-400"
+              : "text-muted-foreground"
+          }`}>
+            {quantos}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 /** A lista de pontos de um escopo, com o que dá para fazer com a passagem. */
 function PunchScopeView({
   jobsiteId, jobsiteName, escopo, condicaoInicial, canWrite, canManage, onBack,
@@ -369,8 +422,21 @@ function PunchScopeView({
   // verificação é outra, e trocar de tela para ver o desenho tirava a pessoa do
   // meio do percurso.
   const [noDesenho, setNoDesenho] = useState<AtlasPunchPoint | null>(null)
-  const [relatorio, setRelatorio] = useState(false)
   const [erro, setErro] = useState("")
+  // Onde desenhar o aviso do Sign off travado: o meio do botão e o topo dele.
+  //
+  // A posição é medida do botão e o aviso sai preso à tela, e não ao painel: o
+  // painel corta o que passa das bordas dele, e o aviso mora justamente acima da
+  // primeira linha do cabeçalho.
+  const [aviso, setAviso] = useState<{ x: number; y: number; toque: boolean } | null>(null)
+
+  // Aberto no toque, ele some sozinho. No celular não existe tirar o ponteiro de
+  // cima, e sem isso ele ficaria de pé esperando um gesto que não vem.
+  useEffect(() => {
+    if (!aviso?.toque) return
+    const t = setTimeout(() => setAviso(null), 2600)
+    return () => clearTimeout(t)
+  }, [aviso])
 
   const filtro = { scope: escopo.value, status: condicao || undefined }
   const { data: pontos, isLoading } = useAtlasPunchPoints(jobsiteId, filtro)
@@ -381,26 +447,36 @@ function PunchScopeView({
   const remover = useDeleteAtlasEvent(jobsiteId)
 
   const aberta = (passagens ?? []).find(p => !p.closedAt)
+  // Assinar com ponto em aberto é o que o banco recusa de qualquer jeito: a
+  // tela passa a dizer isso antes, em vez de deixar a pessoa tentar e falhar.
+  const travado = escopo.open > 0
   const fechadas = (passagens ?? []).filter(p => p.closedAt)
-  // As categorias que este escopo alcança, sem repetir o nome dele.
-  const pastasDoEscopo = (escopo.folders ?? []).filter(nome => nome !== escopo.value)
 
   return (
     <Panel
       title={nomeDoEscopo(escopo)}
+      onBack={onBack}
+      backLabel="Scopes"
+      stackActions
       action={(
-        <div className="flex min-w-0 items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 shrink-0 gap-1.5"
-            onClick={() => setRelatorio(true)}
-          >
-            <FileDown className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Report</span>
-          </Button>
+        // Duas ações de gravidade diferente, e o desenho diz qual é qual: o
+        // relatório é contorno, porque só produz um arquivo e se refaz quantas
+        // vezes quiser; a ação da rodada é cheia, porque muda o estado da
+        // verificação. Antes as duas saíam idênticas, lado a lado.
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          {/* Tudo colado à direita, do outro lado do voltar: o filtro é comando
+              da lista como Report e Sign off, e os três se leem como um grupo só.
+              Espalhado pela largura, o filtro ficava órfão num canto e o
+              relatório boiando no meio. */}
+          <div className="flex shrink-0 items-center gap-2">
+          <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} compacto className="hidden sm:flex" />
+          <PunchReportButton
+            jobsiteId={jobsiteId}
+            jobsiteName={jobsiteName}
+            scope={escopo.value}
+          />
 
-          {/* Abrir, fechar e reabrir são de quem conduz a verificação.
+          {/* Abrir, assinar e reabrir são de quem conduz a verificação.
 
               Abrir aparece só quando não há passagem: o primeiro ponto de um
               escopo abre uma sozinho, e o botão existe para quem quer começar a
@@ -413,85 +489,79 @@ function PunchScopeView({
               onClick={() => abrir.mutate({ scopeKind: escopo.kind, scopeValue: escopo.value })}
             >
               <ClipboardCheck className="h-3.5 w-3.5" />
-              Start a round
+              <span>Start a round</span>
             </Button>
           )}
+          {/* "Sign off" e não "Close the round": encerrar a rodada é assinar
+              embaixo do que foi percorrido, e é assim que se chama a coisa em
+              obra. O rótulo antigo descrevia a mecânica da tela. */}
           {canManage && aberta && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0 gap-1.5"
-              disabled={fechar.isPending}
-              onClick={() => {
-                setErro("")
-                fechar.mutate(aberta.id, {
-                  onError: () => setErro(
-                    "This round still has pending points. Close them first, or reopen them later.",
-                  ),
-                })
-              }}
-            >
-              <Lock className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Close the round</span>
-            </Button>
+            travado ? (
+              /* Rodada com pendência não assina, e o botão diz isso antes de a
+                 pessoa tentar: sai apagado. Ele continua clicável de propósito,
+                 porque botão morto não explica por que está morto: passar o
+                 ponteiro ou tocar diz quantos pontos ainda faltam. */
+              <>
+                <Button
+                  size="sm"
+                  aria-disabled
+                  className="h-8 shrink-0 gap-1.5 opacity-50"
+                  onPointerEnter={e => {
+                    const r = e.currentTarget.getBoundingClientRect()
+                    setAviso({ x: r.left + r.width / 2, y: r.top, toque: false })
+                  }}
+                  onPointerLeave={() => setAviso(a => (a?.toque ? a : null))}
+                  onClick={e => {
+                    const r = e.currentTarget.getBoundingClientRect()
+                    setAviso({ x: r.left + r.width / 2, y: r.top, toque: true })
+                  }}
+                >
+                  <Stamp className="h-3.5 w-3.5" />
+                  <span>Sign off</span>
+                </Button>
+                {aviso && (
+                  <span
+                    style={{ left: aviso.x, top: aviso.y - 6 }}
+                    className="pointer-events-none fixed z-50 flex w-max -translate-x-1/2 -translate-y-full flex-col items-center rounded-md bg-foreground px-3 py-1.5 text-center text-xs text-background"
+                  >
+                    <span className="font-bold">Not yet</span>
+                    <span>
+                      {escopo.open} {escopo.open === 1 ? "point" : "points"} still pending
+                    </span>
+                  </span>
+                )}
+              </>
+            ) : (
+              <Button
+                size="sm"
+                className="h-8 shrink-0 gap-1.5"
+                disabled={fechar.isPending}
+                onClick={() => {
+                  setErro("")
+                  fechar.mutate(aberta.id, {
+                    onError: () => setErro(
+                      "This round still has pending points. Close them first, or reopen them later.",
+                    ),
+                  })
+                }}
+              >
+                <Stamp className="h-3.5 w-3.5" />
+                <span>Sign off</span>
+              </Button>
+            )
           )}
+          </div>
         </div>
       )}
     >
-      {/* A identificação da rodada: de onde se veio, desde quando ela corre e
-          quem a conduz. Uma linha só, porque as três coisas se leem juntas. */}
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <Button variant="ghost" size="sm" className="-ml-2 h-7 gap-1.5 px-2" onClick={onBack}>
-          <ChevronLeft className="h-4 w-4" />
-          Scopes
-        </Button>
-        {aberta ? (
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-            Round open since {dataCurta(aberta.openedAt)}
-          </span>
-        ) : (
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-            No round open
-          </span>
-        )}
-        {/* Quem conduz esta rodada, com o crachá do cargo. O nome vem do
-            escopo e não da passagem porque é lá que o cargo viaja junto. */}
-        {escopo.openedName && aberta && (
-          <>
-            <span aria-hidden>·</span>
-            <RoleName name={escopo.openedName} role={escopo.openedRole} />
-          </>
-        )}
-        {pastasDoEscopo.length > 0 && (
-          <>
-            <span aria-hidden>·</span>
-            <span className="flex flex-wrap items-center gap-1">
-              {pastasDoEscopo.map(nome => (
-                <span key={nome} className="flex items-center gap-1">
-                  <Tag className="h-3 w-3 shrink-0" />
-                  {nome}
-                </span>
-              ))}
-            </span>
-          </>
-        )}
-      </div>
-
-      {erro && (
-        <p className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          {erro}
-        </p>
-      )}
-
-      {/* As rodadas já fechadas deste escopo. Existem para provar que a
-          verificação aconteceu, e para reabrir quando alguém fechou cedo. */}
+      <div className="flex flex-col gap-3">
+      {/* As rodadas já assinadas deste escopo. Existem para provar que a
+          verificação aconteceu, e para reabrir quando alguém assinou cedo. */}
       {fechadas.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span>Closed rounds:</span>
+        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+          <span className="shrink-0">Signed off:</span>
           {fechadas.map(p => (
-            <span key={p.id} className="flex items-center gap-1 rounded-md border border-border/60 px-2 py-1">
+            <span key={p.id} className="flex items-center gap-1 rounded-md border border-border/60 bg-card px-2 py-0.5">
               {dataCurta(p.openedAt)} to {dataCurta(p.closedAt)} · {p.total} points
               {canManage && (
                 <button
@@ -509,46 +579,18 @@ function PunchScopeView({
         </div>
       )}
 
-      {/* As abas de condição carregam a conta de cada uma.
+      {erro && (
+        <p className="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          {erro}
+        </p>
+      )}
 
-          Os três números moravam no cartão e sumiam ao entrar, justamente onde
-          eles mais valem: quem está percorrendo quer saber quanto falta. Somados
-          às abas, o número deixa de ser enfeite e vira o próprio filtro. */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        {([
-          ["", "All", escopo.total],
-          ["open", "Pending", escopo.open],
-          ["resolved", "Done", escopo.resolved],
-        ] as const).map(([valor, rotulo, quantos]) => (
-          <button
-            key={valor}
-            type="button"
-            onClick={() => setCondicao(valor)}
-            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-              condicao === valor
-                ? "border-primary/40 bg-primary/10 text-foreground"
-                : "border-border/60 text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            {rotulo}
-            <span className={`tabular-nums ${
-              valor === "open" && quantos > 0 ? "text-amber-600 dark:text-amber-400"
-                : valor === "resolved" && quantos > 0 ? "text-emerald-600 dark:text-emerald-400"
-                : "text-muted-foreground"
-            }`}>
-              {quantos}
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* No celular o controle mora aqui, em cima da lista, ocupando a largura
+          toda: um terço para cada, que é alvo de dedo. Do tablet para cima ele
+          sobe para o cabeçalho, onde sobra espaço e ele fica na mesma faixa das
+          outras ações da rodada. */}
+      <Filtros escopo={escopo} condicao={condicao} onChange={setCondicao} className="sm:hidden" />
 
-      <PunchReportDialog
-        jobsiteId={jobsiteId}
-        jobsiteName={jobsiteName}
-        scope={escopo.value}
-        open={relatorio}
-        onOpenChange={setRelatorio}
-      />
 
       {isLoading ? (
         <div className="flex h-24 items-center justify-center">
@@ -568,9 +610,16 @@ function PunchScopeView({
         <div className="flex flex-col gap-2">
           {pontos.map(p => {
             const isOpen = expandido === p.id
+            const temRegistro = p.photos > 0 || p.videos > 0 || p.audios > 0
+              || p.comments > 0 || (p.status !== "resolved" && p.after > 0)
             return (
-              <div key={p.id} className="rounded-lg border border-border/60 bg-card p-3">
-                <div className="flex items-start gap-3">
+              <div
+                key={p.id}
+                className={`overflow-hidden rounded-lg border bg-card transition-colors ${
+                  isOpen ? "border-primary/40" : "border-border/60 hover:border-border"
+                }`}
+              >
+                <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-start sm:gap-3">
                   <button
                     type="button"
                     className="flex min-w-0 flex-1 flex-col gap-1 text-left"
@@ -602,7 +651,7 @@ function PunchScopeView({
                             : "border-amber-500/40 text-amber-600 dark:text-amber-400"
                         }`}
                       >
-                        {p.status === "resolved" ? "Done" : "Open"}
+                        {p.status === "resolved" ? "Resolved" : "Pending"}
                       </Badge>
                     </span>
                     <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-xs text-muted-foreground">
@@ -613,12 +662,24 @@ function PunchScopeView({
                     </span>
                   </button>
 
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+                  {/* No celular esta coluna vira uma faixa embaixo do titulo: ao
+                      lado dele, ela roubava metade da largura e o titulo do ponto
+                      morria em "King stud out of…", que nao identifica ponto
+                      nenhum. De quebra, quem registrou passou a aparecer no
+                      celular tambem, onde antes ficava escondido. */}
+                  <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start sm:gap-1.5">
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <RoleName name={p.createdName} role={p.createdRole} />
                       <span>· {dataCurta(p.createdAt)}</span>
                     </span>
-                    <span className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    {/* Contagem é leitura, abrir no desenho é ação, e as duas
+                        estavam no mesmo tamanho e na mesma fileira: o ícone de
+                        abrir parecia mais um contador. Agora a contagem vive
+                        numa pastilha de fundo apagado e o botão tem moldura
+                        própria, do lado de fora dela. */}
+                    <span className="flex items-center gap-1.5">
+                    {temRegistro && (
+                    <span className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-xs text-muted-foreground">
                       {p.photos > 0 && (
                         <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
                           <Camera className="h-3 w-3" />
@@ -655,10 +716,13 @@ function PunchScopeView({
                           <CheckCircle2 className="h-3 w-3" />
                         </span>
                       )}
+                    </span>
+                    )}
                       <button
                         type="button"
                         title="Open it on the drawing"
-                        className="flex items-center gap-1 text-primary transition-opacity hover:opacity-70"
+                        aria-label="Open it on the drawing"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/60 text-primary transition-colors hover:bg-muted"
                         onClick={() => setNoDesenho(p)}
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -673,7 +737,7 @@ function PunchScopeView({
                      borda e fundo próprios. Sem essa separação o antes, o
                      depois e a conversa flutuavam soltos dentro do mesmo
                      retângulo do título. */
-                  <div className="-mx-3 -mb-3 mt-3 border-t border-border/60 bg-muted/20 px-3 py-3">
+                  <div className="border-t border-border/60 bg-muted/20 px-3 py-3">
                     <PointDetail
                       jobsiteId={jobsiteId}
                       point={p}
@@ -688,6 +752,7 @@ function PunchScopeView({
           })}
         </div>
       )}
+      </div>
 
       {noDesenho && (
         <PunchSheet
