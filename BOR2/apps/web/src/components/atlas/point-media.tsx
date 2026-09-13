@@ -1,7 +1,13 @@
 "use client"
 
 import { ImageWindow } from "@/components/atlas/image-window"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { useUpdateAtlasMedia, useUploadAtlasMedia } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
 import { Camera, Check, FileVolume, Pencil, Video, X } from "lucide-react"
@@ -99,9 +105,10 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas }: {
             </button>
           )}
 
-          {editando === m.id && canWrite && (
+          {canWrite && (
             <DescreverPeca
               media={m}
+              open={editando === m.id}
               salvando={atualizar.isPending}
               onSave={patch => atualizar.mutate({ mediaId: m.id, patch },
                 { onSuccess: () => setEditando("") })}
@@ -220,53 +227,76 @@ export function PointAudio({ gravacoes }: { gravacoes: AtlasMedia[] }) {
   )
 }
 
-/** Título e descrição de uma peça, editados onde ela está. */
-function DescreverPeca({ media, salvando, onSave, onCancel }: {
+/**
+ * Título e descrição de uma peça.
+ *
+ * Era um balão preso à miniatura. A miniatura mora na coluna da direita do
+ * ponto, e no celular o balão nascia dali para fora do card: os campos cortados
+ * e o botão de salvar do outro lado da tela. Numa janela própria ele tem a
+ * largura que o texto pede, a foto à vista de quem escreve sobre ela, e o
+ * teclado do celular não empurra nada para fora.
+ */
+function DescreverPeca({ media, open, salvando, onSave, onCancel }: {
   media: AtlasMedia
+  open: boolean
   salvando: boolean
   onSave: (patch: { title: string; description: string }) => void
   onCancel: () => void
 }) {
   const [title, setTitle] = useState(media.title)
   const [description, setDescription] = useState(media.description)
+  const [aberto, setAberto] = useState(open)
+  // Cada abertura começa do que está gravado, e não do rascunho que ficou.
+  if (open !== aberto) {
+    setAberto(open)
+    if (open) { setTitle(media.title); setDescription(media.description) }
+  }
 
   return (
-    // Solta da miniatura, porque um campo de texto da largura dela não serve
-    // para escrever nada. Fica por cima do que vem depois, que é o
-    // comportamento de quem está editando: a atenção é toda dali.
-    <div className="absolute left-0 top-full z-20 mt-1 flex w-[min(15rem,calc(100vw-3rem))] flex-col gap-1.5 rounded-lg border border-border bg-popover p-2 shadow-md">
-      <Input
-        autoFocus
-        value={title}
-        placeholder="What it shows"
-        onChange={e => setTitle(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter") onSave({ title, description }) }}
-        className="h-8 text-sm"
-      />
-      <textarea
-        rows={2}
-        value={description}
-        placeholder="What was done about it"
-        onChange={e => setDescription(e.target.value)}
-        className="w-full resize-y rounded-md border border-input bg-transparent px-2 py-1.5 text-xs outline-none focus-visible:border-ring"
-      />
-      <div className="flex items-center justify-end gap-1">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          disabled={salvando}
-          onClick={() => onSave({ title, description })}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-emerald-600 transition-colors hover:bg-muted disabled:opacity-50 dark:text-emerald-400"
-        >
-          <Check className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    </div>
+    <Dialog open={open} onOpenChange={o => { if (!o) onCancel() }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Describe this {ehVideo(media) ? "video" : "photo"}</DialogTitle></DialogHeader>
+        <div className="flex gap-3">
+          <span className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border/60">
+            {ehVideo(media) ? (
+              <video src={media.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={media.url} alt="" className="h-full w-full object-cover" />
+            )}
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <Label htmlFor={`peca-titulo-${media.id}`}>What it shows</Label>
+            <Input
+              id={`peca-titulo-${media.id}`}
+              value={title}
+              placeholder="A short title"
+              onChange={e => setTitle(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") onSave({ title, description }) }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`peca-descricao-${media.id}`}>What was done about it</Label>
+          <Textarea
+            id={`peca-descricao-${media.id}`}
+            rows={3}
+            value={description}
+            placeholder="Where it is, what is wrong, what was done"
+            onChange={e => setDescription(e.target.value)}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Button>
+          <Button disabled={salvando} onClick={() => onSave({ title, description })}>
+            <Check className="h-4 w-4" />
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
