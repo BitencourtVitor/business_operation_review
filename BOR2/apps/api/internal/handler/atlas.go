@@ -1913,7 +1913,6 @@ type atlasEvent struct {
 	CreatedAt  string          `json:"createdAt"`
 	ResolvedBy *string         `json:"resolvedBy"`
 	ResolvedAt *string         `json:"resolvedAt"`
-	Replies    int             `json:"replies"`
 	Media      int             `json:"media"`
 	// Quem abriu, com o cargo: na lista de tasks o crachá vem antes do nome, do
 	// mesmo jeito que no histórico de revisão de folha.
@@ -1945,8 +1944,8 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		SELECT e.id, e.jobsite_id, e.sheet_id, e.kind, e.title, e.body, e.status, e.point_number,
 		       e.page_x, e.page_y, e.region, e.created_by, e.created_at,
 		       e.resolved_by, e.resolved_at,
-		       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
-		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'),
+		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'
+		         AND m.content_type NOT LIKE 'audio/%'),
 		       COALESCE(u.name, ''), COALESCE(u.role::text, ''),
 		       COALESCE(ru.name, ''), COALESCE(ru.role::text, ''),
 		       COALESCE(NULLIF(j.community,''), j.name), COALESCE(NULLIF(j.unit,''), j.code, ''),
@@ -1976,7 +1975,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		var resolved *time.Time
 		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body,
 			&e.Status, &e.Number, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
-			&e.ResolvedBy, &resolved, &e.Replies, &e.Media,
+			&e.ResolvedBy, &resolved, &e.Media,
 			&e.CreatedByName, &e.CreatedByRole, &e.ResolvedByName, &e.ResolvedByRole,
 			&e.JobsiteName, &e.JobsiteUnit,
 			&e.DocumentID); err != nil {
@@ -2094,91 +2093,6 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 		return internalErr(c, err)
 	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"id": eventID}})
-}
-
-// GET /atlas/events/:id/replies
-func (h *AtlasHandler) ListReplies(c *fiber.Ctx) error {
-	eventID := c.Params("id")
-	var jobsiteID string
-	if err := h.db.QueryRow(c.Context(),
-		`SELECT jobsite_id FROM atlas_event WHERE id = $1`, eventID).Scan(&jobsiteID); err != nil {
-		return atlasNotFound(c, "evento")
-	}
-	if err := h.require(c, jobsiteID, "read"); err != nil {
-		return atlasForbidden(c)
-	}
-	rows, err := h.db.Query(c.Context(), `
-		SELECT r.id, r.author_id, COALESCE(u.name,''), r.body, r.created_at
-		FROM atlas_event_reply r
-		LEFT JOIN users u ON u.id = r.author_id
-		WHERE r.event_id = $1 ORDER BY r.created_at`, eventID)
-	if err != nil {
-		return internalErr(c, err)
-	}
-	defer rows.Close()
-
-	type reply struct {
-		ID         string `json:"id"`
-		AuthorID   string `json:"authorId"`
-		AuthorName string `json:"authorName"`
-		Body       string `json:"body"`
-		CreatedAt  string `json:"createdAt"`
-	}
-	out := []reply{}
-	for rows.Next() {
-		var r reply
-		var created time.Time
-		if err := rows.Scan(&r.ID, &r.AuthorID, &r.AuthorName, &r.Body, &created); err != nil {
-			return internalErr(c, err)
-		}
-		r.CreatedAt = created.Format(time.RFC3339)
-		out = append(out, r)
-	}
-	return c.JSON(fiber.Map{"data": out})
-}
-
-// POST /atlas/events/:id/replies
-func (h *AtlasHandler) CreateReply(c *fiber.Ctx) error {
-	eventID := c.Params("id")
-	var jobsiteID string
-	if err := h.db.QueryRow(c.Context(),
-		`SELECT jobsite_id FROM atlas_event WHERE id = $1`, eventID).Scan(&jobsiteID); err != nil {
-		return atlasNotFound(c, "evento")
-	}
-	if err := h.require(c, jobsiteID, "annotate"); err != nil {
-		return atlasForbidden(c)
-	}
-	var in struct {
-		Body string `json:"body"`
-	}
-	if err := c.BodyParser(&in); err != nil || strings.TrimSpace(in.Body) == "" {
-		return badRequest(c, "body is required")
-	}
-	userID, _ := actor(c)
-	id := uuid.NewString()
-	tx, err := h.db.Begin(c.Context())
-	if err != nil {
-		return internalErr(c, err)
-	}
-	defer func() { _ = tx.Rollback(c.Context()) }()
-
-	if _, err := tx.Exec(c.Context(), `
-		INSERT INTO atlas_event_reply (id, event_id, author_id, body) VALUES ($1,$2,$3,$4)`,
-		id, eventID, userID, strings.TrimSpace(in.Body)); err != nil {
-		return internalErr(c, err)
-	}
-	// Comentar não mexe na condição do ponto.
-	//
-	// Havia aqui um UPDATE que levava o ponto de 'open' para 'answered' assim que
-	// alguém respondia. Num punch list isso mente: quem escreve "vi, vou olhar
-	// amanhã" não mudou nada na obra, e anexar a foto do depois também não. A
-	// lista responde uma pergunta só, se aquilo ainda está pendente ou já foi
-	// feito, e quem responde é quem executou, marcando. Por isso a condição
-	// passou a ter dois estados, e o do meio deixou de existir (migração 000154).
-	if err := tx.Commit(c.Context()); err != nil {
-		return internalErr(c, err)
-	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"id": id}})
 }
 
 // ── Diário de obra ──────────────────────────────────────────────────────────
@@ -2491,6 +2405,9 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 		FROM atlas_media m
 		LEFT JOIN users u ON u.id = m.uploaded_by
 		WHERE m.jobsite_id = $1 AND m.status = 'uploaded'
+		  -- Áudio não sai mais: o ditado e o comentário foram retirados do ponto
+		  -- em 13/09, e o que ficou gravado não tem mais onde aparecer.
+		  AND m.content_type NOT LIKE 'audio/%'
 		  AND ($2 = '' OR m.event_id = $2)
 		  AND ($3 = '' OR m.daily_log_id = $3)
 		  AND ($5 = '' OR m.album = $5)

@@ -22,7 +22,6 @@ const KEY = {
   sheets: (id: string) => ["atlas", "sheets", id] as const,
   annotations: (id: string) => ["atlas", "annotations", id] as const,
   events: (id: string, sheetId?: string) => ["atlas", "events", id, sheetId ?? ""] as const,
-  replies: (id: string) => ["atlas", "replies", id] as const,
   dailyLogs: (id: string) => ["atlas", "daily-logs", id] as const,
   media: (id: string) => ["atlas", "media", id] as const,
 }
@@ -621,25 +620,6 @@ export function useDeleteAtlasEvent(jobsiteId: string, sheetId?: string) {
       if (sheetId) qc.invalidateQueries({ queryKey: KEY.events(jobsiteId, sheetId) })
       tocarPunch(qc, jobsiteId)
 
-    },
-  })
-}
-
-export function useAtlasReplies(eventId: string) {
-  return useQuery({
-    queryKey: KEY.replies(eventId),
-    queryFn: () => atlasService.listReplies(eventId),
-    enabled: !!eventId,
-  })
-}
-
-export function useCreateAtlasReply(eventId: string, jobsiteId: string) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (body: string) => atlasService.createReply(eventId, body),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY.replies(eventId) })
-      qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
     },
   })
 }

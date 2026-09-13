@@ -317,7 +317,6 @@ export interface AtlasEvent {
   createdAt: string
   resolvedBy: string | null
   resolvedAt: string | null
-  replies: number
   media: number
   /** Quem abriu, com o cargo: na lista o crachá vem antes do nome. */
   createdByName: string
@@ -333,14 +332,6 @@ export interface AtlasEvent {
    * nela, mas não o documento, e é o documento que a rota da prancha exige.
    */
   documentId: string
-}
-
-export interface AtlasReply {
-  id: string
-  authorId: string
-  authorName: string
-  body: string
-  createdAt: string
 }
 
 export interface AtlasDailyLog {
@@ -471,10 +462,8 @@ export interface AtlasPunchPoint {
   pageY: number | null
   photos: number
   videos: number
-  audios: number
   /** Quantas peças documentam a solução. Zero é ponto sem prova do depois. */
   after: number
-  comments: number
   /** Quem cadastrou: decide quem pode apagar sem ser da gestão da obra. */
   createdBy: string
   createdName: string
@@ -721,11 +710,6 @@ export const atlasService = {
   // Apagar o note apaga a task: são a mesma linha, vista da prancha e da lista.
   deleteEvent: (eventId: string) =>
     api.delete(`${base}/events/${eventId}`, getToken()),
-  listReplies: (eventId: string) =>
-    api.get<AtlasReply[]>(`${base}/events/${eventId}/replies`, getToken()).then(r => r ?? []),
-  createReply: (eventId: string, body: string) =>
-    api.post(`${base}/events/${eventId}/replies`, { body }, getToken()),
-
   listDailyLogs: (jobsiteId: string, range?: { from?: string; to?: string }) => {
     const qs = new URLSearchParams()
     if (range?.from) qs.set("from", range.from)
