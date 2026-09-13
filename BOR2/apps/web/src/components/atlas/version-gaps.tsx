@@ -3,7 +3,9 @@
 import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasThumbs } from "@/hooks/use-atlas"
 import { atlasService, type AtlasVersion } from "@/services/atlas.service"
-import { useQuery } from "@tanstack/react-query"
+import { ImageWindow } from "@/components/atlas/image-window"
+import { useQueries } from "@tanstack/react-query"
+import { createPortal } from "react-dom"
 import { BadgeCheck, ChevronDown, FileText, FileX2, Images, Layers, MessageSquareText, Replace } from "lucide-react"
 import { useState } from "react"
 
@@ -57,6 +59,20 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
   // Miniatura só quando o gap é um punhado: com o caderno inteiro trocado, 97
   // quadros não mostram diferença nenhuma, e a lista de nomes já basta.
   const comMiniatura = mudaram.length > 0 && mudaram.length <= 12
+
+  // As fotos da justificativa abrem na mesma galeria do ponto do punch: a foto
+  // grande, com a fita das outras no rodapé para andar entre elas.
+  const urls = useQueries({
+    queries: (v.attachments ?? []).map(a => ({
+      queryKey: ["atlas", "media-url", a.id],
+      queryFn: async () => (await atlasService.mediaUrl(a.id)).url,
+      staleTime: 20 * 60 * 1000,
+      enabled: aberta,
+    })),
+  })
+  const anexos = (v.attachments ?? []).map((a, i) => ({ ...a, url: urls[i]?.data ?? "" }))
+  const fotos = anexos.filter(a => a.contentType.startsWith("image/") && a.url)
+  const [galeria, setGaleria] = useState<number | null>(null)
   const { data: thumbs } = useAtlasThumbs(comMiniatura && aberta ? v.id : "")
 
   return (
@@ -115,7 +131,13 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
       {!!v.attachments?.length && (
         <Secao icone={Images} rotulo="Photos">
           <div className="flex flex-wrap gap-2">
-            {v.attachments.map(a => <Anexo key={a.id} anexo={a} />)}
+            {anexos.map(a => (
+              <Anexo key={a.id} anexo={a} onAbrir={() => {
+                const i = fotos.findIndex(f => f.id === a.id)
+                if (i >= 0) setGaleria(i)
+                else if (a.url) window.open(a.url, "_blank", "noopener")
+              }} />
+            ))}
           </div>
         </Secao>
       )}
@@ -175,6 +197,16 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
       </div>
       </div>
       </div>
+      {galeria !== null && fotos[galeria] && createPortal(
+        <ImageWindow
+          url={fotos[galeria].url}
+          name={fotos[galeria].fileName}
+          pecas={fotos.map(f => ({ url: f.url, name: f.fileName }))}
+          inicial={galeria}
+          onClose={() => setGaleria(null)}
+        />,
+        document.body,
+      )}
     </div>
   )
 }
@@ -215,33 +247,28 @@ function resumo(v: AtlasVersion): string {
 }
 
 /** A foto ou o arquivo que justifica a troca. */
-function Anexo({ anexo }: {
-  anexo: { id: string; fileName: string; contentType: string }
+function Anexo({ anexo, onAbrir }: {
+  anexo: { id: string; fileName: string; contentType: string; url: string }
+  onAbrir: () => void
 }) {
   const imagem = anexo.contentType.startsWith("image/")
-  const { data: url } = useQuery({
-    queryKey: ["atlas", "media-url", anexo.id],
-    queryFn: async () => (await atlasService.mediaUrl(anexo.id)).url,
-    staleTime: 20 * 60 * 1000,
-  })
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
+    <button
+      type="button"
+      onClick={onAbrir}
       title={anexo.fileName}
       className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/30 transition-colors hover:border-primary/40"
     >
-      {imagem && url ? (
+      {imagem && anexo.url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={anexo.fileName} className="h-full w-full object-cover" />
+        <img src={anexo.url} alt={anexo.fileName} className="h-full w-full object-cover" />
       ) : (
         <span className="flex flex-col items-center gap-1 px-1 text-muted-foreground">
           <FileText className="h-5 w-5" />
           <span className="w-full truncate text-center text-[10px] leading-tight">{anexo.fileName}</span>
         </span>
       )}
-    </a>
+    </button>
   )
 }
 
