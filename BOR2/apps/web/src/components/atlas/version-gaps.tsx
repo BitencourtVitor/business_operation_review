@@ -18,18 +18,18 @@ import { useState } from "react"
  * é o que se procura aqui. O que se procura é o gap: quais folhas mudaram, o
  * motivo e as fotos que o justificam.
  */
-export function VersionGaps({ versions, versionId, onOpenSheet }: {
+export function VersionGaps({ versions, expandida: inicial, onOpenSheet }: {
   versions: AtlasVersion[]
-  /** A versão aberta na grade. */
-  versionId: string
+  /** A versão que já vem aberta: a de onde a pessoa saiu para ver uma folha. */
+  expandida?: string
   /** Abrir uma folha que mudou, na versão em que ela mudou. */
   onOpenSheet: (versionId: string, sheetId: string) => void
 }) {
   // Tocar numa versão abre os dados dela aqui mesmo. Trocar a grade de versão e
   // fechar a janela era o comportamento antigo, e tirava a pessoa justamente do
-  // lugar onde ela estava comparando uma versão com a outra. Começa aberta a
-  // que está na grade.
-  const [expandida, setExpandida] = useState(versionId || versions[0]?.id || "")
+  // lugar onde ela estava comparando uma versão com a outra. Abre tudo fechado:
+  // a lista é para escolher, e só volta aberta a versão de onde a pessoa saiu.
+  const [expandida, setExpandida] = useState(inicial ?? "")
   return (
     <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto">
       {versions.map((v, i) => (
