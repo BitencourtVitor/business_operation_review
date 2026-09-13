@@ -2,10 +2,17 @@
 
 import { PointPhase, ehImagem, ehVideo } from "@/components/atlas/point-media"
 import { RoleName } from "@/components/atlas/role-icon"
+import { SolutionDialog } from "@/components/atlas/solution-dialog"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useAtlasMedia, useUpdateAtlasEvent } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
-import { SolutionDialog } from "@/components/atlas/solution-dialog"
-import { CalendarDays, CheckCircle2, Flag } from "lucide-react"
+import { useAuthStore } from "@/store/auth.store"
+import { AlignLeft, CalendarDays, Check, CheckCircle2, Flag, Type } from "lucide-react"
 import { useState } from "react"
 
 /** Data e hora como quem confere: dia curto e relógio de 24 horas. */
@@ -61,9 +68,7 @@ function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, 
       </div>
 
       {/* Fora da coluna do texto, na largura inteira: quem fez e quando é o
-          fecho do registro, e não um detalhe amarrado a uma das duas metades.
-          Mesma forma do cabeçalho do ponto (nome, barra, data com ícone): o
-          responsável e a hora só aparecem aqui agora, e não lá em cima. */}
+          fecho do registro, e não um detalhe amarrado a uma das duas metades. */}
       {(nome || data) && (
         <span className="flex flex-wrap items-center justify-evenly gap-2 pt-1 text-[11px] text-muted-foreground">
           {nome && <RoleName name={nome} role={cargo} />}
@@ -90,18 +95,19 @@ function Metade({ rotulo, icone: Icone, tom, titulo, texto, vazio, nome, cargo, 
  *
  * ── Duas metades, e não faixas soltas ──
  *
- * Eram três faixas empilhadas ("Before", "After", o que foi dito) com as
- * miniaturas correndo por baixo de cada rótulo, e a descrição do ponto solta
- * acima de tudo. Nada ali dizia que o "before" era a prova daquela descrição, e
- * o ponto se lia de cima para baixo como quatro assuntos em vez de dois.
- * Agora são duas metades, separadas por uma linha: o problema com o texto e a
- * prova dele, e a correção com o que foi feito e a prova disso.
+ * O problema com o texto e a prova dele, e a correção com o que foi feito e a
+ * prova disso, separados por uma linha.
+ *
+ * ── Cada metade é de quem a escreveu ──
+ *
+ * O problema se edita por quem levantou o ponto, a solução por quem resolveu.
+ * Quem não é autor lê as duas e não mexe em nenhuma: nem no texto, nem nas
+ * peças. A API aplica a mesma regra.
  *
  * ── O que saiu ──
  *
- * O comentário solto e o áudio. O que eles produziam era conversa perdida, um
- * "ok", um "amanhã", que não vira registro de nada e não entra no relatório.
- * Por decisão do Vitor em 13/09, nem o que já existia aparece mais.
+ * O comentário solto e o áudio, que produziam conversa perdida e não entravam
+ * no relatório. Por decisão do Vitor em 13/09, nem o que já existia aparece.
  */
 export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   jobsiteId: string
@@ -110,22 +116,21 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
     status: string
     title?: string
     body: string
+    solutionTitle?: string
+    solutionBody?: string
+    createdBy?: string
     createdName?: string
     createdRole?: string
     createdAt?: string
     resolvedAt?: string
+    resolvedBy?: string
     resolvedName?: string
     resolvedRole?: string
   }
   canWrite: boolean
   /**
-   * As ações do ponto, no pé da ficha.
-   *
-   * O cabeçalho ficou só com o que identifica o ponto e o chevron que abre: as
-   * ações pediam a ficha aberta de qualquer jeito, porque resolver sem ver a
-   * prova e apagar sem ler o problema são os dois enganos que se quer evitar.
-   * Quem monta a lista decide o que entra aqui, porque é ela que sabe quem pode
-   * o quê.
+   * As ações do ponto, no pé da ficha. Quem monta a lista decide o que entra
+   * aqui, porque é ela que sabe quem pode o quê.
    */
   rodape?: React.ReactNode
 }) {
@@ -135,21 +140,17 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   const antes = visuais.filter(m => m.phase !== "after")
   const depois = visuais.filter(m => m.phase === "after")
   const condicao = useUpdateAtlasEvent(jobsiteId)
+  const eu = useAuthStore(st => st.user)
   const [registrando, setRegistrando] = useState(false)
+  const [editando, setEditando] = useState<"problema" | "solucao" | null>(null)
+
+  const donoDoProblema = canWrite && !!eu && point.createdBy === eu.id
+  const donoDaSolucao = canWrite && !!eu && point.resolvedBy === eu.id
 
   // A correção aparece quando existe prova dela, quando alguém marcou o ponto
   // como resolvido, ou quando há quem registre. Para quem só lê, ponto pendente
   // não ganha metade vazia.
   const temSolucao = depois.length > 0 || point.status === "resolved" || canWrite
-  // O que foi feito, escrito peça por peça na hora de documentar a correção.
-  // A primeira peça com título dá o título da solução; o que se escreveu nas
-  // peças vira o corpo, na ordem em que subiram.
-  const pecaTitulo = depois.find(m => m.title)
-  const tituloDaSolucao = pecaTitulo?.title ?? ""
-  const oQueFoiFeito = depois
-    .map(m => m === pecaTitulo ? m.description : [m.title, m.description].filter(Boolean).join(": "))
-    .filter(Boolean)
-    .join("\n")
 
   return (
     <div className="flex flex-col gap-3">
@@ -168,9 +169,10 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
           <PointPhase
             jobsiteId={jobsiteId}
             eventId={point.id}
-            canWrite={canWrite}
+            canWrite={donoDoProblema}
             fase="before"
             pecas={antes}
+            onEditar={() => setEditando("problema")}
           />
         </Metade>
 
@@ -179,8 +181,8 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
             rotulo="Solution"
             icone={CheckCircle2}
             tom={depois.length > 0 || point.status === "resolved" ? "solucao" : "problema"}
-            titulo={tituloDaSolucao}
-            texto={oQueFoiFeito}
+            titulo={point.solutionTitle}
+            texto={point.solutionBody ?? ""}
             vazio={point.status === "resolved"
               ? "Marked as resolved, with nothing written about the fix."
               : "Not fixed yet."}
@@ -197,28 +199,29 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
                 <button
                   type="button"
                   onClick={() => setRegistrando(true)}
-                  className="flex h-9 shrink-0 items-center gap-1.5 self-start rounded-lg border border-emerald-500/40 px-3 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+                  className="flex h-9 shrink-0 items-center gap-1.5 self-center rounded-lg border border-emerald-500/40 px-3 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   Problem solved
                 </button>
               )
             ) : (
-            <PointPhase
-              jobsiteId={jobsiteId}
-              eventId={point.id}
-              canWrite={canWrite}
-              fase="after"
-              pecas={depois}
-              // Registrar a solução é resolver o ponto: a prova do conserto
-              // subiu, e deixar o ponto pendente pedia um segundo gesto que
-              // ninguém lembrava de fazer.
-              onRegistrou={() => {
-                if (point.status !== "resolved") {
-                  condicao.mutate({ eventId: point.id, patch: { status: "resolved" } })
-                }
-              }}
-            />
+              <PointPhase
+                jobsiteId={jobsiteId}
+                eventId={point.id}
+                canWrite={donoDaSolucao}
+                fase="after"
+                pecas={depois}
+                onEditar={() => setEditando("solucao")}
+                // Registrar a solução é resolver o ponto: a prova do conserto
+                // subiu, e deixar o ponto pendente pedia um segundo gesto que
+                // ninguém lembrava de fazer.
+                onRegistrou={() => {
+                  if (point.status !== "resolved") {
+                    condicao.mutate({ eventId: point.id, patch: { status: "resolved" } })
+                  }
+                }}
+              />
             )}
           </Metade>
         )}
@@ -234,12 +237,119 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
         />
       )}
 
+      <EditarMetade
+        jobsiteId={jobsiteId}
+        eventId={point.id}
+        metade={editando}
+        titulo={editando === "solucao" ? point.solutionTitle ?? "" : point.title ?? ""}
+        corpo={editando === "solucao" ? point.solutionBody ?? "" : point.body}
+        onClose={() => setEditando(null)}
+      />
+
       {rodape && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">
+        // As ações dividem a largura: com um vão no meio, a de cada ponta
+        // parecia um botão perdido no canto.
+        <div className="flex items-center gap-2 border-t border-border/50 pt-3 [&>*]:flex-1 [&>*]:justify-center">
           {rodape}
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Editar o escrito de uma metade do ponto: título e relato.
+ *
+ * O mesmo formato nas duas, porque o problema e a solução são o mesmo tipo de
+ * registro: uma linha que diz o que é, e o parágrafo que conta.
+ */
+function EditarMetade({ jobsiteId, eventId, metade, titulo, corpo, onClose }: {
+  jobsiteId: string
+  eventId: string
+  metade: "problema" | "solucao" | null
+  titulo: string
+  corpo: string
+  onClose: () => void
+}) {
+  const atualizar = useUpdateAtlasEvent(jobsiteId)
+  const [aberta, setAberta] = useState<typeof metade>(null)
+  const [t, setT] = useState("")
+  const [c, setC] = useState("")
+  const [erro, setErro] = useState("")
+  // Cada abertura começa do que está gravado, e não do rascunho que ficou.
+  if (metade !== aberta) {
+    setAberta(metade)
+    if (metade) { setT(titulo); setC(corpo); setErro("") }
+  }
+
+  async function salvar() {
+    if (!metade || !t.trim()) return
+    setErro("")
+    const patch = metade === "solucao"
+      ? { solutionTitle: t.trim(), solutionBody: c.trim() }
+      : { title: t.trim(), body: c.trim() }
+    try {
+      await atualizar.mutateAsync({ eventId, patch })
+      onClose()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Could not save. Try again.")
+    }
+  }
+
+  return (
+    <Dialog open={!!metade} onOpenChange={o => { if (!o) onClose() }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {metade === "solucao"
+              ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+              : <Flag className="h-4 w-4 shrink-0 text-muted-foreground" />}
+            {metade === "solucao" ? "Edit solution" : "Edit problem"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`editar-titulo-${eventId}`}>
+            {metade === "solucao" ? "What was done?" : "What is the problem?"}
+          </Label>
+          <div className="relative">
+            <Type className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id={`editar-titulo-${eventId}`}
+              autoFocus
+              value={t}
+              placeholder="A short title"
+              onChange={e => setT(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`editar-corpo-${eventId}`}>Description</Label>
+          <div className="relative">
+            <AlignLeft className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <textarea
+              id={`editar-corpo-${eventId}`}
+              rows={4}
+              value={c}
+              placeholder="Details"
+              onChange={e => setC(e.target.value)}
+              className="w-full resize-y rounded-md border border-input bg-transparent py-2 pl-8 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+          </div>
+        </div>
+
+        {erro && <p className="text-xs text-destructive">{erro}</p>}
+
+        <DialogFooter>
+          <Button onClick={() => void salvar()} disabled={!t.trim() || atualizar.isPending}>
+            <Check className="h-4 w-4" />
+            {atualizar.isPending ? "Saving…" : "Save"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

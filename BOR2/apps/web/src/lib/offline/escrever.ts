@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth.store"
 import { local } from "./db"
 import { chaves, lerResposta } from "./dados-da-obra"
 import {
-  ajustarLista, descreverEnvioPendente, falhaDeRede, guardarChamada, guardarEnvio,
+  ajustarLista, falhaDeRede, guardarChamada, guardarEnvio,
   reenviarPendencias, vaiParaFila, type Chamada,
 } from "./pendencias"
 
@@ -180,37 +180,6 @@ export async function subirMidia(
   tocar()
   void reenviarPendencias()
   return { id: idLocal }
-}
-
-export async function descreverMidia(
-  obraId: string, mediaId: string, eventId: string | null,
-  patch: { title?: string; description?: string }, direto: () => Promise<unknown>,
-) {
-  const ajustar = async () => {
-    // Quem descreve nem sempre sabe de que ponto é a peça: procura nas listas
-    // guardadas da obra a que tem essa peça.
-    let evento = eventId
-    if (!evento) {
-      const listas = await local.respostas.where("obraId").equals(obraId)
-        .filter(r => r.chave.startsWith("media:") && Array.isArray(r.dados)
-          && (r.dados as AtlasMedia[]).some(m => m.id === mediaId))
-        .first()
-      evento = listas?.chave.split(":")[2] ?? null
-    }
-    if (evento) {
-      await ajustarLista<AtlasMedia>(chaves.media(obraId, evento), obraId, l =>
-        l.map(m => m.id !== mediaId ? m : { ...m, ...patch }))
-    }
-    return null
-  }
-  // A peça ainda no aparelho leva a descrição junto quando subir.
-  if (await descreverEnvioPendente(mediaId, patch.title ?? "", patch.description ?? "")) {
-    await ajustar()
-    tocar()
-    return null
-  }
-  return escrever(obraId, mediaId, direto,
-    { metodo: "PATCH", caminho: `${base}/media/${mediaId}`, corpo: patch }, "media described", ajustar)
 }
 
 // ── Traços, marca-texto e vínculos ────────────────────────────────────────────

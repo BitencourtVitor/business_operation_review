@@ -1902,6 +1902,10 @@ type atlasEvent struct {
 	Title     string  `json:"title"`
 	Body      string  `json:"body"`
 	Status    string  `json:"status"`
+	// O que foi feito para resolver, no mesmo formato do problema: título e
+	// relato. Antes era remontado do texto das fotos do depois (migração 000165).
+	SolutionTitle string `json:"solutionTitle"`
+	SolutionBody  string `json:"solutionBody"`
 	// O número do ponto, contínuo por obra. É por ele que o ponto é chamado no
 	// canteiro e citado no relatório impresso, e é o que a colisão de
 	// sincronização protege.
@@ -1941,7 +1945,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 	}
 	sheetID := c.Query("sheetId")
 	rows, err := h.db.Query(c.Context(), `
-		SELECT e.id, e.jobsite_id, e.sheet_id, e.kind, e.title, e.body, e.status, e.point_number,
+		SELECT e.id, e.jobsite_id, e.sheet_id, e.kind, e.title, e.body, e.solution_title, e.solution_body, e.status, e.point_number,
 		       e.page_x, e.page_y, e.region, e.created_by, e.created_at,
 		       e.resolved_by, e.resolved_at,
 		       (SELECT count(*) FROM atlas_media m WHERE m.event_id = e.id AND m.status = 'uploaded'
@@ -1973,7 +1977,7 @@ func (h *AtlasHandler) ListEvents(c *fiber.Ctx) error {
 		var e atlasEvent
 		var created time.Time
 		var resolved *time.Time
-		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body,
+		if err := rows.Scan(&e.ID, &e.JobsiteID, &e.SheetID, &e.Kind, &e.Title, &e.Body, &e.SolutionTitle, &e.SolutionBody,
 			&e.Status, &e.Number, &e.PageX, &e.PageY, &e.Region, &e.CreatedBy, &created,
 			&e.ResolvedBy, &resolved, &e.Media,
 			&e.CreatedByName, &e.CreatedByRole, &e.ResolvedByName, &e.ResolvedByRole,
@@ -2034,9 +2038,11 @@ func (h *AtlasHandler) CreateEvent(c *fiber.Ctx) error {
 // PATCH /atlas/events/:id
 func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id")
-	var jobsiteID string
-	if err := h.db.QueryRow(c.Context(),
-		`SELECT jobsite_id FROM atlas_event WHERE id = $1`, eventID).Scan(&jobsiteID); err != nil {
+	var jobsiteID, criadoPor, resolvidoPor, tituloSolucao, corpoSolucao string
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT jobsite_id, created_by, COALESCE(resolved_by,''), solution_title, solution_body
+		  FROM atlas_event WHERE id = $1`, eventID).
+		Scan(&jobsiteID, &criadoPor, &resolvidoPor, &tituloSolucao, &corpoSolucao); err != nil {
 		return atlasNotFound(c, "evento")
 	}
 	if err := h.require(c, jobsiteID, "annotate"); err != nil {
@@ -2047,6 +2053,28 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 		return badRequest(c, "invalid body")
 	}
 	userID, _ := actor(c)
+	// Cada metade do ponto é de quem a escreveu. O problema, de quem levantou;
+	// a solução, de quem resolveu. A primeira escrita da solução é livre,
+	// porque é ela que diz quem resolveu.
+	_, mexeProblema := patch["title"]
+	if _, ok := patch["body"]; ok {
+		mexeProblema = true
+	}
+	_, mexeSolucao := patch["solutionTitle"]
+	if _, ok := patch["solutionBody"]; ok {
+		mexeSolucao = true
+	}
+	if mexeProblema && criadoPor != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "only who reported this point can edit the problem", "code": "FORBIDDEN",
+		})
+	}
+	solucaoVazia := tituloSolucao == "" && corpoSolucao == ""
+	if mexeSolucao && !solucaoVazia && resolvidoPor != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "only who solved this point can edit the solution", "code": "FORBIDDEN",
+		})
+	}
 	status := strPtr(patch, "status")
 	// A folha e o ponto sobre ela não se alteram por aqui, e não é omissão.
 	//
@@ -2059,6 +2087,8 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 		UPDATE atlas_event SET
 			title  = COALESCE($2, title),
 			body   = COALESCE($3, body),
+			solution_title = COALESCE($7, solution_title),
+			solution_body  = COALESCE($8, solution_body),
 			kind   = COALESCE($4, kind),
 			status = COALESCE($5, status),
 			-- Reabrir apaga quem fechou.
@@ -2081,7 +2111,7 @@ func (h *AtlasHandler) UpdateEvent(c *fiber.Ctx) error {
 				ELSE NULL END
 		WHERE id = $1`,
 		eventID, strPtr(patch, "title"), strPtr(patch, "body"), strPtr(patch, "kind"),
-		status, userID)
+		status, userID, strPtr(patch, "solutionTitle"), strPtr(patch, "solutionBody"))
 	if err != nil {
 		// A exigência da foto do depois é trigger, não código daqui (migração
 		// 000156). Sem esta tradução ela chegaria à tela como erro 500, e quem

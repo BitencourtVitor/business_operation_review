@@ -99,14 +99,6 @@ export async function guardarEnvio(obraId: string, envio: Envio, arquivo: Blob):
   return true
 }
 
-/** Descrever uma peça que ainda não subiu muda o que vai subir com ela. */
-export async function descreverEnvioPendente(idLocal: string, titulo: string, descricao: string): Promise<boolean> {
-  const item = await local.fila.filter(f => f.kind === "api.upload" && f.payload.idLocal === idLocal).first()
-  if (!item) return false
-  await local.fila.update(item.id, { payload: { ...item.payload, titulo, descricao } })
-  return true
-}
-
 /** Mexe numa lista guardada, que é o que a tela lê sem rede. */
 export async function ajustarLista<T>(chave: string, obraId: string, fn: (lista: T[]) => T[]) {
   const antes = (await lerResposta<T[]>(chave)) ?? []

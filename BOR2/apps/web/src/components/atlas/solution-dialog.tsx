@@ -22,9 +22,9 @@ import { createPortal } from "react-dom"
  * botão de câmera solto na metade vazia do ponto, que não dizia o que se
  * esperava de quem tocava nele.
  *
- * O texto vai na primeira foto, que é onde a solução sempre morou: é de lá que
- * o ponto e o relatório leem "o que foi feito". Por isso a foto é obrigatória.
- * Solução sem prova é a que o relatório não consegue mostrar.
+ * O texto vai para o ponto, ao lado do problema, e as fotos sobem como prova.
+ * A foto continua obrigatória: solução sem prova é a que o relatório não
+ * consegue mostrar.
  */
 export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose }: {
   jobsiteId: string
@@ -54,13 +54,19 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
     setSalvando(true)
     setErro("")
     try {
-      for (let i = 0; i < fotos.length; i++) {
-        await upload.mutateAsync({
-          file: fotos[i], eventId, phase: "after",
-          ...(i === 0 ? { title: titulo.trim(), description: descricao.trim() } : {}),
-        })
+      // As fotos antes do texto: marcar resolvido exige a prova do depois já
+      // gravada (migração 000156), e o texto vai no mesmo PATCH do status.
+      for (const file of fotos) {
+        await upload.mutateAsync({ file, eventId, phase: "after" })
       }
-      if (!jaResolvido) await condicao.mutateAsync({ eventId, patch: { status: "resolved" } })
+      await condicao.mutateAsync({
+        eventId,
+        patch: {
+          solutionTitle: titulo.trim(),
+          solutionBody: descricao.trim(),
+          ...(jaResolvido ? {} : { status: "resolved" }),
+        },
+      })
       setTitulo(""); setDescricao(""); setFotos([])
       onClose()
     } catch {
