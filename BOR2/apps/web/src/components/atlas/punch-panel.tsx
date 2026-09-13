@@ -785,6 +785,8 @@ function PunchScopeView({
                               // Reabrir desfaz a solução de alguém: segurando.
                               <HoldButton
                                 title="Hold to reopen"
+                                acao="reopen"
+                                andamento="Reopening"
                                 disabled={condicaoDoPonto.isPending}
                                 onConfirm={() => condicaoDoPonto.mutate({ eventId: p.id, patch: { status: "open" } })}
                                 faixa="bg-amber-500/20"
