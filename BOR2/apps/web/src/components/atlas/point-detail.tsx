@@ -159,7 +159,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
           <Metade
             rotulo="Solution"
             icone={CheckCircle2}
-            tom="solucao"
+            tom={depois.length > 0 || point.status === "resolved" ? "solucao" : "problema"}
             texto={oQueFoiFeito}
             vazio={point.status === "resolved"
               ? "Marked as resolved, with nothing written about the fix."
