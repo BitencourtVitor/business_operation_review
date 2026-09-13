@@ -634,7 +634,9 @@ function PunchScopeView({
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        // Do tablet para cima, dois pontos por linha. O aberto toma a linha
+        // inteira: problema, solução e fotos não cabem na metade.
+        <div className="grid items-start gap-2 sm:grid-cols-2">
           {pontos.map(p => {
             const isOpen = expandido === p.id
             const temRegistro = p.photos > 0 || p.videos > 0
@@ -643,114 +645,87 @@ function PunchScopeView({
               <div
                 key={p.id}
                 className={`overflow-hidden rounded-lg border bg-card transition-colors ${
-                  isOpen ? "border-primary/40" : "border-border/60 hover:border-border"
+                  isOpen ? "border-primary/40 sm:col-span-2" : "border-border/60 hover:border-border"
                 }`}
               >
-                {/* O chevron mora do lado oposto ao número: à esquerda ele empurrava
-                    número, plano e pasta para dentro, e a coluna deixava de
-                    alinhar com o autor e a data logo abaixo. */}
-                <div className="relative flex flex-col gap-2 p-3 pr-10 sm:flex-row sm:items-start sm:gap-3">
-                  <button
-                    type="button"
-                    aria-label={isOpen ? "Collapse" : "Expand"}
-                    onClick={() => setExpandido(isOpen ? null : p.id)}
-                    className="absolute right-2 top-2.5 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  <button
-                    type="button"
-                    className="flex min-w-0 flex-1 flex-col gap-1 text-left"
-                    onClick={() => setExpandido(isOpen ? null : p.id)}
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      {p.number != null && (
-                        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
-                          {p.number}
-                        </span>
-                      )}
-                      {/* O que identifica o ponto é o número e a prancha em que
-                          ele está, e não o título: é assim que se acha o ponto
-                          em obra ("o 5 da 1-04-L"). O título desceu para dentro
-                          do problema, onde é lido junto com o resto dele. */}
-                      <span className="truncate text-sm font-semibold leading-tight">
-                        {p.sheetNumber || `Page ${p.pageIndex + 1}`}
+                {/* O cartão fechado é um botão só, em três linhas que começam na
+                    mesma margem: número, plano e condição; a pasta; autor e data.
+                    Na ponta da última, a contagem de anexos e o chevron, do lado
+                    oposto ao que identifica o ponto. */}
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  onClick={() => setExpandido(isOpen ? null : p.id)}
+                  className="flex w-full min-w-0 flex-col gap-1 p-3 text-left"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    {p.number != null && (
+                      <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+                        {p.number}
                       </span>
-                      <Badge
-                        variant="outline"
-                        className={`shrink-0 ${
-                          p.status === "resolved"
-                            ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
-                            : "border-amber-500/40 text-amber-600 dark:text-amber-400"
-                        }`}
-                      >
-                        {p.status === "resolved"
-                          ? <CheckCircle2 className="h-3 w-3" />
-                          : <Clock className="h-3 w-3" />}
-                        {/* No celular só o ícone: o título do ponto precisa da largura. */}
-                        <span className="hidden sm:inline">{p.status === "resolved" ? "Resolved" : "Pending"}</span>
-                      </Badge>
-                    </span>
-                    <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                      <FileText className="h-3 w-3 shrink-0" />
-                      <span className="truncate">
-                        {p.document}
-                      </span>
-                    </span>
-                  </button>
-
-                  {/* No celular esta coluna vira uma faixa embaixo do titulo: ao
-                      lado dele, ela roubava metade da largura e o titulo do ponto
-                      morria em "King stud out of…", que nao identifica ponto
-                      nenhum. De quebra, quem registrou passou a aparecer no
-                      celular tambem, onde antes ficava escondido. */}
-                  <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start sm:gap-1.5">
-                    <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <RoleName name={p.createdName} role={p.createdRole} />
-                      <span aria-hidden className="h-3 w-px bg-border" />
-                      <span className="flex items-center gap-1.5 tabular-nums">
-                        <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                        {dataCompleta(p.createdAt)}
-                      </span>
-                    </span>
-                    {/* Contagem é leitura, abrir no desenho é ação, e as duas
-                        estavam no mesmo tamanho e na mesma fileira: o ícone de
-                        abrir parecia mais um contador. Agora a contagem vive
-                        numa pastilha de fundo apagado e o botão tem moldura
-                        própria, do lado de fora dela. */}
-                    <span className="flex items-center gap-1.5">
-                    {temRegistro && (
-                    <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {p.photos > 0 && (
-                        <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
-                          <Camera className="h-3 w-3" />
-                          {p.photos}
-                        </span>
-                      )}
-                      {p.videos > 0 && (
-                        <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
-                          <Video className="h-3 w-3" />
-                          {p.videos}
-                        </span>
-                      )}
-                      {/* Ponto pendente com registro do depois é ponto que já
-                          foi resolvido e ninguém marcou. Dizer isso aqui é o que
-                          faz alguém marcar, em vez de a lista carregar para
-                          sempre um pendente que não é. */}
-                      {p.status !== "resolved" && p.after > 0 && (
-                        <span
-                          className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
-                          title="There is proof of the fix on this point"
-                        >
-                          <CheckCircle2 className="h-3 w-3" />
-                        </span>
-                      )}
-                    </span>
                     )}
-
+                    {/* O que identifica o ponto é o número e a prancha em que
+                        ele está, e não o título: é assim que se acha o ponto
+                        em obra ("o 5 da 1-04-L"). O título desceu para dentro
+                        do problema, onde é lido junto com o resto dele. */}
+                    <span className="truncate text-sm font-semibold leading-tight">
+                      {p.sheetNumber || `Page ${p.pageIndex + 1}`}
                     </span>
-                  </div>
-                </div>
+                    <Badge
+                      variant="outline"
+                      className={`shrink-0 ${
+                        p.status === "resolved"
+                          ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+                          : "border-amber-500/40 text-amber-600 dark:text-amber-400"
+                      }`}
+                    >
+                      {p.status === "resolved"
+                        ? <CheckCircle2 className="h-3 w-3" />
+                        : <Clock className="h-3 w-3" />}
+                      {/* No celular só o ícone: o plano precisa da largura. */}
+                      <span className="hidden sm:inline">{p.status === "resolved" ? "Resolved" : "Pending"}</span>
+                    </Badge>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    <FileText className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{p.document}</span>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+                    <RoleName name={p.createdName} role={p.createdRole} />
+                    <span aria-hidden className="h-3 w-px shrink-0 bg-border" />
+                    <span className="flex shrink-0 items-center gap-1.5 tabular-nums">
+                      <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                      {dataCompleta(p.createdAt)}
+                    </span>
+                    <span className="ml-auto flex shrink-0 items-center gap-2">
+                      {temRegistro && (
+                        <>
+                          {p.photos > 0 && (
+                            <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
+                              <Camera className="h-3 w-3" />
+                              {p.photos}
+                            </span>
+                          )}
+                          {p.videos > 0 && (
+                            <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400">
+                              <Video className="h-3 w-3" />
+                              {p.videos}
+                            </span>
+                          )}
+                          {p.status !== "resolved" && p.after > 0 && (
+                            <span
+                              className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
+                              title="There is proof of the fix on this point"
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                            </span>
+                          )}
+                        </>
+                      )}
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </span>
+                  </span>
+                </button>
 
                 {isOpen && (
                   /* Aberto, o ponto vira container com dois blocos: a linha que
