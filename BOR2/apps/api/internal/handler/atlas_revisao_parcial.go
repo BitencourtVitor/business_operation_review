@@ -46,8 +46,14 @@ func (h *AtlasHandler) InheritSheets(c *fiber.Ctx) error {
 		// `full` recusa: uma versão que reemite tudo não herda nada, e chamar
 		// esta rota nela é sinal de engano em quem chamou.
 		Scope string `json:"scope"`
-		// As páginas que esta revisão de fato troca, em índice de página.
+		// As páginas da versão anterior que saem, em índice de página.
 		Pages []int `json:"pages"`
+		// Quantas páginas entram no lugar delas. Zero é o mesmo número que sai.
+		//
+		// O que entra não precisa ter o tamanho do que sai: três páginas no lugar
+		// de uma é uma revisão que abriu detalhe. As folhas depois do trecho andam
+		// para abrir ou fechar o espaço.
+		Inserted int `json:"inserted"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
@@ -57,6 +63,16 @@ func (h *AtlasHandler) InheritSheets(c *fiber.Ctx) error {
 	}
 	if len(in.Pages) == 0 {
 		return badRequest(c, "informe as páginas que esta revisão troca")
+	}
+	if in.Inserted <= 0 {
+		in.Inserted = len(in.Pages)
+	}
+	// As páginas novas entram na vaga da primeira que sai.
+	vaga := in.Pages[0]
+	for _, p := range in.Pages {
+		if p < vaga {
+			vaga = p
+		}
 	}
 
 	// A versão anterior é a de `seq` imediatamente menor. Não é a mais recente
@@ -83,28 +99,39 @@ func (h *AtlasHandler) InheritSheets(c *fiber.Ctx) error {
 			(id, version_id, page_index, sheet_number, discipline, level, title,
 			 revision, thumb_key, width_pt, height_pt, r2_key, byte_size,
 			 text_hash, geom_hash, inherited_from)
-		SELECT gen_random_uuid()::text, $1, s.page_index, s.sheet_number, s.discipline,
+		SELECT gen_random_uuid()::text, $1, d.destino, s.sheet_number, s.discipline,
 		       s.level, s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
 		       s.r2_key, s.byte_size, s.text_hash, s.geom_hash, s.id
 		  FROM atlas_sheet s
+		  -- Antes da vaga a folha fica onde estava. Depois dela, perde uma
+		  -- posição por página que saiu antes dela e ganha as que entraram.
+		  CROSS JOIN LATERAL (
+		      SELECT CASE WHEN s.page_index < $4 THEN s.page_index
+		                  ELSE s.page_index + $5
+		                       - (SELECT count(*) FROM unnest($3::int[]) r WHERE r < s.page_index)::int
+		             END AS destino
+		  ) d
 		 WHERE s.version_id = $2
+		   AND s.superseded_at IS NULL
 		   AND NOT (s.page_index = ANY($3::int[]))
 		   AND NOT EXISTS (SELECT 1 FROM atlas_sheet n
-		                    WHERE n.version_id = $1 AND n.page_index = s.page_index)`,
-		versionID, anterior, in.Pages)
+		                    WHERE n.version_id = $1 AND n.page_index = d.destino
+		                      AND n.superseded_at IS NULL)`,
+		versionID, anterior, in.Pages, vaga, in.Inserted)
 	if err != nil {
 		return internalErr(c, err)
 	}
 
+	var total int
+	_ = h.db.QueryRow(c.Context(), `
+		SELECT count(*) FROM atlas_sheet
+		 WHERE version_id = $1 AND superseded_at IS NULL`, versionID).Scan(&total)
+
 	if _, err := h.db.Exec(c.Context(), `
-		UPDATE atlas_document_version SET scope = $2, scope_pages = $3 WHERE id = $1`,
-		versionID, in.Scope, in.Pages); err != nil {
+		UPDATE atlas_document_version SET scope = $2, scope_pages = $3, page_count = $4
+		 WHERE id = $1`, versionID, in.Scope, in.Pages, total); err != nil {
 		return internalErr(c, err)
 	}
-
-	var total int
-	_ = h.db.QueryRow(c.Context(),
-		`SELECT count(*) FROM atlas_sheet WHERE version_id = $1`, versionID).Scan(&total)
 
 	return c.JSON(fiber.Map{"data": fiber.Map{
 		"versionId": versionID, "herdadaDe": anterior,

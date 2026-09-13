@@ -231,54 +231,20 @@ export function PdfPage({ url, pageIndex, scale = 1.5, onSize }: {
 }
 
 /**
- * Costura o PDF novo dentro do set atual, no lugar das folhas escolhidas.
+ * Junta PDFs de uma página só num documento, na ordem dada.
  *
- * ── Por que a versão continua sendo o set inteiro ──
- *
- * O que chega da prancheta quase nunca é o caderno completo: é a folha que foi
- * revisada, ou um punhado delas. Guardar isso como uma versão de duas páginas
- * quebraria tudo o que se apoia na versão: a numeração das folhas, o histórico
- * lado a lado, o download do caderno. Então a troca parcial é feita aqui, antes
- * do envio: sai um arquivo que é o set atual com aquelas folhas substituídas, e
- * daí para a frente o caminho é o de sempre.
- *
- * As folhas que saem não precisam ser vizinhas, porque a escolha da grade
- * também não é: o PDF novo entra inteiro na vaga da primeira delas, e as outras
- * simplesmente saem. O que entra também não precisa ter o tamanho do que sai.
- * Três páginas novas no lugar de uma antiga é uma revisão que abriu detalhe, e
- * o set cresce.
+ * É o set de uma versão parcial. O arquivo que ela guarda é só o trecho que
+ * mudou, e o resto mora nos recortes herdados da versão anterior: quando alguém
+ * precisa do caderno inteiro (ler os nomes, baixar um trecho), ele é montado
+ * aqui a partir das folhas.
  */
-export async function costurarSet(
-  urlDoSetAtual: string,
-  novo: File,
-  /** Os índices de página do set atual que saem. */
-  paginas: number[],
-): Promise<File> {
+export async function juntarFolhas(urls: string[]): Promise<Blob> {
   const { PDFDocument } = await import("pdf-lib")
-  const [atual, entrando] = await Promise.all([
-    fetch(urlDoSetAtual).then(r => r.arrayBuffer()).then(b => PDFDocument.load(b)),
-    novo.arrayBuffer().then(b => PDFDocument.load(b)),
-  ])
-
-  const total = atual.getPageCount()
-  const saindo = new Set(paginas.filter(i => i >= 0 && i < total))
-  const vaga = saindo.size ? Math.min(...saindo) : total
-
   const out = await PDFDocument.create()
-  const novas = await out.copyPages(entrando, entrando.getPageIndices())
-  const ficam = await out.copyPages(
-    atual,
-    Array.from({ length: total }, (_, i) => i).filter(i => !saindo.has(i)),
-  )
-
-  let k = 0
-  for (let i = 0; i < total; i++) {
-    if (i === vaga) for (const p of novas) out.addPage(p)
-    if (saindo.has(i)) continue
-    out.addPage(ficam[k++])
+  for (const url of urls) {
+    const fonte = await PDFDocument.load(await fetch(url).then(r => r.arrayBuffer()))
+    for (const pagina of await out.copyPages(fonte, fonte.getPageIndices())) out.addPage(pagina)
   }
-  if (vaga >= total) for (const p of novas) out.addPage(p)
-
   const bytes = await out.save()
-  return new File([bytes.slice().buffer], novo.name, { type: "application/pdf" })
+  return new Blob([bytes.slice().buffer], { type: "application/pdf" })
 }

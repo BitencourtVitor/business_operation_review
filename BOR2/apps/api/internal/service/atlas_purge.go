@@ -72,10 +72,17 @@ func VersionKeys(ctx context.Context, db *pgxpool.Pool, versionID string) ([]str
 	return collect(ctx, db, versionID, []string{
 		`SELECT r2_key FROM atlas_document_version
 		  WHERE id = $1 AND COALESCE(r2_key,'') <> ''`,
-		`SELECT r2_key FROM atlas_sheet
-		  WHERE version_id = $1 AND COALESCE(r2_key,'') <> ''`,
-		`SELECT thumb_key FROM atlas_sheet
-		  WHERE version_id = $1 AND COALESCE(thumb_key,'') <> ''`,
+		// A folha herdada divide o arquivo com a versão de onde veio, ou com a que
+		// herdou dela. Apagar uma versão não pode levar o arquivo que a outra
+		// ainda usa.
+		`SELECT s.r2_key FROM atlas_sheet s
+		  WHERE s.version_id = $1 AND COALESCE(s.r2_key,'') <> ''
+		    AND NOT EXISTS (SELECT 1 FROM atlas_sheet o
+		                     WHERE o.r2_key = s.r2_key AND o.version_id <> s.version_id)`,
+		`SELECT s.thumb_key FROM atlas_sheet s
+		  WHERE s.version_id = $1 AND COALESCE(s.thumb_key,'') <> ''
+		    AND NOT EXISTS (SELECT 1 FROM atlas_sheet o
+		                     WHERE o.thumb_key = s.thumb_key AND o.version_id <> s.version_id)`,
 	})
 }
 

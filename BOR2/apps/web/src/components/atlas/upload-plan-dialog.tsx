@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
 import {
-  ArrowLeft, ArrowRight, Check, CloudUpload, FileText, Link2, ListTree, ScanText,
+  ArrowLeft, ArrowRight, Check, CloudUpload, FileText, Link2, ListTree, Replace, ScanText,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -48,22 +48,18 @@ export type DocumentIdentity = { name: string; tags: TagKey[] }
  * só, a marcação disputava atenção com o cadastro e parecia opcional.
  */
 export function UploadPlanDialog({
-  categoryId, jobsiteId, naming, revisionCount, open, categorias, ocupadas, alvo, alvoRotulo, setAtual,
+  categoryId, jobsiteId, naming, revisionCount, open, categorias, ocupadas, alvo, alvoRotulo,
   onStart, onClose,
 }: {
   /**
    * O trecho do set que sai, quando a troca é parcial.
    *
-   * Com ele, o PDF escolhido não é o set: é o que entra no lugar daquele
-   * trecho. A costura acontece na hora da escolha do arquivo, e daí para a
-   * frente (nomenclatura, vínculos, envio) tudo trabalha sobre o set inteiro,
-   * que é o que uma versão sempre é.
+   * Com ele, o PDF escolhido não é o set: é só o que entra no lugar daquele
+   * trecho. Sobem só essas páginas, e o resto do set vem da versão anterior.
    */
   alvo?: number[] | null
   /** Como o trecho se chama na boca de quem trabalha: "A-201", "A-201 to A-204". */
   alvoRotulo?: string
-  /** Onde buscar o PDF do set de hoje, para a costura. */
-  setAtual?: () => Promise<string>
   /** A obra: o índice de destinos dos hiperlinks é dela inteira. */
   jobsiteId?: string
   /** A categoria da pasta, onde o gabarito de nomenclatura fica guardado. */
@@ -131,6 +127,11 @@ export function UploadPlanDialog({
   const [names, setNames] = useState<Map<number, string> | null>(null)
   const [reading, setReading] = useState("")
 
+  // Sobrescrever é outra jornada: primeiro o porquê, depois o arquivo. Pedir o
+  // PDF antes deixava a justificativa como um campo a mais no pé de um envio já
+  // decidido, e ela saía em branco.
+  const troca = !novo && revisionCount > 0
+
   useEffect(() => {
     if (open) return
     setEtapa(1)
@@ -141,28 +142,20 @@ export function UploadPlanDialog({
     setQuerLinks(null); setVinculos([]); setEstadoDosLinks({ varrido: false, pendentes: 0 })
   }, [open])
 
-  // A costura do trecho no set, quando a troca é parcial. É o único passo que
-  // demora sem nada acontecendo na tela, então ele se anuncia.
-  const [costurando, setCosturando] = useState(false)
+  // Quantas páginas o PDF do trecho tem. Não precisa bater com o que sai: três
+  // páginas no lugar de uma é uma revisão que abriu detalhe, e o set cresce.
+  const [paginasDoTrecho, setPaginasDoTrecho] = useState(0)
 
   function choose(picked: File | null) {
     setFile(picked); setError("")
+    setPaginasDoTrecho(0)
     // Sem a extensão: ".pdf" é o formato, não o nome do documento.
     if (picked) setName(picked.name.replace(/.pdf$/i, "").trim())
-    if (!picked || !alvo?.length || !setAtual) return
-    setCosturando(true)
-    void (async () => {
-      try {
-        const url = await setAtual()
-        const { costurarSet } = await import("@/components/atlas/pdf-page")
-        setFile(await costurarSet(url, picked, alvo))
-      } catch {
-        setFile(null)
-        setError("Could not open the current set to put this sheet into it.")
-      } finally {
-        setCosturando(false)
-      }
-    })()
+    if (!picked || !alvo?.length) return
+    void import("@/components/atlas/pdf-page")
+      .then(({ readPdfOutline }) => readPdfOutline(picked))
+      .then(o => setPaginasDoTrecho(o.pageCount))
+      .catch(() => setError("Could not read this PDF."))
   }
 
   // O que veio do servidor só entra enquanto ninguém marcou nada aqui: a
@@ -237,9 +230,8 @@ export function UploadPlanDialog({
     onClose()
   }
 
-  // Enquanto a costura corre, o arquivo na mão ainda não é o set: trocar de PDF
-  // ou mandar nomear no meio disso trabalharia sobre o arquivo errado.
-  const busy = costurando
+  const busy = false
+  const motivoOk = !!versionNotes.trim()
   // Dizendo não aos vínculos, sobe direto. Dizendo sim, sobe com a varredura
   // feita e nenhuma sugestão pendente.
   const faltaDecidir = querLinks === true && estadoDosLinks.varrido ? estadoDosLinks.pendentes : 0
@@ -293,15 +285,7 @@ export function UploadPlanDialog({
               : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
         }`}
       >
-        {costurando ? (
-          <>
-            <CloudUpload className="h-8 w-8 animate-pulse text-primary" />
-            <span className="text-sm font-medium text-primary">Putting it into the set</span>
-            <span className="text-xs text-muted-foreground">
-              The rest of the sheets come along untouched
-            </span>
-          </>
-        ) : file ? (
+        {file ? (
           <>
             <FileText className="h-8 w-8 text-primary" />
             <span className="max-w-full break-all text-sm font-medium text-primary">{file.name}</span>
@@ -367,9 +351,12 @@ export function UploadPlanDialog({
             </DialogTitle>
             {/* As duas etapas à vista desde o começo: quem abre sabe que depois
                 do cadastro ainda vem a marcação dos nomes. */}
-            {novo && (
+            {(novo || troca) && (
               <div className="flex items-center justify-center gap-2 text-xs">
-                {[{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }, { n: 3, t: "Links" }].map(({ n, t }) => (
+                {(novo
+                  ? [{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }, { n: 3, t: "Links" }]
+                  : [{ n: 1, t: "Reason" }, { n: 2, t: "New PDF" }]
+                ).map(({ n, t }) => (
                   <span key={n} className="flex items-center gap-2">
                     {n > 1 && <span className="h-px w-6 bg-border" aria-hidden="true" />}
                     <span className={`flex items-center gap-1.5 ${etapa === n ? "font-medium text-foreground" : "text-muted-foreground"}`}>
@@ -509,58 +496,74 @@ export function UploadPlanDialog({
               </>
             )}
 
-            {!novo && (
+            {!novo && !troca && (
               <>
                 {zonaDoArquivo}
                 {botaoNomeacao}
+              </>
+            )}
 
-                {/* Trocar o set é o momento de dizer o que mudou. */}
-                {revisionCount > 0 && !!file && (
-                  <>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="ver-name">Version name</Label>
-                      <Input
-                        id="ver-name"
-                        value={versionName}
-                        placeholder="What changed, in a few words"
-                        onChange={e => setVersionName(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="ver-notes">Why it changed</Label>
-                      {/* Uma linha só não cabia o motivo. Quem troca um set conta
-                          o que foi achado em obra, quem pediu e o que a correção
-                          resolve, e isso não é uma frase. */}
-                      <Textarea
-                        id="ver-notes"
-                        rows={4}
-                        value={versionNotes}
-                        placeholder="What was found, who asked for it, what the correction solves"
-                        onChange={e => setVersionNotes(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <Label>Attachments</Label>
-                      {/* A foto do que se achou em obra, o recorte do e-mail do
-                          projetista. Sem lugar para isso, a justificativa vira
-                          "ver anexo no e-mail" e o anexo fica fora do Atlas. */}
-                      <AttachmentPicker files={attachments} onChange={setAttachments} />
-                    </div>
-                  </>
-                )}
-
-                {revisionCount > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    {/* A regra fica dita onde a decisão acontece: o que sobe
-                        passa a valer e o que estava vale como histórico. Na
-                        troca parcial, dizer qual trecho sai é o que impede a
-                        pessoa de mandar o caderno inteiro sem perceber. */}
+            {troca && etapa === 1 && (
+              <>
+                {/* O que sai, dito antes de qualquer outra coisa: é sobre isso
+                    que se está justificando. */}
+                <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2.5 text-sm">
+                  <Replace className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span>
                     {alvo?.length && alvoRotulo
-                      ? `This PDF takes the place of ${alvoRotulo}. The rest of the set comes along untouched, and what is saved is a new version of the whole thing.`
-                      : "The current plan set becomes the previous one. The sheet that counts is always the last one uploaded."}
-                  </p>
-                )}
+                      ? <>Replacing <span className="font-medium">{alvoRotulo}</span></>
+                      : "Replacing the whole plan set"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="ver-notes">Why it changed</Label>
+                  {/* Uma linha só não cabia o motivo. Quem troca um set conta
+                      o que foi achado em obra, quem pediu e o que a correção
+                      resolve, e isso não é uma frase. */}
+                  <Textarea
+                    id="ver-notes"
+                    rows={4}
+                    autoFocus
+                    value={versionNotes}
+                    placeholder="What was found, who asked for it, what the correction solves"
+                    onChange={e => setVersionNotes(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="ver-name">
+                    In a few words <span className="font-normal text-muted-foreground">(optional)</span>
+                  </Label>
+                  <Input
+                    id="ver-name"
+                    value={versionName}
+                    placeholder="Beam pocket moved on level 2"
+                    onChange={e => setVersionName(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Photos and files</Label>
+                  {/* A foto do que se achou em obra, o recorte do e-mail do
+                      projetista. Sem lugar para isso, a justificativa vira
+                      "ver anexo no e-mail" e o anexo fica fora do Atlas. */}
+                  <AttachmentPicker files={attachments} onChange={setAttachments} />
+                </div>
+              </>
+            )}
+
+            {troca && etapa === 2 && (
+              <>
+                {zonaDoArquivo}
+                {botaoNomeacao}
+                <p className="text-xs text-muted-foreground">
+                  {/* A regra fica dita onde a decisão acontece. Na troca
+                      parcial, dizer qual trecho sai é o que impede a pessoa de
+                      mandar o caderno inteiro sem perceber. */}
+                  {alvo?.length && alvoRotulo
+                    ? paginasDoTrecho && paginasDoTrecho !== alvo.length
+                      ? `This PDF has ${paginasDoTrecho} pages and goes in place of ${alvoRotulo} (${alvo.length} ${alvo.length === 1 ? "sheet" : "sheets"}). The rest of the set stays as it is.`
+                      : `This PDF goes in place of ${alvoRotulo}. Only these pages are saved; the rest of the set stays as it is.`
+                    : "The current plan set becomes the previous one. The sheet that counts is always the last one uploaded."}
+                </p>
               </>
             )}
 
@@ -578,15 +581,28 @@ export function UploadPlanDialog({
                 <span>Pick the subcategory for every category that has one.</span>
               </p>
             )}
-            <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
-            {novo ? (
+            {troca && etapa === 2 ? (
+              <Button variant="outline" onClick={() => setEtapa(1)}>
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            ) : (
+              <Button variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            )}
+            {troca && etapa === 1 ? (
+              // Sem o porquê não se passa para o arquivo.
+              <Button onClick={() => setEtapa(2)} disabled={!motivoOk}>
+                Next
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : novo ? (
               <Button onClick={() => setEtapa(2)} disabled={!podeAvancar}>
                 Next
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
               // Sem gabarito marcado, ou ainda lendo os nomes, não sobe.
-              <Button onClick={submit} disabled={!file || !nomeacaoOk || !categoriaOk}>
+              <Button onClick={submit} disabled={!file || !nomeacaoOk || !categoriaOk || (troca && !motivoOk) || (!!alvo?.length && !paginasDoTrecho)}>
                 <CloudUpload className="h-4 w-4" />
                 Upload
               </Button>
