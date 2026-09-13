@@ -2,6 +2,7 @@ import { getQueryClient } from "@/lib/query-client"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { aquecerRotas } from "./aquecer"
 import { local, type PlanoLocal } from "./db"
+import { baixarDadosDaObra, removerDadosDaObra } from "./dados-da-obra"
 import { cabe, gravarArquivo, liberarObra, ultimoErroDeArquivo } from "./storage"
 
 /**
@@ -126,8 +127,10 @@ export async function baixarIndice(obraId: string): Promise<{ planos: number }> 
         bytes: s.byteSize ?? 0,
         thumb: antes?.thumb ?? null,
         widthPt: s.widthPt ?? 0, heightPt: s.heightPt ?? 0,
-        scaleUnitsPerPt: antes?.scaleUnitsPerPt ?? null,
-        scaleLabel: antes?.scaleLabel ?? "",
+        // A escala é da folha e vale para todos: vem do servidor, e a guardada
+        // antes só vale se o servidor ainda não tiver nenhuma.
+        scaleUnitsPerPt: s.scaleUnitsPerPt ?? antes?.scaleUnitsPerPt ?? null,
+        scaleLabel: s.scaleLabel || antes?.scaleLabel || "",
         desatualizado: false,
       })
       vivos.add(s.id)
@@ -441,6 +444,9 @@ export async function baixarPasta(pastaId: string): Promise<{
     baixadoEm: Date.now(),
   })
   await recalcularSelecao(pasta.obraId)
+  // Punch, pinos, fotos, vídeos e anexos da obra descem junto: a pasta no
+  // aparelho sem o punch dela abriria a verificação vazia no canteiro.
+  void baixarDadosDaObra(pasta.obraId).catch(() => undefined)
   // As miniaturas descem depois, em segundo plano: são o que desenha a grade de
   // folhas, e sem elas a pasta abre sem rede com um cartão girando por folha.
   void baixarMiniaturas(pastaId).catch(() => 0)
@@ -512,6 +518,7 @@ export async function removerObra(obraId: string): Promise<void> {
     if (p.estado !== "ausente") await liberarPasta(p.id)
   }
   await liberarObra(obraId)
+  await removerDadosDaObra(obraId)
   await local.planos.where("obraId").equals(obraId)
     .modify({ arquivo: null, thumb: null, inteiro: undefined })
   await recalcularSelecao(obraId)

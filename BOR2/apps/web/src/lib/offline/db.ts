@@ -176,6 +176,30 @@ export interface MarcaLocal {
   destinoPlanoId: string
 }
 
+/**
+ * Uma resposta da API guardada inteira, para a tela ler sem rede.
+ *
+ * É o mesmo método dos documentos aplicado ao resto: o que a tela consulta desce
+ * para o aparelho enquanto há sinal, e sem sinal a consulta lê daqui. Guardar a
+ * resposta como veio, em vez de desmontar em tabelas próprias, é o que deixa o
+ * punch, os pinos e a mídia seguirem o formato que as telas já conhecem.
+ */
+export interface RespostaLocal {
+  /** "punch-points:<obra>", "events:<obra>", "media:<obra>:<evento>"... */
+  chave: string
+  obraId: string
+  salvoEm: number
+  dados: unknown
+}
+
+/** O arquivo de uma foto, vídeo ou anexo, guardado no OPFS. */
+export interface MidiaLocal {
+  id: string
+  obraId: string
+  arquivo: string
+  contentType: string
+}
+
 class AtlasLocal extends Dexie {
   obras!: Table<ObraLocal, string>
   pastas!: Table<PastaLocal, string>
@@ -183,6 +207,8 @@ class AtlasLocal extends Dexie {
   pontos!: Table<PontoLocal, string>
   fila!: Table<EventoFila, string>
   marcas!: Table<MarcaLocal, string>
+  respostas!: Table<RespostaLocal, string>
+  midias!: Table<MidiaLocal, string>
 
   constructor() {
     super("atlas")
@@ -201,6 +227,11 @@ class AtlasLocal extends Dexie {
     // nada, apenas passa a ter onde guardar o vínculo.
     this.version(2).stores({
       marcas: "id, planoId, pastaId, obraId, destinoPlanoId",
+    })
+    // O resto do sistema sem rede: respostas da API e arquivos de mídia.
+    this.version(3).stores({
+      respostas: "chave, obraId",
+      midias: "id, obraId",
     })
   }
 }

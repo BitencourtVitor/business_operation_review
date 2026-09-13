@@ -4,6 +4,7 @@ import { RoleName } from "@/components/atlas/role-icon"
 import { useAtlasThumbs } from "@/hooks/use-atlas"
 import { atlasService, type AtlasVersion } from "@/services/atlas.service"
 import { ImageWindow } from "@/components/atlas/image-window"
+import { urlLocalDaMidia } from "@/lib/offline/dados-da-obra"
 import { useQueries } from "@tanstack/react-query"
 import { createPortal } from "react-dom"
 import { BadgeCheck, ChevronDown, FileText, FileX2, Images, Layers, MessageSquareText, Replace } from "lucide-react"
@@ -65,7 +66,12 @@ function Versao({ v, atual, aberta, onToggle, onOpenSheet }: {
   const urls = useQueries({
     queries: (v.attachments ?? []).map(a => ({
       queryKey: ["atlas", "media-url", a.id],
-      queryFn: async () => (await atlasService.mediaUrl(a.id)).url,
+      // Sem rede, o anexo guardado no aparelho.
+      networkMode: "always" as const,
+      queryFn: async () => {
+        if (typeof navigator !== "undefined" && !navigator.onLine) return urlLocalDaMidia(a.id)
+        return (await atlasService.mediaUrl(a.id)).url
+      },
       staleTime: 20 * 60 * 1000,
       enabled: aberta,
     })),

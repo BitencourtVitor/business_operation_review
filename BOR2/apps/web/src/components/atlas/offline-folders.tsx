@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { useAtlasDocuments } from "@/hooks/use-atlas"
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
+import { baixarDadosDaObra } from "@/lib/offline/dados-da-obra"
 import { local, type PastaLocal } from "@/lib/offline/db"
 import {
   atualizarMarcas, baixarIndice, baixarMiniaturas, baixarObra, pararDownload, removerObra,
@@ -187,6 +188,8 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     // a miniatura, e não só no download da pasta, senão quem baixou antes de
     // isto existir nunca teria link sem sinal.
     if (navigator.onLine) for (const id of guardadas) void atualizarMarcas(id).catch(() => 0)
+    // O resto da obra, pelo mesmo caminho: punch, pinos, fotos, vídeos e anexos.
+    if (navigator.onLine) void baixarDadosDaObra(jobsiteId).catch(() => undefined)
 
     let vivo = true
     const conferir = async () => {

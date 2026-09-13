@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { local, type PlanoLocal } from "@/lib/offline/db"
+import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
@@ -10,6 +11,7 @@ import {
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
   type AtlasDocCategory, type AtlasEvent, type AtlasJobsite, type AtlasLevel, type AtlasSheet,
   type AtlasStrokeGeometry, type AtlasVersion, type PunchFiltro,
+  type AtlasMedia, type AtlasPunch, type AtlasPunchPoint, type AtlasPunchScope,
 } from "@/services/atlas.service"
 
 const KEY = {
@@ -206,6 +208,7 @@ function folhasLocais(planos: PlanoLocal[]): AtlasSheet[] {
       r2Key: p.arquivo ?? "", byteSize: p.bytes ?? 0, confidence: 1, needsReview: false,
       links: 0, highlights: 0, notes: 0, annotations: 0,
       revisedAt: "", versionName: "", revisions: 1, textHash: "", geomHash: "",
+      scaleUnitsPerPt: p.scaleUnitsPerPt, scaleLabel: p.scaleLabel,
     }))
 }
 
@@ -572,7 +575,20 @@ export function useDeleteAtlasAnnotation(sheetId: string) {
 export function useAtlasEvents(jobsiteId: string, sheetId?: string) {
   return useQuery({
     queryKey: KEY.events(jobsiteId, sheetId),
-    queryFn: () => atlasService.listEvents(jobsiteId, sheetId),
+    // Os pinos da prancha, com rede ou sem: sem rede vêm da lista da obra
+    // guardada no aparelho, filtrada pela folha como o servidor filtraria.
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const todos = await lerResposta<AtlasEvent[]>(chaves.events(jobsiteId))
+        if (!todos) throw new Error("offline")
+        return sheetId ? todos.filter(e => e.sheetId === sheetId) : todos
+      }
+      const lista = await atlasService.listEvents(jobsiteId, sheetId)
+      void juntarResposta(chaves.events(jobsiteId), jobsiteId, lista,
+        e => !sheetId || e.sheetId === sheetId)
+      return lista
+    },
     enabled: !!jobsiteId,
   })
 }
@@ -655,7 +671,21 @@ export function useAtlasMedia(
   return useQuery({
     queryKey: [...KEY.media(jobsiteId), filter?.eventId ?? "", filter?.dailyLogId ?? "",
       filter?.album ?? "*"],
-    queryFn: () => atlasService.listMedia(jobsiteId, filter),
+    // A mídia de um ponto, com rede ou sem. Sem rede a lista vem do aparelho e
+    // cada foto aponta para o arquivo guardado, porque a URL assinada não abre.
+    networkMode: "always",
+    queryFn: async () => {
+      const soDoEvento = !!filter?.eventId && !filter.dailyLogId && filter.album === undefined
+      if (semRede()) {
+        if (!soDoEvento) throw new Error("offline")
+        const guardada = await lerResposta<AtlasMedia[]>(chaves.media(jobsiteId, filter!.eventId!))
+        if (!guardada) throw new Error("offline")
+        return comUrlLocal(guardada)
+      }
+      const lista = await atlasService.listMedia(jobsiteId, filter)
+      if (soDoEvento) void guardarResposta(chaves.media(jobsiteId, filter!.eventId!), jobsiteId, lista)
+      return lista
+    },
     enabled: !!jobsiteId,
   })
 }
@@ -792,7 +822,17 @@ function tocarPunch(qc: ReturnType<typeof useQueryClient>, jobsiteId: string) {
 export function useAtlasPunchScopes(jobsiteId: string) {
   return useQuery({
     queryKey: PUNCH.scopes(jobsiteId),
-    queryFn: () => atlasService.punchScopes(jobsiteId),
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const guardados = await lerResposta<AtlasPunchScope[]>(chaves.punchScopes(jobsiteId))
+        if (!guardados) throw new Error("offline")
+        return guardados
+      }
+      const lista = await atlasService.punchScopes(jobsiteId)
+      void guardarResposta(chaves.punchScopes(jobsiteId), jobsiteId, lista)
+      return lista
+    },
     enabled: !!jobsiteId,
   })
 }
@@ -800,7 +840,27 @@ export function useAtlasPunchScopes(jobsiteId: string) {
 export function useAtlasPunchPoints(jobsiteId: string, filtro?: PunchFiltro, enabled = true) {
   return useQuery({
     queryKey: PUNCH.points(jobsiteId, filtro),
-    queryFn: () => atlasService.punchList(jobsiteId, filtro),
+    // Sem rede, a lista da obra inteira guardada no aparelho, filtrada aqui do
+    // jeito que o servidor filtra: passagem, escopo e condição.
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const todos = await lerResposta<AtlasPunchPoint[]>(chaves.punchPoints(jobsiteId))
+        if (!todos) throw new Error("offline")
+        return todos.filter(p =>
+          (!filtro?.punch || p.punchId === filtro.punch)
+          && (!filtro?.scope || p.scopeValue === filtro.scope)
+          && (!filtro?.status || p.status === filtro.status))
+      }
+      const lista = await atlasService.punchList(jobsiteId, filtro)
+      // Todo recorte visto com rede entra na lista guardada. Só o escopo inteiro
+      // é recorte exato: aí o ponto que sumiu dele sai também.
+      void juntarResposta(chaves.punchPoints(jobsiteId), jobsiteId, lista,
+        !filtro?.punch && !filtro?.status
+          ? (p => !filtro?.scope || p.scopeValue === filtro.scope)
+          : undefined)
+      return lista
+    },
     enabled: !!jobsiteId && enabled,
   })
 }
@@ -816,7 +876,20 @@ export function useAtlasPunchMedia(jobsiteId: string, filtro?: PunchFiltro, enab
 export function useAtlasPunches(jobsiteId: string, params?: { scope?: string; open?: boolean }) {
   return useQuery({
     queryKey: [...PUNCH.list(jobsiteId), params?.scope ?? "", params?.open ? "abertas" : ""],
-    queryFn: () => atlasService.punches(jobsiteId, params),
+    networkMode: "always",
+    queryFn: async () => {
+      if (semRede()) {
+        const todas = await lerResposta<AtlasPunch[]>(chaves.punches(jobsiteId))
+        if (!todas) throw new Error("offline")
+        return todas.filter(r =>
+          (!params?.scope || r.scopeValue === params.scope)
+          && (!params?.open || !r.closedAt))
+      }
+      const lista = await atlasService.punches(jobsiteId, params)
+      void juntarResposta(chaves.punches(jobsiteId), jobsiteId, lista,
+        !params?.open ? (r => !params?.scope || r.scopeValue === params.scope) : undefined)
+      return lista
+    },
     enabled: !!jobsiteId,
   })
 }
