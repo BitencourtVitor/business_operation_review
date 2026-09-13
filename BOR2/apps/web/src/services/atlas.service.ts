@@ -197,6 +197,9 @@ export interface AtlasSheet {
   highlights: number
   notes: number
   annotations: number
+  /** A escala da folha, calibrada por alguém da obra e valendo para todos. Pés por ponto de PDF. */
+  scaleUnitsPerPt?: number | null
+  scaleLabel?: string
   /** Desde quando esta prancha é a que vale, e o nome dado à troca. */
   revisedAt: string
   versionName: string
@@ -456,11 +459,16 @@ export interface AtlasPunchPoint {
   /** Quantas peças documentam a solução. Zero é ponto sem prova do depois. */
   after: number
   comments: number
+  /** Quem cadastrou: decide quem pode apagar sem ser da gestão da obra. */
+  createdBy: string
   createdName: string
   /** O cargo de quem levantou: na tela vira o crachá ao lado do nome. */
   createdRole: string
   createdAt: string
   resolvedAt: string
+  /** Quem marcou como resolvido: assina a metade da solução. */
+  resolvedName: string
+  resolvedRole: string
 }
 
 /** Uma peça de mídia de um ponto, já com endereço assinado. */
@@ -656,6 +664,19 @@ export const atlasService = {
     api.get<{ url: string; whole: boolean; pageIndex: number }>(
       `${base}/sheets/${sheetId}/url`, getToken()),
 
+  /**
+   * Grava a escala da folha para todos, a partir de dois pontos e da medida
+   * real entre eles. É o único jeito de dar escala: a pessoa aponta uma cota
+   * que conhece no próprio desenho.
+   */
+  setSheetScale: (sheetId: string, body: {
+    p1x: number; p1y: number; p2x: number; p2y: number
+    realValue: number; label: string; widthPt: number; heightPt: number
+  }) => api.put<{ unitsPerPt: number; label: string }>(`${base}/sheets/${sheetId}/scale`, { ...body, unit: "ft" }, getToken()),
+
+  clearSheetScale: (sheetId: string) =>
+    api.delete(`${base}/sheets/${sheetId}/scale`, getToken()),
+
   updateSheet: (sheetId: string, patch: Record<string, unknown>) =>
     api.patch(`${base}/sheets/${sheetId}`, patch, getToken()),
 
@@ -845,6 +866,31 @@ export const atlasService = {
     api.get<AtlasPunchPoint[]>(
       `${base}/jobsites/${jobsiteId}/punch-list${queryDoPunch(params)}`, getToken(),
     ).then(r => r ?? []),
+
+  /**
+   * O relatório do punch como arquivo PDF, impresso no servidor.
+   *
+   * Fora do `api` comum porque a resposta é o arquivo, e não JSON: o ajudante
+   * tenta ler o corpo como JSON e quebraria no primeiro byte do PDF.
+   */
+  punchReportPdf: async (jobsiteId: string, html: string, fileName: string): Promise<Blob> => {
+    const url = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080")
+      + `${base}/jobsites/${jobsiteId}/punch-list/report.pdf`
+    const token = getToken()
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ html, fileName }),
+    })
+    if (!res.ok) {
+      const erro = await res.json().catch(() => null) as { error?: string } | null
+      throw new Error(erro?.error ?? `report failed (${res.status})`)
+    }
+    return res.blob()
+  },
 
   /** Toda a mídia dos pontos de um escopo, de uma vez. É o que o relatório lê. */
   punchMedia: (jobsiteId: string, params?: PunchFiltro) =>

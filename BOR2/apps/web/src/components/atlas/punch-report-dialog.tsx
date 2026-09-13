@@ -78,12 +78,15 @@ export function PunchReportButton({ jobsiteId, jobsiteName, scope }: {
     setGerando(true)
     setVazio(false)
     try {
-      await gerarRelatorio({
+      const saiu = await gerarRelatorio({
         jobsiteId, jobsiteName,
         scope: escolhido || undefined,
         status: condicao || undefined,
       })
-      setOpen(false)
+      // Sem ponto nenhum com esses filtros, nada sai: a janela fica aberta e
+      // diz isso, em vez de fechar como se o arquivo tivesse sido baixado.
+      if (saiu) setOpen(false)
+      else setVazio(true)
     } catch {
       setVazio(true)
     } finally {
@@ -161,7 +164,7 @@ export function PunchReportButton({ jobsiteId, jobsiteName, scope }: {
           ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
           : <FileDown className="h-3.5 w-3.5" />}
         {gerando
-          ? "Building the document"
+          ? "Generating the PDF"
           : `Issue ${quantos ?? 0} ${quantos === 1 ? "point" : "points"}`}
       </Button>
 

@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label"
 import { Kbd } from "@/components/ui/kbd"
 import { CameraShot } from "@/components/atlas/camera-shot"
 import { PhotoGrid } from "@/components/atlas/photo-grid"
+import {
+  TapeLoupe, TapeOverlay, TapePanel, gravarEscala, lerEscala, type Escala, type Ponto,
+} from "@/components/atlas/tape-measure"
 import { ImageWindow } from "@/components/atlas/image-window"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
 import { local } from "@/lib/offline/db"
@@ -32,12 +35,13 @@ import {
   ArrowRight, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
   FileText, FileUp,
   AlignLeft, Eye, EyeOff, Flag, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, PenLine, Plus,
-  RotateCcw, RotateCw, Search, Tag,
+  RotateCcw, RotateCw, Ruler, Search, Tag,
   User, Users, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
 import { SheetRevisions } from "@/components/atlas/sheet-revisions"
 import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import type { AtlasLinkTarget } from "@/services/atlas.service"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
@@ -71,7 +75,7 @@ const SPIN_KEY = "atlas:sheet-spin"
 // Nenhuma ferramenta é um estado, e é o estado normal: sem nada escolhido a
 // prancha se arrasta e amplia, que é o que a mão fazia. A mão era uma
 // ferramenta para voltar ao que já era o padrão, e ocupava um botão para isso.
-type Tool = "pen" | "highlighter" | "pin" | "link" | "erase" | null
+type Tool = "pen" | "highlighter" | "pin" | "link" | "tape" | "erase" | null
 
 // A letra é a inicial do nome da ferramenta, para não haver o que decorar. No
 // desktop ela aparece dentro do botão: quem lê a prancha o dia inteiro não
@@ -84,6 +88,7 @@ const TOOLS = [
   { value: "highlighter", key: "m", label: "Marker",   hint: "Highlight over the sheet",     icon: Highlighter },
   { value: "pin",         key: "n", label: "Punch point", hint: "Tap the sheet to raise a point", icon: Flag },
   { value: "link",        key: "l", label: "Link",     hint: "Drag over the sheet, then pick where it goes", icon: Link2 },
+  { value: "tape",        key: "t", label: "Tape",     hint: "Tap points to measure", icon: Ruler },
   { value: "erase",       key: "e", label: "Eraser",   hint: "Tap a stroke or a pin",        icon: Eraser },
 ] as const satisfies readonly {
   value: NonNullable<Tool>; key: string; label: string; hint: string; icon: React.ElementType
@@ -827,6 +832,48 @@ export function SheetViewer({
   // O ouvinte da roda é nativo e é montado uma vez; sem esta referência ele
   // ficaria preso à ferramenta que estava selecionada quando foi montado.
   const toolRef = useRef<Tool>(null)
+
+  // A trena. A escala é da folha e vale para todos: vem do servidor junto com a
+  // folha, e uma cópia fica no aparelho para medir sem rede. A medida em curso
+  // não se guarda, porque ela é a pergunta do momento e não um registro.
+  const escalaDaFolha = (): Escala | null => {
+    const u = Number(sheet.scaleUnitsPerPt)
+    if (u > 0) return { ptPorPe: 1 / u, rotulo: sheet.scaleLabel || "calibrated" }
+    return lerEscala(sheet.id)
+  }
+  const [escala, setEscala] = useState<Escala | null>(escalaDaFolha)
+  const [salvandoEscala, setSalvandoEscala] = useState(false)
+  const [erroDaEscala, setErroDaEscala] = useState("")
+  const queryClient = useQueryClient()
+  const [fita, setFita] = useState<Ponto[]>([])
+  const [fitaFechada, setFitaFechada] = useState(false)
+  const [calibrando, setCalibrando] = useState<Ponto[] | null>(null)
+  // Onde o dedo desceu com a trena na mão. Só vira ponto se subir no mesmo
+  // lugar: arrastar continua sendo mover a prancha, que é o que se faz entre
+  // uma ponta e outra de uma parede comprida.
+  const toqueDaFita = useRef<{ x: number; y: number } | null>(null)
+  // O ponto da trena que está sendo arrastado, e onde o dedo está: é o que a
+  // lupa precisa para mostrar o que o dedo cobre.
+  const arrastoDaFita = useRef<{ lista: "fita" | "calibra"; indice: number } | null>(null)
+  const [lupa, setLupa] = useState<{ ponto: Ponto; vizinhos: Ponto[]; x: number; y: number } | null>(null)
+
+  // A paleta inteira ou a compacta, decidido pela própria barra.
+  //
+  // A barra do tablet e do computador é uma fileira só, e há larguras em que a
+  // paleta inteira, as espessuras e a dica da ferramenta aberta não cabem juntas:
+  // a barra quebrava em duas linhas. Um breakpoint fixo não resolve, porque a
+  // dica muda de tamanho com a ferramenta (a do vínculo é o dobro da da caneta).
+  // Então a barra se mede: quebrou, ela passa para a cor e a espessura em uso,
+  // com as outras na gaveta, que é o que o tablet já faz.
+  //
+  // A cada mudança de tamanho da janela ela tenta a paleta inteira de novo. Se
+  // quebrar, volta à compacta na mesma passada, antes de a tela ser pintada: o
+  // teste acontece no `useLayoutEffect`, e ninguém vê a barra em duas linhas.
+  const barraRef = useRef<HTMLDivElement | null>(null)
+  const [paletaInteira, setPaletaInteira] = useState(true)
+  // Uma rodada nova força a barra a se medir de novo. Sem ela, estreitar a janela
+  // com a paleta já inteira não redesenhava nada, e a quebra passava sem teste.
+  const [, setRodadaDaBarra] = useState(0)
   const [panning, setPanning] = useState(false)
 
   // ── Procurar na prancha ───────────────────────────────────────────────────
@@ -843,6 +890,16 @@ export function SheetViewer({
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   useEffect(() => { setReady(false); setFailed(false) }, [sheet.id])
+
+  // Folha nova, escala dela e medida zerada: a medida da folha anterior não
+  // quer dizer nada sobre esta, e a escala pode ser outra.
+  useEffect(() => {
+    setEscala(escalaDaFolha())
+    setErroDaEscala("")
+    setFita([])
+    setFitaFechada(false)
+    setCalibrando(null)
+  }, [sheet.id])
   const markReady = useCallback(() => { setReady(true); setFailed(false) }, [])
   const markFailed = useCallback(() => setFailed(true), [])
 
@@ -1063,7 +1120,7 @@ export function SheetViewer({
       // Com caneta na mão a roda não faz nada: quem está desenhando encosta o
       // dedo no scroll sem querer, e o desenho saltando de escala no meio do
       // traço é pior do que não ampliar.
-      if (canAnnotate && toolRef.current) return
+      if (canAnnotate && toolRef.current && toolRef.current !== "tape") return
       e.preventDefault()
       const [x, y] = noPalco(e.clientX, e.clientY)
       zoomAt(Math.exp(-e.deltaY * 0.0015), x, y)
@@ -1122,6 +1179,27 @@ export function SheetViewer({
       // segue sem captura
     }
 
+    if (tool === "tape") {
+      // Tocou em cima de um ponto já posto: arrasta ele, em vez de mover a
+      // prancha. A área de toque é maior que o desenho do ponto, porque o dedo
+      // não acerta um círculo de oito pixels.
+      const lista = calibrando ?? fita
+      const [tx, ty] = noPalco(e.clientX, e.clientY)
+      const indice = lista.findIndex(([nx, ny]) => Math.hypot(
+        view.x + nx * pageWidth * view.scale - tx,
+        view.y + ny * pageHeight * view.scale - ty,
+      ) < 22)
+      if (indice >= 0) {
+        arrastoDaFita.current = { lista: calibrando ? "calibra" : "fita", indice }
+        toqueDaFita.current = null
+        return
+      }
+      toqueDaFita.current = { x: e.clientX, y: e.clientY }
+      gesture.current = { kind: "pan", x: e.clientX, y: e.clientY, view }
+      setPanning(true)
+      return
+    }
+
     // Deslocar é da mão, e de mais nada. Arrastar com a caneta selecionada
     // desenha; com a borracha, apaga. Uma ferramenta, um gesto.
     if (!canAnnotate || !tool) {
@@ -1174,6 +1252,27 @@ export function SheetViewer({
       return
     }
 
+    const arrasto = arrastoDaFita.current
+    if (arrasto) {
+      const ponto = toPage(e.clientX, e.clientY)
+      const ponto01: Ponto = [Math.min(1, Math.max(0, ponto[0])), Math.min(1, Math.max(0, ponto[1]))]
+      const lista = arrasto.lista === "calibra" ? (calibrando ?? []) : fita
+      const nova = lista.map((q, i) => (i === arrasto.indice ? ponto01 : q))
+      if (arrasto.lista === "calibra") setCalibrando(nova)
+      else setFita(nova)
+      // Os vizinhos são os trechos que chegam no ponto; fechada, o primeiro e o
+      // último também se ligam.
+      const n = nova.length
+      const fechar = arrasto.lista === "fita" && fitaFechada && n > 2
+      const vizinhos: Ponto[] = []
+      if (arrasto.indice > 0) vizinhos.push(nova[arrasto.indice - 1])
+      else if (fechar) vizinhos.push(nova[n - 1])
+      if (arrasto.indice < n - 1) vizinhos.push(nova[arrasto.indice + 1])
+      else if (fechar) vizinhos.push(nova[0])
+      setLupa({ ponto: ponto01, vizinhos, x: e.clientX, y: e.clientY })
+      return
+    }
+
     if (g?.kind === "pan") {
       const [dx, dy] = desgira(e.clientX - g.x, e.clientY - g.y)
       setView(clampView(
@@ -1198,6 +1297,32 @@ export function SheetViewer({
     if (pointers.current.size < 2) {
       gesture.current = null
       setPanning(false)
+    }
+
+    if (arrastoDaFita.current) {
+      arrastoDaFita.current = null
+      setLupa(null)
+      return
+    }
+
+    const toque = toqueDaFita.current
+    toqueDaFita.current = null
+    if (tool === "tape" && toque && Math.hypot(e.clientX - toque.x, e.clientY - toque.y) < 6) {
+      const ponto = toPage(e.clientX, e.clientY)
+      if (calibrando) {
+        setCalibrando(lista => (lista && lista.length < 2 ? [...lista, ponto] : lista))
+        return
+      }
+      if (!escala) return
+      // Medida fechada e novo toque: começa outra, em vez de esticar a área
+      // que já foi lida.
+      if (fitaFechada) {
+        setFita([ponto])
+        setFitaFechada(false)
+        return
+      }
+      setFita(lista => [...lista, ponto])
+      return
     }
 
     if (linkBox) {
@@ -1373,8 +1498,36 @@ export function SheetViewer({
     const next = value === toolRef.current ? null : value
     setTool(next)
     toolRef.current = next
+    // Cada ferramenta tem a dica de um tamanho: a barra que não coube com uma
+    // pode caber com a outra, então a paleta inteira é tentada de novo.
+    setPaletaInteira(true)
     value = next as Tool
   }
+
+  useLayoutEffect(() => {
+    const barra = barraRef.current
+    // No celular a barra já é dois blocos por desenho: quebrar é o esperado.
+    if (!barra || !paletaInteira || window.innerWidth < 640) return
+    const [ferramentas, opcoes] = Array.from(barra.children) as HTMLElement[]
+    if (!ferramentas || !opcoes) return
+    if (opcoes.offsetTop > ferramentas.offsetTop + 4) setPaletaInteira(false)
+  })
+
+  useEffect(() => {
+    let espera: ReturnType<typeof setTimeout> | undefined
+    const tentar = () => {
+      clearTimeout(espera)
+      espera = setTimeout(() => {
+        setPaletaInteira(true)
+        setRodadaDaBarra(r => r + 1)
+      }, 120)
+    }
+    window.addEventListener("resize", tentar)
+    return () => {
+      clearTimeout(espera)
+      window.removeEventListener("resize", tentar)
+    }
+  }, [])
 
   // ── Teclado ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -1403,7 +1556,7 @@ export function SheetViewer({
       if (e.key.toLowerCase() === "s") { setTool(null); toolRef.current = null; return }
 
       const picked = TOOLS.find(t => t.key === e.key.toLowerCase())
-      if (picked && canAnnotate) pickTool(picked.value)
+      if (picked && (canAnnotate || picked.value === "tape")) pickTool(picked.value)
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
@@ -1411,15 +1564,27 @@ export function SheetViewer({
 
   const toolButton = ({ value, key, label, hint, icon: Icon }: (typeof TOOLS)[number]) => {
     const active = tool === value
+    // A trena leva sempre uma bolinha: verde quando a folha já tem escala, que é
+    // dizer que dá para medir direto; laranja quando ainda não tem, que é dizer
+    // que o primeiro passo é calibrar. O desenho da ferramenta não muda, para ela
+    // continuar sendo achada no mesmo lugar.
+    const trena = value === "tape"
     return (
       <Button
         key={value}
         variant={active ? "default" : "ghost"}
         onClick={() => pickTool(value)}
-        title={`${label} (${key.toUpperCase()})`}
+        title={value === "tape" && escala ? `${label}, scale ${escala.rotulo} (${key.toUpperCase()})` : `${label} (${key.toUpperCase()})`}
         className="atlas-burst h-9 gap-1.5 px-2 transition-all duration-200"
       >
-        <Icon className="h-4 w-4" />
+        <span className="relative flex">
+          <Icon className="h-4 w-4" />
+          {trena && (
+            <span className={`absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full ring-1 ring-neutral-800 ${
+              escala ? "bg-emerald-400" : "bg-orange-500"
+            }`} />
+          )}
+        </span>
         {/* Aberto só quando ativo, e só onde há largura: a dica é para quem
             acabou de escolher a ferramenta, não uma legenda permanente de
             cinco botões. */}
@@ -1451,6 +1616,7 @@ export function SheetViewer({
   }
 
   const cursor = panning ? "grabbing"
+    : tool === "tape" ? "crosshair"
     : !tool || !canAnnotate ? "grab"
     : tool === "erase" ? "pointer"
     : "crosshair"
@@ -1497,6 +1663,17 @@ export function SheetViewer({
           className="pointer-events-none absolute select-none"
           style={pageStyle}
         >
+          {tool === "tape" && (
+            <TapeOverlay
+              pontos={fita}
+              fechada={fitaFechada}
+              calibrando={calibrando}
+              escala={escala}
+              largura={pageWidth}
+              altura={pageHeight}
+              px={px}
+            />
+          )}
           {/* Entre a resposta do servidor e a limpeza da memória existe um
               quadro em que o mesmo traço está nas duas listas. Sem este filtro
               ele é desenhado duas vezes, com a mesma chave. */}
@@ -2293,200 +2470,288 @@ export function SheetViewer({
         </Button>
       )}
 
-      {canAnnotate && (
+      {(
         // Este cresce quando a ferramenta abre as opções dela, então a altura é
         // piso e não trava: dois blocos empilhados precisam de mais que 50.
-        <div className={`absolute bottom-4 left-4 flex max-w-[calc(100vw-9rem)] flex-wrap items-center gap-2 px-1.5 py-1.5 text-white transition-all duration-200 ${FLUTUA} h-auto min-h-[50px]`}>
-          <div className="flex items-center gap-1">
-            {TOOLS.map(toolButton)}
+        //
+        // Quem só lê também vê a barra, com a trena sozinha nela: medir não
+        // escreve nada na folha, e é pergunta de quem lê tanto quanto de quem
+        // anota.
+        // No celular a barra se parte em dois blocos: as ferramentas embaixo, e
+        // as opções da que está na mão num bloco próprio logo acima. Numa
+        // fileira só, a largura não dava: os seis botões pediam 236 e a barra
+        // tinha 231, e a borracha passava da moldura; aberta uma ferramenta, as
+        // opções quebravam em quatro linhas dentro da mesma moldura, com um fio
+        // vertical sobrando sozinho numa delas.
+        //
+        // Do tablet para cima volta a ser uma barra só, que é onde cabe.
+        <div ref={barraRef} className="absolute bottom-4 left-4 right-[82px] flex flex-col-reverse items-start gap-2 text-white transition-all duration-200 sm:right-auto sm:min-h-[50px] sm:max-w-[calc(100vw-9rem)] sm:flex-row sm:flex-wrap sm:items-center sm:rounded-lg sm:border sm:border-white/10 sm:bg-neutral-800/90 sm:px-1.5 sm:py-1.5 sm:shadow-lg sm:backdrop-blur">
+          <div className={`flex h-[50px] shrink-0 items-center gap-1 px-1.5 ${MOLDURA} sm:h-auto sm:border-0 sm:bg-transparent sm:px-0 sm:shadow-none sm:backdrop-blur-none`}>
+            {(canAnnotate ? TOOLS : TOOLS.filter(t => t.value === "tape")).map(toolButton)}
           </div>
 
-          {drawTool && (
-            <>
-              <span className="h-6 w-px bg-white/15" />
-              {/* Larga, a paleta inteira à mão. Estreita, só a cor em uso, e as
-                  outras esperam na gaveta: encolher o contêiner é o certo, e
-                  não empurrar a prancha para caber tudo. */}
-              <div className="hidden items-center gap-1 lg:flex">
-                {palette.map(c => (
+          {(tool === "tape" || drawTool) && (
+            // No celular, só o Calibrate: o botão voa sozinho, sem moldura em volta.
+            <div className={`flex w-fit max-w-full flex-wrap items-center gap-2 ${
+              tool === "tape" && !escala && !calibrando
+                ? ""
+                : `min-h-[50px] px-1.5 py-1.5 ${MOLDURA} sm:min-h-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none`
+            }`}>
+
+            {tool === "tape" && (
+              <>
+                <span className="hidden h-6 w-px bg-white/15 sm:block" />
+                <TapePanel
+                  escala={escala}
+                  pontos={fita}
+                  fechada={fitaFechada}
+                  calibrando={calibrando}
+                  largura={pageWidth}
+                  altura={pageHeight}
+                  salvando={salvandoEscala}
+                  erroAoSalvar={erroDaEscala}
+                  onEscala={(e, pes) => {
+                    const [a, b] = calibrando ?? []
+                    setEscala(e)
+                    gravarEscala(sheet.id, e)
+                    setCalibrando(null)
+                    setFita([])
+                    setFitaFechada(false)
+                    if (!a || !b) return
+                    // Vai para o servidor, e dali para todos. Se falhar, a escala
+                    // continua valendo neste aparelho, e o chip fica âmbar
+                    // dizendo isso, em vez de a calibração sumir em silêncio.
+                    setSalvandoEscala(true)
+                    setErroDaEscala("")
+                    atlasService.setSheetScale(sheet.id, {
+                      p1x: a[0], p1y: a[1], p2x: b[0], p2y: b[1],
+                      realValue: pes, label: e.rotulo,
+                      widthPt: pageWidth, heightPt: pageHeight,
+                    })
+                      .then(() => queryClient.invalidateQueries({ queryKey: ["atlas", "sheets"] }))
+                      .catch(err => setErroDaEscala(err instanceof Error ? err.message : "not saved"))
+                      .finally(() => setSalvandoEscala(false))
+                  }}
+                  onCalibrar={() => { setCalibrando([]); setFita([]); setFitaFechada(false) }}
+                  onApagarEscala={() => {
+                    setEscala(null)
+                    gravarEscala(sheet.id, null)
+                    setFita([])
+                    setFitaFechada(false)
+                    setErroDaEscala("")
+                    atlasService.clearSheetScale(sheet.id)
+                      .then(() => queryClient.invalidateQueries({ queryKey: ["atlas", "sheets"] }))
+                      .catch(err => setErroDaEscala(err instanceof Error ? err.message : "not deleted"))
+                  }}
+                  onCancelarCalibracao={() => setCalibrando(null)}
+                  onFechar={() => setFitaFechada(true)}
+                  onLimpar={() => { setFita([]); setFitaFechada(false) }}
+                />
+              </>
+            )}
+
+            {drawTool && (
+              <>
+                <span className="hidden h-6 w-px bg-white/15 sm:block" />
+                {/* Larga, a paleta inteira à mão. Estreita, só a cor em uso, e as
+                    outras esperam na gaveta: encolher o contêiner é o certo, e
+                    não empurrar a prancha para caber tudo. */}
+                <div className={`hidden items-center gap-1 ${paletaInteira ? "lg:flex" : ""}`}>
+                  {palette.map(c => (
+                    <button
+                      key={c.value}
+                      onClick={() => setInk({ color: c.value })}
+                      title={c.label}
+                      className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
+                        color === c.value ? "bg-white/20" : "hover:bg-white/10"
+                      }`}
+                    >
+                      <span
+                        style={{ background: c.value }}
+                        className={`h-6 w-6 rounded-full border transition-transform ${
+                          color === c.value ? "scale-110 border-white" : "border-white/30"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                {/* A gaveta sobe do próprio botão, e não do canto da barra: ela é
+                    a continuação dele, e quem tocou aqui procura a resposta aqui.
+                    De pé, na direção em que o dedo já está subindo. */}
+                <span className={`relative ${paletaInteira ? "lg:hidden" : ""}`}>
                   <button
-                    key={c.value}
-                    onClick={() => setInk({ color: c.value })}
-                    title={c.label}
+                    onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
+                    title="Colour"
                     className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
-                      color === c.value ? "bg-white/20" : "hover:bg-white/10"
+                      gaveta === "cor" ? "bg-white/20" : "hover:bg-white/10"
                     }`}
                   >
                     <span
-                      style={{ background: c.value }}
+                      style={{ background: color }}
                       className={`h-6 w-6 rounded-full border transition-transform ${
-                        color === c.value ? "scale-110 border-white" : "border-white/30"
+                        gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
                       }`}
                     />
                   </button>
-                ))}
-              </div>
-              {/* A gaveta sobe do próprio botão, e não do canto da barra: ela é
-                  a continuação dele, e quem tocou aqui procura a resposta aqui.
-                  De pé, na direção em que o dedo já está subindo. */}
-              <span className="relative lg:hidden">
-                <button
-                  onClick={() => setGaveta(g => (g === "cor" ? null : "cor"))}
-                  title="Colour"
-                  className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
-                    gaveta === "cor" ? "bg-white/20" : "hover:bg-white/10"
-                  }`}
-                >
-                  <span
-                    style={{ background: color }}
-                    className={`h-6 w-6 rounded-full border transition-transform ${
-                      gaveta === "cor" ? "scale-110 border-white" : "border-white/30"
-                    }`}
-                  />
-                </button>
-                {gaveta === "cor" && (
-                  <div
-                    className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
-                  >
-                    {/* Sem a cor em uso: ela está no botão logo abaixo, e
-                        repeti-la seria oferecer o que se acabou de tocar. */}
-                    {palette.filter(c => c.value !== color).reverse().map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
-                        title={c.label}
-                        className={`atlas-burst flex items-center justify-center rounded-md transition-colors hover:bg-white/10 ${CASA}`}
-                      >
-                        <span
-                          style={{ background: c.value }}
-                          className="h-6 w-6 rounded-full border border-white/30 transition-transform group-hover:scale-110"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </span>
+                  {gaveta === "cor" && (
+                    <div
+                      className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    >
+                      {/* Sem a cor em uso: ela está no botão logo abaixo, e
+                          repeti-la seria oferecer o que se acabou de tocar. */}
+                      {palette.filter(c => c.value !== color).reverse().map(c => (
+                        <button
+                          key={c.value}
+                          onClick={() => { setInk({ color: c.value }); setGaveta(null) }}
+                          title={c.label}
+                          className={`atlas-burst flex items-center justify-center rounded-md transition-colors hover:bg-white/10 ${CASA}`}
+                        >
+                          <span
+                            style={{ background: c.value }}
+                            className="h-6 w-6 rounded-full border border-white/30 transition-transform group-hover:scale-110"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </span>
 
-              <span className="h-6 w-px bg-white/15" />
-              <div className="hidden items-center gap-1 lg:flex">
-                {widths.map((w, i) => (
+                <span className="hidden h-6 w-px bg-white/15 sm:block" />
+                <div className={`hidden items-center gap-1 ${paletaInteira ? "lg:flex" : ""}`}>
+                  {widths.map((w, i) => (
+                    <button
+                      key={w}
+                      onClick={() => { setInk({ width: w }); showSample() }}
+                      title={`Stroke ${i + 1} of ${widths.length}`}
+                      className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
+                        width === w ? "bg-white/20" : "hover:bg-white/10"
+                      }`}
+                    >
+                      <span
+                        className="rounded-full bg-white"
+                        style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <span className={`relative ${paletaInteira ? "lg:hidden" : ""}`}>
                   <button
-                    key={w}
-                    onClick={() => { setInk({ width: w }); showSample() }}
-                    title={`Stroke ${i + 1} of ${widths.length}`}
+                    onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
+                    title="Stroke width"
                     className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
-                      width === w ? "bg-white/20" : "hover:bg-white/10"
+                      gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
                     }`}
                   >
                     <span
                       className="rounded-full bg-white"
-                      style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
+                      style={{
+                        width: `${3 + widths.indexOf(width) * 3}px`,
+                        height: `${3 + widths.indexOf(width) * 3}px`,
+                      }}
                     />
                   </button>
-                ))}
-              </div>
-              <span className="relative lg:hidden">
+                  {gaveta === "espessura" && (
+                    <div
+                      className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
+                    >
+                      {/* Todas, inclusive a em uso: espessura se escolhe por
+                          comparação, e uma bolinha sozinha diz pouco sobre ser a
+                          fina ou a média. A atual fica fora de alcance, e é por
+                          ela que se sabe qual está valendo. */}
+                      {widths.map((w, i) => [w, i] as const).reverse().map(([w, i]) => {
+                        const atual = w === width
+                        return (
+                          <button
+                            key={w}
+                            disabled={atual}
+                            onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
+                            title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
+                            className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
+                              atual
+                                ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
+                                : "hover:bg-white/10"
+                            }`}
+                          >
+                            <span
+                              className="rounded-full bg-white"
+                              style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
+                            />
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </span>
+
+                <span className="hidden h-6 w-px bg-white/15 sm:block" />
+                {/* Com quem o traço fica. Privado é o padrão, e o botão só ganha
+                    peso quando está ligado: um estado que muda o que os outros
+                    veem não pode ser descoberto depois. */}
                 <button
-                  onClick={() => setGaveta(g => (g === "espessura" ? null : "espessura"))}
-                  title="Stroke width"
-                  className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
-                    gaveta === "espessura" ? "bg-white/20" : "hover:bg-white/10"
+                  type="button"
+                  onClick={() => setInk({ shared: !shared })}
+                  title={shared
+                    ? "Everyone on this project sees what you mark"
+                    : "Only you see what you mark"}
+                  style={shared ? { ["--burst" as string]: "rgb(56 189 248 / 0.45)" } : undefined}
+                  // Sem o rótulo ao lado ele é um botão de ícone como os outros,
+                  // e botão de ícone é quadrado: 36 por 36. Com o rótulo, a
+                  // largura passa a ser a do texto.
+                  className={`atlas-burst flex h-9 items-center justify-start gap-1.5 whitespace-nowrap rounded-md px-2 text-xs font-medium transition-all duration-200 ${
+                    shared
+                      ? "bg-sky-500/20 text-sky-200 ring-1 ring-inset ring-sky-400/40"
+                      : "text-white/50 hover:bg-white/10 hover:text-white/80"
                   }`}
                 >
-                  <span
-                    className="rounded-full bg-white"
-                    style={{
-                      width: `${3 + widths.indexOf(width) * 3}px`,
-                      height: `${3 + widths.indexOf(width) * 3}px`,
-                    }}
-                  />
+                  {shared ? <Users className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                  {/* Quem vê, e não o nome do estado: "privado" e "compartilhado"
+                      obrigam a traduzir para saber o que muda. */}
+                  <span>{shared ? "Everyone sees" : "Only me"}</span>
                 </button>
-                {gaveta === "espessura" && (
-                  <div
-                    className={`absolute bottom-full left-1/2 mb-5 flex w-[50px] -translate-x-1/2 flex-col items-center gap-1 p-1.5 duration-150 animate-in fade-in-0 slide-in-from-bottom-1 ${MOLDURA}`}
-                  >
-                    {/* Todas, inclusive a em uso: espessura se escolhe por
-                        comparação, e uma bolinha sozinha diz pouco sobre ser a
-                        fina ou a média. A atual fica fora de alcance, e é por
-                        ela que se sabe qual está valendo. */}
-                    {widths.map((w, i) => [w, i] as const).reverse().map(([w, i]) => {
-                      const atual = w === width
-                      return (
-                        <button
-                          key={w}
-                          disabled={atual}
-                          onClick={() => { setInk({ width: w }); showSample(); setGaveta(null) }}
-                          title={atual ? "In use" : `Stroke ${i + 1} of ${widths.length}`}
-                          className={`atlas-burst flex items-center justify-center rounded-md transition-colors ${CASA} ${
-                            atual
-                              ? "cursor-default bg-white/10 opacity-40 ring-1 ring-inset ring-white/40"
-                              : "hover:bg-white/10"
-                          }`}
-                        >
-                          <span
-                            className="rounded-full bg-white"
-                            style={{ width: `${3 + i * 3}px`, height: `${3 + i * 3}px` }}
-                          />
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </span>
 
-              <span className="h-6 w-px bg-white/15" />
-              {/* Com quem o traço fica. Privado é o padrão, e o botão só ganha
-                  peso quando está ligado: um estado que muda o que os outros
-                  veem não pode ser descoberto depois. */}
-              <button
-                type="button"
-                onClick={() => setInk({ shared: !shared })}
-                title={shared
-                  ? "Everyone on this project sees what you mark"
-                  : "Only you see what you mark"}
-                style={shared ? { ["--burst" as string]: "rgb(56 189 248 / 0.45)" } : undefined}
-                // Sem o rótulo ao lado ele é um botão de ícone como os outros,
-                // e botão de ícone é quadrado: 36 por 36. Com o rótulo, a
-                // largura passa a ser a do texto.
-                className={`atlas-burst flex h-9 w-9 items-center justify-center gap-1.5 rounded-md text-xs font-medium transition-all duration-200 lg:w-auto lg:justify-start lg:px-2 ${
-                  shared
-                    ? "bg-sky-500/20 text-sky-200 ring-1 ring-inset ring-sky-400/40"
-                    : "text-white/50 hover:bg-white/10 hover:text-white/80"
-                }`}
-              >
-                {shared ? <Users className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                {/* Quem vê, e não o nome do estado: "privado" e "compartilhado"
-                    obrigam a traduzir para saber o que muda. */}
-                <span className="hidden lg:inline">{shared ? "Everyone sees" : "Only me"}</span>
-              </button>
-
-              {/* A amostra do traço escolhido, do tamanho que ele vai sair no
-                  zoom em que a prancha está. Uma bolinha de sete pixels no botão
-                  não diz nada sobre o que cai no papel; esta linha diz. */}
-              <div
-                // Fechada, a amostra tem largura zero mas continua sendo filha
-                // da fileira, e o vão de oito da fileira sobra depois do último
-                // botão. A margem negativa devolve esse vão enquanto ela está
-                // fechada, sem tirá-la do fluxo: fora dele, a abertura deixaria
-                // de ser animada.
-                className={`flex items-center overflow-hidden transition-all duration-200 ${
-                  sample ? "max-w-[9rem] opacity-100" : "-ml-2 max-w-0 opacity-0"
-                }`}
-              >
-                <span className="flex h-9 w-32 shrink-0 items-center justify-center rounded-md bg-white px-2">
-                  <span
-                    className="w-full rounded-full"
-                    style={{
-                      background: color,
-                      opacity,
-                      height: Math.max(1, Math.min(28, width * strokeScale * view.scale)),
-                    }}
-                  />
-                </span>
-              </div>
-            </>
+                {/* A amostra do traço escolhido, do tamanho que ele vai sair no
+                    zoom em que a prancha está. Uma bolinha de sete pixels no botão
+                    não diz nada sobre o que cai no papel; esta linha diz. */}
+                <div
+                  // Fechada, a amostra tem largura zero mas continua sendo filha
+                  // da fileira, e o vão de oito da fileira sobra depois do último
+                  // botão. A margem negativa devolve esse vão enquanto ela está
+                  // fechada, sem tirá-la do fluxo: fora dele, a abertura deixaria
+                  // de ser animada.
+                  className={`flex items-center overflow-hidden transition-all duration-200 ${
+                    sample ? "max-w-[9rem] opacity-100" : "-ml-2 max-w-0 opacity-0"
+                  }`}
+                >
+                  <span className="flex h-9 w-32 shrink-0 items-center justify-center rounded-md bg-white px-2">
+                    <span
+                      className="w-full rounded-full"
+                      style={{
+                        background: color,
+                        opacity,
+                        height: Math.max(1, Math.min(28, width * strokeScale * view.scale)),
+                      }}
+                    />
+                  </span>
+                </div>
+              </>
+            )}
+            </div>
           )}
         </div>
+      )}
+
+      {lupa && tool === "tape" && (
+        <TapeLoupe
+          ponto={lupa.ponto}
+          vizinhos={lupa.vizinhos}
+          clientX={lupa.x}
+          clientY={lupa.y}
+          palco={boxRef.current}
+          view={view}
+          largura={pageWidth}
+          altura={pageHeight}
+          larguraDoPalco={size.width}
+        />
       )}
 
       {/* Nome do destino e o botão de ir, ancorados onde o dedo tocou. */}

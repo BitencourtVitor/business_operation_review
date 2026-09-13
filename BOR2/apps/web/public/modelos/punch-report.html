@@ -34,7 +34,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; color: #18181b;
-    font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font: 11px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
     background: #fff;
   }
@@ -286,7 +286,7 @@
   @media print {
     /* Na impressão a margem é do papel, e a folha deixa de ter a dela: o
        tamanho já vem do @page, e repetir o padding aqui daria margem dobrada. */
-    @page { margin: 10mm; }
+    @page { size: A4; margin: 10mm; }
     /* A folha continua sendo uma folha: a altura é a da página menos as
        margens (297 menos dois de dez), e não "o que o conteúdo pedir". Com
        altura automática o rodapé colava no fim do último ponto e o resto do

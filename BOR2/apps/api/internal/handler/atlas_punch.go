@@ -79,6 +79,12 @@ type punchPoint struct {
 	CreatedRole string `json:"createdRole"`
 	CreatedAt   string `json:"createdAt"`
 	ResolvedAt  string `json:"resolvedAt"`
+	// Quem marcou o ponto como resolvido. O relatório assina a metade da
+	// solução com isso, do mesmo jeito que assina o problema com quem levantou;
+	// sem estes dois, a correção saía só com a data, e uma correção sem autor
+	// não se confere com ninguém.
+	ResolvedName string `json:"resolvedName"`
+	ResolvedRole string `json:"resolvedRole"`
 }
 
 // A contagem de mídia por fase e por tipo.
@@ -106,13 +112,15 @@ const punchSelect = `
 	         WHERE m.event_id = e.id AND m.status = 'uploaded' AND m.phase = 'after'
 	           AND (m.content_type LIKE 'image/%' OR m.content_type LIKE 'video/%')),
 	       (SELECT count(*) FROM atlas_event_reply r WHERE r.event_id = e.id),
-	       e.created_by, COALESCE(u.name,''), COALESCE(u.role::text,''), e.created_at, e.resolved_at
+	       e.created_by, COALESCE(u.name,''), COALESCE(u.role::text,''), e.created_at, e.resolved_at,
+	       COALESCE(ru.name,''), COALESCE(ru.role::text,'')
 	  FROM atlas_event e
 	  JOIN atlas_sheet s              ON s.id = e.sheet_id
 	  JOIN atlas_document_version v   ON v.id = s.version_id
 	  JOIN atlas_document d           ON d.id = v.document_id
 	  JOIN atlas_documento_escopo esc ON esc.document_id = d.id
 	  LEFT JOIN users u               ON u.id = e.created_by
+	  LEFT JOIN users ru              ON ru.id = e.resolved_by
 	 WHERE e.jobsite_id = $1
 	   AND ($2 = '' OR e.punch_id = $2)
 	   AND ($3 = '' OR esc.scope_value = $3)
@@ -154,7 +162,8 @@ func (h *AtlasHandler) ListPunchList(c *fiber.Ctx) error {
 			&p.DocumentID, &p.Document, &p.Category, &p.Subcategory,
 			&p.ScopeKind, &p.ScopeValue,
 			&p.PageX, &p.PageY, &p.Photos, &p.Videos, &p.Audios, &p.After, &p.Comments,
-			&p.CreatedBy, &p.CreatedName, &p.CreatedRole, &created, &resolved); err != nil {
+			&p.CreatedBy, &p.CreatedName, &p.CreatedRole, &created, &resolved,
+			&p.ResolvedName, &p.ResolvedRole); err != nil {
 			continue
 		}
 		p.CreatedAt = created.Format(time.RFC3339)

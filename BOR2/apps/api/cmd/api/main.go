@@ -699,6 +699,7 @@ func main() {
 	atlas.Get("/jobsites/:id/punch-list/subcategories", atlasHandler.PunchListSubcategories)
 	atlas.Get("/jobsites/:id/punch-list/scopes", atlasHandler.PunchListScopes)
 	atlas.Get("/jobsites/:id/punch-list/media", atlasHandler.PunchListMedia)
+	atlas.Post("/jobsites/:id/punch-list/report.pdf", atlasHandler.PunchReportPDF)
 	atlas.Get("/jobsites/:id/punches", atlasHandler.ListPunches)
 	atlas.Post("/jobsites/:id/punches", atlasHandler.OpenPunch)
 	atlas.Post("/punches/:id/close", atlasHandler.ClosePunch)
@@ -725,6 +726,7 @@ func main() {
 
 	// Escala da prancha e medição sobre ela.
 	atlas.Put("/sheets/:id/scale", atlasHandler.SetSheetScale)
+	atlas.Delete("/sheets/:id/scale", atlasHandler.ClearSheetScale)
 
 	// Parâmetros de operação, mutáveis sem deploy.
 	atlas.Get("/policy", atlasHandler.ListPolicy)
