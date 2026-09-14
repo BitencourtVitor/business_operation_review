@@ -54,7 +54,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "subcontractor_docs", label: "Subcontractor Docs",        icon: FileText      },
       {
         key: "pcg_bid_requests", label: "PCG Bids and Contracts", image: "/images/icon_pcg.png",
-        writeLabel: "Edit projects & trade catalog",
+        writeLabel: "Edit projects & trades",
       },
       // O Atlas não entra aqui enquanto estiver em construção: o acesso é do
       // papel dev, e uma chave que não muda nada seria só ruído na tela de
@@ -445,13 +445,17 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
               <span className="text-xs font-semibold">Page</span>
               <span className="text-[11px] text-muted-foreground">Select a page to manage access</span>
             </div>
-            <div className="flex w-64 shrink-0 flex-col border-r border-border px-3 py-2.5">
-              <span className="text-xs font-semibold">No Access</span>
-              <span className="text-[11px] text-muted-foreground">Drag to grant access to this page</span>
+            <div className="min-w-0 flex-[4_4_0%] border-r border-border">
+              <div className="flex flex-col px-3 py-2.5">
+                <span className="text-xs font-semibold">No Access</span>
+                <span className="text-[11px] text-muted-foreground">Drag to grant access to this page</span>
+              </div>
             </div>
-            <div className="flex flex-1 flex-col px-3 py-2.5">
-              <span className="text-xs font-semibold">Has Access</span>
-              <span className="text-[11px] text-muted-foreground">Drag to revoke · toggle read / write</span>
+            <div className="min-w-0 flex-[5_5_0%]">
+              <div className="flex flex-col px-3 py-2.5">
+                <span className="text-xs font-semibold">Has Access</span>
+                <span className="text-[11px] text-muted-foreground">Drag to revoke · toggle read / write</span>
+              </div>
             </div>
           </div>
         )}
@@ -475,14 +479,14 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
               {/* No Access */}
               <div
                 className={cn(
-                  "flex w-64 shrink-0 flex-col overflow-hidden border-r border-border p-3 transition-colors",
+                  "flex min-w-0 flex-[4_4_0%] flex-col overflow-hidden border-r border-border transition-colors",
                   dragOver === "no-access" && "bg-muted/60",
                 )}
                 onDragOver={e => { e.preventDefault(); setDragOver("no-access") }}
                 onDragLeave={() => setDragOver(null)}
                 onDrop={() => handleDrop("no-access")}
               >
-                <div className="flex flex-1 flex-col gap-1.5">
+                <div className="flex flex-1 flex-col gap-1.5 p-3">
                   {withoutAccess.map(u => (
                     <UserCard
                       key={u.id}
@@ -506,7 +510,7 @@ export function PermissionsModal({ open, onClose }: { open: boolean; onClose: ()
               {/* Has Access */}
               <div
                 className={cn(
-                  "flex flex-1 flex-col overflow-hidden transition-colors",
+                  "flex min-w-0 flex-[5_5_0%] flex-col overflow-hidden transition-colors",
                   dragOver === "access" && "bg-primary/5",
                 )}
                 onDragOver={e => { e.preventDefault(); setDragOver("access") }}
