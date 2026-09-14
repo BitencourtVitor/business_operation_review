@@ -38,7 +38,8 @@ import (
 // Terminadas as folhas, os vínculos: a mesma varredura do autolink, sobre o
 // texto com posição que o poppler devolve, gravada como automática.
 //
-// O poppler faz o trabalho de PDF (pdftotext, pdfseparate, pdftoppm). Foi ele
+// O trabalho de PDF é de ferramenta pronta: o poppler lê texto e desenha a
+// prévia (pdftotext, pdftoppm), e o MuPDF recorta (mutool merge). Foi o poppler
 // que mediu bem em 31/08, e reimplementar corte e render em Go seria trabalho
 // sem retorno.
 
@@ -349,12 +350,15 @@ func (h *AtlasHandler) processarPagina(
 	n := strconv.Itoa(i + 1)
 	base := filepath.Join(dir, fmt.Sprintf("p%04d", i))
 
-	// Recorte: um PDF de uma página. pdfseparate exige %d no nome.
-	recorte := base + "-%d.pdf"
-	if err := rodar(ctx, "pdfseparate", "-f", n, "-l", n, original, recorte); err != nil {
-		return fmt.Errorf("pdfseparate: %w", err)
+	// Recorte: um PDF de uma página, pelo MuPDF. O pdfseparate foi descartado em
+	// 14/09: no set do Bluebeam Stapler a página arrasta o dicionário de recursos
+	// compartilhado inteiro, e 38 das 51 folhas saíram com 112 MB cada, o set todo.
+	// O merge do MuPDF copia só o que a página alcança e o garbage=4 descarta o
+	// resto: o mesmo set deu 133 MB somando as 51, mediana de 0,87 MB.
+	recorte := base + ".pdf"
+	if err := rodar(ctx, "mutool", "merge", "-o", recorte, "-O", "garbage=4,compress", original, n); err != nil {
+		return fmt.Errorf("mutool merge: %w", err)
 	}
-	recorte = fmt.Sprintf(base+"-%d.pdf", i+1)
 
 	// Prévia: JPEG de 300 px de largura, fundo branco.
 	if err := rodar(ctx, "pdftoppm", "-jpeg", "-jpegopt", "quality=80",

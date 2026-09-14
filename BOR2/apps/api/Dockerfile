@@ -46,7 +46,7 @@ RUN apk --no-cache add ca-certificates tzdata
 # O caminho do binário não é fixado: o chromedp procura "chromium" e
 # "chromium-browser" no PATH, e o Alpine já mudou esse nome de uma versão para
 # outra. CHROME_BIN, se existir, manda.
-RUN apk --no-cache add chromium font-noto poppler-utils
+RUN apk --no-cache add chromium font-noto poppler-utils mupdf-tools
 
 WORKDIR /root/
 
