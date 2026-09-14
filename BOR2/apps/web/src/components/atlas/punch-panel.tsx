@@ -20,7 +20,7 @@ import type { AtlasPunchPoint, AtlasPunchScope } from "@/services/atlas.service"
 import {
   Building2, Camera, CalendarDays, CheckCircle2, ChevronDown, ClipboardCheck,
   Clock, Eye, FileText, Layers, LocateFixed,
-  Tag, Trash2, Video,
+  Tag, Trash2, Video, WifiOff,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -555,9 +555,18 @@ function PunchScopeView({
                   className="flex w-full min-w-0 flex-col gap-1 p-3 text-left"
                 >
                   <span className="flex min-w-0 items-center gap-2">
-                    {p.number != null && (
+                    {p.number != null ? (
                       <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
                         {p.number}
+                      </span>
+                    ) : (
+                      // No lugar do número, o aviso de que o ponto ainda não
+                      // subiu: é a mesma pílula vermelha da prancha.
+                      <span
+                        title="Waiting for signal"
+                        className="flex shrink-0 items-center rounded bg-red-500/15 px-1.5 py-1 text-red-500"
+                      >
+                        <WifiOff className="h-3 w-3" />
                       </span>
                     )}
                     {/* O que identifica o ponto é o número e a prancha em que

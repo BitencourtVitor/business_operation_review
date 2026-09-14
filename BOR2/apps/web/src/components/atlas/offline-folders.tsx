@@ -2,9 +2,10 @@
 
 import { useLiveQuery } from "dexie-react-hooks"
 import {
-  AlertTriangle, CloudAlert, CloudCheck, CloudDownload, Download, Eye, FileText, HardDrive, Layers,
-  Loader2, Eraser, WifiOff, X,
+  AlertTriangle, AlignLeft, CloudAlert, CloudCheck, CloudDownload, Download, Eye, File, FileText,
+  HardDrive, Images, Layers, Loader2, Eraser, WifiOff, X,
 } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { tagLabel } from "@/components/atlas/document-tags-dialog"
@@ -12,6 +13,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { useAtlasDocuments } from "@/hooks/use-atlas"
+import { atlasService } from "@/services/atlas.service"
 import { aquecerRotas, paginaGuardada } from "@/lib/offline/aquecer"
 import { baixarDadosDaObra } from "@/lib/offline/dados-da-obra"
 import { local, type PastaLocal } from "@/lib/offline/db"
@@ -115,6 +117,60 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
     }
     return r
   }, [planos])
+
+  // O peso das pranchas: o PDF e a miniatura de cada folha, a mesma conta de
+  // cada pasta na lista. É uma parte do total da obra, ao lado das fotos e do
+  // escrito, que o download da obra traz junto.
+  const pesoDosPlanos = useMemo(() => {
+    if (!disco) return 0
+    const vistos = new Set<string>()
+    let soma = 0
+    for (const c of Object.values(porPasta)) {
+      for (const caminho of c.caminhos) {
+        if (vistos.has(caminho)) continue
+        vistos.add(caminho)
+        soma += disco.porArquivo.get(caminho) ?? 0
+      }
+    }
+    return soma
+  }, [porPasta, disco])
+
+  // As fotos e os vídeos da obra no aparelho: os dos pontos, os que esperam
+  // sinal para subir e os anexos das versões. Moram na mesma pasta dos PDFs.
+  const midias = useLiveQuery(
+    () => local.midias.where("obraId").equals(jobsiteId).toArray(),
+    [jobsiteId],
+  )
+  const pesoDasMidias = useMemo(() => {
+    if (!disco) return 0
+    const vistos = new Set<string>()
+    let soma = 0
+    for (const m of midias ?? []) {
+      if (!m.arquivo || vistos.has(m.arquivo)) continue
+      vistos.add(m.arquivo)
+      soma += disco.porArquivo.get(m.arquivo) ?? 0
+    }
+    return soma
+  }, [midias, disco])
+
+  // O escrito: pontos, rodadas, traços, índice das pastas e o que espera sinal,
+  // guardados no banco do aparelho. Não há como perguntar ao navegador quanto
+  // uma obra ocupa lá dentro, então a conta é o tamanho do próprio registro.
+  const pesoEscrito = useLiveQuery(async () => {
+    const [respostas, marcas, planosDaObra, pastasDaObra, fila] = await Promise.all([
+      local.respostas.where("obraId").equals(jobsiteId).toArray(),
+      local.marcas.where("obraId").equals(jobsiteId).toArray(),
+      local.planos.where("obraId").equals(jobsiteId).toArray(),
+      local.pastas.where("obraId").equals(jobsiteId).toArray(),
+      local.fila.where("obraId").equals(jobsiteId).toArray(),
+    ])
+    return new Blob([JSON.stringify([respostas, marcas, planosDaObra, pastasDaObra, fila])]).size
+  }, [jobsiteId]) ?? 0
+
+  // O que sobra na pasta da obra e não é prancha nem mídia conhecida: arquivo
+  // de download interrompido, por exemplo. Aparece só quando existe.
+  const pesoOutros = Math.max(0, (disco?.total ?? 0) - pesoDosPlanos - pesoDasMidias)
+  const pesoTotal = (disco?.total ?? 0) + pesoEscrito
 
   const mapaPastas = useMemo(() => new Map((pastas ?? []).map(p => [p.id, p])), [pastas])
 
@@ -250,10 +306,23 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
   // O que ainda falta descer, pelo tamanho que o servidor informa. É o número
   // que o botão mostra antes de baixar: aceitar sem saber o peso é assinar em
   // branco o espaço do aparelho.
+  //
+  // O download traz a obra inteira, e não só as pranchas: soma também as fotos,
+  // os vídeos e os anexos que ainda não estão no aparelho. O escrito fica de
+  // fora da estimativa; perto disso ele é pouco, e o servidor não tem como
+  // medir o que ele vira aqui.
+  const { data: tamanhoNoServidor } = useQuery({
+    queryKey: ["atlas", "offline-size", jobsiteId],
+    queryFn: () => atlasService.jobsiteOfflineSize(jobsiteId),
+    enabled: online && !!jobsiteId,
+    staleTime: 60_000,
+  })
   const pesoPendente = useMemo(() => {
     const porDoc = new Map(documentos.map(d => [d.id, d.bytes ?? 0]))
-    return faltando.reduce((t, l) => t + (porDoc.get(l.id) || l.pasta?.bytes || 0), 0)
-  }, [faltando, documentos])
+    const pranchas = faltando.reduce((t, l) => t + (porDoc.get(l.id) || l.pasta?.bytes || 0), 0)
+    const fotos = Math.max(0, (tamanhoNoServidor?.mediaBytes ?? 0) - pesoDasMidias)
+    return pranchas + fotos
+  }, [faltando, documentos, tamanhoNoServidor, pesoDasMidias])
 
   // Cabe no aparelho? A medida é do navegador e muda com o tempo, então é
   // refeita quando o que falta muda e quando a faixa volta a aparecer.
@@ -337,7 +406,7 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
             <span className={`truncate whitespace-nowrap text-xs tabular-nums text-muted-foreground ${
               salva && disco ? "" : "hidden sm:inline"
             }`}>
-              {salva && disco ? mb(disco.total) : "Not saved"}
+              {salva && disco ? mb(pesoTotal) : "Not saved"}
             </span>
           </span>
         )}
@@ -479,12 +548,31 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
               espaço, com a frase que diz o que ela apaga e o que não apaga: sem
               as ações por pasta, é o único jeito de devolver o que foi baixado. */}
           <div className="flex flex-col gap-3 border-t border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
-            <div className="flex items-center justify-between gap-3">
-              <span>This project on this device</span>
-              <span className="shrink-0 tabular-nums">
-                <span className="font-medium text-foreground">{mb(disco?.total ?? 0)}</span>
-                {espaco?.suportado && espaco.cota > 0 && ` of ${mb(espaco.cota)}`}
-              </span>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <span>This project on this device</span>
+                <span className="shrink-0 tabular-nums">
+                  <span className="font-medium text-foreground">{mb(pesoTotal)}</span>
+                  {espaco?.suportado && espaco.cota > 0 && ` of ${mb(espaco.cota)}`}
+                </span>
+              </div>
+              {/* De que é feito o total. A faixa de cima conta só as pranchas,
+                  que é o que se escolheu baixar; aqui aparece o resto, para o
+                  número de baixo não ficar três vezes maior sem explicação. */}
+              {[
+                { icone: FileText, rotulo: "Plans", bytes: pesoDosPlanos },
+                { icone: Images, rotulo: "Photos and videos", bytes: pesoDasMidias },
+                { icone: AlignLeft, rotulo: "Written data", bytes: pesoEscrito },
+                { icone: File, rotulo: "Other files", bytes: pesoOutros },
+              ].filter(l => l.rotulo !== "Other files" || l.bytes > 0).map(l => (
+                <div key={l.rotulo} className="flex items-center justify-between gap-3 pl-1">
+                  <span className="flex items-center gap-1.5">
+                    <l.icone className="h-3.5 w-3.5 shrink-0" />
+                    {l.rotulo}
+                  </span>
+                  <span className="shrink-0 tabular-nums">{mb(l.bytes)}</span>
+                </div>
+              ))}
             </div>
             {salva && !baixando && (
               <SegurarParaLimpar ocupado={removendo} onConfirmar={() => void remover()} />

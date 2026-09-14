@@ -674,6 +674,7 @@ func main() {
 	atlas.Get("/jobsites", atlasHandler.ListJobsites)
 	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
 	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)
+	atlas.Get("/jobsites/:id/offline-size", atlasHandler.JobsiteOfflineSize)
 	atlas.Patch("/jobsites/:id", atlasHandler.UpdateJobsite)
 	atlas.Get("/jobsites/:id/access", atlasHandler.ListAccess)
 	atlas.Put("/jobsites/:id/access/:userId", atlasHandler.GrantAccess)

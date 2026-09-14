@@ -2504,6 +2504,28 @@ func (h *AtlasHandler) ListMedia(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": out})
 }
 
+// GET /atlas/jobsites/:id/offline-size
+//
+// Quanto a obra pesa no aparelho além das pranchas: as fotos e os vídeos dos
+// pontos e os anexos das versões, que o download da obra traz junto. As
+// pranchas já vêm com o tamanho na lista de pastas; sem isto, o botão de baixar
+// prometia o peso dos PDFs e o aparelho recebia três vezes mais.
+func (h *AtlasHandler) JobsiteOfflineSize(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if err := h.require(c, id, "read"); err != nil {
+		return atlasForbidden(c)
+	}
+	var media int64
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT COALESCE(sum(byte_size), 0) FROM atlas_media
+		 WHERE jobsite_id = $1 AND status = 'uploaded'
+		   AND content_type NOT LIKE 'audio/%'
+		   AND (event_id IS NOT NULL OR version_id IS NOT NULL)`, id).Scan(&media); err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"mediaBytes": media}})
+}
+
 // ── Sala da obra ────────────────────────────────────────────────────────────
 
 // GET /atlas/jobsites/:id — a obra com o que a sala precisa para abrir: a obra,

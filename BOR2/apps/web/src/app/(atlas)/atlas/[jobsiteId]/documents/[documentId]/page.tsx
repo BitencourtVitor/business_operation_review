@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasJobsiteCategories, useAtlasSheets,
+  usePendenciasPorFolha,
   useAtlasThumbs, useAtlasVersions,
   usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
@@ -33,7 +34,7 @@ import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.serv
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft, Check, CheckCheck, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
-  Pencil, ScanText, SquareDashedMousePointer, Tags, X,
+  Pencil, ScanText, SquareDashedMousePointer, Tags, WifiOff, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -70,8 +71,10 @@ function bytes(n: number) {
 // identificação no rodapé. É como o Fieldwire e o MiTek mostram um set, e por um
 // motivo prático: o que distingue uma planta da outra é o desenho, não o número
 // dela. Em lista, a imagem cabia em 64x48 e não distinguia nada.
-function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picked, march, onPick, onOpen }: {
+function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picked, march, pendente, onPick, onOpen }: {
   sheet: AtlasSheet; versionId: string; canManage: boolean; thumb?: string
+  /** O que esta folha tem esperando sinal para subir. */
+  pendente?: { pontos: number; total: number }
   /** Ainda na fila do corte: o recorte dela não existe no bucket. */
   waiting?: boolean
   /** A grade está em modo de escolha: a folha ganha caixa e o toque marca. */
@@ -83,6 +86,10 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
   onOpen: () => void
 }) {
   const update = useUpdateAtlasSheet(versionId)
+  // A contagem do servidor não conhece o ponto criado sem sinal: ele entra aqui
+  // até subir, e aí passa a vir na contagem de lá e sai da fila.
+  const notas = sheet.notes + (pendente?.pontos ?? 0)
+  const esperando = pendente?.total ?? 0
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState({ sheetNumber: sheet.sheetNumber, title: sheet.title })
 
@@ -254,7 +261,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
 
           Folha sem marca nenhuma não tem rodapé: a faixa vazia comia altura da
           prancha em 96 de 97 cartões para não dizer nada. */}
-      {(sheet.links > 0 || sheet.highlights > 0 || sheet.notes > 0 || sheet.revisions > 1) && (
+      {(sheet.links > 0 || sheet.highlights > 0 || notas > 0 || sheet.revisions > 1 || esperando > 0) && (
       <div className="flex h-6 shrink-0 items-center justify-evenly gap-1 px-2 pb-1.5 text-[11px] text-muted-foreground">
         {sheet.links > 0 && (
           <span className="flex items-center gap-1" title={`${sheet.links} link${sheet.links > 1 ? "s" : ""}`}>
@@ -268,12 +275,24 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
             {sheet.highlights}
           </span>
         )}
-        {sheet.notes > 0 && (
-          <span className="flex items-center gap-1" title={`${sheet.notes} note${sheet.notes > 1 ? "s" : ""}`}>
+        {notas > 0 && (
+          <span className="flex items-center gap-1" title={`${notas} note${notas > 1 ? "s" : ""}`}>
             {/* Bandeira, e não alfinete de mapa: o alfinete diz "lugar", e o que
                 se conta aqui é problema apontado na folha. */}
             <Flag className="h-3.5 w-3.5" style={{ color: MARK_COLORS.note }} />
-            {sheet.notes}
+            {notas}
+          </span>
+        )}
+        {/* O que foi feito nesta folha sem sinal e ainda não subiu. Vermelho
+            porque é a única coisa do rodapé que ainda não está no servidor:
+            some sozinho quando a fila esvazia. */}
+        {esperando > 0 && (
+          <span
+            className="flex items-center gap-1 text-red-500"
+            title={`${esperando} change${esperando > 1 ? "s" : ""} waiting for signal`}
+          >
+            <WifiOff className="h-3.5 w-3.5" />
+            {esperando}
           </span>
         )}
         {/* A prancha já foi trocada. Uma revisão é toda folha, então só conta a
@@ -294,6 +313,7 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
 export default function DocumentPage() {
   const { jobsiteId, documentId } = useParams<{ jobsiteId: string; documentId: string }>()
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
+  const pendencias = usePendenciasPorFolha(jobsiteId)
   const { data: documents } = useAtlasDocuments(jobsiteId)
   const categoriasDaObra = useCategoriasDaObra(jobsite?.client ?? "", jobsite?.kind ?? "")
   const { data: versions, isLoading } = useAtlasVersions(documentId)
@@ -1215,6 +1235,7 @@ export default function DocumentPage() {
                         picking={!!picking}
                         picked={chosen.has(s.id)}
                         march={picking === "range" && chosen.has(s.id)}
+                        pendente={pendencias[s.id]}
                         onPick={() => pick(s, sheets)}
                         onOpen={() => setOpenSheet(s)}
                       />

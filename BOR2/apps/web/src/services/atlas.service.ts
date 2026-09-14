@@ -544,6 +544,9 @@ export const atlasService = {
 
   listJobsites: () => api.get<AtlasJobsite[]>(`${base}/jobsites`, getToken()).then(r => r ?? []),
   getJobsite: (id: string) => api.get<AtlasJobsite>(`${base}/jobsites/${id}`, getToken()),
+  /** O peso de fotos, vídeos e anexos da obra, que o download traz além das pranchas. */
+  jobsiteOfflineSize: (id: string) =>
+    api.get<{ mediaBytes: number }>(`${base}/jobsites/${id}/offline-size`, getToken()),
   createJobsite: (body: Partial<AtlasJobsite>) =>
     api.post<{ id: string }>(`${base}/jobsites`, body, getToken()),
   updateJobsite: (id: string, patch: Partial<AtlasJobsite>) =>

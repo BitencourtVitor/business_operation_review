@@ -8,6 +8,8 @@ import {
   apagarMarca, apagarPonto, criarMarca, criarPonto, escreverSimples, mudarMarca,
   mudarPonto, subirMidia, temPendencias,
 } from "@/lib/offline/escrever"
+import { pendenciasPorFolha, type PendenciaDaFolha } from "@/lib/offline/pendencias"
+import { useLiveQuery } from "dexie-react-hooks"
 import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
 import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
@@ -598,6 +600,17 @@ export function useAtlasEvents(jobsiteId: string, sheetId?: string) {
     },
     enabled: !!jobsiteId,
   })
+}
+
+/**
+ * O que cada folha da obra tem esperando sinal. Vivo: a fila do aparelho muda e
+ * a tela acompanha, sem esperar consulta nenhuma ser invalidada.
+ */
+export function usePendenciasPorFolha(jobsiteId: string): Record<string, PendenciaDaFolha> {
+  return useLiveQuery(
+    () => (jobsiteId ? pendenciasPorFolha(jobsiteId) : Promise.resolve({})),
+    [jobsiteId],
+  ) ?? {}
 }
 
 export function useCreateAtlasEvent(jobsiteId: string, sheetId?: string) {
