@@ -582,6 +582,15 @@ export default function DocumentPage() {
 
   const { data: sheets } = useAtlasSheets(versionId)
   const { data: job } = useIngestJob(versionId)
+  // "Pronto" é aviso de fim de envio, não estado da versão: só aparece para
+  // quem acompanhou a versão subindo ou processando nesta visita. Quem abre um
+  // set que terminou antes não precisa ser avisado de novo.
+  const [acompanhada, setAcompanhada] = useState("")
+  const jobAndando = job?.status === "queued" || job?.status === "running"
+  useEffect(() => {
+    if (versionId && (envio || jobAndando)) setAcompanhada(versionId)
+  }, [versionId, envio, jobAndando])
+  const jobVisivel = job?.status === "done" && acompanhada !== versionId ? undefined : job
   const retry = useMutation({
     mutationFn: () => atlasService.ingestRetry(versionId),
     onSuccess: () => { setFechado(false); qc.invalidateQueries({ queryKey: ["atlas", "ingest", versionId] }) },
@@ -1061,7 +1070,7 @@ export default function DocumentPage() {
           {!fechado && (
             <EnvioStatus
               envio={envio}
-              job={job}
+              job={jobVisivel}
               canManage={!!canManage}
               onClose={() => { setEnvio(null); setFechado(true) }}
               onRetry={() => retry.mutate()}
