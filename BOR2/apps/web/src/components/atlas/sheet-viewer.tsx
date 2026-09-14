@@ -754,6 +754,7 @@ export function SheetViewer({
   // O que o note vai levar junto: foto da obra, tirada na hora ou escolhida do
   // rolo. Sobe depois do note existir, porque a mídia se pendura nele.
   const [notePhotos, setNotePhotos] = useState<File[]>([])
+  const videoDaNotaRef = useRef<HTMLInputElement>(null)
   const [savingNote, setSavingNote] = useState(false)
   // A câmera do Atlas por cima do formulário: ela fica aberta enquanto a pessoa
   // dispara, e o formulário espera embaixo com as fotos entrando na fila.
@@ -2341,7 +2342,7 @@ export function SheetViewer({
           transformado passa a valer o elemento, não a tela. */}
       {camera && createPortal(
         <CameraShot
-          fotos={notePhotos}
+          fotos={notePhotos.filter(f => !f.type.startsWith("video/"))}
           onCapture={f => setNotePhotos(list => [...list, f])}
           onClose={() => setCamera(false)}
           onSistema={() => { setCamera(false); cameraRef.current?.click() }}
@@ -3004,7 +3005,16 @@ export function SheetViewer({
           <PhotoGrid
             fotos={notePhotos}
             onAdd={() => setCamera(true)}
+            onAddVideo={() => videoDaNotaRef.current?.click()}
             onRemove={i => setNotePhotos(list => list.filter((_, k) => k !== i))}
+          />
+          <input
+            ref={videoDaNotaRef} type="file" accept="video/*" capture="environment" className="hidden"
+            onChange={e => {
+              const escolhidos = Array.from(e.target.files ?? [])
+              e.target.value = ""
+              if (escolhidos.length) setNotePhotos(list => [...list, ...escolhidos])
+            }}
           />
 
           <DialogFooter>

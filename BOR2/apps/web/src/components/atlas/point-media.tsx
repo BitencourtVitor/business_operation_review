@@ -1,10 +1,9 @@
 "use client"
 
 import { ImageWindow } from "@/components/atlas/image-window"
-import { useUploadAtlasMedia } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
-import { Camera, Pencil, Video } from "lucide-react"
-import { useRef, useState } from "react"
+import { Pencil, Video } from "lucide-react"
+import { useState } from "react"
 import { createPortal } from "react-dom"
 
 /**
@@ -41,22 +40,14 @@ const CARTAS = 4
 /** A tira que cada carta de baixo deixa à vista. */
 const TIRA = 10
 
-export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegistrou, onEditar }: {
-  jobsiteId: string
-  eventId: string
+export function PointPhase({ canWrite, pecas, onEditar }: {
   canWrite: boolean
-  fase: "before" | "after"
   pecas: AtlasMedia[]
-  /** Uma peça nova subiu nesta fase. */
-  onRegistrou?: () => void
   /** Editar o escrito desta metade do ponto: o problema, ou a solução. */
   onEditar?: () => void
 }) {
   // A foto aberta, com o conjunto da fase a que ela pertence.
   const [aberta, setAberta] = useState<{ pecas: { url: string; name: string }[]; inicial: number } | null>(null)
-  const upload = useUploadAtlasMedia(jobsiteId)
-  const cameraRef = useRef<HTMLInputElement>(null)
-  const videoRef = useRef<HTMLInputElement>(null)
 
   if (!pecas.length && !canWrite) return null
 
@@ -75,13 +66,6 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegist
       pecas: fotos.map(f => ({ url: f.url, name: f.fileName })),
       inicial: fotos.length - 1,
     })
-  }
-
-  async function subir(arquivos: File[]) {
-    for (const f of arquivos) {
-      await upload.mutateAsync({ file: f, eventId, phase: fase })
-    }
-    if (arquivos.length) onRegistrou?.()
   }
 
   return (
@@ -126,39 +110,6 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegist
         </button>
       )}
 
-      {canWrite && (
-        <div className="flex h-8 w-full shrink-0 overflow-hidden rounded-lg border border-dashed border-border/60 text-muted-foreground">
-          {upload.isPending ? (
-            <span className="flex flex-1 items-center justify-center">
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
-            </span>
-          ) : (
-            <>
-              <button
-                type="button"
-                title={fase === "before" ? "Photograph the problem" : "Photograph what was done"}
-                aria-label="Photo"
-                onClick={() => cameraRef.current?.click()}
-                className="flex flex-1 items-center justify-center transition-colors hover:bg-muted/60 hover:text-foreground"
-              >
-                <Camera className="h-4 w-4" />
-              </button>
-              {/* A divisória é a borda tracejada do próprio botão: um traço
-                  cheio de 1px no meio lia como linha contínua. */}
-              <button
-                type="button"
-                title={fase === "before" ? "Film the problem" : "Film what was done"}
-                aria-label="Video"
-                onClick={() => videoRef.current?.click()}
-                className="flex flex-1 items-center justify-center border-l border-dashed border-border/60 transition-colors hover:bg-muted/60 hover:text-foreground"
-              >
-                <Video className="h-4 w-4" />
-              </button>
-            </>
-          )}
-        </div>
-      )}
-
       {canWrite && onEditar && (
         <button
           type="button"
@@ -168,30 +119,6 @@ export function PointPhase({ jobsiteId, eventId, canWrite, fase, pecas, onRegist
           <Pencil className="h-3.5 w-3.5 shrink-0" />
           Edit
         </button>
-      )}
-
-      {canWrite && (
-        <>
-          {/* Uma porta para cada coisa, e as duas são a câmera: `capture` manda
-              o celular abrir a traseira direto. A prova de obra é do que está
-              na frente de quem registra, agora. */}
-          <input
-            ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden"
-            onChange={e => {
-              const escolhidas = Array.from(e.target.files ?? [])
-              e.target.value = ""
-              void subir(escolhidas)
-            }}
-          />
-          <input
-            ref={videoRef} type="file" accept="video/*" capture="environment" className="hidden"
-            onChange={e => {
-              const escolhidos = Array.from(e.target.files ?? [])
-              e.target.value = ""
-              void subir(escolhidos)
-            }}
-          />
-        </>
       )}
 
       {aberta && createPortal(

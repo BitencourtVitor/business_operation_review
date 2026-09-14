@@ -1,6 +1,6 @@
 "use client"
 
-import { Camera, ChevronDown, ChevronUp, X } from "lucide-react"
+import { Camera, ChevronDown, ChevronUp, Video, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import { Label } from "@/components/ui/label"
@@ -29,9 +29,11 @@ const FILEIRAS_ABERTA = 3
  * a grade tem a altura de uma fileira exata; aberta, três, e dali em diante rola
  * por dentro em vez de empurrar o botão de salvar para fora da janela.
  */
-export function PhotoGrid({ fotos, onAdd, onRemove }: {
+export function PhotoGrid({ fotos, onAdd, onAddVideo, onRemove }: {
   fotos: File[]
   onAdd: () => void
+  /** Filmar em vez de fotografar. Sem ele, a grade é só de fotos. */
+  onAddVideo?: () => void
   onRemove: (i: number) => void
 }) {
   const caixa = useRef<HTMLDivElement | null>(null)
@@ -55,9 +57,9 @@ export function PhotoGrid({ fotos, onAdd, onRemove }: {
     return () => olho.disconnect()
   }, [])
 
-  // O ladrilho da câmera ocupa a primeira vaga, então a primeira fileira tem
-  // uma foto a menos que o número de colunas.
-  const naPrimeira = Math.max(0, colunas - 1)
+  // Os ladrilhos de câmera e de vídeo ocupam as primeiras vagas, então a
+  // primeira fileira tem essas peças a menos que o número de colunas.
+  const naPrimeira = Math.max(0, colunas - (onAddVideo ? 2 : 1))
   const escondidas = aberta ? 0 : Math.max(0, fotos.length - naPrimeira)
 
   return (
@@ -66,7 +68,7 @@ export function PhotoGrid({ fotos, onAdd, onRemove }: {
           espaço sobrando e onde o olho procura o comando de um bloco. */}
       <div className="flex items-center justify-between gap-2">
         <Label className="gap-1.5">
-          Photos
+          {onAddVideo ? "Photos and videos" : "Photos"}
           {fotos.length > 0 && (
             <span className="text-xs font-normal tabular-nums text-muted-foreground">
               {fotos.length}
@@ -117,14 +119,34 @@ export function PhotoGrid({ fotos, onAdd, onRemove }: {
             </span>
           </button>
 
+          {onAddVideo && (
+            <button
+              type="button"
+              onClick={onAddVideo}
+              className="flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted-foreground transition-colors hover:border-ring hover:bg-muted/40 hover:text-foreground"
+            >
+              <Video className="h-5 w-5" />
+              <span className="text-[11px] font-medium leading-none">Video</span>
+            </button>
+          )}
+
           {fotos.map((f, i) => (
             <div
               key={`${f.name}-${i}`}
               className="group/foto relative overflow-hidden rounded-lg border border-border/60"
               title={f.name}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={URL.createObjectURL(f)} alt={f.name} className="h-full w-full object-cover" />
+              {f.type.startsWith("video/") ? (
+                <>
+                  <video src={URL.createObjectURL(f)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                  <span className="absolute bottom-1 left-1 rounded bg-neutral-900/70 p-0.5 text-white">
+                    <Video className="h-3 w-3" />
+                  </span>
+                </>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={URL.createObjectURL(f)} alt={f.name} className="h-full w-full object-cover" />
+              )}
 
               {/* O último ladrilho visível diz que a fila continua. Sem isto,
                   fechada, a grade parecia ter só as da primeira fileira. */}
@@ -151,7 +173,9 @@ export function PhotoGrid({ fotos, onAdd, onRemove }: {
 
         {!fotos.length && (
           <span className="text-center text-[11px] leading-tight text-muted-foreground">
-            Opens the camera, and it stays open while you shoot.
+            {onAddVideo
+              ? "Photo opens the camera and stays open while you shoot. Video records one clip."
+              : "Opens the camera, and it stays open while you shoot."}
           </span>
         )}
       </div>
