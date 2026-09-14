@@ -68,7 +68,7 @@ const SOON = [
 export function AtlasSidebar() {
   const { open, toggleSidebar, setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const { hasBOR } = useProducts()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
@@ -219,7 +219,21 @@ export function AtlasSidebar() {
           )}
           <SidebarGroupContent>
             <SidebarMenu>
-              {SOON.map(item => (
+              {SOON.map(item => (item.title === "Takeoff" && user?.role === "dev" && jobsiteId) ? (
+                // O protótipo do Takeoff abre só para o desenvolvedor, e só com
+                // obra escolhida, porque lê as pranchas dela. Para os outros ele
+                // segue como anúncio desabilitado, igual aos vizinhos.
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    isActive={pathname === `/atlas/${jobsiteId}/takeoff`}
+                    tooltip={item.title}
+                    render={<Link href={`/atlas/${jobsiteId}/takeoff`} />}
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
                 <SidebarMenuItem key={item.title}>
                   <Tooltip>
                     <TooltipTrigger render={<span className="block" />}>
