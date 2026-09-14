@@ -556,9 +556,9 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
                   {espaco?.suportado && espaco.cota > 0 && ` of ${mb(espaco.cota)}`}
                 </span>
               </div>
-              {/* De que é feito o total. A faixa de cima conta só as pranchas,
-                  que é o que se escolheu baixar; aqui aparece o resto, para o
-                  número de baixo não ficar três vezes maior sem explicação. */}
+              {/* De que é feito o total, abaixo de um fio que separa a soma das
+                  parcelas. */}
+              <span aria-hidden className="block h-px bg-border/60" />
               {[
                 { icone: FileText, rotulo: "Plans", bytes: pesoDosPlanos },
                 { icone: Images, rotulo: "Photos and videos", bytes: pesoDasMidias },
