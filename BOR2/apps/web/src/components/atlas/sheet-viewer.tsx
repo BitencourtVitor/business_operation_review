@@ -37,7 +37,7 @@ import {
   FileText, FileUp,
   AlignLeft, Eye, EyeOff, Flag, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, PenLine, Plus,
   RotateCcw, RotateCw, Ruler, Search, Tag,
-  User, Users, X,
+  User, Users, WifiOff, X,
 } from "lucide-react"
 import { SheetLinkDialog } from "@/components/atlas/sheet-link-dialog"
 import { SheetRevisions } from "@/components/atlas/sheet-revisions"
@@ -127,7 +127,11 @@ const PIN_STROKE = 2.5
 // própria a ele fazia a marca competir consigo mesma: quem varre a prancha
 // procurando o que falta resolver passaria a ver duas cores de "aberto" e teria
 // de lembrar qual das duas ainda conta. Quem tem foto se distingue pelo ícone.
-function corDaNota(e: { status: string }) {
+//
+// Vermelho é o terceiro estado, e ele é de outra natureza: o ponto existe só no
+// aparelho. Sem número, porque o número nasce no servidor.
+function corDaNota(e: { status: string; number?: number | null }) {
+  if (e.number == null) return PIN_ESPERA
   return e.status === "resolved" ? NOTE_DONE_COLOR : NOTE_COLOR
 }
 // O vínculo tem cor própria pelo mesmo motivo da nota: ele não é marca de
@@ -139,6 +143,8 @@ const LINK_COLOR = "#0ea5e9"
 // inteira que precisa denunciar em que pé está o ponto. O número sai branco:
 // contra as duas cores cheias, é o maior contraste que existe.
 const PIN_INK = "#ffffff"
+// O ponto que ainda não subiu: vermelho, a cor de "falta sinal" no Atlas.
+const PIN_ESPERA = "#ef4444"
 // O miolo tem 62% do raio da marca de altura, e o algarismo quase toda essa
 // altura. Os dois são fixos: o que cresce com o número é a largura.
 const PIN_NUM = PIN_R * 0.62
@@ -355,17 +361,24 @@ function NoteBubble({ jobsiteId, evento, onOpen }: {
   const solucaoNome = evento.resolvedByName || depois[0]?.uploadedByName || ""
   const solucaoCargo = evento.resolvedByRole || depois[0]?.uploadedByRole || ""
   const solucaoData = evento.resolvedAt || depois[0]?.uploadedAt || ""
-  // O que foi feito, escrito peça por peça na hora de documentar a correção.
-  const oQueFoiFeito = depois
-    .map(m => [m.title, m.description].filter(Boolean).join(": "))
-    .filter(Boolean)
+  // O que foi feito mora no ponto, com título e relato, como o problema.
+  const oQueFoiFeito = [evento.solutionTitle, evento.solutionBody].filter(Boolean)
 
   return (
     <div className="flex flex-col gap-2 p-2.5">
       <span className="flex items-center gap-2 text-xs">
-        <span className="rounded bg-white/10 px-1.5 py-0.5 font-semibold tabular-nums text-white/80">
-          {evento.number ?? "—"}
-        </span>
+        {evento.number != null ? (
+          <span className="rounded bg-white/10 px-1.5 py-0.5 font-semibold tabular-nums text-white/80">
+            {evento.number}
+          </span>
+        ) : (
+          // Sem número é ponto que só existe neste aparelho: o número vem com o
+          // sinal, junto com a subida.
+          <span className="flex items-center gap-1 rounded border border-red-400/40 px-1.5 py-0.5 font-medium text-red-300">
+            <WifiOff className="h-3 w-3" />
+            Waiting for signal
+          </span>
+        )}
         <span className={`rounded border px-1.5 py-0.5 font-medium ${
           evento.status === "resolved"
             ? "border-emerald-400/40 text-emerald-300"
@@ -1940,6 +1953,18 @@ export function SheetViewer({
                 transition: "opacity 150ms ease",
               }}
             >
+              {/* O alvo do toque é a marca inteira. O anel é só contorno, e em SVG
+                  o miolo de um contorno não recebe clique: o ponto ainda sem
+                  número, que não tem pílula cheia dentro, só abria acertando
+                  o pingo do meio. */}
+              <rect
+                x={-medida.fora / 2}
+                y={-PIN_R}
+                width={medida.fora}
+                height={PIN_R * 2}
+                rx={PIN_R}
+                fill="transparent"
+              />
               {/* A marca, medida pelo número que ela carrega. */}
               {/* Vazado, para não esconder o que está marcado, e tracejado, para
                   se ler como anotação e não como parte do desenho. Resolvido
@@ -2021,7 +2046,29 @@ export function SheetViewer({
                   </text>
                 </>
               ) : (
-                <circle r={PIN_STROKE * 1.5} fill={corDaNota(e)} />
+                // Sem número é ponto que ainda não subiu: o número nasce no
+                // servidor. A pílula fica vermelha com o wifi riscado, que é o
+                // mesmo aviso da lista de planos.
+                <>
+                  <rect
+                    x={-medida.dentro / 2}
+                    y={-PIN_NUM}
+                    width={medida.dentro}
+                    height={PIN_NUM * 2}
+                    rx={PIN_NUM}
+                    fill={corDaNota(e)}
+                    stroke="#ffffff"
+                    strokeWidth={1.5}
+                  />
+                  <WifiOff
+                    x={-PIN_NUM * 0.62}
+                    y={-PIN_NUM * 0.62}
+                    width={PIN_NUM * 1.24}
+                    height={PIN_NUM * 1.24}
+                    color={PIN_INK}
+                    strokeWidth={2.5}
+                  />
+                </>
               )}
               <title>{e.title || e.body}</title>
             </g>
@@ -2499,7 +2546,11 @@ export function SheetViewer({
             <div className={`flex max-w-full flex-wrap items-center gap-2 sm:w-fit ${
               tool === "tape" && !escala && !calibrando
                 ? "self-start"
-                : `min-h-[50px] px-1.5 py-1.5 ${MOLDURA} sm:min-h-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none`
+                : `min-h-[50px] px-1.5 py-1.5 ${MOLDURA} sm:min-h-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none ${
+                  // A trena medindo tem pouco a mostrar: o bloco fica do tamanho
+                  // do que carrega, em vez de esticar até a largura das ferramentas.
+                  tool === "tape" && !calibrando ? "self-start" : ""
+                }`
             }`}>
 
             {tool === "tape" && (

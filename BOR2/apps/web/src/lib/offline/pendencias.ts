@@ -209,3 +209,58 @@ export async function descartarPendencia(id: string) {
   if (item?.arquivoLocal) await apagarArquivo(item.arquivoLocal)
   await local.fila.delete(id)
 }
+
+/** O que uma folha tem esperando sinal para subir. */
+export type PendenciaDaFolha = {
+  /** Pontos criados sem rede: ainda sem número, e fora da contagem do servidor. */
+  pontos: number
+  /** Toda ação da folha na fila: ponto, foto, texto, traço, vínculo, escala. */
+  total: number
+}
+
+/**
+ * As pendências da obra, folha por folha.
+ *
+ * A fila guarda a chamada, e não a folha: cada ação diz de que folha é pelo
+ * caminho que ela vai chamar, ou pelo ponto e pelo traço que ela toca, que o
+ * aparelho sabe de que folha são. O que não dá para ligar a uma folha (um traço
+ * já apagado daqui, por exemplo) fica fora da conta, e não em folha errada.
+ */
+export async function pendenciasPorFolha(obraId: string): Promise<Record<string, PendenciaDaFolha>> {
+  const itens = await local.fila.where("obraId").equals(obraId)
+    .filter(f => (f.estado === "pendente" || f.estado === "enviando")
+      && (f.kind === "api.call" || f.kind === "api.upload"))
+    .toArray()
+  const out: Record<string, PendenciaDaFolha> = {}
+  if (!itens.length) return out
+
+  const eventos = (await lerResposta<{ id: string; sheetId: string | null }[]>(chaves.events(obraId))) ?? []
+  const folhaDoPonto = new Map(eventos.map(e => [e.id, e.sheetId ?? ""]))
+  const marcas = await local.marcas.where("obraId").equals(obraId).toArray()
+  const folhaDaMarca = new Map(marcas.map(m => [m.id, m.planoId]))
+
+  const somar = (folha: string | undefined, ponto = false) => {
+    if (!folha) return
+    const p = (out[folha] ??= { pontos: 0, total: 0 })
+    p.total++
+    if (ponto) p.pontos++
+  }
+
+  for (const item of itens) {
+    if (item.kind === "api.upload") {
+      somar(folhaDoPonto.get(String(item.payload.eventId ?? "")))
+      continue
+    }
+    const c = item.payload as unknown as Chamada
+    const caminho = c.caminho ?? ""
+    if (c.metodo === "POST" && /\/jobsites\/[^/]+\/events$/.test(caminho)) {
+      somar(String((c.corpo as { sheetId?: string } | undefined)?.sheetId ?? ""), true)
+      continue
+    }
+    const folha = caminho.match(/\/sheets\/([^/]+)/)?.[1]
+      ?? folhaDoPonto.get(caminho.match(/\/events\/([^/]+)/)?.[1] ?? "")
+      ?? folhaDaMarca.get(caminho.match(/\/annotations\/([^/]+)/)?.[1] ?? "")
+    somar(folha)
+  }
+  return out
+}

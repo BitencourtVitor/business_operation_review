@@ -367,7 +367,7 @@ export function TapePanel({
     ? areaPt2(pontos, largura, altura) / (escala.ptPorPe * escala.ptPorPe) : null
 
   return (
-    <div ref={raiz} className="flex flex-1 items-center gap-2 text-sm sm:flex-none sm:flex-wrap">
+    <div ref={raiz} className="flex items-center gap-2 text-sm sm:flex-wrap">
       {/* A escala em uso. O chip só diz que há uma; o que ela vale e o que se
           faz com ela moram no popover, para a barra não carregar texto. */}
       <Popover open={menuDaEscala} onOpenChange={aberto => {
@@ -380,7 +380,9 @@ export function TapePanel({
           className="flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-white/15 px-2 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white"
         >
           <Ruler className={`h-3.5 w-3.5 ${erroAoSalvar ? "text-amber-400" : "text-emerald-400"}`} />
-          <span className={pontos.length >= 2 ? "hidden sm:inline" : ""}>
+          {/* Com a área na linha, o texto só cabe de lg para cima: abaixo disso a
+              barra quebrava em duas, porque as ferramentas já trazem os atalhos. */}
+          <span className={area != null ? "hidden lg:inline" : ""}>
             {salvando ? "Saving" : "Calibrated"}
           </span>
         </PopoverTrigger>
@@ -450,13 +452,13 @@ export function TapePanel({
       ) : area != null && (
         // O comprimento já está escrito em cada trecho, no desenho. A área não
         // tem onde morar lá, então fica aqui.
-        <span className="whitespace-nowrap tabular-nums">
-          <span className="hidden text-xs text-white/50 sm:inline">Area </span>
+        <span className="flex items-center gap-1.5 whitespace-nowrap tabular-nums" title="Area">
+          <Pentagon className="h-3.5 w-3.5 shrink-0 text-white/50" />
           <span className="font-semibold text-yellow-200">{formatarArea(area)}</span>
         </span>
       )}
 
-      <span className="ml-auto flex items-center gap-1 sm:ml-0">
+      <span className="flex items-center gap-1">
         {pontos.length > 2 && !fechada && (
           <Button size="sm" variant="ghost" onClick={onFechar} title="Close the shape to get its area"
             className="h-8 gap-1.5 text-white/70 hover:bg-white/10 hover:text-white">
@@ -468,7 +470,7 @@ export function TapePanel({
           <Button size="sm" variant="ghost" onClick={onLimpar} title="Start a new measurement"
             className="h-8 gap-1.5 text-white/70 hover:bg-white/10 hover:text-white">
             <RotateCcw className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Clear</span>
+            <span className="hidden lg:inline">Clear</span>
           </Button>
         )}
       </span>
