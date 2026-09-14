@@ -40,7 +40,7 @@ func isKnownClient(name string) bool {
 // can appear at any level in the path and are discarded outright. "Job Sites"
 // is intentionally preserved below because it distinguishes legacy catch-all
 // codes from fully structured project paths.
-var genericFolders = []string{"address (new)"}
+var genericFolders = []string{"address (new)", "archived"}
 
 func isGenericFolder(name string) bool {
 	lower := strings.ToLower(strings.TrimSpace(name))
@@ -50,6 +50,30 @@ func isGenericFolder(name string) bool {
 		}
 	}
 	return false
+}
+
+// floorOrdinal matches a floor level ("1º", "2°", "3ª"). It is a stage of the
+// building, not a building of its own: kept out of lotBuilding so every floor
+// of "Building 1" adds up to one project instead of one bar per floor (WF-7).
+var floorOrdinal = regexp.MustCompile(`^\d+\s*[º°ª]$`)
+
+// lotLike matches lot/building labels ("Lot 04", "LOT 45", "Building 1").
+// Such a segment is never a worktype, even when hours were logged straight on
+// the lot folder with no worktype below it (WF-8).
+var lotLike = regexp.MustCompile(`(?i)\b(lot|building|bldg|unit)\s*\d`)
+
+// orgSegments are company or department names that show up after a worktype
+// ("TRANSPORT / Framing", "Admin / Office"). They say who, not where: those
+// hours have no jobsite (WF-9).
+var orgSegments = map[string]bool{
+	"framing": true,
+	"pcg":     true,
+	"hvac":    true,
+	"office":  true,
+}
+
+func isOrgSegment(s string) bool {
+	return orgSegments[strings.ToLower(strings.TrimSpace(s))]
 }
 
 func isJobSitesFolder(name string) bool {
@@ -164,7 +188,7 @@ func titleCase(s string) string {
 //	["Pulte Homes", "Canton, Coppersmith - Building 1", "Framing", "Normal Labor"]
 //	  → client="Pulte Homes", jobsite="Canton, Coppersmith - Building 1", lotBuilding="Framing", worktype="Normal Labor"
 //	["Pulte Homes", "Canton, Neponset", "Building 1", "Panels", "1º"]
-//	  → client="Pulte Homes", jobsite="Canton, Neponset", lotBuilding="Building 1 > 1º", worktype="Panels"
+//	  → client="Pulte Homes", jobsite="Canton, Neponset", lotBuilding="Building 1", worktype="Panels"
 func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype string) {
 	w := make([]string, 0, len(path))
 	for _, p := range path {
@@ -172,7 +196,7 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 		if p == "" {
 			continue
 		}
-		if isGenericFolder(p) {
+		if isGenericFolder(p) || floorOrdinal.MatchString(p) {
 			continue
 		}
 		w = append(w, p)
@@ -226,10 +250,21 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 	if len(w) >= 2 {
 		if wt := canonicalWorktype(w[0]); wt != "" {
 			worktype = wt
+			if len(w) == 2 && isOrgSegment(w[1]) {
+				return
+			}
 			jobsite = normalizeAddress(w[1])
 			if len(w) > 2 {
 				lotBuilding = strings.Join(w[2:], " > ")
 			}
+			return
+		}
+	}
+
+	// Same pair in the other order ("Framing / Transport").
+	if len(w) == 2 && isOrgSegment(w[0]) {
+		if wt := canonicalWorktype(w[1]); wt != "" {
+			worktype = wt
 			return
 		}
 	}
@@ -260,7 +295,12 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 
 	if worktypeIdx == -1 {
 		// No recognized worktype anywhere in the path — fall back to
-		// treating the last segment as worktype so it's still captured.
+		// treating the last segment as worktype so it's still captured,
+		// unless it is a lot/building label.
+		if lotLike.MatchString(rest[len(rest)-1]) {
+			lotBuilding = strings.Join(rest, " > ")
+			return
+		}
 		worktype = rest[len(rest)-1]
 		lotBuilding = strings.Join(rest[:len(rest)-1], " > ")
 		return
