@@ -799,15 +799,10 @@ export function SheetViewer({
   const [bubble, setBubble] = useState<
     { evento: AtlasEvent; x: number; y: number } | null
   >(null)
-  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Não some sozinho: todo balão tem Edit e More, é algo para usar, e fecha
+  // quando quem usa toca fora dele.
   const showBubble = (evento: AtlasEvent, x: number, y: number) => {
-    const media = evento.media
     setBubble({ evento, x, y })
-    if (bubbleTimer.current) clearTimeout(bubbleTimer.current)
-    // Recolher sozinho vale só para o balão que é só texto: ele se leu e
-    // acabou. Com foto dentro, o balão virou algo para usar, e o que se usa
-    // fecha quando quem usa decide.
-    if (media === 0) bubbleTimer.current = setTimeout(() => setBubble(null), 5000)
   }
   // A foto aberta por cima de tudo, em janela própria, com o conjunto a que ela
   // pertence: o ponto pode ter vinte, e trocar de foto é dentro da janela.
@@ -2134,20 +2129,15 @@ export function SheetViewer({
           const limite = Math.max(160, balaoAcima ? espacoAcima : espacoAbaixo)
           return (
           <>
-            {/* Balão com foto não se recolhe sozinho: quem vê a miniatura vai
-                estender a mão até ela, e um balão que some em cinco segundos
-                tira a foto do caminho justamente quando ela passou a ser o
-                assunto. Some ao tocar fora, como a janelinha do vínculo. */}
-            {bubble.evento.media > 0 && (
-              <div
-                className="absolute inset-0 z-40"
-                onPointerDown={e => { e.stopPropagation(); setBubble(null) }}
-              />
-            )}
+            {/* Some ao tocar fora, como a janelinha do vínculo. */}
+            <div
+              className="absolute inset-0 z-40"
+              onPointerDown={e => { e.stopPropagation(); setBubble(null) }}
+            />
             <div
               className={`absolute z-50 -translate-x-1/2 duration-150 animate-in fade-in-0 zoom-in-95 ${
                 balaoAcima ? "-translate-y-full" : ""
-              } ${bubble.evento.media > 0 ? "" : "pointer-events-none"}`}
+              }`}
               // O ponteiro morre aqui dentro, e não é detalhe: a prancha captura
               // o ponteiro no `pointerdown` para o arraste não escapar dela, e a
               // captura desvia o `pointerup` do botão da miniatura para a
