@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select"
 import { MultiSelect } from "@/app/bor/permits/components/multi-select"
 import { useWorkforceRules } from "@/hooks/use-workforce"
+import { useForecast } from "@/hooks/use-forecast"
+import type { ForecastProject } from "@bor2/shared"
 import type { WorkforceRow } from "@/services/workforce.service"
 import type { AttributionRule } from "@/services/workforce.service"
 import {
@@ -31,6 +33,7 @@ const WORKTYPE_COLORS = [
 const TOP_N_OPTIONS = [5, 10, 15, 20]
 const EMPTY_WORKFORCE_ROWS: WorkforceRow[] = []
 const EMPTY_ATTRIBUTION_RULES: AttributionRule[] = []
+const EMPTY_FORECAST: ForecastProject[] = []
 
 // Canonical worktype names — keyed by lowercase trimmed variant
 const WORKTYPE_CANONICAL: Record<string, string> = {
@@ -228,6 +231,180 @@ function jaroWinkler(s1: string, s2: string): number {
   return jaro + prefix * 0.1 * (1 - jaro)
 }
 
+// ─── Jobsite consolidation ───────────────────────────────────────────────────
+// The same jobsite reaches QB Time written in several ways: "Broadleaf At
+// Plymouth" and "Plymouth, Broadleaf", "Plymouth, The Owls Nest" and "Plymouth,
+// Owls Nest", with or without a trailing state. Comparing the whole string
+// letter by letter (Jaro-Winkler on the label) cannot join reordered words, so
+// names are compared as a set of words: same number of words, every word paired
+// with an equal one or a near-identical spelling (Glenn / Glen).
+
+const OBRA_STOPWORDS = new Set(["the", "at", "of", "and", "a"])
+const TOKEN_JW = 0.92
+
+function obraTokens(jobsite: string): string[] {
+  const words = jobsite
+    .replace(/,\s*[A-Za-z]{2}$/, "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(w => w && !OBRA_STOPWORDS.has(w))
+  // "Riverview AtProvidence": the "at" glued to the next word.
+  const set = new Set(words)
+  const tokens = words.filter(w => !(w.startsWith("at") && w.length > 6 && set.has(w.slice(2))))
+  return Array.from(new Set(tokens)).sort()
+}
+
+function sameTokens(a: string[], b: string[]): boolean {
+  if (a.length !== b.length || !a.length) return false
+  const used = new Array(b.length).fill(false)
+  for (const w of a) {
+    let hit = b.findIndex((x, i) => !used[i] && x === w)
+    if (hit < 0 && w.length >= 4 && !/\d/.test(w)) {
+      hit = b.findIndex((x, i) => !used[i] && x.length >= 4 && !/\d/.test(x) && jaroWinkler(w, x) >= TOKEN_JW)
+    }
+    if (hit < 0) return false
+    used[hit] = true
+  }
+  return true
+}
+
+// "Lot 04", "LOT 4" and "lot 4" are the same lot; "Building08" is "Building 8".
+function normalizeLot(lot: string): string {
+  return lot.replace(/^(lot|building|bldg)\s*0*(\d+)/i, (_, word: string, n: string) =>
+    `${word.toLowerCase() === "lot" ? "LOT" : "Building"} ${n}`)
+}
+
+function cleanJobsiteName(jobsite: string): string {
+  return jobsite.replace(/,\s*[A-Za-z]{2}$/, "").replace(/\bAt(?=[A-Z])/g, "At ").trim()
+}
+
+interface ForecastLot {
+  lotBuilding: string
+  start: string
+  end: string
+}
+
+function consolidateJobsites(rows: WorkforceRow[], forecast: ForecastProject[]): WorkforceRow[] {
+  const hoursByName = new Map<string, number>()
+  for (const r of rows) {
+    const name = cleanJobsiteName(r.jobsite)
+    if (name) hoursByName.set(name, (hoursByName.get(name) ?? 0) + r.regularHours)
+  }
+
+  // The name with the most hours speaks for the group.
+  const names = Array.from(hoursByName.keys()).sort((a, b) => hoursByName.get(b)! - hoursByName.get(a)!)
+  const groups: { tokens: string[]; name: string }[] = []
+  const canonical = new Map<string, string>()
+  for (const name of names) {
+    const tokens = obraTokens(name)
+    const group = groups.find(g => sameTokens(tokens, g.tokens))
+    if (group) canonical.set(name, group.name)
+    else { groups.push({ tokens, name }); canonical.set(name, name) }
+  }
+
+  const out = rows.map(r => {
+    const name = cleanJobsiteName(r.jobsite)
+    return { ...r, jobsite: canonical.get(name) ?? name, lotBuilding: normalizeLot(r.lotBuilding) }
+  })
+
+  // The Forecast knows which lots of a jobsite were being built on each date.
+  // Its jobsite names ("Wheelock Farm at Norton, MA") are matched to the
+  // QB Time ones by the same word comparison.
+  const forecastLots = new Map<string, ForecastLot[]>()
+  for (const p of forecast) {
+    if (!p.jobSite || !p.loteBld || !p.previousStartDate || !p.previousEndDate) continue
+    const group = groups.find(g => sameTokens(obraTokens(cleanJobsiteName(p.jobSite)), g.tokens))
+    if (!group) continue
+    const kind = /building/i.test(p.type) ? "Building" : /lot/i.test(p.type) ? "LOT" : p.type
+    const key = `${p.company.toLowerCase()}|${group.name}`
+    const list = forecastLots.get(key) ?? []
+    list.push({
+      lotBuilding: normalizeLot(`${kind} ${p.loteBld}`.trim()),
+      start: p.previousStartDate.slice(0, 10),
+      end: p.previousEndDate.slice(0, 10),
+    })
+    forecastLots.set(key, list)
+  }
+
+  return allocateJobsiteHours(out, forecastLots)
+}
+
+function isoWeek(date: string): string {
+  const d = new Date(`${date}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7))
+  return d.toISOString().slice(0, 10)
+}
+
+// A jobsite has many projects (lots, buildings). Hours logged on the jobsite
+// folder itself carry no project: in QB Time they are site visits, with empty
+// notes and no lot logged by the same person that day. They are spread over
+// the projects the crews actually worked on at that jobsite, in proportion to
+// crew hours, looking first at the same day, then the same week, the same
+// month, and the month before and after. With no crew hours on any project,
+// the Forecast decides: the day's hours are split evenly over the lots it had
+// under construction on that date. Only then do they stay on the jobsite.
+function shiftMonth(month: string, delta: number): string {
+  const [y, m] = month.split("-").map(Number)
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1))
+  return d.toISOString().slice(0, 7)
+}
+
+function allocateJobsiteHours(rows: WorkforceRow[], forecastLots: Map<string, ForecastLot[]>): WorkforceRow[] {
+  // Each window says where a project row is counted and where a jobsite row
+  // looks it up.
+  const windows: { count: (r: WorkforceRow) => string[]; look: (r: WorkforceRow) => string }[] = [
+    { count: r => r.workDate ? [`d|${r.workDate}`] : [], look: r => r.workDate ? `d|${r.workDate}` : "" },
+    { count: r => r.workDate ? [`w|${isoWeek(r.workDate)}`] : [], look: r => r.workDate ? `w|${isoWeek(r.workDate)}` : "" },
+    { count: r => [`m|${r.referenceMonth}`], look: r => `m|${r.referenceMonth}` },
+    {
+      count: r => [-1, 1].map(k => `n|${shiftMonth(r.referenceMonth, k)}`),
+      look: r => `n|${r.referenceMonth}`,
+    },
+  ]
+  const weights = new Map<string, Map<string, number>>()
+  for (const r of rows) {
+    if (!r.jobsite || !r.lotBuilding) continue
+    for (const win of windows) {
+      for (const w of win.count(r)) {
+        const key = `${r.company}|${r.jobsite}|${w}`
+        const lots = weights.get(key) ?? new Map<string, number>()
+        lots.set(r.lotBuilding, (lots.get(r.lotBuilding) ?? 0) + r.regularHours)
+        weights.set(key, lots)
+      }
+    }
+  }
+
+  return rows.flatMap(r => {
+    if (!r.jobsite || r.lotBuilding) return [r]
+    for (const win of windows) {
+      const w = win.look(r)
+      const lots = w ? weights.get(`${r.company}|${r.jobsite}|${w}`) : undefined
+      const total = lots ? [...lots.values()].reduce((s, h) => s + h, 0) : 0
+      if (!lots || total <= 0) continue
+      return [...lots].map(([lotBuilding, h]) => ({
+        ...r,
+        id: `${r.id}#${lotBuilding}`,
+        lotBuilding,
+        regularHours: r.regularHours * h / total,
+      }))
+    }
+    const active = (forecastLots.get(`${r.company.toLowerCase()}|${r.jobsite}`) ?? []).filter(l =>
+      r.workDate
+        ? l.start <= r.workDate && r.workDate <= l.end
+        : l.start.slice(0, 7) <= r.referenceMonth && r.referenceMonth <= l.end.slice(0, 7))
+    const lots = Array.from(new Set(active.map(l => l.lotBuilding)))
+    if (lots.length) {
+      return lots.map(lotBuilding => ({
+        ...r,
+        id: `${r.id}#${lotBuilding}`,
+        lotBuilding,
+        regularHours: r.regularHours / lots.length,
+      }))
+    }
+    return [r]
+  })
+}
+
 // Maps every raw address label → canonical label.
 // Pass 1 (JW): merges labels that differ only by whitespace/punctuation (threshold 0.93).
 // Pass 2 (promotion): when a bare base "X" exists alongside exactly ONE variant "X - Building N",
@@ -239,7 +416,11 @@ function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<strin
   for (const label of labels) {
     const norm = normalizeAddressLabel(label)
     let bestScore = 0, bestIdx = -1
+    const digits = norm.match(/\d+/g)?.join("|") ?? ""
     for (let j = 0; j < normCanon.length; j++) {
+      // "LOT 131" and "LOT 132" differ by one character and score like a
+      // typo, but they are different houses.
+      if ((normCanon[j].match(/\d+/g)?.join("|") ?? "") !== digits) continue
       const score = norm === normCanon[j] ? 1 : jaroWinkler(norm, normCanon[j])
       if (score > bestScore) { bestScore = score; bestIdx = j }
     }
@@ -255,7 +436,7 @@ function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<strin
   // Pass 2: base promotion
   // For each canonical "X", count how many canonicals match "X - Building/LOT N"
   const canonicals = Array.from(new Set(map.values()))
-  const buildingSuffix = /^(.+?)\s+-\s+(Building\s+\d+|LOT\s+\d+|Lot\s+\d+)/i
+  const buildingSuffix = /^(.+?)\s+-\s+(Building\s+\d+)$/i
   const baseToVariants = new Map<string, string[]>()
   for (const c of canonicals) {
     const m = c.match(buildingSuffix)
@@ -385,12 +566,13 @@ export default function WorkforceProductivityPage() {
 
   const { data: rawRows  = EMPTY_WORKFORCE_ROWS, isLoading } = useWorkforceData({ company })
   const { data: rules    = EMPTY_ATTRIBUTION_RULES }          = useWorkforceRules()
+  const { data: forecast = EMPTY_FORECAST }                   = useForecast()
 
   // Apply attribution rules, then repair rows imported before Address (NEW)
   // was recognized as an organizational QB Time folder.
   const allRows = useMemo(
-    () => applyRules(rawRows, rules).map(normalizeImportedAddressFolder).map(normalizeLegacyParse),
-    [rawRows, rules],
+    () => consolidateJobsites(applyRules(rawRows, rules).map(normalizeImportedAddressFolder).map(normalizeLegacyParse), forecast),
+    [rawRows, rules, forecast],
   )
 
   // ── Filter options ────────────────────────────────────────────────────────
