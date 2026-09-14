@@ -86,6 +86,54 @@ function normalizeWorktype(raw: string): string {
   return WORKTYPE_CANONICAL[key] ?? v
 }
 
+const FLOOR_ORDINAL = /^\d+\s*[º°ª]$/
+const LOT_LIKE = /\b(lot|building|bldg|unit)\s*\d/i
+const ORG_SEGMENTS = new Set(["framing", "pcg", "hvac", "office"])
+
+// Repairs rows imported before the parser fixes of WF-6..WF-9, so the stored
+// data reads right without a reimport: floor ordinals out of the building,
+// lot labels out of worktype, "Archived" and company names out of jobsite,
+// and legacy CSV rows that carried the category in the client field.
+function normalizeLegacyParse(row: WorkforceRow): WorkforceRow {
+  let { client, jobsite, lotBuilding, worktype } = row
+  client = client?.trim() ?? ""
+  jobsite = jobsite?.trim() ?? ""
+  lotBuilding = (lotBuilding ?? "").split(">").map(p => p.trim()).filter(p => p && !FLOOR_ORDINAL.test(p)).join(" > ")
+  worktype = worktype?.trim() ?? ""
+
+  if (jobsite.toLowerCase() === "archived") {
+    jobsite = worktype
+    worktype = ""
+  }
+  if (worktype && LOT_LIKE.test(worktype) && !WORKTYPE_CANONICAL[worktype.toLowerCase()]) {
+    lotBuilding = lotBuilding ? `${lotBuilding} > ${worktype}` : worktype
+    worktype = ""
+  }
+  // Company, department or category in the jobsite slot ("Office", "Lunch
+  // Break", "Framing", "Transport") is never a project.
+  if (!lotBuilding && (ORG_SEGMENTS.has(jobsite.toLowerCase()) || isNonProjectCategory(jobsite))) {
+    if (!worktype || ORG_SEGMENTS.has(worktype.toLowerCase())) {
+      if (isNonProjectCategory(jobsite)) worktype = jobsite
+      else if (isNonProjectCategory(client)) {
+        worktype = client
+        client = ""
+      }
+    }
+    jobsite = ""
+  }
+  if (!jobsite && !lotBuilding && !worktype && isNonProjectCategory(client)) {
+    worktype = client
+    client = ""
+  }
+
+  return { ...row, client, jobsite, lotBuilding, worktype }
+}
+
+function isNonProjectCategory(s: string): boolean {
+  const lo = s.trim().toLowerCase()
+  return !!WORKTYPE_CANONICAL[lo] || lo === "service call"
+}
+
 function normalizeImportedAddressFolder(row: WorkforceRow): WorkforceRow {
   const knownLegacyPath = LEGACY_JOB_SITE_PATHS[row.jobsite.trim().toLowerCase()]
   if (knownLegacyPath && !row.lotBuilding.trim() && !row.worktype.trim()) {
@@ -235,7 +283,7 @@ function buildAddressCanonicalMap(labels: string[], threshold = 0.93): Map<strin
 function getJobsiteLabel(r: { jobsite?: string; lotBuilding?: string; client?: string }): string {
   const jobsite = r.jobsite?.trim() ?? ""
   const lot     = r.lotBuilding?.trim() ?? ""
-  if (!jobsite && !lot) return r.client?.trim() || "Unknown"
+  if (!jobsite && !lot) return ""
   if (jobsite && lot)   return `${jobsite} - ${lot}`
   return jobsite || lot
 }
@@ -341,7 +389,7 @@ export default function WorkforceProductivityPage() {
   // Apply attribution rules, then repair rows imported before Address (NEW)
   // was recognized as an organizational QB Time folder.
   const allRows = useMemo(
-    () => applyRules(rawRows, rules).map(normalizeImportedAddressFolder),
+    () => applyRules(rawRows, rules).map(normalizeImportedAddressFolder).map(normalizeLegacyParse),
     [rawRows, rules],
   )
 
@@ -444,7 +492,7 @@ export default function WorkforceProductivityPage() {
 
   const totalHours     = useMemo(() => rows.reduce((s, r) => s + r.regularHours, 0), [rows])
   const totalEmployees = useMemo(() => new Set(rows.map(r => r.employeeName)).size, [rows])
-  const totalJobsites  = useMemo(() => new Set(rows.map(r => jobsiteCanonical(r.jobsite?.trim() ?? ""))).size, [rows, jobsiteCanonicalMap])
+  const totalJobsites  = useMemo(() => new Set(rows.map(r => jobsiteCanonical(r.jobsite?.trim() ?? "")).filter(Boolean)).size, [rows, jobsiteCanonicalMap])
   const avgHoursPerEmp = totalEmployees > 0 ? totalHours / totalEmployees : 0
 
   // ── General view chart data ───────────────────────────────────────────────
@@ -492,7 +540,9 @@ export default function WorkforceProductivityPage() {
   const topJobsites = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      const label = canonical(getJobsiteLabel(r))
+      const raw = getJobsiteLabel(r)
+      if (!raw) return
+      const label = canonical(raw)
       map[label] = (map[label] ?? 0) + r.regularHours
     })
     return Object.entries(map)
