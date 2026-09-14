@@ -75,6 +75,10 @@ const PERMISSION_GROUPS: PermGroup[] = [
   },
 ]
 
+const SETTINGS_KEYS = new Set(
+  PERMISSION_GROUPS.find(g => g.label === "Settings")!.permissions.map(p => p.key),
+)
+
 export const ATLAS_PERMISSIONS = PERMISSION_GROUPS.flatMap(g => g.permissions)
 // Tudo que se concede conta, inclusive o que ainda vai existir: a permissão
 // dada hoje é real, e some do denominador seria esconder trabalho já feito.
@@ -178,6 +182,7 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
   function applyChange(userId: string, key: string, level: PermissionLevel | null) {
     const user = users.find(u => u.id === userId)
     if (!user || ALWAYS_ACCESS_ROLES.has(user.role)) return
+    if (isSubcontractor(user) && SETTINGS_KEYS.has(key)) return
     if (!canManage(me?.role ?? "", user.role)) return
     setOverrides(prev => ({
       ...prev,
@@ -214,6 +219,10 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
   // hoje e os que vierem. Por isso eles viram um card só entre os fixos, em vez
   // de um por pessoa que alguém teria de conferir a cada cadastro.
   const subsJuntos = selectedKey === "atlas_documents"
+  // Nas páginas de Settings o subcontratado não entra e não se move: quem é de
+  // fora não administra o Atlas. Nas demais ele é gerido como qualquer user.
+  const subTravado = (u: UserWithPermissions) =>
+    isSubcontractor(u) && SETTINGS_KEYS.has(selectedKey)
   const subs = users.filter(u => isSubcontractor(u))
   const soltos = users.filter(u => !(subsJuntos && isSubcontractor(u)))
   const fixedAccess = soltos.filter(u => ALWAYS_ACCESS_ROLES.has(u.role)).sort(byRoleThenName)
@@ -300,8 +309,8 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                       key={u.id}
                       user={u}
                       level={null}
-                      isFixed={isSubcontractor(u)}
-                      isDraggable={!isSubcontractor(u) && canManage(me?.role ?? "", u.role)}
+                      isFixed={subTravado(u)}
+                      isDraggable={!subTravado(u) && canManage(me?.role ?? "", u.role)}
                       onDragStart={() => { dragUserId.current = u.id }}
                       onLevelChange={null}
                     />
@@ -330,11 +339,11 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                       key={u.id}
                       user={u}
                       level={getEffective(u)[selectedKey] ?? null}
-                      isFixed={isSubcontractor(u)}
-                      isDraggable={!isSubcontractor(u) && canManage(me?.role ?? "", u.role)}
+                      isFixed={subTravado(u)}
+                      isDraggable={!subTravado(u) && canManage(me?.role ?? "", u.role)}
                       onDragStart={() => { dragUserId.current = u.id }}
                       onLevelChange={
-                        !isSubcontractor(u) && canManage(me?.role ?? "", u.role)
+                        !subTravado(u) && canManage(me?.role ?? "", u.role)
                           ? l => applyChange(u.id, selectedKey, l)
                           : null
                       }
