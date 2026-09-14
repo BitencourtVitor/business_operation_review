@@ -102,6 +102,12 @@ export function SheetStage({ url, pageIndex, area, onArea }: {
     }
   }
 
+  // Referências estáveis, como no leitor de Documents: o `PlanCanvas` redesenha
+  // a folha inteira quando `onFail` muda, e uma função nova a cada quadro do
+  // arraste fazia isso sessenta vezes por segundo.
+  const markReady = useCallback(() => setState("ready"), [])
+  const markFailed = useCallback(() => setState("error"), [])
+
   const shown = draft ?? area
 
   return (
@@ -152,8 +158,8 @@ export function SheetStage({ url, pageIndex, area, onArea }: {
           height={box.h}
           pageWidth={pagePt.w}
           pageHeight={pagePt.h}
-          onReady={() => setState("ready")}
-          onFail={() => setState("error")}
+          onReady={markReady}
+          onFail={markFailed}
         />
       )}
 

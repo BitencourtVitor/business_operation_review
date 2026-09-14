@@ -42,6 +42,7 @@ const SCALES = [
 ]
 
 const MIN_SCAN_MS = 1400
+const NO_NEIGHBOURS: AtlasSheet[] = []
 
 export default function TakeoffPage() {
   const { jobsiteId } = useParams<{ jobsiteId: string }>()
@@ -328,7 +329,7 @@ function PlanArea({ sheet, area, onArea, onTrace, error, inset }: {
   /** Deixa a quina esquerda livre para o botão que reabre o painel. */
   inset: boolean
 }) {
-  const source = usePlanSource(sheet, [])
+  const source = usePlanSource(sheet, NO_NEIGHBOURS)
   const pageIndex = source?.whole ? sheet.pageIndex : 0
   const [busy, setBusy] = useState(false)
 
