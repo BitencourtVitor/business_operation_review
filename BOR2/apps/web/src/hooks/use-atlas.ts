@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRef } from "react"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
+import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { local, type PlanoLocal } from "@/lib/offline/db"
 import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
 import {
@@ -301,7 +302,7 @@ export function useUpdateAtlasSheet(versionId: string) {
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, name, notes, names, alvo, onProgress }: {
+    mutationFn: async ({ file, revision, name, notes, names, alvo, links, onProgress }: {
       file: File
       revision: string
       /**
@@ -314,6 +315,8 @@ export function useUploadAtlasVersion(documentId: string) {
       notes?: string
       /** O nome de cada página, quando a prévia do gabarito já os leu. */
       names?: Map<number, string>
+      /** Os vínculos confirmados na etapa Links, que o servidor grava depois das folhas. */
+      links?: VinculoConfirmado[]
       onProgress?: (step: "opening" | "uploading" | "confirming", detail?: string) => void
     }): Promise<{ versionId: string }> => {
       const contentType = file.type || "application/pdf"
@@ -335,6 +338,7 @@ export function useUploadAtlasVersion(documentId: string) {
         pageCount,
         fileName: file.name,
         alvo,
+        links: links?.length ? links : undefined,
         names: names?.size
           ? Object.fromEntries([...names.entries()].map(([i, n]) => [String(i), n]))
           : undefined,

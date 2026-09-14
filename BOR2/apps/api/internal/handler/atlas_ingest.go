@@ -35,8 +35,8 @@ import (
 // entra no banco assim que fica pronta: a tela vai preenchendo os cartões, e
 // uma queda no meio deixa o que já foi feito de pé.
 //
-// Terminadas as folhas, os vínculos: a mesma varredura do autolink, sobre o
-// texto com posição que o poppler devolve, gravada como automática.
+// Terminadas as folhas, os vínculos que a pessoa confirmou na etapa Links do
+// envio. A sugestão continua acontecendo antes do upload, com a decisão dela.
 //
 // O trabalho de PDF é de ferramenta pronta: o poppler lê texto e desenha a
 // prévia (pdftotext, pdftoppm), e o MuPDF recorta (mutool merge). Foi o poppler
@@ -44,15 +44,11 @@ import (
 // sem retorno.
 
 // Quantas páginas processar ao mesmo tempo. Quatro: cada uma segura um
-// pdfseparate e um pdftoppm, e a API divide a máquina com o resto.
+// mutool e um pdftoppm, e a API divide a máquina com o resto.
 const ingestConcurrency = 4
 
 // Largura da prévia, em pixels. A mesma da geração antiga no navegador.
 const ingestThumbWidth = 300
-
-// A folga da caixa clicável do vínculo, igual à do cliente: a caixa da fonte
-// termina na linha de base e o descendente fica de fora.
-var ingestFolga = struct{ esq, dir, cima, baixo float64 }{0.02, 0.06, 0.02, 0.18}
 
 // ingestParams é o que o cliente decidiu antes de subir.
 type ingestParams struct {
@@ -63,6 +59,8 @@ type ingestParams struct {
 	Alvo []int `json:"alvo,omitempty"`
 	// O nome do arquivo anexado, para o modo `file` do gabarito.
 	FileName string `json:"fileName,omitempty"`
+	// Os vínculos que a pessoa confirmou na etapa Links, por número de página.
+	Links []vinculoConfirmado `json:"links,omitempty"`
 }
 
 // ── Fila ────────────────────────────────────────────────────────────────────
@@ -131,6 +129,13 @@ func (w *IngestWorker) loop(ctx context.Context) {
 
 // Enqueue grava (ou reabre) o job da versão e o coloca na fila.
 func (h *AtlasHandler) enqueueIngest(ctx context.Context, versionID, userID string, p ingestParams) error {
+	// Cópia de verdade, e não o que o fiber devolveu. `c.Params` aponta para o
+	// buffer da requisição, que o fasthttp reaproveita na seguinte: guardado na
+	// fila, o id da versão virava pedaço do caminho de outra chamada. Foi o que
+	// travou o envio de 14/09 em 45%, com as 51 folhas batendo em versão que
+	// não existia e o job sem ter onde registrar a falha.
+	versionID = strings.Clone(versionID)
+	userID = strings.Clone(userID)
 	params, _ := json.Marshal(p)
 	if _, err := h.db.Exec(ctx, `
 		INSERT INTO atlas_version_job (version_id, status, step, params, requested_by)
@@ -268,8 +273,15 @@ func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) er
 	h.jobSet(ctx, versionID, `step='pages', total=$2, done=$3, failed=0`, total, len(prontas))
 
 	// 4. Página a página, quatro ao mesmo tempo.
+	//
+	// Se a versão sumir no meio (a pasta apagada enquanto processava), o resto
+	// para: seguir cortando e subindo 51 folhas para uma versão que não existe
+	// é banda jogada fora e objeto órfão no bucket.
+	pctx, parar := context.WithCancel(ctx)
+	defer parar()
 	var mu sync.Mutex
 	feitas, falhas := len(prontas), 0
+	apagada := false
 	sem := make(chan struct{}, ingestConcurrency)
 	var wg sync.WaitGroup
 	for i := 0; i < total; i++ {
@@ -277,14 +289,29 @@ func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) er
 		if prontas[destino] {
 			continue
 		}
+		if pctx.Err() != nil {
+			break
+		}
 		wg.Add(1)
 		sem <- struct{}{}
 		go func(i, destino int) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			err := h.processarPagina(ctx, dir, original, jobsiteID, versionID, i, destino, paginas[i], nomes[i])
+			if pctx.Err() != nil {
+				return
+			}
+			err := h.processarPagina(pctx, dir, original, jobsiteID, versionID, i, destino, paginas[i], nomes[i])
 			mu.Lock()
+			defer mu.Unlock()
 			if err != nil {
+				var existe bool
+				_ = h.db.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM atlas_document_version WHERE id = $1)`,
+					versionID).Scan(&existe)
+				if !existe {
+					apagada = true
+					parar()
+					return
+				}
 				falhas++
 				log.Printf("[atlas-ingest] %s página %d: %v", versionID, i+1, err)
 				h.gravarFolhaFalha(ctx, versionID, destino, paginas[i], nomes[i], err.Error())
@@ -292,10 +319,12 @@ func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) er
 				feitas++
 			}
 			h.jobSet(ctx, versionID, `done=$2, failed=$3`, feitas, falhas)
-			mu.Unlock()
 		}(i, destino)
 	}
 	wg.Wait()
+	if apagada {
+		return fmt.Errorf("a versão foi apagada durante o processamento")
+	}
 
 	// 5. Revisão parcial: o que não foi trocado vem da versão anterior.
 	if parcial {
@@ -311,13 +340,21 @@ func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) er
 			versionID, total)
 	}
 
-	// 6. Vínculos, sobre as folhas que agora existem.
-	h.jobSet(ctx, versionID, `step='links'`)
-	links, err := h.vincularVersao(ctx, jobsiteID, documentID, documentName, versionID, userID, vaga, paginas)
-	if err != nil {
-		log.Printf("[atlas-ingest] %s vínculos: %v", versionID, err)
+	// 6. Vínculos: só os que a pessoa confirmou na etapa Links do envio. Sem
+	// confirmação nenhum link é criado. Rodada repetida (retry, retomada)
+	// apaga os automáticos da anterior antes, para não dobrar.
+	if len(p.Links) > 0 {
+		h.jobSet(ctx, versionID, `step='links'`)
+		_, _ = h.db.Exec(ctx, `
+			DELETE FROM atlas_annotation a USING atlas_sheet s
+			 WHERE a.sheet_id = s.id AND s.version_id = $1
+			   AND a.tool = 'link' AND a.geometry->>'auto' = 'true'`, versionID)
+		links, err := h.gravarVinculos(ctx, versionID, documentID, documentName, userID, p.Links)
+		if err != nil {
+			log.Printf("[atlas-ingest] %s vínculos: %v", versionID, err)
+		}
+		h.jobSet(ctx, versionID, `links=$2`, links)
 	}
-	h.jobSet(ctx, versionID, `links=$2`, links)
 
 	if falhas > 0 {
 		return fmt.Errorf("%d de %d páginas não terminaram", falhas, total)
@@ -655,62 +692,6 @@ func lerNomes(paginas []ingestPagina, naming []byte, fileName string) map[int]st
 }
 
 // ── Vínculos ────────────────────────────────────────────────────────────────
-
-// vincularVersao roda o autolink sobre as folhas desta versão, com o texto que
-// o poppler leu. O índice é o da obra inteira, com o próprio documento na
-// frente, e os links entram como automáticos: quem revisar depois pode apagar.
-// Numa rodada nova, os automáticos da rodada anterior saem antes, para não
-// dobrar.
-func (h *AtlasHandler) vincularVersao(
-	ctx context.Context, jobsiteID, documentID, documentName, versionID, userID string,
-	vaga int, paginas []ingestPagina,
-) (int, error) {
-	rows, err := h.db.Query(ctx, `
-		SELECT page_index, id FROM atlas_sheet
-		 WHERE version_id = $1 AND superseded_at IS NULL AND r2_key <> ''`, versionID)
-	if err != nil {
-		return 0, err
-	}
-	folhas := map[int]string{}
-	for rows.Next() {
-		var i int
-		var id string
-		if rows.Scan(&i, &id) == nil {
-			folhas[i] = id
-		}
-	}
-	rows.Close()
-
-	_, _ = h.db.Exec(ctx, `
-		DELETE FROM atlas_annotation a USING atlas_sheet s
-		 WHERE a.sheet_id = s.id AND s.version_id = $1
-		   AND a.tool = 'link' AND a.geometry->>'auto' = 'true'`, versionID)
-
-	pages := make([]autolinkPage, 0, len(paginas))
-	for i, p := range paginas {
-		id, ok := folhas[vaga+i]
-		if !ok {
-			continue
-		}
-		ap := autolinkPage{SheetID: id, NoText: len(p.Words) == 0}
-		for _, w := range p.Words {
-			if w.Text == "" || p.Width == 0 || p.Height == 0 {
-				continue
-			}
-			larg, alt := (w.X1-w.X0)/p.Width, (w.Y1-w.Y0)/p.Height
-			ap.Tokens = append(ap.Tokens, autolinkToken{
-				Text: w.Text,
-				X0:   w.X0/p.Width - larg*ingestFolga.esq,
-				Y0:   w.Y0/p.Height - alt*ingestFolga.cima,
-				X1:   w.X1/p.Width + larg*ingestFolga.dir,
-				Y1:   w.Y1/p.Height + alt*ingestFolga.baixo,
-			})
-		}
-		pages = append(pages, ap)
-	}
-	_, links, err := h.autolinkAplicar(ctx, jobsiteID, documentID, documentName, userID, pages, 2, true)
-	return links, err
-}
 
 // autolinkAplicar é o miolo do POST /versions/:id/autolink, sem o fiber: a
 // mesma decisão de quais páginas citam o quê, usada pela rota e pela ingestão.

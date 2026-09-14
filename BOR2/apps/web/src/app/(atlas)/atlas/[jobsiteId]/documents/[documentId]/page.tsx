@@ -25,6 +25,7 @@ import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
+import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -556,7 +557,7 @@ export default function DocumentPage() {
     const pending = takeUpload(documentId)
     if (pending) {
       started.current = true
-      startUpload(pending.file, pending.names)
+      startUpload(pending.file, pending.names, undefined, undefined, pending.links)
       return
     }
     // A cópia guardada só serve se os bytes não chegaram a subir: versão
@@ -570,7 +571,7 @@ export default function DocumentPage() {
         await descartarUpload(documentId)
         return
       }
-      startUpload(guardado.file, guardado.names)
+      startUpload(guardado.file, guardado.names, undefined, undefined, guardado.links)
     }).catch(() => undefined)
   }, [documentId])
 
@@ -812,6 +813,8 @@ export default function DocumentPage() {
     names?: Map<number, string>,
     _identity?: unknown,
     version?: { name: string; notes: string; attachments?: File[] },
+    /** Os vínculos confirmados na etapa Links. O servidor os grava quando as folhas existirem. */
+    links?: VinculoConfirmado[],
   ) {
     setFechado(false)
     setEnvio({ passo: "opening", feito: 0, total: file.size })
@@ -825,6 +828,7 @@ export default function DocumentPage() {
       name: version?.name,
       notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
+      links,
       onProgress: (passo, detalhe) => {
         const [feito, total] = (detalhe ?? "").split("/").map(Number)
         setEnvio({ passo, feito: feito || 0, total: total || file.size })

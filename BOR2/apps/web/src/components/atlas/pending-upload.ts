@@ -15,7 +15,13 @@
  * o retoma sozinha quando a memória não tem nada.
  */
 import { apagarArquivo, gravarArquivo, lerArquivo } from "@/lib/offline/storage"
-type Pending = { file: File; names?: Map<number, string> }
+import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
+
+/**
+ * Os vínculos confirmados viajam junto: eles foram decididos antes do envio,
+ * sobre o arquivo local, e só podem ser gravados depois que as folhas existem.
+ */
+type Pending = { file: File; names?: Map<number, string>; links?: VinculoConfirmado[] }
 
 const waiting = new Map<string, Pending>()
 
@@ -27,6 +33,7 @@ interface Bilhete {
   caminho: string
   nomeDoArquivo: string
   names?: Array<[number, string]>
+  links?: VinculoConfirmado[]
 }
 
 function bilhetes(): Record<string, Bilhete> {
@@ -61,6 +68,7 @@ export function stashUpload(documentId: string, payload: Pending, obraId?: strin
         caminho,
         nomeDoArquivo: payload.file.name,
         names: payload.names ? [...payload.names.entries()] : undefined,
+        links: payload.links,
       },
     })
   }).catch(() => undefined)
@@ -91,6 +99,7 @@ export async function retomarUpload(documentId: string): Promise<Pending | undef
   return {
     file: new File([file], b.nomeDoArquivo, { type: "application/pdf" }),
     names: b.names ? new Map(b.names) : undefined,
+    links: b.links,
   }
 }
 

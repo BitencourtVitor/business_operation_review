@@ -1238,6 +1238,8 @@ func (h *AtlasHandler) ConfirmVersion(c *fiber.Ctx) error {
 		Names    map[string]string `json:"names"`
 		Alvo     []int             `json:"alvo"`
 		FileName string            `json:"fileName"`
+		// Os vínculos confirmados na etapa Links, gravados quando as folhas existirem.
+		Links []vinculoConfirmado `json:"links"`
 	}
 	_ = c.BodyParser(&in)
 
@@ -1270,7 +1272,7 @@ func (h *AtlasHandler) ConfirmVersion(c *fiber.Ctx) error {
 	if processa {
 		userID, _ := actor(c)
 		if err := h.enqueueIngest(c.Context(), versionID, userID, ingestParams{
-			Names: in.Names, Alvo: in.Alvo, FileName: in.FileName,
+			Names: in.Names, Alvo: in.Alvo, FileName: in.FileName, Links: in.Links,
 		}); err != nil {
 			return internalErr(c, err)
 		}

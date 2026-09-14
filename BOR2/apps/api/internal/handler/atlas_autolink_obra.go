@@ -232,6 +232,22 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 	}})
 }
 
+// vinculoConfirmado é um vínculo que a pessoa aprovou na etapa Links do envio,
+// antes de a folha existir: por isso aponta por número de página.
+type vinculoConfirmado struct {
+	// A página que cita, dentro desta versão.
+	PageIndex int     `json:"pageIndex"`
+	X0        float64 `json:"x0"`
+	Y0        float64 `json:"y0"`
+	X1        float64 `json:"x1"`
+	Y1        float64 `json:"y1"`
+	Text      string  `json:"text"`
+	// O destino: folha que já existia, ou página deste mesmo arquivo.
+	TargetSheetID   string `json:"targetSheetId"`
+	TargetPageIndex int    `json:"targetPageIndex"`
+	TargetName      string `json:"targetName"`
+}
+
 // POST /atlas/versions/:id/autolink/apply
 //
 // Grava os vínculos que a pessoa confirmou, e só eles. Chega depois do envio,
@@ -253,32 +269,32 @@ func (h *AtlasHandler) AutolinkApply(c *fiber.Ctx) error {
 	}
 
 	var in struct {
-		Links []struct {
-			// A página que cita, dentro desta versão.
-			PageIndex int     `json:"pageIndex"`
-			X0        float64 `json:"x0"`
-			Y0        float64 `json:"y0"`
-			X1        float64 `json:"x1"`
-			Y1        float64 `json:"y1"`
-			Text      string  `json:"text"`
-			// O destino: folha que já existia, ou página deste mesmo arquivo.
-			TargetSheetID   string `json:"targetSheetId"`
-			TargetPageIndex int    `json:"targetPageIndex"`
-			TargetName      string `json:"targetName"`
-		} `json:"links"`
+		Links []vinculoConfirmado `json:"links"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
 	}
+	userID, _ := actor(c)
+	gravados, err := h.gravarVinculos(c.Context(), versionID, documentID, documentName, userID, in.Links)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{"links": gravados}})
+}
 
+// gravarVinculos é o miolo do apply, sem o fiber: a rota e o processamento do
+// set no servidor (ATL-102) usam o mesmo.
+func (h *AtlasHandler) gravarVinculos(
+	ctx context.Context, versionID, documentID, documentName, userID string, links []vinculoConfirmado,
+) (int, error) {
 	// As folhas desta versão, pelo número da página: é o que traduz o que foi
 	// confirmado antes do envio para o que existe depois dele.
-	rows, err := h.db.Query(c.Context(), `
+	rows, err := h.db.Query(ctx, `
 		SELECT page_index, id, COALESCE(sheet_number,'')
 		  FROM atlas_sheet
 		 WHERE version_id = $1 AND superseded_at IS NULL`, versionID)
 	if err != nil {
-		return internalErr(c, err)
+		return 0, err
 	}
 	folhas := map[int]struct{ ID, Nome string }{}
 	for rows.Next() {
@@ -290,9 +306,8 @@ func (h *AtlasHandler) AutolinkApply(c *fiber.Ctx) error {
 	}
 	rows.Close()
 
-	userID, _ := actor(c)
 	gravados := 0
-	for _, l := range in.Links {
+	for _, l := range links {
 		origem, temOrigem := folhas[l.PageIndex]
 		if !temOrigem {
 			continue
@@ -315,7 +330,7 @@ func (h *AtlasHandler) AutolinkApply(c *fiber.Ctx) error {
 			// Destino em outra pasta: o documento dele é outro, e a tela já
 			// mostrou qual. Guardar o que foi resolvido evita ter de refazer a
 			// consulta para desenhar o balão do link.
-			_ = h.db.QueryRow(c.Context(), `
+			_ = h.db.QueryRow(ctx, `
 				SELECT d.id, COALESCE(d.name,''), s.page_index
 				  FROM atlas_sheet s
 				  JOIN atlas_document_version v ON v.id = s.version_id
@@ -336,13 +351,12 @@ func (h *AtlasHandler) AutolinkApply(c *fiber.Ctx) error {
 		})
 		// `shared` é true porque o vínculo é do documento e não de quem rodou a
 		// automação: link que só o autor enxerga não serve em campo.
-		if _, err := h.db.Exec(c.Context(), `
+		if _, err := h.db.Exec(ctx, `
 			INSERT INTO atlas_annotation (id, sheet_id, author_id, tool, color, width, opacity, geometry, shared)
 			VALUES ($1,$2,$3,'link','',0,1,$4,true)`,
 			uuid.NewString(), origem.ID, userID, geom); err == nil {
 			gravados++
 		}
 	}
-
-	return c.JSON(fiber.Map{"data": fiber.Map{"links": gravados}})
+	return gravados, nil
 }

@@ -232,7 +232,6 @@ export interface AtlasSheet {
   ingestError?: string
 }
 
-/** Uma prancha que já ocupou esta página, ou a que ocupa agora. */
 /**
  * O andamento do processamento do set no servidor (ATL-102): baixar o
  * original, cortar, prévia, nome, impressão, folha a folha, e os vínculos no
@@ -249,6 +248,7 @@ export interface AtlasIngestJob {
   error: string
 }
 
+/** Uma prancha que já ocupou esta página, ou a que ocupa agora. */
 export interface AtlasSheetRevision {
   id: string
   pageIndex: number
@@ -660,6 +660,10 @@ export const atlasService = {
   confirmVersion: (versionId: string, body: {
     checksum?: string; pageCount?: number
     names?: Record<string, string>; alvo?: number[]; fileName?: string
+    links?: {
+      pageIndex: number; x0: number; y0: number; x1: number; y1: number; text: string
+      targetSheetId: string; targetPageIndex: number; targetName: string
+    }[]
   }) =>
     api.post<{ id: string; byteSize: number; processing: boolean }>(
       `${base}/versions/${versionId}/confirm`, body, getToken()),
