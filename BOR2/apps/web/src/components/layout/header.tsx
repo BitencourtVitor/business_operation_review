@@ -202,7 +202,7 @@ export function Header() {
 
           {/* Salto para o outro braço da plataforma, sem passar de novo pelo
               login: a sessão é da plataforma e os produtos são destinos dela. */}
-          <Tip label={hasAtlas ? "Go to Atlas" : "Atlas — under construction"}>
+          <Tip label={hasAtlas ? "Go to Atlas" : "No access to Atlas"}>
             <Button
               variant="ghost"
               size="icon"

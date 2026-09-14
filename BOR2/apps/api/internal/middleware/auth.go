@@ -126,7 +126,7 @@ func RequirePermission(db *pgxpool.Pool, key string, level string) fiber.Handler
 	}
 }
 
-// RequireAtlas guarda o Atlas enquanto ele está em construção.
+// RequireAtlas guarda a porta do Atlas.
 //
 // Entra quem tem cargo acima de `user` — dev, owner, admin, manager — e o
 // `user` que recebeu a chave `atlas` na tela de usuários do Atlas. Quem manda
