@@ -1,7 +1,7 @@
 "use client"
 
 import { AttachmentPicker } from "@/components/atlas/attachment-picker"
-import { AutolinkStep, type VinculoConfirmado } from "@/components/atlas/autolink-step"
+
 import {
   NamingTemplateDialog, NamingTemplateEditor, type NamingEditorContext,
 } from "@/components/atlas/naming-template-dialog"
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { useUpdateDocCategory } from "@/hooks/use-atlas"
 import {
-  ArrowLeft, ArrowRight, Check, CloudUpload, FileText, Link2, ListTree, Replace, ScanText,
+  ArrowLeft, ArrowRight, Check, CloudUpload, FileText, ListTree, Replace, ScanText,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -82,8 +82,6 @@ export function UploadPlanDialog({
     names?: Map<number, string>,
     identity?: DocumentIdentity,
     version?: { name: string; notes: string; attachments: File[] },
-    /** Os vínculos confirmados na terceira etapa, gravados depois do envio. */
-    links?: VinculoConfirmado[],
   ) => void
   onClose: () => void
 }) {
@@ -91,14 +89,7 @@ export function UploadPlanDialog({
   const inputRef = useRef<HTMLInputElement>(null)
   const novo = !!categorias
 
-  const [etapa, setEtapa] = useState<1 | 2 | 3>(1)
-  // A terceira etapa: a pergunta de sim ou não, e os vínculos confirmados.
-  const [querLinks, setQuerLinks] = useState<boolean | null>(null)
-  const [vinculos, setVinculos] = useState<VinculoConfirmado[]>([])
-  // Quantas páginas o arquivo tem, contadas pela leitura dos nomes.
-  const [paginasDoArquivo, setPaginasDoArquivo] = useState(0)
-  // Como vai a conferência dos vínculos, que é o que libera o envio.
-  const [estadoDosLinks, setEstadoDosLinks] = useState({ varrido: false, pendentes: 0 })
+  const [etapa, setEtapa] = useState<1 | 2>(1)
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState("")
   const [arrastando, setArrastando] = useState(false)
@@ -139,7 +130,6 @@ export function UploadPlanDialog({
     setNames(null); setReading("")
     setName(""); setLinhas([LINHA_VAZIA])
     setVersionName(""); setVersionNotes(""); setAttachments([])
-    setQuerLinks(null); setVinculos([]); setEstadoDosLinks({ varrido: false, pendentes: 0 })
   }, [open])
 
   // Quantas páginas o PDF do trecho tem. Não precisa bater com o que sai: três
@@ -206,37 +196,24 @@ export function UploadPlanDialog({
   // Documento novo: o que está marcado na tela é o gabarito, e os nomes são os
   // da prévia, que é obrigatória. Quem sobe viu antes o nome de cada folha.
   //
-  // Daqui não se envia: com os nomes lidos, o caminho segue para a terceira
-  // etapa, onde os hiperlinks do desenho são propostos e confirmados. Enviar
-  // antes disso deixaria a pasta no ar sem os vínculos que ela pede.
-  function seguirParaLinks(ctx: NamingEditorContext) {
+  // Os hiperlinks do desenho não passam mais por aqui: o servidor os gera ao
+  // processar o set, como automáticos, e a revisão fica para depois.
+  function enviarNomeado(ctx: NamingEditorContext) {
     if (!file || !ctx.preview) return
-    setNames(new Map(ctx.preview.filter(n => n.name).map(n => [n.pageIndex, n.name] as [number, string])))
-    setPaginasDoArquivo(ctx.preview.length)
+    const lidos = new Map(ctx.preview.filter(n => n.name).map(n => [n.pageIndex, n.name] as [number, string]))
+    setNames(lidos)
     // Guardado na categoria, para o próximo envio do mesmo relatório já vir
     // marcado. É conveniência do próximo envio, não condição deste.
     const alvo = tags[0]?.categoryId
     if (alvo) updateCategory.mutate({ id: alvo, naming: ctx.template })
-    setEtapa(3)
-  }
-
-  /** O envio de documento novo, com os nomes lidos e os vínculos confirmados. */
-  function enviarNomeado() {
-    if (!file || !names) return
-    onStart(file, names,
+    onStart(file, lidos,
       { name: name.trim() || file.name.replace(/.pdf$/i, ""), tags },
-      { name: "", notes: "", attachments: [] },
-      querLinks ? vinculos : [])
+      { name: "", notes: "", attachments: [] })
     onClose()
   }
 
   const busy = false
   const motivoOk = !!versionNotes.trim()
-  // Dizendo não aos vínculos, sobe direto. Dizendo sim, sobe com a varredura
-  // feita e nenhuma sugestão pendente.
-  const faltaDecidir = querLinks === true && estadoDosLinks.varrido ? estadoDosLinks.pendentes : 0
-  const podeEnviar = querLinks === false
-    || (querLinks === true && estadoDosLinks.varrido && estadoDosLinks.pendentes === 0)
   const nomeacaoOk = !!template?.levels?.length && !reading
   const podeAvancar = !!file && !!name.trim() && categoriaOk
 
@@ -354,7 +331,7 @@ export function UploadPlanDialog({
             {(novo || troca) && (
               <div className="flex items-center justify-center gap-2 text-xs">
                 {(novo
-                  ? [{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }, { n: 3, t: "Links" }]
+                  ? [{ n: 1, t: "Document" }, { n: 2, t: "Sheet naming" }]
                   : [{ n: 1, t: "Reason" }, { n: 2, t: "New PDF" }]
                 ).map(({ n, t }) => (
                   <span key={n} className="flex items-center gap-2">
@@ -412,58 +389,14 @@ export function UploadPlanDialog({
                       </Button>
                     </div>
                   ) : (
-                    <Button className="w-full" disabled={!ctx.preview || !!ctx.reading} onClick={() => seguirParaLinks(ctx)}>
-                      Next
-                      <ArrowRight className="h-4 w-4" />
+                    <Button className="w-full" disabled={!ctx.preview || !!ctx.reading} onClick={() => enviarNomeado(ctx)}>
+                      Upload
+                      <CloudUpload className="h-4 w-4" />
                     </Button>
                   )}
                 </>
               )}
             />
-          ) : novo && etapa === 3 ? (
-            // A terceira etapa: os códigos que o desenho cita viram hiperlinks,
-            // um a um, com a decisão de quem envia.
-            <>
-              <AutolinkStep
-                jobsiteId={jobsiteId ?? ""}
-                url={localUrl}
-                nomes={names ?? new Map()}
-                paginas={paginasDoArquivo}
-                ligado={querLinks}
-                onLigado={setQuerLinks}
-                onChange={setVinculos}
-                onEstado={setEstadoDosLinks}
-              />
-              <DialogFooter>
-                {error && (
-                  <p className="order-last max-w-[16rem] text-left text-xs text-destructive sm:order-first sm:mr-auto sm:self-center">
-                    {error}
-                  </p>
-                )}
-                {/* O envio espera a conferência: enquanto houver sugestão sem
-                    decisão, subir seria deixar a automação decidir por quem
-                    enviou, que é justamente o que esta etapa existe para evitar. */}
-                {faltaDecidir > 0 && (
-                  <p className="order-last flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 sm:order-first sm:mr-auto">
-                    <Link2 className="h-3.5 w-3.5 shrink-0" />
-                    {faltaDecidir} link{faltaDecidir === 1 ? "" : "s"} still to confirm or reject.
-                  </p>
-                )}
-                <Button variant="outline" onClick={() => setEtapa(2)}>
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
-                <Button disabled={!podeEnviar} onClick={enviarNomeado}>
-                  <CloudUpload className="h-4 w-4" />
-                  Upload
-                  {querLinks && vinculos.length > 0 && (
-                    <span className="tabular-nums font-normal opacity-70">
-                      · {vinculos.length} link{vinculos.length === 1 ? "" : "s"}
-                    </span>
-                  )}
-                </Button>
-              </DialogFooter>
-            </>
           ) : (
           <>
           <div className="flex flex-col gap-3">

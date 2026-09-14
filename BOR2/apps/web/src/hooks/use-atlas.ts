@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useRef } from "react"
 import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { local, type PlanoLocal } from "@/lib/offline/db"
 import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
@@ -10,8 +11,6 @@ import {
 } from "@/lib/offline/escrever"
 import { pendenciasPorFolha, type PendenciaDaFolha } from "@/lib/offline/pendencias"
 import { useLiveQuery } from "dexie-react-hooks"
-import { fingerprintPages, type Fingerprint } from "@/components/atlas/plan-fingerprint"
-import { splitAndUploadPlans, type PlanPart } from "@/components/atlas/plan-split"
 import {
   atlasService, uploadToR2,
   type AtlasAnnotation, type AtlasDailyLog, type AtlasDocument,
@@ -136,6 +135,9 @@ export function useAtlasDocuments(jobsiteId: string) {
   return useQuery({
     queryKey: KEY.documents(jobsiteId),
     queryFn: () => atlasService.listDocuments(jobsiteId),
+    // Sempre fresco ao abrir: a lista guardada por cinco minutos mostrou pasta
+    // apagada como se ainda existisse.
+    staleTime: 0,
     enabled: !!jobsiteId,
   })
 }
@@ -239,6 +241,7 @@ export function useAtlasVersions(documentId: string) {
       return atlasService.listVersions(documentId)
     },
     enabled: !!documentId,
+    staleTime: 0,
   })
 }
 
@@ -258,6 +261,7 @@ export function useAtlasSheets(versionId: string) {
       return atlasService.listSheets(versionId)
     },
     enabled: !!versionId,
+    staleTime: 0,
   })
 }
 
@@ -286,46 +290,32 @@ export function useUpdateAtlasSheet(versionId: string) {
 }
 
 /**
- * O ciclo inteiro de uma revisão nova: abre a versão, sobe o arquivo direto no
- * bucket e confirma.
+ * O envio de uma revisão: abre a versão, sobe o arquivo direto no bucket e
+ * confirma. E só.
  *
- * As três etapas ficam juntas porque separá-las convida ao estado órfão — uma
- * versão `pending` sem arquivo, que é exatamente o que o `status` da tabela
- * existe para tornar visível. `onProgress` recebe a etapa para a tela poder
- * dizer em qual delas está, já que a do meio pode levar minutos numa internet
- * de obra.
+ * O que vinha depois (cortar em folhas, desenhar prévia, ler nome, calcular
+ * impressão, gravar) saiu daqui e foi para o servidor (ATL-102): rodava na aba
+ * de quem enviou, em sequência, e morria com ela. Confirmar dispara o
+ * processamento lá; a página acompanha por `useIngestJob`.
  */
 export function useUploadAtlasVersion(documentId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ file, revision, name, notes, names, prints, alvo, onProgress, onSheets, onPage }: {
+    mutationFn: async ({ file, revision, name, notes, names, alvo, onProgress }: {
       file: File
       revision: string
       /**
        * As páginas do set atual que este arquivo substitui. Presente, o arquivo
-       * não é o set: é só o trecho novo. Sobem só as páginas dele, e as outras
-       * folhas vêm da versão anterior apontando para os mesmos arquivos. O que
-       * se guarda é o gap, e não uma segunda cópia do caderno.
+       * não é o set: é só o trecho novo, e o resto vem da versão anterior.
        */
       alvo?: number[]
       /** O apelido desta versão, e o que mudou nela. */
       name?: string
       notes?: string
-      /** O nome de cada página, quando um gabarito já resolveu a nomenclatura. */
+      /** O nome de cada página, quando a prévia do gabarito já os leu. */
       names?: Map<number, string>
-      /**
-       * A impressão digital de cada página. Quem já a calculou para conferir o
-       * envio a passa adiante; quem não passou, ela sai daqui mesmo. Gravar
-       * sempre é o que impede a dívida de crescer: folha sem impressão obriga
-       * baixar o recorte dela do bucket depois, só para poder compará-la.
-       */
-      prints?: Map<number, Fingerprint>
-      onProgress?: (step: "opening" | "uploading" | "splitting" | "confirming", detail?: string) => void
-      /** As folhas já existem no banco, ainda sem recorte: a página pode abrir. */
-      onSheets?: (versionId: string, pageCount: number) => void
-      /** Uma folha ficou pronta, com a prévia desenhada aqui mesmo. */
-      onPage?: (pageIndex: number, preview: string) => void
-    }) => {
+      onProgress?: (step: "opening" | "uploading" | "confirming", detail?: string) => void
+    }): Promise<{ versionId: string }> => {
       const contentType = file.type || "application/pdf"
       onProgress?.("opening")
       const ticket = await atlasService.openVersion(documentId, {
@@ -334,141 +324,55 @@ export function useUploadAtlasVersion(documentId: string) {
       onProgress?.("uploading", `0/${file.size}`)
       await uploadToR2(ticket.uploadUrl, file, contentType,
         (enviado, total) => onProgress?.("uploading", `${enviado}/${total}`))
-
       onProgress?.("confirming")
-      // A estrutura sai do próprio arquivo, no navegador: contagem de páginas e
-      // tamanho da prancha. Uma linha de folha por página, sem número nem
-      // disciplina — isso é leitura de carimbo (AT-12) e continua fora.
-      let outline: { pageCount: number; width: number; height: number } | null = null
+      let pageCount = 0
       try {
-        outline = await readPdfOutline(file)
+        pageCount = (await readPdfOutline(file)).pageCount
       } catch {
-        // PDF que o pdf.js não abre não pode travar o upload: a versão fica
-        // gravada e as folhas entram depois, pelo mesmo endpoint idempotente.
+        // O servidor conta as páginas de qualquer jeito.
       }
-      if (alvo?.length && !outline) {
-        throw new Error("Could not read this PDF to put it into the set.")
-      }
-      const confirmed = await atlasService.confirmVersion(ticket.versionId, {
-        pageCount: outline?.pageCount ?? 0,
+      await atlasService.confirmVersion(ticket.versionId, {
+        pageCount,
+        fileName: file.name,
+        alvo,
+        names: names?.size
+          ? Object.fromEntries([...names.entries()].map(([i, n]) => [String(i), n]))
+          : undefined,
       })
-      if (!outline) return confirmed
-
-      if (alvo?.length) {
-        // O trecho entra na vaga da primeira página que sai.
-        const vaga = Math.min(...alvo)
-        onProgress?.("splitting", `0/${outline.pageCount}`)
-        // Aqui o corte não pode falhar em silêncio: a folha sem recorte abre
-        // pelo arquivo da versão, e o arquivo desta versão é só o trecho. A
-        // página 12 do set seria procurada na página 12 de um PDF de três.
-        const parts = await splitAndUploadPlans(file, ticket.versionId, (done, count) => {
-          onProgress?.("splitting", `${done}/${count}`)
-        }, (part, preview) => onPage?.(vaga + part.pageIndex, preview))
-        if (parts.length !== outline.pageCount || parts.some(p => !p.r2Key)) {
-          throw new Error("Some of the new sheets did not upload. Try again.")
-        }
-        let marcas = prints
-        if (!marcas) {
-          try {
-            const href = URL.createObjectURL(file)
-            const list = await fingerprintPages(href)
-            URL.revokeObjectURL(href)
-            marcas = new Map(list.map((f, i) => [i, f]))
-          } catch {
-            // Sem impressão a folha sobe do mesmo jeito.
-          }
-        }
-        await atlasService.replaceSheets(ticket.versionId, parts.map(p => ({
-          pageIndex: vaga + p.pageIndex,
-          widthPt: p.widthPt,
-          heightPt: p.heightPt,
-          r2Key: p.r2Key,
-          thumbKey: p.thumbKey,
-          byteSize: p.byteSize,
-          sheetNumber: names?.get(p.pageIndex) ?? "",
-          needsReview: !names?.get(p.pageIndex),
-          textHash: marcas?.get(p.pageIndex)?.text ?? "",
-          geomHash: marcas?.get(p.pageIndex)?.geom ?? "",
-        })))
-        const herdou = await atlasService.inheritSheets(ticket.versionId, {
-          scope: alvo.length === 1 && outline.pageCount === 1 ? "single" : "range",
-          pages: alvo,
-          inserted: outline.pageCount,
-        })
-        onSheets?.(ticket.versionId, herdou.total)
-        return confirmed
-      }
-
-      // As folhas entram no banco antes do corte, com o nome que o gabarito já
-      // leu e sem recorte nenhum. É o que permite fechar o modal aqui: a página
-      // abre com os 97 quadros no lugar, e cada um se preenche quando a página
-      // dele termina. Antes disto, quem subia um set ficava com o sistema
-      // parado atrás de uma janela até o fim.
-      await atlasService.replaceSheets(
-        ticket.versionId,
-        Array.from({ length: outline.pageCount }, (_, i) => ({
-          pageIndex: i,
-          widthPt: outline.width,
-          heightPt: outline.height,
-          r2Key: "",
-          thumbKey: "",
-          byteSize: 0,
-          sheetNumber: names?.get(i) ?? "",
-          needsReview: !names?.get(i),
-        })),
-      )
-      onSheets?.(ticket.versionId, outline.pageCount)
-
-      // Corte em um PDF por página, subindo cada um direto no bucket. É o que
-      // faz abrir um plano custar 1,66 MB de mediana em vez dos 107 MB do set.
-      onProgress?.("splitting", `0/${outline.pageCount}`)
-      let parts: PlanPart[] = []
-      try {
-        parts = await splitAndUploadPlans(file, ticket.versionId, (done, count) => {
-          onProgress?.("splitting", `${done}/${count}`)
-        }, (part, preview) => onPage?.(part.pageIndex, preview))
-      } catch {
-        // Corte que falha não invalida a versão: o original está no bucket e as
-        // folhas abrem por ele. O recorte pode ser refeito depois.
-      }
-
-      let marks = prints
-      if (!marks) {
-        try {
-          const href = URL.createObjectURL(file)
-          const list = await fingerprintPages(href)
-          URL.revokeObjectURL(href)
-          marks = new Map(list.map((f, i) => [i, f]))
-        } catch {
-          // Sem impressão a folha sobe do mesmo jeito: só fica de fora da
-          // comparação até alguém preenchê-la.
-        }
-      }
-
-      const byIndex = new Map(parts.map(p => [p.pageIndex, p]))
-      await atlasService.replaceSheets(
-        ticket.versionId,
-        Array.from({ length: outline.pageCount }, (_, i) => ({
-          pageIndex: i,
-          widthPt: byIndex.get(i)?.widthPt ?? outline.width,
-          heightPt: byIndex.get(i)?.heightPt ?? outline.height,
-          r2Key: byIndex.get(i)?.r2Key ?? "",
-          thumbKey: byIndex.get(i)?.thumbKey ?? "",
-          byteSize: byIndex.get(i)?.byteSize ?? 0,
-          // Nomeada pelo gabarito já entra conferida: o nome saiu do desenho, e
-          // foi aprovado na prévia antes de o arquivo subir.
-          sheetNumber: names?.get(i) ?? "",
-          needsReview: !names?.get(i),
-          textHash: marks?.get(i)?.text ?? "",
-          geomHash: marks?.get(i)?.geom ?? "",
-        })),
-      )
-      return confirmed
+      return { versionId: ticket.versionId }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY.versions(documentId) })
       qc.invalidateQueries({ queryKey: ["atlas", "documents"] })
     },
+  })
+}
+
+/**
+ * O andamento do processamento no servidor, consultado a cada dois segundos
+ * enquanto ele roda. A cada leitura as folhas e prévias são buscadas de novo,
+ * que é o que faz os cartões irem aparecendo.
+ */
+export function useIngestJob(versionId: string) {
+  const qc = useQueryClient()
+  const feitas = useRef(-1)
+  return useQuery({
+    queryKey: ["atlas", "ingest", versionId],
+    queryFn: async () => {
+      const job = await atlasService.ingestStatus(versionId)
+      if (job.done !== feitas.current || job.status === "done" || job.status === "failed") {
+        feitas.current = job.done
+        qc.invalidateQueries({ queryKey: KEY.sheets(versionId) })
+        qc.invalidateQueries({ queryKey: ["atlas", "thumbs", versionId] })
+      }
+      return job
+    },
+    enabled: !!versionId,
+    refetchInterval: q => {
+      const s = q.state.data?.status
+      return s === "queued" || s === "running" ? 2000 : false
+    },
+    staleTime: 0,
   })
 }
 
