@@ -38,9 +38,9 @@ func isKnownClient(name string) bool {
 
 // genericFolders are QB Time grouping folders with no business meaning that
 // can appear at any level in the path and are discarded outright. "Job Sites"
-// is intentionally preserved below because it distinguishes legacy catch-all
-// codes from fully structured project paths.
-var genericFolders = []string{"address (new)", "archived"}
+// is one of them: it is only the folder holding the jobsite, and keeping it as
+// a prefix split hours logged on the jobsite folder into a second project.
+var genericFolders = []string{"address (new)", "archived", "job sites", "jobsites"}
 
 func isGenericFolder(name string) bool {
 	lower := strings.ToLower(strings.TrimSpace(name))
@@ -74,11 +74,6 @@ var orgSegments = map[string]bool{
 
 func isOrgSegment(s string) bool {
 	return orgSegments[strings.ToLower(strings.TrimSpace(s))]
-}
-
-func isJobSitesFolder(name string) bool {
-	lower := strings.ToLower(strings.TrimSpace(name))
-	return lower == "job sites" || lower == "jobsites"
 }
 
 // workTypeCanonical mirrors WORKTYPE_CANONICAL in
@@ -182,7 +177,7 @@ func titleCase(s string) string {
 //	["Canton, Coppersmith", "Normal Labor"]
 //	  → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
 //	["Job Sites", "Canton, Coppersmith", "Normal Labor"]
-//	  → client="", jobsite="Job Sites > Canton, Coppersmith", worktype="Normal Labor"
+//	  → client="", jobsite="Canton, Coppersmith", worktype="Normal Labor"
 //	["Canton, Coppersmith", "Pulte Homes"]  (client in worktype position)
 //	  → client="Pulte Homes", jobsite="Canton, Coppersmith", worktype=""
 //	["Pulte Homes", "Canton, Coppersmith - Building 1", "Framing", "Normal Labor"]
@@ -209,16 +204,6 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 	// Extract known client from the first position
 	if isKnownClient(w[0]) {
 		client = w[0]
-		w = w[1:]
-	}
-
-	if len(w) == 0 {
-		return
-	}
-
-	jobsitePrefix := ""
-	if isJobSitesFolder(w[0]) {
-		jobsitePrefix = "Job Sites > "
 		w = w[1:]
 	}
 
@@ -279,7 +264,7 @@ func parseJobcodePath(path []string) (client, jobsite, lotBuilding, worktype str
 		}
 	}
 
-	jobsite = jobsitePrefix + normalizeAddress(w[0])
+	jobsite = normalizeAddress(w[0])
 	rest := w[1:]
 	if len(rest) == 0 {
 		return
