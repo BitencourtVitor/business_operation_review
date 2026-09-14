@@ -8,7 +8,7 @@ import {
   DAY_WIDTH, MONTHS_SHORT, SUB_H, TIMELINE_H, LABEL_H, TOP_PAD,
   type DateField,
 } from '../types'
-import { stemColorForDay } from '../lib'
+import { situationHex, situationsOfDay, stemColorForDay } from '../lib'
 import { StatusBadge } from './status-badge'
 
 // ─── PendingPill ──────────────────────────────────────────────────────────────
@@ -396,7 +396,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
                 className="absolute flex items-center justify-center pointer-events-none"
                 style={{ left: i * DAY_WIDTH, width: DAY_WIDTH, top: SUB_H + baselineY, height: LABEL_H / 2 }}
               >
-                <span className="text-[11px] font-semibold leading-none" style={{ color: stemColorForDay(grouped.get(day)!, primaryHex, isDark) }}>
+                <span className="text-[11px] font-semibold leading-none" style={{ color: stemColorForDay(grouped.get(day)!, primaryHex, isDark) ?? undefined }}>
                   {d.getUTCDate()}
                 </span>
               </div>
@@ -419,18 +419,31 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
             const dayPermits = grouped.get(day)!
             const count  = dayPermits.length
             const stemH  = Math.max(20, (count / maxCount) * stemMaxH)
+            // One situation: the bubble takes its color. Mixed: the bubble stays
+            // neutral, and the stem tells the split, each situation filling its
+            // share of the height.
             const hex    = stemColorForDay(dayPermits, primaryHex, isDark)
             const x      = i * DAY_WIDTH + DAY_WIDTH / 2
+            const shares = situationsOfDay(dayPermits)
 
             return (
               <div key={day}>
                 <div
-                  className="absolute pointer-events-none rounded-t-sm"
-                  style={{ left: x - 2, top: SUB_H + baselineY - stemH, width: 4, height: stemH, background: hex, opacity: 0.45 }}
-                />
+                  className="absolute pointer-events-none flex flex-col overflow-hidden rounded-t-sm"
+                  style={{ left: x - 2, top: SUB_H + baselineY - stemH, width: 4, height: stemH, opacity: 0.6 }}
+                >
+                  {shares.map(s => (
+                    <div
+                      key={s.situacao}
+                      style={{ flexGrow: s.permits.length, flexBasis: 0, background: situationHex(s.situacao, primaryHex, isDark) }}
+                    />
+                  ))}
+                </div>
                 <button
-                  className="absolute z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-background shadow-md transition-transform hover:scale-110 active:scale-95"
-                  style={{ left: x - 12, top: SUB_H + baselineY - stemH - 12, background: hex }}
+                  className={`absolute z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold shadow-md transition-transform hover:scale-110 active:scale-95 ${
+                    hex ? 'text-background' : 'bg-zinc-400 text-white dark:bg-zinc-500'
+                  }`}
+                  style={{ left: x - 12, top: SUB_H + baselineY - stemH - 12, background: hex ?? undefined }}
                   onClick={e => handleStemClick(e, day)}
                 >
                   {count}
@@ -518,7 +531,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
         const safeX = typeof window !== 'undefined'
           ? Math.max(8, Math.min(popover.x - 130, window.innerWidth - 276))
           : popover.x - 130
-        const estimatedH = 52 + Math.min(perms.length * 32, 208)
+        const estimatedH = 52 + Math.min(perms.length * 28 + situationsOfDay(perms).length * 30, 208)
         const safeY = typeof window !== 'undefined'
           ? Math.max(8, popover.y - estimatedH - 10)
           : popover.y - estimatedH - 10
@@ -532,13 +545,22 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
               <p className="text-xs font-semibold">{title}</p>
               <p className="text-[11px] text-muted-foreground">{perms.length} permit{perms.length !== 1 ? 's' : ''}</p>
             </div>
-            <div className="max-h-52 divide-y divide-border/50 overflow-y-auto">
-              {perms.map(p => (
-                <div key={p.id} className="flex items-center gap-2 px-3 py-2">
-                  <StatusBadge situacao={p.situacao || 'Unknown'} />
-                  <span className="min-w-0 truncate text-xs text-muted-foreground">
-                    {p.lotAddress || p.jobsite || '—'}
-                  </span>
+            <div className="max-h-52 overflow-y-auto">
+              {situationsOfDay(perms).map(group => (
+                <div key={group.situacao} className="border-b border-border/50 last:border-b-0">
+                  <div className="flex items-center gap-2 bg-muted/20 px-3 py-1.5">
+                    <StatusBadge situacao={group.situacao} />
+                    <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">{group.permits.length}</span>
+                  </div>
+                  <div className="divide-y divide-border/40">
+                    {group.permits.map(p => (
+                      <div key={p.id} className="px-3 py-1.5 pl-6">
+                        <span className="block min-w-0 truncate text-xs text-muted-foreground">
+                          {p.lotAddress || p.jobsite || '—'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
