@@ -727,6 +727,14 @@ func main() {
 
 	// Escala da prancha e medição sobre ela.
 	atlas.Put("/sheets/:id/scale", atlasHandler.SetSheetScale)
+
+	// Takeoff (ATL-103): o dicionário do set em três níveis e a leitura por IA.
+	atlas.Get("/documents/:id/takeoff/dictionary", atlasHandler.TakeoffDictionary)
+	atlas.Post("/documents/:id/takeoff/dictionary/extract", atlasHandler.TakeoffExtract)
+	atlas.Post("/documents/:id/takeoff/terms", atlasHandler.TakeoffCreateTerm)
+	atlas.Patch("/takeoff/terms/:id", atlasHandler.TakeoffUpdateTerm)
+	atlas.Delete("/takeoff/terms/:id", atlasHandler.TakeoffDeleteTerm)
+	atlas.Post("/sheets/:id/takeoff/ai", atlasHandler.TakeoffAI)
 	atlas.Delete("/sheets/:id/scale", atlasHandler.ClearSheetScale)
 
 	// Parâmetros de operação, mutáveis sem deploy.

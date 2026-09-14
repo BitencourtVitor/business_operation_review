@@ -77,7 +77,6 @@ export function TraceStage({ imageUrl, width, height, strokes, phase, runKey, on
   const boxRef = useRef<HTMLDivElement>(null)
   const [box, setBox] = useState({ w: 0, h: 0 })
   const pathRefs = useRef<(SVGPathElement | null)[]>([])
-  const badgeRefs = useRef<(SVGGElement | null)[]>([])
   const penRefs = useRef<(SVGGElement | null)[]>([])
   const [showPlan, setShowPlan] = useState(true)
   const [view, setView] = useState({ zoom: 1, x: 0, y: 0 })
@@ -111,7 +110,6 @@ export function TraceStage({ imageUrl, width, height, strokes, phase, runKey, on
     // categoria: animar um tracejado faz os pedaços correrem, em vez de o
     // lápis avançar.
     for (const el of els) if (el) el.style.strokeDasharray = "0 1"
-    for (const b of badgeRefs.current) if (b) b.style.opacity = "0"
     const finished = new Uint8Array(strokes.length)
 
     const t0 = performance.now()
@@ -132,8 +130,6 @@ export function TraceStage({ imageUrl, width, height, strokes, phase, runKey, on
           finished[i] = 1
           done++
           if (el) el.style.strokeDasharray = KIND_STYLE[strokes[i].kind].dash ?? "1 0"
-          const badge = badgeRefs.current[i]
-          if (badge) badge.style.opacity = "1"
           continue
         }
         if (!el) continue
@@ -277,23 +273,6 @@ export function TraceStage({ imageUrl, width, height, strokes, phase, runKey, on
                   strokeLinecap="round"
                   strokeDasharray={phase === "done" ? st.dash ?? "1 0" : "0 1"}
                 />
-              )
-            })}
-            {strokes.map((s, i) => {
-              if (s.kind !== "door" && s.kind !== "window") return null
-              const st = KIND_STYLE[s.kind]
-              return (
-                <g
-                  key={`b-${runKey}-${s.id}`}
-                  ref={el => { badgeRefs.current[i] = el }}
-                  transform={`translate(${(s.x1 + s.x2) / 2} ${(s.y1 + s.y2) / 2})`}
-                  style={{ opacity: phase === "done" ? 1 : 0, transition: "opacity 250ms" }}
-                >
-                  <circle r={9 * px} fill="#fff" stroke={st.color} strokeWidth={1.5 * px} />
-                  <text textAnchor="middle" dominantBaseline="central" fontSize={10 * px} fontWeight={700} fill={st.color}>
-                    {s.kind === "door" ? "D" : "W"}
-                  </text>
-                </g>
               )
             })}
             {Array.from({ length: PENS }, (_, k) => (
