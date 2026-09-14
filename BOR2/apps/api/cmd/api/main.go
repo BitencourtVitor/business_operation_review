@@ -779,6 +779,7 @@ func main() {
 	atlas.Post("/media/:id/confirm", atlasHandler.ConfirmMedia)
 	atlas.Get("/media/:id/url", atlasHandler.MediaURL)
 	atlas.Patch("/media/:id", atlasHandler.UpdateMedia)
+	atlas.Delete("/media/:id", atlasHandler.DeleteMedia)
 	atlas.Post("/media/:id/transcribe", atlasHandler.TranscribeMedia)
 	atlas.Post("/media/:id/topics", atlasHandler.MediaTopics)
 

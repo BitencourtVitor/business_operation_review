@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useAtlasMedia, useUpdateAtlasEvent } from "@/hooks/use-atlas"
+import { useAtlasMedia, useDeleteAtlasMedia, useUpdateAtlasEvent, useUploadAtlasMedia } from "@/hooks/use-atlas"
 import type { AtlasMedia } from "@/services/atlas.service"
 import { useAuthStore } from "@/store/auth.store"
-import { AlignLeft, CalendarDays, Check, CheckCircle2, Flag, Type } from "lucide-react"
-import { useState } from "react"
+import { AlignLeft, CalendarDays, Camera, Check, CheckCircle2, Flag, Type, Video, X } from "lucide-react"
+import { useRef, useState } from "react"
 
 /** Data e hora como quem confere: dia curto e relógio de 24 horas. */
 function quando(iso: string) {
@@ -267,6 +267,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
         metade={editando}
         titulo={editando === "solucao" ? point.solutionTitle ?? "" : point.title ?? ""}
         corpo={editando === "solucao" ? point.solutionBody ?? "" : point.body}
+        pecas={editando === "solucao" ? depois : antes}
         onClose={() => setEditando(null)}
       />
 
@@ -287,15 +288,44 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
  * O mesmo formato nas duas, porque o problema e a solução são o mesmo tipo de
  * registro: uma linha que diz o que é, e o parágrafo que conta.
  */
-function EditarMetade({ jobsiteId, eventId, metade, titulo, corpo, onClose }: {
+export function EditarMetade({ jobsiteId, eventId, metade, titulo, corpo, pecas, onClose }: {
   jobsiteId: string
   eventId: string
   metade: "problema" | "solucao" | null
   titulo: string
   corpo: string
+  /** As fotos e os vídeos desta metade: saem e entram aqui, junto com o texto. */
+  pecas: AtlasMedia[]
   onClose: () => void
 }) {
   const atualizar = useUpdateAtlasEvent(jobsiteId)
+  const subir = useUploadAtlasMedia(jobsiteId)
+  const tirar = useDeleteAtlasMedia(jobsiteId)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLInputElement>(null)
+  const [tirando, setTirando] = useState<string | null>(null)
+  const fase = metade === "solucao" ? "after" : "before"
+
+  async function adicionar(arquivos: File[]) {
+    setErro("")
+    try {
+      for (const file of arquivos) await subir.mutateAsync({ file, eventId, phase: fase })
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Could not add the file. Try again.")
+    }
+  }
+
+  async function remover(mediaId: string) {
+    setErro("")
+    setTirando(mediaId)
+    try {
+      await tirar.mutateAsync({ mediaId, eventId })
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Could not remove. Try again.")
+    } finally {
+      setTirando(null)
+    }
+  }
   const [aberta, setAberta] = useState<typeof metade>(null)
   const [t, setT] = useState("")
   const [c, setC] = useState("")
@@ -362,6 +392,58 @@ function EditarMetade({ jobsiteId, eventId, metade, titulo, corpo, onClose }: {
               className="w-full resize-y rounded-md border border-input bg-transparent py-2 pl-8 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             />
           </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label>Photos and videos</Label>
+          {/* Tirar e pôr uma peça vale na hora, sem esperar o Save: é arquivo, e
+              não rascunho. O Save é só do texto. */}
+          <div className="grid grid-cols-4 gap-2">
+            {pecas.map(m => (
+              <div key={m.id} className="relative aspect-square overflow-hidden rounded-md border border-border/60 bg-muted">
+                {ehVideo(m)
+                  ? <video src={m.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  : <img src={m.url} alt={m.fileName} className="h-full w-full object-cover" />}
+                <button
+                  type="button"
+                  title="Remove"
+                  aria-label="Remove"
+                  disabled={tirando === m.id}
+                  onClick={() => void remover(m.id)}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900/80 text-white transition-colors hover:bg-destructive disabled:opacity-50"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => cameraRef.current?.click()}
+              disabled={subir.isPending}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border/60 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+            >
+              <Camera className="h-4 w-4" />
+              Photo
+            </button>
+            <button
+              type="button"
+              onClick={() => videoRef.current?.click()}
+              disabled={subir.isPending}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border/60 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+            >
+              <Video className="h-4 w-4" />
+              Video
+            </button>
+          </div>
+          <input
+            ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden"
+            onChange={e => { const f = Array.from(e.target.files ?? []); e.target.value = ""; void adicionar(f) }}
+          />
+          <input
+            ref={videoRef} type="file" accept="video/*" capture="environment" className="hidden"
+            onChange={e => { const f = Array.from(e.target.files ?? []); e.target.value = ""; void adicionar(f) }}
+          />
         </div>
 
         {erro && <p className="text-xs text-destructive">{erro}</p>}

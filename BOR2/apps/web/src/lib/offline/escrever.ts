@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth.store"
 import { local } from "./db"
 import { chaves, lerResposta } from "./dados-da-obra"
 import {
-  ajustarLista, falhaDeRede, guardarChamada, guardarEnvio,
+  ajustarLista, descartarPendencia, falhaDeRede, guardarChamada, guardarEnvio,
   reenviarPendencias, vaiParaFila, type Chamada,
 } from "./pendencias"
 
@@ -180,6 +180,46 @@ export async function subirMidia(
   tocar()
   void reenviarPendencias()
   return { id: idLocal }
+}
+
+/**
+ * Tira uma foto ou um vídeo de um ponto.
+ *
+ * Peça que ainda nem subiu sai da fila e do aparelho, e nada vai ao servidor:
+ * apagar lá o que lá não existe seria uma chamada perdida esperando sinal.
+ */
+export async function apagarMidia(
+  obraId: string, mediaId: string, eventId: string, direto: () => Promise<unknown>,
+) {
+  const tirarDaTela = async () => {
+    let removida: AtlasMedia | undefined
+    await ajustarLista<AtlasMedia>(chaves.media(obraId, eventId), obraId, l => {
+      removida = l.find(m => m.id === mediaId)
+      return l.filter(m => m.id !== mediaId)
+    })
+    if (removida) {
+      const video = removida.contentType.startsWith("video/")
+      await ajustarLista<AtlasPunchPoint>(chaves.punchPoints(obraId), obraId, l => l.map(p => p.id !== eventId ? p : {
+        ...p,
+        photos: Math.max(0, p.photos - (video ? 0 : 1)),
+        videos: Math.max(0, p.videos - (video ? 1 : 0)),
+        after: Math.max(0, p.after - (removida!.phase === "after" ? 1 : 0)),
+      }))
+    }
+    return null
+  }
+  const naFila = await local.fila
+    .filter(f => f.kind === "api.upload" && f.payload.idLocal === mediaId && f.estado !== "enviando")
+    .first()
+  if (naFila) {
+    await descartarPendencia(naFila.id)
+    await local.midias.delete(mediaId).catch(() => undefined)
+    await tirarDaTela()
+    tocar()
+    return null
+  }
+  return escrever(obraId, mediaId, async () => { const r = await direto(); await tirarDaTela(); return r },
+    { metodo: "DELETE", caminho: `${base}/media/${mediaId}` }, "media removed", tirarDaTela)
 }
 
 // ── Traços, marca-texto e vínculos ────────────────────────────────────────────

@@ -762,6 +762,8 @@ export const atlasService = {
     `${base}/jobsites/${jobsiteId}/media`, body, getToken()),
   confirmMedia: (mediaId: string) =>
     api.post(`${base}/media/${mediaId}/confirm`, {}, getToken()),
+  deleteMedia: (mediaId: string) =>
+    api.delete(`${base}/media/${mediaId}`, getToken()),
   mediaUrl: (mediaId: string) =>
     api.get<{ url: string }>(`${base}/media/${mediaId}/url`, getToken()),
 

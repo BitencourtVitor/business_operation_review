@@ -5,7 +5,7 @@ import { readPdfOutline } from "@/components/atlas/pdf-page"
 import { local, type PlanoLocal } from "@/lib/offline/db"
 import { chaves, comUrlLocal, guardarResposta, juntarResposta, lerResposta } from "@/lib/offline/dados-da-obra"
 import {
-  apagarMarca, apagarPonto, criarMarca, criarPonto, escreverSimples, mudarMarca,
+  apagarMarca, apagarMidia, apagarPonto, criarMarca, criarPonto, escreverSimples, mudarMarca,
   mudarPonto, subirMidia, temPendencias,
 } from "@/lib/offline/escrever"
 import { pendenciasPorFolha, type PendenciaDaFolha } from "@/lib/offline/pendencias"
@@ -713,6 +713,19 @@ export function useAtlasMedia(
 }
 
 /** Mesmo ciclo do documento, para foto/áudio/vídeo do campo. */
+export function useDeleteAtlasMedia(jobsiteId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ mediaId, eventId }: { mediaId: string; eventId: string }) =>
+      apagarMidia(jobsiteId, mediaId, eventId, () => atlasService.deleteMedia(mediaId)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY.media(jobsiteId) })
+      qc.invalidateQueries({ queryKey: ["atlas", "events", jobsiteId] })
+      tocarPunch(qc, jobsiteId)
+    },
+  })
+}
+
 export function useUploadAtlasMedia(jobsiteId: string) {
   const qc = useQueryClient()
   return useMutation({

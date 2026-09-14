@@ -4,6 +4,8 @@ import { downloadPlan } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
 import { findInPlan, type TextHit } from "@/components/atlas/plan-text"
 import { RoleName } from "@/components/atlas/role-icon"
+import { EditarMetade, quando as dataHora } from "@/components/atlas/point-detail"
+import { useAuthStore } from "@/store/auth.store"
 import { atlasService } from "@/services/atlas.service"
 import { useAuth } from "@/hooks/use-auth"
 import { usePlanSource } from "@/components/atlas/use-plan-url"
@@ -33,7 +35,7 @@ import type {
   AtlasAnnotation, AtlasDocument, AtlasEvent, AtlasMedia, AtlasSheet, AtlasStrokeGeometry,
 } from "@/services/atlas.service"
 import {
-  ArrowRight, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
+  ArrowRight, CalendarDays, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, Eraser,
   FileText, FileUp,
   AlignLeft, Eye, EyeOff, Flag, Frame, Highlighter, History, Layers, Link2, Maximize, MapPin, Minus, Pen, PenLine, Plus,
   RotateCcw, RotateCw, Ruler, Search, Tag,
@@ -314,16 +316,6 @@ function pointsToPath(points: [number, number][], w: number, h: number): string 
  * Busca só quando o balão está aberto: montar isto para as vinte notas de uma
  * prancha custaria vinte consultas para mostrar nenhuma.
  */
-/** "Sep 12, 2026 7:31 PM": o carimbo de tempo do ponto, por extenso. */
-function carimbo(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ""
-  return d.toLocaleString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit",
-  })
-}
-
 /**
  * O ponto aberto sobre a prancha, no formato do relatório impresso.
  *
@@ -343,9 +335,10 @@ function carimbo(iso: string) {
  * **Número e condição ficam fora dos containers**, na primeira linha da janela:
  * eles identificam o ponto inteiro, e não o problema nem a solução.
  */
-function NoteBubble({ jobsiteId, evento, onOpen }: {
+function NoteBubble({ jobsiteId, evento, canAnnotate, onOpen }: {
   jobsiteId: string
   evento: AtlasEvent
+  canAnnotate: boolean
   onOpen: (pecas: { url: string; name: string }[], indice: number) => void
 }) {
   const { data: media } = useAtlasMedia(jobsiteId, { eventId: evento.id })
@@ -363,6 +356,12 @@ function NoteBubble({ jobsiteId, evento, onOpen }: {
   const solucaoData = evento.resolvedAt || depois[0]?.uploadedAt || ""
   // O que foi feito mora no ponto, com título e relato, como o problema.
   const oQueFoiFeito = [evento.solutionTitle, evento.solutionBody].filter(Boolean)
+  // Cada metade se edita por quem a escreveu: o problema por quem levantou, a
+  // solu��o por quem resolveu. A API aplica a mesma regra.
+  const eu = useAuthStore(st => st.user)
+  const [editando, setEditando] = useState<"problema" | "solucao" | null>(null)
+  const donoDoProblema = canAnnotate && !!eu && evento.createdBy === eu.id
+  const donoDaSolucao = canAnnotate && !!eu && evento.resolvedBy === eu.id
 
   return (
     <div className="flex flex-col gap-2 p-2.5">
@@ -404,6 +403,7 @@ function NoteBubble({ jobsiteId, evento, onOpen }: {
         quando={evento.createdAt}
         fotos={antes}
         onOpen={onOpen}
+        onEditar={donoDoProblema ? () => setEditando("problema") : undefined}
       />
 
       {temSolucao && (
@@ -427,8 +427,20 @@ function NoteBubble({ jobsiteId, evento, onOpen }: {
           quando={solucaoData}
           fotos={depois}
           onOpen={onOpen}
+          onEditar={donoDaSolucao ? () => setEditando("solucao") : undefined}
         />
       )}
+
+      <EditarMetade
+        jobsiteId={jobsiteId}
+        eventId={evento.id}
+        metade={editando}
+        titulo={editando === "solucao" ? evento.solutionTitle ?? "" : evento.title ?? ""}
+        corpo={editando === "solucao" ? evento.solutionBody ?? "" : evento.body}
+        pecas={(media ?? []).filter(m => m.url && (m.contentType.startsWith("image/") || m.contentType.startsWith("video/"))
+          && (editando === "solucao" ? m.phase === "after" : m.phase !== "after"))}
+        onClose={() => setEditando(null)}
+      />
     </div>
   )
 }
@@ -451,7 +463,7 @@ function NoteBubble({ jobsiteId, evento, onOpen }: {
  * conteúdo com a da caixa é a única forma honesta de saber se o texto foi
  * cortado, já que ele vem de quem escreveu e não tem tamanho previsível.
  */
-function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
+function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen, onEditar }: {
   titulo: React.ReactNode
   corpo: React.ReactNode
   nome: string
@@ -459,19 +471,26 @@ function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
   quando: string
   fotos: AtlasMedia[]
   onOpen: (pecas: { url: string; name: string }[], indice: number) => void
+  /** Presente só para quem escreveu este fato. */
+  onEditar?: () => void
 }) {
   const caixa = useRef<HTMLDivElement | null>(null)
   const [aberto, setAberto] = useState(false)
   const [cortado, setCortado] = useState(false)
 
+  // Mede o texto contra a altura fechada, e não contra a altura da caixa na
+  // hora: aberta, a caixa cabe o texto inteiro, a medida dizia "não cortado" e
+  // o botão sumia depois do primeiro abrir e fechar.
   useEffect(() => {
     const el = caixa.current
     if (!el) return
-    setCortado(el.scrollHeight > el.clientHeight + 1)
-  }, [aberto, corpo])
+    const fechada = parseFloat(getComputedStyle(document.documentElement).fontSize) * 3.25
+    setCortado(el.scrollHeight > fechada + 1)
+  }, [corpo])
 
   return (
-    <div className="flex gap-2.5 rounded-lg border border-white/10 p-2.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-white/10 p-2.5">
+      <div className="flex items-start gap-2.5">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {titulo}
 
@@ -490,15 +509,37 @@ function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
           </div>
         )}
 
-        {/* `mt-auto` prende a assinatura no pé do container, mesmo quando a
-            coluna de imagens é mais alta que a de texto: quem fez e quando é o
-            fecho do registro, e fechar no meio da moldura deixava um vão. */}
-        <span className="mt-auto flex flex-wrap items-center gap-x-1.5 gap-y-1 pt-1 text-[11px] text-white/50">
-          {nome && <RoleName name={nome} role={cargo} />}
-          {nome && quando && <span aria-hidden>·</span>}
-          {quando && <span>{carimbo(quando)}</span>}
+      </div>
 
-          {(cortado || aberto) && (
+      <Fotos fotos={fotos} onOpen={onOpen} />
+      </div>
+
+      {/* A assinatura na largura inteira, embaixo do texto e das imagens: presa
+          na coluna do texto, ela empurrava as imagens para baixo e sobrava vão
+          do lado. Mesma forma do ponto na lista: crachá, fio, calendário e data. */}
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-[11px] text-white/50">
+          {nome && <RoleName name={nome} role={cargo} />}
+          {nome && quando && <span aria-hidden className="h-3 w-px shrink-0 bg-white/15" />}
+          {quando && (
+            <span className="flex items-center gap-1 tabular-nums">
+              <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+              {dataHora(quando)}
+            </span>
+          )}
+
+          {(onEditar || cortado) && (
+          <span className="ml-auto flex items-center gap-1.5">
+          {onEditar && (
+            <button
+              type="button"
+              onClick={onEditar}
+              className="flex items-center gap-1 rounded-md border border-white/15 px-1.5 py-0.5 font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <Pen className="h-3 w-3 shrink-0" />
+              Edit
+            </button>
+          )}
+          {cortado && (
             <button
               type="button"
               onClick={() => {
@@ -508,7 +549,7 @@ function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
                 if (aberto && caixa.current) caixa.current.scrollTop = 0
                 setAberto(v => !v)
               }}
-              className="flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-1.5 py-0.5 font-medium text-primary transition-colors hover:bg-primary/20"
+              className="flex items-center gap-1 rounded-md border border-white/15 px-1.5 py-0.5 font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
               {aberto
                 ? <ChevronUp className="h-3 w-3 shrink-0" />
@@ -519,10 +560,9 @@ function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen }: {
               {aberto ? "Less" : "More"}
             </button>
           )}
-        </span>
-      </div>
-
-      <Fotos fotos={fotos} onOpen={onOpen} />
+          </span>
+          )}
+      </span>
     </div>
   )
 }
@@ -2137,7 +2177,8 @@ export function SheetViewer({
               >
                 <NoteBubble
                   jobsiteId={jobsiteId}
-                  evento={bubble.evento}
+                  evento={events?.find(ev => ev.id === bubble.evento.id) ?? bubble.evento}
+                  canAnnotate={canAnnotate}
                   onOpen={(pecas, inicial) => setFoto({ pecas, inicial })}
                 />
               </div>
