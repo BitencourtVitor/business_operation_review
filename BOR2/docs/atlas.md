@@ -63,16 +63,20 @@ vez de virar uma versão que aponta para meio arquivo.
 Depois do `confirm`, tudo o que deriva do PDF é feito pela API, em segundo plano
 (`internal/handler/atlas_ingest.go`), e não mais no navegador de quem enviou: o original desce
 do bucket, `pdftotext -bbox-layout` lê o texto com posição de todas as páginas de uma vez, e
-cada página (quatro ao mesmo tempo) passa por `pdfseparate` (recorte), `pdftoppm` (prévia JPEG
+cada página (quatro ao mesmo tempo) passa por `mutool merge -O garbage=4,compress` (recorte), `pdftoppm` (prévia JPEG
 de 300 px e raster cinza de 20 dpi para o hash de geometria), nome pelo gabarito da categoria
 (ou pelo que o cliente já conferiu na prévia e mandou no `confirm`), upload dos dois objetos
 e **gravação da folha na hora**. No fim, o autolink roda sobre as mesmas palavras e grava os
 vínculos como automáticos. Um set de 97 páginas leva cerca de 20 s.
 
+O recorte **não** usa `pdfseparate`: no set da Riverview (Bluebeam Stapler) 38 das 51 páginas
+saíram com os 112 MB do set inteiro, porque ele arrasta o dicionário de recursos compartilhado.
+O MuPDF copia só o que a página alcança: 133 MB somando as 51, mediana de 0,87 MB (14/09).
+
 A tabela `atlas_version_job` é o andamento e a fila: na subida da API o que estiver `queued`
 ou `running` volta a rodar, e a rotina é idempotente por página (folha com recorte, prévia e
 sem `ingest_error` não se refaz). O navegador só responde pelo PUT dos bytes; depois disso a
-aba pode fechar. Isso exige `poppler-utils` na imagem (Dockerfile) e a API lendo e escrevendo
+aba pode fechar. Isso exige `poppler-utils` e `mupdf-tools` na imagem (Dockerfile) e a API lendo e escrevendo
 no bucket (`R2Service.Get`/`Put`), que é a exceção deliberada à regra acima.
 
 O hash de geometria mudou de método nessa data (era a lista de operadores do pdf.js). Folhas
