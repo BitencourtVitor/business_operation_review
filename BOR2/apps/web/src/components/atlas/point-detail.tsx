@@ -162,7 +162,6 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
   const visuais = pecas.filter(m => ehImagem(m) || ehVideo(m))
   const antes = visuais.filter(m => m.phase !== "after")
   const depois = visuais.filter(m => m.phase === "after")
-  const condicao = useUpdateAtlasEvent(jobsiteId)
   const eu = useAuthStore(st => st.user)
   const [registrando, setRegistrando] = useState(false)
   const [editando, setEditando] = useState<"problema" | "solucao" | null>(null)
@@ -190,10 +189,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
           data={point.createdAt}
         >
           <PointPhase
-            jobsiteId={jobsiteId}
-            eventId={point.id}
             canWrite={donoDoProblema}
-            fase="before"
             pecas={antes}
             onEditar={() => setEditando("problema")}
           />
@@ -223,7 +219,7 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
                 <button
                   type="button"
                   onClick={() => setRegistrando(true)}
-                  className="flex h-9 shrink-0 items-center gap-1.5 self-center rounded-lg border border-emerald-500/40 px-3 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+                  className="flex h-8 shrink-0 items-center gap-1.5 self-center rounded-lg border border-emerald-500/40 px-3 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   Problem solved
@@ -231,20 +227,9 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
               )
             ) : (
               <PointPhase
-                jobsiteId={jobsiteId}
-                eventId={point.id}
                 canWrite={donoDaSolucao}
-                fase="after"
                 pecas={depois}
                 onEditar={() => setEditando("solucao")}
-                // Registrar a solução é resolver o ponto: a prova do conserto
-                // subiu, e deixar o ponto pendente pedia um segundo gesto que
-                // ninguém lembrava de fazer.
-                onRegistrou={() => {
-                  if (point.status !== "resolved") {
-                    condicao.mutate({ eventId: point.id, patch: { status: "resolved" } })
-                  }
-                }}
               />
             )}
           </Metade>
@@ -274,7 +259,9 @@ export function PointDetail({ jobsiteId, point, canWrite, rodape }: {
       {rodape && (
         // As ações dividem a largura: com um vão no meio, a de cada ponta
         // parecia um botão perdido no canto.
-        <div className="flex items-center gap-2 border-t border-border/50 pt-3 [&>*]:flex-1 [&>*]:justify-center">
+        // O rodapé tem o fundo e o fio do cabeçalho do ponto: sai do fundo do
+        // corpo até as bordas do cartão, e o corpo fica emoldurado pelos dois.
+        <div className="-mx-3 -mb-3 flex items-center gap-2 border-t border-border/60 bg-card px-3 py-3 [&>*]:flex-1 [&>*]:justify-center">
           {rodape}
         </div>
       )}

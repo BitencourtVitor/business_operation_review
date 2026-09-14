@@ -42,6 +42,7 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState("")
   const sistemaRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLInputElement>(null)
 
   function fechar() {
     if (salvando) return
@@ -120,7 +121,16 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
           <PhotoGrid
             fotos={fotos}
             onAdd={() => setCamera(true)}
+            onAddVideo={() => videoRef.current?.click()}
             onRemove={i => setFotos(list => list.filter((_, k) => k !== i))}
+          />
+          <input
+            ref={videoRef} type="file" accept="video/*" capture="environment" className="hidden"
+            onChange={e => {
+              const escolhidos = Array.from(e.target.files ?? [])
+              e.target.value = ""
+              if (escolhidos.length) setFotos(list => [...list, ...escolhidos])
+            }}
           />
           <input
             ref={sistemaRef} type="file" accept="image/*" capture="environment" className="hidden"
@@ -138,10 +148,10 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
               className="bg-emerald-600 text-white hover:bg-emerald-600/90"
               onClick={() => void salvar()}
               disabled={!titulo.trim() || !fotos.length || salvando}
-              title={!fotos.length ? "Take at least one photo of what was done" : undefined}
+              title={!fotos.length ? "Take at least one photo or video of what was done" : undefined}
             >
               <CheckCircle2 className="h-4 w-4" />
-              {salvando ? "Saving…" : fotos.length ? "Save solution" : "Add a photo to save"}
+              {salvando ? "Saving…" : fotos.length ? "Save solution" : "Add a photo or video to save"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -149,7 +159,7 @@ export function SolutionDialog({ jobsiteId, eventId, jaResolvido, open, onClose 
 
       {camera && createPortal(
         <CameraShot
-          fotos={fotos}
+          fotos={fotos.filter(f => !f.type.startsWith("video/"))}
           onCapture={f => setFotos(list => [...list, f])}
           onClose={() => setCamera(false)}
           onSistema={() => { setCamera(false); sistemaRef.current?.click() }}
