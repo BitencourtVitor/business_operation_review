@@ -9,7 +9,7 @@ import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import { useQuery } from "@tanstack/react-query"
 import { PersonRow } from "@/components/atlas/person-row"
 import { KIND_META, placeLabel } from "@/components/atlas/jobsite-form-dialog"
-import { HardHat, MapPin, Search, X } from "lucide-react"
+import { Check, HardHat, MapPin, Search, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 // A tabela de tipos e a regra do lugar vêm do formulário: eram cópias, e um
@@ -39,6 +39,8 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
   const [saving, setSaving] = useState(false)
   // Dois toques: o primeiro escolhe a pessoa, o segundo age.
   const [armed, setArmed] = useState<string | null>(null)
+  // No celular s� um grupo por vez, escolhido pela barra do topo.
+  const [grupo, setGrupo] = useState<"premium" | "subs">("premium")
 
   const { data: users } = useQuery({
     queryKey: ["atlas", "blockable-users"],
@@ -134,7 +136,7 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
 
   // Uma coluna: em cima quem não pode, embaixo quem pode. A ordem é a mesma dos
   // dois lados para o olho não ter de reaprender a leitura no meio da tela.
-  function Column({ title, icon: Icon, logo, people, canSee, onToggle, emptySeeing }: {
+  function Column({ title, icon: Icon, logo, people, canSee, onToggle, emptySeeing, className = "" }: {
     title: string
     icon?: React.ElementType
     /** A marca da casa, em cinza: identifica sem puxar o olho. */
@@ -144,12 +146,15 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
     onToggle: (id: string, next: boolean) => void
     /** O que dizer quando ninguém desta metade enxerga a obra. */
     emptySeeing: string
+    className?: string
   }) {
     const no = people.filter(u => !canSee(u.id))
     const yes = people.filter(u => canSee(u.id))
     return (
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60">
-        <p className="flex shrink-0 items-center gap-1.5 border-b border-border/60 bg-muted/30 px-2.5 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+      <div className={`min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 ${className}`}>
+        {/* No celular o grupo já está escrito na barra de cima: repetir o título
+            aqui seria gastar uma linha dizendo o que a aba acesa já diz. */}
+        <p className="hidden shrink-0 items-center gap-1.5 border-b border-border/60 bg-muted/30 px-2.5 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground sm:flex">
           {logo ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -237,12 +242,47 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
           )}
         </div>
 
-        {/* Lado a lado no computador, empilhadas no celular. Em 375 as duas
-            colunas ficavam com 150 cada, e um nome de pessoa não cabe em 150:
-            a lista virava "Clayton De S…" e "Matheus San…", que é justamente o
-            que ela existe para mostrar. */}
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto sm:flex-row sm:overflow-visible">
+        {/* No celular, um grupo por vez, escolhido aqui. Empilhados, os dois
+            grupos dividiam a altura em quatro faixas estreitas, e cada lista
+            mostrava um nome e meio antes de rolar. */}
+        <div className="flex shrink-0 gap-1 rounded-lg border border-border/60 bg-muted/20 p-1 sm:hidden">
+          {([
+            ["premium", "Premium Group", premium.length],
+            ["subs", "Subcontractors", subs.length],
+          ] as const).map(([valor, rotulo, quantos]) => (
+            <button
+              key={valor}
+              type="button"
+              onClick={() => { setGrupo(valor); setArmed(null) }}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                grupo === valor
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              }`}
+            >
+              {valor === "subs" ? (
+                <HardHat className="h-3.5 w-3.5 shrink-0" />
+              ) : (
+                // A mesma marca em cinza do título da coluna no computador.
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/minilogo_black.png" alt="" className="h-3.5 w-3.5 shrink-0 object-contain opacity-50 grayscale dark:hidden" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/minilogo_white.png" alt="" className="hidden h-3.5 w-3.5 shrink-0 object-contain opacity-50 grayscale dark:block" />
+                </>
+              )}
+              {rotulo}
+              <span className="tabular-nums text-muted-foreground">{quantos}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Lado a lado no computador. Em 375 as duas colunas ficavam com 150
+            cada, e um nome de pessoa não cabe em 150: por isso o celular mostra
+            uma de cada vez. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row">
           <Column
+            className={grupo === "premium" ? "flex" : "hidden sm:flex"}
             title="Premium Group"
             logo
             people={premium}
@@ -253,6 +293,7 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
           />
 
           <Column
+            className={grupo === "subs" ? "flex" : "hidden sm:flex"}
             title="Subcontractors"
             icon={HardHat}
             people={subs}
@@ -263,17 +304,23 @@ export function JobsiteVisibilityDialog({ jobsite, open, onClose }: {
           />
         </div>
 
-        <DialogFooter className="sm:items-center sm:justify-between">
-          <span className="min-w-0 flex-1 pr-4 text-xs leading-snug text-muted-foreground">
+        {/* No celular o aviso vem antes das ações, centrado, e as ações ocupam a
+            largura: salvar é o alvo do polegar e fica com dois terços. */}
+        <DialogFooter className="flex-col sm:flex-row sm:items-center sm:justify-between">
+          <span className="min-w-0 flex-1 text-center text-xs leading-snug text-muted-foreground sm:pr-4 sm:text-left">
             {/* Cargo privilegiado fica de fora da conta: vê tudo antes de a
                 regra ser consultada, e listá-lo aqui prometeria um bloqueio que
                 não existe. O resto a tela já mostra: as duas colunas e as duas
                 metades dizem a regra sem precisar de legenda. */}
             Admins and managers always see every project.
           </span>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>
+          <div className="grid grid-cols-3 gap-2 sm:flex">
+            <Button variant="outline" onClick={onClose}>
+              <X className="h-4 w-4" />
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving} className="col-span-2">
+              <Check className="h-4 w-4" />
               {saving ? "Saving…" : "Save"}
             </Button>
           </div>
