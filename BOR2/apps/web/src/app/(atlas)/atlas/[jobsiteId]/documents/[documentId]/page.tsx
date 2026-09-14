@@ -8,33 +8,32 @@ import { lerArquivo } from "@/lib/offline/storage"
 import { useLiveQuery } from "dexie-react-hooks"
 import { Voltar } from "@/components/atlas/panel"
 import { downloadPlans, juntarFolhas } from "@/components/atlas/pdf-page"
-import { backfillThumbs } from "@/components/atlas/plan-split"
 import { SheetViewer } from "@/components/atlas/sheet-viewer"
 import { UploadPlanDialog } from "@/components/atlas/upload-plan-dialog"
 import { VersionGaps } from "@/components/atlas/version-gaps"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 import {
   useAtlasDocCategories, useAtlasDocuments, useAtlasJobsite, useAtlasJobsiteCategories, useAtlasSheets,
   usePendenciasPorFolha,
   useAtlasThumbs, useAtlasVersions,
-  usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
+  useIngestJob, usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
-import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
-import { atlasService, uploadToR2, type AtlasSheet } from "@/services/atlas.service"
-import { useQueryClient } from "@tanstack/react-query"
+import { atlasService, uploadToR2, type AtlasIngestJob, type AtlasSheet } from "@/services/atlas.service"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
-  ArrowLeft, Check, CheckCheck, CloudUpload, Download, FileText, Flag, Highlighter, History, Images, Layers, Link2, MapPin,
-  Pencil, ScanText, SquareDashedMousePointer, Tags, WifiOff, X,
+  ArrowLeft, Check, CheckCheck, CheckCircle2, CloudUpload, Download, FileText, Flag, Highlighter, History, Layers, Link2, MapPin,
+  Loader2, Pencil, RefreshCw, ScanText, SquareDashedMousePointer, Tags, TriangleAlert, WifiOff, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -65,6 +64,154 @@ function bytes(n: number) {
   let v = n, i = 0
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
   return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
+}
+
+/**
+ * O que o navegador ainda faz do envio: abrir a versão, subir os bytes e
+ * confirmar. Daí em diante o trabalho é do servidor, e quem diz onde ele está é
+ * o job (`useIngestJob`).
+ */
+type Envio = {
+  passo: "opening" | "uploading" | "confirming" | "server" | "error"
+  feito: number
+  total: number
+  mensagem?: string
+}
+
+/**
+ * Onde o envio está, numa faixa só, com uma barra que só anda para a frente e
+ * um fim dito em voz alta.
+ *
+ * Os bytes do arquivo valem os primeiros 40%. O resto é o servidor: fila,
+ * leitura do arquivo, as folhas uma a uma (que é quase tudo) e os vínculos no
+ * fim. Quem sobe um set de 100 MB vê uma tarefa, e pode fechar a aba depois
+ * que o arquivo subiu: o que falta não depende mais dela.
+ */
+function EnvioStatus({ envio, job, canManage, onClose, onRetry }: {
+  envio: Envio | null
+  job?: AtlasIngestJob
+  canManage: boolean
+  onClose: () => void
+  onRetry: () => void
+}) {
+  // O cliente manda enquanto está subindo; depois, o job.
+  const cliente = envio && envio.passo !== "server" ? envio : null
+  const noServidor = !cliente && job && job.status !== "none"
+  if (!cliente && !noServidor) return null
+
+  let pct = 0
+  let titulo = "Uploading the plan set"
+  let detalhe = ""
+  let estado: "andando" | "pronto" | "erro" = "andando"
+
+  if (cliente) {
+    const parte = cliente.total ? Math.min(cliente.feito / cliente.total, 1) : 0
+    switch (cliente.passo) {
+      case "opening":
+        detalhe = "Starting"
+        break
+      case "uploading":
+        pct = parte * 40
+        detalhe = `Sending the file · ${bytes(cliente.feito)} of ${bytes(cliente.total)}`
+        break
+      case "confirming":
+        pct = 40
+        detalhe = "Handing over to the server"
+        break
+      case "error":
+        estado = "erro"
+        titulo = "The upload did not finish"
+        detalhe = cliente.mensagem ?? ""
+        break
+    }
+  } else if (job) {
+    const parte = job.total ? Math.min(job.done / job.total, 1) : 0
+    switch (job.status) {
+      case "queued":
+        pct = 42
+        detalhe = "Waiting in line"
+        break
+      case "running":
+        if (job.step === "download") {
+          pct = 45
+          detalhe = "Reading the file"
+        } else if (job.step === "links") {
+          pct = 95
+          detalhe = "Linking the sheets"
+        } else {
+          pct = 45 + parte * 50
+          detalhe = `Preparing sheets · ${job.done} of ${job.total || "…"}`
+        }
+        break
+      case "done":
+        estado = "pronto"
+        pct = 100
+        titulo = "Plan set ready"
+        detalhe = `${job.total} ${job.total === 1 ? "sheet" : "sheets"}`
+          + (job.links ? ` · ${job.links} ${job.links === 1 ? "link" : "links"}` : "")
+          + (envio?.mensagem ? ` · ${envio.mensagem}` : "")
+        break
+      case "failed":
+        estado = "erro"
+        titulo = job.failed
+          ? `${job.failed} of ${job.total} sheets did not process`
+          : "The processing did not finish"
+        detalhe = job.error
+        break
+    }
+  }
+
+  return (
+    <div
+      role="status"
+      className={cn(
+        "flex shrink-0 items-center gap-3 rounded-lg border px-3 py-2.5",
+        estado === "pronto" && "border-emerald-500/30 bg-emerald-500/5",
+        estado === "erro" && "border-destructive/30 bg-destructive/5",
+        estado === "andando" && "border-border/60 bg-muted/30",
+      )}
+    >
+      {estado === "pronto" ? (
+        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+      ) : estado === "erro" ? (
+        <TriangleAlert className="h-4 w-4 shrink-0 text-destructive" />
+      ) : (
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-sm font-medium">{titulo}</span>
+          <span className={cn(
+            "text-xs tabular-nums",
+            estado === "erro" ? "text-destructive" : "text-muted-foreground",
+          )}>
+            {detalhe}
+          </span>
+        </div>
+        {estado === "andando" && (
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${pct}%` }} />
+          </div>
+        )}
+      </div>
+      {estado === "andando" && (
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{Math.round(pct)}%</span>
+      )}
+      {/* Falha no servidor tem retomada: as folhas prontas ficam, e só as que
+          faltaram voltam a rodar. */}
+      {estado === "erro" && !cliente && canManage && (
+        <Button variant="outline" size="sm" className="shrink-0" onClick={onRetry}>
+          <RefreshCw className="h-3.5 w-3.5" />
+          Retry
+        </Button>
+      )}
+      {estado !== "andando" && (
+        <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label="Dismiss" onClick={onClose}>
+          <X className="h-3.5 w-3.5" />
+        </Button>
+      )}
+    </div>
+  )
 }
 
 // A folha é um cartão quadrado: a prancha em cima, ocupando tudo, e a
@@ -133,6 +280,16 @@ function SheetCard({ sheet, versionId, canManage, thumb, waiting, picking, picke
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-muted/40 text-muted-foreground">
             <FileText className="h-5 w-5" />
             <span className="text-[11px]">No preview offline</span>
+          </span>
+        ) : sheet.ingestError ? (
+          // O servidor não conseguiu esta página. A faixa lá em cima oferece
+          // tentar de novo; aqui só se diz que esta é uma das que faltaram.
+          <span
+            className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-destructive/5 text-destructive"
+            title={sheet.ingestError}
+          >
+            <TriangleAlert className="h-5 w-5" />
+            <span className="text-[11px]">Did not process</span>
           </span>
         ) : (
           // Sem miniatura ainda: ou a folha está na fila do corte, ou acabou de
@@ -359,18 +516,14 @@ export default function DocumentPage() {
   const [alvoDaTroca, setAlvoDaTroca] = useState<number[] | null>(null)
 
   const upload = useUploadAtlasVersion(documentId)
-  // A prévia desenhada no próprio navegador, por página. Ela aparece no cartão
-  // no instante em que a folha termina, sem esperar o bucket devolver a imagem
-  // assinada. Some sozinha quando a do servidor chega.
-  const [previews, setPreviews] = useState<Map<number, string>>(new Map())
-  const [sending, setSending] = useState<{ done: number; total: number } | null>(null)
-  // Em que pé o envio está antes de as folhas existirem. Sem isto a página ficava
-  // dizendo "No plan set here yet" durante todo o tempo em que o arquivo subia,
-  // e quem acabou de anexar um set de 100 MB lia aquilo como envio perdido.
-  const [fase, setFase] = useState<{ passo: string; enviado: number; total: number } | null>(null)
-  /** As folhas já nasceram: daqui para a frente quem mostra o andamento é a grade. */
-  const temFolhas = useRef(false)
-  const [sendError, setSendError] = useState("")
+  // O envio inteiro num lugar só, do primeiro byte ao último vínculo, e com
+  // fim dito em voz alta. O navegador só responde pelos bytes; o resto é o
+  // job do servidor, que a faixa passa a mostrar assim que ele assume.
+  const [envio, setEnvio] = useState<Envio | null>(null)
+  // A faixa fechada pela pessoa depois de pronta ou falhada. Volta a aparecer
+  // num envio novo.
+  const [fechado, setFechado] = useState(false)
+  const enviando = !!envio && (envio.passo === "opening" || envio.passo === "uploading" || envio.passo === "confirming")
 
   // Nomear é etapa à parte do envio, e pode acontecer dias depois: o set sobe,
   // as folhas nascem numeradas por página, e o gabarito entra quando alguém
@@ -395,18 +548,29 @@ export default function DocumentPage() {
   // falhado no meio, e sem isso o arquivo, os nomes lidos e os vínculos já
   // conferidos se perderiam com um documento criado e vazio no lugar.
   const started = useRef(false)
+  // A checagem da cópia guardada terminou. Até lá as prévias automáticas
+  // esperam: a retomada do corte já as desenha, e correr as duas juntas faria o
+  // mesmo trabalho em dobro.
   useEffect(() => {
     if (started.current) return
     const pending = takeUpload(documentId)
     if (pending) {
       started.current = true
-      startUpload(pending.file, pending.names, undefined, undefined, pending.links)
+      startUpload(pending.file, pending.names)
       return
     }
-    void retomarUpload(documentId).then(guardado => {
+    // A cópia guardada só serve se os bytes não chegaram a subir: versão
+    // confirmada é trabalho do servidor, e a cópia sai. Sem versão nenhuma, ou
+    // com a última ainda pendente (o PUT caiu no meio), o envio recomeça.
+    void retomarUpload(documentId).then(async guardado => {
       if (!guardado || started.current) return
       started.current = true
-      startUpload(guardado.file, guardado.names, undefined, undefined, guardado.links)
+      const [ultima] = await atlasService.listVersions(documentId).then(r => r ?? [])
+      if (ultima && ultima.status !== "pending") {
+        await descartarUpload(documentId)
+        return
+      }
+      startUpload(guardado.file, guardado.names)
     }).catch(() => undefined)
   }, [documentId])
 
@@ -416,6 +580,11 @@ export default function DocumentPage() {
 
 
   const { data: sheets } = useAtlasSheets(versionId)
+  const { data: job } = useIngestJob(versionId)
+  const retry = useMutation({
+    mutationFn: () => atlasService.ingestRetry(versionId),
+    onSuccess: () => { setFechado(false); qc.invalidateQueries({ queryKey: ["atlas", "ingest", versionId] }) },
+  })
   const { data: thumbs, refetch: refetchThumbs } = useAtlasThumbs(versionId)
   // As miniaturas guardadas no aparelho, para quando a do servidor não vem.
   //
@@ -469,26 +638,6 @@ export default function DocumentPage() {
   }, [wanted, jumped, sheets])
   const { data: categories = [] } = useAtlasDocCategories()
   const qc = useQueryClient()
-  // Prévias que faltam: as folhas cortadas antes de a miniatura existir. O
-  // botão só aparece enquanto houver alguma, e some sozinho quando acabam.
-  const [filling, setFilling] = useState("")
-  const [fillError, setFillError] = useState("")
-  const missingThumbs = (sheets ?? []).filter(s => !s.thumbKey).length
-
-  async function fillThumbs() {
-    if (!sheets?.length) return
-    setFilling(`0/${missingThumbs}`)
-    setFillError("")
-    try {
-      await backfillThumbs(versionId, sheets, (done, total) => setFilling(`${done}/${total}`))
-      await refetchThumbs()
-      await qc.invalidateQueries({ queryKey: ["atlas", "sheets", versionId] })
-    } catch (e) {
-      setFillError(e instanceof Error ? e.message : "could not make the previews")
-    } finally {
-      setFilling("")
-    }
-  }
   const version = versions?.find(v => v.id === versionId)
   const rename = useRenameAtlasSheets(versionId)
   const updateCategory = useUpdateDocCategory()
@@ -663,16 +812,9 @@ export default function DocumentPage() {
     names?: Map<number, string>,
     _identity?: unknown,
     version?: { name: string; notes: string; attachments?: File[] },
-    /** Os vínculos confirmados antes do envio, gravados quando as folhas existirem. */
-    links?: VinculoConfirmado[],
   ) {
-    setPreviews(new Map())
-    setSendError("")
-    setSending({ done: 0, total: 0 })
-    temFolhas.current = false
-    setFase({ passo: "opening", enviado: 0, total: file.size })
-    // A versão nasce no meio do envio, e é dela que os vínculos precisam.
-    let versaoId = ""
+    setFechado(false)
+    setEnvio({ passo: "opening", feito: 0, total: file.size })
     // O trecho que este arquivo substitui, lido agora: o diálogo limpa a seleção
     // ao fechar, logo depois de chamar aqui.
     const alvo = alvoDaTroca?.length ? [...alvoDaTroca] : undefined
@@ -683,57 +825,40 @@ export default function DocumentPage() {
       name: version?.name,
       notes: version?.notes,
       revision: String((versions?.length ?? 0) + 1),
-      // A fase só vale antes de a folha existir. Depois do `onSheets` vem o
-      // corte, que também reporta andamento, e ele pertence à grade: repetir na
-      // caixa de cima deixava "Preparing the plan set" no ar com as 97 folhas
-      // já à vista logo abaixo.
       onProgress: (passo, detalhe) => {
-        if (temFolhas.current) return
-        const [enviado, total] = (detalhe ?? "").split("/").map(Number)
-        setFase({ passo, enviado: enviado || 0, total: total || file.size })
-      },
-      onSheets: (id, pageCount) => {
-        temFolhas.current = true
-        setFase(null)
-        setSending({ done: 0, total: pageCount })
-        versaoId = id
-        setVersionId(id)
-        qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
-        // Os anexos da justificativa vão assim que a versão existe, em paralelo
-        // com o corte: eles não dependem das folhas, e segurá-los até o fim
-        // atrasaria por nada. Falhar num anexo não desfaz o envio.
-        void sendAttachments(id, version?.attachments ?? [])
-      },
-      onPage: (pageIndex, preview) => {
-        setPreviews(m => new Map(m).set(pageIndex, preview))
-        setSending(s => s && { ...s, done: s.done + 1 })
+        const [feito, total] = (detalhe ?? "").split("/").map(Number)
+        setEnvio({ passo, feito: feito || 0, total: total || file.size })
       },
     }, {
-      onSuccess: () => {
-        setSending(null)
-        setFase(null)
-        // O set subiu: a cópia de segurança do arquivo já não serve para nada e
-        // sai do aparelho. Antes disso ela fica, para uma falha no meio do
-        // caminho ainda poder ser retomada.
+      onSuccess: ({ versionId: id }) => {
+        // O arquivo está no bucket e o servidor assumiu: a cópia de segurança
+        // já não serve para nada e sai do aparelho. Fechar a aba agora não
+        // perde mais nada.
         void descartarUpload(documentId)
-        // O recorte e a miniatura do bucket entram no lugar da prévia local.
-        qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
-        refetchThumbs()
-        // Os vínculos confirmados antes do envio só podem ser gravados agora:
-        // é neste momento que a página vira folha com identificador.
-        if (links?.length && versaoId) {
-          void atlasService.autolinkApply(versaoId, { links }).then(() => {
-            qc.invalidateQueries({ queryKey: ["atlas", "sheets"] })
-          }).catch(() => {})
-        }
+        setVersionId(id)
+        setEnvio({ passo: "server", feito: 0, total: 0 })
+        qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
+        // Os anexos da justificativa não dependem das folhas: vão agora.
+        // Falhar num anexo não desfaz o envio.
+        void sendAttachments(id, version?.attachments ?? [])
       },
       onError: e => {
-        setSending(null)
-        setFase(null)
-        setSendError(e instanceof Error ? e.message : "could not upload")
+        setEnvio({
+          passo: "error", feito: 0, total: 0,
+          mensagem: e instanceof Error ? e.message : "Could not upload the plan set.",
+        })
       },
     })
   }
+
+  // Sair da página enquanto os bytes sobem perde o envio. Depois disso, não:
+  // o servidor segue sozinho. O navegador só pergunta na primeira metade.
+  useEffect(() => {
+    if (!enviando) return
+    const segurar = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = "" }
+    window.addEventListener("beforeunload", segurar)
+    return () => window.removeEventListener("beforeunload", segurar)
+  }, [enviando])
 
   const [tagging, setTagging] = useState(false)
   const [history, setHistory] = useState(false)
@@ -778,7 +903,7 @@ export default function DocumentPage() {
         await uploadToR2(media.uploadUrl, extra, extra.type || "application/octet-stream")
         await atlasService.confirmMedia(media.mediaId)
       } catch {
-        setSendError("The plan set went up, but one of the attachments did not.")
+        setEnvio(e => e ? { ...e, mensagem: "one of the attachments did not upload" } : e)
       }
     }
     qc.invalidateQueries({ queryKey: ["atlas", "versions", documentId] })
@@ -929,42 +1054,17 @@ export default function DocumentPage() {
             />
           )}
 
-          {/* O envio antes de as folhas existirem. Enquanto o arquivo sobe não há
-              versão nem folha para mostrar, e sem este bloco a página dizia que
-              não havia plan set nenhum justamente enquanto ele subia. */}
-          {fase && (
-            <div className="flex h-full min-h-40 flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/60 p-10 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground">
-                <CloudUpload className="h-6 w-6" />
-              </span>
-              <span>
-                <p className="text-sm font-medium">
-                  {fase.passo === "uploading" ? "Sending the plan set" : "Preparing the plan set"}
-                </p>
-                <p className="mt-1 text-sm tabular-nums text-muted-foreground">
-                  {fase.passo === "uploading"
-                    ? `${bytes(fase.enviado)} of ${bytes(fase.total)}`
-                    : fase.passo === "confirming"
-                      ? "Reading the pages"
-                      : "Opening the upload"}
-                </p>
-              </span>
-              {/* A barra só é exata durante o envio dos bytes. Nos outros passos
-                  ela corre sozinha, porque tempo ali não se mede. */}
-              <span className="h-1.5 w-56 overflow-hidden rounded-full bg-muted">
-                <span
-                  className={`block h-full bg-primary ${
-                    fase.passo === "uploading" ? "transition-[width]" : "w-1/3 animate-pulse"
-                  }`}
-                  style={fase.passo === "uploading"
-                    ? { width: `${Math.round((fase.enviado / (fase.total || 1)) * 100)}%` }
-                    : undefined}
-                />
-              </span>
-            </div>
+          {!fechado && (
+            <EnvioStatus
+              envio={envio}
+              job={job}
+              canManage={!!canManage}
+              onClose={() => { setEnvio(null); setFechado(true) }}
+              onRetry={() => retry.mutate()}
+            />
           )}
 
-          {!isLoading && !versions?.length && !fase && (
+          {!isLoading && !versions?.length && !enviando && (
             /* O vazio ocupa a area toda, como o da lista da obra: a tira baixa
                no topo, com a pagina em branco embaixo, parecia conteudo
                cortado no meio. */
@@ -1031,25 +1131,11 @@ export default function DocumentPage() {
                   Sheets
                 </h2>
                 <div className="flex items-center gap-2">
-                  {fillError && (
-                    <span className="text-xs text-destructive">{fillError}</span>
-                  )}
-                  {canManage && missingThumbs > 0 && typeof navigator !== "undefined" && navigator.onLine && (
-                    <Button variant="outline" onClick={fillThumbs} disabled={!!filling}>
-                      <Images className="h-3.5 w-3.5" />
-                      {filling ? `Making previews ${filling}` : `Make ${missingThumbs} previews`}
-                    </Button>
-                  )}
-                  {sending && (
-                    <span className="text-xs tabular-nums text-muted-foreground">
-                      Sending {sending.done}/{sending.total || "…"}
+                  {sheets && (
+                    <span className="text-xs text-muted-foreground">
+                      {sheets.length} plans total
                     </span>
                   )}
-                  {sendError && <span className="text-xs text-destructive">{sendError}</span>}
-
-                  <span className="text-xs text-muted-foreground">
-                    {sheets?.length ?? 0} plans total
-                  </span>
 
                   {/* Fechado, é um botão só. Aberto, ele se divide em dois, que
                       são os dois jeitos de escolher folha: uma a uma, para catar
@@ -1213,7 +1299,7 @@ export default function DocumentPage() {
                 </div>
               )}
 
-              {!sheets?.length ? (
+              {!sheets ? null : !sheets.length ? (
                 <div className="rounded-lg border border-dashed border-border/60 p-6 text-center">
                   <p className="text-sm font-medium">No plans yet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -1230,8 +1316,8 @@ export default function DocumentPage() {
                         sheet={s}
                         versionId={versionId}
                         canManage={!!canManage}
-                        thumb={thumbs?.get(s.id) ?? thumbsLocais.get(s.id) ?? previews.get(s.pageIndex)}
-                        waiting={!s.r2Key && !previews.has(s.pageIndex)}
+                        thumb={thumbs?.get(s.id) ?? thumbsLocais.get(s.id)}
+                        waiting={!s.r2Key && !s.ingestError}
                         picking={!!picking}
                         picked={chosen.has(s.id)}
                         march={picking === "range" && chosen.has(s.id)}

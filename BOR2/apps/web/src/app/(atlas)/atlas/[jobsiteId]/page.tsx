@@ -31,7 +31,6 @@ import { tagLabel } from "@/components/atlas/document-tags-dialog"
 import { stashUpload } from "@/components/atlas/pending-upload"
 import { RoleName } from "@/components/atlas/role-icon"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
-import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
 
 import { useCategoriasDaObra } from "@/components/atlas/category-picker"
 import type { AtlasDocTag, AtlasDocument, AtlasJobsiteCategory } from "@/services/atlas.service"
@@ -125,15 +124,13 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
     file: File,
     names?: Map<number, string>,
     identity?: DocumentIdentity,
-    _version?: unknown,
-    links?: VinculoConfirmado[],
   ) {
     if (!identity) return
     createDocument.mutate(
       { name: identity.name, tags: identity.tags as AtlasDocument["tags"] },
       {
         onSuccess: ({ id }) => {
-          stashUpload(id, { file, names, links }, jobsiteId)
+          stashUpload(id, { file, names }, jobsiteId)
           router.push(`/atlas/${jobsiteId}/documents/${id}`)
         },
       },

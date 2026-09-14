@@ -228,9 +228,27 @@ export interface AtlasSheet {
    */
   textHash: string
   geomHash: string
+  /** Por que a página não terminou no processamento do servidor; vazio é tudo certo. */
+  ingestError?: string
 }
 
 /** Uma prancha que já ocupou esta página, ou a que ocupa agora. */
+/**
+ * O andamento do processamento do set no servidor (ATL-102): baixar o
+ * original, cortar, prévia, nome, impressão, folha a folha, e os vínculos no
+ * fim. `none` é versão que não passou por ele (importada de fora).
+ */
+export interface AtlasIngestJob {
+  versionId: string
+  status: "none" | "queued" | "running" | "done" | "failed"
+  step: "" | "queued" | "download" | "pages" | "links" | "done"
+  total: number
+  done: number
+  failed: number
+  links: number
+  error: string
+}
+
 export interface AtlasSheetRevision {
   id: string
   pageIndex: number
@@ -636,8 +654,19 @@ export const atlasService = {
     name?: string; notes?: string
   }) => api.post<UploadTicket & { versionId: string }>(
     `${base}/documents/${documentId}/versions`, body, getToken()),
-  confirmVersion: (versionId: string, body: { checksum?: string; pageCount?: number }) =>
-    api.post<{ id: string; byteSize: number }>(`${base}/versions/${versionId}/confirm`, body, getToken()),
+  // Confirmar é o que dispara o processamento no servidor. O que vai junto é o
+  // que só o cliente sabia: os nomes já conferidos na prévia, as páginas que o
+  // arquivo substitui, e o nome do arquivo (modo `file` do gabarito).
+  confirmVersion: (versionId: string, body: {
+    checksum?: string; pageCount?: number
+    names?: Record<string, string>; alvo?: number[]; fileName?: string
+  }) =>
+    api.post<{ id: string; byteSize: number; processing: boolean }>(
+      `${base}/versions/${versionId}/confirm`, body, getToken()),
+  ingestStatus: (versionId: string) =>
+    api.get<AtlasIngestJob>(`${base}/versions/${versionId}/job`, getToken()),
+  ingestRetry: (versionId: string) =>
+    api.post<{ versionId: string; status: string }>(`${base}/versions/${versionId}/job/retry`, {}, getToken()),
   publishVersion: (versionId: string) =>
     api.post(`${base}/versions/${versionId}/publish`, {}, getToken()),
   versionDownloadUrl: (versionId: string) =>
