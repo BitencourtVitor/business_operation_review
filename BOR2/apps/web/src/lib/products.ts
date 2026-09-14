@@ -23,12 +23,11 @@ const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
 /**
  * A que o usuário tem acesso.
  *
- * O Atlas está em construção e, por decisão de 01/09, é **só do desenvolvedor**
- * enquanto estiver assim. Para todo mundo o card aparece desabilitado em vez de
- * sumir: esconder faria a plataforma parecer ter um produto só, e o que se quer
- * comunicar é "existe, e ainda não é seu".
+ * O Atlas foi liberado em 13/09 para quem está cadastrado nele. Quem não tem
+ * acesso vê o card desabilitado em vez de sumir: esconder faria a plataforma
+ * parecer ter um produto só.
  *
- * O BOR não tem chave própria — tê-lo é ter qualquer permissão que não seja a
+ * O BOR não tem chave própria: tê-lo é ter qualquer permissão que não seja a
  * do Atlas.
  */
 export function useProducts() {
@@ -55,7 +54,7 @@ export function useProducts() {
       tagline: "Every number the operation runs on: money, people, schedule and execution, measured in one place.",
       href: "/bor/monthly-execution",
       enabled: hasBOR,
-      reason: hasBOR ? undefined : "No access granted",
+      reason: hasBOR ? undefined : "No access",
     },
     {
       id: "atlas",
@@ -63,7 +62,7 @@ export function useProducts() {
       tagline: "Every drawing, every mark, every measurement. The jobsite exactly as it was built.",
       href: "/atlas",
       enabled: hasAtlas,
-      reason: hasAtlas ? undefined : "Under construction",
+      reason: hasAtlas ? undefined : "No access",
     },
   ]
 

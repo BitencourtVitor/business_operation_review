@@ -13,9 +13,7 @@ function SelectProduct() {
   const { products, available, isLoading } = useProducts()
 
   // Entrar direto só quando não há mais nada a mostrar, nem sequer um destino
-  // travado. Enquanto o Atlas está em construção ele aparece bloqueado para
-  // quem não é dev, e pular a tela esconderia justamente o aviso de que ele
-  // existe e está vindo.
+  // travado: o card bloqueado também informa que o outro produto existe.
   const skip = products.length === 1 && available.length === 1
 
   useEffect(() => {

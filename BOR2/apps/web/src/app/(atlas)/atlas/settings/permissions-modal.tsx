@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { isSubcontractor } from "@/components/atlas/atlas-user-dialogs"
 import { cn } from "@/lib/utils"
 import {
-  ClipboardList, CodeXml, Compass, FolderOpen, Gauge, GripVertical, HardHat, Images, ListChecks,
+  ClipboardList, CodeXml, Compass, FolderOpen, Gauge, GripVertical, HardHat, ListChecks,
   Loader2, Lock, Notebook, Ruler, ShieldCheck, SlidersHorizontal, User, UserCheck, Users,
 } from "lucide-react"
 
@@ -40,22 +40,26 @@ type PermGroup = { label: string; permissions: PermDef[] }
 // sistema sem nada para ver.
 const PERMISSION_GROUPS: PermGroup[] = [
   {
-    // Reports e Takeoff ficam aqui junto com as demais, e não num grupo à
-    // parte: a etiqueta dentro do próprio botão já diz que ainda não existem, e
-    // repetir isso num cabeçalho é dizer duas vezes a mesma coisa. Conceder
-    // desde já é de propósito — a permissão não pode ser o gargalo. No dia em
-    // que a página subir, ela já nasce liberada para quem foi escolhido aqui.
+    // As mesmas páginas da barra da obra, na mesma ordem. Photos saiu: foto de
+    // obra chega presa a um ponto, e o ponto mora no Punch List.
     label: "Project",
     permissions: [
       { key: "atlas_documents", label: "Documents", icon: FolderOpen },
-      { key: "atlas_photos",  label: "Photos",  icon: Images },
       { key: "atlas_tasks",   label: "Punch List", icon: ListChecks },
-      { key: "atlas_diary",   label: "Diary",   icon: Notebook },
-      { key: "atlas_reports", label: "Reports", icon: ClipboardList, upcoming: true },
-      { key: "atlas_takeoff", label: "Takeoff", icon: Ruler,         upcoming: true },
       // Dizer quem entra numa obra não é tarefa de qualquer um: a permissão
       // decide quem pode conceder e revogar acesso, obra a obra.
       { key: "atlas_access", label: "Manage Access", icon: ShieldCheck, writeLabel: "Grant and revoke" },
+    ],
+  },
+  {
+    // O que ainda não existe, separado como na barra. Conceder desde já é de
+    // propósito: no dia em que a página subir, ela nasce liberada para quem foi
+    // escolhido aqui.
+    label: "Soon",
+    permissions: [
+      { key: "atlas_diary",   label: "Diary",   icon: Notebook,      upcoming: true },
+      { key: "atlas_reports", label: "Reports", icon: ClipboardList, upcoming: true },
+      { key: "atlas_takeoff", label: "Takeoff", icon: Ruler,         upcoming: true },
     ],
   },
   {
@@ -66,7 +70,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
         key: "atlas_permissions", label: "Edit Permissions", icon: Lock,
         restricted: "Edit Permissions is always restricted to Dev, Owner and Manager accounts. It cannot be granted to standard users here.",
       },
-      { key: "atlas_definitions", label: "Manage Categories and Subcategories", icon: SlidersHorizontal },
+      { key: "atlas_definitions", label: "Manage Categories", icon: SlidersHorizontal },
     ],
   },
 ]
@@ -82,6 +86,13 @@ const roleMeta: Record<string, { label: string; icon: React.ElementType; classNa
   manager:       { label: "Manager",       icon: Users,   className: "border-primary/40 bg-primary/10 text-primary" },
   subcontractor: { label: "Subcontractor", icon: HardHat, className: "border-brand-red/40 bg-brand-red/10 text-brand-red" },
   user:          { label: "User",          icon: User,    className: "border-border bg-secondary text-foreground" },
+}
+
+const ROLE_ORDER = ["dev", "owner", "manager", "user", "subcontractor"]
+
+function roleOrder(user: UserWithPermissions) {
+  const i = ROLE_ORDER.indexOf(isSubcontractor(user) ? "subcontractor" : user.role)
+  return i < 0 ? ROLE_ORDER.length : i
 }
 
 function metaFor(user: UserWithPermissions) {
@@ -193,15 +204,15 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
     if (target === "no-access" && current) applyChange(uid, selectedKey, null)
   }
 
-  const byName = (a: UserWithPermissions, b: UserWithPermissions) => a.name.localeCompare(b.name)
-  const byRoleZA = (a: UserWithPermissions, b: UserWithPermissions) =>
-    (roleMeta[b.role]?.label ?? b.role).localeCompare(roleMeta[a.role]?.label ?? a.role)
+  // Agrupado por cargo, do mais alto ao subcontratado, e por nome dentro dele.
+  const byRoleThenName = (a: UserWithPermissions, b: UserWithPermissions) =>
+    roleOrder(a) - roleOrder(b) || a.name.localeCompare(b.name)
 
   const hasIt = (u: UserWithPermissions) => !!getEffective(u)[selectedKey]
 
-  const fixedAccess = users.filter(u => ALWAYS_ACCESS_ROLES.has(u.role)).sort(byRoleZA)
-  const withAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && hasIt(u)).sort(byName)
-  const withoutAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && !hasIt(u)).sort(byName)
+  const fixedAccess = users.filter(u => ALWAYS_ACCESS_ROLES.has(u.role)).sort(byRoleThenName)
+  const withAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && hasIt(u)).sort(byRoleThenName)
+  const withoutAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && !hasIt(u)).sort(byRoleThenName)
 
   const selectedPerm = ATLAS_PERMISSIONS.find(p => p.key === selectedKey)
   const writeLabel = selectedPerm?.writeLabel ?? "Edit data"
@@ -253,14 +264,7 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                   >
                     <perm.icon className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{perm.label}</span>
-                    {/* Marca que a página ainda não existe, sem impedir a
-                        concessão: quando ela subir, o acesso já está dado. */}
                     {perm.restricted && <Lock className="ml-auto h-3 w-3 shrink-0 text-muted-foreground/40" />}
-                    {perm.upcoming && (
-                      <span className="ml-auto shrink-0 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">
-                        Soon
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>

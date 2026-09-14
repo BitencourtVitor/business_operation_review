@@ -47,20 +47,20 @@ function ProductCard({ product, onPick }: { product: Product; onPick: (p: Produc
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         {/* O título quebra linha em vez de cortar. Com `truncate`, em tela de
-            celular o nome do produto e o "Soon!" sumiam atrás de reticências,
+            celular o nome do produto e a razão do bloqueio sumiam atrás de reticências,
             e o nome é a única coisa que o card precisa dizer. */}
         <span className="text-sm font-semibold leading-snug">
           {product.name}
-          {/* O "Soon!" fica em cinza dentro do próprio título: quem não tem
-              acesso lê o nome e a razão na mesma linha, sem caçar um selo. */}
-          {!product.enabled && (
-            <span className="font-normal text-muted-foreground"> | Soon!</span>
+          {/* A razão fica em cinza dentro do próprio título: quem não tem
+              acesso lê o nome e o porquê na mesma linha, sem caçar um selo. */}
+          {!product.enabled && product.reason && (
+            <span className="font-normal text-muted-foreground"> | {product.reason}</span>
           )}
         </span>
         <span className="line-clamp-2 text-sm text-muted-foreground">{product.tagline}</span>
         {!product.enabled && (
           <span className="text-sm text-muted-foreground/70">
-            Vitor is working hard on it…
+            Ask an administrator to grant you access.
           </span>
         )}
       </span>

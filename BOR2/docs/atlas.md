@@ -25,12 +25,12 @@ permissão libera, e quem tem um só entra direto nele.
 | Salto BOR → Atlas | `apps/web/src/components/layout/header.tsx` |
 | Salto Atlas → BOR | `apps/web/src/components/atlas/atlas-header.tsx` |
 
-**Acesso a produto.** Enquanto o Atlas está em construção ele é **só do papel `dev`**:
-a rota da API exige `RequireRole("dev")` e o card na tela de seleção aparece desabilitado
-para todo mundo — visível de propósito, porque esconder faria a plataforma parecer ter um
-produto só. Quando abrir, volta a ser a chave `atlas` no `user_permissions` — um eixo acima
-das outras chaves, que são features. Ter Atlas e não ter BOR é um estado válido. O BOR não
-tem chave própria: tê-lo é ter qualquer permissão que não seja a do Atlas.
+**Acesso a produto.** Liberado em 13/09 para quem está cadastrado no Atlas: cargo acima de
+`user` (dev, owner, admin, manager) entra por definição, e o `user` entra quando recebe a chave
+`atlas` no `user_permissions`, pela tela de usuários do Atlas. A API cobra isso em `RequireAtlas`
+(`internal/middleware/auth.go`) e a tela de seleção em `apps/web/src/lib/products.ts`. Quem não tem
+acesso vê o card desabilitado com "No access", em vez de sumir. Ter Atlas e não ter BOR é um
+estado válido. O BOR não tem chave própria: tê-lo é ter qualquer permissão que não seja a do Atlas.
 
 **Acesso por obra** é outra coisa, e mora em `atlas_jobsite_access`: `read` (abre),
 `annotate` (marca a planta, abre evento, escreve no diário) e `manage` (sobe documento,
