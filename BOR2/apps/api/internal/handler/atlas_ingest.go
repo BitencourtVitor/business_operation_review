@@ -182,6 +182,9 @@ func (h *AtlasHandler) processar(ctx context.Context, versionID string) {
 	}
 	h.jobSet(ctx, versionID, `status='done', step='done', finished_at=now()`)
 	log.Printf("[atlas-ingest] %s pronto em %s", versionID, time.Since(inicio).Round(time.Second))
+
+	// Com as folhas prontas, o dicionário do Takeoff lê legenda e tabelas (ATL-103).
+	h.extrairAoProcessar(ctx, versionID)
 }
 
 func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) error {
