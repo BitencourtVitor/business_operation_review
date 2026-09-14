@@ -46,14 +46,31 @@ export function calcSit(p: Permit): string {
   return 'Pending'
 }
 
-export function stemColorForDay(permits: Permit[], primaryHex: string, isDark: boolean): string {
-  if (permits.some(p => p.situacao === 'Not Applied'))
-    return isDark ? '#fca5a5' : '#ef4444'           // red-300 / red-500
-  if (permits.some(p => p.situacao === 'Applied'))
-    return isDark ? '#fde047' : '#eab308'           // yellow-300 / yellow-500
-  if (permits.every(p => p.situacao === 'Issued'))
-    return primaryHex
-  return isDark ? '#9ca3af' : '#6b7280'             // gray-400 / gray-500 — Pending
+export function situationHex(situacao: string, primaryHex: string, isDark: boolean): string {
+  if (situacao === 'Not Applied') return isDark ? '#fca5a5' : '#ef4444'   // red-300 / red-500
+  if (situacao === 'Applied')     return isDark ? '#fde047' : '#eab308'   // yellow-300 / yellow-500
+  if (situacao === 'Issued')      return primaryHex
+  return isDark ? '#9ca3af' : '#6b7280'                                   // gray-400 / gray-500
+}
+
+// Not Applied first: it is what needs attention, so it sits right under the bubble.
+export const SITUATION_ORDER = ['Not Applied', 'Applied', 'Issued', 'Pending']
+
+export function situationsOfDay(permits: Permit[]): { situacao: string; permits: Permit[] }[] {
+  const by = new Map<string, Permit[]>()
+  for (const p of permits) {
+    const s = p.situacao || 'Other'
+    by.set(s, [...(by.get(s) ?? []), p])
+  }
+  const known = SITUATION_ORDER.filter(s => by.has(s))
+  const rest = [...by.keys()].filter(s => !SITUATION_ORDER.includes(s))
+  return [...known, ...rest].map(s => ({ situacao: s, permits: by.get(s)! }))
+}
+
+/** The situation color when the whole day shares one situation; null when it is mixed. */
+export function stemColorForDay(permits: Permit[], primaryHex: string, isDark: boolean): string | null {
+  const groups = situationsOfDay(permits)
+  return groups.length === 1 ? situationHex(groups[0].situacao, primaryHex, isDark) : null
 }
 
 // ─── URL / file helpers ───────────────────────────────────────────────────────
