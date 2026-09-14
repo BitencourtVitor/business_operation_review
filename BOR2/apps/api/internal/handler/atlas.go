@@ -36,6 +36,9 @@ type AtlasHandler struct {
 	// credencial de IA, e nesse caso a rota recusa dizendo isso em vez de
 	// devolver uma transcrição vazia como se tivesse dado certo.
 	ditado *service.DitadoService
+	// A fila do processamento do set (ATL-102). Nula em teste; aí a confirmação
+	// grava o job e ninguém o executa.
+	ingest *IngestWorker
 }
 
 func NewAtlasHandler(
@@ -1227,6 +1230,14 @@ func (h *AtlasHandler) ConfirmVersion(c *fiber.Ctx) error {
 	var in struct {
 		Checksum  string `json:"checksum"`
 		PageCount int    `json:"pageCount"`
+		// O que o cliente decidiu antes de subir, e que o processamento no
+		// servidor usa (ATL-102): nomes já conferidos, páginas trocadas, nome do
+		// arquivo. `process` falso deixa a versão só confirmada, sem fila; é o
+		// caminho do importador antigo.
+		Process  *bool             `json:"process"`
+		Names    map[string]string `json:"names"`
+		Alvo     []int             `json:"alvo"`
+		FileName string            `json:"fileName"`
 	}
 	_ = c.BodyParser(&in)
 
@@ -1255,7 +1266,18 @@ func (h *AtlasHandler) ConfirmVersion(c *fiber.Ctx) error {
 	if err != nil {
 		return internalErr(c, err)
 	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"id": versionID, "byteSize": size, "status": "uploaded"}})
+	processa := in.Process == nil || *in.Process
+	if processa {
+		userID, _ := actor(c)
+		if err := h.enqueueIngest(c.Context(), versionID, userID, ingestParams{
+			Names: in.Names, Alvo: in.Alvo, FileName: in.FileName,
+		}); err != nil {
+			return internalErr(c, err)
+		}
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"id": versionID, "byteSize": size, "status": "uploaded", "processing": processa,
+	}})
 }
 
 // POST /atlas/versions/:id/publish — o passo que abre o documento aos externos.
@@ -1351,6 +1373,8 @@ type atlasSheet struct {
 	// separa "outra prancha com o mesmo nome" de "a mesma prancha de novo".
 	TextHash string `json:"textHash"`
 	GeomHash string `json:"geomHash"`
+	// O motivo de a página não ter terminado no processamento (ATL-102).
+	IngestError string `json:"ingestError"`
 }
 
 // GET /atlas/versions/:id/sheets
@@ -1367,7 +1391,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		SELECT s.id, s.version_id, s.page_index, s.sheet_number, s.discipline, s.level,
 		       s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
 		       s.r2_key, s.byte_size, s.confidence, s.needs_review,
-		       s.revised_at, s.version_name, s.text_hash, s.geom_hash,
+		       s.revised_at, s.version_name, s.text_hash, s.geom_hash, s.ingest_error,
 		       -- Quantas revisões esta página já teve. Um é a original: o cartão
 		       -- só precisa dizer alguma coisa a partir de duas.
 		       (SELECT count(*) FROM atlas_sheet h
@@ -1395,7 +1419,7 @@ func (h *AtlasHandler) ListSheets(c *fiber.Ctx) error {
 		if err := rows.Scan(&s.ID, &s.VersionID, &s.PageIndex, &s.SheetNumber, &s.Discipline,
 			&s.Level, &s.Title, &s.Revision, &s.ThumbKey, &s.WidthPt, &s.HeightPt,
 			&s.R2Key, &s.ByteSize, &s.Confidence, &s.NeedsReview,
-			&revised, &s.VersionName, &s.TextHash, &s.GeomHash, &s.Revisions, &s.Annotations,
+			&revised, &s.VersionName, &s.TextHash, &s.GeomHash, &s.IngestError, &s.Revisions, &s.Annotations,
 			&s.Links, &s.Highlights, &s.Notes, &s.ScaleUnitsPerPt, &s.ScaleLabel); err != nil {
 			return internalErr(c, err)
 		}

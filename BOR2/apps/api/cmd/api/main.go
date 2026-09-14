@@ -749,6 +749,8 @@ func main() {
 	atlas.Get("/documents/:id/versions", atlasHandler.ListVersions)
 	atlas.Post("/documents/:id/versions", atlasHandler.CreateVersion)
 	atlas.Post("/versions/:id/confirm", atlasHandler.ConfirmVersion)
+	atlas.Get("/versions/:id/job", atlasHandler.IngestStatus)
+	atlas.Post("/versions/:id/job/retry", atlasHandler.IngestRetry)
 	atlas.Post("/versions/:id/publish", atlasHandler.PublishVersion)
 	atlas.Get("/versions/:id/download", atlasHandler.VersionDownloadURL)
 	atlas.Get("/versions/:id/sheets", atlasHandler.ListSheets)
@@ -817,6 +819,9 @@ func main() {
 
 	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
+	// O processamento do set do Atlas (ATL-102) roda em segundo plano, na
+	// mesma vida do scheduler: retoma o que ficou pela metade e cai no shutdown.
+	handler.NewIngestWorker(jobCtx, atlasHandler)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────
 	quit := make(chan os.Signal, 1)

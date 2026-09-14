@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -121,6 +122,38 @@ func (s *R2Service) Stat(ctx context.Context, key string) (int64, string, error)
 		ctype = *out.ContentType
 	}
 	return size, ctype, nil
+}
+
+// Get abre o objeto para leitura. É a exceção à regra de o arquivo não passar
+// pela API: o processamento do set (ATL-102) roda aqui, e precisa do PDF.
+func (s *R2Service) Get(ctx context.Context, key string) (io.ReadCloser, error) {
+	if !s.Configured() {
+		return nil, ErrR2NotConfigured
+	}
+	out, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.Body, nil
+}
+
+// Put grava um objeto a partir da API. Serve ao derivado que o servidor produz
+// (recorte e prévia da folha); o original continua subindo direto do cliente.
+func (s *R2Service) Put(ctx context.Context, key, contentType string, body io.ReadSeeker, size int64) error {
+	if !s.Configured() {
+		return ErrR2NotConfigured
+	}
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:        aws.String(s.bucket),
+		Key:           aws.String(key),
+		ContentType:   aws.String(defaultContentType(contentType)),
+		Body:          body,
+		ContentLength: aws.Int64(size),
+	})
+	return err
 }
 
 func (s *R2Service) Delete(ctx context.Context, key string) error {
