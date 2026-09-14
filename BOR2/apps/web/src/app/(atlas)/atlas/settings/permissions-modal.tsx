@@ -210,9 +210,15 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
 
   const hasIt = (u: UserWithPermissions) => !!getEffective(u)[selectedKey]
 
-  const fixedAccess = users.filter(u => ALWAYS_ACCESS_ROLES.has(u.role)).sort(byRoleThenName)
-  const withAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && hasIt(u)).sort(byRoleThenName)
-  const withoutAccess = users.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && !hasIt(u)).sort(byRoleThenName)
+  // Documents é a razão de o subcontratado estar no Atlas: todos entram, os de
+  // hoje e os que vierem. Por isso eles viram um card só entre os fixos, em vez
+  // de um por pessoa que alguém teria de conferir a cada cadastro.
+  const subsJuntos = selectedKey === "atlas_documents"
+  const subs = users.filter(u => isSubcontractor(u))
+  const soltos = users.filter(u => !(subsJuntos && isSubcontractor(u)))
+  const fixedAccess = soltos.filter(u => ALWAYS_ACCESS_ROLES.has(u.role)).sort(byRoleThenName)
+  const withAccess = soltos.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && hasIt(u)).sort(byRoleThenName)
+  const withoutAccess = soltos.filter(u => !ALWAYS_ACCESS_ROLES.has(u.role) && !hasIt(u)).sort(byRoleThenName)
 
   const selectedPerm = ATLAS_PERMISSIONS.find(p => p.key === selectedKey)
   const writeLabel = selectedPerm?.writeLabel ?? "Edit data"
@@ -348,7 +354,7 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                   )}
                 </div>
 
-                {fixedAccess.length > 0 && (
+                {(fixedAccess.length > 0 || subsJuntos) && (
                   <div className="flex shrink-0 flex-col gap-1.5 border-t border-border/50 bg-muted/20 px-3 pb-3 pt-2.5">
                     <p className="px-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
                       Always have access
@@ -364,6 +370,18 @@ export function AtlasPermissionsModal({ open, onClose }: { open: boolean; onClos
                         onLevelChange={null}
                       />
                     ))}
+                    {subsJuntos && (
+                      <div className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-2 py-2 opacity-70 select-none">
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium">All subcontractors</span>
+                        <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                          {subs.length} {subs.length === 1 ? "person" : "people"}
+                        </span>
+                        <span className={cn("inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold", roleMeta.subcontractor.className)}>
+                          <HardHat className="h-2.5 w-2.5" />
+                          {roleMeta.subcontractor.label}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
