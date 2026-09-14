@@ -31,10 +31,6 @@ const WORKTYPE_COLORS = [
 const TOP_N_OPTIONS = [5, 10, 15, 20]
 const EMPTY_WORKFORCE_ROWS: WorkforceRow[] = []
 const EMPTY_ATTRIBUTION_RULES: AttributionRule[] = []
-const LEGACY_JOB_SITE_PATHS: Record<string, string> = {
-  "emerald run, shrewsbury": "Job Sites > Emerald Run, Shrewsbury",
-  "maynard homes, building 1, nashua": "Job Sites > Maynard Homes, Building 1, Nashua",
-}
 
 // Canonical worktype names — keyed by lowercase trimmed variant
 const WORKTYPE_CANONICAL: Record<string, string> = {
@@ -89,6 +85,7 @@ function normalizeWorktype(raw: string): string {
 const FLOOR_ORDINAL = /^\d+\s*[º°ª]$/
 const LOT_LIKE = /\b(lot|building|bldg|unit)\s*\d/i
 const ORG_SEGMENTS = new Set(["framing", "pcg", "hvac", "office"])
+const JOB_SITES_FOLDER = /^job\s*sites$/i
 
 // Repairs rows imported before the parser fixes of WF-6..WF-9, so the stored
 // data reads right without a reimport: floor ordinals out of the building,
@@ -100,6 +97,14 @@ function normalizeLegacyParse(row: WorkforceRow): WorkforceRow {
   jobsite = jobsite?.trim() ?? ""
   lotBuilding = (lotBuilding ?? "").split(">").map(p => p.trim()).filter(p => p && !FLOOR_ORDINAL.test(p)).join(" > ")
   worktype = worktype?.trim() ?? ""
+
+  // "Job Sites" is only the QB Time folder holding the jobsite, never part of its name.
+  jobsite = jobsite.replace(/^job\s*sites\s*>\s*/i, "")
+  if (JOB_SITES_FOLDER.test(jobsite)) {
+    const lotParts = lotBuilding.split(" > ").filter(Boolean)
+    jobsite = lotParts.shift() ?? ""
+    lotBuilding = lotParts.join(" > ")
+  }
 
   if (jobsite.toLowerCase() === "archived") {
     jobsite = worktype
@@ -135,11 +140,6 @@ function isNonProjectCategory(s: string): boolean {
 }
 
 function normalizeImportedAddressFolder(row: WorkforceRow): WorkforceRow {
-  const knownLegacyPath = LEGACY_JOB_SITE_PATHS[row.jobsite.trim().toLowerCase()]
-  if (knownLegacyPath && !row.lotBuilding.trim() && !row.worktype.trim()) {
-    return { ...row, jobsite: knownLegacyPath }
-  }
-
   if (row.jobsite.trim().toLowerCase() !== "address (new)") return row
 
   const lotParts = row.lotBuilding.split(">").map(part => part.trim()).filter(Boolean)
@@ -158,7 +158,7 @@ function normalizeImportedAddressFolder(row: WorkforceRow): WorkforceRow {
 
   return {
     ...row,
-    jobsite: LEGACY_JOB_SITE_PATHS[normalizedProject.toLowerCase()] ?? normalizedProject,
+    jobsite: normalizedProject,
     worktype: "",
   }
 }

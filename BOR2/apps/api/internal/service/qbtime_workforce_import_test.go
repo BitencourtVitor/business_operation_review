@@ -14,7 +14,7 @@ func TestParseJobcodePathSkipsAddressFolder(t *testing.T) {
 		{
 			name:    "project without worktype",
 			path:    []string{"Address (NEW)", "Job Sites", "Maynard Homes, Building 1, Nashua, NH"},
-			jobsite: "Job Sites > Maynard Homes, Building 1, Nashua",
+			jobsite: "Maynard Homes, Building 1, Nashua",
 		},
 		{
 			name:        "project with building and worktype",
@@ -27,7 +27,7 @@ func TestParseJobcodePathSkipsAddressFolder(t *testing.T) {
 			name:    "client followed by legacy job sites path",
 			path:    []string{"Pulte Homes (NEW)", "Job Sites", "Emerald Run, Shrewsbury"},
 			client:  "Pulte Homes (NEW)",
-			jobsite: "Job Sites > Emerald Run, Shrewsbury",
+			jobsite: "Emerald Run, Shrewsbury",
 		},
 		{
 			name:     "absence category has no jobsite",
