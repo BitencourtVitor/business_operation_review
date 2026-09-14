@@ -239,28 +239,42 @@ export async function pendenciasPorFolha(obraId: string): Promise<Record<string,
   const marcas = await local.marcas.where("obraId").equals(obraId).toArray()
   const folhaDaMarca = new Map(marcas.map(m => [m.id, m.planoId]))
 
-  const somar = (folha: string | undefined, ponto = false) => {
-    if (!folha) return
-    const p = (out[folha] ??= { pontos: 0, total: 0 })
-    p.total++
-    if (ponto) p.pontos++
+  // Conta coisas, e não ações: o ponto com três fotos e um texto editado é um
+  // ponto esperando sinal, e não cinco. A chave é o ponto, o traço ou a folha.
+  const coisas: Record<string, Set<string>> = {}
+  const pontosNovos: Record<string, Set<string>> = {}
+  const somar = (folha: string | undefined, coisa: string, novo = false) => {
+    if (!folha || !coisa) return
+    ;(coisas[folha] ??= new Set()).add(coisa)
+    if (novo) (pontosNovos[folha] ??= new Set()).add(coisa)
   }
 
   for (const item of itens) {
     if (item.kind === "api.upload") {
-      somar(folhaDoPonto.get(String(item.payload.eventId ?? "")))
+      const ponto = String(item.payload.eventId ?? "")
+      somar(folhaDoPonto.get(ponto), "ponto:" + ponto)
       continue
     }
     const c = item.payload as unknown as Chamada
     const caminho = c.caminho ?? ""
     if (c.metodo === "POST" && /\/jobsites\/[^/]+\/events$/.test(caminho)) {
-      somar(String((c.corpo as { sheetId?: string } | undefined)?.sheetId ?? ""), true)
+      const corpo = (c.corpo ?? {}) as { id?: string; sheetId?: string }
+      somar(corpo.sheetId, "ponto:" + (corpo.id ?? item.targetId), true)
       continue
     }
+    const ponto = caminho.match(/\/events\/([^/]+)/)?.[1]
+    if (ponto) { somar(folhaDoPonto.get(ponto), "ponto:" + ponto); continue }
+    const marca = caminho.match(/\/annotations\/([^/]+)/)?.[1]
+    if (marca) { somar(folhaDaMarca.get(marca), "marca:" + marca); continue }
     const folha = caminho.match(/\/sheets\/([^/]+)/)?.[1]
-      ?? folhaDoPonto.get(caminho.match(/\/events\/([^/]+)/)?.[1] ?? "")
-      ?? folhaDaMarca.get(caminho.match(/\/annotations\/([^/]+)/)?.[1] ?? "")
-    somar(folha)
+    if (folha) {
+      const id = (c.corpo as { id?: string } | undefined)?.id
+      somar(folha, id ? "marca:" + id : "folha:" + folha)
+    }
+  }
+
+  for (const folha of Object.keys(coisas)) {
+    out[folha] = { pontos: pontosNovos[folha]?.size ?? 0, total: coisas[folha].size }
   }
   return out
 }
