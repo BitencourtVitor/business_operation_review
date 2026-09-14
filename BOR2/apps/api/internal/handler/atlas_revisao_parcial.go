@@ -67,76 +67,17 @@ func (h *AtlasHandler) InheritSheets(c *fiber.Ctx) error {
 	if in.Inserted <= 0 {
 		in.Inserted = len(in.Pages)
 	}
-	// As páginas novas entram na vaga da primeira que sai.
-	vaga := in.Pages[0]
-	for _, p := range in.Pages {
-		if p < vaga {
-			vaga = p
-		}
-	}
-
-	// A versão anterior é a de `seq` imediatamente menor. Não é a mais recente
-	// por data: numa reimportação as duas podem ter a mesma hora, e `seq` é a
-	// ordem que a migração 000152 tornou determinística justamente para casos
-	// assim.
-	var anterior string
-	if err := h.db.QueryRow(c.Context(), `
-		SELECT v.id FROM atlas_document_version v
-		 WHERE v.document_id = $1
-		   AND v.seq < (SELECT seq FROM atlas_document_version WHERE id = $2)
-		 ORDER BY v.seq DESC LIMIT 1`, documentID, versionID).Scan(&anterior); err != nil {
-		return badRequest(c, "esta é a primeira versão da pasta; não há de onde herdar")
-	}
-
-	// Herda tudo da anterior que não está no intervalo trocado, e que a versão
-	// nova ainda não tem. A dupla condição importa: sem a segunda, chamar a rota
-	// duas vezes duplicaria as folhas herdadas.
-	//
-	// A chave de R2 é copiada, não regravada. É isso que faz a revisão parcial
-	// custar metadado em vez de banda.
-	tag, err := h.db.Exec(c.Context(), `
-		INSERT INTO atlas_sheet
-			(id, version_id, page_index, sheet_number, discipline, level, title,
-			 revision, thumb_key, width_pt, height_pt, r2_key, byte_size,
-			 text_hash, geom_hash, inherited_from)
-		SELECT gen_random_uuid()::text, $1, d.destino, s.sheet_number, s.discipline,
-		       s.level, s.title, s.revision, s.thumb_key, s.width_pt, s.height_pt,
-		       s.r2_key, s.byte_size, s.text_hash, s.geom_hash, s.id
-		  FROM atlas_sheet s
-		  -- Antes da vaga a folha fica onde estava. Depois dela, perde uma
-		  -- posição por página que saiu antes dela e ganha as que entraram.
-		  CROSS JOIN LATERAL (
-		      SELECT CASE WHEN s.page_index < $4 THEN s.page_index
-		                  ELSE s.page_index + $5
-		                       - (SELECT count(*) FROM unnest($3::int[]) r WHERE r < s.page_index)::int
-		             END AS destino
-		  ) d
-		 WHERE s.version_id = $2
-		   AND s.superseded_at IS NULL
-		   AND NOT (s.page_index = ANY($3::int[]))
-		   AND NOT EXISTS (SELECT 1 FROM atlas_sheet n
-		                    WHERE n.version_id = $1 AND n.page_index = d.destino
-		                      AND n.superseded_at IS NULL)`,
-		versionID, anterior, in.Pages, vaga, in.Inserted)
+	herdadas, err := h.herdarFolhas(c.Context(), versionID, documentID, in.Scope, in.Pages, in.Inserted)
 	if err != nil {
-		return internalErr(c, err)
+		return badRequest(c, err.Error())
 	}
-
 	var total int
 	_ = h.db.QueryRow(c.Context(), `
 		SELECT count(*) FROM atlas_sheet
 		 WHERE version_id = $1 AND superseded_at IS NULL`, versionID).Scan(&total)
-
-	if _, err := h.db.Exec(c.Context(), `
-		UPDATE atlas_document_version SET scope = $2, scope_pages = $3, page_count = $4
-		 WHERE id = $1`, versionID, in.Scope, in.Pages, total); err != nil {
-		return internalErr(c, err)
-	}
-
 	return c.JSON(fiber.Map{"data": fiber.Map{
-		"versionId": versionID, "herdadaDe": anterior,
-		"herdadas": tag.RowsAffected(), "trocadas": len(in.Pages), "total": total,
-		"scope": in.Scope,
+		"versionId": versionID, "herdadas": herdadas, "trocadas": len(in.Pages),
+		"total": total, "scope": in.Scope,
 	}})
 }
 

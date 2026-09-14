@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
 	"math"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 // Criação automática dos vínculos entre folhas.
@@ -138,96 +136,12 @@ func (h *AtlasHandler) Autolink(c *fiber.Ctx) error {
 		in.MinRefs = 2
 	}
 
-	indice, err := h.indiceDaObra(c.Context(), jobsiteID, documentID)
+	userID, _ := actor(c)
+	paginas, totalLinks, err := h.autolinkAplicar(c.Context(), jobsiteID, documentID, documentName, userID, in.Pages, in.MinRefs, in.Apply)
 	if err != nil {
 		return internalErr(c, err)
 	}
-
-	userID, _ := actor(c)
-
-	paginas := []autolinkPageResult{}
-	totalLinks := 0
-
-	for _, p := range in.Pages {
-		res := autolinkPageResult{SheetID: p.SheetID}
-		if p.NoText {
-			res.Shape = "no-text"
-			paginas = append(paginas, res)
-			continue
-		}
-
-		// Primeiro passo: o que esta página cita. Cada destino conta uma vez,
-		// mesmo aparecendo cinco vezes na prancha, porque o que mede a natureza
-		// da página é quantas folhas ela alcança e não quantas vezes repete uma.
-		type hit struct {
-			d destino
-			t autolinkToken
-		}
-		hits := []hit{}
-		alcancados := map[string]bool{}
-		for _, t := range p.Tokens {
-			k := chaveTitulo(t.Text)
-			if k == "" {
-				continue
-			}
-			d, achou := indice[k]
-			if !achou {
-				continue
-			}
-			// Folha não se referencia a si mesma. Acontece em toda página: o
-			// título dela está no próprio carimbo, e sem esta linha toda folha
-			// ganharia um link para ela mesma e contaria como referenciadora.
-			if d.SheetID == p.SheetID {
-				continue
-			}
-			hits = append(hits, hit{d, t})
-			alcancados[k] = true
-		}
-		res.Refs = len(alcancados)
-		xs := make([]float64, 0, len(hits))
-		for _, hi := range hits {
-			xs = append(xs, (hi.t.X0+hi.t.X1)/2)
-		}
-		res.Spread = dispersao(xs)
-
-		switch {
-		case res.Refs == 0:
-			res.Shape = "terminal"
-		case len(indice) > 0 && float64(res.Refs) >= 0.8*float64(len(indice)):
-			res.Shape = "index"
-		default:
-			res.Shape = "referencing"
-		}
-
-		if res.Refs < in.MinRefs {
-			paginas = append(paginas, res)
-			continue
-		}
-
-		for _, hi := range hits {
-			res.Linked++
-			totalLinks++
-			if !in.Apply {
-				continue
-			}
-			geom, _ := json.Marshal(map[string]any{
-				"x0": hi.t.X0, "y0": hi.t.Y0, "x1": hi.t.X1, "y1": hi.t.Y1,
-				"auto": true,
-				"target": map[string]any{
-					"sheetId": hi.d.SheetID, "pageIndex": hi.d.PageIndex, "sheetName": hi.d.Name,
-					"documentId": documentID, "documentName": documentName,
-				},
-			})
-			// `shared` é true porque o vínculo é do documento e não de quem
-			// rodou a automação: link que só o autor enxerga não serve em campo.
-			_, _ = h.db.Exec(c.Context(), `
-				INSERT INTO atlas_annotation (id, sheet_id, author_id, tool, color, width, opacity, geometry, shared)
-				VALUES ($1,$2,$3,'link','',0,1,$4,true)`,
-				uuid.NewString(), p.SheetID, userID, geom)
-		}
-		paginas = append(paginas, res)
-	}
-
+	indice, _ := h.indiceDaObra(c.Context(), jobsiteID, documentID)
 	forma := map[string]int{}
 	for _, p := range paginas {
 		forma[p.Shape]++
