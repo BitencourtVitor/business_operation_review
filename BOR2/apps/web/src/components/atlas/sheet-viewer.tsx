@@ -568,57 +568,48 @@ function Fato({ titulo, corpo, nome, cargo, quando, fotos, onOpen, onEditar }: {
 }
 
 /**
- * A coluna de imagens, à direita do texto.
+ * As imagens de um fato, empilhadas como baralho à direita do texto.
  *
- * **Ela não cresce com a quantidade.** Uma fila de vinte fotos empilhadas virava
- * uma torre: o container do problema ficava com dois palmos de altura de foto
- * para três linhas de texto, e a janela inteira passava a ser rolagem de imagem.
- *
- * Então são quatro na grade, e o resto se conta: a última leva o "+16" por cima
- * e abre a quinta, de onde se segue vendo. Quatro é o que cabe ao lado de um
- * texto de três linhas sem esticar nada.
+ * Mesma forma das peças do ponto na lista: a carta de cima inteira e as de
+ * baixo mostrando uma tira, com a contagem no canto quando há mais de uma. A
+ * carta tem a altura de três linhas de texto, e a pilha cresce só pela tira de
+ * cada carta, até quatro: vinte fotos não viram uma torre ao lado do texto.
+ * Tocar abre a galeria na foto de cima, e dali se segue pela fita.
  */
+const CARTA_FATO = 76
+const TIRA_FATO = 10
 function Fotos({ fotos, onOpen }: {
   fotos: AtlasMedia[]
   onOpen: (pecas: { url: string; name: string }[], indice: number) => void
 }) {
   if (!fotos.length) return null
-  const TETO = 4
-  const visiveis = fotos.slice(0, TETO)
-  const restantes = fotos.length - visiveis.length
+  const cartas = fotos.slice(-4)
+  const largura = CARTA_FATO + (cartas.length - 1) * TIRA_FATO
 
   return (
-    <div className="grid w-[104px] shrink-0 grid-cols-2 content-start gap-1">
-      {visiveis.map((m, i) => {
-        const ultima = i === visiveis.length - 1 && restantes > 0
-        // A última com resto abre na primeira escondida, e não nela mesma: quem
-        // toca no "mais dezesseis" quer ver as dezesseis, e dali segue pela fita.
-        return (
-          <button
-            key={m.id}
-            type="button"
-            title={ultima ? `${restantes} more` : (m.title || m.fileName)}
-            onClick={() => onOpen(
-              fotos.map(f => ({ url: f.url, name: f.title || f.fileName })),
-              ultima ? TETO : i,
-            )}
-            className="relative h-12 w-full overflow-hidden rounded-md ring-1 ring-white/20 transition-opacity hover:opacity-75"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={m.url}
-              alt={m.title || m.caption || m.fileName}
-              className="h-full w-full object-cover"
-            />
-            {ultima && (
-              <span className="absolute inset-0 flex items-center justify-center bg-black/65 text-[11px] font-semibold">
-                +{restantes}
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
+    <button
+      type="button"
+      title={fotos.length === 1 ? "Open" : `Open ${fotos.length}`}
+      onClick={() => onOpen(fotos.map(f => ({ url: f.url, name: f.fileName })), fotos.length - 1)}
+      style={{ width: largura, height: CARTA_FATO }}
+      className="relative shrink-0 transition-opacity hover:opacity-90"
+    >
+      {cartas.map((m, i) => (
+        <span
+          key={m.id}
+          style={{ left: i * TIRA_FATO, width: CARTA_FATO, height: CARTA_FATO }}
+          className="absolute top-0 overflow-hidden rounded-md bg-neutral-800 shadow-sm ring-2 ring-neutral-900"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={m.url} alt={m.caption || m.fileName} className="h-full w-full object-cover" />
+        </span>
+      ))}
+      {fotos.length > 1 && (
+        <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-semibold tabular-nums text-neutral-900">
+          {fotos.length}
+        </span>
+      )}
+    </button>
   )
 }
 
