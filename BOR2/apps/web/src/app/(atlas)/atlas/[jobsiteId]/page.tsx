@@ -1,6 +1,7 @@
 "use client"
 
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
+import { JobsiteScheduleButton } from "@/components/atlas/jobsite-schedule-dialog"
 import { OfflineFolders } from "@/components/atlas/offline-folders"
 import { SyncIndicator } from "@/components/atlas/sync-indicator"
 import { Panel } from "@/components/atlas/panel"
@@ -375,8 +376,12 @@ export default function JobsiteRoomPage() {
           botões ficavam alinhados ao topo de um bloco alto e pareciam soltos. */}
       <div className="flex items-center justify-between gap-3">
         <h1 className="min-w-0 truncate text-lg font-semibold">{meta.title}</h1>
+        <div className="flex shrink-0 items-center gap-2">
+          {/* O cronograma vem antes do Edit e fora do canManage: é consulta, e
+              quem só lê a obra também precisa saber em que pé ela está. */}
+          <JobsiteScheduleButton jobsiteId={jobsiteId} />
         {canManage && (
-          <div className="flex shrink-0 items-center gap-2">
+          <>
             {/* Ícone e palavra: um lápis sozinho obriga a passar o mouse para
                 descobrir o que faz, e arquivar é grave demais para se descobrir
                 assim. */}
@@ -413,8 +418,9 @@ export default function JobsiteRoomPage() {
                 <span className="hidden sm:inline">Archive</span>
               </Button>
             )}
-          </div>
+          </>
         )}
+        </div>
       </div>
 
       <JobsiteIdentity jobsite={jobsite} />

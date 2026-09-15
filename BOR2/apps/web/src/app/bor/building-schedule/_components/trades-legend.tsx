@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -13,10 +13,31 @@ import {
 
 export function TradesLegend({ displayResources }: { displayResources: string[] }) {
   const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
+  // Tocar fora fecha. Sem isso, no celular a legenda ficava aberta por cima do
+  // cronograma até alguém achar o botão de novo.
+  useEffect(() => {
+    if (!open) return
+    const fora = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("pointerdown", fora)
+    return () => document.removeEventListener("pointerdown", fora)
+  }, [open])
+
+  // Passar o mouse abre só com mouse de verdade. No toque o navegador simula
+  // mouseenter antes do clique, e o clique fechava na hora o que tinha acabado
+  // de abrir.
   return (
-    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button className="flex items-center justify-center w-7 h-7 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors">
+    <div
+      ref={ref}
+      className="relative max-sm:static"
+      onPointerEnter={e => { if (e.pointerType === "mouse") setOpen(true) }}
+      onPointerLeave={e => { if (e.pointerType === "mouse") setOpen(false) }}
+    >
+      {/* Toque também abre: no celular não existe passar o mouse. */}
+      <button onPointerUp={e => { if (e.pointerType !== "mouse") setOpen(o => !o) }} aria-label="Legend" className="flex items-center justify-center w-7 h-7 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors">
         <Info className="h-3.5 w-3.5" />
       </button>
 
@@ -31,48 +52,50 @@ export function TradesLegend({ displayResources }: { displayResources: string[] 
           .filter(l => groupMap.has(l))
           .map(l => ({ label: l, items: groupMap.get(l)! }))
         return (
-          <div className="absolute top-full right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-xl z-50 p-4 w-[560px] max-h-[75vh] overflow-y-auto">
-            <div className="mb-4 pb-4 border-b border-border/50">
-              <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2.5">Chart</div>
-              <div className="grid grid-cols-4 gap-1">
-                {[
-                  { label: "Project start", line: "#10b981" },
-                  { label: "Project end",   line: "#f43f5e" },
-                  { label: "Today",         line: "rgba(255,255,255,0.35)" },
-                  { label: "Current month", bg: true },
-                ].map(({ label, line, bg }) => (
-                  <div key={label} className="flex items-center gap-2 px-2 py-2 text-[11px] text-muted-foreground">
-                    <span className="w-5 h-5 rounded flex items-center justify-center shrink-0 bg-muted/30">
-                      {bg
-                        ? <span className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
-                        : <span className="h-3" style={{ borderLeft: `1px dashed ${line}` }} />
-                      }
-                    </span>
-                    <span className="truncate">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Trades</div>
-            <div className="flex flex-col gap-4">
-              {groups.map(({ label, items }) => (
-                <div key={label}>
-                  <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1.5 px-1">{label}</div>
-                  <div className="grid grid-cols-4 gap-1">
-                    {items.map(r => {
-                      const Icon = resIcon(r)
-                      return (
-                        <div key={r} className="flex items-center gap-2 px-2 py-2 text-[11px] text-muted-foreground min-w-0">
-                          <span className={cn("w-5 h-5 rounded flex items-center justify-center shrink-0", resColor(r))}>
-                            {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0, 2)}</span>}
-                          </span>
-                          <span className="truncate min-w-0 flex-1">{toTitleCase(r)}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
+          // No celular o quadro se prende à largura da linha de controles (o
+          // wrapper vira static), e não ao botão: preso ao botão, passava da
+          // borda da janela. No computador segue ancorado à direita do botão.
+          // No celular são duas listas verticais lado a lado, Chart e Trades,
+          // um item embaixo do outro: em grade, os nomes eram cortados.
+          <div className="absolute top-full z-50 mt-1.5 max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-popover p-3 shadow-xl max-sm:inset-x-0 max-sm:grid max-sm:grid-cols-2 max-sm:gap-3 sm:right-0 sm:w-[520px]">
+            <div className="min-w-0">
+            <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Chart</div>
+            <div className="grid grid-cols-1 gap-x-3 gap-y-0.5 sm:grid-cols-4">
+              {[
+                { label: "Project start", line: "#10b981" },
+                { label: "Project end",   line: "#f43f5e" },
+                { label: "Today",         line: "rgba(148,163,184,0.7)" },
+                { label: "Current month", bg: true },
+              ].map(({ label, line, bg }) => (
+                <div key={label} className="flex min-w-0 items-center gap-2 py-1 text-[11px] text-foreground/80">
+                  {bg
+                    ? <span className="h-3.5 w-3.5 shrink-0 rounded-sm border border-primary/40 bg-primary/20" />
+                    : <span className="flex h-3.5 w-3.5 shrink-0 justify-center"><span className="h-full" style={{ borderLeft: `2px dashed ${line}` }} /></span>}
+                  <span className="truncate">{label}</span>
                 </div>
               ))}
+            </div>
+            </div>
+
+            <div className="min-w-0 max-sm:border-l max-sm:border-border/50 max-sm:pl-3">
+            {groups.map(({ label, items }, gi) => (
+              <div key={label} className={cn("sm:mt-3 sm:border-t sm:border-border/50 sm:pt-2.5", gi > 0 && "max-sm:mt-2.5")}>
+                <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+                <div className="grid grid-cols-1 gap-x-3 gap-y-0.5 sm:grid-cols-3">
+                  {items.map(r => {
+                    const Icon = resIcon(r)
+                    return (
+                      <div key={r} className="flex min-w-0 items-center gap-2 py-1 text-[11px] text-foreground/80">
+                        <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded", resColor(r))}>
+                          {Icon ? <Icon className="h-3 w-3" /> : <span className="text-[8px] font-bold">{toTitleCase(r).slice(0, 2)}</span>}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate">{toTitleCase(r)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
             </div>
           </div>
         )

@@ -11,6 +11,7 @@ import {
   GanttChartSquare,
   Loader2,
   Plus,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useBuildings, useBuildingSchedule, useBuildingEvents } from "@/hooks/use-buildings"
@@ -33,10 +34,12 @@ const MONTHS = ["January","February","March","April","May","June","July","August
  * o seletor e o Manage somem, porque escolher outro prédio ali seria sair do
  * projeto.
  */
-export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitle = "Track construction progress across all projects" }: {
+export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitle = "Track construction progress across all projects", onClose }: {
   buildingId?: string
   title?: string
   subtitle?: string
+  /** Dentro de uma janela: o fechar entra na linha dos botões, como mais um deles. */
+  onClose?: () => void
 }) {
   const fixed = !!buildingId
   const { data: buildings = [], isLoading } = useBuildings()
@@ -118,17 +121,24 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
       <div className="shrink-0 flex flex-col pb-2">
 
         {/* Row 1: Title + right controls */}
-        <div className="flex items-end gap-2">
-          <div>
+        {/* Na janela do Atlas os controles sobem para a linha do título, sem o
+            rótulo em cima: com um filtro só, "Period" dizia o que o ícone de
+            calendário já diz, e empurrava os botões para baixo do nome. */}
+        {/* No celular, título e fechar dividem a primeira linha, e o filtro e o
+            + Event descem inteiros para a de baixo em vez de sair da tela. */}
+        <div className={cn("flex flex-wrap gap-2", fixed ? "items-start" : "items-end")}>
+          <div className="min-w-0 max-sm:order-1 max-sm:flex-1">
             <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
-          <div className="flex-1" />
+          <div className="hidden flex-1 sm:block" />
+          {/* Quebra de linha só do celular, entre o título com o fechar e os controles. */}
+          <div className="w-full sm:hidden max-sm:order-3" />
 
           {/* Building selector */}
           {!fixed && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 max-sm:order-4">
               <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Building</span>
               <BuildingDropdown buildings={buildings} selectedId={selectedId} onSelect={setSelectedId} isLoading={isLoading} />
             </div>
@@ -136,8 +146,8 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
 
           {/* Period filter */}
           {schedule && scheduleDateMap.years.length > 0 && (
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
+            <div className="flex flex-col gap-1 max-sm:order-4">
+              {!fixed && <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>}
               <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
                 <div className="flex items-center pl-2.5">
                   <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -179,7 +189,7 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
           {selectedId && schedule && (
             <button
               onClick={() => setAddingEvent(true)}
-              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm"
+              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm max-sm:order-4"
             >
               <Plus className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm">Event</span>
@@ -190,11 +200,25 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
           {!fixed && (
           <a
             href="/bor/building-schedule/manage"
-            className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[min(var(--radius-md),12px)] bg-primary text-primary-foreground text-[0.8rem] font-medium hover:bg-primary/90 transition-colors shrink-0 select-none"
+            className="max-sm:order-4 inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[min(var(--radius-md),12px)] bg-primary text-primary-foreground text-[0.8rem] font-medium hover:bg-primary/90 transition-colors shrink-0 select-none"
           >
             <FolderOpen className="h-3.5 w-3.5" />
             Manage
           </a>
+          )}
+
+          {/* Fechar a janela: na ponta da linha, com a altura dos botões ao lado,
+              mas sem fundo nem borda. É saída, não ação sobre o cronograma, e
+              só se acende ao passar o mouse. */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              title="Close"
+              aria-label="Close"
+              className="max-sm:order-2 flex items-center justify-center h-8 w-8 shrink-0 rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
         </div>
 
@@ -205,32 +229,35 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
 
         {/* Row 2: Display controls */}
         {schedule && (
-          <div className="flex items-center gap-2 mt-2 rounded-lg border border-border px-3 py-1.5">
-            <span className="text-[11px] text-muted-foreground">
+          // No celular o resumo ocupa a primeira linha e os controles descem para
+          // a de baixo: lado a lado, o texto quebrava e espremia os botões.
+          <div className="relative flex flex-wrap items-center gap-2 mt-2 rounded-lg border border-border px-3 py-1.5">
+            <span className="w-full text-center text-[11px] text-muted-foreground sm:w-auto sm:text-left">
               {stats && <>{stats.total} tasks · {stats.phases} phases</>}
               {schedule?.projectStart && schedule?.projectFinish && (
                 <> · {fmtDateFull(schedule.projectStart)} – {fmtDateFull(schedule.projectFinish)}</>
               )}
             </span>
 
-            <div className="flex-1" />
+            <div className="hidden flex-1 sm:block" />
 
             {displayResources.length > 0 && (
               <TradesLegend displayResources={displayResources} />
             )}
 
-            {/* Gantt | Dates toggle */}
-            <div className="flex items-center h-7 rounded-lg border border-border bg-muted/20 p-0.5">
+            {/* Gantt | Dates toggle. No celular ocupa a largura que sobra entre a
+                legenda e o Expand/Collapse, cada metade com o rótulo centrado. */}
+            <div className="flex items-center h-7 rounded-lg border border-border bg-muted/20 p-0.5 max-sm:flex-1">
               <button
                 onClick={() => setViewMode("gantt")}
-                className={cn("flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all",
+                className={cn("flex items-center justify-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all max-sm:flex-1",
                   viewMode === "gantt" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
               >
                 <GanttChartSquare className="h-3.5 w-3.5" />Gantt
               </button>
               <button
                 onClick={() => setViewMode("dates")}
-                className={cn("flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all",
+                className={cn("flex items-center justify-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all max-sm:flex-1",
                   viewMode === "dates" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
               >
                 <CalendarDays className="h-3.5 w-3.5" />Dates
@@ -241,15 +268,19 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
             <div className="flex items-center h-7 rounded-lg border border-border bg-muted/20 p-0.5">
               <button
                 onClick={() => scheduleControls.current?.expandAll()}
+                title="Expand all"
+                aria-label="Expand all"
                 className="flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all text-muted-foreground hover:text-foreground"
               >
-                <ChevronsUpDown className="h-3.5 w-3.5" />Expand
+                <ChevronsUpDown className="h-3.5 w-3.5" /><span className="hidden sm:inline">Expand</span>
               </button>
               <button
                 onClick={() => scheduleControls.current?.collapseAll()}
+                title="Collapse all"
+                aria-label="Collapse all"
                 className="flex items-center gap-1.5 px-2 h-full rounded-md text-xs font-medium transition-all text-muted-foreground hover:text-foreground"
               >
-                <ChevronsDownUp className="h-3.5 w-3.5" />Collapse
+                <ChevronsDownUp className="h-3.5 w-3.5" /><span className="hidden sm:inline">Collapse</span>
               </button>
             </div>
           </div>

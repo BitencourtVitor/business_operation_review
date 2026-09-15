@@ -119,17 +119,45 @@ const COL_MATCHERS: Array<{ key: string; match: RegExp }> = [
  * Also handles "4/20/2026", "Mon 4/20/2026"
  */
 export function parseMSPDate(s: string): Date | null {
-  if (!s) return null
-  // "Mon 4/20/26" or "Fri 11/7/25" or "4/20/26"
-  const m = s.match(/\d+\/(\d+)\/(\d+)/)
-  if (!m) return null
-  // Split on / to get month, day, year
-  const parts = s.match(/(\d+)\/(\d+)\/(\d+)/)
+  const cell = splitDateCell(s)
+  if (!cell) return null
+  const parts = cell.date.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/)
   if (!parts) return null
   const month = +parts[1] - 1
   const day   = +parts[2]
   const year  = +parts[3] < 100 ? 2000 + +parts[3] : +parts[3]
   return new Date(year, month, day)
+}
+
+/**
+ * The date at the start of a cell, and whatever came glued after it.
+ *
+ * pdf.js sometimes hands the Finish cell and the next column as one text run,
+ * with no space: "Wed 3/10/27383" is 3/10/27 plus predecessor 383, and
+ * "Tue 10/13/26149FS-1 day Framer (shell)" carries predecessor and resource.
+ * Taking every digit as the year made it 27383, and the Gantt then tried to draw
+ * three hundred thousand months. The year is 4 digits only when it reads 20xx
+ * and no more digits follow, otherwise 2.
+ */
+export function splitDateCell(s: string): { date: string; rest: string } | null {
+  if (!s) return null
+  const m = s.match(/^\s*((?:[A-Za-z]{2,3}\s+)?\d{1,2}\/\d{1,2}\/(?:20\d{2}(?!\d)|\d{2}))(.*)$/)
+  if (!m) return null
+  return { date: m[1].trim(), rest: m[2].trim() }
+}
+
+const LAG = String.raw`(?:[FS][FS](?:\s*[+-]\s*\d+(?:\.\d+)?\s*e?(?:days?|wks?|hrs?|mons?))?)?`
+const GLUED_TAIL = new RegExp(String.raw`^(\d+${LAG}(?:\s*,\s*\d+${LAG})*)\s*(.*)$`, "i")
+
+/**
+ * What was glued after a date, split back into predecessors and resources:
+ * "149FS-1 day Framer (shell)" gives "149FS-1 day" and "Framer (shell)".
+ */
+export function splitGluedTail(rest: string): { predecessors: string; resources: string } {
+  if (!rest) return { predecessors: "", resources: "" }
+  const m = rest.match(GLUED_TAIL)
+  if (!m) return { predecessors: "", resources: rest }
+  return { predecessors: m[1].trim(), resources: m[2].trim() }
 }
 
 /** Format Date → "YYYY-MM-DD" for DB storage */
@@ -141,20 +169,40 @@ export function toDateStr(d: Date | null): string | null {
   return `${y}-${mo}-${dy}`
 }
 
+// A construction schedule never runs outside this window. A date beyond it is a
+// misread cell, and letting it through makes the Gantt span millennia.
+const MIN_YEAR = 1990
+const MAX_YEAR = 2100
+
+function sane(v: unknown): Date | null {
+  if (!v) return null
+  const d = v instanceof Date ? v : new Date(v as string)
+  if (Number.isNaN(d.getTime())) return null
+  const y = d.getFullYear()
+  return y >= MIN_YEAR && y <= MAX_YEAR ? d : null
+}
+
 /** Reconstruct Date objects after JSON round-trip (stored as ISO strings) */
 export function hydrateSchedule(raw: unknown): ParsedSchedule {
   const s = raw as ParsedSchedule
+  // A date out of range is read again from the cell text, so a schedule saved
+  // with a glued Finish shows the right date without being uploaded again.
+  const rows = (s.rows ?? []).map(r => ({
+    ...r,
+    startDate:  sane(r.startDate)  ?? sane(parseMSPDate(r.start ?? "")),
+    finishDate: sane(r.finishDate) ?? sane(parseMSPDate(r.finish ?? "")),
+  }))
+  const times = rows
+    .flatMap(r => [r.startDate, r.finishDate])
+    .filter((d): d is Date => d instanceof Date)
+    .map(d => d.getTime())
   return {
     ...s,
     // Schedules stored before the format field was added default to "standard"
     format: s.format ?? "standard",
-    projectStart:  s.projectStart  ? new Date(s.projectStart  as unknown as string) : null,
-    projectFinish: s.projectFinish ? new Date(s.projectFinish as unknown as string) : null,
-    rows: (s.rows ?? []).map(r => ({
-      ...r,
-      startDate:  r.startDate  ? new Date(r.startDate  as unknown as string) : null,
-      finishDate: r.finishDate ? new Date(r.finishDate as unknown as string) : null,
-    })),
+    projectStart:  sane(s.projectStart)  ?? (times.length ? new Date(Math.min(...times)) : null),
+    projectFinish: sane(s.projectFinish) ?? (times.length ? new Date(Math.max(...times)) : null),
+    rows,
   }
 }
 
@@ -652,10 +700,15 @@ function tryParse(fileName: string, items: TextItem[], yTol: number): ParsedSche
     const durMatch     = rawDuration.match(/\d+(?:\.\d+)?\s*days?/i)
     const durationText = durMatch ? durMatch[0] : rawDuration
     const durationDays = parseDuration(durationText)
-    const startStr     = get("Start")
-    const finishStr    = get("Finish")
-    const resourceStr  = get("Resources")
-    const predStr      = get("Predecessors")
+    // Start and Finish keep only the date. What came glued after the finish
+    // goes back to the predecessor and resource columns it was taken from.
+    const startCell    = splitDateCell(get("Start"))
+    const finishCell   = splitDateCell(get("Finish"))
+    const startStr     = startCell?.date ?? get("Start")
+    const finishStr    = finishCell?.date ?? get("Finish")
+    const glued        = splitGluedTail(finishCell?.rest ?? "")
+    const resourceStr  = get("Resources") || glued.resources
+    const predStr      = [glued.predecessors, get("Predecessors")].filter(Boolean).join(",")
     const notesStr     = get("Notes")
 
     // Milestone = 0 days or explicit "0 days"
