@@ -72,6 +72,16 @@ export function DatesViewer({
   const { user: currentUser } = useAuth()
   const isDark = useIsDark()
   const isMobile = useIsMobile()
+  // Tocar para selecionar vale para tela de toque (celular e tablet), e não só
+  // para tela estreita: tablet tem largura de desktop e também não tem mouse.
+  const [tapMode, setTapMode] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: none), (max-width: 1023px)")
+    const sync = () => setTapMode(mq.matches)
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
 
   // Celular: a mesma coluna compacta do Gantt. Só chevron e número, e os nomes
   // por cima das datas quando a tabela está encostada na borda esquerda. A
@@ -252,17 +262,17 @@ export function DatesViewer({
       onClickCapture={onClickCapture}
     >
       <TooltipProvider>
-      {/* No celular, a coluna de tarefa encolhe, Duration sai e Start/Finish
-          deixam de ser fixas: fixas, as quatro colunas somavam 676 px numa tela
-          de 330 e as datas nunca apareciam. */}
-      <div className="min-w-[440px] sm:min-w-[980px] flex flex-col">
+      {/* Abaixo de 1024 px Start e Finish deixam de ser fixas e a tarefa encolhe
+          (240 px no tablet, compacta no celular, onde Duration também sai):
+          fixas, as quatro colunas somavam 676 px e o resto nunca aparecia. */}
+      <div className="min-w-[440px] sm:min-w-[700px] lg:min-w-[980px] flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
-          <div className="sticky left-0 z-30 bg-muted border-r border-border/50 sm:w-[420px] shrink-0 self-stretch flex items-center px-3" style={labelBox}>{namesShown ? "Task" : "#"}</div>
-          <div className="max-sm:hidden sm:sticky sm:left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
-          <div className="sm:sticky sm:left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
-          <div className="sm:sticky sm:left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="sticky left-0 z-30 bg-muted border-r border-border/50 w-[240px] lg:w-[420px] shrink-0 self-stretch flex items-center px-3" style={labelBox}>{namesShown ? "Task" : "#"}</div>
+          <div className="max-sm:hidden lg:sticky lg:left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
+          <div className="lg:sticky lg:left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
+          <div className="lg:sticky lg:left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Start</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
           <div className="bg-muted/90 flex-1 self-stretch" />
@@ -285,20 +295,20 @@ export function DatesViewer({
                 className="group/evrow flex items-center border-b border-border/20"
                 style={{ height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
               >
-                <div className="sticky left-0 z-20 sm:w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ ...labelBox, backgroundColor: isMobile ? `color-mix(in oklab, ${item.type_color} 12%, var(--color-background))` : evBg }}>
+                <div className="sticky left-0 z-20 w-[240px] lg:w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ ...labelBox, backgroundColor: isMobile ? `color-mix(in oklab, ${item.type_color} 12%, var(--color-background))` : evBg }}>
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
                   {namesShown && item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
                   {namesShown && <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>}
                 </div>
-                <div className="max-sm:hidden sm:sticky sm:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="max-sm:hidden lg:sticky lg:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evDuration}
                 </div>
-                <div className="sm:sticky sm:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="lg:sticky lg:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </div>
-                <div className="sm:sticky sm:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="lg:sticky lg:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evFinish ? evFinish.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                 </div>
                 <div className="flex-1 self-stretch flex items-center justify-end pr-2" style={{ backgroundColor: evBg }}>
@@ -323,8 +333,8 @@ export function DatesViewer({
           const isOurs          = !!meta?.is_ours
           const isStartOverdue  = !isDone && !!row.startDate  && row.startDate  < today
           const isFinishOverdue = !isDone && !!row.finishDate && row.finishDate < today
-          const isSelected      = isMobile && selectedRowId === row.id
-          const isRowActive     = isMobile
+          const isSelected      = tapMode && selectedRowId === row.id
+          const isRowActive     = tapMode
             ? isSelected || lockedRowId === row.id
             : hoveredRowId === row.id || lockedRowId === row.id
           const isCommentsOpen  = commentsRowId === row.id
@@ -343,10 +353,10 @@ export function DatesViewer({
                     : cn(i % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
                 isSelected && "bg-primary/[0.08]",
               )}
-              onMouseEnter={() => { if (!isMobile) setHoveredRowId(row.id) }}
-              onMouseLeave={() => { if (!isMobile) setHoveredRowId(null) }}
+              onMouseEnter={() => { if (!tapMode) setHoveredRowId(row.id) }}
+              onMouseLeave={() => { if (!tapMode) setHoveredRowId(null) }}
               onClick={e => {
-                if (!isMobile) return
+                if (!tapMode) return
                 // Toque num botão ou no chevron age neles e não mexe na seleção.
                 // O calendário do popover sobe o clique pela árvore do React sem
                 // estar dentro da linha no DOM: esse também é ignorado.
@@ -358,12 +368,12 @@ export function DatesViewer({
               {/* Task label */}
               <div
                 className={cn(
-                  "sticky left-0 z-30 border-r border-border/50 sm:w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden sm:group-hover:overflow-visible",
+                  "sticky left-0 z-30 border-r border-border/50 w-[240px] lg:w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden lg:group-hover:overflow-visible",
                   // Fundo sempre opaco na coluna fixa: translúcido, a data que passa
                   // por baixo dela ao rolar aparecia através do número.
                   isSelected
                     ? "bg-[color-mix(in_oklab,var(--color-primary)_12%,var(--color-background))]"
-                    : (isDone || isOurs) && !isMobile ? "bg-transparent" : "bg-background",
+                    : (isDone || isOurs) && !tapMode ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
                 style={{ ...labelBox, paddingLeft: !namesShown ? 4 : isOurs ? Math.max(0, indent - 2) : indent }}
@@ -387,8 +397,10 @@ export function DatesViewer({
                   />
                 )}
                 {namesShown && <span className={cn("text-[11px] ml-1 whitespace-nowrap",
-                  isRowActive && !isMobile
-                    ? "relative z-10 pr-2 overflow-visible"
+                  // O nome inteiro por cima das colunas vizinhas só no desktop largo:
+                  // no tablet as vizinhas são datas, e o nome as cobria.
+                  isRowActive && !tapMode
+                    ? "overflow-hidden text-ellipsis flex-1 min-w-0 lg:relative lg:z-10 lg:pr-2 lg:overflow-visible lg:flex-none lg:min-w-fit"
                     : "overflow-hidden text-ellipsis flex-1 min-w-0",
                   row.isPhase && "font-semibold uppercase tracking-wide",
                   !row.isPhase && row.level === 2 && "font-medium",
@@ -398,17 +410,17 @@ export function DatesViewer({
               </div>
 
               {/* Duration */}
-              <div className={cn("max-sm:hidden sm:sticky sm:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
+              <div className={cn("max-sm:hidden lg:sticky lg:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
                 {row.isMilestone ? "◆" : row.durationText}
               </div>
 
               {/* Start */}
-              <div className={cn("sm:sticky sm:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("lg:sticky lg:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.startDate)}
               </div>
 
               {/* Finish */}
-              <div className={cn("sm:sticky sm:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("lg:sticky lg:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.finishDate)}
               </div>
 
@@ -489,7 +501,7 @@ export function DatesViewer({
                       ? "opacity-100"
                       // Invisível no celular também não recebe toque: senão tocar
                       // a ponta da linha para selecioná-la acionava um botão oculto.
-                      : "opacity-0 max-sm:pointer-events-none sm:group-hover:opacity-100",
+                      : tapMode ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100",
                   )}
                 >
                   {dateEditState?.rowId === row.id ? (
