@@ -27,7 +27,7 @@ import { marcarAcesso } from "@/lib/offline/sync"
 import { atlasService } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { tagLabel } from "@/components/atlas/document-tags-dialog"
+import { NoCategoryBadge, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { stashUpload } from "@/components/atlas/pending-upload"
 import { RoleName } from "@/components/atlas/role-icon"
 import { UploadPlanDialog, type DocumentIdentity } from "@/components/atlas/upload-plan-dialog"
@@ -236,17 +236,19 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                   <span className="min-w-0 flex-1">
                     {/* A categoria é o título, e o arquivo vira o subtítulo: o
                         que identifica o documento na obra é o que ele cobre, e
-                        não como o PDF foi nomeado na máquina de quem enviou. */}
-                    <span className={`block truncate text-sm font-medium leading-tight ${
-                      tagsOf(doc).length === 0 ? "text-muted-foreground" : ""
-                    }`}>
-                      {tagsOf(doc).length === 0
-                        ? "No category"
-                        : tagsOf(doc).map(tagLabel).join(" · ")}
+                        não como o PDF foi nomeado na máquina de quem enviou.
+                        Sem categoria, o nome sobe para o título e o aviso fica
+                        embaixo, no lugar dele. */}
+                    <span className="block truncate text-sm font-medium leading-tight">
+                      {tagsOf(doc).length === 0 ? doc.name : tagsOf(doc).map(tagLabel).join(" · ")}
                     </span>
                     <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                      <FileText className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{doc.name}</span>
+                      {tagsOf(doc).length === 0 ? <NoCategoryBadge /> : (
+                        <>
+                          <FileText className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">{doc.name}</span>
+                        </>
+                      )}
                     </span>
                   </span>
                 </Link>

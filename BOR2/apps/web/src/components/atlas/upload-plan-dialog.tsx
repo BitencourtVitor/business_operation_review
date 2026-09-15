@@ -114,7 +114,10 @@ export function UploadPlanDialog({
     () => paraEtiquetas(linhas, categorias ?? []),
     [linhas, categorias],
   )
-  const categoriaOk = !novo || (tags.length > 0 && !incompleta)
+  // Categoria não é obrigatória: sem nenhuma, o documento vale pelo nome. O que
+  // segura é a linha começada pela metade, com categoria e sem a subcategoria
+  // que ela pede, porque ela seria descartada sem aviso.
+  const categoriaOk = !novo || !incompleta
 
   // O apelido desta versão e o que mudou nela. A versão se identifica pela data
   // e hora do envio; isto é o que a data não conta.

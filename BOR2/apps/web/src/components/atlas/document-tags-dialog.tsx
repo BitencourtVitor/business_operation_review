@@ -8,7 +8,7 @@ import {
   CategoryPicker, LINHA_VAZIA, paraEtiquetas, type LinhaCategoria,
 } from "@/components/atlas/category-picker"
 import { useSetDocumentTags } from "@/hooks/use-atlas"
-import { ListTree } from "lucide-react"
+import { ListTree, TriangleAlert } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import type { AtlasDocCategory, AtlasDocument } from "@/services/atlas.service"
@@ -31,6 +31,22 @@ export function tagLabel(t: { category?: string; name?: string; subcategory: str
   return t.axis === "unit"
     ? `${t.subcategory} Unit ${name}`
     : `${t.subcategory} Floor ${name}`
+}
+
+/**
+ * O aviso de que o documento está sem categoria.
+ *
+ * Categoria não é obrigatória: sem ela, o nome do documento sobe para o título
+ * e isto fica embaixo, como detalhe. Tracejado e em vermelho, com o ícone de
+ * alerta: é pendência a resolver, e não mais uma categoria.
+ */
+export function NoCategoryBadge({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-dashed border-destructive/60 bg-destructive/5 px-1.5 py-px text-[11px] font-normal leading-4 text-destructive ${className}`}>
+      <TriangleAlert className="h-3 w-3" />
+      No category
+    </span>
+  )
 }
 
 export function DocumentTagsDialog({ jobsiteId, doc, categorias, ocupadas, open, onClose }: {
