@@ -89,6 +89,41 @@ export function DatesViewer({
     })
   }
   useEffect(() => () => cancelAnimationFrame(scrollFrame.current), [])
+
+  // Clicar e arrastar anda na largura, como no Gantt: a tabela passa de 980 px
+  // e a barra de rolagem horizontal é difícil de pegar. Só com mouse; no toque
+  // o dedo já rola sozinho. Arraste de verdade (mais de 4 px) engole o clique
+  // que vem depois, para soltar o mouse não selecionar a linha.
+  const drag = useRef({ on: false, x: 0, left: 0, moved: false })
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType !== "mouse" || e.button !== 0) return
+    if ((e.target as HTMLElement).closest("button, input, textarea")) return
+    drag.current = { on: true, x: e.clientX, left: e.currentTarget.scrollLeft, moved: false }
+  }
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const d = drag.current
+    if (!d.on) return
+    const dx = e.clientX - d.x
+    if (!d.moved && Math.abs(dx) < 4) return
+    if (!d.moved) {
+      d.moved = true
+      e.currentTarget.setPointerCapture(e.pointerId)
+      e.currentTarget.style.cursor = "grabbing"
+    }
+    e.currentTarget.scrollLeft = d.left - dx
+  }
+  function onPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    if (!drag.current.on) return
+    drag.current.on = false
+    e.currentTarget.style.cursor = ""
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+  }
+  function onClickCapture(e: React.MouseEvent) {
+    if (!drag.current.moved) return
+    drag.current.moved = false
+    e.stopPropagation()
+    e.preventDefault()
+  }
   const namesShown = !isMobile || scrollLeft < 8
   const labelBox: React.CSSProperties | undefined = !isMobile
     ? undefined
@@ -207,12 +242,20 @@ export function DatesViewer({
   } | null>(null)
 
   return (
-    <div className="flex-1 overflow-auto" onScroll={onScroll}>
+    <div
+      className="flex-1 overflow-auto cursor-grab select-none"
+      onScroll={onScroll}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onClickCapture={onClickCapture}
+    >
       <TooltipProvider>
       {/* No celular, a coluna de tarefa encolhe, Duration sai e Start/Finish
           deixam de ser fixas: fixas, as quatro colunas somavam 676 px numa tela
           de 330 e as datas nunca apareciam. */}
-      <div className="min-w-[980px] flex flex-col">
+      <div className="min-w-[440px] sm:min-w-[980px] flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
