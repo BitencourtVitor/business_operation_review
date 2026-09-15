@@ -20,6 +20,19 @@ export interface BuildingListItem {
   project_finish?: string  // "YYYY-MM-DD"
   uploaded_at?: string
   task_count?: number
+  // O projeto do Atlas que este cronograma descreve, quando alguém ligou.
+  atlas_jobsite_id: string | null
+  atlas_jobsite_name: string | null
+}
+
+/** Um projeto do Atlas que pode receber o cronograma, e o prédio que já o ocupa. */
+export interface BuildingAtlasJobsite {
+  id: string
+  name: string
+  client: string
+  status: "active" | "archived"
+  building_id: string | null
+  building_name: string | null
 }
 
 export interface RowComment {
@@ -130,6 +143,12 @@ export const buildingsService = {
 
   delete: (id: string) =>
     api.delete<void>(`/api/v1/buildings/${id}`, tok()),
+
+  listAtlasJobsites: () =>
+    api.get<BuildingAtlasJobsite[]>("/api/v1/buildings/atlas-jobsites", tok()).then(r => r ?? []),
+
+  setAtlasJobsite: (id: string, atlasJobsiteId: string | null) =>
+    api.put<void>(`/api/v1/buildings/${id}/atlas-jobsite`, { atlas_jobsite_id: atlasJobsiteId }, tok()),
 
   // ── Schedule ──────────────────────────────────────────────────────────────
 

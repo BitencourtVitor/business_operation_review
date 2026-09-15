@@ -610,10 +610,12 @@ func main() {
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")
 	buildings.Get("/event-types", buildingsHandler.ListEventTypes) // static — must be before /:id
+	buildings.Get("/atlas-jobsites", buildingsHandler.ListAtlasJobsites)
 	buildings.Get("/", buildingsHandler.ListBuildings)
 	buildings.Post("/", buildingsHandler.CreateBuilding)
 	buildings.Put("/:id", buildingsHandler.UpdateBuilding)
 	buildings.Delete("/:id", buildingsHandler.DeleteBuilding)
+	buildings.Put("/:id/atlas-jobsite", middleware.RequirePermission(db, "building_schedule", "write"), buildingsHandler.SetAtlasJobsite)
 	buildings.Get("/:id/schedule", buildingsHandler.GetSchedule)
 	buildings.Post("/:id/schedule", buildingsHandler.UpsertSchedule)
 	buildings.Delete("/:id/schedule", buildingsHandler.DeleteSchedule)
@@ -675,6 +677,7 @@ func main() {
 	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
 	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)
 	atlas.Get("/jobsites/:id/offline-size", atlasHandler.JobsiteOfflineSize)
+	atlas.Get("/jobsites/:id/schedule", atlasHandler.JobsiteSchedule)
 	atlas.Patch("/jobsites/:id", atlasHandler.UpdateJobsite)
 	atlas.Get("/jobsites/:id/access", atlasHandler.ListAccess)
 	atlas.Put("/jobsites/:id/access/:userId", atlasHandler.GrantAccess)

@@ -15,6 +15,7 @@ const KEYS = {
   events:      (id: string) => ["buildings", id, "events"] as const,
   trades:      (id: string) => ["buildings", id, "trades"] as const,
   eventTypes:  () => ["buildings", "event-types"] as const,
+  atlasJobsites: () => ["buildings", "atlas-jobsites"] as const,
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -106,6 +107,28 @@ export function useUpdateBuilding() {
     mutationFn: ({ id, name, address }: { id: string; name: string; address: string }) =>
       buildingsService.update(id, name, address),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list() }),
+  })
+}
+
+export function useBuildingAtlasJobsites(enabled = true) {
+  return useQuery({
+    queryKey: KEYS.atlasJobsites(),
+    queryFn:  () => buildingsService.listAtlasJobsites(),
+    enabled,
+  })
+}
+
+// O vínculo muda o que os dois lados mostram: a lista do manage e a barra do
+// projeto no Atlas, que pergunta pelo cronograma dele.
+export function useSetBuildingAtlasJobsite() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, atlasJobsiteId }: { id: string; atlasJobsiteId: string | null }) =>
+      buildingsService.setAtlasJobsite(id, atlasJobsiteId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.list() })
+      qc.invalidateQueries({ queryKey: ["atlas"] })
+    },
   })
 }
 

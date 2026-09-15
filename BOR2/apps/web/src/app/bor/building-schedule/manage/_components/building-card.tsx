@@ -30,6 +30,7 @@ import { UploadModal } from "./upload-modal"
 import { AddEventModal, EditEventModal, DeleteEventModal, RemoveScheduleModal } from "./event-modals"
 import { UploadHistoryRow, EventHistoryRow } from "./history-rows"
 import { BuildingForm } from "./building-form"
+import { AtlasLink } from "./atlas-link"
 
 export function BuildingCard({ building }: { building: BuildingListItem }) {
   const [editing,            setEditing]            = useState(false)
@@ -104,6 +105,8 @@ export function BuildingCard({ building }: { building: BuildingListItem }) {
                 </button>
               </div>
             </div>
+
+            <AtlasLink building={building} />
 
             {/* Schedule status */}
             <div className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col gap-2">
