@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { usePermission } from "@/hooks/use-permission"
 import { usePayPeriods, usePeriodIntervals, usePeriodAccounting } from "@/hooks/use-qbtime-period-report"
 import { UnpaidAddressesModal } from "./unpaid-addresses-modal"
+import { placeManualBlocks, type PlacedBlock } from "./place-manual"
 import type { PeriodBlock, PeriodDay, PeriodEmployee, AccountingRow, AccountingTotals, IntervalsResponse } from "@/services/qbtime-period-report.service"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -199,7 +200,7 @@ function buildAddressColors(keys: string[]): Map<string, string> {
 function TimelineBlock({
   block, dayStart, dayEnd, layout, addressColors,
 }: {
-  block: PeriodBlock
+  block: PlacedBlock
   dayStart: number
   dayEnd: number
   layout: BlockLayout
@@ -256,6 +257,9 @@ function TimelineBlock({
           <span className="tabular-nums opacity-70">{formatDuration(block.durationMinutes)}</span>
         </div>
         <span className="opacity-80">{formatPath(block.jobcodePath)}</span>
+        {block.placed && (
+          <span className="text-[10px] opacity-60">Manual entry, no clock time. Shown before the first punch of the day.</span>
+        )}
       </TooltipContent>
     </Tooltip>
   )
@@ -336,9 +340,12 @@ function calculateBlockLayouts(blocks: PeriodBlock[], dayStart: number, dayEnd: 
 // ── Day Row ───────────────────────────────────────────────────────────────────
 
 function DayRow({ day, gridStart, gridEnd, addressColors }: { day: PeriodDay; gridStart: number; gridEnd: number; addressColors: Map<string, string> }) {
+  // Lançamento manual (Holiday, PTO, Sick) não tem horário: ganha lugar antes do
+  // primeiro ponto do dia, senão esticava pela linha e escondia o trabalho real.
+  const blocks = useMemo(() => placeManualBlocks(day.blocks, day.date), [day.blocks, day.date])
   const blockLayouts = useMemo(
-    () => calculateBlockLayouts(day.blocks, gridStart, gridEnd),
-    [day.blocks, gridStart, gridEnd],
+    () => calculateBlockLayouts(blocks, gridStart, gridEnd),
+    [blocks, gridStart, gridEnd],
   )
 
   return (
@@ -349,7 +356,7 @@ function DayRow({ day, gridStart, gridEnd, addressColors }: { day: PeriodDay; gr
       </div>
       <div className="min-w-0 flex-1">
         <div className="relative h-8 overflow-hidden rounded-md bg-muted/40 ring-1 ring-border/40">
-          {day.blocks.map((b, i) => (
+          {blocks.map((b, i) => (
             <TimelineBlock key={i} block={b} dayStart={gridStart} dayEnd={gridEnd} layout={blockLayouts[i]} addressColors={addressColors} />
           ))}
         </div>
@@ -705,8 +712,10 @@ export default function PeriodReportsPage() {
 
   // Global time grid shared across all employee cards so every row aligns.
   const { globalGridStart, globalGridEnd } = useMemo(() => {
-    const starts = visibleEmployees.flatMap(emp => emp.days.flatMap(d => d.blocks.map(b => isoToMinutes(b.start)))).filter(Boolean)
-    const ends   = visibleEmployees.flatMap(emp => emp.days.flatMap(d => d.blocks.map(b => b.end ? isoToMinutes(b.end) : 0))).filter(Boolean)
+    // Com o manual já posicionado, a grade abre cedo o bastante para ele caber.
+    const placed = visibleEmployees.flatMap(emp => emp.days.map(d => placeManualBlocks(d.blocks, d.date)))
+    const starts = placed.flatMap(bs => bs.map(b => isoToMinutes(b.start))).filter(Boolean)
+    const ends   = placed.flatMap(bs => bs.map(b => b.end ? isoToMinutes(b.end) : 0)).filter(Boolean)
     let s = Math.max(0,    Math.min(...(starts.length ? starts : [420])))
     let e = Math.min(1440, Math.max(...(ends.length   ? ends   : [1080])))
     if (e <= s) e = s + 60

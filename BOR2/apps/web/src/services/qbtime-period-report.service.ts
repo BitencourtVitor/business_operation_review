@@ -25,7 +25,7 @@ export interface PeriodBlock {
   end:             string   // ISO 8601
   durationMinutes: number
   jobcodePath:     string[] // full hierarchy from root to leaf
-  type:            "regular" | "break"
+  type:            "regular" | "break" | "manual" // manual = Holiday/PTO/Sick, sem horário
   isPaid:          boolean
 }
 
