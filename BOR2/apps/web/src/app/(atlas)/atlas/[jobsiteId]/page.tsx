@@ -378,8 +378,9 @@ export default function JobsiteRoomPage() {
         <h1 className="min-w-0 truncate text-lg font-semibold">{meta.title}</h1>
         <div className="flex shrink-0 items-center gap-2">
           {/* O cronograma vem antes do Edit e fora do canManage: é consulta, e
-              quem só lê a obra também precisa saber em que pé ela está. */}
-          <JobsiteScheduleButton jobsiteId={jobsiteId} />
+              quem só lê a obra também precisa saber em que pé ela está. Só na
+              aba Documents, e em nenhum outro lugar do Atlas. */}
+          {tab === "documents" && <JobsiteScheduleButton jobsiteId={jobsiteId} />}
         {canManage && (
           <>
             {/* Ícone e palavra: um lápis sozinho obriga a passar o mouse para

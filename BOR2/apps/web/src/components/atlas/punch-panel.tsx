@@ -191,15 +191,13 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
     )
   }
 
-  // Escopo que ninguém começou só aparece para quem pode registrar um ponto
-  // nele. Quem tem acesso de leitura, que é o caso do subcontratado, abre esta
-  // tela para saber o que falta fazer no andar em que está hoje: mostrar a ele
-  // escopos vazios que ele não pode fazer nascer é ocupar a tela com o que não
-  // lhe diz respeito.
+  // Só escopo com ponto aparece, para todos. O ponto nasce na planta, e não
+  // aqui: um cartão com Pending, Resolved e Total zerados não leva a nada e só
+  // empurra para baixo os escopos em que há o que fazer (pedido do Vitor).
   //
-  // Escopo com rodada fechada continua à vista de todos: ali houve verificação,
-  // e o histórico é justamente o que ele pode consultar.
-  const visiveis = (escopos ?? []).filter(e => canWrite || e.punchId || e.closed > 0)
+  // Escopo com rodada fechada continua à vista: ali houve verificação, e o
+  // histórico é justamente o que se consulta.
+  const visiveis = (escopos ?? []).filter(e => e.total > 0 || e.closed > 0)
 
   if (!visiveis.length) {
     return (
@@ -209,7 +207,7 @@ export function PunchPanel({ jobsiteId, jobsiteName, canWrite, canManage }: {
           icon={ClipboardCheck}
           title={escopos?.length ? "Nothing being walked here yet" : "No scope to verify yet"}
           description={escopos?.length
-            ? "When a round opens on a floor, a unit or a folder of this jobsite, it shows up here."
+            ? "Mark a punch point on a plan of this jobsite and its scope shows up here."
             : "A scope comes from the folders of this jobsite: a floor, a unit, or a folder like the permit set. Attach a document and it shows up here."}
         />
       </Panel>
