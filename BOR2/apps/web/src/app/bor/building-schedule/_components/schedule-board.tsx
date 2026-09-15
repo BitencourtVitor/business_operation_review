@@ -189,7 +189,7 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
           {selectedId && schedule && (
             <button
               onClick={() => setAddingEvent(true)}
-              className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm max-sm:order-4"
+              className="flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg border border-input bg-transparent dark:bg-input/30 hover:bg-muted/80 transition-colors text-sm max-sm:order-4 max-sm:flex-1"
             >
               <Plus className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm">Event</span>

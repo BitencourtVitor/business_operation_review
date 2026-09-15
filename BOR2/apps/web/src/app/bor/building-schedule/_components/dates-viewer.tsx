@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils"
 import { buildingsService, type RowComment, type ScheduleEvent } from "@/services/buildings.service"
 import { useAuth } from "@/hooks/use-auth"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Calendar as CalendarPicker } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -70,6 +71,34 @@ export function DatesViewer({
 }) {
   const { user: currentUser } = useAuth()
   const isDark = useIsDark()
+  const isMobile = useIsMobile()
+
+  // Celular: a mesma coluna compacta do Gantt. Só chevron e número, e os nomes
+  // por cima das datas quando a tabela está encostada na borda esquerda. A
+  // margem negativa mantém a largura no fluxo, então nada pula ao alternar.
+  const COMPACT_W = 58
+  const NAMES_W   = 240
+  const [scrollLeft, setScrollLeft] = useState(0)
+  const scrollFrame = useRef(0)
+  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget
+    if (scrollFrame.current) return
+    scrollFrame.current = requestAnimationFrame(() => {
+      scrollFrame.current = 0
+      setScrollLeft(el.scrollLeft)
+    })
+  }
+  useEffect(() => () => cancelAnimationFrame(scrollFrame.current), [])
+  const namesShown = !isMobile || scrollLeft < 8
+  const labelBox: React.CSSProperties | undefined = !isMobile
+    ? undefined
+    : namesShown
+      ? { width: NAMES_W, marginRight: COMPACT_W - NAMES_W }
+      : { width: COMPACT_W }
+
+  // Celular: sem mouse, os botões da linha só aparecem para a linha tocada.
+  // Tocar de novo, ou em outra, troca a seleção.
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
 
   const [hoveredRowId,      setHoveredRowId]      = useState<string | null>(null)
   const [lockedRowId,       setLockedRowId]       = useState<string | null>(null)
@@ -109,7 +138,9 @@ export function DatesViewer({
     const MARGIN  = 8
     const midY    = rect.top + rect.height / 2
     const centered = midY - POPUP_H / 2
-    const right   = window.innerWidth - rect.left + GAP
+    // Na tela estreita a janela de 288 px não cabe à esquerda dos botões: fica
+    // encostada na borda, por cima deles.
+    const right   = Math.min(window.innerWidth - rect.left + GAP, Math.max(MARGIN, window.innerWidth - 288 - MARGIN))
 
     if (centered >= MARGIN && centered + POPUP_H <= window.innerHeight - MARGIN) {
       setPopupPos({ top: centered, right })
@@ -176,7 +207,7 @@ export function DatesViewer({
   } | null>(null)
 
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto" onScroll={onScroll}>
       <TooltipProvider>
       {/* No celular, a coluna de tarefa encolhe, Duration sai e Start/Finish
           deixam de ser fixas: fixas, as quatro colunas somavam 676 px numa tela
@@ -185,7 +216,7 @@ export function DatesViewer({
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
-          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center px-3">Task</div>
+          <div className="sticky left-0 z-30 bg-muted border-r border-border/50 sm:w-[420px] shrink-0 self-stretch flex items-center px-3" style={labelBox}>{namesShown ? "Task" : "#"}</div>
           <div className="max-sm:hidden sm:sticky sm:left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
           <div className="sm:sticky sm:left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
           <div className="sm:sticky sm:left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
@@ -211,12 +242,12 @@ export function DatesViewer({
                 className="group/evrow flex items-center border-b border-border/20"
                 style={{ height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
               >
-                <div className="sticky left-0 z-10 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ backgroundColor: evBg }}>
+                <div className="sticky left-0 z-20 sm:w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ ...labelBox, backgroundColor: isMobile ? `color-mix(in oklab, ${item.type_color} 12%, var(--color-background))` : evBg }}>
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
-                  {item.type_name !== "Other" && (
+                  {namesShown && item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
-                  <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
+                  {namesShown && <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>}
                 </div>
                 <div className="max-sm:hidden sm:sticky sm:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evDuration}
@@ -249,7 +280,10 @@ export function DatesViewer({
           const isOurs          = !!meta?.is_ours
           const isStartOverdue  = !isDone && !!row.startDate  && row.startDate  < today
           const isFinishOverdue = !isDone && !!row.finishDate && row.finishDate < today
-          const isRowActive     = hoveredRowId === row.id || lockedRowId === row.id
+          const isSelected      = isMobile && selectedRowId === row.id
+          const isRowActive     = isMobile
+            ? isSelected || lockedRowId === row.id
+            : hoveredRowId === row.id || lockedRowId === row.id
           const isCommentsOpen  = commentsRowId === row.id
           const rowComments     = commentsMap.get(row.id) ?? []
           const hasComments     = commentsMap.has(row.id) && rowComments.length > 0
@@ -264,18 +298,32 @@ export function DatesViewer({
                   : isOurs
                     ? "bg-foreground/[0.09] hover:bg-foreground/[0.14]"
                     : cn(i % 2 !== 0 && "bg-muted/[0.02]", "hover:bg-muted/[0.06]"),
+                isSelected && "bg-primary/[0.08]",
               )}
-              onMouseEnter={() => setHoveredRowId(row.id)}
-              onMouseLeave={() => setHoveredRowId(null)}
+              onMouseEnter={() => { if (!isMobile) setHoveredRowId(row.id) }}
+              onMouseLeave={() => { if (!isMobile) setHoveredRowId(null) }}
+              onClick={e => {
+                if (!isMobile) return
+                // Toque num botão ou no chevron age neles e não mexe na seleção.
+                // O calendário do popover sobe o clique pela árvore do React sem
+                // estar dentro da linha no DOM: esse também é ignorado.
+                const alvo = e.target as HTMLElement
+                if (alvo.closest("button") || !e.currentTarget.contains(alvo)) return
+                setSelectedRowId(id => id === row.id ? null : row.id)
+              }}
             >
               {/* Task label */}
               <div
                 className={cn(
-                  "sticky left-0 z-30 border-r border-border/50 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
-                  (isDone || isOurs) ? "bg-transparent" : "bg-background",
+                  "sticky left-0 z-30 border-r border-border/50 sm:w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden sm:group-hover:overflow-visible",
+                  // Fundo sempre opaco na coluna fixa: translúcido, a data que passa
+                  // por baixo dela ao rolar aparecia através do número.
+                  isSelected
+                    ? "bg-[color-mix(in_oklab,var(--color-primary)_12%,var(--color-background))]"
+                    : (isDone || isOurs) && !isMobile ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
-                style={{ paddingLeft: isOurs ? Math.max(0, indent - 2) : indent }}
+                style={{ ...labelBox, paddingLeft: !namesShown ? 4 : isOurs ? Math.max(0, indent - 2) : indent }}
               >
                 {row.isPhase && (
                   <span className="w-1 h-4 rounded-sm shrink-0 mr-0.5" style={{ backgroundColor: phaseColor }} />
@@ -286,7 +334,7 @@ export function DatesViewer({
                   </button>
                 ) : <span className="w-4 shrink-0" />}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
-                {isOurs && (
+                {namesShown && isOurs && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src="/images/sublogo_framing.png"
@@ -295,15 +343,15 @@ export function DatesViewer({
                     aria-hidden
                   />
                 )}
-                <span className={cn("text-[11px] ml-1 whitespace-nowrap",
-                  isRowActive
+                {namesShown && <span className={cn("text-[11px] ml-1 whitespace-nowrap",
+                  isRowActive && !isMobile
                     ? "relative z-10 pr-2 overflow-visible"
                     : "overflow-hidden text-ellipsis flex-1 min-w-0",
                   row.isPhase && "font-semibold uppercase tracking-wide",
                   !row.isPhase && row.level === 2 && "font-medium",
                   row.isMilestone && "text-amber-500")}>
                   {row.isMilestone && "◆ "}{row.name}
-                </span>
+                </span>}
               </div>
 
               {/* Duration */}
@@ -394,7 +442,11 @@ export function DatesViewer({
                   ref={isCommentsOpen ? commentsButtonsRef : undefined}
                   className={cn(
                     "absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background rounded-md px-0.5 shadow-sm transition-opacity",
-                    (hasComments || isRowActive || dateEditState?.rowId === row.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                    (hasComments || isRowActive || dateEditState?.rowId === row.id)
+                      ? "opacity-100"
+                      // Invisível no celular também não recebe toque: senão tocar
+                      // a ponta da linha para selecioná-la acionava um botão oculto.
+                      : "opacity-0 max-sm:pointer-events-none sm:group-hover:opacity-100",
                   )}
                 >
                   {dateEditState?.rowId === row.id ? (
