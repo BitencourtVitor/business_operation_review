@@ -22,7 +22,7 @@ import {
   useIngestJob, usePublishAtlasVersion, useRenameAtlasSheets, useUpdateAtlasSheet, useUpdateDocCategory, useUploadAtlasVersion,
 } from "@/hooks/use-atlas"
 import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
-import { DocumentTagsDialog, tagLabel } from "@/components/atlas/document-tags-dialog"
+import { DocumentTagsDialog, NoCategoryBadge, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
 import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
@@ -948,10 +948,12 @@ export default function DocumentPage() {
                   o que se classifica, e sem categoria o título diz isso, que é
                   justamente o que precisa ser resolvido. */}
               <h1 className="flex items-center gap-1.5 text-lg font-semibold leading-tight">
-                <span className={`truncate ${(doc?.tags ?? []).length ? "" : "text-muted-foreground"}`}>
+                {/* Sem categoria, o título é o nome do documento, e o aviso
+                    desce para a linha de baixo. */}
+                <span className="truncate">
                   {(doc?.tags ?? []).length
                     ? (doc?.tags ?? []).map(tagLabel).join(" · ")
-                    : "No category"}
+                    : (doc?.name ?? "Document")}
                 </span>
                 {canManage && (
                   <button
@@ -993,8 +995,12 @@ export default function DocumentPage() {
                   </span>
                 ) : (
                   <span className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
-                    <FileText className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{doc?.name ?? "Document"}</span>
+                    {doc && !(doc.tags ?? []).length ? <NoCategoryBadge /> : (
+                      <>
+                        <FileText className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{doc?.name ?? "Document"}</span>
+                      </>
+                    )}
                     {canManage && (
                       <button
                         type="button"

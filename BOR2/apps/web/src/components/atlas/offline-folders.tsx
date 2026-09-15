@@ -8,7 +8,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import { tagLabel } from "@/components/atlas/document-tags-dialog"
+import { NoCategoryBadge, tagLabel } from "@/components/atlas/document-tags-dialog"
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
@@ -496,16 +496,16 @@ export function OfflineFolders({ jobsiteId }: { jobsiteId: string }) {
                         guardado, e não pelo nome que o PDF tinha na máquina de
                         quem o enviou. */}
                     <span className="flex min-w-0 flex-col items-start gap-1">
-                      <span className={`max-w-full truncate text-sm font-medium leading-tight ${
-                        l.etiquetas.length === 0 ? "text-muted-foreground" : ""
-                      }`}>
-                        {l.etiquetas.length === 0
-                          ? "No category"
-                          : l.etiquetas.map(tagLabel).join(" · ")}
+                      <span className="max-w-full truncate text-sm font-medium leading-tight">
+                        {l.etiquetas.length === 0 ? l.nome : l.etiquetas.map(tagLabel).join(" · ")}
                       </span>
                       <span className="flex min-w-0 max-w-full items-center gap-1.5 text-xs text-muted-foreground">
-                        <FileText className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{l.nome}</span>
+                        {l.etiquetas.length === 0 ? <NoCategoryBadge /> : (
+                          <>
+                            <FileText className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{l.nome}</span>
+                          </>
+                        )}
                       </span>
                     </span>
                   </span>
