@@ -17,13 +17,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useIsMobile } from "@/hooks/use-mobile"
 import { AtlasJobsitePicker } from "@/components/atlas/atlas-jobsite-picker"
 import { onLastJobsiteCleared, readLastJobsite, writeLastJobsite } from "@/components/atlas/last-jobsite"
-import { useAtlasJobsite } from "@/hooks/use-atlas"
+import { useAtlasJobsite, useAtlasJobsiteSchedule } from "@/hooks/use-atlas"
 import { useAuth } from "@/hooks/use-auth"
 import { usePermission } from "@/hooks/use-permission"
 import { useProducts } from "@/lib/products"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  CircleGauge, ClipboardList, FolderOpen, ListChecks, LogOut, Moon,
+  CircleGauge, ClipboardList, FolderOpen, GanttChartSquare, ListChecks, LogOut, Moon,
   Notebook, PanelLeftClose, PanelLeftOpen, RefreshCw, Ruler, ShieldCheck,
   Settings, Sun,
 } from "lucide-react"
@@ -112,6 +112,11 @@ export function AtlasSidebar() {
   const jobsiteId = routeJobsiteId || remembered
   const { data: jobsite } = useAtlasJobsite(jobsiteId)
   const { canView, isStaff } = usePermission()
+  // O cronograma entra na barra só quando o projeto tem um ligado, e só para
+  // quem vê o Building Schedule no BOR. Item que abre um vazio é porta falsa.
+  const verCronograma = canView("building_schedule")
+  const { data: cronograma } = useAtlasJobsiteSchedule(jobsiteId, verCronograma)
+  const temCronograma = verCronograma && !!cronograma
 
   const tab = params.get("tab") ?? "documents"
   const inRoom = !!jobsiteId
@@ -180,12 +185,27 @@ export function AtlasSidebar() {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
+                    {temCronograma && (
+                      <SidebarMenuItem
+                        className="fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2"
+                        style={{ animationDelay: `${60 + ROOM_TABS.length * 45}ms` }}
+                      >
+                        <SidebarMenuButton
+                          isActive={pathname === `/atlas/${jobsiteId}/schedule`}
+                          tooltip="Schedule"
+                          render={<Link href={`/atlas/${jobsiteId}/schedule`} />}
+                        >
+                          <GanttChartSquare />
+                          <span>Schedule</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
                     {/* Dizer quem entra na obra é permissão própria: nem todo
                         mundo que administra a obra decide quem a enxerga. */}
                     {canView("atlas_access") && (
                       <SidebarMenuItem
                         className="fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2"
-                        style={{ animationDelay: `${60 + ROOM_TABS.length * 45}ms` }}
+                        style={{ animationDelay: `${60 + (ROOM_TABS.length + (temCronograma ? 1 : 0)) * 45}ms` }}
                       >
                         <SidebarMenuButton
                           isActive={pathname === `/atlas/${jobsiteId}` && tab === "access"}

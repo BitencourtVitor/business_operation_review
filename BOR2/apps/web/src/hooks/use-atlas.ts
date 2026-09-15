@@ -66,6 +66,19 @@ export function useAtlasJobsite(id: string) {
   })
 }
 
+/**
+ * O cronograma ligado ao projeto. Só pergunta quem pode ver o Building
+ * Schedule: para os outros a resposta não mudaria nada na tela.
+ */
+export function useAtlasJobsiteSchedule(id: string, enabled = true) {
+  return useQuery({
+    queryKey: [...KEY.jobsite(id), "schedule"],
+    queryFn: () => atlasService.jobsiteSchedule(id),
+    enabled: !!id && enabled,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
 export function useCreateAtlasJobsite() {
   const qc = useQueryClient()
   return useMutation({

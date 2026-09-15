@@ -35,6 +35,9 @@ type BuildingRow struct {
 	ProjectFinish *string `json:"project_finish,omitempty"`
 	UploadedAt    *string `json:"uploaded_at,omitempty"`
 	TaskCount     *int    `json:"task_count,omitempty"`
+	// O projeto do Atlas que este cronograma descreve, quando alguém ligou.
+	AtlasJobsiteID   *string `json:"atlas_jobsite_id"`
+	AtlasJobsiteName *string `json:"atlas_jobsite_name"`
 }
 
 type RowMetaItem struct {
@@ -98,10 +101,12 @@ func (h *BuildingsHandler) ListBuildings(c *fiber.Ctx) error {
 			s.project_start::text,
 			s.project_finish::text,
 			s.uploaded_at::text,
-			jsonb_array_length(s.schedule_data->'rows')
+			jsonb_array_length(s.schedule_data->'rows'),
+			b.atlas_jobsite_id, j.name
 		FROM construction_buildings b
 		LEFT JOIN construction_schedules s
 			ON s.building_id = b.id AND s.is_current = TRUE
+		LEFT JOIN atlas_jobsite j ON j.id = b.atlas_jobsite_id
 		ORDER BY b.name ASC
 	`)
 	if err != nil {
@@ -117,7 +122,7 @@ func (h *BuildingsHandler) ListBuildings(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&b.ID, &b.Name, &b.Address, &b.CreatedAt, &b.UpdatedAt,
 			&schedID, &pdfFile, &projStart, &projFinish, &uploadedAt,
-			&taskCount,
+			&taskCount, &b.AtlasJobsiteID, &b.AtlasJobsiteName,
 		); err != nil {
 			continue
 		}
@@ -185,6 +190,82 @@ func (h *BuildingsHandler) DeleteBuilding(c *fiber.Ctx) error {
 	_, err := h.db.Exec(c.Context(), `DELETE FROM construction_buildings WHERE id = $1`, id)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.SendStatus(204)
+}
+
+// GET /api/v1/buildings/atlas-jobsites
+//
+// Os projetos do Atlas que podem receber um cronograma, com o prédio que já
+// ocupa cada um. A lista sai daqui, e não da rota do Atlas, porque quem cuida do
+// cronograma nem sempre tem acesso ao Atlas.
+func (h *BuildingsHandler) ListAtlasJobsites(c *fiber.Ctx) error {
+	rows, err := h.db.Query(c.Context(), `
+		SELECT j.id, j.name, COALESCE(j.client, ''), j.status, b.id, b.name
+		FROM atlas_jobsite j
+		LEFT JOIN construction_buildings b ON b.atlas_jobsite_id = j.id
+		ORDER BY j.status = 'archived', j.name
+	`)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	defer rows.Close()
+
+	type item struct {
+		ID           string  `json:"id"`
+		Name         string  `json:"name"`
+		Client       string  `json:"client"`
+		Status       string  `json:"status"`
+		BuildingID   *string `json:"building_id"`
+		BuildingName *string `json:"building_name"`
+	}
+	out := []item{}
+	for rows.Next() {
+		var it item
+		if err := rows.Scan(&it.ID, &it.Name, &it.Client, &it.Status, &it.BuildingID, &it.BuildingName); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		out = append(out, it)
+	}
+	return c.JSON(fiber.Map{"data": out})
+}
+
+// PUT /api/v1/buildings/:id/atlas-jobsite
+//
+// Liga o prédio a um projeto do Atlas, ou solta com null. Projeto já ligado a
+// outro prédio devolve 409 com o nome dele: trocar em silêncio deixaria o
+// outro cronograma órfão sem ninguém perceber.
+func (h *BuildingsHandler) SetAtlasJobsite(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var body struct {
+		AtlasJobsiteID *string `json:"atlas_jobsite_id"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+	var alvo any
+	if body.AtlasJobsiteID != nil && *body.AtlasJobsiteID != "" {
+		alvo = *body.AtlasJobsiteID
+		var dono string
+		err := h.db.QueryRow(c.Context(), `
+			SELECT name FROM construction_buildings
+			WHERE atlas_jobsite_id = $1 AND id <> $2`, alvo, id).Scan(&dono)
+		if err == nil {
+			return c.Status(409).JSON(fiber.Map{
+				"error": "This Atlas project is already linked to " + dono,
+				"building": dono,
+			})
+		}
+	}
+	tag, err := h.db.Exec(c.Context(), `
+		UPDATE construction_buildings
+		SET atlas_jobsite_id = $1, updated_at = NOW()
+		WHERE id = $2`, alvo, id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	if tag.RowsAffected() == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "building not found"})
 	}
 	return c.SendStatus(204)
 }

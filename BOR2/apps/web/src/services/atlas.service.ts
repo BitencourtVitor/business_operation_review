@@ -546,6 +546,16 @@ interface UploadTicket {
   expiresIn: number
 }
 
+export interface AtlasJobsiteSchedule {
+  buildingId: string
+  name: string
+  hasSchedule: boolean
+  pdfFilename: string | null
+  projectStart: string | null
+  projectFinish: string | null
+  uploadedAt: string | null
+}
+
 export const atlasService = {
   listForecastJobsites: (params?: { q?: string; company?: string; status?: string }) => {
     const qs = new URLSearchParams()
@@ -567,6 +577,9 @@ export const atlasService = {
     api.get<{ mediaBytes: number }>(`${base}/jobsites/${id}/offline-size`, getToken()),
   createJobsite: (body: Partial<AtlasJobsite>) =>
     api.post<{ id: string }>(`${base}/jobsites`, body, getToken()),
+  // O cronograma do Building Schedule ligado ao projeto, ou null.
+  jobsiteSchedule: (id: string) =>
+    api.get<AtlasJobsiteSchedule | null>(`${base}/jobsites/${id}/schedule`, getToken()),
   updateJobsite: (id: string, patch: Partial<AtlasJobsite>) =>
     api.patch(`${base}/jobsites/${id}`, patch, getToken()),
 
