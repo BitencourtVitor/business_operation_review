@@ -178,14 +178,17 @@ export function DatesViewer({
   return (
     <div className="flex-1 overflow-auto">
       <TooltipProvider>
+      {/* No celular, a coluna de tarefa encolhe, Duration sai e Start/Finish
+          deixam de ser fixas: fixas, as quatro colunas somavam 676 px numa tela
+          de 330 e as datas nunca apareciam. */}
       <div className="min-w-[980px] flex flex-col">
 
         {/* Header */}
         <div className="sticky top-0 z-30 flex border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide h-[28px]">
-          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[420px] shrink-0 self-stretch flex items-center px-3">Task</div>
-          <div className="sticky left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
-          <div className="sticky left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
-          <div className="sticky left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
+          <div className="sticky left-0 z-20 bg-muted/90 border-r border-border/50 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center px-3">Task</div>
+          <div className="max-sm:hidden sm:sticky sm:left-[420px] z-20 bg-muted/90 w-[80px] shrink-0 self-stretch flex items-center justify-center">Duration</div>
+          <div className="sm:sticky sm:left-[500px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Start</div>
+          <div className="sm:sticky sm:left-[588px] z-20 bg-muted/90 w-[88px] shrink-0 self-stretch flex items-center justify-center">Finish</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Start</div>
           <div className="bg-muted/90 w-[100px] shrink-0 self-stretch flex items-center justify-center">Real Finish</div>
           <div className="bg-muted/90 flex-1 self-stretch" />
@@ -208,20 +211,20 @@ export function DatesViewer({
                 className="group/evrow flex items-center border-b border-border/20"
                 style={{ height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
               >
-                <div className="sticky left-0 z-10 w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ backgroundColor: evBg }}>
+                <div className="sticky left-0 z-10 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center gap-1.5 pl-2 pr-1 overflow-hidden" style={{ backgroundColor: evBg }}>
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
                   {item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
                   <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{label}</span>
                 </div>
-                <div className="sticky left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="max-sm:hidden sm:sticky sm:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-[10px]" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evDuration}
                 </div>
-                <div className="sticky left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="sm:sticky sm:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </div>
-                <div className="sticky left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
+                <div className="sm:sticky sm:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-[10px] font-medium" style={{ color: item.type_color, backgroundColor: evBg }}>
                   {evFinish ? evFinish.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                 </div>
                 <div className="flex-1 self-stretch flex items-center justify-end pr-2" style={{ backgroundColor: evBg }}>
@@ -268,7 +271,7 @@ export function DatesViewer({
               {/* Task label */}
               <div
                 className={cn(
-                  "sticky left-0 z-30 border-r border-border/50 w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
+                  "sticky left-0 z-30 border-r border-border/50 w-[132px] sm:w-[420px] shrink-0 self-stretch flex items-center gap-1 pr-2 overflow-hidden group-hover:overflow-visible",
                   (isDone || isOurs) ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
@@ -304,17 +307,17 @@ export function DatesViewer({
               </div>
 
               {/* Duration */}
-              <div className={cn("sticky left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
+              <div className={cn("max-sm:hidden sm:sticky sm:left-[420px] z-10 w-[80px] shrink-0 self-stretch flex items-center justify-center text-xs text-muted-foreground", (isDone || isOurs) ? "bg-transparent" : "bg-background")}>
                 {row.isMilestone ? "◆" : row.durationText}
               </div>
 
               {/* Start */}
-              <div className={cn("sticky left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("sm:sticky sm:left-[500px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isStartOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.startDate)}
               </div>
 
               {/* Finish */}
-              <div className={cn("sticky left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <div className={cn("sm:sticky sm:left-[588px] z-10 w-[88px] shrink-0 self-stretch flex items-center justify-center text-xs", (isDone || isOurs) ? "bg-transparent" : "bg-background", isFinishOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
                 {fmtDateShort(row.finishDate)}
               </div>
 

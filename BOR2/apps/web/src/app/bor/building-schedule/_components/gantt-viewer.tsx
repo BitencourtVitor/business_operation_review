@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import { buildingsService, type RowComment, type ScheduleEvent } from "@/services/buildings.service"
 import { useAuth } from "@/hooks/use-auth"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   fmtDateShort,
@@ -88,6 +89,7 @@ export function GanttViewer({
   onDeleteEvent:   (ev: ScheduleEvent) => void
 }) {
   const { user: currentUser } = useAuth()
+  const isMobile = useIsMobile()
 
   const ps     = schedule.projectStart!
   const pf     = schedule.projectFinish!
@@ -211,6 +213,30 @@ export function GanttViewer({
     overscan:         10,
   })
   const [scrollLeft, setScrollLeft] = useState(0)
+  // Scrolling fires dozens of events per second, and each setState re-rendered
+  // every visible row. One update per frame is all the eye can follow.
+  const scrollFrame = useRef(0)
+  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget
+    if (scrollFrame.current) return
+    scrollFrame.current = requestAnimationFrame(() => {
+      scrollFrame.current = 0
+      setScrollLeft(el.scrollLeft)
+    })
+  }
+  useEffect(() => () => cancelAnimationFrame(scrollFrame.current), [])
+
+  // No celular a coluna de tarefas ocupava 240 dos 330 px e escondia as barras.
+  // Ela fica só com o chevron e o número; os nomes voltam, por cima do começo
+  // do gráfico, quando o Gantt está encostado na borda esquerda. A coluna não
+  // muda de largura no fluxo (a margem negativa compensa), então nada pula
+  // quando os nomes aparecem ou somem.
+  const COMPACT_W  = 58
+  const colW       = isMobile ? COMPACT_W : LEFT_W
+  const namesShown = !isMobile || scrollLeft < 8
+  const labelBox   = isMobile && namesShown
+    ? { width: LEFT_W, marginRight: COMPACT_W - LEFT_W }
+    : { width: colW }
 
   function onMouseDown(e: React.MouseEvent) {
     if (!scrollRef.current) return
@@ -246,14 +272,17 @@ export function GanttViewer({
       : new Date(pf.getFullYear(), pf.getMonth() + 1, 0)
 
     const totalDays = Math.max(1, diffDays(tStart, tEnd) + 1)
-    const availableW = containerW - LEFT_W
+    const availableW = containerW - colW
     const ppd = (filterYear != null && containerW > 0)
       ? Math.max(PX_PER_DAY, availableW / totalDays)
       : PX_PER_DAY
 
     const mths: MonthInfo[] = []
     const cur = new Date(tStart)
-    while (cur <= tEnd) {
+    // The ceiling is a guard, not a limit anyone reaches: a misread date once
+    // stretched the range to the year 27383 and this loop froze the tab.
+    const MAX_MONTHS = 600
+    while (cur <= tEnd && mths.length < MAX_MONTHS) {
       const next      = new Date(cur.getFullYear(), cur.getMonth() + 1, 1)
       const startDay  = diffDays(tStart, cur)
       const daysInMth = diffDays(cur, next)
@@ -274,7 +303,7 @@ export function GanttViewer({
     }
 
     return { months: mths, yearGroups: ygs, timelineW: totalDays * ppd, timelineStart: tStart, pxPerDay: ppd }
-  }, [ps, pf, filterYear, filterMonth, containerW])
+  }, [ps, pf, filterYear, filterMonth, containerW, colW])
 
   const startLinePx = diffDays(timelineStart, ps) * pxPerDay
   const endLinePx   = diffDays(timelineStart, pf) * pxPerDay
@@ -292,14 +321,14 @@ export function GanttViewer({
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
-      onScroll={e => setScrollLeft(e.currentTarget.scrollLeft)}
+      onScroll={onScroll}
     >
-      <div className="relative flex flex-col" style={{ minWidth: LEFT_W + timelineW }}>
+      <div className="relative flex flex-col" style={{ minWidth: colW + timelineW }}>
 
         {/* Two-row sticky header */}
         <div className="sticky top-0 z-20">
           <div className="flex border-b border-border/60">
-            <div className="sticky left-0 z-30 bg-background border-r border-border/60 shrink-0" style={{ width: LEFT_W, height: YEAR_H }} />
+            <div className="sticky left-0 z-30 bg-background border-r border-border/60 shrink-0" style={{ ...labelBox, height: YEAR_H }} />
             {yearGroups.map((yg, i) => (
               <div
                 key={i}
@@ -311,8 +340,8 @@ export function GanttViewer({
             ))}
           </div>
           <div className="flex border-b border-border">
-            <div className="sticky left-0 z-30 bg-background border-r border-border shrink-0 flex items-center px-3" style={{ width: LEFT_W, height: MONTH_H }}>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Task</span>
+            <div className="sticky left-0 z-30 bg-background border-r border-border shrink-0 flex items-center px-3" style={{ ...labelBox, height: MONTH_H }}>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">{namesShown ? "Task" : "#"}</span>
             </div>
             {months.map((m, i) => {
               const isCurrentMonth = m.year === today.getFullYear() && m.label === _MO[today.getMonth()]
@@ -335,6 +364,21 @@ export function GanttViewer({
         {/* Task rows */}
         <TooltipProvider>
         <div className="relative" style={{ height: rowVirtualizer.getTotalSize() }}>
+
+          {/* Month lines and the current month, drawn once for the whole grid.
+              Inside each row they were rows times months elements, all of them
+              re-rendered on every hover. */}
+          <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: colW, width: timelineW }}>
+            {currentMonthInfo && (
+              <div
+                className="absolute top-0 bottom-0 bg-primary/[0.08]"
+                style={{ left: currentMonthInfo.startPx, width: currentMonthInfo.pxWidth }}
+              />
+            )}
+            {months.map((m, mi) => mi > 0 && (
+              <div key={mi} className="absolute top-0 bottom-0 w-px bg-border/15" style={{ left: m.startPx }} />
+            ))}
+          </div>
 
         {rowVirtualizer.getVirtualItems().map(virtualRow => {
           const item = mergedRows[virtualRow.index]
@@ -360,13 +404,13 @@ export function GanttViewer({
               >
                 <div
                   className="sticky left-0 z-30 border-r border-border/30 shrink-0 flex items-center gap-1.5 pl-2 pr-1 overflow-hidden"
-                  style={{ width: LEFT_W, height: EVENT_ROW_H, backgroundColor: evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
+                  style={{ ...labelBox, height: EVENT_ROW_H, backgroundColor: isMobile ? `color-mix(in oklab, ${item.type_color} 12%, var(--color-background))` : evBg, borderLeftColor: item.type_color, borderLeftWidth: 3, borderLeftStyle: "solid" }}
                 >
                   <EventTypeIcon name={item.type_icon} className="h-3 w-3 shrink-0" style={{ color: item.type_color }} />
-                  {item.type_name !== "Other" && (
+                  {namesShown && item.type_name !== "Other" && (
                     <span className="text-[10px] font-semibold shrink-0" style={{ color: item.type_color }}>{item.type_name}</span>
                   )}
-                  {item.notes && (
+                  {namesShown && item.notes && (
                     <span className="text-[10px] text-muted-foreground truncate flex-1 min-w-0">{item.notes}</span>
                   )}
                 </div>
@@ -446,10 +490,10 @@ export function GanttViewer({
               <div
                 className={cn(
                   "sticky left-0 z-30 border-r border-border/50 shrink-0 flex items-center gap-1 pr-1 overflow-hidden group-hover:overflow-visible",
-                  (isDone || isOurs) ? "bg-transparent" : "bg-background",
+                  (isDone || isOurs) && !isMobile ? "bg-transparent" : "bg-background",
                   isOurs && "border-l-2 border-l-foreground/50",
                 )}
-                style={{ width: LEFT_W, height: ROW_H, paddingLeft: isOurs ? Math.max(0, indent - 2) : indent }}
+                style={{ ...labelBox, height: ROW_H, paddingLeft: !namesShown ? 4 : isOurs ? Math.max(0, indent - 2) : indent }}
               >
                 {hasKidsMap[row.id] ? (
                   <button
@@ -463,11 +507,11 @@ export function GanttViewer({
                   <span className="w-4 shrink-0" />
                 )}
                 <span className="text-[10px] text-muted-foreground/40 font-mono w-5 text-right shrink-0">{row.id}</span>
-                {isOurs && oursSubLogo && (
+                {namesShown && isOurs && oursSubLogo && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={oursSubLogo} alt="" aria-hidden className="shrink-0 h-3 w-3 object-contain opacity-70" />
                 )}
-                <span
+                {namesShown && <span
                   className={cn(
                     "text-[11px] ml-1 whitespace-nowrap",
                     isRowActive
@@ -480,20 +524,11 @@ export function GanttViewer({
                 >
                   {row.isMilestone && <span className="mr-0.5">◆</span>}
                   {row.name}
-                </span>
+                </span>}
               </div>
 
               {/* Timeline area */}
               <div className="relative shrink-0" style={{ width: timelineW, height: ROW_H }}>
-                {currentMonthInfo && (
-                  <div
-                    className="absolute top-0 bottom-0 bg-primary/[0.08] pointer-events-none"
-                    style={{ left: currentMonthInfo.startPx, width: currentMonthInfo.pxWidth }}
-                  />
-                )}
-                {months.map((m, mi) => mi > 0 && (
-                  <div key={mi} className="absolute top-0 bottom-0 w-px bg-border/15" style={{ left: m.startPx }} />
-                ))}
 
                 {!row.isMilestone && startPx != null && barW > 0 && (
                   <div
@@ -644,12 +679,17 @@ export function GanttViewer({
         })}
 
           {/* Date labels overlay */}
-          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+          {/* Com os nomes abertos por cima do gráfico no celular, as linhas de início,
+              fim e hoje são cortadas antes deles, senão riscavam o texto. */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ zIndex: 10, clipPath: isMobile && namesShown ? `inset(0 0 0 ${LEFT_W}px)` : undefined }}
+          >
             {todayInRange && (
-              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + todayPx, borderLeft: "1px dashed rgba(255,255,255,0.25)" }} />
+              <div className="absolute top-0 bottom-0" style={{ left: colW + todayPx, borderLeft: "1px dashed rgba(255,255,255,0.25)" }} />
             )}
             {!(filterYear != null && filterMonth != null) && (
-              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + startLinePx, borderLeft: "1px dashed #10b981" }}>
+              <div className="absolute top-0 bottom-0" style={{ left: colW + startLinePx, borderLeft: "1px dashed #10b981" }}>
                 <span className="absolute text-[9px] font-mono font-semibold bg-background/90 rounded whitespace-nowrap leading-none"
                   style={{ bottom: 8, left: 4, writingMode: "vertical-rl", transform: "rotate(180deg)", padding: "4px 2px", color: "#10b981" }}>
                   {fmtDateNum(ps)}
@@ -657,7 +697,7 @@ export function GanttViewer({
               </div>
             )}
             {!(filterYear != null && filterMonth != null) && (
-              <div className="absolute top-0 bottom-0" style={{ left: LEFT_W + endLinePx, borderLeft: "1px dashed #f43f5e" }}>
+              <div className="absolute top-0 bottom-0" style={{ left: colW + endLinePx, borderLeft: "1px dashed #f43f5e" }}>
                 <span className="absolute text-[9px] font-mono font-semibold bg-background/90 rounded whitespace-nowrap leading-none"
                   style={{ top: 8, left: -4, transform: "translateX(-100%) rotate(180deg)", writingMode: "vertical-rl", padding: "4px 2px", color: "#f43f5e" }}>
                   {fmtDateNum(pf)}
