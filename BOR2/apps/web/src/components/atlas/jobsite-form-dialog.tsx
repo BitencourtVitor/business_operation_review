@@ -500,13 +500,16 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
           )}
         </div>
 
-        {error && <p className="text-xs text-destructive">{error}</p>}
-
-        <DialogFooter>
-          <Button variant="outline" onClick={close}>Cancel</Button>
-          <Button onClick={submit} disabled={!form.community.trim() || saving}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create project"}
-          </Button>
+        {/* O aviso fica no rodapé, do lado oposto aos botões: é ali que se olha
+            depois de clicar, e não no meio do formulário. */}
+        <DialogFooter className="sm:justify-between">
+          {error ? <p className="self-center text-xs text-destructive">{error}</p> : <span />}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={close}>Cancel</Button>
+            <Button onClick={submit} disabled={!form.community.trim() || saving}>
+              {saving ? "Saving…" : editing ? "Save changes" : "Create project"}
+            </Button>
+          </div>
         </DialogFooter>
         </div>
 
