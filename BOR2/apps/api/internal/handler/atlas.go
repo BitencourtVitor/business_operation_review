@@ -159,7 +159,7 @@ func (h *AtlasHandler) require(c *fiber.Ctx, jobsiteID, needed string) error {
 
 func atlasForbidden(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-		"error": "sem acesso a esta obra", "code": "FORBIDDEN",
+		"error": "no access to this project", "code": "FORBIDDEN",
 	})
 }
 
@@ -171,7 +171,7 @@ func atlasNotFound(c *fiber.Ctx, what string) error {
 
 func atlasNoStorage(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
-		"error": "storage do Atlas não configurado neste ambiente",
+		"error": "Atlas storage is not configured on this server",
 		"code":  "R2_NOT_CONFIGURED",
 	})
 }
@@ -398,7 +398,7 @@ func (h *AtlasHandler) CreateJobsite(c *fiber.Ctx) error {
 		// permissão para cadastrar, e dizer "sem acesso a esta obra" mandava
 		// quem lê procurar um convite que não resolveria nada.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": "você não tem permissão para cadastrar obras ainda",
+			"error": "you don't have permission to create projects yet",
 			"code":  "FORBIDDEN_CREATE_JOBSITE",
 		})
 	}
@@ -746,7 +746,7 @@ func (h *AtlasHandler) NotifyAccess(c *fiber.Ctx) error {
 	}
 	if h.email == nil {
 		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
-			"error": "envio de e-mail não configurado neste ambiente", "code": "EMAIL_NOT_CONFIGURED",
+			"error": "e-mail sending is not configured on this server", "code": "EMAIL_NOT_CONFIGURED",
 		})
 	}
 
@@ -1282,7 +1282,7 @@ func (h *AtlasHandler) ConfirmVersion(c *fiber.Ctx) error {
 		_, _ = h.db.Exec(c.Context(),
 			`UPDATE atlas_document_version SET status='failed' WHERE id=$1`, versionID)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "arquivo não encontrado no storage", "code": "UPLOAD_INCOMPLETE",
+			"error": "file not found in storage", "code": "UPLOAD_INCOMPLETE",
 		})
 	}
 	_, err = h.db.Exec(c.Context(), `
@@ -1327,7 +1327,7 @@ func (h *AtlasHandler) PublishVersion(c *fiber.Ctx) error {
 	}
 	if status == "pending" || status == "failed" {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"error": "a versão ainda não terminou de subir", "code": "NOT_UPLOADED",
+			"error": "this version has not finished uploading", "code": "NOT_UPLOADED",
 		})
 	}
 	_, err = h.db.Exec(c.Context(), `
@@ -2391,7 +2391,7 @@ func (h *AtlasHandler) ConfirmMedia(c *fiber.Ctx) error {
 	if err != nil {
 		_, _ = h.db.Exec(c.Context(), `UPDATE atlas_media SET status='failed' WHERE id=$1`, mediaID)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "arquivo não encontrado no storage", "code": "UPLOAD_INCOMPLETE",
+			"error": "file not found in storage", "code": "UPLOAD_INCOMPLETE",
 		})
 	}
 	if _, err := h.db.Exec(c.Context(), `

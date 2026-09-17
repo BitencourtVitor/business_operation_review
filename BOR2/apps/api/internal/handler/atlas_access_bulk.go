@@ -101,7 +101,7 @@ func (h *AtlasHandler) GrantAccessBulk(c *fiber.Ctx) error {
 	}
 	if len(negadas) > 0 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": "sem permissão de manage em todas as obras do critério",
+			"error": "you need manage access on every project in this selection",
 			"data":  fiber.Map{"semPermissao": negadas, "total": len(alvos)},
 		})
 	}

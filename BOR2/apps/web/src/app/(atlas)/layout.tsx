@@ -3,6 +3,7 @@ import { AtlasHeader } from "@/components/atlas/atlas-header"
 import { AtlasSidebar } from "@/components/atlas/atlas-sidebar"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { OfflineProvider } from "@/components/atlas/offline-provider"
+import { VersionGate } from "@/components/atlas/version-gate"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cookies } from "next/headers"
 
@@ -49,6 +50,7 @@ export default async function AtlasLayout({ children }: { children: React.ReactN
           </main>
         </SidebarInset>
       </SidebarProvider>
+      <VersionGate />
       </OfflineProvider>
     </AuthGuard>
   )
