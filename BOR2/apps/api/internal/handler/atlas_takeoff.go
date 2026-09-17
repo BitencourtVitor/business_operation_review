@@ -358,7 +358,7 @@ func (h *AtlasHandler) TakeoffUpdateTerm(c *fiber.Ctx) error {
 		return atlasNotFound(c, "termo")
 	}
 	if level == "base" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "a base não se edita pela obra", "code": "FORBIDDEN"})
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "the shared catalog cannot be edited from a project", "code": "FORBIDDEN"})
 	}
 	if err := h.require(c, jobsiteID, "manage"); err != nil {
 		return atlasForbidden(c)
@@ -396,7 +396,7 @@ func (h *AtlasHandler) TakeoffDeleteTerm(c *fiber.Ctx) error {
 		return atlasNotFound(c, "termo")
 	}
 	if level == "base" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "a base não se apaga pela obra", "code": "FORBIDDEN"})
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "the shared catalog cannot be deleted from a project", "code": "FORBIDDEN"})
 	}
 	if err := h.require(c, jobsiteID, "manage"); err != nil {
 		return atlasForbidden(c)

@@ -81,7 +81,7 @@ func (h *AtlasHandler) TakeoffAI(c *fiber.Ctx) error {
 	key := strings.TrimSpace(os.Getenv("OPENROUTER_API_KEY"))
 	if key == "" {
 		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
-			"error": "leitura por IA sem credencial: OPENROUTER_API_KEY não está na API",
+			"error": "AI reading has no credential: OPENROUTER_API_KEY is missing on the API",
 			"code":  "AI_NOT_CONFIGURED",
 		})
 	}
@@ -121,7 +121,7 @@ func (h *AtlasHandler) TakeoffAI(c *fiber.Ctx) error {
 	}
 	if err := json.Unmarshal([]byte(jsonDoTexto(res.text)), &saida); err != nil {
 		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{
-			"error": "a resposta da IA não veio no formato combinado", "code": "AI_BAD_OUTPUT",
+			"error": "the AI answer did not come in the agreed format", "code": "AI_BAD_OUTPUT",
 		})
 	}
 	elementos := saida.Elements[:0]

@@ -410,7 +410,7 @@ export function JobsiteFormDialog({ open, onOpenChange, clients, editing }: {
       kind: form.kind,
     } satisfies Partial<AtlasJobsite>
     const onError = (e: unknown) =>
-      setError(e instanceof Error ? e.message : "não deu para salvar")
+      setError(e instanceof Error ? e.message : "could not save")
 
     if (editing) {
       atlasService.setBlocked(editing.id, blocked).catch(() => {})

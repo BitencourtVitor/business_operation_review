@@ -62,9 +62,9 @@ export function OverwriteScopeDialog({ totalPaginas, open, onOpenChange, onConfi
         <DialogHeader>
           <DialogTitle>What is this revision replacing?</DialogTitle>
           <DialogDescription>
-            Uma versão nova é criada em qualquer caso. As folhas que você não
-            trocar são herdadas da revisão anterior, e continuam apontando para o
-            mesmo arquivo.
+            A new version is created either way. Sheets you do not replace are
+            inherited from the previous revision and keep pointing to the same
+            file.
           </DialogDescription>
         </DialogHeader>
 
@@ -72,28 +72,28 @@ export function OverwriteScopeDialog({ totalPaginas, open, onOpenChange, onConfi
           <Escolha
             ativa={modo === "full"} onClick={() => setModo("full")}
             icone={Files} titulo="The whole folder"
-            texto={`Todas as ${totalPaginas} folhas são reemitidas.`}
+            texto={`All ${totalPaginas} sheets are reissued.`}
           />
           <Escolha
             ativa={modo === "range"} onClick={() => setModo("range")}
             icone={FileStack} titulo="A range of pages"
-            texto="O intervalo é trocado; o resto é herdado."
+            texto="The range is replaced; the rest is inherited."
           />
           {modo === "range" && (
             <div className="flex items-center gap-2 pl-9">
               <Input value={de} onChange={e => setDe(e.target.value)} className="w-20" inputMode="numeric" />
-              <span className="text-sm text-muted-foreground">até</span>
+              <span className="text-sm text-muted-foreground">to</span>
               <Input value={ate} onChange={e => setAte(e.target.value)} className="w-20" inputMode="numeric" />
             </div>
           )}
           <Escolha
             ativa={modo === "single"} onClick={() => setModo("single")}
             icone={FileText} titulo="A single page"
-            texto="Uma folha é trocada; as outras são herdadas."
+            texto="One sheet is replaced; the others are inherited."
           />
           {modo === "single" && (
             <div className="flex items-center gap-2 pl-9">
-              <span className="text-sm text-muted-foreground">página</span>
+              <span className="text-sm text-muted-foreground">page</span>
               <Input value={pagina} onChange={e => setPagina(e.target.value)} className="w-20" inputMode="numeric" />
             </div>
           )}
@@ -109,8 +109,8 @@ export function OverwriteScopeDialog({ totalPaginas, open, onOpenChange, onConfi
           }}
         >
           {modo === "full"
-            ? `Reemitir as ${totalPaginas} folhas`
-            : `Trocar ${escolhidas} folha(s), herdar ${Math.max(0, totalPaginas - escolhidas)}`}
+            ? `Reissue all ${totalPaginas} sheets`
+            : `Replace ${escolhidas} sheet(s), inherit ${Math.max(0, totalPaginas - escolhidas)}`}
         </Button>
       </DialogContent>
     </Dialog>
