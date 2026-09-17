@@ -8,7 +8,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
-import { getForecastDisplayStatus } from "@bor2/shared"
+import { getForecastDisplayStatus, scoredFieldwire } from "@bor2/shared"
 import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, ShieldCheck, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
@@ -98,7 +98,7 @@ function isTruthy(v?: string | boolean | null): boolean {
   return ["yes","sim","true","1","y","scheduled","dispensed","done","complete","completed"].includes(v.toLowerCase().trim())
 }
 
-function isFieldwireDone(p: ForecastProject)   { return !!p.fieldwire?.length && p.fieldwire.every(f => isTruthy(f.status)) }
+function isFieldwireDone(p: ForecastProject)   { const fw = scoredFieldwire(p.fieldwire); return !!fw.length && fw.every(f => isTruthy(f.status)) }
 function isPermitDone(p: ForecastProject)      { return !!p.permit?.length && p.permit.every(s => isTruthy(s.status)) }
 function isMachinesDone(p: ForecastProject)    { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)    { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }

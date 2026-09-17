@@ -1,6 +1,6 @@
 "use client"
 
-import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
+import { scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   AlertTriangle,
@@ -96,9 +96,10 @@ function getCompletionMetrics(p: ForecastProject) {
   }
 
   // Fieldwire docs
-  if (p.fieldwire?.length) {
-    total += p.fieldwire.length
-    done  += p.fieldwire.filter((f) => isTruthy(f.status)).length
+  const fw = scoredFieldwire(p.fieldwire)
+  if (fw.length) {
+    total += fw.length
+    done  += fw.filter((f) => isTruthy(f.status)).length
   }
   // BuilderTrend
   total++; if (p.buildertrend) done++
@@ -281,8 +282,9 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
     : { border: "rgba(234,179,8,0.22)", bg: "rgba(234,179,8,0.06)", text: "rgba(234,179,8,0.6)" }
 
   // Fieldwire progress
-  const fwTotal    = p.fieldwire?.length ?? 0
-  const fwDone     = p.fieldwire?.filter((f) => isTruthy(f.status)).length ?? 0
+  const fwScored   = scoredFieldwire(p.fieldwire)
+  const fwTotal    = fwScored.length
+  const fwDone     = fwScored.filter((f) => isTruthy(f.status)).length
   const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
   const fwComplete = fwTotal > 0 && fwDone === fwTotal
 

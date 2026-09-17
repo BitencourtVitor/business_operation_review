@@ -7,6 +7,13 @@ export interface ForecastFieldwireDoc {
   status?: string | null
   category?: string
   document?: string
+  /** false: aparece na lista mas não conta em nota (ex.: "On Atlas"). Vem do catálogo. */
+  scored?: boolean
+}
+
+/** Os documentos que contam para nota e progresso. */
+export function scoredFieldwire(docs?: ForecastFieldwireDoc[]): ForecastFieldwireDoc[] {
+  return (docs ?? []).filter(d => d.scored !== false)
 }
 
 export interface ForecastPermitStep {

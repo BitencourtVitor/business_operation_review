@@ -122,7 +122,10 @@ SELECT
 			'id',       fw.id,
 			'status',   CASE WHEN lower(fw.status::text) = 'completed' THEN 'true' ELSE fw.status::text END,
 			'category', COALESCE(fw.category, ''),
-			'document', COALESCE(fw.document, '')
+			'document', COALESCE(fw.document, ''),
+			'scored',   NOT EXISTS (SELECT 1 FROM catalog_forecast_fieldwire cf
+			                        WHERE NOT cf.counts_in_score
+			                          AND lower(trim(cf.document)) = lower(trim(fw.document)))
 		) ORDER BY fw.id)
 		 FROM forecast_fieldwire fw WHERE LOWER(fw.project_id) = LOWER(m.id)),
 		'[]'::json

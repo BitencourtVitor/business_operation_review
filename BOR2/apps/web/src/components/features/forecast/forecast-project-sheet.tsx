@@ -1,6 +1,6 @@
 "use client"
 
-import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
+import { scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   Dialog,
@@ -65,7 +65,8 @@ function isTruthy(v?: string | boolean | null): boolean {
 
 function getCompletionPct(p: ForecastProject): number {
   let done = 0, total = 0
-  if (p.fieldwire?.length)     { total += p.fieldwire.length;     done += p.fieldwire.filter(f => isTruthy(f.status)).length }
+  const fw = scoredFieldwire(p.fieldwire)
+  if (fw.length)               { total += fw.length;               done += fw.filter(f => isTruthy(f.status)).length }
   if (p.permit?.length)        { total += p.permit.length;        done += p.permit.filter(s => isTruthy(s.status)).length }
   total++; if (p.buildertrend) done++
   total++; if (p.qbTime)       done++

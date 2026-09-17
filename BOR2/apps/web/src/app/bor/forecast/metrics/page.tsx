@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useForecast } from "@/hooks/use-forecast"
-import type { ForecastProject } from "@bor2/shared"
+import { scoredFieldwire, type ForecastProject } from "@bor2/shared"
 import {
   ArrowLeft,
   Calendar,
@@ -78,7 +78,7 @@ function projectAspects(p: ForecastProject): Record<AspectKey, boolean> {
   // client) — an empty list there means "not applicable", not "not ready".
   const isPrivate = p.cliente?.toLowerCase().trim() === "private"
   return {
-    fieldwire:    p.fieldwire?.length    ? p.fieldwire.every(d => isTruthy(d.status))     : false,
+    fieldwire:    scoredFieldwire(p.fieldwire).length ? scoredFieldwire(p.fieldwire).every(d => isTruthy(d.status)) : false,
     machines:     isPrivate || (p.machines?.length ? p.machines.every(m => isMachineOk(m.status)) : false),
     contract:     p.contractSteps?.length ? p.contractSteps.every(s => isTruthy(s.status)) : false,
     buildertrend: !!p.buildertrend,
