@@ -125,6 +125,27 @@ func (h *AtlasHandler) jobsiteLevel(c *fiber.Ctx, jobsiteID string) (string, err
 	return "manage", nil
 }
 
+// hasAtlasWrite: a chave `atlas` em escrita é gente da casa, o mesmo critério
+// que já abre qualquer obra em jobsiteLevel. Cadastrar obra seguia só pelo
+// cargo, então dar a permissão a quem é `user` não mudava nada na prática.
+// Subcontratado fica de fora aqui como fica lá.
+func (h *AtlasHandler) hasAtlasWrite(c *fiber.Ctx) bool {
+	userID, _ := c.Locals("userID").(string)
+	if userID == "" {
+		return false
+	}
+	var ok bool
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT COALESCE(p.permissions::jsonb ->> 'atlas', '') = 'write'
+		   AND COALESCE(p.permissions::jsonb ->> 'atlas_subcontractor', '') = ''
+		FROM user_permissions p
+		WHERE p.user_id = $1 AND jsonb_typeof(p.permissions::jsonb) = 'object'`,
+		userID).Scan(&ok); err != nil {
+		return false
+	}
+	return ok
+}
+
 func (h *AtlasHandler) require(c *fiber.Ctx, jobsiteID, needed string) error {
 	level, err := h.jobsiteLevel(c, jobsiteID)
 	if err != nil {
@@ -372,8 +393,14 @@ func (h *AtlasHandler) ListJobsites(c *fiber.Ctx) error {
 // por uma checagem por obra.
 func (h *AtlasHandler) CreateJobsite(c *fiber.Ctx) error {
 	role, _ := c.Locals("userRole").(string)
-	if !atlasFullAccess[role] {
-		return atlasForbidden(c)
+	if !atlasFullAccess[role] && !h.hasAtlasWrite(c) {
+		// Não é falta de acesso à obra: a obra ainda não existe. O que falta é
+		// permissão para cadastrar, e dizer "sem acesso a esta obra" mandava
+		// quem lê procurar um convite que não resolveria nada.
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "você não tem permissão para cadastrar obras ainda",
+			"code":  "FORBIDDEN_CREATE_JOBSITE",
+		})
 	}
 	var in atlasJobsite
 	if err := c.BodyParser(&in); err != nil {
