@@ -6,7 +6,7 @@ import { ProjectCard } from "@/components/features/data-control/project-card"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useForecast, useDeleteForecast } from "@/hooks/use-forecast"
 import { useClients, useJobSites } from "@/hooks/use-clients"
-import type { ForecastProject, ForecastStatus } from "@bor2/shared"
+import { scoredFieldwire, type ForecastProject, type ForecastStatus } from "@bor2/shared"
 import { FileText, Package, Search, ShieldCheck, SlidersHorizontal, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
@@ -23,7 +23,7 @@ function isTruthy(v?: string | boolean | null): boolean {
   return ["yes","sim","true","1","y","scheduled","dispensed","done","complete","completed"].includes(v.toLowerCase().trim())
 }
 
-function isFieldwireDone(p: ForecastProject)  { return !!p.fieldwire?.length && p.fieldwire.every(f => isTruthy(f.status)) }
+function isFieldwireDone(p: ForecastProject)  { const fw = scoredFieldwire(p.fieldwire); return !!fw.length && fw.every(f => isTruthy(f.status)) }
 function isMachinesDone(p: ForecastProject)   { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)   { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }
 function isPermitDone(p: ForecastProject)     { return !!p.permit?.length && p.permit.every(s => isTruthy(s.status)) }

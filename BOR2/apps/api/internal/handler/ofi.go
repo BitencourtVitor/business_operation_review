@@ -76,7 +76,11 @@ func ofiInternalErr(c *fiber.Ctx, op string, err error) error {
 // the HVAC metrics page already apply. NULL and "none" mean still pending.
 func calcFieldwireScore(ctx context.Context, db pgx.Tx, id string, weight float64) (float64, error) {
 	rows, err := db.Query(ctx,
-		`SELECT COALESCE(status, '') FROM forecast_fieldwire WHERE project_id = $1`, id)
+		`SELECT COALESCE(f.status, '') FROM forecast_fieldwire f
+		 WHERE f.project_id = $1
+		   AND NOT EXISTS (SELECT 1 FROM catalog_forecast_fieldwire cf
+		                   WHERE NOT cf.counts_in_score
+		                     AND lower(trim(cf.document)) = lower(trim(f.document)))`, id)
 	if err != nil {
 		return 0, err
 	}
