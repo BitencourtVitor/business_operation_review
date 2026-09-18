@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --port 3000",
     "dev:preview": "next dev --port 3001",
-    "build": "next build",
+    "build": "bun scripts/copy-pdfjs-assets.mjs && next build",
+    "dev:assets": "bun scripts/copy-pdfjs-assets.mjs",
     "start": "next start",
     "lint": "biome lint ./src",
     "format": "biome format ./src --write",

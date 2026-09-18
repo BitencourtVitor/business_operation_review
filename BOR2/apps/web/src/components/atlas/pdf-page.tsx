@@ -53,7 +53,16 @@ export function loadPdf(url: string): Promise<PDFDocument> {
       "pdfjs-dist/build/pdf.worker.mjs",
       import.meta.url,
     ).toString()
-    return pdfjs.getDocument({ url }).promise as unknown as PDFDocument
+    return pdfjs.getDocument({
+      url,
+      // Onde ficam os arquivos de apoio publicados pelo scripts/copy-pdfjs-assets.mjs.
+      // Sem isto o decodificador de imagem escaneada (JBIG2) não inicializa e a
+      // folha fica esperando uma imagem que nunca chega (ATL-112).
+      wasmUrl: "/pdfjs/wasm/",
+      standardFontDataUrl: "/pdfjs/standard_fonts/",
+      cMapUrl: "/pdfjs/cmaps/",
+      cMapPacked: true,
+    }).promise as unknown as PDFDocument
   })()
 
   keep(url, promise)
@@ -71,6 +80,12 @@ export async function aquecerPdf(): Promise<void> {
   try {
     await import("pdfjs-dist")
     await fetch(new URL("pdfjs-dist/build/pdf.worker.mjs", import.meta.url).toString())
+    // O decodificador de escaneado também: sem ele guardado, a pasta baixada
+    // abre sem rede e a prancha escaneada não desenha.
+    await Promise.all([
+      fetch("/pdfjs/wasm/jbig2.wasm"),
+      fetch("/pdfjs/wasm/openjpeg.wasm"),
+    ])
   } catch {
     // Sem rede, ou já guardado. Adiantamento não vira erro.
   }
@@ -96,7 +111,16 @@ export async function readPdfOutline(file: File): Promise<{
   ).toString()
 
   const data = new Uint8Array(await file.arrayBuffer())
-  const pdf = await pdfjs.getDocument({ data }).promise
+  const pdf = await pdfjs.getDocument({
+    data,
+    // Onde ficam os arquivos de apoio publicados pelo scripts/copy-pdfjs-assets.mjs.
+    // Sem isto o decodificador de imagem escaneada (JBIG2) não inicializa e a
+    // folha fica esperando uma imagem que nunca chega (ATL-112).
+    wasmUrl: "/pdfjs/wasm/",
+    standardFontDataUrl: "/pdfjs/standard_fonts/",
+    cMapUrl: "/pdfjs/cmaps/",
+    cMapPacked: true,
+  }).promise
   const page = await pdf.getPage(1)
   const viewport = page.getViewport({ scale: 1 })
   return { pageCount: pdf.numPages, width: viewport.width, height: viewport.height }
