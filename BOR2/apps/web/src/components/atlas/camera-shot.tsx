@@ -111,24 +111,20 @@ export function CameraShot({ fotos, onCapture, onClose, onSistema }: {
     setTimeout(() => setClarao(false), 120)
 
     try {
-      let blob: Blob | null = null
-
-      // No Chrome de Android isto puxa a foto da câmera, e não o quadro do
-      // vídeo: mesma cena, muito mais pixel. Onde não existe, cai no quadro.
-      const Captura = (window as unknown as { ImageCapture?: new (t: MediaStreamTrack) => {
-        takePhoto: () => Promise<Blob>
-      } }).ImageCapture
-      if (Captura) {
-        try { blob = await new Captura(trilha).takePhoto() } catch { blob = null }
-      }
-
-      if (!blob) {
-        const tela = document.createElement("canvas")
-        tela.width = v.videoWidth
-        tela.height = v.videoHeight
-        tela.getContext("2d")?.drawImage(v, 0, 0)
-        blob = await new Promise<Blob | null>(ok => tela.toBlob(ok, "image/jpeg", 0.92))
-      }
+      // O quadro é copiado **no toque**, antes de qualquer espera. Esta é a
+      // cena que a pessoa viu quando apertou, e é o que faz o disparo parecer
+      // câmera de verdade.
+      //
+      // Havia aqui um `ImageCapture.takePhoto()` antes deste desenho: ele traz
+      // mais pixel, mas no Android reconfigura foco e exposição antes de
+      // devolver, então demorava e registrava a cena de depois do toque. O
+      // fluxo já é pedido em 4K (`getUserMedia` acima), então o quadro do vídeo
+      // é grande o bastante e não custa esse atraso.
+      const tela = document.createElement("canvas")
+      tela.width = v.videoWidth
+      tela.height = v.videoHeight
+      tela.getContext("2d")?.drawImage(v, 0, 0)
+      const blob = await new Promise<Blob | null>(ok => tela.toBlob(ok, "image/jpeg", 0.92))
 
       if (blob) {
         onCapture(new File([blob], `foto-${Date.now()}.jpg`, { type: "image/jpeg" }))
