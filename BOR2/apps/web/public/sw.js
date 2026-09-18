@@ -66,7 +66,10 @@ self.addEventListener("fetch", event => {
   // igual é conteúdo igual, então servir do cache é sempre correto. Qualquer
   // outro arquivo pode mudar de conteúdo sem mudar de nome, e cache primeiro
   // nele serve a versão velha para sempre.
-  if (url.pathname.startsWith("/_next/static/")) {
+  // Os arquivos de apoio do pdf.js entram na mesma regra: são grandes, mudam só
+  // com a versão da biblioteca, e sem eles guardados a prancha escaneada não
+  // desenha quando falta rede.
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/pdfjs/")) {
     event.respondWith(
       caches.match(req).then(hit => hit ?? fetch(req).then(res => {
         if (res.ok) {

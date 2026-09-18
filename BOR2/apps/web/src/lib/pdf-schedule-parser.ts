@@ -218,7 +218,16 @@ function parseDuration(s: string): number {
 async function extractItems(file: File): Promise<TextItem[]> {
   const pdfjsLib = await getPdfjs()
   const buf = await file.arrayBuffer()
-  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise
+  const doc = await pdfjsLib.getDocument({
+    data: new Uint8Array(buf),
+    // Onde ficam os arquivos de apoio publicados pelo scripts/copy-pdfjs-assets.mjs.
+    // Sem isto o decodificador de imagem escaneada (JBIG2) não inicializa e a
+    // folha fica esperando uma imagem que nunca chega (ATL-112).
+    wasmUrl: "/pdfjs/wasm/",
+    standardFontDataUrl: "/pdfjs/standard_fonts/",
+    cMapUrl: "/pdfjs/cmaps/",
+    cMapPacked: true,
+  }).promise
   const all: TextItem[] = []
 
   for (let p = 1; p <= doc.numPages; p++) {
