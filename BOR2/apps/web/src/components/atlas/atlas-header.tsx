@@ -104,21 +104,20 @@ export function AtlasHeader() {
           textos elásticos da barra, e deixá-los entrar em pontos diferentes
           fazia um comer a largura que o outro tinha acabado de ganhar. */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
-        <div className="flex items-center gap-2.5">
-          {/* A marca do produto à esquerda, na altura dos dois textos, igual ao BOR. */}
-          <ProductMark product="atlas" className="h-7 w-7" />
-          <div className="flex flex-col justify-center">
-            <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
-            {/* Frase de serviço, não de inspiração: diz o que o sistema faz,
-                que é o que quem abre a barra pela primeira vez precisa saber.
-                Fica visível do md para cima, como a do BOR. Antes ela sumia
-                entre md e xl para não disputar largura com o crachá; quem cede
-                espaço agora é o crachá, que já tem os próprios degraus. */}
-            <p className="text-[10px] text-muted-foreground">
-              Project control and documentation: plans, revisions, markups and field records.
-            </p>
-          </div>
-        </div>
+        {/* A marca acompanha o nome do produto, no tamanho dos ícones dos
+            botões, igual ao BOR. A frase corre por baixo dos dois. */}
+        <h1 className="flex items-center gap-2 text-base font-medium tracking-tight text-primary">
+          <ProductMark product="atlas" className="h-4 w-4" />
+          Atlas Project Control
+        </h1>
+        {/* Frase de serviço, não de inspiração: diz o que o sistema faz, que é
+            o que quem abre a barra pela primeira vez precisa saber. Fica
+            visível do md para cima, como a do BOR. Antes ela sumia entre md e
+            xl para não disputar largura com o crachá; quem cede espaço agora é
+            o crachá, que já tem os próprios degraus. */}
+        <p className="text-[10px] text-muted-foreground">
+          Project control and documentation: plans, revisions, markups and field records.
+        </p>
       </div>
 
       <TooltipProvider>

@@ -13,6 +13,8 @@ import {
   CalendarClock,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Clock,
   DraftingCompass,
   Fan,
@@ -157,13 +159,13 @@ function AtlasCategoryRow({ cat }: { cat: ForecastAtlasCategory }) {
   if (simples) {
     return (
       <CheckRow done={!!slots[0]?.imported}>
-        <span className="flex-1 text-sm">{cat.name}</span>
+        <span className="flex-1 text-[13px] leading-snug">{cat.name}</span>
       </CheckRow>
     )
   }
   return (
     <div className="rounded-lg border bg-muted/40 px-3 py-2.5">
-      <p className="text-sm">{cat.name}</p>
+      <p className="text-[13px] leading-snug">{cat.name}</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {slots.map(s => (
           <span
@@ -184,13 +186,16 @@ function AtlasCategoryRow({ cat }: { cat: ForecastAtlasCategory }) {
   )
 }
 
+// Corpo e marca um ponto menores que o resto do modal, e menos respiro em cima
+// e embaixo: em duas colunas o rótulo comprido quebra em duas linhas, e treze
+// linhas de 44 px empurravam o bloco para fora da tela.
 function CheckRow({ done, children }: { done: boolean; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
+    <div className="flex items-center gap-2.5 rounded-lg border bg-muted/40 px-3 py-2">
       {children}
       {done
-        ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-        : <XCircle      className="h-5 w-5 shrink-0 text-amber-400"   />
+        ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+        : <XCircle      className="h-4 w-4 shrink-0 text-amber-400"   />
       }
     </div>
   )
@@ -228,8 +233,10 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   // único porque a largura do modal depende de ter painel aberto, não de qual —
   // com um booleano por painel, esquecer de somar um deles esmaga o conteúdo.
   const [panel, setPanel] = useState<"obs" | "dates" | null>(null)
+  // As categorias do Atlas que ainda não têm documento começam recolhidas.
+  const [verFaltando, setVerFaltando] = useState(false)
   const isHvac = p.company === "hvac"
-  useEffect(() => { if (!open) setPanel(null) }, [open])
+  useEffect(() => { if (!open) { setPanel(null); setVerFaltando(false) } }, [open])
 
   const ds       = getForecastDisplayStatus(p, dateMode)
   const cfg      = STATUS_CFG[ds]
@@ -245,6 +252,10 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   // A HVAC não documenta planta no Atlas: o bloco seria uma lista de pendência
   // que ninguém vai fechar, do mesmo jeito que BuilderTrend e Storage.
   const hasAtlas      = !isHvac && atlasCats.length > 0
+  // Entregue é a categoria com pelo menos um documento; a que veio pela metade
+  // entra aqui também, porque o que falta dela está nos próprios selos.
+  const atlasEntregues = atlasCats.filter(c => (c.slots ?? []).some(s => s.imported))
+  const atlasFaltando  = atlasCats.filter(c => !(c.slots ?? []).some(s => s.imported))
   const hasPermit    = (p.permit?.length ?? 0) > 0
   const hasContract  = (p.contractSteps?.length ?? 0) > 0
   const hasMachines  = (p.machines?.length ?? 0) > 0
@@ -474,7 +485,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                       })
                       .map((fw, i) => (
                         <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
-                          <span className="flex-1 text-sm">{fw.document || fw.category || "—"}</span>
+                          <span className="flex-1 text-[13px] leading-snug">{fw.document || fw.category || "—"}</span>
                         </CheckRow>
                       ))}
                   </div>
@@ -488,9 +499,31 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                   </SectionLabel>
                   <div className="flex flex-col gap-2">
                     <CheckRow done={!!p.atlas?.jobsiteId}>
-                      <span className="flex-1 text-sm">On Atlas</span>
+                      <span className="flex-1 text-[13px] leading-snug">On Atlas</span>
                     </CheckRow>
-                    {atlasCats.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+
+                    {/* O que já entrou, e o que entrou pela metade. A pendente
+                        fica atrás do botão: o catálogo tem treze categorias, e
+                        treze linhas de "falta" enterram as que interessam. */}
+                    {atlasEntregues.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+
+                    {atlasFaltando.length > 0 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setVerFaltando(v => !v)}
+                          className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          {verFaltando
+                            ? <ChevronUp   className="h-3.5 w-3.5" />
+                            : <ChevronDown className="h-3.5 w-3.5" />}
+                          {verFaltando
+                            ? "Hide what's missing"
+                            : `Show what's missing (${atlasFaltando.length})`}
+                        </button>
+                        {verFaltando && atlasFaltando.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -506,7 +539,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               <div className="flex flex-col gap-2">
                 {p.permit?.map((step, i) => (
                   <CheckRow key={step.id ?? i} done={isTruthy(step.status)}>
-                    <span className="flex-1 text-sm">{step.step || "—"}</span>
+                    <span className="flex-1 text-[13px] leading-snug">{step.step || "—"}</span>
                   </CheckRow>
                 ))}
               </div>
@@ -588,7 +621,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                             key={cs.id ?? si}
                             className="flex items-center gap-3 rounded-md bg-muted/40 px-3 py-2"
                           >
-                            <span className="flex-1 text-sm">{cs.step || "—"}</span>
+                            <span className="flex-1 text-[13px] leading-snug">{cs.step || "—"}</span>
                             {isTruthy(cs.status)
                               ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
                               : <XCircle      className="h-4 w-4 shrink-0 text-amber-400"   />

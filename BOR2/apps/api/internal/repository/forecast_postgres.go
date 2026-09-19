@@ -178,6 +178,13 @@ SELECT
 				  JOIN atlas_jobsite_category jc ON jc.jobsite_id = j.id
 				  JOIN atlas_doc_category c ON c.id = jc.category_id
 				 WHERE j.forecast_id = m.id AND c.archived_at IS NULL
+				   -- Só as categorias do tipo da obra. As de tipo vazio valem
+				   -- para qualquer obra no Atlas, mas numa casa elas trazem
+				   -- Permit Set e Structural Plan, que são vocabulário de
+				   -- prédio: a lista dobrava de tamanho com pendência que
+				   -- ninguém ia fechar.
+				   AND c.build_type = CASE WHEN lower(COALESCE(m.type, '')) = 'building'
+				                           THEN 'building' ELSE 'house' END
 				 GROUP BY c.id, c.name, c.position, c.axis
 			   ) v),
 			-- Fora do Atlas: o gabarito do catálogo para o tipo da obra.
@@ -190,8 +197,8 @@ SELECT
 			   FROM atlas_doc_category c
 			  WHERE c.archived_at IS NULL AND c.default_slot
 			    AND (COALESCE(c.client, '') = '' OR lower(c.client) = lower(COALESCE(m.cliente, '')))
-			    AND (COALESCE(c.build_type, '') = '' OR c.build_type =
-			         CASE WHEN lower(COALESCE(m.type, '')) = 'building' THEN 'building' ELSE 'house' END)),
+			    AND c.build_type = CASE WHEN lower(COALESCE(m.type, '')) = 'building'
+			                            THEN 'building' ELSE 'house' END),
 			'[]'::json)
 	) AS atlas
 FROM mapped m
