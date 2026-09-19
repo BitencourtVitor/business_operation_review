@@ -510,6 +510,37 @@ func hash16(b []byte) string {
 
 // ── Texto com posição ───────────────────────────────────────────────────────
 
+// semControle tira do fluxo os caracteres de controle que o XML não aceita.
+//
+// O `pdftotext` copia para a saída o texto que está dentro do PDF, e set de
+// projeto traz caractere de controle solto (U+000E num set da Toll Brothers,
+// 18/09). O decodificador do Go rejeita esses bytes mesmo fora do modo estrito,
+// e o processamento inteiro morria por causa de um byte invisível.
+//
+// Filtrar byte a byte é seguro em UTF-8: todo byte de sequência multibyte tem o
+// bit alto ligado, então nunca cai nesta faixa.
+type semControle struct{ r io.Reader }
+
+func (s semControle) Read(p []byte) (int, error) {
+	// Repete enquanto a leitura só trouxer bytes filtrados: devolver zero sem
+	// erro faz quem lê parar como se o arquivo tivesse acabado.
+	for {
+		n, err := s.r.Read(p)
+		fim := 0
+		for i := 0; i < n; i++ {
+			b := p[i]
+			if b < 0x20 && b != '\t' && b != '\n' && b != '\r' {
+				continue
+			}
+			p[fim] = b
+			fim++
+		}
+		if fim > 0 || err != nil {
+			return fim, err
+		}
+	}
+}
+
 // lerTexto roda pdftotext -bbox-layout e devolve, por página, tamanho e
 // palavras com caixa. A origem é o canto superior esquerdo, em pontos.
 func lerTexto(ctx context.Context, original string) ([]ingestPagina, error) {
@@ -523,7 +554,7 @@ func lerTexto(ctx context.Context, original string) ([]ingestPagina, error) {
 	}
 	defer f.Close()
 
-	dec := xml.NewDecoder(f)
+	dec := xml.NewDecoder(semControle{f})
 	dec.Strict = false
 	dec.AutoClose = xml.HTMLAutoClose
 	dec.Entity = xml.HTMLEntity
