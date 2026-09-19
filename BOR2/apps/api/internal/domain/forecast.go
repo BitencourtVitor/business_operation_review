@@ -41,6 +41,31 @@ type ForecastContractStepDoc struct {
 	Status *string `json:"status"`
 }
 
+// ForecastAtlasSlot é uma vaga dentro da categoria. Categoria sem eixo tem uma
+// só, de rótulo vazio; categoria por andar ou por unidade tem uma por andar ou
+// por unidade, e é por isso que a categoria mostra vários booleanos em vez de um.
+type ForecastAtlasSlot struct {
+	Label    string `json:"label"`
+	Imported bool   `json:"imported"`
+}
+
+// ForecastAtlasCategory é uma categoria que se espera ver documentada na obra.
+// A lista sai do tipo de obra, e por isso não tem relação com a do Fieldwire.
+type ForecastAtlasCategory struct {
+	ID    int32               `json:"id"`
+	Name  string              `json:"name"`
+	Axis  string              `json:"axis"`
+	Slots []ForecastAtlasSlot `json:"slots"`
+}
+
+// ForecastAtlas é o que o Atlas tem a dizer sobre a obra. A lista de categorias
+// vem sempre: obra fora do Atlas mostra o que se espera dela, tudo pendente, que
+// é a informação útil. JobsiteID nulo é justamente "ainda não está lá".
+type ForecastAtlas struct {
+	JobsiteID  *string                 `json:"jobsiteId"`
+	Categories []ForecastAtlasCategory `json:"categories"`
+}
+
 type ForecastProject struct {
 	ID                string         `json:"id"`
 	Company           string         `json:"company"`
@@ -94,6 +119,7 @@ type ForecastProject struct {
 	Machines          []ForecastMachineDoc     `json:"machines,omitempty"`
 	ContractSteps     []ForecastContractStepDoc `json:"contractSteps,omitempty"`
 	Permit            []ForecastPermitStep     `json:"permit,omitempty"`
+	Atlas             *ForecastAtlas           `json:"atlas,omitempty"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
 }

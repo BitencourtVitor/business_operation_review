@@ -16,6 +16,14 @@ export function scoredFieldwire(docs?: ForecastFieldwireDoc[]): ForecastFieldwir
   return (docs ?? []).filter(d => d.scored !== false)
 }
 
+/**
+ * O parâmetro do Fieldwire que o bloco do Atlas passou a responder. A linha
+ * segue no catálogo e no banco; o que mudou é quem conta a história.
+ */
+export function isAtlasDoc(doc?: string | null): boolean {
+  return (doc ?? "").trim().toLowerCase() === "on atlas"
+}
+
 export interface ForecastPermitStep {
   id?: number
   step?: string
@@ -34,6 +42,34 @@ export interface ForecastContractStep {
   team?: string | null
   step?: string | null
   status?: string | null
+}
+
+/**
+ * Uma vaga dentro da categoria. Categoria sem eixo tem uma só, de rótulo vazio;
+ * categoria por andar ou por unidade tem uma por andar ou por unidade.
+ */
+export interface ForecastAtlasSlot {
+  label: string
+  imported: boolean
+}
+
+/** Uma categoria que se espera ver documentada na obra. */
+export interface ForecastAtlasCategory {
+  id: number
+  name: string
+  axis: string
+  slots: ForecastAtlasSlot[]
+}
+
+/**
+ * O que o Atlas documenta da obra. A lista de categorias vem sempre, mesmo na
+ * obra que ainda não está no Atlas: saber o que falta é o motivo do bloco. Ela
+ * nasce do tipo de obra, e por isso não espelha a lista do Fieldwire. Nada aqui
+ * entra no OFI.
+ */
+export interface ForecastAtlas {
+  jobsiteId: string | null
+  categories: ForecastAtlasCategory[]
 }
 
 export type ForecastDisplayStatus = "active" | "planned" | "overdue" | "completed" | "cancelled"
@@ -88,6 +124,7 @@ export interface ForecastProject {
   machines?: ForecastMachineItem[]
   contractSteps?: ForecastContractStep[]
   permit?: ForecastPermitStep[]
+  atlas?: ForecastAtlas | null
   createdAt: string
   updatedAt: string
 }

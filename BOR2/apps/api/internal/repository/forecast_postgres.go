@@ -148,7 +148,52 @@ SELECT
 		) ORDER BY pm.position, pm.id)
 		 FROM forecast_permit pm WHERE LOWER(pm.project_id) = LOWER(m.id)),
 		'[]'::json
-	) AS permit
+	) AS permit,
+	-- O que o Atlas documenta desta obra. A lista de categorias nasce do tipo de
+	-- obra, então não tem relação com a do Fieldwire. Obra que ainda não está no
+	-- Atlas também traz a lista, toda pendente: saber o que falta é o motivo do
+	-- bloco existir. Categoria por andar ou por unidade traz uma vaga para cada,
+	-- e é isso que faz a linha mostrar vários booleanos em vez de um.
+	json_build_object(
+		'jobsiteId', (SELECT j.id FROM atlas_jobsite j WHERE j.forecast_id = m.id LIMIT 1),
+		'categories', COALESCE(
+			(SELECT json_agg(v.obj ORDER BY v.position, v.name)
+			   FROM (
+				SELECT c.position, c.name, json_build_object(
+					'id',    c.id,
+					'name',  c.name,
+					'axis',  COALESCE(c.axis, 'none'),
+					'slots', json_agg(json_build_object(
+						'label',    COALESCE(jc.subcategory, ''),
+						'imported', EXISTS (
+							SELECT 1 FROM atlas_document_tag t
+							JOIN atlas_document d ON d.id = t.document_id
+							WHERE t.category_id = jc.category_id
+							  AND t.subcategory = jc.subcategory
+							  AND d.jobsite_id  = jc.jobsite_id
+							  AND d.archived_at IS NULL)
+					) ORDER BY jc.subcategory)
+				) AS obj
+				  FROM atlas_jobsite j
+				  JOIN atlas_jobsite_category jc ON jc.jobsite_id = j.id
+				  JOIN atlas_doc_category c ON c.id = jc.category_id
+				 WHERE j.forecast_id = m.id AND c.archived_at IS NULL
+				 GROUP BY c.id, c.name, c.position, c.axis
+			   ) v),
+			-- Fora do Atlas: o gabarito do catálogo para o tipo da obra.
+			(SELECT json_agg(json_build_object(
+				'id',    c.id,
+				'name',  c.name,
+				'axis',  COALESCE(c.axis, 'none'),
+				'slots', json_build_array(json_build_object('label', '', 'imported', false))
+			     ) ORDER BY c.position, c.name)
+			   FROM atlas_doc_category c
+			  WHERE c.archived_at IS NULL AND c.default_slot
+			    AND (COALESCE(c.client, '') = '' OR lower(c.client) = lower(COALESCE(m.cliente, '')))
+			    AND (COALESCE(c.build_type, '') = '' OR c.build_type =
+			         CASE WHEN lower(COALESCE(m.type, '')) = 'building' THEN 'building' ELSE 'house' END)),
+			'[]'::json)
+	) AS atlas
 FROM mapped m
 `
 
@@ -159,6 +204,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		machinesJSON      []byte
 		contractStepsJSON []byte
 		permitJSON        []byte
+		atlasJSON         []byte
 	)
 	if err := scan(
 		&p.ID, &p.Company, &p.Name, &p.Status,
@@ -172,7 +218,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.JobOpenedDate,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
-		&fieldwireJSON, &machinesJSON, &contractStepsJSON, &permitJSON,
+		&fieldwireJSON, &machinesJSON, &contractStepsJSON, &permitJSON, &atlasJSON,
 	); err != nil {
 		return nil, err
 	}
@@ -180,6 +226,9 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 	json.Unmarshal(machinesJSON, &p.Machines)           //nolint:errcheck
 	json.Unmarshal(contractStepsJSON, &p.ContractSteps) //nolint:errcheck
 	json.Unmarshal(permitJSON, &p.Permit)               //nolint:errcheck
+	if len(atlasJSON) > 0 {
+		json.Unmarshal(atlasJSON, &p.Atlas) //nolint:errcheck
+	}
 	return p, nil
 }
 

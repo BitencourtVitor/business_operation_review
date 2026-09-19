@@ -7,10 +7,11 @@ import { isSubcontractor } from "@/components/atlas/atlas-user-dialogs"
 import { useAtlasUserCompanies } from "@/hooks/use-atlas"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useAuth } from "@/hooks/use-auth"
-import { useProducts } from "@/lib/products"
+import { PRODUCT_ICON, useProducts } from "@/lib/products"
+import { ProductMark } from "@/components/common/product-mark"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Award, Building2, CircleGauge, Compass, CodeXml, HardHat, LogOut, Menu, Moon,
+  Award, Building2, Compass, CodeXml, HardHat, LogOut, Menu, Moon,
   RefreshCw, Sun, User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -42,9 +43,11 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
   subcontractor: { label: "Subcontractor", icon: HardHat, light: "border-brand-red bg-brand-red/10 text-brand-red", dark: "border-brand-red bg-brand-red/10 text-brand-red" },
 }
 
+const BorIcon = PRODUCT_ICON.bor
+
 /**
  * O cabeçalho do Atlas é o do BOR: mesma altura, mesma divisão, mesmos
- * controles à direita. São produtos diferentes, mas da mesma casa — trocar de
+ * controles à direita. São produtos diferentes, mas da mesma casa, e trocar de
  * braço não deveria parecer trocar de sistema.
  */
 export function AtlasHeader() {
@@ -101,10 +104,21 @@ export function AtlasHeader() {
           textos elásticos da barra, e deixá-los entrar em pontos diferentes
           fazia um comer a largura que o outro tinha acabado de ganhar. */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
-        <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
-        <p className="text-[10px] text-muted-foreground md:max-xl:hidden">
-          Unless commitment is made, there are only promises and hopes, but no plans.
-        </p>
+        <div className="flex items-center gap-2.5">
+          {/* A marca do produto à esquerda, na altura dos dois textos, igual ao BOR. */}
+          <ProductMark product="atlas" className="h-7 w-7" />
+          <div className="flex flex-col justify-center">
+            <h1 className="text-base font-medium tracking-tight text-primary">Atlas Project Control</h1>
+            {/* Frase de serviço, não de inspiração: diz o que o sistema faz,
+                que é o que quem abre a barra pela primeira vez precisa saber.
+                Fica visível do md para cima, como a do BOR. Antes ela sumia
+                entre md e xl para não disputar largura com o crachá; quem cede
+                espaço agora é o crachá, que já tem os próprios degraus. */}
+            <p className="text-[10px] text-muted-foreground">
+              Project control and documentation: plans, revisions, markups and field records.
+            </p>
+          </div>
+        </div>
       </div>
 
       <TooltipProvider>
@@ -174,7 +188,7 @@ export function AtlasHeader() {
                 onClick={() => router.push("/bor/monthly-execution")}
                 className="hidden lg:inline-flex"
               >
-                <CircleGauge className="h-4 w-4" />
+                <BorIcon className="h-4 w-4" />
               </Button>
             </Tip>
           )}

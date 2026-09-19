@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  DraftingCompass,
   Fan,
   FileText,
   Flag,
@@ -288,6 +289,17 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
   const fwComplete = fwTotal > 0 && fwDone === fwTotal
 
+  // Atlas: as vagas da obra e quantas já têm documento. Conta vaga, não
+  // categoria: uma categoria por andar vale um por andar. Fora do OFI — é
+  // acompanhamento de documentação, não etapa de obra. A etiqueta só aparece
+  // na obra que está no Atlas; para as outras, o que falta está no modal.
+  const atSlots    = (p.atlas?.jobsiteId ? p.atlas.categories : []).flatMap((c) => c.slots ?? [])
+  const atTotal    = atSlots.length
+  const atDone     = atSlots.filter((s) => s.imported).length
+  const atPct      = atTotal > 0 ? Math.round((atDone / atTotal) * 100) : 0
+  const atComplete = atTotal > 0 && atDone === atTotal
+  const atlas      = !isHvac && atTotal > 0
+
   // Permit progress — só a HVAC tem etapas de alvará.
   const pmTotal    = p.permit?.length ?? 0
   const pmDone     = p.permit?.filter((s) => isTruthy(s.status)).length ?? 0
@@ -475,24 +487,42 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
               )}
             </div>
 
-            {/* Empresa parceira na mesma obra — derivado do vínculo por
-                endereço (forecast_sites), não mais de um checkbox. A Framing
-                mostra HVAC; a HVAC mostra Framing. */}
-            {linkedCompany && (
+            {/* Abaixo da linha ficam os selos que não são etapa da obra: a
+                empresa parceira no mesmo endereço e o Atlas. Nenhum dos dois
+                entra em nota. */}
+            {(linkedCompany || atlas) && (
               <>
                 <div className="w-full border-t" />
-                <div
-                  style={{
-                    width: 28, height: 28, borderRadius: 6, border: "1.5px solid #6b7280",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                  className="bg-muted"
-                  title={linkedCompany.title}
-                >
-                  {/* Mesmo selo colorido nos dois temas — é marca de empresa,
-                      não ícone de interface. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
+                <div style={{ display: "flex", gap: 6 }}>
+                  {/* Empresa parceira na mesma obra — derivado do vínculo por
+                      endereço (forecast_sites), não mais de um checkbox. A
+                      Framing mostra HVAC; a HVAC mostra Framing. */}
+                  {linkedCompany && (
+                    <div
+                      style={{
+                        width: 28, height: 28, borderRadius: 6, border: "1.5px solid #6b7280",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                      className="bg-muted"
+                      title={linkedCompany.title}
+                    >
+                      {/* Mesmo selo colorido nos dois temas — é marca de empresa,
+                          não ícone de interface. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
+                    </div>
+                  )}
+
+                  {/* Atlas: só aparece na obra que está lá. O anel mostra
+                      quantas das categorias esperadas já têm documento. */}
+                  {atlas && (
+                    <IconSlot
+                      done={atDone > 0} pct={atPct} complete={atComplete} withProgress
+                      title={`Atlas — ${atDone}/${atTotal} documents`}
+                    >
+                      <DraftingCompass style={{ width: 16, height: 16 }} />
+                    </IconSlot>
+                  )}
                 </div>
               </>
             )}

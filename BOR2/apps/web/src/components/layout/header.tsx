@@ -15,7 +15,8 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
-import { useProducts } from "@/lib/products"
+import { PRODUCT_ICON, useProducts } from "@/lib/products"
+import { ProductMark } from "@/components/common/product-mark"
 import { permitService } from "@/services/permit.service"
 import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
@@ -29,7 +30,6 @@ import {
   EyeOff,
   CodeXml,
   LogOut,
-  Map,
   Menu,
   Moon,
   RefreshCw,
@@ -95,6 +95,8 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
   },
 }
 
+const AtlasIcon = PRODUCT_ICON.atlas
+
 export function Header() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
@@ -146,14 +148,19 @@ export function Header() {
         <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Business Operations Review</span>
       </div>
 
-      {/* Desktop: title + subtitle */}
-      <div className="hidden flex-1 flex-col justify-center md:flex">
-        <h1 className="text-base font-medium tracking-tight text-primary">
-          Business Operations Review
-        </h1>
-        <p className="text-[10px] text-muted-foreground">
-          What matters isn&apos;t the company&apos;s mistakes, but how it responds to them.
-        </p>
+      {/* Desktop: marca + título e subtítulo.
+          A marca ocupa a altura dos dois textos e fica à esquerda deles: quem
+          olha a barra sabe em qual dos dois braços da plataforma está, sem ler. */}
+      <div className="hidden flex-1 items-center gap-2.5 md:flex">
+        <ProductMark product="bor" className="h-7 w-7" />
+        <div className="flex flex-col justify-center">
+          <h1 className="text-base font-medium tracking-tight text-primary">
+            Business Operations Review
+          </h1>
+          <p className="text-[10px] text-muted-foreground">
+            What matters isn&apos;t the company&apos;s mistakes, but how it responds to them.
+          </p>
+        </div>
       </div>
 
       {/* Right controls */}
@@ -210,7 +217,7 @@ export function Header() {
               onClick={() => router.push("/atlas")}
               className="hidden md:inline-flex"
             >
-              <Map className="h-4 w-4" />
+              <AtlasIcon className="h-4 w-4" />
             </Button>
           </Tip>
 
