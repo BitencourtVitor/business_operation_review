@@ -128,7 +128,7 @@ export function disambiguate(pages: PageName[]): PageName[] {
   })
 }
 
-type TextItem = { str: string; width: number; transform: number[] }
+type TextItem = { str: string; width: number; height?: number; transform: number[] }
 
 /**
  * Régua para repartir um trecho entre as letras dele.
@@ -157,9 +157,29 @@ const ruler = (() => {
 
 const clean = (raw: string) => raw.replace(/\s+/g, " ").trim()
 
+/**
+ * O trecho na referência da tela, com a rotação da página já aplicada.
+ *
+ * Página girada (`/Rotate`) tem o texto guardado num sistema e mostrado em
+ * outro: num set da Toll Brothers, 20 das 41 folhas vêm a 270°, e comparar a
+ * área marcada com a posição crua fazia essas páginas nunca casarem. A matriz
+ * da viewport é a mesma que desenha a folha, então é nela que a conta vale.
+ */
+function noEcra(transform: number[], viewport: { transform: number[] }): number[] {
+  const v = viewport.transform
+  return [
+    v[0] * transform[0] + v[2] * transform[1],
+    v[1] * transform[0] + v[3] * transform[1],
+    v[0] * transform[2] + v[2] * transform[3],
+    v[1] * transform[2] + v[3] * transform[3],
+    v[0] * transform[4] + v[2] * transform[5] + v[4],
+    v[1] * transform[4] + v[3] * transform[5] + v[5],
+  ]
+}
+
 /** O giro do trecho, em graus, no mesmo sentido em que a tela o mostra. */
 function angleOf(transform: number[]): number {
-  const deg = -Math.atan2(transform[1], transform[0]) * (180 / Math.PI)
+  const deg = Math.atan2(transform[1], transform[0]) * (180 / Math.PI)
   // Normaliza para 0, 90, 180 ou 270: fonte torta por fração de grau é ruído de
   // arredondamento do PDF, não intenção do desenho.
   return ((Math.round(deg / 90) * 90) % 360 + 360) % 360
@@ -182,21 +202,33 @@ function inside(
   const vertical = angle === 90 || angle === 270
   if (region.rotation ? !vertical : vertical) return ""
 
+  // Já vem na referência da tela: origem no canto de cima, y crescendo para
+  // baixo, rotação da página aplicada.
   const x = item.transform[4] / page.width
-  const y = (page.height - item.transform[5]) / page.height
+  const y = item.transform[5] / page.height
 
   // Onde o trecho começa, para onde ele corre, e quanto ele mede: tudo em
   // fração do lado da página que ele atravessa.
   const span = vertical ? item.width / page.height : item.width / page.width
   const start = vertical ? y : x
-  const forward = angle === 0 || angle === 270
+  // Na referência da tela o y cresce para baixo: 0° corre para a direita e 90°
+  // corre para baixo, então esses dois são os sentidos crescentes. 270° sobe.
+  const forward = angle === 0 || angle === 90
+  // O ponto que o PDF guarda é a **linha de base**, não o meio da letra: o
+  // desenho cresce para o lado oposto ao que a linha corre. Em texto girado
+  // isso põe o ponto na borda de fora do que se vê, e comparar só o ponto fazia
+  // a região marcada em cima do código não encontrar nada.
+  const alturaFrac = (item.height ?? 0) / (vertical ? page.width : page.height)
   const across = vertical ? x : y
+  const cresceAoContrario = angle === 0 || angle === 270
+  const acrossLow = cresceAoContrario ? across - alturaFrac : across
+  const acrossHigh = cresceAoContrario ? across : across + alturaFrac
   const lowAcross = vertical ? region.x0 : region.y0
   const highAcross = vertical ? region.x1 : region.y1
   const low = vertical ? region.y0 : region.x0
   const high = vertical ? region.y1 : region.x1
 
-  if (across < lowAcross || across > highAcross) return ""
+  if (acrossHigh < lowAcross || acrossLow > highAcross) return ""
   if (span <= 0) return start >= low && start <= high ? item.str : ""
 
   // A faixa da região convertida em fração do próprio trecho, de 0 no começo a
@@ -299,7 +331,8 @@ export async function readPageNames(
       let found = ""
       for (const item of content.items) {
         if (!item.str?.trim()) continue
-        found += inside(item, region, viewport, measure)
+        const naTela = { ...item, transform: noEcra(item.transform, viewport) }
+        found += inside(naTela, region, viewport, measure)
       }
       return clean(found)
     })

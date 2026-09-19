@@ -12,7 +12,7 @@ type PDFDocument = {
   destroy?: () => Promise<void>
   getData: () => Promise<Uint8Array>
   getPage: (n: number) => Promise<{
-    getViewport: (o: { scale: number }) => { width: number; height: number }
+    getViewport: (o: { scale: number }) => { width: number; height: number; transform: number[] }
     render: (o: { canvasContext: CanvasRenderingContext2D; viewport: unknown }) => { promise: Promise<void>; cancel: () => void }
   }>
 }
