@@ -17,7 +17,7 @@ import { useAtlasJobsites } from "@/hooks/use-atlas"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, ChevronDown, ChevronLeft, ChevronRight, CircleDot, CloudCheck, Layers, MapPin, Pencil, Plus, Search, WifiOff,
+  Archive, ArchiveRestore, ChevronDown, ChevronLeft, ChevronRight, CircleDot, CloudCheck, Layers, MapPin, MapPinned, Pencil, Plus, Search, WifiOff,
 } from "lucide-react"
 import Link from "next/link"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -362,6 +362,23 @@ export default function AtlasJobsitesPage() {
                         {[(KIND_META[j.kind] ?? KIND_META.house).label, j.unit || j.code]
                           .filter(Boolean).join(" ")}
                       </span>
+
+                      {/* O endereço embaixo do lote, em corpo miúdo: é o que
+                          distingue duas obras da mesma comunidade quando o
+                          número do lote não diz nada a quem vai até lá. Some
+                          quando a linha do lugar já é o próprio endereço, que é
+                          o caso da obra sem comunidade preenchida.
+
+                          Alfinete sobre o mapa, e não o alfinete solto do lugar
+                          logo acima: são as duas a mesma família, e o desenho
+                          diferente é o que diz que uma é a comunidade e a outra
+                          a porta da obra. */}
+                      {j.address && j.community && (
+                        <span className="flex items-start gap-1.5 text-[11px] font-normal text-muted-foreground/80">
+                          <MapPinned className="mt-0.5 h-3 w-3 shrink-0" />
+                          <span className="truncate">{j.address}</span>
+                        </span>
+                      )}
                     </Link>
 
                     {/* Sem rede, arquivar e editar ficam desabilitados em toda
