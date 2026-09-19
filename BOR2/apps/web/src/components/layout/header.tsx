@@ -148,19 +148,19 @@ export function Header() {
         <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Business Operations Review</span>
       </div>
 
-      {/* Desktop: marca + título e subtítulo.
-          A marca ocupa a altura dos dois textos e fica à esquerda deles: quem
-          olha a barra sabe em qual dos dois braços da plataforma está, sem ler. */}
-      <div className="hidden flex-1 items-center gap-2.5 md:flex">
-        <ProductMark product="bor" className="h-7 w-7" />
-        <div className="flex flex-col justify-center">
-          <h1 className="text-base font-medium tracking-tight text-primary">
-            Business Operations Review
-          </h1>
-          <p className="text-[10px] text-muted-foreground">
-            What matters isn&apos;t the company&apos;s mistakes, but how it responds to them.
-          </p>
-        </div>
+      {/* Desktop: marca + título, e o subtítulo embaixo dos dois.
+          A marca acompanha o nome do produto, no tamanho dos ícones dos botões
+          da direita: quem olha a barra sabe em qual dos dois braços da
+          plataforma está, sem ler. A frase corre por baixo, na largura inteira,
+          porque é apoio do título e não par dele. */}
+      <div className="hidden flex-1 flex-col justify-center md:flex">
+        <h1 className="flex items-center gap-2 text-base font-medium tracking-tight text-primary">
+          <ProductMark product="bor" className="h-4 w-4" />
+          Business Operations Review
+        </h1>
+        <p className="text-[10px] text-muted-foreground">
+          What matters isn&apos;t the company&apos;s mistakes, but how it responds to them.
+        </p>
       </div>
 
       {/* Right controls */}
