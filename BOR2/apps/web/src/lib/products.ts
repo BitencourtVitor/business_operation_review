@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
+import { CircleGauge, DraftingCompass, type LucideIcon } from "lucide-react"
 
 // Os dois braços da plataforma. Autenticar deixou de significar "entrar no
 // BOR": o login é da plataforma, e BOR e Atlas são destinos dela (AT-2).
@@ -16,6 +17,16 @@ export interface Product {
   enabled: boolean
   /** Por que está bloqueado, quando está. */
   reason?: string
+}
+
+/**
+ * A marca de cada produto, num lugar só. O compasso do Atlas desenha um A com
+ * as duas pernas, e é o mesmo sinal na seleção de produto, no cabeçalho e onde
+ * mais o Atlas aparecer — marca que muda de desenho por tela deixa de ser marca.
+ */
+export const PRODUCT_ICON: Record<ProductId, LucideIcon> = {
+  bor: CircleGauge,
+  atlas: DraftingCompass,
 }
 
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]

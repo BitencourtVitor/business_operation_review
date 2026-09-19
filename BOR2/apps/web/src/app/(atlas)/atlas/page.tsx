@@ -17,7 +17,7 @@ import { useAtlasJobsites } from "@/hooks/use-atlas"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { atlasService, type AtlasJobsite } from "@/services/atlas.service"
 import {
-  Archive, ArchiveRestore, ChevronDown, CircleDot, CloudCheck, Layers, MapPin, Pencil, Plus, Search, WifiOff,
+  Archive, ArchiveRestore, ChevronDown, ChevronLeft, ChevronRight, CircleDot, CloudCheck, Layers, MapPin, Pencil, Plus, Search, WifiOff,
 } from "lucide-react"
 import Link from "next/link"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -36,6 +36,10 @@ const STATUS_OPTIONS = [
 ] as const
 
 type StatusFilter = (typeof STATUS_OPTIONS)[number]["value"]
+
+// Quantas obras por página. 24 fecha a grade em qualquer largura: 24 em uma
+// coluna, 12 em duas, 8 em três.
+const POR_PAGINA = 24
 
 export default function AtlasJobsitesPage() {
   const { data: jobsites, isLoading } = useAtlasJobsites()
@@ -115,6 +119,20 @@ export default function AtlasJobsitesPage() {
     return rows.filter(j =>
       [j.name, j.address, j.client, j.code].some(v => v.toLowerCase().includes(q)))
   }, [jobsites, query, status])
+
+  // A lista cresce com a operação, e rolar cem cartões para achar a obra de
+  // ontem não é navegar. A página é de 24 porque fecha a grade em qualquer
+  // largura: 24 em uma coluna, 12 em duas, 8 em três.
+  const [pagina, setPagina] = useState(1)
+  const paginas = Math.max(1, Math.ceil(filtered.length / POR_PAGINA))
+  // Filtrar ou buscar recomeça da primeira: manter a página de antes deixaria
+  // a tela vazia quando o resultado novo é menor.
+  useEffect(() => { setPagina(1) }, [query, status])
+  // A página some quando o total encolhe por outro caminho, como arquivar a
+  // última obra da página.
+  useEffect(() => { setPagina(p => Math.min(p, paginas)) }, [paginas])
+  const primeiro = (pagina - 1) * POR_PAGINA
+  const visiveis = filtered.slice(primeiro, primeiro + POR_PAGINA)
 
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col gap-4">
@@ -204,12 +222,12 @@ export default function AtlasJobsitesPage() {
       {/* A listagem tem moldura e rola por dentro. Sem isso, uma lista de trinta
           obras leva o cabeçalho e a busca embora justamente quando a busca
           passa a ser necessária. */}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border/60 bg-card/20 p-3">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60 bg-card/20 p-3">
         {/* O respiro à direita é para a barra de rolagem do desktop não encostar
             no cartão. No celular não há barra ocupando lugar, e ele virava um
             vão: 12px de moldura à esquerda contra 24px à direita, com o cartão
             visivelmente fora do centro. */}
-        <div className="h-full overflow-y-auto sm:pr-3">
+        <div className="min-h-0 flex-1 overflow-y-auto sm:pr-3">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted border-t-foreground" />
@@ -227,7 +245,7 @@ export default function AtlasJobsitesPage() {
             </div>
           ) : (
             <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map(j => {
+              {visiveis.map(j => {
                 const Kind = (KIND_META[j.kind] ?? KIND_META.house).icon
                 const archived = j.status === "archived"
                 const alcancavel = online || guardadas.has(j.id)
@@ -381,6 +399,45 @@ export default function AtlasJobsitesPage() {
             </div>
           )}
         </div>
+
+        {/* Rodapé discreto, e só quando há mais de uma página: numa lista de
+            seis obras ele seria enfeite. A contagem some no celular, onde a
+            largura mal comporta os dois botões, e o que importa ali é andar. */}
+        {paginas > 1 && (
+          <div className="mt-3 flex shrink-0 items-center justify-between gap-2 border-t border-border/60 pt-2.5 text-[11px] text-muted-foreground">
+            <span className="min-w-0 truncate">
+              <span className="hidden sm:inline">
+                {primeiro + 1}–{primeiro + visiveis.length} of {filtered.length} projects
+              </span>
+              <span className="sm:hidden">
+                {pagina} / {paginas}
+              </span>
+            </span>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPagina(p => Math.max(1, p - 1))}
+                disabled={pagina <= 1}
+                className="flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+              <span className="hidden tabular-nums sm:inline">
+                {pagina} / {paginas}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPagina(p => Math.min(paginas, p + 1))}
+                disabled={pagina >= paginas}
+                className="flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

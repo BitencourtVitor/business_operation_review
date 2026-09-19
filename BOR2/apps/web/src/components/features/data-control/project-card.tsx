@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useUpdateForecast } from "@/hooks/use-forecast"
 import { useCatalogTable } from "@/hooks/use-catalog"
 
-import type { ForecastProject, ForecastStatus } from "@bor2/shared"
+import { isAtlasDoc, type ForecastProject, type ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, ShieldCheck, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -350,7 +350,10 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
 }
 
 function FieldwireTab({ p }: { p: ForecastProject }) {
-  const fw     = p.fieldwire ?? []
+  // "On Atlas" saiu da lista: quem responde isso é o Atlas, e marcar à mão aqui
+  // só criaria contradição com a obra que está (ou não) lá. A linha segue no
+  // banco, só não se edita mais por aqui.
+  const fw     = (p.fieldwire ?? []).filter(f => !isAtlasDoc(f.document))
   const toggle = useToggleFieldwire()
   type FieldwireState = "none" | "completed" | "dispensed"
   const getState = (f: typeof fw[0]): FieldwireState => {

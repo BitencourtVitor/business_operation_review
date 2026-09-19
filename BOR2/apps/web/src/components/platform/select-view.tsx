@@ -2,15 +2,10 @@
 
 import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Button } from "@/components/ui/button"
-import type { Product } from "@/lib/products"
+import { PRODUCT_ICON, type Product } from "@/lib/products"
 import {
-  Award, CircleGauge, CodeXml, Compass, Lock, LogOut, Map, User,
+  Award, CodeXml, Compass, Lock, LogOut, User,
 } from "lucide-react"
-
-const PRODUCT_ICON = {
-  bor: CircleGauge,
-  atlas: Map,
-} as const
 
 // Mesmo crachá que o header dos dois produtos mostra, com a mesma cor por papel.
 const ROLE_BADGE: Record<string, { icon: typeof User; className: string }> = {

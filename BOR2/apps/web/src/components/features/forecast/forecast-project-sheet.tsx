@@ -1,6 +1,6 @@
 "use client"
 
-import { scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
+import { isAtlasDoc, scoredFieldwire, type ForecastAtlasCategory, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  DraftingCompass,
   Fan,
   FileText,
   Flag,
@@ -144,6 +145,45 @@ function SectionLabel({ icon, children }: { icon?: React.ReactNode; children: Re
   )
 }
 
+/**
+ * Uma categoria do Atlas. Sem eixo, é uma linha com um booleano. Por andar ou
+ * por unidade, a categoria aparece uma vez só e cada vaga vira um selo com o
+ * rótulo do andar ou da unidade — cinco andares são cinco booleanos numa linha,
+ * não cinco linhas repetindo o mesmo nome.
+ */
+function AtlasCategoryRow({ cat }: { cat: ForecastAtlasCategory }) {
+  const slots = cat.slots ?? []
+  const simples = slots.length <= 1 && !slots[0]?.label
+  if (simples) {
+    return (
+      <CheckRow done={!!slots[0]?.imported}>
+        <span className="flex-1 text-sm">{cat.name}</span>
+      </CheckRow>
+    )
+  }
+  return (
+    <div className="rounded-lg border bg-muted/40 px-3 py-2.5">
+      <p className="text-sm">{cat.name}</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {slots.map(s => (
+          <span
+            key={s.label}
+            className={cn(
+              "flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px]",
+              s.imported ? "text-emerald-400" : "text-amber-400"
+            )}
+          >
+            {s.label}
+            {s.imported
+              ? <CheckCircle2 className="h-3 w-3 shrink-0" />
+              : <XCircle      className="h-3 w-3 shrink-0" />}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function CheckRow({ done, children }: { done: boolean; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
@@ -196,7 +236,15 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   const pct      = getCompletionPct(p)
   const barColor = getBarColor(ds, pct)
 
-  const hasFieldwire = (p.fieldwire?.length ?? 0) > 0
+  // "On Atlas" saiu da lista do Fieldwire: quem responde se a obra está no
+  // Atlas é o próprio Atlas, no bloco de baixo. A linha segue no catálogo e no
+  // banco, só não aparece mais aqui.
+  const fieldwireDocs = (p.fieldwire ?? []).filter(fw => !isAtlasDoc(fw.document))
+  const hasFieldwire  = fieldwireDocs.length > 0
+  const atlasCats     = p.atlas?.categories ?? []
+  // A HVAC não documenta planta no Atlas: o bloco seria uma lista de pendência
+  // que ninguém vai fechar, do mesmo jeito que BuilderTrend e Storage.
+  const hasAtlas      = !isHvac && atlasCats.length > 0
   const hasPermit    = (p.permit?.length ?? 0) > 0
   const hasContract  = (p.contractSteps?.length ?? 0) > 0
   const hasMachines  = (p.machines?.length ?? 0) > 0
@@ -403,28 +451,49 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             )}
           </section>
 
-          {/* ── Fieldwire ────────────────────────────────────────────────────── */}
-          {hasFieldwire && (
-            <section>
-              <SectionLabel icon={
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src="/images/icon_fieldwire.png" alt="" className="h-3.5 w-3.5 object-contain" />
-              }>
-                Fieldwire Documents
-              </SectionLabel>
-              <div className="flex flex-col gap-2">
-                {p.fieldwire?.slice()
-                  .sort((a, b) => {
-                    const rank = (doc?: string) =>
-                      doc === "Markup" ? 2 : doc === "Shared with subcontractor" ? 1 : 0
-                    return rank(a.document) - rank(b.document)
-                  })
-                  .map((fw, i) => (
-                    <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
-                      <span className="flex-1 text-sm">{fw.document || fw.category || "—"}</span>
+          {/* ── Documentos: Fieldwire e Atlas, lado a lado ────────────────────
+              São dois acervos diferentes da mesma obra, e ler um contra o outro
+              é o ponto: um diz o que o Fieldwire tem, o outro o que o Atlas
+              documenta. Nada do Atlas entra no OFI. */}
+          {(hasFieldwire || hasAtlas) && (
+            <section className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {hasFieldwire && (
+                <div>
+                  <SectionLabel icon={
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/images/icon_fieldwire.png" alt="" className="h-3.5 w-3.5 object-contain" />
+                  }>
+                    Fieldwire Documents
+                  </SectionLabel>
+                  <div className="flex flex-col gap-2">
+                    {fieldwireDocs.slice()
+                      .sort((a, b) => {
+                        const rank = (doc?: string) =>
+                          doc === "Markup" ? 2 : doc === "Shared with subcontractor" ? 1 : 0
+                        return rank(a.document) - rank(b.document)
+                      })
+                      .map((fw, i) => (
+                        <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
+                          <span className="flex-1 text-sm">{fw.document || fw.category || "—"}</span>
+                        </CheckRow>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {hasAtlas && (
+                <div>
+                  <SectionLabel icon={<DraftingCompass className="h-3.5 w-3.5" />}>
+                    Atlas
+                  </SectionLabel>
+                  <div className="flex flex-col gap-2">
+                    <CheckRow done={!!p.atlas?.jobsiteId}>
+                      <span className="flex-1 text-sm">On Atlas</span>
                     </CheckRow>
-                  ))}
-              </div>
+                    {atlasCats.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
