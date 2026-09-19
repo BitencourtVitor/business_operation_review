@@ -828,7 +828,9 @@ func main() {
 		Sandbox:  cfg.App.Env != "production",
 	})
 
-	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
+	r2SweepJob := jobs.AtlasR2Sweep(db, r2Service, cfg.R2.Bucket)
+
+	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob, r2SweepJob)
 	go scheduler.Start(jobCtx)
 	// O processamento do set do Atlas (ATL-102) roda em segundo plano, na
 	// mesma vida do scheduler: retoma o que ficou pela metade e cai no shutdown.
