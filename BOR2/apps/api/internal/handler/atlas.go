@@ -1701,7 +1701,7 @@ func (h *AtlasHandler) RenameSheets(c *fiber.Ctx) error {
 		}
 		if _, err := tx.Exec(c.Context(), `
 			UPDATE atlas_sheet
-			   SET sheet_number = $3, needs_review = false
+			   SET sheet_number = $3, needs_review = false, updated_at = now()
 			 WHERE version_id = $1 AND page_index = $2`,
 			versionID, n.PageIndex, strings.TrimSpace(n.SheetNumber)); err != nil {
 			return internalErr(c, err)
