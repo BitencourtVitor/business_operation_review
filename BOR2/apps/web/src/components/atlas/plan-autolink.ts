@@ -153,6 +153,44 @@ function medidor() {
  * dentro da caixa do trecho, o que é aproximação, e é aproximação que basta:
  * a área clicável de um vínculo tem alguns milímetros de folga por natureza.
  */
+/**
+ * A caixa do trecho em fração da folha, como a tela a mostra.
+ *
+ * O PDF guarda o texto no sistema da página, que pode estar girado (`/Rotate`),
+ * e guarda o ponto de base, não o retângulo. Aqui o ponto passa pela matriz da
+ * viewport, o trecho vira dois vetores (o que corre e o que sobe) e o retângulo
+ * sai do envelope dos quatro cantos.
+ */
+function caixaNaTela(
+  item: { width: number; height: number; transform: number[] },
+  vp: { width: number; height: number; transform: number[] },
+): { x0: number; y0: number; x1: number; y1: number } {
+  const t = item.transform
+  const v = vp.transform
+  const a = v[0] * t[0] + v[2] * t[1]
+  const b = v[1] * t[0] + v[3] * t[1]
+  const e = v[0] * t[4] + v[2] * t[5] + v[4]
+  const f = v[1] * t[4] + v[3] * t[5] + v[5]
+
+  const norma = Math.hypot(a, b) || 1
+  const ux = a / norma
+  const uy = b / norma
+  const dx = ux * item.width
+  const dy = uy * item.width
+  // Perpendicular no sentido em que a letra cresce a partir da linha de base.
+  const px = uy * item.height
+  const py = -ux * item.height
+
+  const xs = [e, e + dx, e + px, e + dx + px]
+  const ys = [f, f + dy, f + py, f + dy + py]
+  return {
+    x0: Math.min(...xs) / vp.width,
+    y0: Math.min(...ys) / vp.height,
+    x1: Math.max(...xs) / vp.width,
+    y1: Math.max(...ys) / vp.height,
+  }
+}
+
 export async function tokensDaPagina(
   url: string, pageIndex: number,
 ): Promise<{ tokens: TokenExtraido[]; semTexto: boolean }> {
@@ -189,11 +227,10 @@ export async function tokensDaPagina(
     const bruto = item.str
     if (!bruto || !bruto.trim()) continue
 
-    const [, , , , e, f] = item.transform
-    const x0 = e / larg
-    const y0 = (alt - f - item.height) / alt
-    const x1 = (e + item.width) / larg
-    const y1 = (alt - f) / alt
+    // A caixa sai na referência da tela, com a rotação da página aplicada: num
+    // set da Toll Brothers, 20 das 41 folhas vêm a 270°, e a conta crua punha o
+    // retângulo do link longe do código impresso.
+    const { x0, y0, x1, y1 } = caixaNaTela(item, vp)
 
     tokens.push(comFolga({ text: bruto, x0, y0, x1, y1 }))
 
