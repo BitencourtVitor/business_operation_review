@@ -153,6 +153,7 @@ func main() {
 	pcgContractNumberHandler := handler.NewPCGContractNumberHandler(db)
 	pcgProjectsHandler := handler.NewPCGProjectsHandler(db)
 	pcgBidFormHandler := handler.NewPCGBidFormHandler(db)
+	hvacStagesHandler := handler.NewHVACStagesHandler(db)
 	// Atlas — o storage é opcional na subida: sem as variáveis do R2 o serviço
 	// continua de pé e é o Atlas que responde 503, não a API inteira.
 	r2Service := service.NewR2Service(cfg.R2.Endpoint, cfg.R2.Bucket, cfg.R2.AccessKey, cfg.R2.SecretKey)
@@ -327,6 +328,9 @@ func main() {
 	forecast.Post("/contract", forecastHandler.CreateContractStep)
 	forecast.Delete("/contract/team", forecastHandler.DeleteContractTeam)
 	forecast.Post("/contract/team", forecastHandler.AddContractTeam)
+	// Antes do PUT genérico só por clareza de leitura; o caminho tem dois
+	// segmentos, então não disputa com "/:id".
+	forecast.Patch("/:id/hvac-stages", hvacStagesHandler.Update)
 	forecast.Put("/:id", forecastHandler.Update)
 	forecast.Delete("/:id", forecastHandler.Delete)
 	forecast.Get("/:id", forecastHandler.Get)

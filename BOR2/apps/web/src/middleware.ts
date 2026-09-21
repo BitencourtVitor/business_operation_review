@@ -23,6 +23,7 @@ const BOR_SEGMENTS = new Set([
   "forecast",
   "forecast-improvement",
   "hvac-forecast",
+  "hvac-schedule",
   "inventory",
   "monthly-execution",
   "ofi",
