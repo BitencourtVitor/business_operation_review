@@ -102,6 +102,10 @@ const activeGroup: NavGroup = {
         { title: "HVAC",    href: "/bor/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/bor/hvac-forecast/metrics", permKey: "forecast_hvac" },
       ],
     },
+    // Logo abaixo do Forecast porque lê as mesmas etapas, e sob a mesma
+    // permissão do Forecast HVAC: chave nova nasceria sem ninguém a tendo, e a
+    // página ficaria invisível até alguém abrir Settings.
+    { title: "HVAC Schedule & Material", href: "/bor/hvac-schedule", icon: CalendarClock, permKey: "forecast_hvac" },
     {
       title: "Workforce Productivity", href: "/bor/workforce-productivity", icon: Users,
       permKey: "workforce",
