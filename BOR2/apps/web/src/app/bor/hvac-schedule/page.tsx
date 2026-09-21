@@ -102,8 +102,11 @@ export default function HVACSchedulePage() {
   const thisWeek = purchases.filter(x => sameWeek(x.s.purchaseBy!, today))
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
+    // Sem padding próprio: o `<main>` do layout do BOR já aplica p-6. Altura
+    // cheia porque aquele main é de altura fixa com overflow-hidden, então quem
+    // rola é a lista aqui dentro, não a página.
+    <div className="flex h-full flex-col gap-6">
+      <div className="shrink-0">
         <h1 className="text-2xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Stage calendar and the purchase date each stage depends on. Planned dates come from the
@@ -111,8 +114,9 @@ export default function HVACSchedulePage() {
         </p>
       </div>
 
-      {/* Métricas no topo. */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      {/* Métricas no topo, fixas: são elas que respondem "o que preciso saber
+          agora", e não podem sumir ao rolar a lista. */}
+      <div className="grid shrink-0 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Metric
           title="Active projects"
           value={String(projects.filter(isActive).length)}
@@ -151,8 +155,8 @@ export default function HVACSchedulePage() {
         />
       </div>
 
-      {/* O container de baixo, com os containers dentro. */}
-      <div className="grid gap-4 xl:grid-cols-3">
+      {/* O container de baixo, com os containers dentro. É quem rola. */}
+      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
