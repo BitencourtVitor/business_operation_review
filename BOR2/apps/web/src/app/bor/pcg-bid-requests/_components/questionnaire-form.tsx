@@ -191,7 +191,15 @@ export function QuestionnaireForm({
       isAnswered(notes) ? "border-emerald-500/40" : "border-dashed"
     }`}>
       <div className="flex items-start gap-3">
-        <span className="w-6 shrink-0" />
+        {/* Fecha a lista, então leva o número seguinte. Continua sem contar para
+            o questionário respondido: é o campo livre, ninguém é cobrado por
+            ele. O que o número resolve é a coluna vazia ao lado do último
+            cartão, que lia como falha de desenho. */}
+        <span className={`w-6 shrink-0 text-center text-base font-semibold tabular-nums ${
+          isAnswered(notes) ? "text-emerald-500/70" : "text-muted-foreground/50"
+        }`}>
+          {questions.length + 1}
+        </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-2">
             <p className="min-w-0 flex-1 text-sm font-medium leading-tight">{NOTES_LABEL}</p>

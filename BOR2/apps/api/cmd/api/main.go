@@ -152,6 +152,7 @@ func main() {
 	qbtimeMappingHandler := handler.NewQBTimeMappingHandler(db)
 	pcgContractNumberHandler := handler.NewPCGContractNumberHandler(db)
 	pcgProjectsHandler := handler.NewPCGProjectsHandler(db)
+	pcgBidFormHandler := handler.NewPCGBidFormHandler(db)
 	// Atlas — o storage é opcional na subida: sem as variáveis do R2 o serviço
 	// continua de pé e é o Atlas que responde 503, não a API inteira.
 	r2Service := service.NewR2Service(cfg.R2.Endpoint, cfg.R2.Bucket, cfg.R2.AccessKey, cfg.R2.SecretKey)
@@ -283,6 +284,13 @@ func main() {
 	// Ela também fecha um buraco: RequireAuth só conferia que existia um Bearer
 	// qualquer no cabeçalho, sem validá-lo. Endpoint de máquina (cron, service
 	// secret, callback do QB) não passa por aqui — mora em v1, acima do grupo.
+	// Formulário de cotação do PCG aberto por link, sem login: o link vai por
+	// WhatsApp para quem não tem conta no BOR. Registrado aqui, acima do grupo,
+	// pelo mesmo motivo das rotas de máquina. Só ler e enviar uma vez, nada
+	// mais: criar, desligar e apagar ficam no grupo protegido abaixo.
+	v1.Get("/pcg/public-forms/:id", pcgBidFormHandler.Public)
+	v1.Post("/pcg/public-forms/:id", pcgBidFormHandler.Submit)
+
 	api := v1.Group("", middleware.RequireAuthFull(authService))
 
 	// Clients & Job Sites catalog — registered BEFORE forecast /:id to avoid wildcard capture
@@ -648,6 +656,10 @@ func main() {
 	pcg.Post("/projects/:id/trades/:tradeId/events", pcgProjectsHandler.AddEvent)
 	pcg.Patch("/projects/:id/trades/:tradeId/events/:eventId", pcgProjectsHandler.UpdateEvent)
 	pcg.Delete("/projects/:id/trades/:tradeId/events/:eventId", pcgProjectsHandler.DeleteEvent)
+	pcg.Get("/forms", pcgBidFormHandler.List)
+	pcg.Post("/forms", pcgBidFormHandler.Create)
+	pcg.Patch("/forms/:id", pcgBidFormHandler.SetAvailable)
+	pcg.Delete("/forms/:id", pcgBidFormHandler.Delete)
 	pcg.Get("/subcontractor-contacts", pcgProjectsHandler.ListSubcontractorContacts)
 	pcg.Put("/subcontractor-contacts/:name", pcgProjectsHandler.UpsertSubcontractorContact)
 

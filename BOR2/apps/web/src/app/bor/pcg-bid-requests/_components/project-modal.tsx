@@ -41,6 +41,7 @@ import type {
   DocumentParams, PaymentMilestone, Project, ProjectStatus, ProjectTrade, Trade, TradeEvent,
   TradeEventEdit,
 } from "../_lib/types"
+import { FormLinksPopover } from "./form-links-popover"
 import { QuestionnaireForm } from "./questionnaire-form"
 import { SubcontractorPicker } from "./subcontractor-picker"
 import { SubcontractorContactButton } from "./subcontractor-contact-button"
@@ -228,6 +229,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
 
         {openTrade && openCatalog ? (
           <TradeView
+            project={project}
             projectTrade={openTrade}
             trade={openCatalog}
             canEdit={canEdit}
@@ -669,9 +671,10 @@ function DocButton({
 // ── Trade view inside the modal ─────────────────────────────────────────────
 
 function TradeView({
-  projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, issuingNumber, onEditTerms,
+  project, projectTrade: rawTrade, trade, canEdit, isSaving, stateOf, onPatch, onGenerate, issuingNumber, onEditTerms,
   onLogEvent, onUpdateEvent, onDeleteEvent, onSaveSchedule,
 }: {
+  project: Project
   projectTrade: ProjectTrade
   trade: Trade
   canEdit: boolean
@@ -905,6 +908,20 @@ function TradeView({
             </span>
           </button>
           <span className="flex-1" />
+          {/* O mesmo questionário aberto por link, sem login, para ser
+              respondido no celular de quem está na obra. */}
+          <FormLinksPopover
+            project={project}
+            trade={trade}
+            canEdit={canEdit}
+            onApply={answers => onPatch(`${prefix}:forms`, {
+              // O que voltou do link manda sobre o que estava respondido, mas
+              // só nas perguntas que ele traz: o formulário congelou o
+              // questionário de um dia, e uma pergunta criada depois dele não
+              // pode ser apagada por quem nunca a viu.
+              answers: { ...projectTrade.answers, ...answers },
+            })}
+          />
           {/* Em branco não tem trava: é o formulário antes de existir resposta,
               e exigir o questionário respondido para imprimi-lo vazio seria
               impedir justamente o uso que ele tem. */}
