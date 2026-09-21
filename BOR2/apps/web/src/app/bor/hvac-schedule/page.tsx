@@ -11,9 +11,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useForecast, useHVACActuals } from "@/hooks/use-forecast"
 import type { HVACActual } from "@/services/forecast.service"
@@ -234,8 +231,8 @@ export default function HVACSchedulePage() {
           A margem negativa com padding igual devolve o espaço que o corte da
           rolagem comia: sem ela a borda dos cartões encosta na beirada e some
           em cima e dos lados. */}
-      <div className="-mx-1 grid min-h-0 flex-1 gap-4 overflow-y-auto px-1 pt-1 pb-2 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
+      <div className="-mx-1 grid min-h-0 flex-1 gap-4 overflow-y-auto px-1 pt-1 pb-2 lg:grid-cols-4">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Layers className="h-4 w-4 text-muted-foreground" />
@@ -277,7 +274,9 @@ export default function HVACSchedulePage() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      {lots.map(lot => <LotTable key={lot.project.id} lot={lot} />)}
+                      <div className="flex flex-col gap-3 pb-1">
+                        {lots.map(lot => <LotStages key={lot.project.id} lot={lot} />)}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 ))}
@@ -322,71 +321,36 @@ export default function HVACSchedulePage() {
   )
 }
 
-function LotTable({ lot }: { lot: ProjectStages }) {
+// Um lote e a distribuição das suas quatro etapas.
+//
+// Cartão por etapa em vez de linha de tabela: a tabela repetia seis cabeçalhos
+// por lote e afogava justamente o que se procura, que é qual lote e em que pé
+// está cada etapa dele. Aqui o lote tem nome grande, e as etapas vêm lado a
+// lado, na ordem em que acontecem na obra.
+function LotStages({ lot }: { lot: ProjectStages }) {
   const [editing, setEditing] = useState<Stage | null>(null)
 
   return (
-    <div className="mb-4 last:mb-0">
-      <div className="mb-1.5 flex items-center gap-2">
-        <span className="text-sm font-medium">{lotLabel(lot)}</span>
+    <div className="rounded-xl border bg-card/40 p-3">
+      <div className="mb-2.5 flex items-center gap-2">
+        <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
         {lot.stacked && (
           <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
             <AlertTriangle className="h-3 w-3" />
             Same day
           </Badge>
         )}
-        <span className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-          <Progress value={lot.percent} className="h-1.5 w-20" />
-          {lot.percent}%
+        <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+          <Progress value={lot.percent} className="h-1.5 w-16" />
+          <span className="tabular-nums">{lot.percent}%</span>
         </span>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[190px]">Stage</TableHead>
-            <TableHead>Planned</TableHead>
-            <TableHead>Actual</TableHead>
-            <TableHead>Buy material by</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {lot.stages.map(s => (
-            <TableRow key={s.key}>
-              <TableCell className="font-medium">{s.label}</TableCell>
-              <TableCell className="tabular-nums whitespace-nowrap">
-                {formatDate(s.start)} <span className="text-muted-foreground">→</span> {formatDate(s.end)}
-              </TableCell>
-              <TableCell className="tabular-nums whitespace-nowrap">
-                {s.actualStart || s.actualEnd ? (
-                  <>
-                    {formatDate(s.actualStart)} <span className="text-muted-foreground">→</span> {formatDate(s.actualEnd)}
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">not started</span>
-                )}
-              </TableCell>
-              <TableCell className="tabular-nums">{formatDate(s.purchaseBy)}</TableCell>
-              <TableCell>
-                <Badge variant="outline" className={STATE_STYLE[s.state]}>
-                  {STATE_LABEL[s.state]}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`Change ${s.label} dates`}
-                  onClick={() => setEditing(s)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+
+      <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-4">
+        {lot.stages.map(s => (
+          <StageCard key={s.key} stage={s} onEdit={() => setEditing(s)} />
+        ))}
+      </div>
 
       {editing && (
         <EditStageDialog
@@ -401,6 +365,68 @@ function LotTable({ lot }: { lot: ProjectStages }) {
       )}
     </div>
   )
+}
+
+// Uma etapa do lote. A faixa colorida à esquerda é o estado, e repete a cor do
+// selo: quem varre a coluna de cima a baixo enxerga o atraso antes de ler.
+function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
+  return (
+    <div className={`group/stage min-w-0 rounded-lg border border-l-4 p-2.5 ${STAGE_EDGE[s.state]}`}>
+      <div className="flex items-center gap-1.5">
+        <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="min-w-0 truncate text-xs font-medium">{s.label}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="-mr-1 ml-auto h-6 w-6 shrink-0 p-0 opacity-0 transition-opacity group-hover/stage:opacity-100 focus-visible:opacity-100"
+          aria-label={`Change ${s.label} dates`}
+          onClick={onEdit}
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
+      </div>
+
+      <Badge variant="outline" className={`mt-1.5 ${STATE_STYLE[s.state]}`}>
+        {STATE_LABEL[s.state]}
+      </Badge>
+
+      <dl className="mt-2 flex flex-col gap-0.5 text-xs">
+        <Line term="Planned" from={s.start} to={s.end} />
+        <Line term="Actual" from={s.actualStart} to={s.actualEnd} muted={!s.actualStart && !s.actualEnd} />
+        <div className="flex items-baseline gap-1.5">
+          <dt className="w-14 shrink-0 text-muted-foreground">Buy by</dt>
+          <dd className="tabular-nums">{formatDate(s.purchaseBy)}</dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
+
+function Line({
+  term, from, to, muted,
+}: {
+  term: string
+  from: Date | null
+  to: Date | null
+  muted?: boolean
+}) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <dt className="w-14 shrink-0 text-muted-foreground">{term}</dt>
+      <dd className={`truncate tabular-nums ${muted ? "text-muted-foreground" : ""}`}>
+        {formatDate(from)} <span className="text-muted-foreground">→</span> {formatDate(to)}
+      </dd>
+    </div>
+  )
+}
+
+// A faixa da esquerda, por estado. Mesma família de cor do selo.
+const STAGE_EDGE: Record<StageState, string> = {
+  delayed: "border-l-red-500/70",
+  done: "border-l-emerald-500/70",
+  running: "border-l-blue-500/70",
+  upcoming: "border-l-border",
+  undated: "border-l-border border-dashed",
 }
 
 // Cada métrica tem sua cor, e a cor diz o que a métrica significa: verde é o

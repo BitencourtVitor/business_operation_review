@@ -1,3 +1,4 @@
+import { Fan, Snowflake, Thermometer, Wrench } from "lucide-react"
 import type { ForecastProject } from "@bor2/shared"
 import type { HVACActual } from "@/services/forecast.service"
 
@@ -8,11 +9,13 @@ import type { HVACActual } from "@/services/forecast.service"
 // anotações do dia 21/09 dizem "3 dias úteis" para o Rough, "48h" para as duas
 // do meio e "3 dias" para o Finish. Tratei as quatro na mesma régua, dias
 // úteis, porque compra não acontece no sábado; trocar é mexer só neste número.
+// Os ícones são os mesmos que o Forecast usa para estas etapas. Repetir o
+// símbolo entre as duas telas é o que faz alguém reconhecer a etapa sem ler.
 export const STAGES = [
-  { key: "rough", label: "1 · Rough", leadDays: 3 },
-  { key: "airHandler", label: "2 · Equipment", leadDays: 2 },
-  { key: "condenser", label: "3 · Condenser / Tstat", leadDays: 2 },
-  { key: "finish", label: "4 · Finish", leadDays: 3 },
+  { key: "rough", label: "Rough", Icon: Wrench, leadDays: 3 },
+  { key: "airHandler", label: "Air Handler", Icon: Fan, leadDays: 2 },
+  { key: "condenser", label: "Condenser / Tstat", Icon: Thermometer, leadDays: 2 },
+  { key: "finish", label: "Finish", Icon: Snowflake, leadDays: 3 },
 ] as const
 
 export type StageKey = (typeof STAGES)[number]["key"]
@@ -45,6 +48,7 @@ export const STAGE_DB_NAME: Record<StageKey, string> = {
 export type StageState = "done" | "running" | "delayed" | "upcoming" | "undated"
 
 export interface Stage {
+  Icon: React.ElementType
   key: StageKey
   label: string
   /** Planejado, vindo das Orders. */
@@ -115,7 +119,7 @@ export function stagesOf(
 ): ProjectStages {
   const byStage = new Map(actuals.map(a => [a.stage, a]))
 
-  const stages = STAGES.map(({ key, label, leadDays }) => {
+  const stages = STAGES.map(({ key, label, Icon, leadDays }) => {
     const start = parseDate(project[FIELDS[key].start] as string | null)
     const end = parseDate(project[FIELDS[key].end] as string | null)
     const actual = byStage.get(STAGE_DB_NAME[key])
@@ -123,6 +127,7 @@ export function stagesOf(
     const actualEnd = parseDate(actual?.actualEnd)
     return {
       key,
+      Icon,
       label,
       start,
       end,
