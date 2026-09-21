@@ -586,7 +586,7 @@ func (r *PostgresForecastRepository) ListObs(ctx context.Context, projectID stri
 // de escrita — API, script de importação ou SQL na mão.
 func (r *PostgresForecastRepository) ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT id, project_id, company, field, old_value, new_value, source, changed_by, changed_at
+		SELECT id, project_id, company, field, old_value, new_value, source, changed_by, changed_at, note
 		FROM forecast_date_history
 		WHERE LOWER(project_id) = LOWER($1)
 		ORDER BY changed_at ASC, id ASC
@@ -600,7 +600,7 @@ func (r *PostgresForecastRepository) ListDateHistory(ctx context.Context, projec
 	for rows.Next() {
 		e := &domain.ForecastDateEntry{}
 		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Company, &e.Field,
-			&e.OldValue, &e.NewValue, &e.Source, &e.ChangedBy, &e.ChangedAt); err != nil {
+			&e.OldValue, &e.NewValue, &e.Source, &e.ChangedBy, &e.ChangedAt, &e.Note); err != nil {
 			return nil, fmt.Errorf("scan forecast date history: %w", err)
 		}
 		entries = append(entries, e)

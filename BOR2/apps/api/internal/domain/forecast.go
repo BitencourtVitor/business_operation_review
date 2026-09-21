@@ -189,5 +189,7 @@ type ForecastDateEntry struct {
 	NewValue  *time.Time `json:"newValue,omitempty"`
 	Source    string     `json:"source"`
 	ChangedBy string     `json:"changedBy"`
+	// Por que a data mudou. Só a edição à mão exige; a rotina grava vazio.
+	Note      string     `json:"note"`
 	ChangedAt time.Time  `json:"changedAt"`
 }

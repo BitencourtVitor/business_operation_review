@@ -39,11 +39,11 @@ export const STAGE_DB_NAME: Record<StageKey, string> = {
 
 // O estado vem do que **aconteceu**, não do calendário:
 //
-//   done     — tem fim real
-//   running  — tem início real e não tem fim
-//   delayed  — o planejado já passou e ninguém marcou que começou
-//   upcoming — planejado no futuro, ainda não começou
-//   undated  — sem planejado e sem real
+//   done     = tem fim real
+//   running  = tem início real e não tem fim
+//   delayed  = o planejado já passou e ninguém marcou que começou
+//   upcoming = planejado no futuro, ainda não começou
+//   undated  = sem planejado e sem real
 //
 // É essa separação que faz "atrasado" existir. Enquanto só havia o planejado,
 // toda etapa com data no passado parecia terminada e o atraso sumia.
@@ -210,7 +210,7 @@ export interface EditPlan {
 /** O que muda ao mexer numa etapa.
  *
  *  Com `cascade`, as etapas seguintes andam o mesmo tanto de dias que o início
- *  desta andou — início e fim juntos, para a etapa não encolher no caminho.
+ *  desta andou, início e fim juntos, para a etapa não encolher no caminho.
  *  Sem início anterior não há deslocamento a copiar, e a cascata não acontece. */
 export function editPlan(
   lot: ProjectStages,

@@ -183,5 +183,7 @@ export interface ForecastDateEntry {
   newValue?: string | null
   source: string
   changedBy: string
+  /** Por que a data mudou. Só a edição à mão exige; a rotina grava vazio. */
+  note?: string
   changedAt: string
 }

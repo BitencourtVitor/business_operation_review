@@ -28,7 +28,7 @@ import {
 // `forecast_hvac_stages` e é marcado aqui. São os dois juntos que produzem
 // "atrasado": planejado no passado e ninguém marcou que começou.
 //
-// Falta o pedido de material — comprado quando, chegou ou não — e por isso uma
+// Falta o pedido de material (comprado quando, chegou ou não), e por isso uma
 // métrica segue vazia, com o que falta escrito nela. Ver HS-9 no backlog de
 // 21/09.
 //
@@ -103,7 +103,7 @@ export default function HVACSchedulePage() {
   const all = useMemo(
     () => (data ?? [])
       // Obra fechada não entra. São 137 das 251 da HVAC, quase todas antigas, e
-      // nenhuma delas tem etapa por começar nem material por comprar — é só
+      // nenhuma delas tem etapa por começar nem material por comprar: é só
       // ruído entre as que ainda pedem decisão.
       .filter(p => !CLOSED.has((p.status ?? "").trim().toLowerCase()))
       .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? []))
@@ -325,7 +325,7 @@ export default function HVACSchedulePage() {
               ))}
               {purchases.length > PURCHASE_LIMIT && (
                 <p className="py-2 text-center text-xs text-muted-foreground">
-                  {purchases.length - PURCHASE_LIMIT} more — narrow it down with the filters
+                  {purchases.length - PURCHASE_LIMIT} more. Narrow it down with the filters
                 </p>
               )}
             </div>
@@ -363,7 +363,7 @@ function Panel({
 }
 
 // Um jobsite. Fechado por padrão, e o corpo só é criado ao abrir: com 251 obras
-// da HVAC, montar todos os lotes de saída são mil cartões que ninguém pediu —
+// da HVAC, montar todos os lotes de saída são mil cartões que ninguém pediu,
 // era o que deixava a página lenta.
 function JobsiteSection({ site, lots }: { site: string; lots: ProjectStages[] }) {
   const [open, setOpen] = useState(false)
