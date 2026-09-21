@@ -534,21 +534,32 @@ function PurchaseRow({
       }`}
     >
       <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+
+      {/* Etapa, lote e obra em linhas próprias. Espremer obra e etapa na mesma
+          linha misturava dois níveis diferentes e cortava os dois. */}
       <div className="min-w-0 flex-1">
+        <p className="truncate text-[11px] text-muted-foreground" title={s.full}>{s.label}</p>
         <p className="truncate text-xs font-medium">{lotLabel(lot)}</p>
-        <p className="truncate text-[11px] text-muted-foreground" title={`${siteOf(lot)} · ${s.full}`}>
-          {siteOf(lot)} · {s.label}
-        </p>
+        <p className="truncate text-[11px] text-muted-foreground" title={siteOf(lot)}>{siteOf(lot)}</p>
       </div>
-      <div className="shrink-0 text-right">
-        <p className={`text-xs tabular-nums ${overdue ? "font-medium text-red-600 dark:text-red-400" : ""}`}>
+
+      <div className="flex shrink-0 items-center gap-1">
+        {overdue ? (
+          <AlertTriangle className="h-3.5 w-3.5 text-red-500" aria-label="Purchase date has passed" />
+        ) : week ? (
+          <Clock className="h-3.5 w-3.5 text-amber-500" aria-label="Buy this week" />
+        ) : null}
+        <p
+          className={`text-xs tabular-nums ${
+            overdue
+              ? "font-medium text-red-600 dark:text-red-400"
+              : week
+                ? "text-amber-600 dark:text-amber-400"
+                : ""
+          }`}
+        >
           {formatShort(s.purchaseBy)}
         </p>
-        {overdue ? (
-          <p className="text-[10px] text-red-600 dark:text-red-400">overdue</p>
-        ) : week ? (
-          <p className="text-[10px] text-amber-600 dark:text-amber-400">this week</p>
-        ) : null}
       </div>
     </div>
   )
