@@ -11,9 +11,9 @@ import {
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
-import { useUpdateHVACStages } from "@/hooks/use-forecast"
+import { useSetHVACActual, useUpdateHVACStages } from "@/hooks/use-forecast"
 import {
-  editPlan, formatDate, STAGES,
+  editPlan, formatDate, STAGE_DB_NAME, STAGES, toISO,
   type ProjectStages, type Stage,
 } from "../_lib/stages"
 
@@ -33,11 +33,15 @@ export function EditStageDialog({
 }) {
   const [start, setStart] = useState<Date | null>(stage.start)
   const [end, setEnd] = useState<Date | null>(stage.end)
+  const [actualStart, setActualStart] = useState<Date | null>(stage.actualStart)
+  const [actualEnd, setActualEnd] = useState<Date | null>(stage.actualEnd)
   const [cascade, setCascade] = useState(false)
   const [note, setNote] = useState("")
   const [error, setError] = useState("")
 
-  const save = useUpdateHVACStages()
+  const savePlanned = useUpdateHVACStages()
+  const saveActual = useSetHVACActual()
+  const saving = savePlanned.isPending || saveActual.isPending
 
   const isLast = STAGES[STAGES.length - 1].key === stage.key
   const plan = useMemo(
@@ -45,18 +49,40 @@ export function EditStageDialog({
     [lot, stage.key, start, end, cascade],
   )
 
+  const actualChanged =
+    actualStart?.getTime() !== stage.actualStart?.getTime() ||
+    actualEnd?.getTime() !== stage.actualEnd?.getTime()
+
   async function confirm() {
     setError("")
-    if (!note.trim()) {
-      setError("Write why this date is changing.")
-      return
-    }
-    if (plan.changes.length === 0) {
+    if (plan.changes.length === 0 && !actualChanged) {
       setError("Nothing changed yet.")
       return
     }
+    // Justificativa é exigida para mexer no planejado, que é o cronograma
+    // combinado com o cliente. Registrar o que a obra fez é relato, não
+    // negociação, e não precisa de defesa.
+    if (plan.changes.length > 0 && !note.trim()) {
+      setError("Write why the planned date is changing.")
+      return
+    }
+    if (actualEnd && !actualStart) {
+      setError("A stage cannot end before it starts.")
+      return
+    }
     try {
-      await save.mutateAsync({ id: lot.project.id, dates: plan.dates, note: note.trim() })
+      if (plan.changes.length > 0) {
+        await savePlanned.mutateAsync({ id: lot.project.id, dates: plan.dates, note: note.trim() })
+      }
+      if (actualChanged) {
+        await saveActual.mutateAsync({
+          id: lot.project.id,
+          stage: STAGE_DB_NAME[stage.key],
+          actualStart: actualStart ? toISO(actualStart) : null,
+          actualEnd: actualEnd ? toISO(actualEnd) : null,
+          note: note.trim(),
+        })
+      }
       onOpenChange(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save.")
@@ -73,9 +99,28 @@ export function EditStageDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-3">
-          <DateField label="Start" value={start} onChange={setStart} />
-          <DateField label="End" value={end} onChange={setEnd} />
+        <div>
+          <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            Planned
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <DateField label="Start" value={start} onChange={setStart} />
+            <DateField label="End" value={end} onChange={setEnd} />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            What actually happened
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <DateField label="Started on" value={actualStart} onChange={setActualStart} />
+            <DateField label="Ended on" value={actualEnd} onChange={setActualEnd} />
+          </div>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Leave both empty while the stage has not started. This is what tells a late stage
+            from a finished one.
+          </p>
         </div>
 
         {!isLast && (
@@ -97,7 +142,9 @@ export function EditStageDialog({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="stage-note">Why</Label>
+          <Label htmlFor="stage-note">
+            Why {plan.changes.length > 0 ? "" : <span className="text-muted-foreground">(optional)</span>}
+          </Label>
           <Textarea
             id="stage-note"
             value={note}
@@ -128,8 +175,8 @@ export function EditStageDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={confirm} disabled={save.isPending}>
-            {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          <Button onClick={confirm} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             Save
           </Button>
         </DialogFooter>

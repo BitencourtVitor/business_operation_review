@@ -50,6 +50,27 @@ export function useUpdateForecast() {
   })
 }
 
+export function useHVACActuals() {
+  return useQuery({
+    queryKey: ["forecast", "hvac-actuals"],
+    queryFn: () => forecastService.listHVACActuals(),
+  })
+}
+
+export function useSetHVACActual() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, stage, actualStart, actualEnd, note }: {
+      id: string
+      stage: string
+      actualStart: string | null
+      actualEnd: string | null
+      note: string
+    }) => forecastService.setHVACActual(id, stage, { actualStart, actualEnd, note }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast", "hvac-actuals"] }),
+  })
+}
+
 export function useUpdateHVACStages() {
   const qc = useQueryClient()
   return useMutation({

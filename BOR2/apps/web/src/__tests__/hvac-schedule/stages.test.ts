@@ -45,8 +45,31 @@ describe("stagesOf", () => {
     hvacAirHandlerEndDate: "2026-10-17",
   } as unknown as ForecastProject
 
-  it("fecha 25% por etapa encerrada", () => {
-    expect(stagesOf(obra, hoje).percent).toBe(25)
+  it("só fecha percentual com fim real, não com data planejada no passado", () => {
+    // Sem nada marcado, o planejado já ter passado não conclui nada.
+    expect(stagesOf(obra, hoje).percent).toBe(0)
+
+    const comFim = stagesOf(obra, hoje, [
+      { projectId: "1", stage: "rough", actualStart: "2026-10-05", actualEnd: "2026-10-09", note: "" },
+    ])
+    expect(comFim.percent).toBe(25)
+  })
+
+  it("etapa planejada no passado e não iniciada é atraso", () => {
+    // 16/10: o Rough foi planejado para 05/10 e ninguém marcou início.
+    expect(stagesOf(obra, hoje).stages[0].state).toBe("delayed")
+  })
+
+  it("início real sem fim é etapa em curso", () => {
+    const r = stagesOf(obra, hoje, [
+      { projectId: "1", stage: "rough", actualStart: "2026-10-06", actualEnd: null, note: "" },
+    ])
+    expect(r.stages[0].state).toBe("running")
+  })
+
+  it("planejado no futuro e não iniciado apenas aguarda", () => {
+    const antes = new Date(2026, 9, 1)
+    expect(stagesOf(obra, antes).stages[0].state).toBe("upcoming")
   })
 
   it("calcula a compra com a antecedência de cada etapa", () => {
@@ -58,7 +81,6 @@ describe("stagesOf", () => {
   })
 
   it("marca etapa sem data em vez de inventar estado", () => {
-    expect(stagesOf(obra, hoje).stages[1].state).toBe("running")
     expect(stagesOf(obra, hoje).stages[3].state).toBe("undated")
     expect(stagesOf(obra, hoje).stages[3].purchaseBy).toBeNull()
   })

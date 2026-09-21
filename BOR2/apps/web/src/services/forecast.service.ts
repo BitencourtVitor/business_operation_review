@@ -7,6 +7,18 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
+/** Uma etapa da HVAC como ela aconteceu. Ausência de linha quer dizer "nem
+ *  começou" — não existe registro vazio. */
+export interface HVACActual {
+  projectId: string
+  /** rough | air_handler | condenser | finish */
+  stage: string
+  actualStart: string | null
+  actualEnd: string | null
+  note: string
+  updatedBy?: string
+}
+
 export const forecastService = {
   list: (filters?: Partial<ForecastFilters>) => {
     const params = new URLSearchParams()
@@ -46,6 +58,15 @@ export const forecastService = {
 
   updateMachineUnit: (machId: number, unit: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}/unit`, { unit }, getToken()),
+
+  // O que a obra de fato fez, por etapa. Vem de tabela própria, separada do
+  // planejado: o planejado é escrito pela rotina de atualização, o real por
+  // quem usa o BOR.
+  listHVACActuals: () =>
+    api.get<HVACActual[]>("/api/v1/forecast/hvac-actuals", getToken()).then(r => r ?? []),
+
+  setHVACActual: (id: string, stage: string, actual: Omit<HVACActual, "projectId" | "stage" | "updatedBy">) =>
+    api.put<{ projectId: string }>(`/api/v1/forecast/${id}/hvac-actuals/${stage}`, actual, getToken()),
 
   // Datas de etapa da HVAC mexidas à mão. Rota própria porque a justificativa é
   // obrigatória: é ela que vai parar no histórico junto com quem mudou e quando.
