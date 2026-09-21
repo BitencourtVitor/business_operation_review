@@ -64,6 +64,9 @@ export interface Stage {
   /** Quando o material tem de ser comprado. Calculada do planejado, nunca digitada. */
   purchaseBy: Date | null
   state: StageState
+  /** Outra etapa do mesmo lote começa no mesmo dia que esta. É o que o selo
+   *  "Same day" avisa, e aqui diz *quais* datas colidem, não só que colidem. */
+  sharesStart: boolean
 }
 
 export interface ProjectStages {
@@ -123,6 +126,14 @@ export function stagesOf(
 ): ProjectStages {
   const byStage = new Map(actuals.map(a => [a.stage, a]))
 
+  // Quantas etapas caem em cada dia de início. Mais de uma no mesmo dia é o
+  // cliente mandando o cronograma empilhado, e as duas precisam se destacar.
+  const startCount = new Map<number, number>()
+  for (const { key } of STAGES) {
+    const d = parseDate(project[FIELDS[key].start] as string | null)
+    if (d) startCount.set(d.getTime(), (startCount.get(d.getTime()) ?? 0) + 1)
+  }
+
   const stages = STAGES.map(({ key, label, full, Icon, leadDays }) => {
     const start = parseDate(project[FIELDS[key].start] as string | null)
     const end = parseDate(project[FIELDS[key].end] as string | null)
@@ -140,6 +151,7 @@ export function stagesOf(
       actualEnd,
       purchaseBy: start ? businessDaysBefore(start, leadDays) : null,
       state: stateOf(start, actualStart, actualEnd, today),
+      sharesStart: !!start && (startCount.get(start.getTime()) ?? 0) > 1,
     }
   })
 
