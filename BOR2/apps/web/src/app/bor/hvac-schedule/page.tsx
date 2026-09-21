@@ -1,15 +1,16 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { Children, isValidElement, useMemo, useState } from "react"
 import {
-  AlertTriangle, Building2, CalendarClock, CheckCircle2, CircleDashed,
-  Layers, Loader2, Pencil, ShoppingCart, Truck,
+  Activity, AlertTriangle, Building2, CalendarClock, CheckCircle2, CircleDashed,
+  Layers, Pencil, Search, ShoppingCart, Truck,
 } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
@@ -18,7 +19,7 @@ import { useForecast, useHVACActuals } from "@/hooks/use-forecast"
 import type { HVACActual } from "@/services/forecast.service"
 import { EditStageDialog } from "./_components/edit-stage-dialog"
 import {
-  formatDate, isActive, sameWeek, stagesOf, startOfToday,
+  formatDate, isActive, sameWeek, STAGES, stagesOf, startOfToday,
   type ProjectStages, type Stage, type StageState,
 } from "./_lib/stages"
 
@@ -56,6 +57,11 @@ export default function HVACSchedulePage() {
   const { data, isLoading } = useForecast({ company: "hvac" })
   const { data: actuals } = useHVACActuals()
 
+  const [jobsite, setJobsite] = useState("all")
+  const [stageKey, setStageKey] = useState("all")
+  const [status, setStatus] = useState("all")
+  const [query, setQuery] = useState("")
+
   const today = startOfToday()
 
   // As datas reais chegam numa lista só, para toda a HVAC. Agrupar por obra uma
@@ -66,19 +72,43 @@ export default function HVACSchedulePage() {
     return map
   }, [actuals])
 
-  const projects = useMemo(
+  const all = useMemo(
     () => (data ?? [])
       .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? []))
       .filter(p => p.stages.some(s => s.start || s.end)),
     [data, today, actualsByProject],
   )
 
+  const jobsites = useMemo(
+    () => [...new Set(all.map(siteOf))].sort((a, b) => a.localeCompare(b)),
+    [all],
+  )
+
+  // Um filtro só, aplicado antes de tudo: o que a métrica conta é exatamente o
+  // que a lista mostra. Contar o total enquanto a tabela mostra um recorte faria
+  // os dois números da mesma tela discordarem.
+  const projects = useMemo(() => {
+    const term = query.trim().toLowerCase()
+    return all
+      .filter(p => jobsite === "all" || siteOf(p) === jobsite)
+      .filter(p => !term
+        || lotLabel(p).toLowerCase().includes(term)
+        || siteOf(p).toLowerCase().includes(term)
+        || (p.project.name ?? "").toLowerCase().includes(term))
+      .map(p => ({
+        ...p,
+        stages: p.stages.filter(s =>
+          (stageKey === "all" || s.key === stageKey) && (status === "all" || s.state === status)),
+      }))
+      .filter(p => p.stages.length > 0)
+  }, [all, jobsite, query, stageKey, status])
+
   // Agrupa por jobsite e, dentro dele, uma linha por lot. É a leitura que o
   // comprador faz: vai a uma obra e leva o material de todos os lotes dela.
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
     for (const p of projects) {
-      const site = p.project.jobSite?.trim() || "No jobsite"
+      const site = siteOf(p)
       map.set(site, [...(map.get(site) ?? []), p])
     }
     return [...map.entries()]
@@ -106,57 +136,105 @@ export default function HVACSchedulePage() {
     // cheia porque aquele main é de altura fixa com overflow-hidden, então quem
     // rola é a lista aqui dentro, não a página.
     <div className="flex h-full flex-col gap-6">
-      <div className="shrink-0">
-        <h1 className="text-2xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Stage calendar and the purchase date each stage depends on. Planned dates come from the
-          forecast; what actually happened is recorded here.
-        </p>
+      <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
+          <p className="text-sm text-muted-foreground">
+            Stage calendar and the purchase date it depends on
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Filter label="Jobsite" value={jobsite} onChange={setJobsite} className="w-[170px]">
+            <SelectItem value="all">All jobsites</SelectItem>
+            {jobsites.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </Filter>
+
+          <Filter label="Stage" value={stageKey} onChange={setStageKey} className="w-[165px]">
+            <SelectItem value="all">All stages</SelectItem>
+            {STAGES.map(s => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
+          </Filter>
+
+          <Filter label="Status" value={status} onChange={setStatus} className="w-[130px]">
+            <SelectItem value="all">All</SelectItem>
+            {(Object.keys(STATE_LABEL) as StageState[]).map(s => (
+              <SelectItem key={s} value={s}>{STATE_LABEL[s]}</SelectItem>
+            ))}
+          </Filter>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
+              Search
+            </span>
+            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent pl-2.5 dark:bg-input/30">
+              <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Project, lot…"
+                className="h-8 w-[150px] bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Métricas no topo, fixas: são elas que respondem "o que preciso saber
-          agora", e não podem sumir ao rolar a lista. */}
-      <div className="grid shrink-0 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          agora", e não podem sumir ao rolar a lista.
+          Uma linha só, sempre, e dentro da largura da tela: seis colunas que
+          encolhem juntas, sem rolagem lateral e sem estourar. */}
+      <div className="shrink-0">
+        <div className="grid grid-cols-6 gap-3">
         <Metric
           title="Active projects"
           value={String(projects.filter(isActive).length)}
           icon={<Building2 className="h-4 w-4" />}
           subtitle={`${projects.length} with dates`}
+          tone="slate"
         />
         <Metric
-          title="Stages in progress"
+          title="In progress"
           value={String(allStages.filter(s => s.state === "running").length)}
-          icon={<Loader2 className="h-4 w-4" />}
-          subtitle={`of ${allStages.length} scheduled`}
+          icon={<Activity className="h-4 w-4" />}
+          subtitle={`of ${allStages.length} stages`}
+          tone="blue"
         />
         <Metric
-          title="Stages completed"
+          title="Completed"
           value={String(allStages.filter(s => s.state === "done").length)}
           icon={<CheckCircle2 className="h-4 w-4" />}
-          subtitle="confirmed on site"
+          subtitle="stages confirmed"
+          tone="emerald"
         />
         <Metric
-          title="Stages delayed"
+          title="Delayed"
           value={String(allStages.filter(s => s.state === "delayed").length)}
           icon={<AlertTriangle className="h-4 w-4" />}
-          subtitle="planned date passed, not started"
+          subtitle="past due, not started"
+          tone="amber"
         />
         <Metric
           title="Orders overdue"
           value="—"
           icon={<ShoppingCart className="h-4 w-4" />}
-          subtitle="needs the purchase record"
+          subtitle="needs purchase record"
+          tone="red"
         />
         <Metric
-          title="To buy this week"
+          title="Buy this week"
           value={String(thisWeek.length)}
           icon={<Truck className="h-4 w-4" />}
           subtitle="Monday to Sunday"
+          tone="violet"
         />
+        </div>
       </div>
 
-      {/* O container de baixo, com os containers dentro. É quem rola. */}
-      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto xl:grid-cols-3">
+      {/* O container de baixo, com os containers dentro. É quem rola.
+          A margem negativa com padding igual devolve o espaço que o corte da
+          rolagem comia: sem ela a borda dos cartões encosta na beirada e some
+          em cima e dos lados. */}
+      <div className="-mx-1 grid min-h-0 flex-1 gap-4 overflow-y-auto px-1 pt-1 pb-2 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -325,23 +403,70 @@ function LotTable({ lot }: { lot: ProjectStages }) {
   )
 }
 
+// Cada métrica tem sua cor, e a cor diz o que a métrica significa: verde é o
+// que fechou, vermelho é o que já devia ter acontecido, âmbar é o que pede
+// atenção agora. As classes vêm inteiras do mapa porque o Tailwind lê o código
+// como texto e não enxerga nome de classe montado em tempo de execução.
+type Tone = "slate" | "blue" | "emerald" | "amber" | "red" | "violet"
+
+const TONE: Record<Tone, { card: string; icon: string; value: string }> = {
+  slate: {
+    card: "border-slate-500/25 bg-slate-500/[0.06]",
+    icon: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
+    value: "text-slate-700 dark:text-slate-200",
+  },
+  blue: {
+    card: "border-blue-500/25 bg-blue-500/[0.06]",
+    icon: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+    value: "text-blue-600 dark:text-blue-400",
+  },
+  emerald: {
+    card: "border-emerald-500/25 bg-emerald-500/[0.06]",
+    icon: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+    value: "text-emerald-600 dark:text-emerald-400",
+  },
+  amber: {
+    card: "border-amber-500/25 bg-amber-500/[0.06]",
+    icon: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+    value: "text-amber-600 dark:text-amber-400",
+  },
+  red: {
+    card: "border-red-500/25 bg-red-500/[0.06]",
+    icon: "bg-red-500/15 text-red-600 dark:text-red-400",
+    value: "text-red-600 dark:text-red-400",
+  },
+  violet: {
+    card: "border-violet-500/25 bg-violet-500/[0.06]",
+    icon: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+    value: "text-violet-600 dark:text-violet-400",
+  },
+}
+
 function Metric({
-  title, value, icon, subtitle,
+  title, value, icon, subtitle, tone,
 }: {
   title: string
   value: string
   icon: React.ReactNode
   subtitle?: string
+  tone: Tone
 }) {
+  const t = TONE[tone]
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className="text-muted-foreground">{icon}</div>
+    <Card className={`min-w-0 gap-0 py-3 ${t.card}`}>
+      <CardHeader className="flex flex-row items-center gap-2 px-3 pb-1.5">
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${t.icon}`}>
+          {icon}
+        </span>
+        {/* Uma linha sempre: título que quebra em duas desalinha o número de
+            todos os cartões vizinhos. */}
+        <CardTitle className="min-w-0 truncate text-xs font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-bold">{value}</p>
-        {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
+      <CardContent className="min-w-0 px-3">
+        <p className={`text-xl font-bold tabular-nums ${t.value}`}>{value}</p>
+        {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
       </CardContent>
     </Card>
   )
@@ -354,6 +479,45 @@ function Empty({ children }: { children: React.ReactNode }) {
       {children}
     </p>
   )
+}
+
+function Filter({
+  label, value, onChange, className, children,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
+        {label}
+      </span>
+      <Select value={value} onValueChange={v => v && onChange(v)}>
+        <SelectTrigger className={`h-8 ${className ?? ""}`}>
+          <span className="flex-1 truncate text-left text-sm">{labelOf(children, value)}</span>
+        </SelectTrigger>
+        <SelectContent>{children}</SelectContent>
+      </Select>
+    </div>
+  )
+}
+
+/** O texto do item escolhido, para o gatilho mostrar a escolha e não o valor
+ *  cru. Ler das próprias opções evita manter uma segunda tabela de rótulos. */
+function labelOf(children: React.ReactNode, value: string): React.ReactNode {
+  for (const child of Children.toArray(children)) {
+    if (isValidElement<{ value?: string; children?: React.ReactNode }>(child) && child.props.value === value) {
+      return child.props.children
+    }
+  }
+  return value
+}
+
+function siteOf(p: ProjectStages): string {
+  return p.project.jobSite?.trim() || "No jobsite"
 }
 
 function lotLabel(p: ProjectStages): string {
