@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowRight, CalendarIcon, Loader2 } from "lucide-react"
+import { ArrowRight, CalendarIcon, ChevronDown, History, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,17 +11,17 @@ import {
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
-import { useSetHVACActual, useUpdateHVACStages } from "@/hooks/use-forecast"
+import { useForecastDateHistory, useSetHVACActual, useUpdateHVACStages } from "@/hooks/use-forecast"
 import {
-  editPlan, formatDate, STAGE_DB_NAME, STAGES, toISO,
-  type ProjectStages, type Stage,
+  editPlan, FIELDS, formatDate, STAGE_DB_NAME, STAGES, toISO,
+  type ProjectStages, type Stage, type StageKey,
 } from "../_lib/stages"
 
 // Mexer na data de uma etapa à mão.
 //
 // Duas coisas que a tela não deixa passar: a justificativa é obrigatória, e o
 // que vai ser gravado aparece por escrito antes de confirmar. A segunda existe
-// por causa da cascata — empurrar uma etapa mexe nas seguintes, e ninguém
+// por causa da cascata: empurrar uma etapa mexe nas seguintes, e ninguém
 // deveria descobrir isso depois de salvar.
 export function EditStageDialog({
   lot, stage, open, onOpenChange,
@@ -42,6 +42,11 @@ export function EditStageDialog({
   const savePlanned = useUpdateHVACStages()
   const saveActual = useSetHVACActual()
   const saving = savePlanned.isPending || saveActual.isPending
+
+  const jobsite = lot.project.jobSite?.trim() || "No jobsite"
+  const address = lot.project.address?.trim() ?? ""
+  const raw = lot.project.loteBld?.trim() || lot.project.name?.trim() || ""
+  const lotLabel = !raw ? "Lot —" : /^\d/.test(raw) ? `Lot ${raw}` : raw
 
   const isLast = STAGES[STAGES.length - 1].key === stage.key
   const plan = useMemo(
@@ -92,11 +97,21 @@ export function EditStageDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
+        {/* Quem abre isto precisa saber em que obra está mexendo. Sem jobsite,
+            lote e endereço, o diálogo pede uma justificativa para uma data que
+            poderia ser de qualquer uma das duzentas. */}
         <DialogHeader>
-          <DialogTitle>{stage.label}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <stage.Icon className="h-4 w-4 text-muted-foreground" />
+            {stage.full}
+          </DialogTitle>
           <DialogDescription>
-            The purchase date is recalculated on its own — it is never typed.
+            {lotLabel} · {jobsite}
+            {address ? ` · ${address}` : ""}
           </DialogDescription>
+          <p className="text-xs text-muted-foreground">
+            The purchase date is recalculated on its own, never typed.
+          </p>
         </DialogHeader>
 
         <div>
@@ -171,6 +186,8 @@ export function EditStageDialog({
           </div>
         )}
 
+        <StageHistory projectId={lot.project.id} stageKey={stage.key} />
+
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         <DialogFooter>
@@ -183,6 +200,82 @@ export function EditStageDialog({
       </DialogContent>
     </Dialog>
   )
+}
+
+// O histórico desta etapa, do mais recente para o mais antigo.
+//
+// O registro é feito por trigger no banco, então cobre qualquer caminho de
+// escrita: esta tela, a rotina de atualização do forecast ou SQL na mão. É por
+// isso que `source` importa tanto quanto o valor: é ele que diz se a data veio
+// de alguém ou da máquina.
+function StageHistory({ projectId, stageKey }: { projectId: string; stageKey: StageKey }) {
+  const [open, setOpen] = useState(false)
+  const { data, isLoading } = useForecastDateHistory(projectId, open)
+
+  const fields = FIELDS[stageKey]
+  const entries = (data ?? [])
+    .filter(e => e.field === fields.start || e.field === fields.end)
+    .reverse()
+
+  return (
+    <div className="rounded-lg border">
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/50"
+      >
+        <History className="h-3.5 w-3.5 text-muted-foreground" />
+        <span>Change history</span>
+        <ChevronDown
+          className={`ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="max-h-44 overflow-y-auto border-t px-3 py-2">
+          {isLoading ? (
+            <Loader2 className="mx-auto my-3 h-4 w-4 animate-spin text-muted-foreground" />
+          ) : entries.length === 0 ? (
+            <p className="py-3 text-center text-xs text-muted-foreground">
+              This stage has never had a date changed.
+            </p>
+          ) : (
+            <ol className="flex flex-col gap-2">
+              {entries.map(e => (
+                <li key={e.id} className="text-xs">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-medium">
+                      {e.field === fields.start ? "Start" : "End"}
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {shortDate(e.oldValue)}
+                    </span>
+                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <span className="tabular-nums">{shortDate(e.newValue)}</span>
+                    <span className="ml-auto shrink-0 text-muted-foreground">
+                      {new Date(e.changedAt).toLocaleDateString("en-US", {
+                        month: "2-digit", day: "2-digit", year: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">
+                    {e.source === "manual" ? (e.changedBy || "by hand") : e.source}
+                    {e.note ? `: ${e.note}` : ""}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function shortDate(value: string | null | undefined): string {
+  if (!value) return "—"
+  const [y, m, d] = value.slice(0, 10).split("-")
+  return `${m}/${d}/${y.slice(2)}`
 }
 
 function DateField({

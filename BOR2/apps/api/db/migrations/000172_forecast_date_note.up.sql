@@ -4,7 +4,7 @@
 -- porquê, e é ele que o HVAC Schedule exige: mexer na data de uma etapa à mão
 -- só vale com justificativa escrita.
 --
--- A justificativa chega pela mesma variável de sessão que o resto — quem
+-- A justificativa chega pela mesma variável de sessão que o resto: quem
 -- escreve declara, o trigger registra. Escrita sem declarar continua passando,
 -- com nota vazia: a rotina de atualização do forecast não tem o que justificar,
 -- e travar o INSERT quebraria a carga automática.

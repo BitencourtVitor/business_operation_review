@@ -13,7 +13,7 @@ import (
 //
 // Rota própria, e não o PUT que já salva o projeto inteiro, por um motivo: aqui
 // a justificativa é obrigatória. Ela viaja por variável de sessão até o trigger
-// do histórico, que é quem grava — e variável de sessão só vale dentro da
+// do histórico, que é quem grava, e variável de sessão só vale dentro da
 // transação, então a escrita acontece toda aqui dentro.
 //
 // A cascata ("empurrei a etapa 2 em 3 dias, as seguintes vão junto") é contada
