@@ -50,6 +50,15 @@ export function useUpdateForecast() {
   })
 }
 
+export function useUpdateHVACStages() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, dates, note }: { id: string; dates: Record<string, string | null>; note: string }) =>
+      forecastService.updateHVACStages(id, dates, note),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
 export function useDeleteForecast() {
   const qc = useQueryClient()
   return useMutation({

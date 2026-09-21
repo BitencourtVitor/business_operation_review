@@ -47,6 +47,15 @@ export const forecastService = {
   updateMachineUnit: (machId: number, unit: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}/unit`, { unit }, getToken()),
 
+  // Datas de etapa da HVAC mexidas à mão. Rota própria porque a justificativa é
+  // obrigatória: é ela que vai parar no histórico junto com quem mudou e quando.
+  updateHVACStages: (id: string, dates: Record<string, string | null>, note: string) =>
+    api.patch<{ id: string; changed: number }>(
+      `/api/v1/forecast/${id}/hvac-stages`,
+      { dates, note },
+      getToken(),
+    ),
+
   toggleContractStep: (stepId: number, status: boolean) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/contract/${stepId}`, { status }, getToken()),
 
