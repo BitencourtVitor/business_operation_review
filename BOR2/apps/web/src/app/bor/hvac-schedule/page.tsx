@@ -2,12 +2,10 @@
 
 import { Children, isValidElement, useMemo, useState } from "react"
 import {
-  Activity, AlertTriangle, Building2, CalendarClock, CheckCircle2, CircleDashed,
-  Layers, Pencil, Search, ShoppingCart, Truck,
+  Activity, AlertTriangle, Building2, CalendarClock, CheckCircle2, ChevronDown,
+  CircleDashed, Clock, Layers, MapPin, Pencil, Search, ShoppingCart, Truck, X,
 } from "lucide-react"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
@@ -33,36 +31,63 @@ import {
 // Falta o pedido de material — comprado quando, chegou ou não — e por isso uma
 // métrica segue vazia, com o que falta escrito nela. Ver HS-9 no backlog de
 // 21/09.
+//
+// Hierarquia da leitura, de fora para dentro: jobsite → lote → etapa. Cada
+// nível é um container, e o de baixo só existe depois de abrir o de cima.
 
 const STATE_LABEL: Record<StageState, string> = {
   delayed: "Delayed",
-  done: "Completed",
   running: "In progress",
+  done: "Completed",
   upcoming: "Not started",
   undated: "No date",
 }
 
-const STATE_STYLE: Record<StageState, string> = {
-  delayed: "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400",
-  done: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  running: "border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  upcoming: "border-border bg-muted text-muted-foreground",
-  undated: "border-dashed border-border bg-transparent text-muted-foreground",
+const STATE_ICON: Record<StageState, React.ElementType> = {
+  delayed: AlertTriangle,
+  running: Activity,
+  done: CheckCircle2,
+  upcoming: Clock,
+  undated: CircleDashed,
 }
+
+// Só a cor do traço: o ícone de estado fica solto no canto do cartão, sem
+// caixa, para não competir com o ícone da própria etapa.
+const STATE_COLOR: Record<StageState, string> = {
+  delayed: "text-red-500",
+  running: "text-blue-500",
+  done: "text-emerald-500",
+  upcoming: "text-muted-foreground",
+  undated: "text-muted-foreground/60",
+}
+
+// A faixa da esquerda de cada etapa, na mesma família de cor.
+const STATE_EDGE: Record<StageState, string> = {
+  delayed: "border-l-red-500/70",
+  running: "border-l-blue-500/70",
+  done: "border-l-emerald-500/70",
+  upcoming: "border-l-border",
+  undated: "border-l-border",
+}
+
+// Teto do que a lista da direita desenha de uma vez. Passando disso, a resposta
+// certa é filtrar, não rolar mil linhas.
+const PURCHASE_LIMIT = 80
 
 export default function HVACSchedulePage() {
   const { data, isLoading } = useForecast({ company: "hvac" })
   const { data: actuals } = useHVACActuals()
 
+  const [query, setQuery] = useState("")
   const [jobsite, setJobsite] = useState("all")
   const [stageKey, setStageKey] = useState("all")
   const [status, setStatus] = useState("all")
-  const [query, setQuery] = useState("")
 
-  const today = startOfToday()
+  // Uma vez por montagem. Sem o memo, `startOfToday()` devolve outra instância
+  // a cada render, e como ela é dependência de `all`, a cadeia inteira de memos
+  // recalculava a cada tecla digitada na busca.
+  const today = useMemo(() => startOfToday(), [])
 
-  // As datas reais chegam numa lista só, para toda a HVAC. Agrupar por obra uma
-  // vez custa menos que varrer a lista inteira dentro de cada projeto.
   const actualsByProject = useMemo(() => {
     const map = new Map<string, HVACActual[]>()
     for (const a of actuals ?? []) map.set(a.projectId, [...(map.get(a.projectId) ?? []), a])
@@ -82,7 +107,7 @@ export default function HVACSchedulePage() {
   )
 
   // Um filtro só, aplicado antes de tudo: o que a métrica conta é exatamente o
-  // que a lista mostra. Contar o total enquanto a tabela mostra um recorte faria
+  // que a lista mostra. Contar o total enquanto a lista mostra um recorte faria
   // os dois números da mesma tela discordarem.
   const projects = useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -91,6 +116,7 @@ export default function HVACSchedulePage() {
       .filter(p => !term
         || lotLabel(p).toLowerCase().includes(term)
         || siteOf(p).toLowerCase().includes(term)
+        || (p.project.address ?? "").toLowerCase().includes(term)
         || (p.project.name ?? "").toLowerCase().includes(term))
       .map(p => ({
         ...p,
@@ -100,8 +126,6 @@ export default function HVACSchedulePage() {
       .filter(p => p.stages.length > 0)
   }, [all, jobsite, query, stageKey, status])
 
-  // Agrupa por jobsite e, dentro dele, uma linha por lot. É a leitura que o
-  // comprador faz: vai a uma obra e leva o material de todos os lotes dela.
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
     for (const p of projects) {
@@ -131,9 +155,9 @@ export default function HVACSchedulePage() {
   return (
     // Sem padding próprio: o `<main>` do layout do BOR já aplica p-6. Altura
     // cheia porque aquele main é de altura fixa com overflow-hidden, então quem
-    // rola é a lista aqui dentro, não a página.
-    <div className="flex h-full flex-col gap-6">
-      <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    // rola é o corpo de cada bloco, não a página.
+    <div className="flex h-full flex-col gap-4">
+      <div className="flex shrink-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
           <p className="text-sm text-muted-foreground">
@@ -141,47 +165,77 @@ export default function HVACSchedulePage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-end gap-3">
-          <Filter label="Jobsite" value={jobsite} onChange={setJobsite} className="w-[170px]">
-            <SelectItem value="all">All jobsites</SelectItem>
-            {jobsites.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-          </Filter>
-
-          <Filter label="Stage" value={stageKey} onChange={setStageKey} className="w-[165px]">
-            <SelectItem value="all">All stages</SelectItem>
-            {STAGES.map(s => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
-          </Filter>
-
-          <Filter label="Status" value={status} onChange={setStatus} className="w-[130px]">
-            <SelectItem value="all">All</SelectItem>
-            {(Object.keys(STATE_LABEL) as StageState[]).map(s => (
-              <SelectItem key={s} value={s}>{STATE_LABEL[s]}</SelectItem>
-            ))}
-          </Filter>
-
+        {/* Busca primeiro: é o filtro de quem já sabe o que procura, e os três
+            seletores servem para quem ainda não sabe. */}
+        <div className="flex flex-wrap items-end gap-2.5">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              Search
-            </span>
-            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent pl-2.5 dark:bg-input/30">
-              <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <FilterLabel>Search</FilterLabel>
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder="Project, lot…"
-                className="h-8 w-[150px] bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
+                placeholder="Lot, jobsite, address…"
+                className="h-8 w-[190px] rounded-lg border border-input bg-transparent pr-7 pl-8 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-ring dark:bg-input/30"
               />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           </div>
+
+          <Filter label="Jobsite" value={jobsite} onChange={setJobsite} className="w-[165px]">
+            <SelectItem value="all">
+              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+              All jobsites
+            </SelectItem>
+            {jobsites.map(s => (
+              <SelectItem key={s} value={s}>
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                {s}
+              </SelectItem>
+            ))}
+          </Filter>
+
+          <Filter label="Stage" value={stageKey} onChange={setStageKey} className="w-[160px]">
+            <SelectItem value="all">
+              <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+              All stages
+            </SelectItem>
+            {STAGES.map(s => (
+              <SelectItem key={s.key} value={s.key}>
+                <s.Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                {s.label}
+              </SelectItem>
+            ))}
+          </Filter>
+
+          <Filter label="Status" value={status} onChange={setStatus} className="w-[150px]">
+            <SelectItem value="all">
+              <CircleDashed className="h-3.5 w-3.5 text-muted-foreground" />
+              All
+            </SelectItem>
+            {(Object.keys(STATE_LABEL) as StageState[]).map(s => {
+              const Icon = STATE_ICON[s]
+              return (
+                <SelectItem key={s} value={s}>
+                  <Icon className={`h-3.5 w-3.5 ${STATE_COLOR[s]}`} />
+                  {STATE_LABEL[s]}
+                </SelectItem>
+              )
+            })}
+          </Filter>
         </div>
       </div>
 
-      {/* Métricas no topo, fixas: são elas que respondem "o que preciso saber
-          agora", e não podem sumir ao rolar a lista.
-          Uma linha só, sempre, e dentro da largura da tela: seis colunas que
-          encolhem juntas, sem rolagem lateral e sem estourar. */}
-      <div className="shrink-0">
-        <div className="grid grid-cols-6 gap-3">
+      {/* Métricas fixas no topo, uma linha só e dentro da largura da tela. */}
+      <div className="grid shrink-0 grid-cols-6 gap-3">
         <Metric
           title="Active projects"
           value={String(projects.filter(isActive).length)}
@@ -224,129 +278,156 @@ export default function HVACSchedulePage() {
           subtitle="Monday to Sunday"
           tone="violet"
         />
-        </div>
       </div>
 
-      {/* O container de baixo, com os containers dentro. É quem rola.
-          A margem negativa com padding igual devolve o espaço que o corte da
-          rolagem comia: sem ela a borda dos cartões encosta na beirada e some
-          em cima e dos lados. */}
-      <div className="-mx-1 grid min-h-0 flex-1 gap-4 overflow-y-auto px-1 pt-1 pb-2 lg:grid-cols-4">
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Layers className="h-4 w-4 text-muted-foreground" />
-              Project stages
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {sites.length === 0 ? (
-              <Empty>No HVAC project has stage dates yet.</Empty>
-            ) : (
-              <Accordion>
-                {sites.map(({ site, lots }) => (
-                  <AccordionItem key={site} value={site}>
-                    <AccordionTrigger className="hover:no-underline">
-                      <div className="flex flex-1 items-center gap-3 pr-3">
-                        <span className="font-medium">{site}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {lots.length} {lots.length === 1 ? "lot" : "lots"}
-                        </span>
-                        {lots.some(l => l.stacked) && (
-                          <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="h-3 w-3" />
-                            Stacked
-                          </Badge>
-                        )}
-                        {lots.some(l => l.stages.some(s => s.state === "delayed")) && (
-                          <Badge variant="outline" className="gap-1 border-red-500/40 text-red-600 dark:text-red-400">
-                            {lots.reduce((n, l) => n + l.stages.filter(s => s.state === "delayed").length, 0)} delayed
-                          </Badge>
-                        )}
-                        <span className="ml-auto text-xs text-muted-foreground">
-                          {lots.reduce((n, l) => n + l.stages.filter(s => s.state === "running").length, 0)} running ·{" "}
-                          {lots.reduce(
-                            (n, l) => n + l.stages.filter(s => s.purchaseBy && s.state !== "done").length,
-                            0,
-                          )}{" "}
-                          to buy
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="flex flex-col gap-3 pb-1">
-                        {lots.map(lot => <LotStages key={lot.project.id} lot={lot} />)}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-4">
+        <Panel
+          className="lg:col-span-3"
+          icon={<Layers className="h-3.5 w-3.5 text-muted-foreground" />}
+          title="Project stages"
+          right={
+            <span className="text-xs text-muted-foreground">
+              {sites.length} {sites.length === 1 ? "jobsite" : "jobsites"} ·{" "}
+              {projects.length} {projects.length === 1 ? "lot" : "lots"}
+            </span>
+          }
+        >
+          {sites.length === 0 ? (
+            <Empty>Nothing matches these filters.</Empty>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {sites.map(({ site, lots }) => <JobsiteSection key={site} site={site} lots={lots} />)}
+            </div>
+          )}
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CalendarClock className="h-4 w-4 text-muted-foreground" />
-              Next purchases
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            {purchases.length === 0 ? (
-              <Empty>Nothing to buy.</Empty>
-            ) : (
-              purchases.slice(0, 12).map(({ p, s }) => (
-                <div
-                  key={`${p.project.id}-${s.key}`}
-                  className="flex items-center gap-3 rounded-lg border p-2.5"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{lotLabel(p)}</p>
-                    <p className="truncate text-xs text-muted-foreground">{s.label}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm tabular-nums">{formatDate(s.purchaseBy)}</p>
-                    {sameWeek(s.purchaseBy!, today) && (
-                      <p className="text-xs text-amber-600 dark:text-amber-400">this week</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        <Panel
+          icon={<CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />}
+          title="Next purchases"
+          right={<span className="text-xs text-muted-foreground">{purchases.length}</span>}
+        >
+          {purchases.length === 0 ? (
+            <Empty>Nothing to buy.</Empty>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              {purchases.slice(0, PURCHASE_LIMIT).map(({ p, s }) => (
+                <PurchaseRow key={`${p.project.id}-${s.key}`} lot={p} stage={s} today={today} />
+              ))}
+              {purchases.length > PURCHASE_LIMIT && (
+                <p className="py-2 text-center text-xs text-muted-foreground">
+                  {purchases.length - PURCHASE_LIMIT} more — narrow it down with the filters
+                </p>
+              )}
+            </div>
+          )}
+        </Panel>
       </div>
     </div>
   )
 }
 
-// Um lote e a distribuição das suas quatro etapas.
+// O container padrão da casa, o mesmo do Permit Cards: barra de cabeçalho com
+// ícone e título, borda embaixo, e corpo que rola por dentro em vez de empurrar
+// a página.
+function Panel({
+  icon, title, right, className, children,
+}: {
+  icon: React.ReactNode
+  title: string
+  right?: React.ReactNode
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card/60 ${className ?? ""}`}>
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="text-sm font-semibold">{title}</span>
+        </div>
+        {right}
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">{children}</div>
+    </div>
+  )
+}
+
+// Um jobsite. Fechado por padrão, e o corpo só é criado ao abrir: com 251 obras
+// da HVAC, montar todos os lotes de saída são mil cartões que ninguém pediu —
+// era o que deixava a página lenta.
+function JobsiteSection({ site, lots }: { site: string; lots: ProjectStages[] }) {
+  const [open, setOpen] = useState(false)
+
+  const delayed = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "delayed").length, 0)
+  const running = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "running").length, 0)
+  const toBuy = lots.reduce((n, l) => n + l.stages.filter(s => s.purchaseBy && s.state !== "done").length, 0)
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-background/40 transition-colors hover:border-foreground/15">
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/50"
+      >
+        <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="truncate text-sm font-medium">{site}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {lots.length} {lots.length === 1 ? "lot" : "lots"}
+        </span>
+        {delayed > 0 && (
+          <Badge variant="outline" className="shrink-0 gap-1 border-red-500/40 text-red-600 dark:text-red-400">
+            <AlertTriangle className="h-3 w-3" />
+            {delayed}
+          </Badge>
+        )}
+        <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+          {running} running · {toBuy} to buy
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="flex flex-col gap-2 border-t border-border p-2">
+          {lots.map(lot => <LotCard key={lot.project.id} lot={lot} />)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Um lote e as suas quatro etapas.
 //
-// Cartão por etapa em vez de linha de tabela: a tabela repetia seis cabeçalhos
-// por lote e afogava justamente o que se procura, que é qual lote e em que pé
-// está cada etapa dele. Aqui o lote tem nome grande, e as etapas vêm lado a
-// lado, na ordem em que acontecem na obra.
-function LotStages({ lot }: { lot: ProjectStages }) {
+// O lote se identifica por número e endereço; o jobsite é o container que o
+// contém, e por isso não se repete aqui.
+function LotCard({ lot }: { lot: ProjectStages }) {
   const [editing, setEditing] = useState<Stage | null>(null)
 
   return (
-    <div className="rounded-xl border bg-card/40 p-3">
-      <div className="mb-2.5 flex items-center gap-2">
-        <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
+    <div className="rounded-lg border border-border bg-card p-2 transition-colors hover:border-foreground/15">
+      <div className="mb-1.5 flex items-baseline gap-2 px-0.5">
+        <span className="shrink-0 text-sm font-semibold">{lotLabel(lot)}</span>
+        {lot.project.address && (
+          <span className="min-w-0 truncate text-xs text-muted-foreground">{lot.project.address}</span>
+        )}
         {lot.stacked && (
-          <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
+          <Badge
+            variant="outline"
+            title="The client scheduled more than one stage to start on the same day"
+            className="shrink-0 gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400"
+          >
             <AlertTriangle className="h-3 w-3" />
             Same day
           </Badge>
         )}
-        <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-          <Progress value={lot.percent} className="h-1.5 w-16" />
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+          <Progress value={lot.percent} className="h-1 w-12" />
           <span className="tabular-nums">{lot.percent}%</span>
         </span>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid gap-1.5 sm:grid-cols-2 2xl:grid-cols-4">
         {lot.stages.map(s => (
           <StageCard key={s.key} stage={s} onEdit={() => setEditing(s)} />
         ))}
@@ -367,66 +448,100 @@ function LotStages({ lot }: { lot: ProjectStages }) {
   )
 }
 
-// Uma etapa do lote. A faixa colorida à esquerda é o estado, e repete a cor do
-// selo: quem varre a coluna de cima a baixo enxerga o atraso antes de ler.
+// Uma etapa, compacta: o estado virou ícone no canto, e as três datas ficam
+// lado a lado em vez de empilhadas. O lápis nasce com largura zero e cresce ao
+// passar o mouse, empurrando o ícone de estado para a esquerda.
 function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
+  const StateIcon = STATE_ICON[s.state]
+
   return (
-    <div className={`group/stage min-w-0 rounded-lg border border-l-4 p-2.5 ${STAGE_EDGE[s.state]}`}>
+    <div
+      className={`group/stage min-w-0 rounded-lg border border-l-[3px] bg-background/60 p-2 transition-colors hover:border-foreground/20 ${STATE_EDGE[s.state]}`}
+    >
       <div className="flex items-center gap-1.5">
         <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="min-w-0 truncate text-xs font-medium">{s.label}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="-mr-1 ml-auto h-6 w-6 shrink-0 p-0 opacity-0 transition-opacity group-hover/stage:opacity-100 focus-visible:opacity-100"
-          aria-label={`Change ${s.label} dates`}
-          onClick={onEdit}
-        >
-          <Pencil className="h-3 w-3" />
-        </Button>
+        <span className="min-w-0 truncate text-xs font-medium" title={s.full}>{s.label}</span>
+
+        <span className="ml-auto flex shrink-0 items-center">
+          <StateIcon className={`h-3.5 w-3.5 ${STATE_COLOR[s.state]}`} aria-label={STATE_LABEL[s.state]} />
+          <button
+            onClick={onEdit}
+            aria-label={`Change ${s.full} dates`}
+            className="flex w-0 items-center justify-center overflow-hidden text-muted-foreground opacity-0 transition-all duration-200 group-hover/stage:ml-1 group-hover/stage:w-4 group-hover/stage:opacity-100 hover:text-foreground focus-visible:ml-1 focus-visible:w-4 focus-visible:opacity-100"
+          >
+            <Pencil className="h-3.5 w-3.5 shrink-0" />
+          </button>
+        </span>
       </div>
 
-      <Badge variant="outline" className={`mt-1.5 ${STATE_STYLE[s.state]}`}>
-        {STATE_LABEL[s.state]}
-      </Badge>
-
-      <dl className="mt-2 flex flex-col gap-0.5 text-xs">
-        <Line term="Planned" from={s.start} to={s.end} />
-        <Line term="Actual" from={s.actualStart} to={s.actualEnd} muted={!s.actualStart && !s.actualEnd} />
-        <div className="flex items-baseline gap-1.5">
-          <dt className="w-14 shrink-0 text-muted-foreground">Buy by</dt>
-          <dd className="tabular-nums">{formatDate(s.purchaseBy)}</dd>
-        </div>
-      </dl>
+      {/* Compra primeiro: é a data que exige ação antes das outras duas. */}
+      <div className="mt-1.5 grid grid-cols-3 gap-1 text-[11px] leading-tight">
+        <DateCell term="Buy" planned={s.purchaseBy} />
+        <DateCell term="Start" planned={s.start} actual={s.actualStart} />
+        <DateCell term="End" planned={s.end} actual={s.actualEnd} />
+      </div>
     </div>
   )
 }
 
-function Line({
-  term, from, to, muted,
+/** Planejado em cima; embaixo, o real, quando alguém marcou. */
+function DateCell({
+  term, planned, actual,
 }: {
   term: string
-  from: Date | null
-  to: Date | null
-  muted?: boolean
+  planned: Date | null
+  actual?: Date | null
 }) {
   return (
-    <div className="flex items-baseline gap-1.5">
-      <dt className="w-14 shrink-0 text-muted-foreground">{term}</dt>
-      <dd className={`truncate tabular-nums ${muted ? "text-muted-foreground" : ""}`}>
-        {formatDate(from)} <span className="text-muted-foreground">→</span> {formatDate(to)}
-      </dd>
+    <div className="min-w-0">
+      <p className="truncate text-muted-foreground">{term}</p>
+      <p className="truncate tabular-nums" title={formatDate(planned)}>{formatShort(planned)}</p>
+      {actual !== undefined && (
+        <p className={`truncate tabular-nums ${actual ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/50"}`}>
+          {actual ? formatShort(actual) : "—"}
+        </p>
+      )}
     </div>
   )
 }
 
-// A faixa da esquerda, por estado. Mesma família de cor do selo.
-const STAGE_EDGE: Record<StageState, string> = {
-  delayed: "border-l-red-500/70",
-  done: "border-l-emerald-500/70",
-  running: "border-l-blue-500/70",
-  upcoming: "border-l-border",
-  undated: "border-l-border border-dashed",
+function PurchaseRow({
+  lot, stage: s, today,
+}: {
+  lot: ProjectStages
+  stage: Stage
+  today: Date
+}) {
+  const overdue = !!s.purchaseBy && s.purchaseBy < today
+  const week = !!s.purchaseBy && sameWeek(s.purchaseBy, today)
+
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-lg border p-2 transition-colors ${
+        overdue
+          ? "border-red-500/40 bg-red-500/[0.06] hover:border-red-500/60"
+          : "border-border hover:border-foreground/20"
+      }`}
+    >
+      <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs font-medium">{lotLabel(lot)}</p>
+        <p className="truncate text-[11px] text-muted-foreground" title={`${siteOf(lot)} · ${s.full}`}>
+          {siteOf(lot)} · {s.label}
+        </p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className={`text-xs tabular-nums ${overdue ? "font-medium text-red-600 dark:text-red-400" : ""}`}>
+          {formatShort(s.purchaseBy)}
+        </p>
+        {overdue ? (
+          <p className="text-[10px] text-red-600 dark:text-red-400">overdue</p>
+        ) : week ? (
+          <p className="text-[10px] text-amber-600 dark:text-amber-400">this week</p>
+        ) : null}
+      </div>
+    </div>
+  )
 }
 
 // Cada métrica tem sua cor, e a cor diz o que a métrica significa: verde é o
@@ -479,14 +594,14 @@ function Metric({
 }) {
   const t = TONE[tone]
   return (
-    <Card className={`min-w-0 gap-0 py-3 ${t.card}`}>
+    <Card className={`min-w-0 gap-0 py-3 transition-colors hover:border-foreground/20 ${t.card}`}>
       <CardHeader className="flex flex-row items-center gap-2 px-3 pb-1.5">
         <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${t.icon}`}>
           {icon}
         </span>
         {/* Uma linha sempre: título que quebra em duas desalinha o número de
             todos os cartões vizinhos. */}
-        <CardTitle className="min-w-0 truncate text-xs font-medium text-muted-foreground">
+        <CardTitle className="min-w-0 truncate text-xs font-medium text-muted-foreground" title={title}>
           {title}
         </CardTitle>
       </CardHeader>
@@ -498,12 +613,11 @@ function Metric({
   )
 }
 
-function Empty({ children }: { children: React.ReactNode }) {
+function FilterLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-      <CircleDashed className="h-4 w-4" />
+    <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
       {children}
-    </p>
+    </span>
   )
 }
 
@@ -518,12 +632,12 @@ function Filter({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-        {label}
-      </span>
+      <FilterLabel>{label}</FilterLabel>
       <Select value={value} onValueChange={v => v && onChange(v)}>
-        <SelectTrigger className={`h-8 ${className ?? ""}`}>
-          <span className="flex-1 truncate text-left text-sm">{labelOf(children, value)}</span>
+        <SelectTrigger className={`h-8 transition-colors ${className ?? ""}`}>
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 truncate text-left text-sm">
+            {labelOf(children, value)}
+          </span>
         </SelectTrigger>
         <SelectContent>{children}</SelectContent>
       </Select>
@@ -531,8 +645,9 @@ function Filter({
   )
 }
 
-/** O texto do item escolhido, para o gatilho mostrar a escolha e não o valor
- *  cru. Ler das próprias opções evita manter uma segunda tabela de rótulos. */
+/** O conteúdo do item escolhido, ícone incluído, para o gatilho mostrar a
+ *  escolha e não o valor cru. Ler das próprias opções evita manter uma segunda
+ *  tabela de rótulos. */
 function labelOf(children: React.ReactNode, value: string): React.ReactNode {
   for (const child of Children.toArray(children)) {
     if (isValidElement<{ value?: string; children?: React.ReactNode }>(child) && child.props.value === value) {
@@ -542,14 +657,32 @@ function labelOf(children: React.ReactNode, value: string): React.ReactNode {
   return value
 }
 
+function Empty({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+      <CircleDashed className="h-4 w-4" />
+      {children}
+    </p>
+  )
+}
+
 function siteOf(p: ProjectStages): string {
   return p.project.jobSite?.trim() || "No jobsite"
 }
 
+/** "Lot 12". O campo às vezes já vem com a palavra, às vezes só com o número. */
 function lotLabel(p: ProjectStages): string {
-  return p.project.loteBld?.trim() || p.project.name || "—"
+  const raw = p.project.loteBld?.trim() || p.project.name?.trim() || ""
+  if (!raw) return "Lot —"
+  return /^\d/.test(raw) ? `Lot ${raw}` : raw
 }
 
 function byLot(a: ProjectStages, b: ProjectStages): number {
   return lotLabel(a).localeCompare(lotLabel(b), undefined, { numeric: true })
+}
+
+/** Data curta: em cartão estreito o ano de quatro dígitos rouba a linha. */
+function formatShort(date: Date | null): string {
+  if (!date) return "—"
+  return date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })
 }
