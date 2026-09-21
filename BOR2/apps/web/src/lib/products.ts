@@ -32,6 +32,53 @@ export const PRODUCT_ICON: Record<ProductId, LucideIcon> = {
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
 
 /**
+ * Por onde o BOR abre, na ordem da barra lateral. A primeira que a pessoa tem
+ * permissão de ver é a que ela vê.
+ *
+ * Antes isto era `/bor/monthly-execution` fixo, e quem não tinha essa chave
+ * caía numa página que não podia abrir. A lista é de folhas, nunca de grupos:
+ * Framing e HVAC são duas permissões distintas (`forecast` e `forecast_hvac`),
+ * então mandar para `/bor/forecast` daria Framing a quem só tem HVAC.
+ *
+ * Chave repetida é intencional: a primeira entrada vence, e as seguintes só
+ * existem para o dia em que a de cima sair da lista.
+ */
+const BOR_LANDING: { permKey: string; href: string }[] = [
+  { permKey: "monthly_execution", href: "/bor/monthly-execution" },
+  { permKey: "ofi", href: "/bor/ofi" },
+  { permKey: "forecast", href: "/bor/forecast" },
+  { permKey: "forecast_hvac", href: "/bor/hvac-forecast" },
+  { permKey: "forecast_hvac", href: "/bor/hvac-schedule" },
+  { permKey: "workforce", href: "/bor/workforce-productivity" },
+  { permKey: "inventory", href: "/bor/inventory" },
+  { permKey: "permits", href: "/bor/permits" },
+  { permKey: "service_requests", href: "/bor/service-requests" },
+  { permKey: "accounting", href: "/bor/accounting" },
+  { permKey: "budget_control", href: "/bor/budget-control" },
+  { permKey: "building_schedule", href: "/bor/building-schedule" },
+  { permKey: "subcontractor_docs", href: "/bor/subcontractor-docs" },
+  { permKey: "pcg_bid_requests", href: "/bor/pcg-bid-requests" },
+  { permKey: "data_control", href: "/bor/data-control?division=framing" },
+  { permKey: "data_control_hvac", href: "/bor/data-control?division=hvac" },
+  { permKey: "wex_categorization", href: "/bor/wex-categorization" },
+  { permKey: "autolog", href: "/bor/autolog" },
+  { permKey: "weekly_hours", href: "/bor/weekly-hours-control" },
+  { permKey: "whos_working", href: "/bor/qbtime/whos-working" },
+  { permKey: "period_reports", href: "/bor/qbtime/period-reports" },
+  { permKey: "absence_control", href: "/bor/qbtime/absences" },
+  { permKey: "settings", href: "/bor/settings" },
+]
+
+/** A primeira página do BOR que estas permissões abrem. */
+export function borLandingHref(
+  permissions: Record<string, unknown>,
+  fullAccess: boolean,
+): string {
+  if (fullAccess) return BOR_LANDING[0].href
+  return BOR_LANDING.find(p => !!permissions[p.permKey])?.href ?? BOR_LANDING[0].href
+}
+
+/**
  * A que o usuário tem acesso.
  *
  * O Atlas foi liberado em 13/09 para quem está cadastrado nele. Quem não tem
@@ -63,7 +110,7 @@ export function useProducts() {
       id: "bor",
       name: "Business Operations Review",
       tagline: "Every number the operation runs on: money, people, schedule and execution, measured in one place.",
-      href: "/bor/monthly-execution",
+      href: borLandingHref(perms, full),
       enabled: hasBOR,
       reason: hasBOR ? undefined : "No access",
     },
@@ -82,6 +129,8 @@ export function useProducts() {
     available: products.filter(p => p.enabled),
     hasBOR,
     hasAtlas,
+    /** Para quem manda o usuário de volta ao BOR de dentro do Atlas. */
+    borHref: borLandingHref(perms, full),
     isLoading: !user || isLoading,
   }
 }

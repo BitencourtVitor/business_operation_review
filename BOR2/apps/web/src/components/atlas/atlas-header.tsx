@@ -53,7 +53,7 @@ const BorIcon = PRODUCT_ICON.bor
 export function AtlasHeader() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
-  const { hasBOR } = useProducts()
+  const { hasBOR, borHref } = useProducts()
   const { data: companies } = useAtlasUserCompanies()
   const { data: myPerms } = useMyPermissions()
   const { resolvedTheme, setTheme } = useTheme()
@@ -184,7 +184,7 @@ export function AtlasHeader() {
             <Tip className="hidden lg:inline-flex" label="Go to BOR">
               <Button
                 variant="ghost" size="icon"
-                onClick={() => router.push("/bor/monthly-execution")}
+                onClick={() => router.push(borHref)}
                 className="hidden lg:inline-flex"
               >
                 <BorIcon className="h-4 w-4" />
