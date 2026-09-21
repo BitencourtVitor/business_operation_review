@@ -69,7 +69,7 @@ export function AtlasSidebar() {
   const { open, toggleSidebar, setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
   const { user, logout } = useAuth()
-  const { hasBOR } = useProducts()
+  const { hasBOR, borHref } = useProducts()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -295,7 +295,7 @@ export function AtlasSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="Go to BOR"
-                  onClick={() => { setOpenMobile(false); router.push("/bor/monthly-execution") }}
+                  onClick={() => { setOpenMobile(false); router.push(borHref) }}
                 >
                   <CircleGauge />
                   <span>Go to BOR</span>
