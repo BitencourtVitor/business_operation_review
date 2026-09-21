@@ -74,6 +74,12 @@ const STATE_EDGE: Record<StageState, string> = {
 // certa é filtrar, não rolar mil linhas.
 const PURCHASE_LIMIT = 80
 
+// Os nomes que o banco usa para obra encerrada. A HVAC grava 'closed'; os dois
+// outros vêm do vocabulário do resto do forecast e entram por precaução, já que
+// custam nada e evitam que uma obra encerrada volte à lista por causa de um
+// rótulo diferente.
+const CLOSED = new Set(["closed", "completed", "cancelled"])
+
 export default function HVACSchedulePage() {
   const { data, isLoading } = useForecast({ company: "hvac" })
   const { data: actuals } = useHVACActuals()
@@ -96,6 +102,10 @@ export default function HVACSchedulePage() {
 
   const all = useMemo(
     () => (data ?? [])
+      // Obra fechada não entra. São 137 das 251 da HVAC, quase todas antigas, e
+      // nenhuma delas tem etapa por começar nem material por comprar — é só
+      // ruído entre as que ainda pedem decisão.
+      .filter(p => !CLOSED.has((p.status ?? "").trim().toLowerCase()))
       .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? []))
       .filter(p => p.stages.some(s => s.start || s.end)),
     [data, today, actualsByProject],
