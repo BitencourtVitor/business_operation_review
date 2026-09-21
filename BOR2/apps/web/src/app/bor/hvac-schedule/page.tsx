@@ -527,40 +527,51 @@ function PurchaseRow({
 
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg border p-2 transition-colors ${
+      className={`rounded-lg border p-2 transition-colors ${
         overdue
           ? "border-red-500/40 bg-red-500/[0.06] hover:border-red-500/60"
           : "border-border hover:border-foreground/20"
       }`}
     >
-      <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      {/* Em cima, três colunas: estado, o que e quando. */}
+      <div className="flex items-center gap-2">
+        {/* O ícone da etapa, não o do estado: o estado já está dito pela cor da
+            borda e pelo alerta da data, e um triângulo igual em toda linha não
+            distingue nada. */}
+        <s.Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-label={s.full} />
 
-      {/* Etapa, lote e obra em linhas próprias. Espremer obra e etapa na mesma
-          linha misturava dois níveis diferentes e cortava os dois. */}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] text-muted-foreground" title={s.full}>{s.label}</p>
-        <p className="truncate text-xs font-medium">{lotLabel(lot)}</p>
-        <p className="truncate text-[11px] text-muted-foreground" title={siteOf(lot)}>{siteOf(lot)}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[11px] text-muted-foreground" title={s.full}>{s.label}</p>
+          <p className="truncate text-xs font-medium">{lotLabel(lot)}</p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
+          {overdue ? (
+            <AlertTriangle className="h-3.5 w-3.5 text-red-500" aria-label="Purchase date has passed" />
+          ) : week ? (
+            <Clock className="h-3.5 w-3.5 text-amber-500" aria-label="Buy this week" />
+          ) : null}
+          <p
+            className={`text-xs tabular-nums ${
+              overdue
+                ? "font-medium text-red-600 dark:text-red-400"
+                : week
+                  ? "text-amber-600 dark:text-amber-400"
+                  : ""
+            }`}
+          >
+            {formatShort(s.purchaseBy)}
+          </p>
+        </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        {overdue ? (
-          <AlertTriangle className="h-3.5 w-3.5 text-red-500" aria-label="Purchase date has passed" />
-        ) : week ? (
-          <Clock className="h-3.5 w-3.5 text-amber-500" aria-label="Buy this week" />
-        ) : null}
-        <p
-          className={`text-xs tabular-nums ${
-            overdue
-              ? "font-medium text-red-600 dark:text-red-400"
-              : week
-                ? "text-amber-600 dark:text-amber-400"
-                : ""
-          }`}
-        >
-          {formatShort(s.purchaseBy)}
-        </p>
-      </div>
+      {/* Embaixo, a obra, com a linha inteira para si. */}
+      <p
+        className="mt-1.5 truncate border-t border-border/60 pt-1.5 text-[11px] text-muted-foreground"
+        title={siteOf(lot)}
+      >
+        {siteOf(lot)}
+      </p>
     </div>
   )
 }
