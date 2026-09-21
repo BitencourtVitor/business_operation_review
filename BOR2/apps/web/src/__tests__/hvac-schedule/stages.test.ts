@@ -164,3 +164,30 @@ describe("editPlan", () => {
     expect(plan.dates).not.toHaveProperty("hvacCondenserDate")
   })
 })
+
+describe("sharesStart", () => {
+  const hoje = new Date(2026, 9, 16)
+
+  it("marca só as etapas que caem no mesmo dia", () => {
+    const lot = stagesOf(
+      {
+        id: "1",
+        hvacRoughDate: "2026-10-05",
+        hvacAirHandlerDate: "2026-10-05",
+        hvacCondenserDate: "2026-10-05",
+        hvacFinishDate: "2026-11-05",
+      } as unknown as ForecastProject,
+      hoje,
+    )
+    expect(lot.stacked).toBe(true)
+    expect(lot.stages.map(s => s.sharesStart)).toEqual([true, true, true, false])
+  })
+
+  it("sem colisão ninguém se marca", () => {
+    const lot = stagesOf(
+      { id: "2", hvacRoughDate: "2026-10-05", hvacAirHandlerDate: "2026-10-15" } as unknown as ForecastProject,
+      hoje,
+    )
+    expect(lot.stages.every(s => !s.sharesStart)).toBe(true)
+  })
+})

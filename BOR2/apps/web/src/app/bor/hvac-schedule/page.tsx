@@ -399,7 +399,9 @@ function JobsiteSection({ site, lots }: { site: string; lots: ProjectStages[] })
       </button>
 
       {open && (
-        <div className="flex flex-col gap-2 border-t border-border p-2">
+        // Dois lotes por linha a partir de xl: um lote sozinho deixava metade
+        // da largura vazia, e são dezenas deles por jobsite.
+        <div className="grid gap-2 border-t border-border p-2 xl:grid-cols-2">
           {lots.map(lot => <LotCard key={lot.project.id} lot={lot} />)}
         </div>
       )}
@@ -437,7 +439,7 @@ function LotCard({ lot }: { lot: ProjectStages }) {
         </span>
       </div>
 
-      <div className="grid gap-1.5 sm:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-1.5">
         {lot.stages.map(s => (
           <StageCard key={s.key} stage={s} onEdit={() => setEditing(s)} />
         ))}
@@ -487,7 +489,9 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
       {/* Compra primeiro: é a data que exige ação antes das outras duas. */}
       <div className="mt-1.5 grid grid-cols-3 gap-1 text-[11px] leading-tight">
         <DateCell term="Buy" planned={s.purchaseBy} />
-        <DateCell term="Start" planned={s.start} actual={s.actualStart} />
+        {/* Âmbar quando outra etapa do lote começa no mesmo dia: o selo diz que
+            há colisão, e a cor diz onde ela está. */}
+        <DateCell term="Start" planned={s.start} actual={s.actualStart} warn={s.sharesStart} />
         <DateCell term="End" planned={s.end} actual={s.actualEnd} />
       </div>
     </div>
@@ -496,16 +500,24 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
 
 /** Planejado em cima; embaixo, o real, quando alguém marcou. */
 function DateCell({
-  term, planned, actual,
+  term, planned, actual, warn,
 }: {
   term: string
   planned: Date | null
   actual?: Date | null
+  warn?: boolean
 }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-muted-foreground">{term}</p>
-      <p className="truncate tabular-nums" title={formatDate(planned)}>{formatShort(planned)}</p>
+      <p className={`truncate ${warn ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
+        {term}
+      </p>
+      <p
+        className={`truncate tabular-nums ${warn ? "font-medium text-amber-600 dark:text-amber-400" : ""}`}
+        title={warn ? "Another stage of this lot starts on the same day" : formatDate(planned)}
+      >
+        {formatShort(planned)}
+      </p>
       {actual !== undefined && (
         <p className={`truncate tabular-nums ${actual ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/50"}`}>
           {actual ? formatShort(actual) : "—"}
