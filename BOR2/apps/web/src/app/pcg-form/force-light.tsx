@@ -13,9 +13,13 @@ import { useEffect } from "react"
 export function ForceLight() {
   useEffect(() => {
     const html = document.documentElement
+    // Só mexe no que está fora do lugar. `classList.remove` reescreve o
+    // atributo mesmo quando a classe não está lá, e reescrever acorda este
+    // mesmo observador: sem a condição, ele chama a si próprio sem parar e
+    // trava a página antes do primeiro quadro.
     const light = () => {
-      html.classList.remove("dark")
-      html.style.colorScheme = "light"
+      if (html.classList.contains("dark")) html.classList.remove("dark")
+      if (html.style.colorScheme !== "light") html.style.colorScheme = "light"
     }
     light()
     const observer = new MutationObserver(light)
