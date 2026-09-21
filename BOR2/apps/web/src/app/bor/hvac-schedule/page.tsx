@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useForecast, useHVACActuals } from "@/hooks/use-forecast"
 import type { HVACActual } from "@/services/forecast.service"
@@ -468,14 +469,28 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
 
   return (
     <div
-      className={`group/stage min-w-0 rounded-lg border border-l-[3px] bg-background/60 p-2 transition-colors hover:border-foreground/20 ${STATE_EDGE[s.state]}`}
+      // O hover clareia só as três bordas neutras. `hover:border-foreground/20`
+      // valia para os quatro lados e apagava justamente a faixa colorida que
+      // diz o estado da etapa.
+      className={`group/stage min-w-0 rounded-lg border border-l-[3px] bg-background/60 p-2 transition-colors hover:border-y-foreground/20 hover:border-r-foreground/20 ${STATE_EDGE[s.state]}`}
     >
       <div className="flex items-center gap-1.5">
         <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="min-w-0 truncate text-xs font-medium" title={s.full}>{s.label}</span>
 
         <span className="ml-auto flex shrink-0 items-center">
-          <StateIcon className={`h-3.5 w-3.5 ${STATE_COLOR[s.state]}`} aria-label={STATE_LABEL[s.state]} />
+          {/* O ícone sozinho não diz por que está aceso. A dica conta o motivo,
+              com a data que o justifica. */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className={`flex cursor-default items-center ${STATE_COLOR[s.state]}`}>
+                <StateIcon className="h-3.5 w-3.5" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
+                {stateReason(s)}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <button
             onClick={onEdit}
             aria-label={`Change ${s.full} dates`}
@@ -496,6 +511,23 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
       </div>
     </div>
   )
+}
+
+/** Por que a etapa está nesse estado, com a data que sustenta a afirmação.
+ *  "Delayed" sem dizer qual data passou obriga quem lê a conferir sozinho. */
+function stateReason(s: Stage): string {
+  switch (s.state) {
+    case "done":
+      return `Completed on ${formatDate(s.actualEnd)}`
+    case "running":
+      return `Started on ${formatDate(s.actualStart)}, not finished yet`
+    case "delayed":
+      return `Was planned to start on ${formatDate(s.start)} and nobody marked it started`
+    case "upcoming":
+      return `Planned to start on ${formatDate(s.start)}`
+    default:
+      return "No date planned for this stage"
+  }
 }
 
 /** Planejado em cima; embaixo, o real, quando alguém marcou. */
