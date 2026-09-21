@@ -14,7 +14,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
 import { PageSkeleton } from "@/components/common/page-skeleton"
-import { useForecast } from "@/hooks/use-forecast"
+import { useForecast, useHVACActuals } from "@/hooks/use-forecast"
+import type { HVACActual } from "@/services/forecast.service"
 import { EditStageDialog } from "./_components/edit-stage-dialog"
 import {
   formatDate, isActive, sameWeek, stagesOf, startOfToday,
@@ -27,19 +28,24 @@ import {
 // cada uma tem de ser comprado, para responder numa tela só: o que começa, o
 // que atrasou e o que precisa ser comprado nesta semana.
 //
-// O dado das etapas já vem do forecast, então esta página não tem backend
-// próprio. O que ela ainda não tem é o pedido de material — comprado quando,
-// chegou ou não — e por isso duas métricas aparecem vazias de propósito, com o
-// que falta escrito nelas. Ver HS-9 no backlog de 21/09.
+// O planejado vem do forecast; o que a obra de fato fez mora em
+// `forecast_hvac_stages` e é marcado aqui. São os dois juntos que produzem
+// "atrasado": planejado no passado e ninguém marcou que começou.
+//
+// Falta o pedido de material — comprado quando, chegou ou não — e por isso uma
+// métrica segue vazia, com o que falta escrito nela. Ver HS-9 no backlog de
+// 21/09.
 
 const STATE_LABEL: Record<StageState, string> = {
-  done: "Ended",
+  delayed: "Delayed",
+  done: "Completed",
   running: "In progress",
   upcoming: "Not started",
   undated: "No date",
 }
 
 const STATE_STYLE: Record<StageState, string> = {
+  delayed: "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400",
   done: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   running: "border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400",
   upcoming: "border-border bg-muted text-muted-foreground",
@@ -48,12 +54,23 @@ const STATE_STYLE: Record<StageState, string> = {
 
 export default function HVACSchedulePage() {
   const { data, isLoading } = useForecast({ company: "hvac" })
+  const { data: actuals } = useHVACActuals()
 
   const today = startOfToday()
 
+  // As datas reais chegam numa lista só, para toda a HVAC. Agrupar por obra uma
+  // vez custa menos que varrer a lista inteira dentro de cada projeto.
+  const actualsByProject = useMemo(() => {
+    const map = new Map<string, HVACActual[]>()
+    for (const a of actuals ?? []) map.set(a.projectId, [...(map.get(a.projectId) ?? []), a])
+    return map
+  }, [actuals])
+
   const projects = useMemo(
-    () => (data ?? []).map(p => stagesOf(p, today)).filter(p => p.stages.some(s => s.start || s.end)),
-    [data, today],
+    () => (data ?? [])
+      .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? []))
+      .filter(p => p.stages.some(s => s.start || s.end)),
+    [data, today, actualsByProject],
   )
 
   // Agrupa por jobsite e, dentro dele, uma linha por lot. É a leitura que o
@@ -89,8 +106,8 @@ export default function HVACSchedulePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Stage calendar and the purchase date each stage depends on. Dates are the ones planned
-          in the forecast — nobody has confirmed on site yet.
+          Stage calendar and the purchase date each stage depends on. Planned dates come from the
+          forecast; what actually happened is recorded here.
         </p>
       </div>
 
@@ -109,16 +126,16 @@ export default function HVACSchedulePage() {
           subtitle={`of ${allStages.length} scheduled`}
         />
         <Metric
-          title="Stages ended"
+          title="Stages completed"
           value={String(allStages.filter(s => s.state === "done").length)}
           icon={<CheckCircle2 className="h-4 w-4" />}
-          subtitle="by calendar, not confirmed"
+          subtitle="confirmed on site"
         />
         <Metric
           title="Stages delayed"
-          value="—"
+          value={String(allStages.filter(s => s.state === "delayed").length)}
           icon={<AlertTriangle className="h-4 w-4" />}
-          subtitle="needs the real start date"
+          subtitle="planned date passed, not started"
         />
         <Metric
           title="Orders overdue"
@@ -160,6 +177,11 @@ export default function HVACSchedulePage() {
                           <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
                             <AlertTriangle className="h-3 w-3" />
                             Stacked
+                          </Badge>
+                        )}
+                        {lots.some(l => l.stages.some(s => s.state === "delayed")) && (
+                          <Badge variant="outline" className="gap-1 border-red-500/40 text-red-600 dark:text-red-400">
+                            {lots.reduce((n, l) => n + l.stages.filter(s => s.state === "delayed").length, 0)} delayed
                           </Badge>
                         )}
                         <span className="ml-auto text-xs text-muted-foreground">
@@ -240,8 +262,8 @@ function LotTable({ lot }: { lot: ProjectStages }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[190px]">Stage</TableHead>
-            <TableHead>Start</TableHead>
-            <TableHead>End</TableHead>
+            <TableHead>Planned</TableHead>
+            <TableHead>Actual</TableHead>
             <TableHead>Buy material by</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-10" />
@@ -251,8 +273,18 @@ function LotTable({ lot }: { lot: ProjectStages }) {
           {lot.stages.map(s => (
             <TableRow key={s.key}>
               <TableCell className="font-medium">{s.label}</TableCell>
-              <TableCell className="tabular-nums">{formatDate(s.start)}</TableCell>
-              <TableCell className="tabular-nums">{formatDate(s.end)}</TableCell>
+              <TableCell className="tabular-nums whitespace-nowrap">
+                {formatDate(s.start)} <span className="text-muted-foreground">→</span> {formatDate(s.end)}
+              </TableCell>
+              <TableCell className="tabular-nums whitespace-nowrap">
+                {s.actualStart || s.actualEnd ? (
+                  <>
+                    {formatDate(s.actualStart)} <span className="text-muted-foreground">→</span> {formatDate(s.actualEnd)}
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">not started</span>
+                )}
+              </TableCell>
               <TableCell className="tabular-nums">{formatDate(s.purchaseBy)}</TableCell>
               <TableCell>
                 <Badge variant="outline" className={STATE_STYLE[s.state]}>

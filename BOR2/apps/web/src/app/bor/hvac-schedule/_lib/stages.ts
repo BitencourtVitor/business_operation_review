@@ -1,4 +1,5 @@
 import type { ForecastProject } from "@bor2/shared"
+import type { HVACActual } from "@/services/forecast.service"
 
 // As quatro visitas do ciclo de HVAC, na ordem em que acontecem. Cada uma vale
 // 25% da obra: fechou a quarta, a obra fechou.
@@ -23,18 +24,36 @@ export const FIELDS: Record<StageKey, { start: keyof ForecastProject; end: keyof
   finish: { start: "hvacFinishDate", end: "hvacFinishEndDate" },
 }
 
-// O que a tela sabe hoje. Não há início nem fim reais no banco, só o planejado
-// que vem das Orders, então "done" quer dizer "o calendário diz que já passou",
-// não "alguém confirmou que acabou". A tela precisa dizer isso com todas as
-// letras — ver HS-13 no backlog de 21/09.
-export type StageState = "done" | "running" | "upcoming" | "undated"
+/** Nome da etapa na tabela `forecast_hvac_stages`. */
+export const STAGE_DB_NAME: Record<StageKey, string> = {
+  rough: "rough",
+  airHandler: "air_handler",
+  condenser: "condenser",
+  finish: "finish",
+}
+
+// O estado vem do que **aconteceu**, não do calendário:
+//
+//   done     — tem fim real
+//   running  — tem início real e não tem fim
+//   delayed  — o planejado já passou e ninguém marcou que começou
+//   upcoming — planejado no futuro, ainda não começou
+//   undated  — sem planejado e sem real
+//
+// É essa separação que faz "atrasado" existir. Enquanto só havia o planejado,
+// toda etapa com data no passado parecia terminada e o atraso sumia.
+export type StageState = "done" | "running" | "delayed" | "upcoming" | "undated"
 
 export interface Stage {
   key: StageKey
   label: string
+  /** Planejado, vindo das Orders. */
   start: Date | null
   end: Date | null
-  /** Quando o material tem de ser comprado. Calculada, nunca digitada. */
+  /** Real, marcado por quem acompanha a obra. */
+  actualStart: Date | null
+  actualEnd: Date | null
+  /** Quando o material tem de ser comprado. Calculada do planejado, nunca digitada. */
   purchaseBy: Date | null
   state: StageState
 }
@@ -42,7 +61,7 @@ export interface Stage {
 export interface ProjectStages {
   project: ForecastProject
   stages: Stage[]
-  /** 25% por etapa cujo fim já passou. */
+  /** 25% por etapa de fato terminada. */
   percent: number
   /** O cliente mandou etapas diferentes começando no mesmo dia. */
   stacked: boolean
@@ -77,24 +96,40 @@ export function businessDaysBefore(date: Date, days: number): Date {
   return out
 }
 
-function stateOf(start: Date | null, end: Date | null, today: Date): StageState {
-  if (!start && !end) return "undated"
-  if (end && end < today) return "done"
-  if (start && start <= today) return "running"
-  return "upcoming"
+function stateOf(
+  start: Date | null,
+  actualStart: Date | null,
+  actualEnd: Date | null,
+  today: Date,
+): StageState {
+  if (actualEnd) return "done"
+  if (actualStart) return "running"
+  if (!start) return "undated"
+  return start < today ? "delayed" : "upcoming"
 }
 
-export function stagesOf(project: ForecastProject, today = startOfToday()): ProjectStages {
+export function stagesOf(
+  project: ForecastProject,
+  today = startOfToday(),
+  actuals: HVACActual[] = [],
+): ProjectStages {
+  const byStage = new Map(actuals.map(a => [a.stage, a]))
+
   const stages = STAGES.map(({ key, label, leadDays }) => {
     const start = parseDate(project[FIELDS[key].start] as string | null)
     const end = parseDate(project[FIELDS[key].end] as string | null)
+    const actual = byStage.get(STAGE_DB_NAME[key])
+    const actualStart = parseDate(actual?.actualStart)
+    const actualEnd = parseDate(actual?.actualEnd)
     return {
       key,
       label,
       start,
       end,
+      actualStart,
+      actualEnd,
       purchaseBy: start ? businessDaysBefore(start, leadDays) : null,
-      state: stateOf(start, end, today),
+      state: stateOf(start, actualStart, actualEnd, today),
     }
   })
 
@@ -103,14 +138,16 @@ export function stagesOf(project: ForecastProject, today = startOfToday()): Proj
   return {
     project,
     stages,
-    percent: stages.filter(s => s.state === "done").length * 25,
+    // 25% por etapa de fato terminada, como as anotações pedem.
+    percent: stages.filter(s => s.actualEnd).length * 25,
     stacked: new Set(starts).size < starts.length,
   }
 }
 
-/** Obra que já começou e ainda não terminou. */
+/** Obra que já começou e ainda não terminou. Começou é alguém ter marcado
+ *  início de alguma etapa, não a data planejada ter chegado. */
 export function isActive(p: ProjectStages): boolean {
-  return p.percent > 0 && p.percent < 100
+  return p.stages.some(s => s.actualStart) && p.percent < 100
 }
 
 export function sameWeek(date: Date, today: Date): boolean {

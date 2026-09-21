@@ -330,7 +330,10 @@ func main() {
 	forecast.Post("/contract/team", forecastHandler.AddContractTeam)
 	// Antes do PUT genérico só por clareza de leitura; o caminho tem dois
 	// segmentos, então não disputa com "/:id".
+	// Antes de "/:id" para o caminho fixo não ser comido pelo curinga.
+	forecast.Get("/hvac-actuals", hvacStagesHandler.ListActuals)
 	forecast.Patch("/:id/hvac-stages", hvacStagesHandler.Update)
+	forecast.Put("/:id/hvac-actuals/:stage", hvacStagesHandler.SetActual)
 	forecast.Put("/:id", forecastHandler.Update)
 	forecast.Delete("/:id", forecastHandler.Delete)
 	forecast.Get("/:id", forecastHandler.Get)
