@@ -11,11 +11,13 @@ import type { HVACActual } from "@/services/forecast.service"
 // úteis, porque compra não acontece no sábado; trocar é mexer só neste número.
 // Os ícones são os mesmos que o Forecast usa para estas etapas. Repetir o
 // símbolo entre as duas telas é o que faz alguém reconhecer a etapa sem ler.
+// `label` é o nome curto que cabe num cartão estreito; `full` é como a etapa se
+// chama de verdade, e vai no title para quem precisar do nome inteiro.
 export const STAGES = [
-  { key: "rough", label: "Rough", Icon: Wrench, leadDays: 3 },
-  { key: "airHandler", label: "Air Handler", Icon: Fan, leadDays: 2 },
-  { key: "condenser", label: "Condenser / Tstat", Icon: Thermometer, leadDays: 2 },
-  { key: "finish", label: "Finish", Icon: Snowflake, leadDays: 3 },
+  { key: "rough", label: "Rough", full: "Rough HVAC", Icon: Wrench, leadDays: 3 },
+  { key: "airHandler", label: "Air Handler", full: "Air Handler / Gas Furnace Set", Icon: Fan, leadDays: 2 },
+  { key: "condenser", label: "Condenser", full: "Install Condenser and Thermostat", Icon: Thermometer, leadDays: 2 },
+  { key: "finish", label: "Finish", full: "HVAC Finish Set A/C", Icon: Snowflake, leadDays: 3 },
 ] as const
 
 export type StageKey = (typeof STAGES)[number]["key"]
@@ -49,6 +51,8 @@ export type StageState = "done" | "running" | "delayed" | "upcoming" | "undated"
 
 export interface Stage {
   Icon: React.ElementType
+  /** Nome por extenso, para o title. */
+  full: string
   key: StageKey
   label: string
   /** Planejado, vindo das Orders. */
@@ -119,7 +123,7 @@ export function stagesOf(
 ): ProjectStages {
   const byStage = new Map(actuals.map(a => [a.stage, a]))
 
-  const stages = STAGES.map(({ key, label, Icon, leadDays }) => {
+  const stages = STAGES.map(({ key, label, full, Icon, leadDays }) => {
     const start = parseDate(project[FIELDS[key].start] as string | null)
     const end = parseDate(project[FIELDS[key].end] as string | null)
     const actual = byStage.get(STAGE_DB_NAME[key])
@@ -128,6 +132,7 @@ export function stagesOf(
     return {
       key,
       Icon,
+      full,
       label,
       start,
       end,
