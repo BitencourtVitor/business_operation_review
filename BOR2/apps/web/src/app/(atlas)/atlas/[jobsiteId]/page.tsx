@@ -162,7 +162,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
                 empurravam a lista para baixo. */}
             {categoriasDasPastas.length > 0 && (
               <Select value={filter || "all"} onValueChange={v => setFilter(!v || v === "all" ? "" : v)}>
-                <SelectTrigger size="sm" className="h-8 min-w-0 max-w-[11rem]">
+                <SelectTrigger size="sm" className="h-7 min-w-0 max-w-[11rem]">
                   {/* Ícone de etiqueta na frente e o nome, sem contador: o que o
                       botão precisa dizer é qual filtro está valendo. A contagem
                       já está na lista logo abaixo. */}
@@ -192,7 +192,7 @@ function DocumentsPanel({ jobsiteId, client, kind, canManage }: {
               </Select>
             )}
             {canManage && (
-              <Button size="sm" className="h-8 shrink-0" onClick={() => setUploading(true)}>
+              <Button size="sm" className="h-7 shrink-0" onClick={() => setUploading(true)}>
                 <Plus className="h-4 w-4" />
                 New
               </Button>
