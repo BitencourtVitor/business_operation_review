@@ -2,6 +2,7 @@
 
 import { loadPdf } from "@/components/atlas/pdf-page"
 import { atlasService } from "@/services/atlas.service"
+import type { AtlasAutolinkPage } from "@/services/atlas.service"
 
 /**
  * A extração que alimenta os vínculos automáticos.
@@ -322,4 +323,55 @@ export async function sugerirVinculos(
     andamento?.(n + 1, paginas.length)
   }
   return atlasService.autolinkPreview(jobsiteId, { local, pages, otherFolders: outrasPastas })
+}
+
+/** Quantas páginas por chamada na varredura do servidor.
+ *
+ * Existe para haver progresso: a rota devolveria as 281 de uma vez, e a tela
+ * ficaria parada até o fim. Em lotes, cada resposta move a barra. Vinte e cinco
+ * porque o custo fixo por chamada é pequeno perto do ganho de ver andar. */
+const LOTE_VARREDURA = 25
+
+/**
+ * Varre no servidor, em lotes, a partir do texto que o ingest guardou.
+ *
+ * A primeira chamada de um documento antigo é a cara: é ela que baixa o
+ * original e extrai o texto de todas as páginas. As seguintes leem do banco.
+ * Por isso o primeiro lote vai sozinho e pequeno, para a barra começar a andar
+ * em vez de ficar parada enquanto o arquivo é preparado.
+ */
+export async function varrerNoServidor(
+  versionId: string,
+  indices: number[],
+  outrasPastas: boolean,
+  andamento?: (feitas: number, total: number) => void,
+): Promise<{ paginas: AtlasAutolinkPage[]; links: number; destinos: number }> {
+  const alvo = [...new Set(indices)].sort((a, b) => a - b)
+  if (!alvo.length) return { paginas: [], links: 0, destinos: 0 }
+
+  const lotes: number[][] = []
+  for (let i = 0; i < alvo.length; i += LOTE_VARREDURA) {
+    lotes.push(alvo.slice(i, i + LOTE_VARREDURA))
+  }
+
+  const paginas: AtlasAutolinkPage[] = []
+  let links = 0
+  let destinos = 0
+  let feitas = 0
+
+  andamento?.(0, alvo.length)
+  for (const lote of lotes) {
+    const r = await atlasService.autolinkScan(versionId, {
+      pageIndexes: lote,
+      otherFolders: outrasPastas,
+    })
+    paginas.push(...r.paginas)
+    links += r.links
+    destinos = r.destinos
+    feitas += lote.length
+    andamento?.(feitas, alvo.length)
+  }
+
+  paginas.sort((a, b) => a.pageIndex - b.pageIndex)
+  return { paginas, links, destinos }
 }
