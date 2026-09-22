@@ -269,3 +269,27 @@ func (h *ForecastHandler) ListObs(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{"data": entries})
 }
+
+// AddObs publica um comentário na obra. O comentário nasce por si, e não como
+// efeito de salvar a obra: quem escreve assina o que escreveu, e o que já
+// estava dito continua de pé. A assinatura sai da sessão, nunca do corpo do
+// pedido, senão o autor viraria campo que o cliente escolhe.
+func (h *ForecastHandler) AddObs(c *fiber.Ctx) error {
+	var payload struct {
+		Body string `json:"body"`
+	}
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	texto := strings.TrimSpace(payload.Body)
+	if texto == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "empty comment", "code": "BAD_REQUEST"})
+	}
+	uid, uname := actor(c)
+	entry, err := h.svc.AppendObs(c.Context(), c.Params("id"), texto, uid, uname, actorRole(c))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	h.audit.Log(c.Context(), uid, uname, "comment", "forecast", c.Params("id"))
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": entry})
+}

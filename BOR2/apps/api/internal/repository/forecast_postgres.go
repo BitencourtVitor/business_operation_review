@@ -550,12 +550,33 @@ func nullTime(t time.Time) any {
 	return t
 }
 
+// AppendObs grava o comentário e deixa forecast_core.obs igual ao que acabou de
+// ser dito. As duas escritas andam juntas de propósito: o texto que a obra
+// mostra e o nome de quem assina saem de lugares diferentes, e separar o
+// momento em que cada um muda é o que faz a tela creditar uma pessoa por uma
+// frase que não é dela.
 func (r *PostgresForecastRepository) AppendObs(ctx context.Context, e *domain.ForecastObsEntry) error {
-	return r.db.QueryRow(ctx, `
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("append forecast obs: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	if err := tx.QueryRow(ctx, `
 		INSERT INTO forecast_obs_history (project_id, body, author_id, author_name, author_role)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at
-	`, e.ProjectID, e.Body, e.AuthorID, e.AuthorName, e.AuthorRole).Scan(&e.ID, &e.CreatedAt)
+	`, e.ProjectID, e.Body, e.AuthorID, e.AuthorName, e.AuthorRole).Scan(&e.ID, &e.CreatedAt); err != nil {
+		return fmt.Errorf("append forecast obs: %w", err)
+	}
+
+	if _, err := tx.Exec(ctx,
+		`UPDATE forecast_core SET obs = $2 WHERE LOWER(id) = LOWER($1)`,
+		e.ProjectID, e.Body); err != nil {
+		return fmt.Errorf("append forecast obs: %w", err)
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (r *PostgresForecastRepository) ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error) {

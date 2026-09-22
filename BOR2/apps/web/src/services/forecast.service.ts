@@ -35,6 +35,10 @@ export const forecastService = {
   listObs: (id: string) =>
     api.get<ForecastObsEntry[]>(`/api/v1/forecast/${id}/obs`, getToken()),
 
+  /** Publica um comentário na obra. Quem assina sai da sessão, no servidor. */
+  addObs: (id: string, body: string) =>
+    api.post<ForecastObsEntry>(`/api/v1/forecast/${id}/obs`, { body }, getToken()),
+
   listDateHistory: (id: string) =>
     api.get<ForecastDateEntry[]>(`/api/v1/forecast/${id}/date-history`, getToken()),
 

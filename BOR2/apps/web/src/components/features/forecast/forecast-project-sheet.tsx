@@ -20,9 +20,9 @@ import {
   Fan,
   FileText,
   Flag,
-  History,
   Info,
   MapPin,
+  MessageSquareText,
   Package,
   PlayCircle,
   Puzzle,
@@ -439,27 +439,30 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             </div>
             )}
 
-            {p.obs?.trim() && (
-              <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
-                <p className="whitespace-pre-wrap">{p.obs}</p>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
-                  <button
-                    type="button"
-                    onClick={() => setPanel(v => (v === "obs" ? null : "obs"))}
-                    className={cn(
-                      "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
-                      panel === "obs"
-                        ? "bg-muted text-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <History className="h-3 w-3" />
-                    History
-                  </button>
-                </div>
+            {/* O comentário mais recente, e o caminho para a conversa inteira.
+                O bloco aparece mesmo sem comentário nenhum: sem ele, a obra que
+                ainda não tem nada dito não teria por onde receber o primeiro. */}
+            <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm leading-relaxed">
+              {p.obs?.trim()
+                ? <p className="whitespace-pre-wrap">{p.obs}</p>
+                : <p className="text-muted-foreground">No comments on this job yet.</p>}
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <ObsCredit author={p.obsAuthor} role={p.obsRole} at={p.obsAt} />
+                <button
+                  type="button"
+                  onClick={() => setPanel(v => (v === "obs" ? null : "obs"))}
+                  className={cn(
+                    "ml-auto flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                    panel === "obs"
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <MessageSquareText className="h-3 w-3" />
+                  {p.obs?.trim() ? "Comments" : "Write one"}
+                </button>
               </div>
-            )}
+            </div>
           </section>
 
           {/* ── Documentos: Fieldwire e Atlas, lado a lado ────────────────────
