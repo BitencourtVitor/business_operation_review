@@ -1218,38 +1218,25 @@ export default function DocumentPage() {
               à página. */}
           {version && (
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60">
-              {/* No celular só a busca desce para a linha de baixo, ocupando a
-                  largura toda. Título, contagem e o botão de escolher ficam em
-                  cima: é o que se lê primeiro, e cabe. */}
-              <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border/60 bg-muted/30 px-3 py-2 sm:flex-nowrap sm:gap-3">
-                <h2 className="mr-auto flex items-center gap-2 text-sm font-semibold">
-                  <Layers className="h-4 w-4 text-muted-foreground" />
-                  Sheets
-                </h2>
-                <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:flex-none sm:flex-nowrap">
+              {/* Duas linhas no celular: em cima o título à esquerda e, à
+                  direita, a contagem e o botão de escolher; embaixo a busca, de
+                  ponta a ponta. A partir de sm é tudo uma linha só.
+                  O `sm:contents` dissolve o agrupamento do celular, e aí os
+                  filhos entram direto na fileira, ordenados pelo `sm:order`. */}
+              <div className="flex shrink-0 flex-col gap-2 border-b border-border/60 bg-muted/30 px-3 py-2 sm:flex-row sm:items-center sm:gap-3">
+                <div className="flex items-center gap-2 sm:contents">
+                  <h2 className="mr-auto flex items-center gap-2 text-sm font-semibold sm:order-1">
+                    <Layers className="h-4 w-4 text-muted-foreground" />
+                    Sheets
+                  </h2>
                   {/* Primeiro o quanto existe, depois o que filtra ou escolhe:
                       o número é o que se lê, e os controles agem sobre ele. */}
                   {sheets && (
-                    <span className="shrink-0 text-xs whitespace-nowrap text-muted-foreground">
+                    <span className="shrink-0 text-xs whitespace-nowrap text-muted-foreground sm:order-2">
                       {visibleSheets.length === sheets.length
                         ? `${sheets.length} plans total`
                         : `${visibleSheets.length} of ${sheets.length}`}
                     </span>
-                  )}
-                  {!!sheets?.length && (
-                    // `order-last` com largura cheia joga a busca sozinha para a
-                    // linha de baixo no celular; a partir de sm ela volta para o
-                    // meio da fileira, entre a contagem e o botão de escolher.
-                    <label className="relative order-last block w-full min-w-0 sm:order-none sm:w-auto">
-                      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        value={sheetQuery}
-                        onChange={e => setSheetQuery(e.target.value)}
-                        placeholder="Find sheet"
-                        aria-label="Find a sheet by name or page"
-                        className="h-7 w-full min-w-0 pl-8 sm:w-40"
-                      />
-                    </label>
                   )}
 
                   {/* Fechado, é um botão só. Aberto, ele se divide em dois, que
@@ -1258,11 +1245,11 @@ export default function DocumentPage() {
                       sem dar dezoito toques. */}
                   {canManage && !!sheets?.length && (
                     picking ? (
-                      // Trinta e dois de altura, igual aos botões que dividem a
+                      // Mesma altura dos botões que dividem a
                       // linha com ele. Os pedaços de dentro enchem o que sobra
                       // (o que sobra dos 28 menos a borda e o respiro), em vez de uma
                       // altura escrita à mão que estourava a faixa em dois.
-                      <div className="flex h-7 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95">
+                      <div className="flex h-7 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95 sm:order-4">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
@@ -1289,7 +1276,7 @@ export default function DocumentPage() {
                     ) : (
                       <Button
                         variant="outline"
-                        className="h-7 origin-right duration-200 animate-in fade-in-0 zoom-in-95"
+                        className="h-7 origin-right duration-200 animate-in fade-in-0 zoom-in-95 sm:order-4"
                         onClick={() => setPicking("one")}
                       >
                         <SquareDashedMousePointer className="h-3.5 w-3.5" />
@@ -1298,6 +1285,22 @@ export default function DocumentPage() {
                     )
                   )}
                 </div>
+
+                {/* A busca. No celular é a segunda linha inteira do cabeçalho;
+                    a partir de sm volta para o meio da fileira, entre a
+                    contagem e o botão de escolher. */}
+                {!!sheets?.length && (
+                  <label className="relative block w-full min-w-0 sm:order-3 sm:w-auto">
+                    <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={sheetQuery}
+                      onChange={e => setSheetQuery(e.target.value)}
+                      placeholder="Find sheet"
+                      aria-label="Find a sheet by name or page"
+                      className="h-7 w-full min-w-0 pl-8 sm:w-40"
+                    />
+                  </label>
+                )}
               </div>
 
               {/* O que se faz com o que foi escolhido. A barra só existe
