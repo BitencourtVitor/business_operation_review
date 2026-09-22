@@ -958,10 +958,25 @@ export function SheetViewer({
   )
   const source = usePlanSource(sheet, neighbours)
 
-  const { pageWidth, pageHeight } = useMemo(() => ({
-    pageWidth: Number(sheet.widthPt) || 3024,
-    pageHeight: Number(sheet.heightPt) || 2160,
+  const storedPageSize = useMemo(() => ({
+    width: Number(sheet.widthPt) || 3024,
+    height: Number(sheet.heightPt) || 2160,
   }), [sheet.widthPt, sheet.heightPt])
+  const [sourcePageSize, setSourcePageSize] = useState<{ width: number; height: number } | null>(null)
+  useEffect(() => setSourcePageSize(null), [sheet.id])
+  const readSourcePageSize = useCallback((next: { width: number; height: number }) => {
+    if (!Number.isFinite(next.width) || !Number.isFinite(next.height) || next.width <= 0 || next.height <= 0) return
+    setSourcePageSize(current =>
+      current && Math.abs(current.width - next.width) < 0.01 && Math.abs(current.height - next.height) < 0.01
+        ? current
+        : next,
+    )
+  }, [])
+  // `pdftotext -bbox-layout` pode devolver a caixa antes do `/Rotate`. O
+  // canvas, porém, já vem girado pelo pdf.js. Usar a dimensão que desenhou a
+  // página mantém fundo, camada nítida e anotações no mesmo retângulo.
+  const pageWidth = sourcePageSize?.width ?? storedPageSize.width
+  const pageHeight = sourcePageSize?.height ?? storedPageSize.height
 
   // Girar a prancha na tela. O papel não muda: o que muda é de que lado a
   // pessoa está olhando para ele. Um relatório sai retrato, uma elevação sai
@@ -1695,6 +1710,7 @@ export function SheetViewer({
             pageHeight={pageHeight}
             onReady={markReady}
             onFail={markFailed}
+            onPageSize={readSourcePageSize}
             key={attempt}
           />
         )}

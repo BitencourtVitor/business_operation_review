@@ -3,6 +3,7 @@
 import { loadPdf } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
 import { sugerirVinculos } from "@/components/atlas/plan-autolink"
+import { atlasService } from "@/services/atlas.service"
 import { HoldButton } from "@/components/common/hold-button"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -53,7 +54,10 @@ const chave = (p: number, i: number) => `${p}#${i}`
 const MIN_ZOOM = 1
 const MAX_ZOOM = 8
 
-export function AutolinkStep({ jobsiteId, url, nomes, paginas, ligado, onLigado, onChange, onEstado }: {
+export function AutolinkStep({
+  jobsiteId, url, nomes, paginas, ligado, onLigado, onChange, onEstado,
+  pageIndexes, mode = "upload", versionId,
+}: {
   jobsiteId: string
   /** O arquivo local, que é de onde o texto sai. */
   url: string
@@ -66,6 +70,14 @@ export function AutolinkStep({ jobsiteId, url, nomes, paginas, ligado, onLigado,
   onChange: (links: VinculoConfirmado[]) => void
   /** Quanto falta decidir: o envio só libera com a conferência terminada. */
   onEstado: (e: { varrido: boolean; pendentes: number }) => void
+  /** Relê somente estas páginas, mantendo o set inteiro como índice de destinos. */
+  pageIndexes?: number[]
+  /** No remapeamento o sim já foi dado pelo comando que abriu o diálogo. */
+  mode?: "upload" | "remap"
+  /** Quando a versão já existe, quem varre é o servidor, a partir do texto que
+   *  o ingest guardou. No envio o arquivo ainda não subiu, e aí a leitura
+   *  continua sendo no navegador porque não há outro lugar onde ele esteja. */
+  versionId?: string
 }) {
   const [sugestoes, setSugestoes] = useState<AtlasAutolinkPage[] | null>(null)
   const [varrendo, setVarrendo] = useState("")
@@ -103,9 +115,14 @@ export function AutolinkStep({ jobsiteId, url, nomes, paginas, ligado, onLigado,
     setErro("")
     setVarrendo("0")
     try {
-      const r = await sugerirVinculos(jobsiteId, url, nomes, paginas, (feitas, total) => {
-        setVarrendo(`${feitas}/${total}`)
-      }, outrasPastas)
+      const r = versionId
+        ? await atlasService.autolinkScan(versionId, {
+            pageIndexes,
+            otherFolders: outrasPastas,
+          })
+        : await sugerirVinculos(jobsiteId, url, nomes, paginas, (feitas, total) => {
+            setVarrendo(`${feitas}/${total}`)
+          }, outrasPastas, pageIndexes)
       setSugestoes(r.paginas)
       const primeira = r.paginas.find(p => p.links.length > 0)
       setAberta(primeira ? primeira.pageIndex : null)
@@ -172,7 +189,7 @@ export function AutolinkStep({ jobsiteId, url, nomes, paginas, ligado, onLigado,
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
           {/* A pergunta só existe antes da varredura: respondida e rodada, ela
               vira espaço ocupado por uma decisão já tomada. */}
-          {!sugestoes && (
+          {!sugestoes && mode === "upload" && (
             <div className="flex flex-col gap-2 rounded-lg border border-border/60 p-3">
               <p className="text-sm font-medium">Create hyperlinks automatically?</p>
               <p className="text-xs leading-snug text-muted-foreground">

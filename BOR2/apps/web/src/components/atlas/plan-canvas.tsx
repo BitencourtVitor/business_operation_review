@@ -43,7 +43,7 @@ const FADE_MS = 160
  * rasterizar o PDF a cada quadro do gesto, mas para de saltar aos olhos.
  */
 export function PlanCanvas({
-  url, pageIndex, view, width, height, pageWidth, pageHeight, onReady, onFail,
+  url, pageIndex, view, width, height, pageWidth, pageHeight, onReady, onFail, onPageSize,
 }: {
   url: string
   pageIndex: number
@@ -56,6 +56,9 @@ export function PlanCanvas({
   onReady?: () => void
   /** Chamado quando o arquivo da folha não abre: rede, permissão ou PDF quebrado. */
   onFail?: () => void
+  /** Tamanho que o pdf.js enxerga depois de aplicar `/Rotate` e os page boxes.
+   * Ele corrige metadados antigos extraídos no eixo cru do PDF. */
+  onPageSize?: (size: { width: number; height: number }) => void
 }) {
   const baseRef = useRef<HTMLCanvasElement>(null)
   const sharpRefs = [useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null)]
@@ -90,6 +93,8 @@ export function PlanCanvas({
         const pdf = await loadPdf(url)
         const page = await pdf.getPage(pageIndex + 1)
         const natural = page.getViewport({ scale: 1 })
+        if (cancelled) return
+        onPageSize?.({ width: natural.width, height: natural.height })
         const viewport = page.getViewport({ scale: BASE_WIDTH / natural.width })
         const canvas = baseRef.current
         if (!canvas || cancelled) return
@@ -111,7 +116,7 @@ export function PlanCanvas({
     })()
 
     return () => { cancelled = true }
-  }, [url, pageIndex, onFail])
+  }, [url, pageIndex, onFail, onPageSize])
 
   // ── Camada nítida: a cada parada do gesto ─────────────────────────────────
   useEffect(() => {

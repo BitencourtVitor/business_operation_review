@@ -229,6 +229,14 @@ func (h *AtlasHandler) processarVersao(ctx context.Context, versionID string) er
 		return fmt.Errorf("o PDF não tem páginas")
 	}
 
+	// O mesmo texto que nomeia a folha serve para sugerir hiperlink. Guardar
+	// aqui evita que o navegador abra o arquivo de novo só para reler o que
+	// acabou de ser lido. Falhar não derruba o processamento: a varredura sabe
+	// extrair na hora quando não encontra nada guardado.
+	if err := h.guardarTexto(ctx, versionID, paginas); err != nil {
+		log.Printf("[atlas-ingest] %s: guardar texto falhou: %v", versionID, err)
+	}
+
 	// A vaga: na revisão parcial as páginas do arquivo entram no lugar da
 	// primeira que sai. No set inteiro é zero.
 	vaga := 0

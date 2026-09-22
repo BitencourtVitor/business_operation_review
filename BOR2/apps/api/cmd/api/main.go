@@ -745,6 +745,9 @@ func main() {
 	// vínculo falso é pior que vínculo ausente.
 	atlas.Post("/versions/:id/autolink", atlasHandler.Autolink)
 	atlas.Post("/versions/:id/autolink/apply", atlasHandler.AutolinkApply)
+	// Varredura no servidor, a partir do texto guardado no ingest. Substitui a
+	// leitura do PDF no navegador, que é onde a espera do "Scan for links" mora.
+	atlas.Post("/versions/:id/autolink/scan", atlasHandler.AutolinkScan)
 	atlas.Post("/jobsites/:id/autolink/preview", atlasHandler.AutolinkPreview)
 
 	// Escala da prancha e medição sobre ela.

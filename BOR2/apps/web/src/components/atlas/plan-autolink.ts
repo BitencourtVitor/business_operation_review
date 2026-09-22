@@ -299,10 +299,18 @@ export async function sugerirVinculos(
   totalPaginas: number,
   andamento?: (feitas: number, total: number) => void,
   outrasPastas = false,
+  /** Quando presente, relê só estas páginas. Os destinos continuam vindo do
+   * set inteiro em `nomes`, para uma folha escolhida poder apontar para qualquer
+   * outra folha do documento. */
+  indices?: number[],
 ) {
   const local = [...nomes.entries()].map(([pageIndex, name]) => ({ pageIndex, name }))
   const pages: Array<{ pageIndex: number; tokens: TokenExtraido[]; noText: boolean }> = []
-  for (let i = 0; i < totalPaginas; i++) {
+  const paginas = indices?.length
+    ? [...new Set(indices)].filter(i => i >= 0 && i < totalPaginas).sort((a, b) => a - b)
+    : Array.from({ length: totalPaginas }, (_, i) => i)
+  for (let n = 0; n < paginas.length; n++) {
+    const i = paginas[n]
     try {
       const { tokens, semTexto } = await tokensDaPagina(url, i)
       pages.push({ pageIndex: i, tokens, noText: semTexto })
@@ -311,7 +319,7 @@ export async function sugerirVinculos(
       // aparece na contagem, em vez de sumir.
       pages.push({ pageIndex: i, tokens: [], noText: true })
     }
-    andamento?.(i + 1, totalPaginas)
+    andamento?.(n + 1, paginas.length)
   }
   return atlasService.autolinkPreview(jobsiteId, { local, pages, otherFolders: outrasPastas })
 }
