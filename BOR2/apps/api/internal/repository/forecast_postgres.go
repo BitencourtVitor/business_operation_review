@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -28,6 +29,8 @@ type ForecastRepository interface {
 	DeleteContractTeam(ctx context.Context, projectID string, team string) error
 	AddContractTeam(ctx context.Context, projectID string, team string) error
 	AppendObs(ctx context.Context, e *domain.ForecastObsEntry) error
+	UpdateObs(ctx context.Context, obsID int64, authorID, body string) (string, error)
+	DeleteObs(ctx context.Context, obsID int64, authorID string) (string, error)
 	ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error)
 	ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error)
 }
@@ -577,6 +580,79 @@ func (r *PostgresForecastRepository) AppendObs(ctx context.Context, e *domain.Fo
 	}
 
 	return tx.Commit(ctx)
+}
+
+// sincronizarObs deixa a observação da obra igual ao comentário mais recente
+// que sobrou. É o que mantém o texto e a assinatura contando a mesma história
+// depois de editar ou apagar: apagar o último comentário devolve o penúltimo,
+// e apagar o único deixa a obra sem observação, não com o texto de um
+// comentário que não existe mais.
+func sincronizarObs(ctx context.Context, tx pgx.Tx, projectID string) error {
+	_, err := tx.Exec(ctx, `
+		UPDATE forecast_core c
+		   SET obs = COALESCE((SELECT h.body FROM forecast_obs_history h
+		                        WHERE LOWER(h.project_id) = LOWER(c.id)
+		                        ORDER BY h.created_at DESC, h.id DESC LIMIT 1), '')
+		 WHERE LOWER(c.id) = LOWER($1)`, projectID)
+	return err
+}
+
+// UpdateObs reescreve um comentário. O autor entra na cláusula, e não numa
+// conferência antes: assim quem não escreveu não altera, mesmo que dois
+// pedidos cheguem ao mesmo tempo. Zero linhas afetadas quer dizer que o
+// comentário não é daquela pessoa, ou não existe mais.
+func (r *PostgresForecastRepository) UpdateObs(ctx context.Context, obsID int64, authorID, body string) (string, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return "", fmt.Errorf("update forecast obs: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	var projectID string
+	err = tx.QueryRow(ctx, `
+		UPDATE forecast_obs_history SET body = $3
+		 WHERE id = $1 AND author_id = $2
+		RETURNING project_id
+	`, obsID, authorID, body).Scan(&projectID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", domain.ErrNotFound
+	}
+	if err != nil {
+		return "", fmt.Errorf("update forecast obs: %w", err)
+	}
+
+	if err := sincronizarObs(ctx, tx, projectID); err != nil {
+		return "", fmt.Errorf("update forecast obs: %w", err)
+	}
+	return projectID, tx.Commit(ctx)
+}
+
+// DeleteObs apaga um comentário do próprio autor. A linha sai do histórico,
+// mas não do rastro: o gatilho zz_audit guarda o que foi apagado.
+func (r *PostgresForecastRepository) DeleteObs(ctx context.Context, obsID int64, authorID string) (string, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return "", fmt.Errorf("delete forecast obs: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	var projectID string
+	err = tx.QueryRow(ctx, `
+		DELETE FROM forecast_obs_history
+		 WHERE id = $1 AND author_id = $2
+		RETURNING project_id
+	`, obsID, authorID).Scan(&projectID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", domain.ErrNotFound
+	}
+	if err != nil {
+		return "", fmt.Errorf("delete forecast obs: %w", err)
+	}
+
+	if err := sincronizarObs(ctx, tx, projectID); err != nil {
+		return "", fmt.Errorf("delete forecast obs: %w", err)
+	}
+	return projectID, tx.Commit(ctx)
 }
 
 func (r *PostgresForecastRepository) ListObs(ctx context.Context, projectID string) ([]*domain.ForecastObsEntry, error) {

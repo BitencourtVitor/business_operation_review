@@ -97,6 +97,17 @@ func (s *ForecastService) AppendObs(ctx context.Context, projectID, body, author
 	return e, nil
 }
 
+// EditObs e RemoveObs passam o autor adiante porque a autorização é da linha,
+// e não da tela: quem escreveu é quem altera, e isso se decide onde o dado
+// está, não onde o botão aparece.
+func (s *ForecastService) EditObs(ctx context.Context, obsID int64, authorID, body string) (string, error) {
+	return s.repo.UpdateObs(ctx, obsID, authorID, body)
+}
+
+func (s *ForecastService) RemoveObs(ctx context.Context, obsID int64, authorID string) (string, error) {
+	return s.repo.DeleteObs(ctx, obsID, authorID)
+}
+
 func (s *ForecastService) ListDateHistory(ctx context.Context, projectID string) ([]*domain.ForecastDateEntry, error) {
 	return s.repo.ListDateHistory(ctx, projectID)
 }
