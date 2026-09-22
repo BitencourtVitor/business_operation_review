@@ -1218,15 +1218,15 @@ export default function DocumentPage() {
               à página. */}
           {version && (
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60">
-              {/* No celular o título fica numa linha e os controles na de
-                  baixo. Espremidos na mesma linha, a contagem quebrava em três
-                  e o botão de escolher saía da tela. */}
-              <div className="flex shrink-0 flex-col gap-2 border-b border-border/60 bg-muted/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <h2 className="flex items-center gap-2 text-sm font-semibold">
+              {/* No celular só a busca desce para a linha de baixo, ocupando a
+                  largura toda. Título, contagem e o botão de escolher ficam em
+                  cima: é o que se lê primeiro, e cabe. */}
+              <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border/60 bg-muted/30 px-3 py-2 sm:flex-nowrap sm:gap-3">
+                <h2 className="mr-auto flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
                   Sheets
                 </h2>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:flex-none sm:flex-nowrap">
                   {/* Primeiro o quanto existe, depois o que filtra ou escolhe:
                       o número é o que se lê, e os controles agem sobre ele. */}
                   {sheets && (
@@ -1237,14 +1237,17 @@ export default function DocumentPage() {
                     </span>
                   )}
                   {!!sheets?.length && (
-                    <label className="relative block min-w-0 flex-1 sm:flex-none">
+                    // `order-last` com largura cheia joga a busca sozinha para a
+                    // linha de baixo no celular; a partir de sm ela volta para o
+                    // meio da fileira, entre a contagem e o botão de escolher.
+                    <label className="relative order-last block w-full min-w-0 sm:order-none sm:w-auto">
                       <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={sheetQuery}
                         onChange={e => setSheetQuery(e.target.value)}
                         placeholder="Find sheet"
                         aria-label="Find a sheet by name or page"
-                        className="h-7 min-w-0 flex-1 pl-8 sm:w-40 sm:flex-none"
+                        className="h-7 w-full min-w-0 pl-8 sm:w-40"
                       />
                     </label>
                   )}
