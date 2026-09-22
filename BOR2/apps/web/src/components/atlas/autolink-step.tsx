@@ -2,7 +2,7 @@
 
 import { loadPdf } from "@/components/atlas/pdf-page"
 import { PlanCanvas, type PlanView } from "@/components/atlas/plan-canvas"
-import { sugerirVinculos } from "@/components/atlas/plan-autolink"
+import { sugerirVinculos, varrerNoServidor } from "@/components/atlas/plan-autolink"
 import { atlasService } from "@/services/atlas.service"
 import { HoldButton } from "@/components/common/hold-button"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import {
   AlertTriangle, ArrowRight, Check, ChevronDown, ChevronRight, FolderOpen, Link2, Maximize,
-  Minus, Plus, ScanSearch, X,
+  Loader2, Minus, Plus, ScanSearch, X,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -80,7 +80,13 @@ export function AutolinkStep({
   versionId?: string
 }) {
   const [sugestoes, setSugestoes] = useState<AtlasAutolinkPage[] | null>(null)
-  const [varrendo, setVarrendo] = useState("")
+  // Nulo é parado. Com valor, é a varredura andando: quantas páginas saíram de
+  // quantas. O percentual sai daqui, e não de um contador à parte.
+  const [progresso, setProgresso] = useState<{ feitas: number; total: number } | null>(null)
+  const varrendo = progresso !== null
+  const pct = progresso && progresso.total > 0
+    ? Math.round((progresso.feitas / progresso.total) * 100)
+    : 0
   const [erro, setErro] = useState("")
   // Decidido por vínculo: verdadeiro confirma, falso recusa, ausente é pendente.
   const [decisao, setDecisao] = useState<Record<string, boolean>>({})
@@ -113,23 +119,20 @@ export function AutolinkStep({
 
   async function varrer() {
     setErro("")
-    setVarrendo("0")
+    const alvo = pageIndexes ?? [...Array(paginas).keys()]
+    setProgresso({ feitas: 0, total: versionId ? alvo.length : paginas })
+    const andamento = (feitas: number, total: number) => setProgresso({ feitas, total })
     try {
       const r = versionId
-        ? await atlasService.autolinkScan(versionId, {
-            pageIndexes,
-            otherFolders: outrasPastas,
-          })
-        : await sugerirVinculos(jobsiteId, url, nomes, paginas, (feitas, total) => {
-            setVarrendo(`${feitas}/${total}`)
-          }, outrasPastas, pageIndexes)
+        ? await varrerNoServidor(versionId, alvo, outrasPastas, andamento)
+        : await sugerirVinculos(jobsiteId, url, nomes, paginas, andamento, outrasPastas, pageIndexes)
       setSugestoes(r.paginas)
       const primeira = r.paginas.find(p => p.links.length > 0)
       setAberta(primeira ? primeira.pageIndex : null)
     } catch {
       setErro("The scan did not finish. Try again with a connection.")
     } finally {
-      setVarrendo("")
+      setProgresso(null)
     }
   }
 
@@ -236,10 +239,9 @@ export function AutolinkStep({
                 </span>
               </label>
 
-              <Button disabled={!!varrendo} onClick={varrer}>
-                <ScanSearch className="h-4 w-4" />
-                {varrendo ? `Reading the sheets ${varrendo}` : "Scan for links"}
-              </Button>
+              <BotaoVarredura varrendo={varrendo} pct={pct} onClick={varrer}>
+                Scan for links
+              </BotaoVarredura>
             </>
           )}
 
@@ -258,10 +260,16 @@ export function AutolinkStep({
                   {" "}Repeated codes always point to the first sheet that carries them.
                 </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={varrer} disabled={!!varrendo}>
-                    <ScanSearch className="h-3.5 w-3.5" />
-                    {varrendo ? `Reading ${varrendo}` : "Scan again"}
-                  </Button>
+                  <BotaoVarredura
+                    varrendo={varrendo}
+                    pct={pct}
+                    onClick={varrer}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                  >
+                    Scan again
+                  </BotaoVarredura>
                   <Button
                     size="sm"
                     className="flex-1"
@@ -675,5 +683,48 @@ function PaginaComMarcas({ url, pageIndex, links, decisao, onDecidir }: {
         </Button>
       </div>
     </div>
+  )
+}
+
+/**
+ * O botão que vira a própria barra de progresso enquanto varre.
+ *
+ * Contador cru de página não diz quanto falta sem a pessoa fazer a conta. Aqui
+ * o fundo do botão preenche na proporção do que já saiu, o número é o
+ * percentual, e o giro diz que está vivo mesmo quando um lote demora.
+ */
+function BotaoVarredura({
+  varrendo, pct, onClick, children, variant, size, className,
+}: {
+  varrendo: boolean
+  pct: number
+  onClick: () => void
+  children: React.ReactNode
+  variant?: React.ComponentProps<typeof Button>["variant"]
+  size?: React.ComponentProps<typeof Button>["size"]
+  className?: string
+}) {
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      disabled={varrendo}
+      onClick={onClick}
+      className={`relative overflow-hidden ${className ?? ""}`}
+    >
+      {varrendo && (
+        <span
+          aria-hidden
+          className="absolute inset-y-0 left-0 bg-current/20 transition-[width] duration-300 ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      )}
+      <span className="relative flex items-center gap-1.5">
+        {varrendo
+          ? <Loader2 className="h-4 w-4 animate-spin" />
+          : <ScanSearch className="h-4 w-4" />}
+        {varrendo ? `Reading the sheets · ${pct}%` : children}
+      </span>
+    </Button>
   )
 }
