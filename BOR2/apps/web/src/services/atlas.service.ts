@@ -910,8 +910,28 @@ export const atlasService = {
       targetPageIndex: number
       targetName: string
     }>
-  }) => api.post<{ links: number }>(
+    /** Páginas de origem cujos links automáticos devem ser substituídos.
+     * Ausente mantém o comportamento aditivo usado pelo upload. */
+    sourcePageIndexes?: number[]
+  }) => api.post<{ links: number; replaced?: boolean }>(
     `${base}/versions/${versionId}/autolink/apply`, body, getToken()),
+
+  /** Varre no servidor, a partir do texto que o ingest guardou.
+   *
+   * O navegador não abre mais o PDF para isto: o reconhecimento de glifo já
+   * aconteceu uma vez, no envio, e refazê-lo na máquina de quem clica era a
+   * espera inteira do "Scan for links". */
+  autolinkScan: (versionId: string, body: {
+    /** Vazio relê a versão inteira; com índices, só as folhas escolhidas. */
+    pageIndexes?: number[]
+    otherFolders?: boolean
+    minRefs?: number
+  }) => api.post<{
+    destinos: number
+    paginas: AtlasAutolinkPage[]
+    links: number
+    scanned: number
+  }>(`${base}/versions/${versionId}/autolink/scan`, body, getToken()),
 
   /** Herda as folhas não trocadas de uma revisão parcial. */
   inheritSheets: (versionId: string, body: { scope: "range" | "single"; pages: number[]; inserted: number }) =>

@@ -25,16 +25,16 @@ import { NamingTemplateDialog } from "@/components/atlas/naming-template-dialog"
 import { DocumentTagsDialog, NoCategoryBadge, tagLabel } from "@/components/atlas/document-tags-dialog"
 import { JobsiteIdentity } from "@/components/atlas/jobsite-identity"
 import { descartarUpload, retomarUpload, takeUpload } from "@/components/atlas/pending-upload"
-import type { VinculoConfirmado } from "@/components/atlas/autolink-step"
+import { AutolinkStep, type VinculoConfirmado } from "@/components/atlas/autolink-step"
 import { readPageNames, type NamingTemplate } from "@/components/atlas/plan-naming"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { atlasService, uploadToR2, type AtlasIngestJob, type AtlasSheet } from "@/services/atlas.service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft, Check, CheckCheck, CheckCircle2, CloudUpload, Download, FileText, Flag, Highlighter, History, Layers, Link2, MapPin,
-  Loader2, Pencil, RefreshCw, ScanText, SquareDashedMousePointer, Tags, TriangleAlert, WifiOff, X,
+  Loader2, Pencil, RefreshCw, ScanText, Search, SquareDashedMousePointer, Tags, TriangleAlert, WifiOff, X,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
@@ -536,11 +536,22 @@ export default function DocumentPage() {
   const [picking, setPicking] = useState<null | "one" | "range">(null)
   const [chosen, setChosen] = useState<Set<string>>(new Set())
   const [anchor, setAnchor] = useState<number | null>(null)
+  const [sheetQuery, setSheetQuery] = useState("")
 
   const [naming, setNaming] = useState(false)
   const [namingUrl, setNamingUrl] = useState("")
   const [applying, setApplying] = useState("")
   const [namingError, setNamingError] = useState("")
+
+  // O mesmo seletor que nomeia e troca folhas também pode reler as referências
+  // impressas nelas. O diálogo guarda a decisão separada do upload: aqui os
+  // vínculos já existem e serão substituídos só nas páginas escolhidas.
+  const [remapping, setRemapping] = useState(false)
+  const [remapUrl, setRemapUrl] = useState("")
+  const [remapLinks, setRemapLinks] = useState<VinculoConfirmado[]>([])
+  const [remapState, setRemapState] = useState({ varrido: false, pendentes: 0 })
+  const [remapError, setRemapError] = useState("")
+  const [savingLinks, setSavingLinks] = useState(false)
 
   // Documento recém-criado: o arquivo foi escolhido na sala da obra e ficou
   // esperando aqui, porque é aqui que as folhas aparecem uma a uma. Roda uma
@@ -581,6 +592,15 @@ export default function DocumentPage() {
 
 
   const { data: sheets } = useAtlasSheets(versionId)
+  const visibleSheets = useMemo(() => {
+    const query = sheetQuery.trim().toLocaleLowerCase()
+    if (!query) return sheets ?? []
+    return (sheets ?? []).filter(s =>
+      s.sheetNumber.toLocaleLowerCase().includes(query)
+      || s.title.toLocaleLowerCase().includes(query)
+      || String(s.pageIndex + 1) === query,
+    )
+  }, [sheets, sheetQuery])
   const { data: job } = useIngestJob(versionId)
   // "Pronto" é aviso de fim de envio, não estado da versão: só aparece para
   // quem acompanhou a versão subindo ou processando nesta visita. Quem abre um
@@ -677,6 +697,60 @@ export default function DocumentPage() {
       setNaming(true)
     } catch (e) {
       setNamingError(e instanceof Error ? e.message : "could not open the plan set")
+    }
+  }
+
+  async function openRemap() {
+    setRemapError("")
+    setRemapLinks([])
+    setRemapState({ varrido: false, pendentes: 0 })
+    setRemapping(true)
+    try {
+      setRemapUrl(await urlDoSet())
+    } catch (e) {
+      setRemapError(e instanceof Error ? e.message : "could not open the plan set")
+    }
+  }
+
+  function closeRemap() {
+    if (remapUrl.startsWith("blob:")) URL.revokeObjectURL(remapUrl)
+    setRemapping(false)
+    setRemapUrl("")
+    setRemapLinks([])
+    setRemapState({ varrido: false, pendentes: 0 })
+    setRemapError("")
+  }
+
+  async function applyRemap() {
+    const pageIndexes = paginasEscolhidas()
+    if (!pageIndexes.length || !remapState.varrido || remapState.pendentes > 0) return
+    setSavingLinks(true)
+    setRemapError("")
+    try {
+      // A API nova substitui em uma operação. Enquanto o backend publicado
+      // ainda for o anterior, guardamos os IDs existentes antes de aplicar e
+      // removemos só esses depois: o recurso já funciona sem arriscar apagar os
+      // links novos ou os que alguém desenhou à mão.
+      const selectedSheets = (sheets ?? []).filter(s => chosen.has(s.id))
+      const oldAutomaticLinks = (await Promise.all(
+        selectedSheets.map(s => atlasService.listAnnotations(s.id)),
+      )).flat().filter(a =>
+        a.tool === "link" && (a.geometry as typeof a.geometry & { auto?: boolean }).auto === true,
+      )
+      const result = await atlasService.autolinkApply(versionId, {
+        links: remapLinks,
+        sourcePageIndexes: pageIndexes,
+      })
+      if (!result.replaced) {
+        await Promise.all(oldAutomaticLinks.map(a => atlasService.deleteAnnotation(a.id)))
+      }
+      await qc.invalidateQueries({ queryKey: ["atlas", "sheets", versionId] })
+      closeRemap()
+      stopPicking()
+    } catch (e) {
+      setRemapError(e instanceof Error ? e.message : "could not replace the links")
+    } finally {
+      setSavingLinks(false)
     }
   }
 
@@ -1150,9 +1224,23 @@ export default function DocumentPage() {
                   Sheets
                 </h2>
                 <div className="flex items-center gap-2">
+                  {!!sheets?.length && (
+                    <label className="relative block">
+                      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        value={sheetQuery}
+                        onChange={e => setSheetQuery(e.target.value)}
+                        placeholder="Find sheet"
+                        aria-label="Find a sheet by name or page"
+                        className="h-8 w-32 pl-8 sm:w-40"
+                      />
+                    </label>
+                  )}
                   {sheets && (
                     <span className="text-xs text-muted-foreground">
-                      {sheets.length} plans total
+                      {visibleSheets.length === sheets.length
+                        ? `${sheets.length} plans total`
+                        : `${visibleSheets.length} of ${sheets.length}`}
                     </span>
                   )}
 
@@ -1295,6 +1383,16 @@ export default function DocumentPage() {
                       {applying ? `Reading ${applying}` : "Rename"}
                     </span>
                   </Button>
+                  <Button
+                    variant="outline"
+                    aria-label="Remap hyperlinks on the selected sheets"
+                    className="grow basis-0 sm:grow-0 sm:basis-auto"
+                    disabled={!chosen.size || savingLinks}
+                    onClick={openRemap}
+                  >
+                    <Link2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Remap links</span>
+                  </Button>
                   {/* Trocar o que está escolhido. A escolha é a mesma que baixa
                       e renomeia: o que muda é o que se faz com ela. */}
                   {canManage && !!versions?.length && (
@@ -1326,10 +1424,23 @@ export default function DocumentPage() {
                     way Fieldwire does it. The sheet number is yours to fill in.
                   </p>
                 </div>
+              ) : !visibleSheets.length ? (
+                <div className="flex min-h-40 flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 p-6 text-center">
+                  <span>
+                    <p className="text-sm font-medium">No sheet matches “{sheetQuery.trim()}”</p>
+                    <button
+                      type="button"
+                      className="mt-1 text-sm text-primary hover:underline"
+                      onClick={() => setSheetQuery("")}
+                    >
+                      Clear search
+                    </button>
+                  </span>
+                </div>
               ) : (
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {sheets.map(s => (
+                    {visibleSheets.map(s => (
                       <SheetCard
                         key={s.id}
                         sheet={s}
@@ -1377,6 +1488,57 @@ export default function DocumentPage() {
               setHistory(false)
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={remapping} onOpenChange={o => { if (!o && !savingLinks) closeRemap() }}>
+        <DialogContent className="flex h-[min(90vh,760px)] max-h-[90vh] flex-col sm:max-w-6xl">
+          <DialogHeader>
+            <DialogTitle>Remap hyperlinks</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Scan the {chosen.size} selected sheet{chosen.size === 1 ? "" : "s"}, review every
+              suggestion, then replace their automatic links. Links added by hand are preserved.
+            </p>
+          </DialogHeader>
+          {remapUrl && (
+            <AutolinkStep
+              jobsiteId={jobsiteId}
+              url={remapUrl}
+              versionId={versionId}
+              nomes={new Map((sheets ?? []).map(s => [s.pageIndex, s.sheetNumber]))}
+              paginas={sheets?.length ?? 0}
+              pageIndexes={paginasEscolhidas()}
+              ligado
+              mode="remap"
+              onLigado={() => {}}
+              onChange={setRemapLinks}
+              onEstado={setRemapState}
+            />
+          )}
+          <DialogFooter>
+            {remapError && (
+              <p className="order-last max-w-[22rem] text-left text-xs text-destructive sm:order-first sm:mr-auto sm:self-center">
+                {remapError}
+              </p>
+            )}
+            {remapState.pendentes > 0 && (
+              <p className="order-last flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 sm:order-first sm:mr-auto">
+                <Link2 className="h-3.5 w-3.5 shrink-0" />
+                {remapState.pendentes} link{remapState.pendentes === 1 ? "" : "s"} still to confirm or reject.
+              </p>
+            )}
+            <Button variant="outline" disabled={savingLinks} onClick={closeRemap}>Cancel</Button>
+            <Button
+              disabled={!remapState.varrido || remapState.pendentes > 0 || savingLinks}
+              onClick={applyRemap}
+            >
+              {savingLinks ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+              {savingLinks ? "Replacing links" : "Replace links"}
+              {remapState.varrido && remapLinks.length > 0 && (
+                <span className="tabular-nums font-normal opacity-70">· {remapLinks.length}</span>
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

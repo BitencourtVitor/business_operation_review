@@ -143,12 +143,66 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 		in.MinRefs = 2
 	}
 
+	entradas := make([]autolinkEntrada, 0, len(in.Pages))
+	for _, p := range in.Pages {
+		entradas = append(entradas, autolinkEntrada{PageIndex: p.PageIndex, Tokens: p.Tokens, NoText: p.NoText})
+	}
+	locaisIn := make([]autolinkLocal, 0, len(in.Local))
+	for _, l := range in.Local {
+		locaisIn = append(locaisIn, autolinkLocal{PageIndex: l.PageIndex, Name: l.Name})
+	}
+
+	paginas, destinos, total, err := h.sugerirVinculos(
+		c.Context(), jobsiteID, locaisIn, entradas, in.MinRefs, in.OutrasPastas)
+	if err != nil {
+		return internalErr(c, err)
+	}
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"destinos": destinos,
+		"paginas":  paginas,
+		"links":    total,
+	}})
+}
+
+// autolinkLocal é uma folha do próprio arquivo: destino possível como qualquer
+// outra, e com preferência sobre as das outras pastas.
+type autolinkLocal struct {
+	PageIndex int
+	Name      string
+}
+
+// autolinkEntrada é o texto de uma página, venha ele do navegador (envio) ou do
+// que o ingest guardou (varredura no servidor).
+type autolinkEntrada struct {
+	PageIndex int
+	Tokens    []autolinkToken
+	NoText    bool
+}
+
+// sugerirVinculos é o miolo da sugestão, sem o fiber.
+//
+// Existe como função própria porque duas rotas precisam exatamente dela: o
+// envio, que manda o texto lido no navegador, e a varredura no servidor, que lê
+// o texto guardado no ingest. Duplicar a regra faria as duas metades divergirem
+// no primeiro ajuste.
+func (h *AtlasHandler) sugerirVinculos(
+	ctx context.Context,
+	jobsiteID string,
+	local []autolinkLocal,
+	pages []autolinkEntrada,
+	minRefs int,
+	outrasPastas bool,
+) ([]autolinkSugestaoPagina, int, int, error) {
+	if minRefs <= 0 {
+		minRefs = 2
+	}
+
 	indice := map[string]destino{}
-	if in.OutrasPastas {
+	if outrasPastas {
 		var err error
-		indice, err = h.indiceDaObra(c.Context(), jobsiteID, "")
+		indice, err = h.indiceDaObra(ctx, jobsiteID, "")
 		if err != nil {
-			return internalErr(c, err)
+			return nil, 0, 0, err
 		}
 	}
 	// As folhas que estão subindo entram na frente: dentro do próprio arquivo, o
@@ -159,9 +213,9 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 	// código escrito na prancha se refere ao componente, e o componente começa na
 	// primeira página; sem esta trava a última sobrescrevia as anteriores, e o
 	// vínculo de `E1005-L` caía na segunda folha de mesmo nome.
-	sort.SliceStable(in.Local, func(a, b int) bool { return in.Local[a].PageIndex < in.Local[b].PageIndex })
+	sort.SliceStable(local, func(a, b int) bool { return local[a].PageIndex < local[b].PageIndex })
 	locais := map[string]bool{}
-	for _, l := range in.Local {
+	for _, l := range local {
 		k := chaveTitulo(l.Name)
 		if k == "" || locais[k] {
 			continue
@@ -172,7 +226,7 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 
 	paginas := []autolinkSugestaoPagina{}
 	total := 0
-	for _, p := range in.Pages {
+	for _, p := range pages {
 		res := autolinkSugestaoPagina{PageIndex: p.PageIndex, Links: []autolinkSugestao{}}
 		if p.NoText {
 			res.Shape = "no-text"
@@ -218,18 +272,14 @@ func (h *AtlasHandler) AutolinkPreview(c *fiber.Ctx) error {
 			res.Shape = "referencing"
 		}
 
-		if res.Refs >= in.MinRefs {
+		if res.Refs >= minRefs {
 			res.Links = achados
 			total += len(achados)
 		}
 		paginas = append(paginas, res)
 	}
 
-	return c.JSON(fiber.Map{"data": fiber.Map{
-		"destinos": len(indice),
-		"paginas":  paginas,
-		"links":    total,
-	}})
+	return paginas, len(indice), total, nil
 }
 
 // vinculoConfirmado é um vínculo que a pessoa aprovou na etapa Links do envio,
@@ -269,17 +319,35 @@ func (h *AtlasHandler) AutolinkApply(c *fiber.Ctx) error {
 	}
 
 	var in struct {
-		Links []vinculoConfirmado `json:"links"`
+		Links             []vinculoConfirmado `json:"links"`
+		SourcePageIndexes []int               `json:"sourcePageIndexes"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return badRequest(c, "invalid body")
 	}
 	userID, _ := actor(c)
+	// Remapear substitui somente os vínculos criados pela automação nas páginas
+	// escolhidas. Links desenhados à mão continuam intactos, e mandar uma lista
+	// confirmada vazia continua sendo uma decisão válida: remove os antigos.
+	if len(in.SourcePageIndexes) > 0 {
+		if _, err := h.db.Exec(c.Context(), `
+			DELETE FROM atlas_annotation a USING atlas_sheet s
+			 WHERE a.sheet_id = s.id
+			   AND s.version_id = $1
+			   AND s.page_index = ANY($2::int[])
+			   AND a.tool = 'link'
+			   AND a.geometry->>'auto' = 'true'`, versionID, in.SourcePageIndexes); err != nil {
+			return internalErr(c, err)
+		}
+	}
 	gravados, err := h.gravarVinculos(c.Context(), versionID, documentID, documentName, userID, in.Links)
 	if err != nil {
 		return internalErr(c, err)
 	}
-	return c.JSON(fiber.Map{"data": fiber.Map{"links": gravados}})
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"links":    gravados,
+		"replaced": len(in.SourcePageIndexes) > 0,
+	}})
 }
 
 // gravarVinculos é o miolo do apply, sem o fiber: a rota e o processamento do
