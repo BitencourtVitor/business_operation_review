@@ -1,0 +1,579 @@
+% Manual do usuário — PCG Bids and Contracts (BOR2)
+% Compilar com: pdflatex -interaction=nonstopmode pcg-bids-and-contracts-pt.tex
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[margin=2.4cm,top=2.6cm,bottom=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{pcgblue}{HTML}{1D4ED8}
+\definecolor{pcggray}{HTML}{4B5563}
+\definecolor{pcglight}{HTML}{F3F4F6}
+\definecolor{pcgamber}{HTML}{B45309}
+\definecolor{pcggreen}{HTML}{15803D}
+
+\hypersetup{
+  colorlinks=false,
+  pdftitle={Manual — PCG Bids and Contracts},
+  pdfauthor={Premium Group},
+}
+
+\titleformat{\section}{\Large\bfseries\color{pcgblue}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{pcggray}}{\thesubsubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{pcggray} PCG Bids and Contracts — Manual do usuário}
+\fancyhead[R]{\small\color{pcggray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist[itemize]{itemsep=2pt,topsep=4pt,leftmargin=1.4em}
+\setlist[enumerate]{itemsep=3pt,topsep=4pt,leftmargin=1.6em}
+
+% Rótulo de botão/campo da tela (a interface é em inglês)
+\newcommand{\ui}[1]{\textbf{\textsf{#1}}}
+% Caixa de aviso
+
+\newsavebox{\avisobox}
+\newenvironment{aviso}
+  {\par\vspace{0.7em}\noindent
+   \begin{lrbox}{\avisobox}\begin{minipage}{\dimexpr\linewidth-2.4em\relax}}
+  {\end{minipage}\end{lrbox}%
+   \noindent\colorbox{pcglight}{\hspace{0.6em}\usebox{\avisobox}\hspace{0.6em}}%
+   \vspace{0.7em}\par}
+
+\begin{document}
+
+% ── Capa ──────────────────────────────────────────────────────────────────────
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries\color{pcgblue} PCG Bids and Contracts\par}
+\vspace{0.8cm}
+{\LARGE Manual do usuário\par}
+\vspace{0.4cm}
+{\large Do cadastro do trade ao contrato assinado\par}
+\vfill
+{\large Premium Group — Business Operation Review\par}
+{\color{pcggray} Versão 1.0 — \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ── 1 ─────────────────────────────────────────────────────────────────────────
+\section{O que é esta tela}
+
+A tela \ui{PCG Bids and Contracts} é onde a PCG monta e acompanha a papelada de
+cada serviço contratado numa obra. Ela produz \textbf{dois documentos}:
+
+\begin{enumerate}
+  \item \textbf{Bid Request} (pedido de cotação) — o formulário que vai para o
+  subcontratado com a descrição do que se quer, para que ele devolva um preço.
+  \item \textbf{Subcontract} (contrato) — o documento final, numerado, que o
+  subcontratado assina.
+\end{enumerate}
+
+Entre um e outro existe um caminho: mandar, receber preço, aprovar, contratar,
+assinar. A tela guarda cada passo desse caminho como um \textbf{evento}, com
+data e autor. Nada é digitado duas vezes: o preço, o subcontratado e a situação
+atual são \emph{lidos} desse histórico.
+
+\subsection{Por que existe}
+
+Antes, cada cotação era um arquivo do Word copiado do anterior. Isso significava
+que o texto padrão variava de obra para obra, ninguém sabia dizer em que pé
+estava cada serviço, e o contrato assinado não tinha como ser reproduzido depois
+— o arquivo original já tinha sido editado por cima.
+
+Aqui, o texto padrão mora num só lugar (o catálogo), e cada documento gerado
+guarda uma cópia congelada do que foi usado. O contrato que o sub assinou em
+agosto continua legível em outubro, mesmo que o padrão da empresa tenha mudado
+no meio.
+
+\subsection{Quem pode fazer o quê}
+
+O acesso é dado em \ui{Settings > Users}, na permissão \ui{PCG Bids and Contracts}:
+
+\begin{itemize}
+  \item \textbf{Leitura} — vê tudo: projetos, catálogo e os documentos. Não
+  altera nada.
+  \item \textbf{Escrita} — cria projeto, responde questionário, registra evento
+  e edita o catálogo.
+\end{itemize}
+
+Sem permissão de escrita, os botões de criar e editar simplesmente não aparecem.
+Não é erro da tela.
+
+% ── 2 ─────────────────────────────────────────────────────────────────────────
+\section{Vocabulário}
+
+Sete palavras aparecem o tempo todo. Vale ler esta página antes de mexer.
+
+\begin{longtable}{@{}p{3.4cm}p{11.4cm}@{}}
+\toprule
+\textbf{Palavra} & \textbf{O que significa aqui} \\
+\midrule
+\endhead
+\textbf{Projeto} & Uma obra. Tem nome, endereço, situação e tipo. Ex.: ``Bates
+Quarry Lot 19''. \\[4pt]
+
+\textbf{Trade} & Uma especialidade contratada: encanamento, elétrica, HVAC. Cada
+trade dentro do projeto tem sua própria trilha, do começo ao fim, independente
+das outras. \\[4pt]
+
+\textbf{Catálogo} & O cadastro dos trades: as perguntas que serão feitas e o
+texto padrão que entra nos documentos. É o molde; o projeto é a peça. \\[4pt]
+
+\textbf{Questionário} & As perguntas do trade, respondidas para aquela obra
+específica. É o que descreve o serviço. \\[4pt]
+
+\textbf{Bid Request} & O formulário impresso a partir do questionário, enviado ao
+sub para ele precificar. \\[4pt]
+
+\textbf{Evento} & Um fato registrado: ``mandei'', ``recebi o preço'', ``aprovei''.
+Cada evento tem data, autor e, quando faz sentido, valor e subcontratado. \\[4pt]
+
+\textbf{Contrato} & O documento final, com número próprio, gerado quando um
+preço foi aprovado. \\
+\bottomrule
+\end{longtable}
+
+\begin{aviso}
+\textbf{A regra de ouro:} a situação de um serviço nunca é escolhida à mão. Ela
+é consequência do último evento registrado. Se algo aparece como ``Bid sent'',
+é porque existe um evento de envio no histórico.
+\end{aviso}
+
+% ── 3 ─────────────────────────────────────────────────────────────────────────
+\section{Antes de começar: o que precisa existir}
+
+Esta é a parte que costuma ser pulada — e é justamente ela que faz o resto
+funcionar. Nada aqui se repete por obra: é configurado uma vez e usado por todos
+os projetos.
+
+\subsection{O catálogo de trades}
+
+Acesse \ui{PCG Bids and Contracts} e clique em \ui{Trades}, no topo da tela.
+Você chega ao \ui{Trade Catalog}. Cada cartão é um trade cadastrado.
+
+Para criar, clique em \ui{New trade}. Os campos:
+
+\begin{itemize}
+  \item \ui{Name} — o nome do serviço, como aparece em tudo. Ex.: ``Plumbing''.
+
+  \item \ui{Document code} — três letras que identificam o trade no número do
+  contrato. Ex.: \texttt{PLB} para Plumbing, \texttt{ELC} para Electrical. É
+  daqui que sai o \texttt{PLB-00001} impresso no documento.
+
+  \item \textbf{Ícone} — escolhido no botão ao lado do nome. Serve só para
+  reconhecer o trade de relance na lista.
+
+  \item \ui{Requires a bid form} — a chave mais importante da tela.
+  \begin{itemize}
+    \item \textbf{Ligada:} o serviço passa por cotação. Existe formulário, envio
+    ao sub, recebimento de preço e aprovação, e só então o contrato.
+    \item \textbf{Desligada:} não há cotação. O contrato é gerado direto do
+    escopo padrão. Use para serviço de preço já acordado ou de rotina.
+  \end{itemize}
+
+  \item \ui{Standard note} — um texto que vale para todo projeto desse trade.
+  Aparece no formulário de cotação, acima das perguntas.
+\end{itemize}
+
+\subsubsection{As perguntas}
+
+Dentro do editor do trade, abra a seção \ui{Questions}. Cada pergunta tem:
+
+\begin{itemize}
+  \item \textbf{Enunciado} — o que se pergunta. Ex.: ``Tipo de aquecedor''.
+  \item \textbf{Tipo} — quatro opções:
+  \begin{itemize}
+    \item \ui{Single choice} — escolhe uma entre várias.
+    \item \ui{Yes / No} — sim, não, ou ``a definir''.
+    \item \ui{Multiple choice} — pode marcar mais de uma.
+    \item \ui{Free text} — texto livre.
+  \end{itemize}
+  \item \textbf{Opções} — a lista de respostas possíveis (não se aplica a texto livre).
+  \item \ui{Hint} — uma orientação curta que aparece embaixo do campo.
+  \item \textbf{Etiqueta} — \ui{All projects} (respondida em toda obra) ou
+  \ui{Optional} (só quando o projeto pedir).
+  \item \textbf{Quantidade} — quando ligada, a pergunta ganha um segundo campo
+  numérico, usado só se a resposta for afirmativa. O \ui{Hint} vira a unidade
+  dessa contagem: ``cômodos'', ``dutos''.
+\end{itemize}
+
+\subsubsection{O escopo padrão}
+
+Ainda no editor, a seção de conteúdo do documento traz três listas. Elas são
+copiadas para todo documento gerado desse trade:
+
+\begin{itemize}
+  \item \ui{Work included} — o que está incluído no serviço.
+  \item \ui{Exclusions} — o que explicitamente \emph{não} é responsabilidade do sub.
+  \item \ui{Responsibility matrix} — quem fornece o quê: a construtora, o sub, ou
+  ``a definir na assinatura''.
+\end{itemize}
+
+\subsubsection{As regras condicionais}
+
+Esta é a parte que dá poder ao catálogo. Uma \textbf{regra} liga uma resposta do
+questionário a uma mudança no escopo do contrato. Assim o mesmo trade produz
+documentos diferentes conforme a obra, sem ninguém reescrever nada à mão.
+
+Cada regra se lê como uma frase: \emph{``Se a pergunta X for Y, então faça Z na
+lista W''}.
+
+\begin{longtable}{@{}p{3.6cm}p{11.2cm}@{}}
+\toprule
+\textbf{Parte} & \textbf{Opções} \\
+\midrule
+\endhead
+Pergunta & Qualquer pergunta do próprio trade. \\[3pt]
+Condição & \ui{is} (é exatamente), \ui{includes} (contém, para múltipla escolha),
+\ui{is answered} (foi respondida), \ui{is not answered} (ficou em branco). \\[3pt]
+Ação & \ui{Add clauses} (acrescenta cláusulas), \ui{Remove a clause} (tira uma
+cláusula do padrão), \ui{Replace a clause} (troca uma pela outra). \\[3pt]
+Lista & \ui{Work included}, \ui{Exclusions} ou \ui{Responsibility matrix}. \\
+\bottomrule
+\end{longtable}
+
+Uma regra pode acrescentar várias cláusulas de uma vez — a relação não é de uma
+para uma.
+
+\begin{aviso}
+\textbf{Exemplo prático.} Se a pergunta ``O sub fornece o material?'' for
+respondida com ``Não'', uma regra pode remover a cláusula padrão que diz que o
+fornecimento é dele, e acrescentar em \ui{Exclusions} a linha dizendo que o
+material será fornecido pela construtora. Quem responder o questionário não
+precisa saber que isso existe: acontece sozinho.
+\end{aviso}
+
+\subsection{Os módulos do documento}
+
+De volta ao \ui{Trade Catalog}, o botão \ui{Document defaults} abre o miolo dos
+documentos — os blocos de texto que valem para todos os trades. É aqui que moram
+as condições gerais, as cláusulas de seguro, os prazos de pagamento padrão.
+
+Cada módulo tem:
+
+\begin{itemize}
+  \item \textbf{Título} e \textbf{corpo} — o texto em si.
+  \item \textbf{Onde aparece} — \ui{Bid requests}, \ui{Contracts} ou \ui{Both}.
+  \item \textbf{Tipo}:
+  \begin{itemize}
+    \item \ui{Editable} — texto que você escreve e pode alterar.
+    \item \ui{Generated} — desenhado pelo sistema a partir dos dados. São três:
+    \emph{Exhibit A: Scope of Work} (o escopo montado das respostas e das
+    regras), \emph{Payment schedule} (o cronograma de pagamento) e
+    \emph{Signatures} (os campos de assinatura).
+    \item \ui{Standard} — texto fixo, que ninguém edita.
+  \end{itemize}
+  \item \textbf{Numeração} — se o módulo recebe número de seção. Apagar a seção 4
+  renumera as seguintes; não fica buraco.
+  \item \textbf{Ordem} — a ordem da lista é a ordem impressa. Arraste para mudar.
+\end{itemize}
+
+O cabeçalho com o logo, a tabela de dados da obra e o rodapé não são módulos: são
+a moldura do papel e não se editam.
+
+\subsection{O cadastro do subcontratado}
+
+A lista de subs \textbf{não} é mantida aqui. Ela vem da tela
+\ui{Subcontractor Docs}. Um sub cadastrado lá aparece aqui automaticamente, e
+subs marcados como inativos não aparecem.
+
+O documento precisa de três dados além do nome da empresa: \textbf{responsável},
+\textbf{e-mail} e \textbf{telefone}. Quando falta algum, o botão ao lado do nome
+do sub fica âmbar — é o aviso de que o contrato vai sair com um campo vazio.
+Clique nele para completar.
+
+% ── 4 ─────────────────────────────────────────────────────────────────────────
+\section{Passo a passo: do zero ao contrato assinado}
+
+Com o catálogo pronto, o trabalho do dia a dia são nove passos.
+
+\subsection{Passo 1 — Criar o projeto}
+
+Na tela principal, clique em \ui{New project}. O projeto nasce vazio, com o nome
+``Untitled project'', e o painel de edição abre sozinho. \textbf{Não existe botão
+de salvar}: cada campo é gravado assim que você sai dele.
+
+Preencha:
+
+\begin{itemize}
+  \item \ui{Title} — o nome da obra. Ex.: ``Bates Quarry Lot 19''.
+  \item \ui{Address} — rua, cidade, estado e CEP.
+  \item \ui{Status} — \ui{Active}, \ui{On hold} ou \ui{Completed}. Serve para
+  filtrar a lista depois.
+  \item \ui{Type} — \ui{New Construction}, \ui{Addition} ou \ui{Renovation}.
+  Perguntado uma vez para a casa inteira, e impresso logo abaixo do endereço nos
+  dois documentos.
+\end{itemize}
+
+\subsection{Passo 2 — Adicionar os trades}
+
+No mesmo painel, na seção \ui{Trades on this project}, clique em \ui{Add trade} e
+escolha os serviços que essa obra precisa. Cada trade adicionado vira uma trilha
+independente: pode estar em cotação enquanto o vizinho já está assinado.
+
+\subsection{Passo 3 — Responder o questionário}
+
+Abra o trade e vá em \ui{Questionnaire}. O contador ao lado do título mostra
+quantas perguntas já foram respondidas — \texttt{7/12}. Ele fica verde quando
+todas estão.
+
+Ao final há o campo \ui{Additional Notes}: um texto livre para o que as perguntas
+não cobrem. É opcional, não conta para o contador, mas \textbf{é impresso no
+documento} e faz parte do que o sub está precificando.
+
+\begin{aviso}
+\textbf{Enquanto o questionário não estiver completo, nada sai.} Os botões de
+gerar documento ficam bloqueados com a mensagem \emph{``Answer all N questions
+first''}. Isso é proposital: um formulário incompleto vira preço errado.
+\end{aviso}
+
+\subsection{Passo 4 — Gerar o Bid Request}
+
+Com o questionário completo, clique em \ui{Bid request}. Abre uma pré-visualização
+do documento exatamente como ele será impresso. O botão
+\ui{Print / Save as PDF} manda para a impressora ou salva em PDF, em A4.
+
+O Bid Request imprime todas as opções de cada pergunta, com as marcadas
+assinaladas — é um formulário, e o sub precisa ver o que \emph{não} foi pedido
+tanto quanto o que foi.
+
+\subsection{Passo 5 — Registrar o envio ao sub}
+
+Enviado o PDF ao subcontratado (por e-mail, por fora do sistema), volte ao trade,
+abra o \ui{History} e clique em \ui{Log event}. Escolha \ui{Bid sent to sub},
+selecione o subcontratado e confirme a data.
+
+\textbf{O mesmo formulário pode ir para vários subs.} Registre um envio para cada
+um. O conjunto de envios do mesmo formulário é chamado de \textbf{rodada}, e o
+painel \ui{Bids out} mostra a rodada inteira: quem recebeu, quem já respondeu,
+por quanto.
+
+\subsection{Passo 6 — Registrar o preço recebido}
+
+Quando o sub responde, registre \ui{Bid received from sub}. Dois campos:
+
+\begin{itemize}
+  \item \ui{Bid amount} — o preço que ele mandou.
+  \item \ui{Term set by PCG} — o prazo, em dias, semanas ou meses. Atenção: esse
+  prazo é \textbf{definido pela PCG}, não cotado pelo sub. É quanto tempo a
+  empresa dá para o serviço.
+\end{itemize}
+
+\subsection{Passo 7 — Aprovar e montar o pagamento}
+
+Com os preços na mão, escolha um. Registre \ui{Bid approved} no sub vencedor.
+Nos demais, registre \ui{Bid declined}.
+
+\textbf{Só um bid pode ser aprovado.} É a aprovação que diz contra qual preço o
+contrato será escrito.
+
+Junto da aprovação vem o \textbf{cronograma de pagamento}. Clique no painel do
+cronograma e monte as parcelas:
+
+\begin{itemize}
+  \item Cada linha tem um marco (ex.: ``Rough-in completo'') e um
+  \textbf{percentual}.
+  \item Os valores em dinheiro são calculados sozinhos, a partir do preço
+  aprovado. Você nunca digita dinheiro aqui — assim o cronograma e o preço não
+  têm como discordar.
+  \item O sistema mostra quanto falta para fechar 100\%. Enquanto não fechar, o
+  contrato não sai.
+\end{itemize}
+
+\subsection{Passo 8 — Gerar o contrato}
+
+Com bid aprovado e cronograma montado, o botão \ui{Contract} libera. Ao clicar
+pela primeira vez, o sistema \textbf{carimba o número do contrato}: três letras
+do trade e cinco dígitos de um contador único da empresa — \texttt{PLB-00001}.
+
+\begin{aviso}
+Esse número é gravado uma vez e nunca muda. Se outro contrato for criado,
+apagado ou reordenado depois, o número do papel que alguém assinou continua o
+mesmo. Os cinco dígitos dizem quantos contratos a PCG já emitiu no total; as
+letras dizem de qual trade este é.
+\end{aviso}
+
+Diferente do Bid Request, o contrato imprime apenas o que foi \emph{escolhido} —
+uma opção não marcada não é cláusula de acordo nenhum.
+
+\subsection{Passo 9 — Enviar, ajustar e assinar}
+
+\begin{enumerate}
+  \item \ui{Contract sent to sub} — registre quando o contrato for enviado.
+
+  \item \ui{Contract adjusted} — se o sub contestar alguma cláusula. Veja a
+  seção~\ref{sec:ajuste} sobre como reescrever o texto só para esse contrato.
+  \textbf{Pode ser registrado uma única vez}, e só antes da assinatura.
+
+  \item \ui{Contract signed} — o fim da linha. Registre com o
+  \ui{SharePoint link} do PDF assinado, para que qualquer pessoa consiga chegar
+  ao documento original a partir daqui.
+\end{enumerate}
+
+% ── 5 ─────────────────────────────────────────────────────────────────────────
+\section{Os eventos, um a um}
+
+\begin{longtable}{@{}p{3.9cm}p{5.3cm}p{5.2cm}@{}}
+\toprule
+\textbf{Evento} & \textbf{Quando usar} & \textbf{O que ele pede} \\
+\midrule
+\endhead
+\ui{Trade opened} & Automático, ao adicionar o trade. & Nada. \\[4pt]
+
+\ui{Bid sent to sub} & O formulário foi enviado a um sub. Um por sub. &
+Subcontratado e data. \\[4pt]
+
+\ui{Bid received} & O sub devolveu o preço. & Valor e prazo definido pela PCG. \\[4pt]
+
+\ui{Bid approved} & O preço foi aceito. Só um por trade. & Subcontratado e o
+cronograma de pagamento. \\[4pt]
+
+\ui{Bid declined} & O preço de um sub foi recusado. & Subcontratado. \\[4pt]
+
+\ui{Bid adjusted by the sub} & O sub venceu, mas depois avisou que não faz parte
+do serviço. Carrega a aprovação para as respostas novas, em vez de rasgá-la. &
+Nota explicando. \\[4pt]
+
+\ui{Contract sent to sub} & O contrato foi enviado. & Subcontratado e data. \\[4pt]
+
+\ui{Contract adjusted} & O sub pediu mudança de cláusula. Uma vez só, antes da
+assinatura. & Nota, e opcionalmente o novo cronograma. \\[4pt]
+
+\ui{Contract signed} & Contrato assinado. & Link do SharePoint. \\
+\bottomrule
+\end{longtable}
+
+\subsection{O que dá para corrigir depois}
+
+De um evento já registrado, dá para acertar: a data, a nota, o valor, o prazo, o
+link e o subcontratado.
+
+Não dá para mudar: \textbf{o tipo do evento} (um bid enviado não vira outra coisa
+retroativamente) e \textbf{quem registrou e quando} — essa é a trilha de
+auditoria.
+
+A data só se move dentro da janela que os eventos vizinhos permitem: um preço não
+pode ter voltado antes de o formulário ter saído. O calendário já esconde os dias
+inválidos.
+
+% ── 6 ─────────────────────────────────────────────────────────────────────────
+\section{Por que o botão está bloqueado}
+
+Todo bloqueio da tela tem uma frase explicando. Esta é a tradução delas.
+
+\begin{longtable}{@{}p{7.2cm}p{7.4cm}@{}}
+\toprule
+\textbf{A tela diz} & \textbf{Significa} \\
+\midrule
+\endhead
+\emph{Answer all N questions first} & O questionário está incompleto. Falta
+responder alguma pergunta. \\[4pt]
+
+\emph{The bid has to be approved first} & Não existe aprovação. Registre
+\ui{Bid approved} no sub escolhido. \\[4pt]
+
+\emph{The answers changed — the bid needs a new approval} & Alguém alterou uma
+resposta depois da aprovação. Veja a seção seguinte. \\[4pt]
+
+\emph{Set the payment schedule on the approved bid first} & Falta montar o
+cronograma, ou ele não fecha 100\%. \\[4pt]
+
+\emph{Nothing to log at this point} & O passo seguinte depende de algo que ainda
+não aconteceu. \\[4pt]
+
+\emph{This trade is finished} & O contrato já está assinado. Não há mais passo. \\
+\bottomrule
+\end{longtable}
+
+% ── 7 ─────────────────────────────────────────────────────────────────────────
+\section{Situações comuns}
+
+\subsection{Mudei uma resposta depois de o bid ter sido aprovado}
+
+O sistema percebe. A aprovação vale para \emph{aquele} formulário; alterada a
+resposta, o papel deixou de ser o mesmo, e o contrato trava com o aviso
+\emph{``the bid needs a new approval''}.
+
+Dois caminhos honestos:
+
+\begin{itemize}
+  \item \textbf{Mandar de novo.} A rodada recomeça: novo \ui{Bid sent}, novo
+  preço, nova aprovação. É o certo quando a mudança altera o preço.
+  \item \textbf{Registrar \ui{Bid adjusted by the sub}.} Serve quando quem pediu a
+  mudança foi o próprio sub que venceu — ele avisou que não faz parte do serviço.
+  A aprovação acompanha as respostas novas em vez de ser descartada.
+\end{itemize}
+
+\subsection{O sub quer mudar uma cláusula do contrato}
+\label{sec:ajuste}
+
+Um sub discutindo uma cláusula não é motivo para mudar o padrão da PCG. Use o
+editor de termos do contrato: ele reescreve o texto \textbf{apenas deste
+contrato}.
+
+O que fica guardado é a diferença. Um módulo que ninguém tocou continua seguindo
+o catálogo, mesmo que o catálogo seja reescrito depois. E o módulo alterado
+continua com o texto negociado, mesmo assim.
+
+Registre também o evento \ui{Contract adjusted}, para que o histórico mostre que
+esse contrato foi renegociado.
+
+\subsection{Vários subs cotando o mesmo serviço}
+
+É o funcionamento normal. Registre um \ui{Bid sent} para cada, e um
+\ui{Bid received} conforme os preços chegarem. O painel \ui{Bids out} monta a
+tabela comparativa da rodada. No fim, um \ui{Bid approved} e os demais
+\ui{Bid declined}.
+
+\subsection{Serviço que não passa por cotação}
+
+É o trade com \ui{Requires a bid form} desligado. A trilha encurta: responde o
+questionário e gera o contrato direto. Não existe botão de Bid request, nem
+envio, nem aprovação — porque não há o que aprovar.
+
+\subsection{Apagar um projeto}
+
+Some tudo junto: as respostas de todos os trades, os subs e o estado dos
+contratos. A tela pede confirmação por isso. Se o contrato já foi assinado, o PDF
+no SharePoint continua lá — mas o histórico daqui não volta.
+
+% ── 8 ─────────────────────────────────────────────────────────────────────────
+\section{Resumo de uma página}
+
+\begin{enumerate}
+  \item \textbf{Uma vez só:} cadastre os trades (perguntas, escopo, regras) e os
+  módulos do documento.
+  \item \textbf{Por obra:} crie o projeto e adicione os trades.
+  \item \textbf{Por trade:} responda o questionário até o contador ficar verde.
+  \item Gere e envie o \textbf{Bid Request}; registre \ui{Bid sent} para cada sub.
+  \item Registre \ui{Bid received} com preço e prazo.
+  \item \ui{Bid approved} no vencedor, \ui{Bid declined} nos outros, e monte o
+  cronograma até fechar 100\%.
+  \item Gere o \textbf{contrato} — o número é carimbado aqui.
+  \item \ui{Contract sent}, ajuste se precisar, e \ui{Contract signed} com o link
+  do arquivo assinado.
+\end{enumerate}
+
+\vfill
+\noindent{\color{pcggray}\small
+Dúvidas ou erro no documento: procure o time de Business Operation Review.}
+
+\end{document}

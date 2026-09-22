@@ -37,8 +37,7 @@ const STATUS_OPTIONS = [
 
 type StatusFilter = (typeof STATUS_OPTIONS)[number]["value"]
 
-// Quantas obras por página. 24 fecha a grade em qualquer largura: 24 em uma
-// coluna, 12 em duas, 8 em três.
+// Quantas obras por página.
 const POR_PAGINA = 24
 
 export default function AtlasJobsitesPage() {
@@ -121,8 +120,10 @@ export default function AtlasJobsitesPage() {
   }, [jobsites, query, status])
 
   // A lista cresce com a operação, e rolar cem cartões para achar a obra de
-  // ontem não é navegar. A página é de 24 porque fecha a grade em qualquer
-  // largura: 24 em uma coluna, 12 em duas, 8 em três.
+  // ontem não é navegar. A página é de 24. Não há número que feche a última
+  // fileira agora que a grade acompanha a largura da tela: a contagem de
+  // colunas depende do monitor, e escolher 24 por caber certo em três colunas
+  // seria escolher um monitor para desenhar a tela.
   const [pagina, setPagina] = useState(1)
   const paginas = Math.max(1, Math.ceil(filtered.length / POR_PAGINA))
   // Filtrar ou buscar recomeça da primeira: manter a página de antes deixaria
@@ -134,8 +135,10 @@ export default function AtlasJobsitesPage() {
   const primeiro = (pagina - 1) * POR_PAGINA
   const visiveis = filtered.slice(primeiro, primeiro + POR_PAGINA)
 
+  // A moldura não tem teto: ocupa a largura que a tela der. Quem segura o
+  // desenho é a largura mínima do cartão lá na grade, não um limite aqui.
   return (
-    <div className="mx-auto flex h-full max-w-5xl flex-col gap-4">
+    <div className="flex h-full w-full flex-col gap-4">
       <div className="flex shrink-0 items-center justify-between gap-4">
         {/* Só o título. A frase de apoio explicava a tela uma vez e ocupava
             altura em toda visita; a lista é o que se veio ver. */}
@@ -172,7 +175,11 @@ export default function AtlasJobsitesPage() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <div className="relative min-w-0 flex-1">
+        {/* A busca acompanha a grade até certo ponto e para. Num monitor
+            ultralargo ela viraria uma faixa de dois mil pixels para caber o
+            nome de uma obra, e o filtro ao lado acabaria no outro extremo da
+            tela. Quem ganha a largura é a lista, que tem o que mostrar nela. */}
+        <div className="relative min-w-0 max-w-xl flex-1">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
@@ -244,7 +251,7 @@ export default function AtlasJobsitesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid items-start gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
               {visiveis.map(j => {
                 const Kind = (KIND_META[j.kind] ?? KIND_META.house).icon
                 const archived = j.status === "archived"
@@ -424,7 +431,7 @@ export default function AtlasJobsitesPage() {
           <div className="mt-3 flex shrink-0 items-center justify-between gap-2 border-t border-border/60 pt-2.5 text-[11px] text-muted-foreground">
             <span className="min-w-0 truncate">
               <span className="hidden sm:inline">
-                {primeiro + 1}–{primeiro + visiveis.length} of {filtered.length} projects
+                {primeiro + 1}-{primeiro + visiveis.length} of {filtered.length} projects
               </span>
               <span className="sm:hidden">
                 {pagina} / {paginas}
