@@ -339,6 +339,8 @@ func main() {
 	forecast.Get("/:id", forecastHandler.Get)
 	forecast.Get("/:id/obs", forecastHandler.ListObs)
 	forecast.Post("/:id/obs", forecastHandler.AddObs)
+	forecast.Patch("/:id/obs/:obsId", forecastHandler.EditObs)
+	forecast.Delete("/:id/obs/:obsId", forecastHandler.RemoveObs)
 	forecast.Get("/:id/date-history", forecastHandler.ListDateHistory)
 
 	// Accounting

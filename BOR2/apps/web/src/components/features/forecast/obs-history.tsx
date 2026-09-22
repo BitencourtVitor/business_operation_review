@@ -1,8 +1,10 @@
 "use client"
 
-import { useAddForecastObs, useForecastObs } from "@/hooks/use-forecast"
-import { FileClock, Gauge, CodeXml, Loader2, MessageSquareText, SendHorizontal, User, Users, X } from "lucide-react"
+import { useAddForecastObs, useEditForecastObs, useForecastObs, useRemoveForecastObs } from "@/hooks/use-forecast"
+import { FileClock, Gauge, CodeXml, Loader2, MessageSquareText, Pencil, SendHorizontal, Trash2, User, Users, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/store/auth.store"
+import type { ForecastObsEntry } from "@bor2/shared"
 import { useEffect, useRef, useState } from "react"
 
 /** Same role iconography as Settings › Users, so a badge means the same thing everywhere. */
@@ -57,6 +59,133 @@ export function ObsCredit({
 }
 
 /**
+ * Uma fala da conversa. Editar e apagar só aparecem para quem escreveu: a tela
+ * esconde o que não é seu, e o servidor recusa de novo, porque esconder botão
+ * não é autorização.
+ */
+function Comentario({
+  entry,
+  projectId,
+  meu,
+}: {
+  entry: ForecastObsEntry
+  projectId: string
+  meu: boolean
+}) {
+  const editar = useEditForecastObs(projectId)
+  const apagar = useRemoveForecastObs(projectId)
+  const [rascunho, setRascunho] = useState<string | null>(null)
+  // Apagar pede confirmação no próprio lugar do botão. Um diálogo por cima da
+  // conversa tiraria da vista justamente o texto que se está decidindo perder.
+  const [confirmando, setConfirmando] = useState(false)
+
+  const salvar = () => {
+    const corpo = (rascunho ?? "").trim()
+    if (!corpo || corpo === entry.body) return setRascunho(null)
+    editar.mutate({ obsId: entry.id, body: corpo }, { onSuccess: () => setRascunho(null) })
+  }
+
+  return (
+    <div className="group rounded-lg border bg-background px-3 py-2">
+      {rascunho === null ? (
+        <p className="whitespace-pre-wrap text-xs leading-relaxed">{entry.body}</p>
+      ) : (
+        <textarea
+          value={rascunho}
+          autoFocus
+          onChange={ev => setRascunho(ev.target.value)}
+          onKeyDown={ev => {
+            if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); salvar() }
+            if (ev.key === "Escape") setRascunho(null)
+          }}
+          rows={3}
+          className="w-full resize-none rounded-md border bg-muted/30 px-2 py-1.5 text-xs leading-relaxed outline-none focus-visible:border-primary/50"
+        />
+      )}
+
+      <div className="mt-1.5 flex items-center gap-1">
+        {meu && rascunho === null && !confirmando && (
+          // Só aparecem ao passar o mouse, e sempre no celular, onde não há
+          // mouse para revelar nada.
+          <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+            <button
+              type="button"
+              onClick={() => setRascunho(entry.body)}
+              aria-label="Edit comment"
+              className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmando(true)}
+              aria-label="Delete comment"
+              className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
+            >
+              <Trash2 className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+
+        {confirmando && (
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span>Delete?</span>
+            <button
+              type="button"
+              onClick={() => apagar.mutate(entry.id)}
+              disabled={apagar.isPending}
+              className="rounded px-1.5 py-0.5 font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            >
+              {apagar.isPending ? "…" : "Yes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmando(false)}
+              className="rounded px-1.5 py-0.5 font-semibold transition-colors hover:bg-muted hover:text-foreground"
+            >
+              No
+            </button>
+          </div>
+        )}
+
+        {rascunho !== null && (
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <button
+              type="button"
+              onClick={salvar}
+              disabled={editar.isPending}
+              className="rounded px-1.5 py-0.5 font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              {editar.isPending ? "…" : "Save"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRascunho(null)}
+              className="rounded px-1.5 py-0.5 font-semibold transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        <ObsCredit
+          className="ml-auto"
+          author={entry.authorName}
+          role={entry.authorRole}
+          at={entry.createdAt}
+        />
+      </div>
+
+      {(editar.isError || apagar.isError) && (
+        <p className="mt-1 text-[10px] text-destructive">
+          {editar.isError ? "The change was not saved." : "The comment was not deleted."}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/**
  * A conversa da obra, do mais antigo para o mais recente, com o campo de
  * escrever no pé. Fica ao lado do corpo do modal, e não dentro dele, para a
  * coluna principal não crescer.
@@ -72,6 +201,7 @@ export function ObsHistoryPanel({
 }) {
   const { data: entries = [], isLoading } = useForecastObs(projectId, open)
   const publicar = useAddForecastObs(projectId)
+  const meuId = useAuthStore(s => s.user?.id)
   const [texto, setTexto] = useState("")
   // A conversa abre no fim, que é onde está o assunto de agora. Rolar até o
   // começo é escolha de quem quer o histórico, não o estado inicial.
@@ -115,12 +245,7 @@ export function ObsHistoryPanel({
         ) : (
           <div className="flex flex-col gap-2">
             {entries.map(e => (
-              <div key={e.id} className="rounded-lg border bg-background px-3 py-2">
-                <p className="whitespace-pre-wrap text-xs leading-relaxed">{e.body}</p>
-                <div className="mt-1.5 flex items-center justify-end">
-                  <ObsCredit author={e.authorName} role={e.authorRole} at={e.createdAt} />
-                </div>
-              </div>
+              <Comentario key={e.id} entry={e} projectId={projectId} meu={e.authorId === meuId} />
             ))}
             <div ref={fim} />
           </div>

@@ -40,6 +40,30 @@ export function useAddForecastObs(id: string) {
   })
 }
 
+/** Editar e apagar recarregam as mesmas duas telas que publicar. */
+export function useEditForecastObs(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ obsId, body }: { obsId: number; body: string }) =>
+      forecastService.editObs(id, obsId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["forecast", id, "obs"] })
+      void qc.invalidateQueries({ queryKey: ["forecast"] })
+    },
+  })
+}
+
+export function useRemoveForecastObs(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (obsId: number) => forecastService.removeObs(id, obsId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["forecast", id, "obs"] })
+      void qc.invalidateQueries({ queryKey: ["forecast"] })
+    },
+  })
+}
+
 export function useForecastDateHistory(id: string, enabled = true) {
   return useQuery({
     queryKey: ["forecast", id, "date-history"],

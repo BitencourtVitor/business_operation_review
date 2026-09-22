@@ -39,6 +39,13 @@ export const forecastService = {
   addObs: (id: string, body: string) =>
     api.post<ForecastObsEntry>(`/api/v1/forecast/${id}/obs`, { body }, getToken()),
 
+  /** Editar e apagar só valem para o próprio autor, e quem confere é o servidor. */
+  editObs: (id: string, obsId: number, body: string) =>
+    api.patch<{ id: number; body: string }>(`/api/v1/forecast/${id}/obs/${obsId}`, { body }, getToken()),
+
+  removeObs: (id: string, obsId: number) =>
+    api.delete<void>(`/api/v1/forecast/${id}/obs/${obsId}`, getToken()),
+
   listDateHistory: (id: string) =>
     api.get<ForecastDateEntry[]>(`/api/v1/forecast/${id}/date-history`, getToken()),
 

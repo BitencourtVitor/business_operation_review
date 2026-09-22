@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -292,4 +293,51 @@ func (h *ForecastHandler) AddObs(c *fiber.Ctx) error {
 	}
 	h.audit.Log(c.Context(), uid, uname, "comment", "forecast", c.Params("id"))
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": entry})
+}
+
+// EditObs e RemoveObs só atendem o autor do comentário. O 404 de quem não
+// escreveu é de propósito: dizer "proibido" confirmaria que o comentário
+// existe, e quem não é dono dele não precisa saber nem isso.
+func (h *ForecastHandler) EditObs(c *fiber.Ctx) error {
+	obsID, err := strconv.ParseInt(c.Params("obsId"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	var payload struct {
+		Body string `json:"body"`
+	}
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	texto := strings.TrimSpace(payload.Body)
+	if texto == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "empty comment", "code": "BAD_REQUEST"})
+	}
+	uid, uname := actor(c)
+	projectID, err := h.svc.EditObs(c.Context(), obsID, uid, texto)
+	if errors.Is(err, domain.ErrNotFound) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
+	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	h.audit.Log(c.Context(), uid, uname, "comment_edit", "forecast", projectID)
+	return c.JSON(fiber.Map{"data": fiber.Map{"id": obsID, "body": texto}})
+}
+
+func (h *ForecastHandler) RemoveObs(c *fiber.Ctx) error {
+	obsID, err := strconv.ParseInt(c.Params("obsId"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	uid, uname := actor(c)
+	projectID, err := h.svc.RemoveObs(c.Context(), obsID, uid)
+	if errors.Is(err, domain.ErrNotFound) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
+	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	h.audit.Log(c.Context(), uid, uname, "comment_delete", "forecast", projectID)
+	return c.SendStatus(fiber.StatusNoContent)
 }
