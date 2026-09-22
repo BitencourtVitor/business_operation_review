@@ -25,6 +25,21 @@ export function useForecastObs(id: string, enabled = true) {
   })
 }
 
+/**
+ * Publica um comentário e recarrega as duas telas que o mostram: a conversa no
+ * painel e o cartão da obra, que passa a exibir o comentário mais recente.
+ */
+export function useAddForecastObs(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: string) => forecastService.addObs(id, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["forecast", id, "obs"] })
+      void qc.invalidateQueries({ queryKey: ["forecast"] })
+    },
+  })
+}
+
 export function useForecastDateHistory(id: string, enabled = true) {
   return useQuery({
     queryKey: ["forecast", id, "date-history"],
