@@ -1218,7 +1218,10 @@ export default function DocumentPage() {
               à página. */}
           {version && (
             <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/60">
-              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-muted/30 px-3 py-2">
+              {/* No celular o título fica numa linha e os controles na de
+                  baixo. Espremidos na mesma linha, a contagem quebrava em três
+                  e o botão de escolher saía da tela. */}
+              <div className="flex shrink-0 flex-col gap-2 border-b border-border/60 bg-muted/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <h2 className="flex items-center gap-2 text-sm font-semibold">
                   <Layers className="h-4 w-4 text-muted-foreground" />
                   Sheets
@@ -1227,21 +1230,21 @@ export default function DocumentPage() {
                   {/* Primeiro o quanto existe, depois o que filtra ou escolhe:
                       o número é o que se lê, e os controles agem sobre ele. */}
                   {sheets && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="shrink-0 text-xs whitespace-nowrap text-muted-foreground">
                       {visibleSheets.length === sheets.length
                         ? `${sheets.length} plans total`
                         : `${visibleSheets.length} of ${sheets.length}`}
                     </span>
                   )}
                   {!!sheets?.length && (
-                    <label className="relative block">
+                    <label className="relative block min-w-0 flex-1 sm:flex-none">
                       <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={sheetQuery}
                         onChange={e => setSheetQuery(e.target.value)}
                         placeholder="Find sheet"
                         aria-label="Find a sheet by name or page"
-                        className="h-8 w-32 pl-8 sm:w-40"
+                        className="h-7 min-w-0 flex-1 pl-8 sm:w-40 sm:flex-none"
                       />
                     </label>
                   )}
@@ -1254,9 +1257,9 @@ export default function DocumentPage() {
                     picking ? (
                       // Trinta e dois de altura, igual aos botões que dividem a
                       // linha com ele. Os pedaços de dentro enchem o que sobra
-                      // (26: os 32 menos a borda e o respiro), em vez de uma
+                      // (o que sobra dos 28 menos a borda e o respiro), em vez de uma
                       // altura escrita à mão que estourava a faixa em dois.
-                      <div className="flex h-8 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95">
+                      <div className="flex h-7 origin-right items-center gap-0.5 rounded-lg border border-border p-0.5 duration-200 animate-in fade-in-0 zoom-in-95">
                         <button
                           type="button"
                           onClick={() => { setPicking("one"); setAnchor(null) }}
@@ -1283,7 +1286,7 @@ export default function DocumentPage() {
                     ) : (
                       <Button
                         variant="outline"
-                        className="origin-right duration-200 animate-in fade-in-0 zoom-in-95"
+                        className="h-7 origin-right duration-200 animate-in fade-in-0 zoom-in-95"
                         onClick={() => setPicking("one")}
                       >
                         <SquareDashedMousePointer className="h-3.5 w-3.5" />
