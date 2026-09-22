@@ -17,6 +17,13 @@ type ForecastFieldwireDoc struct {
 	Status   *string `json:"status"`
 	Category string  `json:"category"`
 	Document string  `json:"document"`
+	// Se o documento conta na nota. Quem decide é o catálogo, pela coluna
+	// counts_in_score, e a consulta já trazia o valor pronto. Faltava o campo
+	// aqui, e o valor morria na volta para o navegador: a tela contava tudo,
+	// inclusive o "On Atlas", que nunca é marcado porque quem responde por ele
+	// é o próprio Atlas. Toda obra ficava com a nota do Fieldwire menor do que
+	// o Fieldwire dela merecia.
+	Scored bool `json:"scored"`
 }
 
 // ForecastPermitStep é uma etapa do Permit da obra da HVAC. Não tem data: o
