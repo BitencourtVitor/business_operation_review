@@ -1224,6 +1224,15 @@ export default function DocumentPage() {
                   Sheets
                 </h2>
                 <div className="flex items-center gap-2">
+                  {/* Primeiro o quanto existe, depois o que filtra ou escolhe:
+                      o número é o que se lê, e os controles agem sobre ele. */}
+                  {sheets && (
+                    <span className="text-xs text-muted-foreground">
+                      {visibleSheets.length === sheets.length
+                        ? `${sheets.length} plans total`
+                        : `${visibleSheets.length} of ${sheets.length}`}
+                    </span>
+                  )}
                   {!!sheets?.length && (
                     <label className="relative block">
                       <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -1235,13 +1244,6 @@ export default function DocumentPage() {
                         className="h-8 w-32 pl-8 sm:w-40"
                       />
                     </label>
-                  )}
-                  {sheets && (
-                    <span className="text-xs text-muted-foreground">
-                      {visibleSheets.length === sheets.length
-                        ? `${sheets.length} plans total`
-                        : `${visibleSheets.length} of ${sheets.length}`}
-                    </span>
                   )}
 
                   {/* Fechado, é um botão só. Aberto, ele se divide em dois, que
