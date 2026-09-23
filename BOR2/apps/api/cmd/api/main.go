@@ -853,9 +853,11 @@ func main() {
 		Sandbox:  cfg.App.Env != "production",
 	})
 
-	r2SweepJob := jobs.AtlasR2Sweep(db, r2Service, cfg.R2.Bucket)
-
-	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob, r2SweepJob)
+	// A varredura mensal de órfãos do R2 saiu daqui (BuilderLog, BR-1): o bucket
+	// passou a ser compartilhado com o BuilderLog, e o que ele grava não tem dono
+	// neste banco. Quem varre o bucket agora é o BuilderLog, por tenant, dentro
+	// dos prefixos que conhece.
+	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
 	// O processamento do set do Atlas (ATL-102) roda em segundo plano, na
 	// mesma vida do scheduler: retoma o que ficou pela metade e cai no shutdown.

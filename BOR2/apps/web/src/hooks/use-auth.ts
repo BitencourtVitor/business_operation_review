@@ -50,7 +50,7 @@ export function useAuth() {
       // abre uma prancha na obra pelo celular perdia a sessão a cada aba que o
       // navegador fechava sozinho, por mais meses que o servidor concedesse.
       setAuth(data.user, data.token, data.remember || !!data.longSession)
-      router.push("/select")
+      router.push("/bor")
     },
   })
 

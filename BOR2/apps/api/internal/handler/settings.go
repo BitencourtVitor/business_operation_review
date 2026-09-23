@@ -54,7 +54,7 @@ func (h *SettingsHandler) sendCredentials(c *fiber.Ctx, name, email, password st
 	}
 	base := strings.TrimRight(os.Getenv("PLATFORM_URL"), "/")
 	if base == "" {
-		base = "https://pg-dip.up.railway.app"
+		base = "https://pg-bor.up.railway.app"
 	}
 	body := service.BuildAtlasWelcomeEmail(service.AtlasWelcome{
 		PersonName: name,

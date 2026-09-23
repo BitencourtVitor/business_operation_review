@@ -7,11 +7,8 @@ import { NextResponse, type NextRequest } from "next/server"
 // Quem tem link antigo salvo — e-mail, favorito, mensagem no WhatsApp — não
 // pode cair numa página que não existe mais. Este middleware faz a ponte.
 
-const OLD_HOST = "pg-bor.up.railway.app"
-const NEW_HOST = "pg-dip.up.railway.app"
-
 // Os primeiros segmentos que o BOR ocupava na raiz. Só estes são movidos:
-// `/atlas`, `/login` e `/select` são da plataforma e ficam onde estão.
+// `/login` fica onde está.
 const BOR_SEGMENTS = new Set([
   "accounting",
   "autolog",
@@ -42,29 +39,25 @@ const BOR_SEGMENTS = new Set([
   "workforce-productivity",
 ])
 
+// O Atlas saiu do BOR e virou o BuilderLog, outro site. Por enquanto todo
+// endereço antigo do Atlas cai no login de lá, sem levar o caminho junto.
+// 307 e não 308: é provisório, e o navegador guarda o 308 para sempre, o que
+// impediria trocar isto depois por um destino equivalente página a página.
+const BUILDERLOG_LOGIN = "https://builderlog.co/login"
+
 export function middleware(req: NextRequest) {
-  const url = req.nextUrl.clone()
-  let redirect = false
-
-  // O domínio antigo continua respondendo, mas manda para o novo em vez de
-  // servir uma segunda cópia do site no mesmo endereço.
-  const host = req.headers.get("host")
-  if (host === OLD_HOST) {
-    url.host = NEW_HOST
-    url.port = ""
-    url.protocol = "https"
-    redirect = true
+  if (req.nextUrl.pathname === "/atlas" || req.nextUrl.pathname.startsWith("/atlas/")) {
+    return NextResponse.redirect(BUILDERLOG_LOGIN, 307)
   }
 
-  const segment = url.pathname.split("/")[1] ?? ""
-  if (BOR_SEGMENTS.has(segment)) {
-    url.pathname = `/bor${url.pathname}`
-    redirect = true
-  }
+  const segment = req.nextUrl.pathname.split("/")[1] ?? ""
+  if (!BOR_SEGMENTS.has(segment)) return NextResponse.next()
 
   // 308 e não 302: o endereço mudou de vez, e o navegador pode guardar isso.
   // O método também se preserva, então um POST antigo não vira GET no caminho.
-  return redirect ? NextResponse.redirect(url, 308) : NextResponse.next()
+  const url = req.nextUrl.clone()
+  url.pathname = `/bor${url.pathname}`
+  return NextResponse.redirect(url, 308)
 }
 
 export const config = {

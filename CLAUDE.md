@@ -94,13 +94,14 @@ score/exibição de Machines. Rotina de atualização de datas (Toll Brothers/Pu
 
 ### Endereços da plataforma
 
-A plataforma responde em **`pg-dip.up.railway.app`** (Data Intelligence Platform). Cada produto
-tem seu prefixo: **`/bor/*`** para o Business Operation Review e **`/atlas/*`** para o Atlas.
-`/login` e `/select` são da plataforma e ficam na raiz.
+O BOR responde em **`pg-bor.up.railway.app`**, com as páginas em **`/bor/*`**; `/login` fica na
+raiz, e depois do login a pessoa cai direto na primeira página do BOR que pode abrir (`/bor`).
+A "Data Intelligence Platform" (`pg-dip`, de 02/09 a 23/09/2026) acabou: o Atlas virou o
+BuilderLog, produto à parte em `builderlog.co`, e `/atlas/*` redireciona para lá (307, provisório).
 
-O endereço antigo `pg-bor.up.railway.app` é atendido pelo serviço `BOR2/apps/redirect`, que devolve
-308 para o novo preservando caminho e query. Combinado: fica no ar cerca de 30 dias a partir de
-02/09/2026, e depois some junto com o domínio.
+O endereço `pg-dip.up.railway.app` é atendido pelo serviço `BOR2/apps/redirect`, que devolve 308
+para `pg-bor` preservando caminho e query. O Railway só permite um domínio `*.up.railway.app` por
+serviço, por isso o redirecionamento é um serviço à parte.
 
 Caminho antigo (`/forecast`) redireciona para o novo (`/bor/forecast`) pelo `src/middleware.ts`.
 **A lista de segmentos do BOR vive nesse arquivo** — página nova do BOR que nasça fora de `/bor`

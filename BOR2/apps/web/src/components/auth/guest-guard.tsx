@@ -15,7 +15,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (hydrated && token) {
-      router.replace("/select")
+      router.replace("/bor")
     }
   }, [hydrated, token, router])
 
