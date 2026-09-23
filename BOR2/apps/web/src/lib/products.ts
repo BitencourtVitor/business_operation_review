@@ -8,17 +8,6 @@ import { CircleGauge, DraftingCompass, type LucideIcon } from "lucide-react"
 // BOR": o login é da plataforma, e BOR e Atlas são destinos dela (AT-2).
 export type ProductId = "bor" | "atlas"
 
-export interface Product {
-  id: ProductId
-  name: string
-  tagline: string
-  href: string
-  /** Falso mantém o destino visível e o clique bloqueado. */
-  enabled: boolean
-  /** Por que está bloqueado, quando está. */
-  reason?: string
-}
-
 /**
  * A marca de cada produto, num lugar só. O compasso do Atlas desenha um A com
  * as duas pernas, e é o mesmo sinal na seleção de produto, no cabeçalho e onde
@@ -79,14 +68,10 @@ export function borLandingHref(
 }
 
 /**
- * A que o usuário tem acesso.
- *
- * O Atlas foi liberado em 13/09 para quem está cadastrado nele. Quem não tem
- * acesso vê o card desabilitado em vez de sumir: esconder faria a plataforma
- * parecer ter um produto só.
+ * Se o usuário tem o BOR, e por onde ele entra.
  *
  * O BOR não tem chave própria: tê-lo é ter qualquer permissão que não seja a
- * do Atlas.
+ * do Atlas, que agora é do BuilderLog.
  */
 export function useProducts() {
   const { user } = useAuth()
@@ -95,40 +80,10 @@ export function useProducts() {
   const role = user?.role ?? ""
   const full = FULL_ACCESS_ROLES.includes(role)
   const perms = myPerms?.permissions ?? {}
-
-  // Dev entra sempre; quem recebeu a chave `atlas` na tela de usuários do
-  // Atlas entra também. É a mesma regra que a API cobra em RequireAtlas.
-  // Cargo acima de `user` entra por definição — quem manda na obra manda no
-  // Atlas. O `user` é convidado um a um na tela de usuários do Atlas, porque é
-  // ele que pode ser um subcontratado. Mesma regra que a API cobra em
-  // RequireAtlas.
-  const hasAtlas = full || !!perms.atlas
   const hasBOR = full || Object.entries(perms).some(([key, level]) => key !== "atlas" && !!level)
 
-  const products: Product[] = [
-    {
-      id: "bor",
-      name: "Business Operations Review",
-      tagline: "Every number the operation runs on: money, people, schedule and execution, measured in one place.",
-      href: borLandingHref(perms, full),
-      enabled: hasBOR,
-      reason: hasBOR ? undefined : "No access",
-    },
-    {
-      id: "atlas",
-      name: "Atlas Project Control",
-      tagline: "Every drawing, every mark, every measurement. The jobsite exactly as it was built.",
-      href: "/atlas",
-      enabled: hasAtlas,
-      reason: hasAtlas ? undefined : "No access",
-    },
-  ]
-
   return {
-    products,
-    available: products.filter(p => p.enabled),
     hasBOR,
-    hasAtlas,
     /** Para quem manda o usuário de volta ao BOR de dentro do Atlas. */
     borHref: borLandingHref(perms, full),
     isLoading: !user || isLoading,

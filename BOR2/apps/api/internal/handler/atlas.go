@@ -771,7 +771,7 @@ func (h *AtlasHandler) NotifyAccess(c *fiber.Ctx) error {
 
 	base := strings.TrimRight(os.Getenv("PLATFORM_URL"), "/")
 	if base == "" {
-		base = "https://pg-dip.up.railway.app"
+		base = "https://pg-bor.up.railway.app"
 	}
 
 	body := service.BuildAtlasInviteEmail(service.AtlasInvite{

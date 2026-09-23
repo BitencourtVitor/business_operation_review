@@ -3,9 +3,8 @@ import type { MetadataRoute } from "next"
 /**
  * O manifesto que torna a plataforma instalável na tela de início.
  *
- * Nome e ícone são da empresa, e não de um produto: quem salva no iPad, no
- * iPhone ou no Android está salvando a Premium Group, e dentro dela escolhe
- * Atlas ou BOR.
+ * Nome e ícone são da empresa: quem salva no iPad, no iPhone ou no Android
+ * está salvando a Premium Group, e o atalho abre direto no BOR.
  *
  * Os ícones saem do mesmo logo do favicon, com fundo branco chapado. O original
  * tem os cantos transparentes, e o iOS pinta transparência de preto na tela de
@@ -16,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Premium Group",
     short_name: "Premium Group",
-    description: "Premium Group operational intelligence platform",
-    start_url: "/atlas",
+    description: "Premium Group Business Operations Review",
+    start_url: "/bor",
     display: "standalone",
     orientation: "any",
     background_color: "#ffffff",

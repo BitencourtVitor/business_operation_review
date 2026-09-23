@@ -1,13 +1,14 @@
-// Serviço de uma função só: manter vivo o endereço antigo da plataforma.
+// Serviço de uma função só: manter vivo o endereço antigo do site.
 //
-// O site respondia em pg-bor.up.railway.app, nome que dizia "BOR" quando o BOR
-// ainda era o produto inteiro. Virou pg-dip.up.railway.app — mas o Railway só
-// permite um domínio *.up.railway.app por serviço, então o endereço antigo
-// precisa de alguém para atendê-lo. É este processo.
+// Em 02/09/2026 o site foi de pg-bor para pg-dip (Data Intelligence Platform) e
+// este serviço atendia o pg-bor. Em 23/09 a plataforma acabou, o Atlas virou o
+// BuilderLog, e o site voltou para pg-bor. Os papéis se inverteram: agora é o
+// pg-dip que mora aqui. O Railway só permite um domínio *.up.railway.app por
+// serviço, então o endereço antigo precisa de alguém para atendê-lo.
 //
 // Devolve 308 e preserva caminho e query, então link antigo salvo em e-mail ou
-// mensagem continua chegando onde deve. Combinado: fica no ar cerca de 30 dias,
-// tempo de todo mundo se atualizar, e depois some junto com o domínio.
+// mensagem continua chegando onde deve. Fica no ar até ninguém mais usar o
+// pg-dip, e depois some junto com o domínio.
 package main
 
 import (
@@ -16,7 +17,7 @@ import (
 	"os"
 )
 
-const destino = "https://pg-dip.up.railway.app"
+const destino = "https://pg-bor.up.railway.app"
 
 func main() {
 	port := os.Getenv("PORT")

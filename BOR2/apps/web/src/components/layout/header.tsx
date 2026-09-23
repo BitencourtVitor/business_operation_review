@@ -15,12 +15,11 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
-import { PRODUCT_ICON, useProducts } from "@/lib/products"
 import { ProductMark } from "@/components/common/product-mark"
 import { permitService } from "@/services/permit.service"
 import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
   Award,
   Bell,
@@ -95,13 +94,10 @@ const roleBadges: Record<string, { label: string; icon: React.ElementType; light
   },
 }
 
-const AtlasIcon = PRODUCT_ICON.atlas
 
 export function Header() {
   const { toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
-  const { hasAtlas } = useProducts()
-  const router = useRouter()
   const { data: notifications = [] } = useNotifications()
   const { showFinancialData, toggleFinancialData } = useFinancialStore()
   const { resolvedTheme, setTheme } = useTheme()
@@ -204,20 +200,6 @@ export function Header() {
           <Tip label={resolvedTheme === "dark" ? "Light mode" : "Dark mode"}>
             <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} className="hidden md:inline-flex">
               {resolvedTheme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
-          </Tip>
-
-          {/* Salto para o outro braço da plataforma, sem passar de novo pelo
-              login: a sessão é da plataforma e os produtos são destinos dela. */}
-          <Tip label={hasAtlas ? "Go to Atlas" : "No access to Atlas"}>
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={!hasAtlas}
-              onClick={() => router.push("/atlas")}
-              className="hidden md:inline-flex"
-            >
-              <AtlasIcon className="h-4 w-4" />
             </Button>
           </Tip>
 
