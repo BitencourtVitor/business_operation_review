@@ -121,6 +121,31 @@ func (h *ForecastHandler) ToggleFieldwire(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"ok": true})
 }
 
+// ToggleBuilderLog marca à mão se a categoria já subiu no BuilderLog (F-18).
+// Mesmos estados do Fieldwire.
+func (h *ForecastHandler) ToggleBuilderLog(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("blid"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	var body struct {
+		Status string `json:"status"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	status := strings.ToLower(strings.TrimSpace(body.Status))
+	if status != "" && status != "completed" && status != "dispensed" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "status must be completed, dispensed, or empty", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.ToggleBuilderLog(c.UserContext(), id, status); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "toggle", "forecast", "builderlog:"+c.Params("blid"))
+	return c.JSON(fiber.Map{"ok": true})
+}
+
 func (h *ForecastHandler) TogglePermit(c *fiber.Ctx) error {
 	permitID, err := strconv.ParseInt(c.Params("pmid"), 10, 64)
 	if err != nil {

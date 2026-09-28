@@ -61,6 +61,9 @@ export const forecastService = {
   toggleFieldwire: (fwId: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/fieldwire/${fwId}`, { status }, getToken()),
 
+  toggleBuilderLog: (id: number, status: string) =>
+    api.patch<{ ok: boolean }>(`/api/v1/forecast/builderlog/${id}`, { status }, getToken()),
+
   togglePermit: (permitId: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/permit/${permitId}`, { status }, getToken()),
 

@@ -18,15 +18,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useUpdateForecast } from "@/hooks/use-forecast"
 import { useCatalogTable } from "@/hooks/use-catalog"
 
-import { isAtlasDoc, type ForecastProject, type ForecastStatus } from "@bor2/shared"
+import { type ForecastProject, type ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, ShieldCheck, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useToggleFieldwire, useTogglePermit, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
+import { useToggleBuilderLog, useToggleFieldwire, useTogglePermit, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ViewTab = "info" | "fieldwire" | "permit" | "machines" | "contract" | "optionals"
+export type ViewTab = "info" | "fieldwire" | "builderlog" | "permit" | "machines" | "contract" | "optionals"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,10 @@ const PROJECT_TYPES = ["Building", "Lot", "House"]
 const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "info",      label: "Info & Dates", icon: <Info             className="h-3 w-3" /> },
   { key: "fieldwire", label: "Fieldwire",    icon: <img src="/images/icon_fieldwire.png" alt="" className="h-3 w-3 object-contain" /> },
+  { key: "builderlog", label: "BuilderLog",  icon: <>
+      <img src="/images/icon_builderlog.png" alt="" className="h-3 w-3 object-contain dark:hidden" />
+      <img src="/images/icon_builderlog_dark.png" alt="" className="hidden h-3 w-3 object-contain dark:block" />
+    </> },
   { key: "permit",    label: "Permit",       icon: <ShieldCheck      className="h-3 w-3" /> },
   { key: "machines",  label: "Machines",     icon: <Truck            className="h-3 w-3" /> },
   { key: "contract",  label: "Contract",     icon: <FileText         className="h-3 w-3" /> },
@@ -350,11 +354,41 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
 }
 
 function FieldwireTab({ p }: { p: ForecastProject }) {
-  // "On Atlas" saiu da lista: quem responde isso é o Atlas, e marcar à mão aqui
-  // só criaria contradição com a obra que está (ou não) lá. A linha segue no
-  // banco, só não se edita mais por aqui.
-  const fw     = (p.fieldwire ?? []).filter(f => !isAtlasDoc(f.document))
   const toggle = useToggleFieldwire()
+  return (
+    <DocChecklist
+      title="Fieldwire Docs"
+      docs={p.fieldwire ?? []}
+      pendingId={toggle.isPending ? toggle.variables?.fwId : undefined}
+      onToggle={(id, status) => toggle.mutate({ fwId: id, status })}
+    />
+  )
+}
+
+// O BuilderLog é outro sistema e o Forecast não lê o banco dele: quem sobe um
+// documento lá marca aqui a categoria (F-18). "On BuilderLog" diz se a obra já
+// está lá. Mesmos três estados do Fieldwire.
+function BuilderLogTab({ p }: { p: ForecastProject }) {
+  const toggle = useToggleBuilderLog()
+  return (
+    <DocChecklist
+      title="BuilderLog Docs"
+      docs={p.builderlog ?? []}
+      pendingId={toggle.isPending ? toggle.variables?.id : undefined}
+      onToggle={(id, status) => toggle.mutate({ id, status })}
+    />
+  )
+}
+
+type ChecklistDoc = { id?: number; status?: string | null; category?: string; document?: string }
+
+function DocChecklist({ title, docs, pendingId, onToggle }: {
+  title: string
+  docs: ChecklistDoc[]
+  pendingId?: number
+  onToggle: (id: number, status: string) => void
+}) {
+  const fw = docs
   type FieldwireState = "none" | "completed" | "dispensed"
   const getState = (f: typeof fw[0]): FieldwireState => {
     const value = String(f.status ?? "").toLowerCase()
@@ -375,7 +409,7 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
   return (
     <div className="flex h-full flex-col gap-2 overflow-hidden">
       <div className="flex items-center">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Fieldwire Docs</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</span>
         <span className={`ml-auto text-xs font-semibold ${done === fw.length && fw.length > 0 ? "text-green-600" : "text-muted-foreground"}`}>
           {done} / {fw.length}
         </span>
@@ -391,7 +425,7 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
             <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
               {items.map((f, i) => {
                 const state      = getState(f)
-                const isToggling = toggle.isPending && toggle.variables?.fwId === f.id
+                const isToggling = pendingId != null && pendingId === f.id
                 return (
                   <div
                     key={f.id ?? i}
@@ -415,7 +449,7 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
                                   ? value === "completed" ? "bg-emerald-600 text-white" : value === "dispensed" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
                                   : "text-muted-foreground hover:bg-muted"
                               }`}
-                              onClick={() => f.id != null && toggle.mutate({ fwId: f.id, status: value === "none" ? "" : value })}
+                              onClick={() => f.id != null && onToggle(f.id, value === "none" ? "" : value)}
                             >
                               {icon}
                             </button>
@@ -1266,6 +1300,7 @@ export function ProjectCard({
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
           {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
           {activeTab === "fieldwire" && <FieldwireTab p={project} />}
+          {activeTab === "builderlog" && <BuilderLogTab p={project} />}
           {activeTab === "permit"    && <PermitTab    p={project} />}
           {activeTab === "machines"  && <MachinesTab  p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} />}
           {activeTab === "contract"  && <ContractTab  p={project} />}

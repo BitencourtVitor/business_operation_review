@@ -6,11 +6,11 @@ import (
 )
 
 func TestFieldwireScoredSobreviveAoRoundTrip(t *testing.T) {
-	// O JSON que a consulta do Forecast monta, com o On Atlas fora da nota.
+	// O JSON que a consulta do Forecast monta, com um parâmetro fora da nota.
 	const vindoDoBanco = `[
 		{"id":1,"status":"completed","category":"","document":"House Plan","scored":true},
 		{"id":2,"status":"true","category":"","document":"Shared with subcontractor","scored":true},
-		{"id":3,"status":null,"category":"","document":"On Atlas","scored":false}
+		{"id":3,"status":null,"category":"","document":"Internal checklist","scored":false}
 	]`
 
 	var docs []ForecastFieldwireDoc
@@ -21,13 +21,13 @@ func TestFieldwireScoredSobreviveAoRoundTrip(t *testing.T) {
 		t.Fatalf("esperava 3 documentos, veio %d", len(docs))
 	}
 	if docs[2].Scored {
-		t.Error("On Atlas voltou como pontuavel")
+		t.Error("parâmetro fora da nota voltou como pontuavel")
 	}
 	if !docs[0].Scored || !docs[1].Scored {
 		t.Error("documento de Fieldwire perdeu a marca de pontuavel")
 	}
 
-	// O que o navegador recebe. Sem o campo aqui, a tela conta o On Atlas.
+	// O que o navegador recebe. Sem o campo aqui, a tela conta o parâmetro fora da nota.
 	paraONavegador, err := json.Marshal(docs)
 	if err != nil {
 		t.Fatal(err)
@@ -42,6 +42,6 @@ func TestFieldwireScoredSobreviveAoRoundTrip(t *testing.T) {
 		}
 	}
 	if devolta[2]["scored"] != false {
-		t.Errorf("On Atlas chegou ao navegador como %v", devolta[2]["scored"])
+		t.Errorf("parâmetro fora da nota chegou ao navegador como %v", devolta[2]["scored"])
 	}
 }
