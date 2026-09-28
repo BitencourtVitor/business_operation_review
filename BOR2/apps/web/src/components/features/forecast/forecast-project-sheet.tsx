@@ -1,6 +1,6 @@
 "use client"
 
-import { isAtlasDoc, scoredFieldwire, type ForecastAtlasCategory, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
+import { ON_BUILDERLOG, scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   Dialog,
@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  DraftingCompass,
   Fan,
   FileText,
   Flag,
@@ -147,44 +146,8 @@ function SectionLabel({ icon, children }: { icon?: React.ReactNode; children: Re
   )
 }
 
-/**
- * Uma categoria do Atlas. Sem eixo, é uma linha com um booleano. Por andar ou
- * por unidade, a categoria aparece uma vez só e cada vaga vira um selo com o
- * rótulo do andar ou da unidade — cinco andares são cinco booleanos numa linha,
- * não cinco linhas repetindo o mesmo nome.
- */
-function AtlasCategoryRow({ cat }: { cat: ForecastAtlasCategory }) {
-  const slots = cat.slots ?? []
-  const simples = slots.length <= 1 && !slots[0]?.label
-  if (simples) {
-    return (
-      <CheckRow done={!!slots[0]?.imported}>
-        <span className="flex-1 text-[13px] leading-snug">{cat.name}</span>
-      </CheckRow>
-    )
-  }
-  return (
-    <div className="rounded-lg border bg-muted/40 px-3 py-2.5">
-      <p className="text-[13px] leading-snug">{cat.name}</p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {slots.map(s => (
-          <span
-            key={s.label}
-            className={cn(
-              "flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px]",
-              s.imported ? "text-emerald-400" : "text-amber-400"
-            )}
-          >
-            {s.label}
-            {s.imported
-              ? <CheckCircle2 className="h-3 w-3 shrink-0" />
-              : <XCircle      className="h-3 w-3 shrink-0" />}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
+
+// ─── Modal ────────────────────────────────────────────────────────────────────
 
 // Corpo e marca um ponto menores que o resto do modal, e menos respiro em cima
 // e embaixo: em duas colunas o rótulo comprido quebra em duas linhas, e treze
@@ -200,8 +163,6 @@ function CheckRow({ done, children }: { done: boolean; children: React.ReactNode
     </div>
   )
 }
-
-// ─── Modal ────────────────────────────────────────────────────────────────────
 
 export interface ForecastProjectSheetProps {
   project: ForecastProject
@@ -233,7 +194,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   // único porque a largura do modal depende de ter painel aberto, não de qual —
   // com um booleano por painel, esquecer de somar um deles esmaga o conteúdo.
   const [panel, setPanel] = useState<"obs" | "dates" | null>(null)
-  // As categorias do Atlas que ainda não têm documento começam recolhidas.
+  // As categorias do BuilderLog que ainda não subiram começam recolhidas.
   const [verFaltando, setVerFaltando] = useState(false)
   const isHvac = p.company === "hvac"
   useEffect(() => { if (!open) { setPanel(null); setVerFaltando(false) } }, [open])
@@ -243,19 +204,17 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   const pct      = getCompletionPct(p)
   const barColor = getBarColor(ds, pct)
 
-  // "On Atlas" saiu da lista do Fieldwire: quem responde se a obra está no
-  // Atlas é o próprio Atlas, no bloco de baixo. A linha segue no catálogo e no
-  // banco, só não aparece mais aqui.
-  const fieldwireDocs = (p.fieldwire ?? []).filter(fw => !isAtlasDoc(fw.document))
+  const fieldwireDocs = p.fieldwire ?? []
   const hasFieldwire  = fieldwireDocs.length > 0
-  const atlasCats     = p.atlas?.categories ?? []
-  // A HVAC não documenta planta no Atlas: o bloco seria uma lista de pendência
-  // que ninguém vai fechar, do mesmo jeito que BuilderTrend e Storage.
-  const hasAtlas      = !isHvac && atlasCats.length > 0
-  // Entregue é a categoria com pelo menos um documento; a que veio pela metade
-  // entra aqui também, porque o que falta dela está nos próprios selos.
-  const atlasEntregues = atlasCats.filter(c => (c.slots ?? []).some(s => s.imported))
-  const atlasFaltando  = atlasCats.filter(c => !(c.slots ?? []).some(s => s.imported))
+  // O BuilderLog é marcado à mão no Data Control (F-18). A HVAC não documenta
+  // planta lá: o bloco seria uma lista de pendência que ninguém vai fechar, do
+  // mesmo jeito que BuilderTrend e Storage.
+  const blDocs        = p.builderlog ?? []
+  const onBuilderLog  = blDocs.some(d => d.document === ON_BUILDERLOG && isTruthy(d.status))
+  const blCats        = blDocs.filter(d => d.document !== ON_BUILDERLOG)
+  const hasBuilderLog = !isHvac && blDocs.length > 0
+  const blEntregues   = blCats.filter(d => isTruthy(d.status))
+  const blFaltando    = blCats.filter(d => !isTruthy(d.status))
   const hasPermit    = (p.permit?.length ?? 0) > 0
   const hasContract  = (p.contractSteps?.length ?? 0) > 0
   const hasMachines  = (p.machines?.length ?? 0) > 0
@@ -465,11 +424,10 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             </div>
           </section>
 
-          {/* ── Documentos: Fieldwire e Atlas, lado a lado ────────────────────
-              São dois acervos diferentes da mesma obra, e ler um contra o outro
-              é o ponto: um diz o que o Fieldwire tem, o outro o que o Atlas
-              documenta. Nada do Atlas entra no OFI. */}
-          {(hasFieldwire || hasAtlas) && (
+          {/* Documentos: Fieldwire e BuilderLog, lado a lado. São dois acervos
+              diferentes da mesma obra, e ler um contra o outro é o ponto.
+              Nada do BuilderLog entra no OFI. */}
+          {(hasFieldwire || hasBuilderLog) && (
             <section className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {hasFieldwire && (
                 <div>
@@ -495,22 +453,32 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                 </div>
               )}
 
-              {hasAtlas && (
+              {hasBuilderLog && (
                 <div>
-                  <SectionLabel icon={<DraftingCompass className="h-3.5 w-3.5" />}>
-                    Atlas
+                  <SectionLabel icon={
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/icon_builderlog.png" alt="" className="h-3.5 w-3.5 object-contain dark:hidden" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/icon_builderlog_dark.png" alt="" className="hidden h-3.5 w-3.5 object-contain dark:block" />
+                    </>
+                  }>
+                    BuilderLog
                   </SectionLabel>
                   <div className="flex flex-col gap-2">
-                    <CheckRow done={!!p.atlas?.jobsiteId}>
-                      <span className="flex-1 text-[13px] leading-snug">On Atlas</span>
+                    <CheckRow done={onBuilderLog}>
+                      <span className="flex-1 text-[13px] leading-snug">{ON_BUILDERLOG}</span>
                     </CheckRow>
 
-                    {/* O que já entrou, e o que entrou pela metade. A pendente
-                        fica atrás do botão: o catálogo tem treze categorias, e
-                        treze linhas de "falta" enterram as que interessam. */}
-                    {atlasEntregues.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+                    {/* O que já subiu. A pendente fica atrás do botão, para não
+                        enterrar as que interessam numa lista de "falta". */}
+                    {blEntregues.map(d => (
+                      <CheckRow key={d.id} done>
+                        <span className="flex-1 text-[13px] leading-snug">{d.document}</span>
+                      </CheckRow>
+                    ))}
 
-                    {atlasFaltando.length > 0 && (
+                    {blFaltando.length > 0 && (
                       <>
                         <button
                           type="button"
@@ -522,9 +490,13 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                             : <ChevronDown className="h-3.5 w-3.5" />}
                           {verFaltando
                             ? "Hide what's missing"
-                            : `Show what's missing (${atlasFaltando.length})`}
+                            : `Show what's missing (${blFaltando.length})`}
                         </button>
-                        {verFaltando && atlasFaltando.map(cat => <AtlasCategoryRow key={cat.id} cat={cat} />)}
+                        {verFaltando && blFaltando.map(d => (
+                          <CheckRow key={d.id} done={false}>
+                            <span className="flex-1 text-[13px] leading-snug">{d.document}</span>
+                          </CheckRow>
+                        ))}
                       </>
                     )}
                   </div>

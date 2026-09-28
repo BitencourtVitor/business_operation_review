@@ -136,6 +136,15 @@ export function useToggleFieldwire() {
   })
 }
 
+export function useToggleBuilderLog() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
+      forecastService.toggleBuilderLog(id, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
 export function useTogglePermit() {
   const qc = useQueryClient()
   return useMutation({

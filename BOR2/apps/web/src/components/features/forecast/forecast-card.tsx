@@ -1,6 +1,6 @@
 "use client"
 
-import { scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
+import { ON_BUILDERLOG, scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   AlertTriangle,
@@ -8,7 +8,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  DraftingCompass,
   Fan,
   FileText,
   Flag,
@@ -289,16 +288,17 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
   const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
   const fwComplete = fwTotal > 0 && fwDone === fwTotal
 
-  // Atlas: as vagas da obra e quantas já têm documento. Conta vaga, não
-  // categoria: uma categoria por andar vale um por andar. Fora do OFI — é
-  // acompanhamento de documentação, não etapa de obra. A etiqueta só aparece
-  // na obra que está no Atlas; para as outras, o que falta está no modal.
-  const atSlots    = (p.atlas?.jobsiteId ? p.atlas.categories : []).flatMap((c) => c.slots ?? [])
-  const atTotal    = atSlots.length
-  const atDone     = atSlots.filter((s) => s.imported).length
-  const atPct      = atTotal > 0 ? Math.round((atDone / atTotal) * 100) : 0
-  const atComplete = atTotal > 0 && atDone === atTotal
-  const atlas      = !isHvac && atTotal > 0
+  // BuilderLog: as categorias esperadas da obra e quantas já subiram, marcadas
+  // à mão no Data Control (F-18). Fora do OFI: é acompanhamento de
+  // documentação, não etapa de obra. A etiqueta só aparece na obra que já está
+  // no BuilderLog; para as outras, o que falta está no modal.
+  const blDocs     = p.builderlog ?? []
+  const blCats     = blDocs.filter((d) => d.document !== ON_BUILDERLOG)
+  const blTotal    = blCats.length
+  const blDone     = blCats.filter((d) => isTruthy(d.status)).length
+  const blPct      = blTotal > 0 ? Math.round((blDone / blTotal) * 100) : 0
+  const blComplete = blTotal > 0 && blDone === blTotal
+  const builderlog = !isHvac && blDocs.some((d) => d.document === ON_BUILDERLOG && isTruthy(d.status))
 
   // Permit progress — só a HVAC tem etapas de alvará.
   const pmTotal    = p.permit?.length ?? 0
@@ -488,9 +488,9 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
             </div>
 
             {/* Abaixo da linha ficam os selos que não são etapa da obra: a
-                empresa parceira no mesmo endereço e o Atlas. Nenhum dos dois
+                empresa parceira no mesmo endereço e o BuilderLog. Nenhum dos dois
                 entra em nota. */}
-            {(linkedCompany || atlas) && (
+            {(linkedCompany || builderlog) && (
               <>
                 <div className="w-full border-t" />
                 <div style={{ display: "flex", gap: 6 }}>
@@ -513,14 +513,17 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
                     </div>
                   )}
 
-                  {/* Atlas: só aparece na obra que está lá. O anel mostra
-                      quantas das categorias esperadas já têm documento. */}
-                  {atlas && (
+                  {/* BuilderLog: só aparece na obra que está lá. O anel mostra
+                      quantas das categorias esperadas já subiram. */}
+                  {builderlog && (
                     <IconSlot
-                      done={atDone > 0} pct={atPct} complete={atComplete} withProgress
-                      title={`Atlas — ${atDone}/${atTotal} documents`}
+                      done={blDone > 0} pct={blPct} complete={blComplete} withProgress
+                      title={`BuilderLog: ${blDone}/${blTotal} documents`}
                     >
-                      <DraftingCompass style={{ width: 16, height: 16 }} />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/icon_builderlog.png"      alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/icon_builderlog_dark.png" alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
                     </IconSlot>
                   )}
                 </div>

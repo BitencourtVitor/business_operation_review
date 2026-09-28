@@ -7,21 +7,13 @@ export interface ForecastFieldwireDoc {
   status?: string | null
   category?: string
   document?: string
-  /** false: aparece na lista mas não conta em nota (ex.: "On Atlas"). Vem do catálogo. */
+  /** false: aparece na lista mas não conta em nota. Vem do catálogo. */
   scored?: boolean
 }
 
 /** Os documentos que contam para nota e progresso. */
 export function scoredFieldwire(docs?: ForecastFieldwireDoc[]): ForecastFieldwireDoc[] {
   return (docs ?? []).filter(d => d.scored !== false)
-}
-
-/**
- * O parâmetro do Fieldwire que o bloco do Atlas passou a responder. A linha
- * segue no catálogo e no banco; o que mudou é quem conta a história.
- */
-export function isAtlasDoc(doc?: string | null): boolean {
-  return (doc ?? "").trim().toLowerCase() === "on atlas"
 }
 
 export interface ForecastPermitStep {
@@ -45,32 +37,19 @@ export interface ForecastContractStep {
 }
 
 /**
- * Uma vaga dentro da categoria. Categoria sem eixo tem uma só, de rótulo vazio;
- * categoria por andar ou por unidade tem uma por andar ou por unidade.
+ * Um documento esperado da obra no BuilderLog, marcado à mão no Data Control
+ * (F-18): o BuilderLog é outro sistema e o Forecast não lê o banco dele. A linha
+ * "On BuilderLog" diz se a obra já está lá. Mesmos estados do Fieldwire. Nada
+ * aqui entra no OFI.
  */
-export interface ForecastAtlasSlot {
-  label: string
-  imported: boolean
-}
-
-/** Uma categoria que se espera ver documentada na obra. */
-export interface ForecastAtlasCategory {
+export interface ForecastBuilderLogDoc {
   id: number
-  name: string
-  axis: string
-  slots: ForecastAtlasSlot[]
+  document: string
+  status: string | null
 }
 
-/**
- * O que o Atlas documenta da obra. A lista de categorias vem sempre, mesmo na
- * obra que ainda não está no Atlas: saber o que falta é o motivo do bloco. Ela
- * nasce do tipo de obra, e por isso não espelha a lista do Fieldwire. Nada aqui
- * entra no OFI.
- */
-export interface ForecastAtlas {
-  jobsiteId: string | null
-  categories: ForecastAtlasCategory[]
-}
+/** A linha que diz se a obra está no BuilderLog; as outras são categorias. */
+export const ON_BUILDERLOG = "On BuilderLog"
 
 export type ForecastDisplayStatus = "active" | "planned" | "overdue" | "completed" | "cancelled"
 
@@ -124,7 +103,7 @@ export interface ForecastProject {
   machines?: ForecastMachineItem[]
   contractSteps?: ForecastContractStep[]
   permit?: ForecastPermitStep[]
-  atlas?: ForecastAtlas | null
+  builderlog?: ForecastBuilderLogDoc[]
   createdAt: string
   updatedAt: string
 }

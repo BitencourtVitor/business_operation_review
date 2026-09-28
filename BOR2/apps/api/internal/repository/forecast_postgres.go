@@ -21,6 +21,7 @@ type ForecastRepository interface {
 	Update(ctx context.Context, p *domain.ForecastProject) error
 	Delete(ctx context.Context, id string) error
 	UpdateFieldwireStatus(ctx context.Context, fwID int64, status string) error
+	UpdateBuilderLogStatus(ctx context.Context, id int64, status string) error
 	UpdatePermitStatus(ctx context.Context, permitID int64, status string) error
 	UpdateMachineStatus(ctx context.Context, machID int64, status string) error
 	UpdateMachineUnit(ctx context.Context, machID int64, unit string) error
@@ -152,58 +153,14 @@ SELECT
 		 FROM forecast_permit pm WHERE LOWER(pm.project_id) = LOWER(m.id)),
 		'[]'::json
 	) AS permit,
-	-- O que o Atlas documenta desta obra. A lista de categorias nasce do tipo de
-	-- obra, então não tem relação com a do Fieldwire. Obra que ainda não está no
-	-- Atlas também traz a lista, toda pendente: saber o que falta é o motivo do
-	-- bloco existir. Categoria por andar ou por unidade traz uma vaga para cada,
-	-- e é isso que faz a linha mostrar vários booleanos em vez de um.
-	json_build_object(
-		'jobsiteId', (SELECT j.id FROM atlas_jobsite j WHERE j.forecast_id = m.id LIMIT 1),
-		'categories', COALESCE(
-			(SELECT json_agg(v.obj ORDER BY v.position, v.name)
-			   FROM (
-				SELECT c.position, c.name, json_build_object(
-					'id',    c.id,
-					'name',  c.name,
-					'axis',  COALESCE(c.axis, 'none'),
-					'slots', json_agg(json_build_object(
-						'label',    COALESCE(jc.subcategory, ''),
-						'imported', EXISTS (
-							SELECT 1 FROM atlas_document_tag t
-							JOIN atlas_document d ON d.id = t.document_id
-							WHERE t.category_id = jc.category_id
-							  AND t.subcategory = jc.subcategory
-							  AND d.jobsite_id  = jc.jobsite_id
-							  AND d.archived_at IS NULL)
-					) ORDER BY jc.subcategory)
-				) AS obj
-				  FROM atlas_jobsite j
-				  JOIN atlas_jobsite_category jc ON jc.jobsite_id = j.id
-				  JOIN atlas_doc_category c ON c.id = jc.category_id
-				 WHERE j.forecast_id = m.id AND c.archived_at IS NULL
-				   -- Só as categorias do tipo da obra. As de tipo vazio valem
-				   -- para qualquer obra no Atlas, mas numa casa elas trazem
-				   -- Permit Set e Structural Plan, que são vocabulário de
-				   -- prédio: a lista dobrava de tamanho com pendência que
-				   -- ninguém ia fechar.
-				   AND c.build_type = CASE WHEN lower(COALESCE(m.type, '')) = 'building'
-				                           THEN 'building' ELSE 'house' END
-				 GROUP BY c.id, c.name, c.position, c.axis
-			   ) v),
-			-- Fora do Atlas: o gabarito do catálogo para o tipo da obra.
-			(SELECT json_agg(json_build_object(
-				'id',    c.id,
-				'name',  c.name,
-				'axis',  COALESCE(c.axis, 'none'),
-				'slots', json_build_array(json_build_object('label', '', 'imported', false))
-			     ) ORDER BY c.position, c.name)
-			   FROM atlas_doc_category c
-			  WHERE c.archived_at IS NULL AND c.default_slot
-			    AND (COALESCE(c.client, '') = '' OR lower(c.client) = lower(COALESCE(m.cliente, '')))
-			    AND c.build_type = CASE WHEN lower(COALESCE(m.type, '')) = 'building'
-			                            THEN 'building' ELSE 'house' END),
-			'[]'::json)
-	) AS atlas
+	-- O que já subiu no BuilderLog, marcado à mão no Data Control (F-18). O
+	-- BuilderLog é outro sistema: o Forecast não lê o banco dele.
+	COALESCE(
+		(SELECT json_agg(json_build_object('id', b.id, 'document', b.document, 'status', b.status)
+		                 ORDER BY b.position, b.id)
+		 FROM forecast_builderlog b WHERE b.project_id = m.id),
+		'[]'::json
+	) AS builderlog
 FROM mapped m
 `
 
@@ -214,7 +171,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		machinesJSON      []byte
 		contractStepsJSON []byte
 		permitJSON        []byte
-		atlasJSON         []byte
+		builderlogJSON    []byte
 	)
 	if err := scan(
 		&p.ID, &p.Company, &p.Name, &p.Status,
@@ -228,7 +185,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 		&p.JobOpenedDate,
 		&p.PreviousBeamsDate, &p.PreviousStartDate, &p.PreviousEndDate,
 		&p.CreatedAt, &p.UpdatedAt,
-		&fieldwireJSON, &machinesJSON, &contractStepsJSON, &permitJSON, &atlasJSON,
+		&fieldwireJSON, &machinesJSON, &contractStepsJSON, &permitJSON, &builderlogJSON,
 	); err != nil {
 		return nil, err
 	}
@@ -236,9 +193,7 @@ func scanProject(scan func(...any) error) (*domain.ForecastProject, error) {
 	json.Unmarshal(machinesJSON, &p.Machines)           //nolint:errcheck
 	json.Unmarshal(contractStepsJSON, &p.ContractSteps) //nolint:errcheck
 	json.Unmarshal(permitJSON, &p.Permit)               //nolint:errcheck
-	if len(atlasJSON) > 0 {
-		json.Unmarshal(atlasJSON, &p.Atlas) //nolint:errcheck
-	}
+	json.Unmarshal(builderlogJSON, &p.BuilderLog) //nolint:errcheck
 	return p, nil
 }
 
@@ -317,6 +272,9 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
+	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Type); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -350,6 +308,26 @@ func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, proj
 		  )
 	`, projectID, cliente, projType); err != nil {
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
+	}
+	return nil
+}
+
+// seedBuilderLog dá à obra da Framing as linhas do BuilderLog do tipo dela
+// (casa ou prédio), como o Fieldwire. Roda na criação e na edição, e só
+// acrescenta o que falta: trocar o tipo da obra traz as linhas do tipo novo sem
+// apagar o que já foi marcado.
+func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, projectID, company, projType string) error {
+	if company != "" && !strings.EqualFold(company, "framing") {
+		return nil
+	}
+	if _, err := r.db.Exec(ctx, `
+		INSERT INTO forecast_builderlog (project_id, document, position)
+		SELECT $1, c.document, c.position
+		  FROM catalog_forecast_builderlog c
+		 WHERE c.build_type = CASE WHEN lower($2) = 'building' THEN 'building' ELSE 'house' END
+		ON CONFLICT (project_id, document) DO NOTHING
+	`, projectID, projType); err != nil {
+		return fmt.Errorf("seeding builderlog docs: %w", err)
 	}
 	return nil
 }
@@ -424,6 +402,9 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
+	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Type); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -455,6 +436,17 @@ func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, 
 		_, err := tx.Exec(ctx,
 			"UPDATE forecast_fieldwire SET status=$1 WHERE id=$2",
 			value, fwID)
+		return err
+	})
+}
+
+func (r *PostgresForecastRepository) UpdateBuilderLogStatus(ctx context.Context, id int64, status string) error {
+	var value *string
+	if status != "" {
+		value = &status
+	}
+	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, "UPDATE forecast_builderlog SET status=$1 WHERE id=$2", value, id)
 		return err
 	})
 }

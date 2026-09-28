@@ -321,6 +321,7 @@ func main() {
 	forecast.Get("/", forecastHandler.List)
 	forecast.Post("/", forecastHandler.Create)
 	forecast.Patch("/fieldwire/:fwid", forecastHandler.ToggleFieldwire)
+	forecast.Patch("/builderlog/:blid", forecastHandler.ToggleBuilderLog)
 	forecast.Patch("/permit/:pmid", forecastHandler.TogglePermit)
 	forecast.Patch("/machine/:mid", forecastHandler.ToggleMachine)
 	forecast.Patch("/machine/:mid/unit", forecastHandler.UpdateMachineUnit)

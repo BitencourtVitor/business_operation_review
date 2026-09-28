@@ -20,9 +20,8 @@ type ForecastFieldwireDoc struct {
 	// Se o documento conta na nota. Quem decide é o catálogo, pela coluna
 	// counts_in_score, e a consulta já trazia o valor pronto. Faltava o campo
 	// aqui, e o valor morria na volta para o navegador: a tela contava tudo,
-	// inclusive o "On Atlas", que nunca é marcado porque quem responde por ele
-	// é o próprio Atlas. Toda obra ficava com a nota do Fieldwire menor do que
-	// o Fieldwire dela merecia.
+	// inclusive o parâmetro que nunca era marcado à mão. Toda obra ficava com a
+	// nota do Fieldwire menor do que o Fieldwire dela merecia.
 	Scored bool `json:"scored"`
 }
 
@@ -48,29 +47,14 @@ type ForecastContractStepDoc struct {
 	Status *string `json:"status"`
 }
 
-// ForecastAtlasSlot é uma vaga dentro da categoria. Categoria sem eixo tem uma
-// só, de rótulo vazio; categoria por andar ou por unidade tem uma por andar ou
-// por unidade, e é por isso que a categoria mostra vários booleanos em vez de um.
-type ForecastAtlasSlot struct {
-	Label    string `json:"label"`
-	Imported bool   `json:"imported"`
-}
-
-// ForecastAtlasCategory é uma categoria que se espera ver documentada na obra.
-// A lista sai do tipo de obra, e por isso não tem relação com a do Fieldwire.
-type ForecastAtlasCategory struct {
-	ID    int32               `json:"id"`
-	Name  string              `json:"name"`
-	Axis  string              `json:"axis"`
-	Slots []ForecastAtlasSlot `json:"slots"`
-}
-
-// ForecastAtlas é o que o Atlas tem a dizer sobre a obra. A lista de categorias
-// vem sempre: obra fora do Atlas mostra o que se espera dela, tudo pendente, que
-// é a informação útil. JobsiteID nulo é justamente "ainda não está lá".
-type ForecastAtlas struct {
-	JobsiteID  *string                 `json:"jobsiteId"`
-	Categories []ForecastAtlasCategory `json:"categories"`
+// ForecastBuilderLogDoc é um documento esperado da obra no BuilderLog. O
+// BuilderLog é sistema à parte e o Forecast não lê o banco dele: quem marca se a
+// categoria já subiu é a equipe, no Data Control, como no Fieldwire (F-18). A
+// linha "On BuilderLog" diz se a obra já está lá. Nada disto entra no OFI.
+type ForecastBuilderLogDoc struct {
+	ID       int64   `json:"id"`
+	Document string  `json:"document"`
+	Status   *string `json:"status"`
 }
 
 type ForecastProject struct {
@@ -126,7 +110,7 @@ type ForecastProject struct {
 	Machines          []ForecastMachineDoc     `json:"machines,omitempty"`
 	ContractSteps     []ForecastContractStepDoc `json:"contractSteps,omitempty"`
 	Permit            []ForecastPermitStep     `json:"permit,omitempty"`
-	Atlas             *ForecastAtlas           `json:"atlas,omitempty"`
+	BuilderLog        []ForecastBuilderLogDoc  `json:"builderlog"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
 }
