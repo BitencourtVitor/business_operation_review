@@ -96,6 +96,26 @@ export function useHVACActuals() {
   })
 }
 
+export function useHVACJobsites() {
+  return useQuery({
+    queryKey: ["forecast", "hvac-jobsites"],
+    queryFn: () => forecastService.listHVACJobsites(),
+    retry: false,
+  })
+}
+
+export function useSaveHVACJobsite() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: forecastService.saveHVACJobsite,
+    // Renomear mexe no job_site das obras, e o catálogo é o mesmo do Data Control.
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["forecast"] })
+      qc.invalidateQueries({ queryKey: ["catalog", "job-sites"] })
+    },
+  })
+}
+
 export function useSetHVACPurchase() {
   const qc = useQueryClient()
   return useMutation({

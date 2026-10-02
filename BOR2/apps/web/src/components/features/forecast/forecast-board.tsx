@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus, scoredFieldwire } from "@bor2/shared"
-import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, ShieldCheck, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
+import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -29,7 +29,6 @@ interface StatusToggles {
 
 interface IntegFilters {
   fieldwire:    IntegMode
-  permit:       IntegMode
   buildertrend: IntegMode
   qbTime:       IntegMode
   machines:     IntegMode
@@ -58,7 +57,7 @@ const STATUS_ROWS: { key: keyof StatusToggles; label: string; color: string }[] 
 ]
 
 const DEFAULT_STATUS: StatusToggles = { overdue: "on", planned: "on", active: "off", completed: "off" }
-const DEFAULT_INTEG: IntegFilters   = { fieldwire: "all", buildertrend: "all", qbTime: "all", machines: "all", storage: "all", contract: "all", permit: "all" }
+const DEFAULT_INTEG: IntegFilters   = { fieldwire: "all", buildertrend: "all", qbTime: "all", machines: "all", storage: "all", contract: "all" }
 
 const STATUS_METRIC_COLORS: Record<ForecastDisplayStatus, string> = {
   active:    "text-green-600 dark:text-green-400",
@@ -81,17 +80,6 @@ function getProjectMonth(p: ForecastProject, mode: DateMode) {
   return { year: d.getFullYear(), month: d.getMonth() }
 }
 
-/**
- * Obra sem pedido e sem data alguma.
- *
- * Obra sem pedido mas com data de calendário fica ancorada nela e entra no mês
- * normalmente. Só cai aqui quem não tem nem isso — aí não há mês a que
- * pertencer, e jogá-la no mês corrente a misturaria com quem tem cronograma.
- */
-function isAwaitingOrders(p: ForecastProject): boolean {
-  return p.company === "hvac" && !p.hasOrders && !p.jobOpenedDate
-}
-
 function isTruthy(v?: string | boolean | null): boolean {
   if (typeof v === "boolean") return v
   if (!v) return false
@@ -99,7 +87,6 @@ function isTruthy(v?: string | boolean | null): boolean {
 }
 
 function isFieldwireDone(p: ForecastProject)   { const fw = scoredFieldwire(p.fieldwire); return !!fw.length && fw.every(f => isTruthy(f.status)) }
-function isPermitDone(p: ForecastProject)      { return !!p.permit?.length && p.permit.every(s => isTruthy(s.status)) }
 function isMachinesDone(p: ForecastProject)    { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)    { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }
 
@@ -168,8 +155,6 @@ function StatusRow({ label, color, value, hasOnly, onChange }: {
 // ─── Filters Popover ──────────────────────────────────────────────────────────
 
 interface FiltersPopoverProps {
-  /** A HVAC só tem QB Time; filtrar pelo resto seria filtrar por nada. */
-  hvacOnly?: boolean
   status:       StatusToggles
   integ:        IntegFilters
   client:       string
@@ -347,38 +332,25 @@ function FiltersPopover(props: FiltersPopoverProps) {
 
             <div className="flex flex-col gap-2">
               <SectionLabel>External Integrations</SectionLabel>
-              {!props.hvacOnly && (
-                <>
-                  <IntegRow label="Fieldwire"    value={integ.fieldwire}    onChange={v => onInteg("fieldwire", v)}
-                    icon={<img src="/images/icon_fieldwire.png" alt="" className="h-4 w-4 object-contain" />} />
-                  <IntegRow label="Buildertrend" value={integ.buildertrend} onChange={v => onInteg("buildertrend", v)}
-                    icon={<><img src="/images/icon_buildertrend.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
-                </>
-              )}
+              <IntegRow label="Fieldwire"    value={integ.fieldwire}    onChange={v => onInteg("fieldwire", v)}
+                icon={<img src="/images/icon_fieldwire.png" alt="" className="h-4 w-4 object-contain" />} />
+              <IntegRow label="Buildertrend" value={integ.buildertrend} onChange={v => onInteg("buildertrend", v)}
+                icon={<><img src="/images/icon_buildertrend.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
               <IntegRow label="QBTime"       value={integ.qbTime}       onChange={v => onInteg("qbTime", v)}
                 icon={<><img src="/images/icon_qbtime.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_qbtime_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
-              {/* Permit existe só na HVAC, como o Fieldwire só na Framing. */}
-              {props.hvacOnly && (
-                <IntegRow label="Permit" value={integ.permit} onChange={v => onInteg("permit", v)}
-                  icon={<ShieldCheck className="h-4 w-4 text-muted-foreground" />} />
-              )}
             </div>
 
-            {!props.hvacOnly && (
-              <>
-                <div className="h-px bg-border" />
+            <div className="h-px bg-border" />
 
-                <div className="flex flex-col gap-2">
-                  <SectionLabel>Internal Resources</SectionLabel>
-                  <IntegRow label="Machines" value={integ.machines} onChange={v => onInteg("machines", v)}
-                    icon={<Truck    className="h-4 w-4 text-muted-foreground" />} />
-                  <IntegRow label="Storage"  value={integ.storage}  onChange={v => onInteg("storage", v)}
-                    icon={<Package  className="h-4 w-4 text-muted-foreground" />} />
-                  <IntegRow label="Contract" value={integ.contract} onChange={v => onInteg("contract", v)}
-                    icon={<FileText className="h-4 w-4 text-muted-foreground" />} />
-                </div>
-              </>
-            )}
+            <div className="flex flex-col gap-2">
+              <SectionLabel>Internal Resources</SectionLabel>
+              <IntegRow label="Machines" value={integ.machines} onChange={v => onInteg("machines", v)}
+                icon={<Truck    className="h-4 w-4 text-muted-foreground" />} />
+              <IntegRow label="Storage"  value={integ.storage}  onChange={v => onInteg("storage", v)}
+                icon={<Package  className="h-4 w-4 text-muted-foreground" />} />
+              <IntegRow label="Contract" value={integ.contract} onChange={v => onInteg("contract", v)}
+                icon={<FileText className="h-4 w-4 text-muted-foreground" />} />
+            </div>
 
           </div>
         </div>
@@ -389,16 +361,7 @@ function FiltersPopover(props: FiltersPopoverProps) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-/**
- * O quadro do Forecast, servindo as duas empresas.
- *
- * Framing e HVAC são páginas distintas — cada uma com sua permissão e sua
- * liberação — mas o quadro é o mesmo: mesmos filtros, mesmo agrupamento por mês,
- * mesmo card. O que muda é o ciclo da obra: a Framing tem três marcos (beams,
- * start, end) e a HVAC tem quatro etapas, e é o card que sabe disso.
- */
-export function ForecastBoard({ company, title, metricsHref }: {
-  company: "framing" | "hvac"
+export function ForecastBoard({ title, metricsHref }: {
   title: string
   metricsHref: string
 }) {
@@ -414,10 +377,9 @@ export function ForecastBoard({ company, title, metricsHref }: {
 
   const { data: projects, isLoading } = useForecast({
     year: year === "all" ? undefined : year,
-    company,
+    company: "framing",
   })
   const yearOptions = Array.from({ length: 4 }, (_, i) => CURRENT_YEAR - 1 + i)
-  const isHvac = company === "hvac"
 
   // Derived option lists from raw data
   const clientOpts   = useMemo(() => [...new Set(projects?.map(p => p.cliente).filter(Boolean))].sort() as string[], [projects])
@@ -465,14 +427,9 @@ export function ForecastBoard({ company, title, metricsHref }: {
     const hasOnly = Object.entries(status).find(([, v]) => v === "only")?.[0] as ForecastDisplayStatus | undefined
 
     const filtered = projects.filter((p) => {
-      if (isAwaitingOrders(p)) {
-        // Sem data, só faz sentido na visão sem recorte de período.
-        if (year !== "all" || month !== "all") return false
-      } else {
-        const pm = getProjectMonth(p, dateMode)
-        if (year !== "all" && pm.year !== year) return false
-        if (month !== "all" && pm.month !== month) return false
-      }
+      const pm = getProjectMonth(p, dateMode)
+      if (year !== "all" && pm.year !== year) return false
+      if (month !== "all" && pm.month !== month) return false
 
       const ds = getForecastDisplayStatus(p, dateMode)
 
@@ -491,18 +448,13 @@ export function ForecastBoard({ company, title, metricsHref }: {
         if (type === "building" && t.includes("lot")) return false
       }
 
-      // Integration filters. Os da Framing não se aplicam à HVAC — filtrar por
-      // integração que a empresa não tem excluiria toda obra dela.
+      // Integration filters
       if (!applyInteg(integ.qbTime,       p.qbTime))            return false
-      if (isHvac) {
-        if (!applyInteg(integ.permit,     isPermitDone(p)))     return false
-      } else {
-        if (!applyInteg(integ.fieldwire,    isFieldwireDone(p))) return false
-        if (!applyInteg(integ.buildertrend, p.buildertrend))     return false
-        if (!applyInteg(integ.machines,     isMachinesDone(p)))  return false
-        if (!applyInteg(integ.storage,      p.storage))          return false
-        if (!applyInteg(integ.contract,     isContractDone(p)))  return false
-      }
+      if (!applyInteg(integ.fieldwire,    isFieldwireDone(p))) return false
+      if (!applyInteg(integ.buildertrend, p.buildertrend))     return false
+      if (!applyInteg(integ.machines,     isMachinesDone(p)))  return false
+      if (!applyInteg(integ.storage,      p.storage))          return false
+      if (!applyInteg(integ.contract,     isContractDone(p)))  return false
 
       m.total++
       m[ds]++
@@ -510,9 +462,7 @@ export function ForecastBoard({ company, title, metricsHref }: {
     })
 
     const map = new Map<string, ForecastProject[]>()
-    const awaiting: ForecastProject[] = []
     for (const p of filtered) {
-      if (isAwaitingOrders(p)) { awaiting.push(p); continue }
       const pm = getProjectMonth(p, dateMode)
       const key = `${pm.year}-${String(pm.month + 1).padStart(2, "0")}`
       if (!map.has(key)) map.set(key, [])
@@ -530,17 +480,6 @@ export function ForecastBoard({ company, title, metricsHref }: {
         }, {} as Partial<Record<ForecastDisplayStatus, number>>)
         return { key, label: `${MONTHS[mo - 1].label} ${y}`, items, statusCounts }
       })
-
-    // Sempre no fim, e fora da ordenação por data: não é um mês, é a fila de
-    // quem ainda não entrou no calendário.
-    if (awaiting.length > 0) {
-      grouped.push({
-        key: "awaiting-orders",
-        label: "Awaiting orders",
-        items: awaiting,
-        statusCounts: {} as Partial<Record<ForecastDisplayStatus, number>>,
-      })
-    }
 
     return { grouped, metrics: m }
   }, [projects, year, month, dateMode, status, integ, client, location, type, sortOrder])
@@ -606,7 +545,7 @@ export function ForecastBoard({ company, title, metricsHref }: {
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Group by</span>
             <div className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
-              {((isHvac ? ["start"] : ["start", "beams"]) as DateMode[]).map((m) => (
+              {(["start", "beams"] as DateMode[]).map((m) => (
                 <button key={m} onClick={() => setDateMode(m)}
                   className={cn("flex h-7 flex-1 items-center justify-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors sm:gap-1.5 sm:px-2.5",
                     dateMode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
@@ -644,7 +583,6 @@ export function ForecastBoard({ company, title, metricsHref }: {
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Filters</span>
             <FiltersPopover
-              hvacOnly={isHvac}
               status={status} integ={integ} client={client} location={location} type={type}
               activeCount={activeCount} clientOpts={clientOpts} locationOpts={locationOpts}
               onStatus={handleStatus} onInteg={handleInteg}

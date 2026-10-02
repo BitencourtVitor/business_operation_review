@@ -20,13 +20,13 @@ import { useCatalogTable } from "@/hooks/use-catalog"
 
 import { type ForecastProject, type ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, ShieldCheck, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
+import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Hash, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useToggleBuilderLog, useToggleFieldwire, useTogglePermit, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
+import { useToggleBuilderLog, useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ViewTab = "info" | "fieldwire" | "builderlog" | "permit" | "machines" | "contract" | "optionals"
+export type ViewTab = "info" | "fieldwire" | "builderlog" | "machines" | "contract" | "optionals"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -54,7 +54,6 @@ const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
       <img src="/images/icon_builderlog.png" alt="" className="h-3 w-3 object-contain dark:hidden" />
       <img src="/images/icon_builderlog_dark.png" alt="" className="hidden h-3 w-3 object-contain dark:block" />
     </> },
-  { key: "permit",    label: "Permit",       icon: <ShieldCheck      className="h-3 w-3" /> },
   { key: "machines",  label: "Machines",     icon: <Truck            className="h-3 w-3" /> },
   { key: "contract",  label: "Contract",     icon: <FileText         className="h-3 w-3" /> },
   { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3 w-3" /> },
@@ -90,18 +89,6 @@ const TOGGLES: { key: "buildertrend" | "storage" | "qbTime" | "hasOrders"; label
     key: "hasOrders", label: "Has Orders", desc: "Orders page has this project's dates",
     icon: <FileText className="h-4 w-4 text-muted-foreground" />,
   },
-]
-
-// A HVAC não usa Buildertrend nem Storage. Mostrar o toggle sugeriria que basta
-// ligar — quando a integração não existe para essa empresa.
-const HVAC_TOGGLES = new Set(["qbTime", "hasOrders"])
-
-// As quatro etapas do ciclo de HVAC, na ordem em que acontecem na obra.
-const HVAC_STAGE_FIELDS = [
-  { key: "hvacRoughDate"      as const, label: "Rough" },
-  { key: "hvacAirHandlerDate" as const, label: "Air Handler" },
-  { key: "hvacCondenserDate"  as const, label: "Condenser" },
-  { key: "hvacFinishDate"     as const, label: "Finish" },
 ]
 
 // Shared trigger className — matches SelectTrigger anatomy exactly
@@ -330,25 +317,11 @@ function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: s
           onChange={e => setObs(e.target.value)} onBlur={() => onSave("obs", obs)}
           placeholder="Observations..." />
       </div>
-      {/* A HVAC edita as quatro etapas do ciclo; início e fim da obra são
-          derivados delas no banco, então não são editáveis aqui. */}
-      {p.company === "hvac" ? (
-        // Duas colunas: empilhadas, a quarta etapa não cabia na altura fixa do
-        // card e ficava cortada.
-        <div className="grid w-64 grid-cols-2 content-start gap-x-3 gap-y-2">
-          {HVAC_STAGE_FIELDS.map(({ key, label }) => (
-            <DatePickerField key={key} label={label} value={dateVal(p[key])}
-              onBlur={v => onSave(key, v ? `${v}T00:00:00Z` : null)}
-              isSaving={savingField === key} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex w-36 flex-col gap-2">
-          <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
-          <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
-          <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
-        </div>
-      )}
+      <div className="flex w-36 flex-col gap-2">
+        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousBeamsDate"} />
+        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousStartDate"} />
+        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v ? `${v}T00:00:00Z` : null)} isSaving={savingField === "previousEndDate"} />
+      </div>
     </div>
   )
 }
@@ -486,75 +459,6 @@ function isDispensedUnit(unit: string | null | undefined): boolean {
 }
 
 type MachineState = "none" | "yes" | "dispensed"
-
-// PermitTab é o equivalente do Fieldwire para a HVAC: as três etapas do alvará,
-// com o mesmo tri-estado. Sem data — o que se controla é se já foi feito.
-function PermitTab({ p }: { p: ForecastProject }) {
-  const steps  = p.permit ?? []
-  const toggle = useTogglePermit()
-  type PermitState = "none" | "completed" | "dispensed"
-  const getState = (s: typeof steps[0]): PermitState => {
-    const value = String(s.status ?? "").toLowerCase()
-    if (value === "dispensed") return "dispensed"
-    if (["completed", "complete", "true", "t", "1", "yes"].includes(value)) return "completed"
-    return "none"
-  }
-  const done = steps.filter(s => getState(s) !== "none").length
-
-  return (
-    <div className="flex h-full flex-col gap-2 overflow-hidden">
-      <div className="flex items-center">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Permit</span>
-        <span className={`ml-auto text-xs font-semibold ${done === steps.length && steps.length > 0 ? "text-green-600" : "text-muted-foreground"}`}>
-          {done} / {steps.length}
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        {steps.length === 0 && (
-          <span className="py-4 text-center text-xs text-muted-foreground">No permit steps linked</span>
-        )}
-        {steps.map((s, i) => {
-          const state      = getState(s)
-          const isToggling = toggle.isPending && toggle.variables?.permitId === s.id
-          return (
-            <div
-              key={s.id ?? i}
-              className={`flex items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
-            >
-              {isToggling
-                ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
-                : <div className="flex shrink-0 overflow-hidden rounded-md border bg-background">
-                    {([
-                      ["none", <X key="none" className="h-3 w-3" />, "Pending"],
-                      ["completed", <Check key="completed" className="h-3 w-3" />, "Completed"],
-                      ["dispensed", <Ban key="dispensed" className="h-3 w-3" />, "Dispensed"],
-                    ] as const).map(([value, icon, label]) => (
-                      <button
-                        key={value}
-                        type="button"
-                        title={label}
-                        aria-label={`${label}: ${s.step ?? "step"}`}
-                        className={`grid h-6 w-7 place-items-center border-r last:border-r-0 transition-colors ${
-                          state === value
-                            ? value === "completed" ? "bg-emerald-600 text-white" : value === "dispensed" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
-                            : "text-muted-foreground hover:bg-muted"
-                        }`}
-                        onClick={() => s.id != null && toggle.mutate({ permitId: s.id, status: value === "none" ? "" : value })}
-                      >
-                        {icon}
-                      </button>
-                    ))}
-                  </div>
-              }
-              <span className="truncate text-xs">{s.step}</span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
   const mach       = p.machines ?? []
@@ -928,12 +832,9 @@ function ContractTab({ p }: { p: ForecastProject }) {
 }
 
 function OptionalsTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: string, v: unknown) => void; savingField: string | null }) {
-  const toggles = p.company === "hvac"
-    ? TOGGLES.filter(t => HVAC_TOGGLES.has(t.key))
-    : TOGGLES
   return (
     <div className="grid h-full grid-cols-2 gap-2 content-center">
-      {toggles.map(({ key, label, desc, icon }) => {
+      {TOGGLES.map(({ key, label, desc, icon }) => {
         const isSaving = savingField === key
         return (
           <div key={key} className="flex items-center gap-2.5 rounded-lg border border-border px-2.5 py-2">
@@ -1265,12 +1166,7 @@ export function ProjectCard({
       {/* Tab bar */}
       <div className="flex items-center justify-end">
         <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor }}>
-          {/* Fieldwire, Machines e Contract não existem para a HVAC — abas
-              vazias só dariam a impressão de dado faltando. Permit é o
-              contrário: só a HVAC tem, então some para a Framing. */}
-          {TABS.filter(t => t.key === "permit"
-            ? project.company === "hvac"
-            : project.company !== "hvac" || t.key === "info" || t.key === "optionals").map(t => (
+          {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 transition-colors ${activeTab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
               {t.icon}
@@ -1307,7 +1203,6 @@ export function ProjectCard({
           {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
           {activeTab === "fieldwire" && <FieldwireTab p={project} />}
           {activeTab === "builderlog" && <BuilderLogTab p={project} />}
-          {activeTab === "permit"    && <PermitTab    p={project} />}
           {activeTab === "machines"  && <MachinesTab  p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} />}
           {activeTab === "contract"  && <ContractTab  p={project} />}
           {activeTab === "optionals" && <OptionalsTab p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}

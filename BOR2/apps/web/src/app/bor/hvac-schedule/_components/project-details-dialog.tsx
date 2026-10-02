@@ -4,27 +4,18 @@ import {
   Activity, AlertTriangle, Ban, CheckCircle2, Clock, Layers, MapPin, Settings, ShieldCheck, Workflow, XCircle,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { formatDate, type ProjectStages, type Stage } from "../_lib/stages"
+import { formatDate, situationOf, type ProjectStages, type Situation, type Stage } from "../_lib/stages"
 import { Tip } from "./tip"
 
 // Os detalhes da obra da HVAC, só para ler. O desenho segue o do modal do
 // Forecast: faixa de progresso, identidade da obra no cabeçalho e blocos com
 // rótulo no corpo. Para alterar, o caminho é a engrenagem.
 
-type Situation = "done" | "running" | "delayed" | "upcoming"
-
 const SITUATION: Record<Situation, { label: string; Icon: React.ElementType; className: string }> = {
   done: { label: "Completed", Icon: CheckCircle2, className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   running: { label: "In progress", Icon: Activity, className: "border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400" },
   delayed: { label: "Delayed", Icon: AlertTriangle, className: "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400" },
   upcoming: { label: "Upcoming", Icon: Clock, className: "border-border bg-muted text-muted-foreground" },
-}
-
-function situationOf(lot: ProjectStages): Situation {
-  if (lot.percent === 100) return "done"
-  if (lot.stages.some(s => s.state === "delayed")) return "delayed"
-  if (lot.stages.some(s => s.actualStart)) return "running"
-  return "upcoming"
 }
 
 const STAGE_ICON: Record<Stage["state"], { Icon: React.ElementType; className: string; label: string }> = {
@@ -167,7 +158,7 @@ function DateColumn({ term, planned, actual }: { term: string; planned: Date | n
       <Tip text="Planned">
         <p className="border-t border-border py-1 font-semibold tabular-nums">{formatDate(planned)}</p>
       </Tip>
-      <Tip text={actual ? "Actual" : "Not recorded yet"}>
+      <Tip text={actual ? "Executed" : "Not recorded yet"}>
         <p className={`border-t border-border py-1 tabular-nums ${actual ? "font-semibold text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/50"}`}>
           {actual ? formatDate(actual) : "—"}
         </p>

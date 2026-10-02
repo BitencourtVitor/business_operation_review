@@ -15,8 +15,8 @@ import {
   useUpdateForecast, useUpdateHVACStages,
 } from "@/hooks/use-forecast"
 import {
-  businessDaysBefore, FIELDS, formatDate, STAGE_DB_NAME, STAGES, startOfToday, toISO,
-  type ProjectStages, type StageKey,
+  alertOf, businessDaysBefore, FIELDS, formatDate, STAGE_DB_NAME, STAGES, startOfToday, toISO,
+  type DateAlert, type ProjectStages, type StageKey,
 } from "../_lib/stages"
 import { Tip } from "./tip"
 
@@ -39,16 +39,6 @@ const same = (a: Date | null, b: Date | null) => a?.getTime() === b?.getTime()
 // O aviso de atraso de um campo do realizado, pintado na borda. Vermelho: o
 // planejado já passou e nada foi registrado. Âmbar: foi registrado, mas depois
 // do planejado.
-type Alert = { tone: "missed" | "late"; text: string } | undefined
-
-function alertOf(planned: Date | null, actual: Date | null, today: Date, what: string): Alert {
-  if (!planned) return undefined
-  if (actual) {
-    return actual > planned ? { tone: "late", text: `${what} after the planned date (${formatDate(planned)})` } : undefined
-  }
-  return planned < today ? { tone: "missed", text: `${what} was due on ${formatDate(planned)} and is not recorded` } : undefined
-}
-
 const ALERT_BORDER = {
   missed: "border-red-500/70 dark:border-red-500/70",
   late: "border-amber-500/70 dark:border-amber-500/70",
@@ -181,10 +171,10 @@ export function ProjectSettingsDialog({
                     <DateField label={`${s.label} planned start`} value={d.start} onChange={v => set(s.key, "start", v)} />
                     <DateField label={`${s.label} planned end`} value={d.end} onChange={v => set(s.key, "end", v)} />
 
-                    <RowTitle>Actual</RowTitle>
+                    <RowTitle>Executed</RowTitle>
                     <DateField label={`${s.label} purchased on`} value={d.purchasedOn} alert={buyAlert} onChange={v => set(s.key, "purchasedOn", v)} />
-                    <DateField label={`${s.label} actual start`} value={d.actualStart} alert={startAlert} onChange={v => set(s.key, "actualStart", v)} />
-                    <DateField label={`${s.label} actual end`} value={d.actualEnd} alert={endAlert} onChange={v => set(s.key, "actualEnd", v)} />
+                    <DateField label={`${s.label} executed start`} value={d.actualStart} alert={startAlert} onChange={v => set(s.key, "actualStart", v)} />
+                    <DateField label={`${s.label} executed end`} value={d.actualEnd} alert={endAlert} onChange={v => set(s.key, "actualEnd", v)} />
                   </div>
                 </div>
               )
@@ -344,7 +334,7 @@ function DateField({
 }: {
   label: string
   value: Date | null
-  alert?: Alert
+  alert?: DateAlert
   onChange: (date: Date | null) => void
 }) {
   const [open, setOpen] = useState(false)

@@ -308,6 +308,10 @@ func main() {
 	jobSites.Patch("/:id", clientsHandler.UpdateJobSite)
 	jobSites.Delete("/:id", clientsHandler.DeleteJobSite)
 
+	hvacJobsitesHandler := handler.NewHVACJobsitesHandler(db, auditService)
+	api.Get("/forecast/hvac-jobsites", hvacJobsitesHandler.List)
+	api.Put("/forecast/hvac-jobsites", hvacJobsitesHandler.Save)
+
 	// Forecast Catalog (C_ tables) — registered BEFORE forecast /:id for same reason
 	catalog := api.Group("/forecast/catalog")
 	catalog.Get("/:table", catalogHandler.List)
