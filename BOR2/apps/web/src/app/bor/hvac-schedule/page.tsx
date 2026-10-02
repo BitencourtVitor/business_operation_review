@@ -210,18 +210,22 @@ export default function HVACSchedulePage() {
     // cheia porque aquele main é de altura fixa com overflow-hidden, então quem
     // rola é o corpo de cada bloco, não a página.
     <div className="@container flex h-full flex-col gap-4 max-lg:overflow-y-auto max-lg:pr-1">
-      <div className="flex shrink-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
-          <p className="text-sm text-muted-foreground">
+      <div className="flex shrink-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+        {/* O título cede espaço antes dos filtros: quem não pode quebrar em
+            duas linhas são eles. */}
+        <div className="min-w-0 lg:flex-1">
+          <h1 className="truncate text-xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
+          <p className="truncate text-sm text-muted-foreground">
             Stage calendar and the purchase date it depends on
           </p>
         </div>
 
         {/* Busca primeiro: é o filtro de quem já sabe o que procura, e os três
             seletores servem para quem ainda não sabe. */}
-        <div className="flex flex-wrap items-end gap-2.5">
-          <div className="flex flex-col gap-1">
+        {/* Uma linha só: a busca é quem encolhe quando o espaço aperta. Só em
+            largura de celular os filtros quebram. */}
+        <div className="flex flex-wrap items-end gap-2.5 sm:flex-nowrap lg:shrink-0">
+          <div className="flex min-w-[120px] flex-1 flex-col gap-1 lg:w-[190px] lg:flex-none">
             <FilterLabel>Search</FilterLabel>
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -229,7 +233,7 @@ export default function HVACSchedulePage() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Lot, jobsite, address…"
-                className="h-8 w-[190px] rounded-lg border border-input bg-transparent pr-7 pl-8 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-ring dark:bg-input/30"
+                className="h-8 w-full rounded-lg border border-input bg-transparent pr-7 pl-8 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-ring dark:bg-input/30"
               />
               {query && (
                 <button
@@ -274,9 +278,10 @@ export default function HVACSchedulePage() {
             })}
           </Filter>
 
-          <Button onClick={() => setPreparing(true)}>
+          {/* Com pouco espaço o botão fica só com o ícone, para a linha caber. */}
+          <Button className="shrink-0" aria-label="Present" onClick={() => setPreparing(true)}>
             <PresentationIcon className="h-3.5 w-3.5" />
-            Present
+            <span className="hidden @2xl:inline">Present</span>
           </Button>
         </div>
       </div>
