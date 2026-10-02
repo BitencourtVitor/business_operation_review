@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
+import { Building2, Hash, Home, Loader2, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -72,29 +72,47 @@ export function AddLotDialog({
         <DialogHeader>
           <DialogTitle>Add lot</DialogTitle>
           <DialogDescription>
-            {jobsite}{client ? ` · ${client}` : ""}. Stage dates and permit are set afterwards, in Project settings.
+            Stage dates and permit are set afterwards, in Project settings.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-[1fr_140px] gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="lot-number">Lot</Label>
-              <Input id="lot-number" value={lot} onChange={e => setLot(e.target.value)} placeholder="12" />
-            </div>
-            <div className="flex flex-col gap-1.5">
+          {/* Onde o lote vai nascer: cliente primeiro, depois o jobsite. */}
+          <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 px-3 py-2.5 text-sm">
+            <InfoRow icon={<Building2 className="h-3.5 w-3.5" />} label="Client" value={client || "No client"} />
+            <InfoRow icon={<MapPin className="h-3.5 w-3.5" />} label="Jobsite" value={jobsite} />
+          </div>
+
+          {/* Tipo primeiro, depois o número. Os dois só com a largura que pedem. */}
+          <div className="flex gap-3">
+            <div className="flex w-[130px] flex-col gap-1.5">
               <Label>Type</Label>
               <Select value={type} onValueChange={v => v && setType(v)}>
-                <SelectTrigger className="h-8 w-full"><span className="text-sm">{type}</span></SelectTrigger>
+                <SelectTrigger className="h-8 w-full">
+                  <span className="flex items-center gap-2 text-sm">
+                    <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    {type}
+                  </span>
+                </SelectTrigger>
                 <SelectContent>
                   {TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex w-[120px] flex-col gap-1.5">
+              <Label htmlFor="lot-number">Lot</Label>
+              <div className="relative">
+                <Hash className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input id="lot-number" className="pl-8" value={lot} onChange={e => setLot(e.target.value)} placeholder="12" />
+              </div>
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="lot-address">Address</Label>
-            <Input id="lot-address" value={address} onChange={e => setAddress(e.target.value)} placeholder="21 Broadleaf, Plymouth, MA 02360" />
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input id="lot-address" className="pl-8" value={address} onChange={e => setAddress(e.target.value)} placeholder="21 Broadleaf, Plymouth, MA 02360" />
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="lot-obs">Note <span className="font-normal text-muted-foreground">(optional)</span></Label>
@@ -113,5 +131,15 @@ export function AddLotDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="shrink-0 text-muted-foreground">{icon}</span>
+      <span className="w-14 shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className="min-w-0 truncate font-medium">{value}</span>
+    </div>
   )
 }

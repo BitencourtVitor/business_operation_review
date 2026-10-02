@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check, ChevronDown, Loader2, Plus, X } from "lucide-react"
+import { Building2, Check, ChevronDown, Loader2, MapPin, Plus, Users, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -71,20 +71,15 @@ export function JobsiteDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="jobsite-name">Name</Label>
-            <Input id="jobsite-name" value={name} onChange={e => setName(e.target.value)} placeholder="Broadleaf at Plymouth, MA" />
-            {jobsite.sourceName && (
-              <p className="text-xs text-muted-foreground">Name in SupplyPro: {jobsite.sourceName}</p>
-            )}
-          </div>
-
-          {isNew && (
+          {/* O cliente se escolhe ao criar. Depois é só leitura: trocar o
+              cliente de um jobsite mexeria no cliente de todas as obras dele. */}
+          {(isNew || client) && (
             <div className="flex flex-col gap-1.5">
               <Label>Client</Label>
-              <Select value={client} onValueChange={v => v && setClient(v)}>
+              <Select value={client} onValueChange={v => v && setClient(v)} disabled={!isNew}>
                 <SelectTrigger className="h-8 w-full">
-                  <span className={`truncate text-sm ${client ? "" : "text-muted-foreground"}`}>
+                  <span className={`flex min-w-0 flex-1 items-center gap-2 truncate text-sm ${client ? "" : "text-muted-foreground"}`}>
+                    <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     {client || "Choose a client"}
                   </span>
                 </SelectTrigger>
@@ -94,6 +89,17 @@ export function JobsiteDialog({
               </Select>
             </div>
           )}
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="jobsite-name">Name</Label>
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input id="jobsite-name" className="pl-8" value={name} onChange={e => setName(e.target.value)} placeholder="Broadleaf at Plymouth, MA" />
+            </div>
+            {jobsite.sourceName && (
+              <p className="text-xs text-muted-foreground">Name in SupplyPro: {jobsite.sourceName}</p>
+            )}
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <Label>Responsible</Label>
@@ -141,8 +147,9 @@ function PeoplePicker({
         render={
           <button
             type="button"
-            className="flex min-h-8 w-full items-center gap-1.5 rounded-lg border border-input bg-transparent px-2 py-1 text-left text-sm transition-colors outline-none focus-visible:border-ring dark:bg-input/30"
+            className="flex min-h-8 w-full items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 py-1 text-left text-sm transition-colors outline-none focus-visible:border-ring dark:bg-input/30"
           >
+            <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <span className="flex min-w-0 flex-1 flex-wrap gap-1">
               {value.length === 0 && <span className="text-muted-foreground">Nobody yet</span>}
               {value.map(n => (

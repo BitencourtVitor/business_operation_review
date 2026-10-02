@@ -209,7 +209,7 @@ export default function HVACSchedulePage() {
     // Sem padding próprio: o `<main>` do layout do BOR já aplica p-6. Altura
     // cheia porque aquele main é de altura fixa com overflow-hidden, então quem
     // rola é o corpo de cada bloco, não a página.
-    <div className="flex h-full flex-col gap-4">
+    <div className="@container flex h-full flex-col gap-4 max-lg:overflow-y-auto max-lg:pr-1">
       <div className="flex shrink-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">HVAC Schedule &amp; Material</h1>
@@ -293,8 +293,9 @@ export default function HVACSchedulePage() {
       )}
       {presenting && <Presentation config={presenting} onClose={() => setPresenting(null)} />}
 
-      {/* Métricas fixas no topo, uma linha só e dentro da largura da tela. */}
-      <div className="grid shrink-0 grid-cols-6 gap-3">
+      {/* Métricas no topo. Seis numa linha quando cabe; apertando, viram três
+          e depois duas por linha, para o título não ser cortado. */}
+      <div className="grid shrink-0 grid-cols-2 gap-3 @lg:grid-cols-3 @5xl:grid-cols-6">
         <Metric
           title="Active projects"
           value={String(projects.filter(isActive).length)}
@@ -341,9 +342,9 @@ export default function HVACSchedulePage() {
 
       {/* O Project stages fica com a largura que sobra: são quatro etapas por
           linha, e cada uma traz três datas. A lista de compras é estreita. */}
-      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
+      <div className="flex flex-col gap-4 max-lg:shrink-0 lg:min-h-0 lg:flex-1 lg:flex-row">
         <Panel
-          className="min-w-0 lg:flex-1"
+          className="min-w-0 max-lg:h-[75vh] max-lg:shrink-0 lg:flex-1"
           icon={<Layers className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Project stages"
           right={
@@ -394,6 +395,8 @@ export default function HVACSchedulePage() {
                   <ChevronLeft className="h-3.5 w-3.5" />
                   Jobsites
                 </button>
+                {/* Sempre nesta ordem: cliente, jobsite, responsável. */}
+                <ClientTag name={draftOf(current.site, current.lots).client} />
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <span className="truncate text-sm font-semibold">{current.site}</span>
                 <Responsibles names={metaOf(current.site)?.responsibles ?? []} />
@@ -428,6 +431,7 @@ export default function HVACSchedulePage() {
               {sites.map(s => (
                 <JobsiteRow
                   key={s.site} site={s.site} lots={s.lots}
+                  client={draftOf(s.site, s.lots).client}
                   responsibles={metaOf(s.site)?.responsibles ?? []}
                   onOpen={() => setSite(s.site)}
                   onEdit={() => setEditing(draftOf(s.site, s.lots))}
@@ -454,7 +458,7 @@ export default function HVACSchedulePage() {
         </Panel>
 
         <Panel
-          className="lg:w-[232px] lg:shrink-0"
+          className="max-lg:h-[60vh] max-lg:shrink-0 lg:w-[232px] lg:shrink-0"
           icon={<ShoppingCart className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Next purchases"
           right={<span className="text-xs text-muted-foreground">{purchases.length}</span>}
@@ -500,7 +504,7 @@ function Panel({
         </div>
         {right}
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">{children}</div>
+      <div className="@container min-h-0 flex-1 overflow-y-auto p-3">{children}</div>
     </div>
   )
 }
@@ -514,10 +518,11 @@ function toBuy(s: Stage): boolean {
 // Primeira etapa do bloco: um jobsite por linha. Clicar leva aos lotes dele; o
 // lápis edita o nome e os responsáveis.
 function JobsiteRow({
-  site, lots, responsibles, onOpen, onEdit,
+  site, lots, client, responsibles, onOpen, onEdit,
 }: {
   site: string
   lots: ProjectStages[]
+  client: string
   responsibles: string[]
   onOpen: () => void
   onEdit: () => void
@@ -532,35 +537,61 @@ function JobsiteRow({
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onOpen() } }}
-      className="flex w-full cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/40 px-3 py-2 text-left transition-colors outline-none hover:border-foreground/20 hover:bg-muted/50 focus-visible:border-primary"
+      className="flex w-full cursor-pointer flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-border bg-background/40 px-3 py-2 text-left transition-colors outline-none hover:border-foreground/20 hover:bg-muted/50 focus-visible:border-primary"
     >
-      <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      <span className="truncate text-sm font-medium">{site}</span>
-      <span className="shrink-0 text-xs text-muted-foreground">
-        {lots.length} {lots.length === 1 ? "lot" : "lots"}
+      {/* Quem é o jobsite, à esquerda. Com o painel apertado ocupa a linha
+          inteira, e os números descem para a de baixo. */}
+      <span className="flex min-w-0 basis-full items-center gap-2 @2xl:flex-1 @2xl:basis-0">
+        <ClientTag name={client} />
+        <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="truncate text-sm font-medium">{site}</span>
+        <Responsibles names={responsibles} />
       </span>
-      <Responsibles names={responsibles} />
-      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-        {running} running · {buy} to buy
+      {/* À direita ficam os números, cada um com o seu ícone; o que cada um
+          conta está na dica. */}
+      <span className="flex shrink-0 items-center gap-3.5 text-xs tabular-nums text-muted-foreground @2xl:ml-auto">
+        <RowMetric icon={<Layers className="h-3.5 w-3.5" />} value={lots.length} tip="Lots in this jobsite" />
+        <RowMetric icon={<Activity className="h-3.5 w-3.5" />} value={running} tip="Stages in progress" tone="text-blue-600 dark:text-blue-400" />
+        <RowMetric icon={<ShoppingCart className="h-3.5 w-3.5" />} value={buy} tip="Stages with material still to buy" tone="text-amber-600 dark:text-amber-400" />
+        <RowMetric icon={<AlertTriangle className="h-3.5 w-3.5" />} value={delayed} tip="Delayed stages" tone="text-red-600 dark:text-red-400" />
       </span>
-      {delayed > 0 && (
-        <span className="flex shrink-0 items-center gap-1 rounded-md border border-red-500/40 px-1.5 py-0.5 text-xs tabular-nums text-red-600 dark:text-red-400">
-          <AlertTriangle className="h-3 w-3" />
-          {delayed}
-        </span>
-      )}
       <Tip text="Edit jobsite">
         <button
           onClick={ev => { ev.stopPropagation(); onEdit() }}
           onKeyDown={ev => ev.stopPropagation()}
           aria-label={`Edit ${site}`}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+          className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary @2xl:ml-0"
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
       </Tip>
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </div>
+  )
+}
+
+/** Um número da linha do jobsite, com o ícone que diz o que ele conta. Zero
+ *  fica apagado; a cor só aparece quando há o que olhar. */
+function RowMetric({ icon, value, tip, tone }: { icon: React.ReactNode; value: number; tip: string; tone?: string }) {
+  return (
+    <Tip text={tip}>
+      <span className={`flex w-9 items-center gap-1 ${value > 0 ? tone ?? "" : "opacity-40"}`}>
+        {icon}
+        {value}
+      </span>
+    </Tip>
+  )
+}
+
+/** O cliente do jobsite, junto do nome. Sem cliente conhecido, não ocupa lugar. */
+function ClientTag({ name }: { name: string }) {
+  if (!name) return null
+  return (
+    // Só ícone e texto: com borda parecia botão, e não se clica nele.
+    <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+      <Building2 className="h-3.5 w-3.5" />
+      {name}
+    </span>
   )
 }
 
@@ -603,9 +634,13 @@ function LotRow({ lot }: { lot: ProjectStages }) {
       tabIndex={0}
       onClick={() => setOpen("details")}
       onKeyDown={ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setOpen("details") } }}
-      className="lot-row flex cursor-pointer items-stretch gap-2.5 rounded-lg border border-border bg-card px-2.5 py-3 text-left transition-[opacity,border-color] duration-150 outline-none group-has-[.lot-row:hover]/lots:opacity-40 hover:border-primary/50 hover:opacity-100! focus-visible:border-primary"
+      className="lot-row flex cursor-pointer flex-col items-stretch gap-2.5 rounded-lg @2xl:flex-row border border-border bg-card px-2.5 py-3 text-left transition-[opacity,border-color] duration-150 outline-none group-has-[.lot-row:hover]/lots:opacity-40 hover:border-primary/50 hover:opacity-100! focus-visible:border-primary"
     >
-      <div className="flex w-[140px] shrink-0 flex-col justify-center gap-2 px-1">
+      {/* Em cima, quem é o lote e quanto andou; embaixo, os stickers e a
+          engrenagem. Quando as etapas ocupam duas linhas o bloco fica alto, e
+          tudo junto no meio deixava um vazio em cima e outro embaixo. */}
+      <div className="flex shrink-0 flex-col justify-between gap-2 px-1 py-0.5 @2xl:w-[140px]">
+        <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
         </div>
@@ -618,6 +653,7 @@ function LotRow({ lot }: { lot: ProjectStages }) {
           <Progress value={lot.percent} className="h-1 flex-1" />
           <span className="tabular-nums">{lot.percent}%</span>
         </span>
+        </div>
 
         {/* Os stickers que a HVAC tinha no Forecast, QuickBooks Time e Permit,
             e do lado oposto a engrenagem das configurações da obra. */}
@@ -651,7 +687,7 @@ function LotRow({ lot }: { lot: ProjectStages }) {
         </div>
       </div>
 
-      <div className="grid min-w-0 flex-1 grid-cols-4 gap-2.5">
+      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2.5 @md:grid-cols-2 @4xl:grid-cols-4">
         {lot.stages.map(s => <StageCard key={s.key} stage={s} />)}
       </div>
 
