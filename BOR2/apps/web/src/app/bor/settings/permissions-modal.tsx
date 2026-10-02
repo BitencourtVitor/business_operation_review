@@ -212,16 +212,18 @@ function PageList({ selectedKey, onSelect, touch = false }: {
   return (
     <>
       {PERMISSION_GROUPS.map(group => (
-        <div key={group.label} className="mb-3">
+        // O respiro entre os itens: sem ele, o fundo do item sob o mouse encosta
+        // no vizinho.
+        <div key={group.label} className="mb-3 flex flex-col gap-1">
           {group.label && (
-            <p className="mb-1 px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
+            <p className="px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
               {group.label}
             </p>
           )}
           {group.permissions.map(perm =>
             perm.children ? (
               /* ── Parent grouper (e.g. QBTime Reports) ── */
-              <div key={perm.label} className="mb-0.5">
+              <div key={perm.label} className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/40">
                   <PageIcon perm={perm} className="h-3 w-3" />
                   {perm.label}
