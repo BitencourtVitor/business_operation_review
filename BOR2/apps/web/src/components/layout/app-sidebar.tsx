@@ -30,7 +30,6 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarX,
-  CalendarDays,
   ChevronDown,
   ClipboardCheck,
   ClipboardList,
@@ -94,18 +93,12 @@ const activeGroup: NavGroup = {
   items: [
     { title: "Monthly Execution",          href: "/bor/monthly-execution", icon: CalendarCheck, permKey: "monthly_execution" },
     { title: "Operational Forecast Index", href: "/bor/ofi",               icon: BarChart2,     permKey: "ofi"              },
-    {
-      // No direct permKey — visibility driven by children, one per division
-      title: "Forecast", href: "/bor/forecast", icon: CalendarDays,
-      children: [
-        { title: "Framing", href: "/bor/forecast",      image: "/images/sublogo_framing.png", metricsHref: "/bor/forecast/metrics",      permKey: "forecast"      },
-        { title: "HVAC",    href: "/bor/hvac-forecast", image: "/images/sublogo_hvac.png",    metricsHref: "/bor/hvac-forecast/metrics", permKey: "forecast_hvac" },
-      ],
-    },
-    // Logo abaixo do Forecast porque lê as mesmas etapas, e sob a mesma
-    // permissão do Forecast HVAC: chave nova nasceria sem ninguém a tendo, e a
-    // página ficaria invisível até alguém abrir Settings.
-    { title: "HVAC Schedule & Material", href: "/bor/hvac-schedule", icon: CalendarClock, permKey: "forecast_hvac" },
+    // O Forecast voltou a ser só da Framing (HS-21), e por isso leva a marca dela.
+    { title: "Forecast", href: "/bor/forecast", image: "/images/sublogo_framing.png", metricsHref: "/bor/forecast/metrics", permKey: "forecast" },
+    // A HVAC não tem mais Forecast (HS-21): esta é a página dela, e por isso
+    // leva a marca da HVAC. A permissão segue a do antigo Forecast HVAC, para
+    // quem já via continuar vendo sem ninguém abrir Settings.
+    { title: "HVAC Schedule & Material", href: "/bor/hvac-schedule", image: "/images/sublogo_hvac.png", permKey: "forecast_hvac" },
     {
       title: "Workforce Productivity", href: "/bor/workforce-productivity", icon: Users,
       permKey: "workforce",

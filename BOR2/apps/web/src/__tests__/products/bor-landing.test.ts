@@ -15,7 +15,7 @@ describe("borLandingHref", () => {
 
   it("quem só tem HVAC não é mandado para o Forecast de Framing", () => {
     const href = borLandingHref({ forecast_hvac: "read" }, false)
-    expect(href).toBe("/bor/hvac-forecast")
+    expect(href).toBe("/bor/hvac-schedule")
     expect(href).not.toBe("/bor/forecast")
   })
 

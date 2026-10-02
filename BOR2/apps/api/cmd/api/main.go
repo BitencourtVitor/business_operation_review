@@ -335,6 +335,7 @@ func main() {
 	forecast.Get("/hvac-actuals", hvacStagesHandler.ListActuals)
 	forecast.Patch("/:id/hvac-stages", hvacStagesHandler.Update)
 	forecast.Put("/:id/hvac-actuals/:stage", hvacStagesHandler.SetActual)
+	forecast.Put("/:id/hvac-purchase/:stage", hvacStagesHandler.SetPurchase)
 	forecast.Put("/:id", forecastHandler.Update)
 	forecast.Delete("/:id", forecastHandler.Delete)
 	forecast.Get("/:id", forecastHandler.Get)

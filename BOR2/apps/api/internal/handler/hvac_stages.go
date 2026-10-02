@@ -127,6 +127,8 @@ type hvacActual struct {
 	Stage       string  `json:"stage"`
 	ActualStart *string `json:"actualStart"`
 	ActualEnd   *string `json:"actualEnd"`
+	// Quando o material da etapa foi comprado. Vazio é "ainda não comprado".
+	PurchasedOn *string `json:"purchasedOn"`
 	Note        string  `json:"note"`
 	UpdatedBy   string  `json:"updatedBy"`
 }
@@ -143,7 +145,7 @@ func (h *HVACStagesHandler) ListActuals(c *fiber.Ctx) error {
 	rows, err := h.db.Query(c.Context(), `
 		SELECT project_id, stage,
 		       to_char(actual_start, 'YYYY-MM-DD'), to_char(actual_end, 'YYYY-MM-DD'),
-		       note, updated_by
+		       to_char(purchased_on, 'YYYY-MM-DD'), note, updated_by
 		FROM forecast_hvac_stages
 		ORDER BY project_id, stage
 	`)
@@ -155,7 +157,7 @@ func (h *HVACStagesHandler) ListActuals(c *fiber.Ctx) error {
 	out := []hvacActual{}
 	for rows.Next() {
 		var a hvacActual
-		if err := rows.Scan(&a.ProjectID, &a.Stage, &a.ActualStart, &a.ActualEnd, &a.Note, &a.UpdatedBy); err != nil {
+		if err := rows.Scan(&a.ProjectID, &a.Stage, &a.ActualStart, &a.ActualEnd, &a.PurchasedOn, &a.Note, &a.UpdatedBy); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 		}
 		out = append(out, a)
@@ -166,7 +168,8 @@ func (h *HVACStagesHandler) ListActuals(c *fiber.Ctx) error {
 // PUT /api/v1/forecast/:id/hvac-actuals/:stage
 //
 // Registrar que a etapa começou, ou que terminou. Sem os dois preenchidos a
-// linha some: etapa "nem começou" é a ausência de registro, não uma linha vazia.
+// linha some, a não ser que guarde a compra do material: etapa "nem começou" é
+// a ausência de registro, não uma linha vazia.
 func (h *HVACStagesHandler) SetActual(c *fiber.Ctx) error {
 	stage := c.Params("stage")
 	if !hvacStageNames[stage] {
@@ -196,8 +199,13 @@ func (h *HVACStagesHandler) SetActual(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	if req.ActualStart == nil && req.ActualEnd == nil {
-		if _, err := h.db.Exec(c.Context(),
-			`DELETE FROM forecast_hvac_stages WHERE project_id = $1 AND stage = $2`, id, stage); err != nil {
+		if _, err := h.db.Exec(c.Context(), `
+			WITH limpa AS (
+				UPDATE forecast_hvac_stages SET actual_start = NULL, actual_end = NULL, updated_at = now()
+				 WHERE project_id = $1 AND stage = $2 AND purchased_on IS NOT NULL
+			)
+			DELETE FROM forecast_hvac_stages
+			 WHERE project_id = $1 AND stage = $2 AND purchased_on IS NULL`, id, stage); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 		}
 		return c.JSON(fiber.Map{"data": fiber.Map{"projectId": id, "stage": stage, "cleared": true}})
@@ -216,5 +224,50 @@ func (h *HVACStagesHandler) SetActual(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 
+	return c.JSON(fiber.Map{"data": fiber.Map{"projectId": id, "stage": stage}})
+}
+
+// PUT /api/v1/forecast/:id/hvac-purchase/:stage
+//
+// Registrar, ou desfazer, a compra do material da etapa. A compra acontece
+// antes de a etapa começar, então a linha pode existir só com ela.
+func (h *HVACStagesHandler) SetPurchase(c *fiber.Ctx) error {
+	stage := c.Params("stage")
+	if !hvacStageNames[stage] {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "unknown stage: " + stage, "code": "BAD_REQUEST"})
+	}
+	var req struct {
+		PurchasedOn *string `json:"purchasedOn"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	_, uname := actor(c)
+	id := c.Params("id")
+
+	if req.PurchasedOn == nil {
+		// Sem compra e sem datas reais, a linha não diz mais nada e sai.
+		if _, err := h.db.Exec(c.Context(), `
+			WITH limpa AS (
+				UPDATE forecast_hvac_stages SET purchased_on = NULL, updated_by = $3, updated_at = now()
+				 WHERE project_id = $1 AND stage = $2 AND actual_start IS NOT NULL
+			)
+			DELETE FROM forecast_hvac_stages
+			 WHERE project_id = $1 AND stage = $2 AND actual_start IS NULL`, id, stage, uname); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+		}
+		return c.JSON(fiber.Map{"data": fiber.Map{"projectId": id, "stage": stage, "cleared": true}})
+	}
+
+	if _, err := h.db.Exec(c.Context(), `
+		INSERT INTO forecast_hvac_stages (project_id, stage, purchased_on, updated_by)
+		VALUES ($1, $2, $3::date, $4)
+		ON CONFLICT (project_id, stage) DO UPDATE SET
+			purchased_on = EXCLUDED.purchased_on,
+			updated_by   = EXCLUDED.updated_by,
+			updated_at   = now()
+	`, id, stage, *req.PurchasedOn, uname); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
 	return c.JSON(fiber.Map{"data": fiber.Map{"projectId": id, "stage": stage}})
 }

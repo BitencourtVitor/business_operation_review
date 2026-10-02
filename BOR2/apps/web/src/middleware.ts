@@ -50,6 +50,13 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(BUILDERLOG_LOGIN, 307)
   }
 
+  // O HVAC Forecast acabou (HS-21): a página da HVAC é o Schedule and Material.
+  if (req.nextUrl.pathname === "/bor/hvac-forecast" || req.nextUrl.pathname.startsWith("/bor/hvac-forecast/")) {
+    const url = req.nextUrl.clone()
+    url.pathname = "/bor/hvac-schedule"
+    return NextResponse.redirect(url, 308)
+  }
+
   const segment = req.nextUrl.pathname.split("/")[1] ?? ""
   if (!BOR_SEGMENTS.has(segment)) return NextResponse.next()
 
