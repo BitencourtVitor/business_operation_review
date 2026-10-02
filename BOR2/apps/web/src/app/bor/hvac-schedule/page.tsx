@@ -206,7 +206,7 @@ export default function HVACSchedulePage() {
             </div>
           </div>
 
-          <Filter label="Condition" value={source} onChange={setSource} className="w-[150px]">
+          <Filter label="Condition" value={source} onChange={setSource} className="w-[170px]">
             <SelectItem value="orders">
               <ShoppingCart className="h-3.5 w-3.5 text-muted-foreground" />
               With orders
