@@ -57,11 +57,8 @@ func (h *HVACStagesHandler) Update(c *fiber.Ctx) error {
 	}
 
 	note := strings.TrimSpace(req.Note)
-	if note == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "a justification is required to change a stage date", "code": "NOTE_REQUIRED",
-		})
-	}
+	// A justificativa deixou de ser exigida (02/10): quem mudou e quando já
+	// ficam no histórico, e a tela não pede mais o motivo.
 	if len(note) > maxNoteLength {
 		note = note[:maxNoteLength]
 	}

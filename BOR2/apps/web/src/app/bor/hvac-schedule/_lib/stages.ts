@@ -69,6 +69,8 @@ export interface Stage {
   /** Outra etapa do mesmo lote começa no mesmo dia que esta. É o que o selo
    *  "Same day" avisa, e aqui diz *quais* datas colidem, não só que colidem. */
   sharesStart: boolean
+  /** Quais são essas outras etapas, já com o número: "S4 Finish". */
+  sharesStartWith: string[]
 }
 
 export interface ProjectStages {
@@ -128,17 +130,15 @@ export function stagesOf(
 ): ProjectStages {
   const byStage = new Map(actuals.map(a => [a.stage, a]))
 
-  // Quantas etapas caem em cada dia de início. Mais de uma no mesmo dia é o
-  // cliente mandando o cronograma empilhado, e as duas precisam se destacar.
-  const startCount = new Map<number, number>()
-  for (const { key } of STAGES) {
-    const d = parseDate(project[FIELDS[key].start] as string | null)
-    if (d) startCount.set(d.getTime(), (startCount.get(d.getTime()) ?? 0) + 1)
-  }
-
-  const stages = STAGES.map(({ key, label, full, Icon, leadDays }) => {
+  const stages = STAGES.map(({ key, label, full, Icon, leadDays }, index) => {
     const start = parseDate(project[FIELDS[key].start] as string | null)
+    const sharesStartWith = STAGES.flatMap((other, i) => {
+      const d = parseDate(project[FIELDS[other.key].start] as string | null)
+      return i !== index && start && d?.getTime() === start.getTime() ? [`S${i + 1} ${other.label}`] : []
+    })
     const end = parseDate(project[FIELDS[key].end] as string | null)
+    // Mais de uma etapa começando no mesmo dia é o cliente mandando o
+    // cronograma empilhado, e cada uma precisa dizer com quem divide a data.
     const actual = byStage.get(STAGE_DB_NAME[key])
     const actualStart = parseDate(actual?.actualStart)
     const actualEnd = parseDate(actual?.actualEnd)
@@ -154,7 +154,8 @@ export function stagesOf(
       purchaseBy: start ? businessDaysBefore(start, leadDays) : null,
       purchasedOn: parseDate(actual?.purchasedOn),
       state: stateOf(start, actualStart, actualEnd, today),
-      sharesStart: !!start && (startCount.get(start.getTime()) ?? 0) > 1,
+      sharesStart: sharesStartWith.length > 0,
+      sharesStartWith,
     }
   })
 
