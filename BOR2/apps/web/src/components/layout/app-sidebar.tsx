@@ -144,13 +144,7 @@ const activeGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    {
-      title: "Forecast Data Control", href: "/bor/data-control", icon: ClipboardList,
-      children: [
-        { title: "Framing", href: "/bor/data-control?division=framing", image: "/images/sublogo_framing.png", permKey: "data_control"      },
-        { title: "HVAC",    href: "/bor/data-control?division=hvac",    image: "/images/sublogo_hvac.png",    permKey: "data_control_hvac" },
-      ],
-    },
+    { title: "Forecast Data Control",  href: "/bor/data-control",                icon: ClipboardList, permKey: "data_control"         },
     { title: "Schedule Management",    href: "/bor/building-schedule/manage",    icon: Building2,     permKey: "building_schedule"    },
     { title: "WEX Categorization",    href: "/bor/wex-categorization", icon: CreditCard,    permKey: "wex_categorization" },
     {

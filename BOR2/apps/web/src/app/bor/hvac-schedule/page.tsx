@@ -3,16 +3,20 @@
 import { Children, isValidElement, useMemo, useState } from "react"
 import {
   Activity, CalendarDays, Hash, AlertTriangle, Building2, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, CircleDashed, CircleHelp, Clock, Layers, MapPin, Search, Settings, ShieldCheck, ShoppingCart, Truck, X,
+  ChevronLeft, ChevronRight, CircleDashed, CircleHelp, Clock, Layers, MapPin, Pencil, Plus, Presentation as PresentationIcon, Search, Users, Settings, ShieldCheck, ShoppingCart, Truck, X,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { PageSkeleton } from "@/components/common/page-skeleton"
-import { useForecast, useHVACActuals, useSetHVACPurchase } from "@/hooks/use-forecast"
-import type { HVACActual } from "@/services/forecast.service"
+import { useForecast, useHVACActuals, useHVACJobsites, useSetHVACPurchase } from "@/hooks/use-forecast"
+import type { HVACActual, HVACJobsite } from "@/services/forecast.service"
+import { AddLotDialog } from "./_components/add-lot-dialog"
+import { JobsiteDialog, type JobsiteDraft } from "./_components/jobsite-dialog"
+import { Presentation, PresentationSetup, type PresentationConfig } from "./_components/presentation"
 import { ProjectDetailsDialog } from "./_components/project-details-dialog"
 import { ProjectSettingsDialog } from "./_components/project-settings-dialog"
 import { Tip } from "./_components/tip"
@@ -86,6 +90,13 @@ const CLOSED = new Set(["closed", "completed", "cancelled"])
 export default function HVACSchedulePage() {
   const { data, isLoading } = useForecast({ company: "hvac" })
   const { data: actuals } = useHVACActuals()
+  const { data: catalog } = useHVACJobsites()
+  // O jobsite em edição (nome vazio é jobsite novo) e a janela de lote novo.
+  const [editing, setEditing] = useState<JobsiteDraft | null>(null)
+  const [addingLot, setAddingLot] = useState(false)
+  // A apresentação: primeiro a janela de preparo, depois o que ela devolve.
+  const [preparing, setPreparing] = useState(false)
+  const [presenting, setPresenting] = useState<PresentationConfig | null>(null)
 
   const [query, setQuery] = useState("")
   // Project stages tem duas etapas: escolher o jobsite e, depois, ver só os
@@ -115,8 +126,8 @@ export default function HVACSchedulePage() {
       // nenhuma delas tem etapa por começar nem material por comprar: é só
       // ruído entre as que ainda pedem decisão.
       .filter(p => !CLOSED.has((p.status ?? "").trim().toLowerCase()))
-      .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? []))
-      .filter(p => p.stages.some(s => s.start || s.end)),
+      // Obra sem data nenhuma fica: é assim que nasce a criada pelo Add lot.
+      .map(p => stagesOf(p, today, actualsByProject.get(p.id) ?? [])),
     [data, today, actualsByProject],
   )
 
@@ -145,10 +156,36 @@ export default function HVACSchedulePage() {
       const site = siteOf(p)
       map.set(site, [...(map.get(site) ?? []), p])
     }
+    // Jobsite criado pela tela aparece mesmo sem lote, desde que nenhum filtro
+    // de busca ou de status esteja escondendo lotes: aí vazio seria engano.
+    if (!query.trim() && status === "all") {
+      for (const j of catalog ?? []) {
+        if (j.hvac && !map.has(j.name)) map.set(j.name, [])
+      }
+    }
     return [...map.entries()]
       .map(([site, lots]) => ({ site, lots: lots.sort(order === "date" ? byUrgency : byLot) }))
       .sort((a, b) => a.site.localeCompare(b.site))
-  }, [projects, order])
+  }, [projects, order, catalog, query, status])
+
+  // O que o catálogo anota de cada jobsite, pelo nome, que é a ligação com a obra.
+  const metaOf = useMemo(() => {
+    const byName = new Map<string, HVACJobsite>((catalog ?? []).map(j => [j.name.toLowerCase(), j]))
+    return (site: string) => byName.get(site.toLowerCase())
+  }, [catalog])
+  const people = useMemo(
+    () => [...new Set((catalog ?? []).flatMap(j => j.responsibles))].sort((a, b) => a.localeCompare(b)),
+    [catalog],
+  )
+  const draftOf = (site: string, lots: ProjectStages[]): JobsiteDraft => {
+    const meta = metaOf(site)
+    return {
+      name: site,
+      client: meta?.client || lots[0]?.project.cliente || "",
+      responsibles: meta?.responsibles ?? [],
+      sourceName: meta?.sourceName,
+    }
+  }
 
   const purchases = useMemo(() => {
     const out: { p: ProjectStages; s: Stage }[] = []
@@ -236,8 +273,25 @@ export default function HVACSchedulePage() {
               )
             })}
           </Filter>
+
+          <Button onClick={() => setPreparing(true)}>
+            <PresentationIcon className="h-3.5 w-3.5" />
+            Present
+          </Button>
         </div>
       </div>
+
+      {/* A apresentação não segue os filtros da página: parte de todas as obras,
+          e quem recorta é a janela de preparo. */}
+      {preparing && (
+        <PresentationSetup
+          open
+          sites={groupBySite(all).map(s => ({ ...s, responsibles: metaOf(s.site)?.responsibles ?? [] }))}
+          onOpenChange={setPreparing}
+          onStart={config => { setPreparing(false); setPresenting(config) }}
+        />
+      )}
+      {presenting && <Presentation config={presenting} onClose={() => setPresenting(null)} />}
 
       {/* Métricas fixas no topo, uma linha só e dentro da largura da tela. */}
       <div className="grid shrink-0 grid-cols-6 gap-3">
@@ -323,7 +377,10 @@ export default function HVACSchedulePage() {
           }
         >
           {sites.length === 0 ? (
-            <Empty>Nothing matches these filters.</Empty>
+            <div className="flex flex-col gap-1.5">
+              <Empty>Nothing matches these filters.</Empty>
+              <AddJobsiteButton onClick={() => setEditing({ name: "", client: "", responsibles: [] })} />
+            </div>
           ) : current ? (
             <div className="flex flex-col gap-3">
               {/* Presa no topo: rolando os lotes, continua à vista em que jobsite
@@ -339,7 +396,27 @@ export default function HVACSchedulePage() {
                 </button>
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <span className="truncate text-sm font-semibold">{current.site}</span>
+                <Responsibles names={metaOf(current.site)?.responsibles ?? []} />
+                <span className="ml-auto flex shrink-0 items-center gap-1.5">
+                  <Tip text="Edit jobsite">
+                    <button
+                      onClick={() => setEditing(draftOf(current.site, current.lots))}
+                      aria-label={`Edit ${current.site}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </Tip>
+                  <button
+                    onClick={() => setAddingLot(true)}
+                    className="flex h-7 items-center gap-1 rounded-lg border border-border px-2 text-xs text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add lot
+                  </button>
+                </span>
               </div>
+              {current.lots.length === 0 && <Empty>No lots in this jobsite yet.</Empty>}
               {/* Com o mouse num lote, os outros esmaecem: quatro etapas com três
                   datas cada, em dezenas de linhas, confundem sem um foco. */}
               <div className="group/lots flex flex-col gap-2.5">
@@ -348,8 +425,31 @@ export default function HVACSchedulePage() {
             </div>
           ) : (
             <div className="flex flex-col gap-1.5">
-              {sites.map(s => <JobsiteRow key={s.site} site={s.site} lots={s.lots} onOpen={() => setSite(s.site)} />)}
+              {sites.map(s => (
+                <JobsiteRow
+                  key={s.site} site={s.site} lots={s.lots}
+                  responsibles={metaOf(s.site)?.responsibles ?? []}
+                  onOpen={() => setSite(s.site)}
+                  onEdit={() => setEditing(draftOf(s.site, s.lots))}
+                />
+              ))}
+              <AddJobsiteButton onClick={() => setEditing({ name: "", client: "", responsibles: [] })} />
             </div>
+          )}
+
+          {editing && (
+            <JobsiteDialog
+              jobsite={editing} people={people} open
+              onOpenChange={o => !o && setEditing(null)}
+              // Renomeado por dentro: continua no mesmo jobsite, agora com o nome novo.
+              onSaved={name => { if (site && site === editing.name) setSite(name) }}
+            />
+          )}
+          {addingLot && current && (
+            <AddLotDialog
+              jobsite={current.site} client={draftOf(current.site, current.lots).client} open
+              onOpenChange={setAddingLot}
+            />
           )}
         </Panel>
 
@@ -411,22 +511,35 @@ function toBuy(s: Stage): boolean {
   return !!s.purchaseBy && s.state === "upcoming" && !s.purchasedOn
 }
 
-// Primeira etapa do bloco: um jobsite por linha. Clicar leva aos lotes dele.
-function JobsiteRow({ site, lots, onOpen }: { site: string; lots: ProjectStages[]; onOpen: () => void }) {
+// Primeira etapa do bloco: um jobsite por linha. Clicar leva aos lotes dele; o
+// lápis edita o nome e os responsáveis.
+function JobsiteRow({
+  site, lots, responsibles, onOpen, onEdit,
+}: {
+  site: string
+  lots: ProjectStages[]
+  responsibles: string[]
+  onOpen: () => void
+  onEdit: () => void
+}) {
   const delayed = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "delayed").length, 0)
   const running = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "running").length, 0)
   const buy = lots.reduce((n, l) => n + l.stages.filter(toBuy).length, 0)
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onOpen}
-      className="flex w-full items-center gap-2 rounded-lg border border-border bg-background/40 px-3 py-2.5 text-left transition-colors hover:border-foreground/20 hover:bg-muted/50"
+      onKeyDown={ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onOpen() } }}
+      className="flex w-full cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/40 px-3 py-2 text-left transition-colors outline-none hover:border-foreground/20 hover:bg-muted/50 focus-visible:border-primary"
     >
       <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       <span className="truncate text-sm font-medium">{site}</span>
       <span className="shrink-0 text-xs text-muted-foreground">
         {lots.length} {lots.length === 1 ? "lot" : "lots"}
       </span>
+      <Responsibles names={responsibles} />
       <span className="ml-auto shrink-0 text-xs text-muted-foreground">
         {running} running · {buy} to buy
       </span>
@@ -436,7 +549,40 @@ function JobsiteRow({ site, lots, onOpen }: { site: string; lots: ProjectStages[
           {delayed}
         </span>
       )}
+      <Tip text="Edit jobsite">
+        <button
+          onClick={ev => { ev.stopPropagation(); onEdit() }}
+          onKeyDown={ev => ev.stopPropagation()}
+          aria-label={`Edit ${site}`}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+      </Tip>
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+    </div>
+  )
+}
+
+/** Quem responde pelo jobsite. Sem ninguém anotado, não ocupa lugar. */
+function Responsibles({ names }: { names: string[] }) {
+  if (names.length === 0) return null
+  return (
+    <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+      <Users className="h-3.5 w-3.5 shrink-0" />
+      <span className="truncate">{names.join(", ")}</span>
+    </span>
+  )
+}
+
+function AddJobsiteButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+    >
+      <Plus className="h-4 w-4" />
+      Add jobsite
     </button>
   )
 }
@@ -612,7 +758,7 @@ function DateCell({
           {formatShort(planned)}
         </p>
       </Tip>
-      <Tip text={actual ? `Actual: ${formatDate(actual)}` : "Not recorded yet"}>
+      <Tip text={actual ? `Executed: ${formatDate(actual)}` : "Not recorded yet"}>
         <p className={`border-t border-border py-1 tabular-nums ${actual ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/50"}`}>
           {actual ? formatShort(actual) : "—"}
         </p>
@@ -856,6 +1002,15 @@ function lotLabel(p: ProjectStages): string {
   const raw = p.project.loteBld?.trim() || p.project.name?.trim() || ""
   if (!raw) return "Lot —"
   return /^\d/.test(raw) ? `Lot ${raw}` : raw
+}
+
+/** Os lotes agrupados por jobsite, em ordem alfabética, cada grupo por lote. */
+function groupBySite(lots: ProjectStages[]): { site: string; lots: ProjectStages[] }[] {
+  const map = new Map<string, ProjectStages[]>()
+  for (const p of lots) map.set(siteOf(p), [...(map.get(siteOf(p)) ?? []), p])
+  return [...map.entries()]
+    .map(([site, group]) => ({ site, lots: group.sort(byLot) }))
+    .sort((a, b) => a.site.localeCompare(b.site))
 }
 
 function byLot(a: ProjectStages, b: ProjectStages): number {

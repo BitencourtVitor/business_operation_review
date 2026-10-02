@@ -58,13 +58,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Data Management",
     permissions: [
-      {
-        label: "Forecast Data Control", icon: ClipboardList,
-        children: [
-          { key: "data_control",      label: "Framing", image: "/images/sublogo_framing.png" },
-          { key: "data_control_hvac", label: "HVAC",    image: "/images/sublogo_hvac.png"    },
-        ],
-      },
+      { key: "data_control",       label: "Forecast Data Control", icon: ClipboardList },
       { key: "wex_categorization", label: "WEX Categorization",    icon: CreditCard    },
       {
         label: "QBTime Reports",

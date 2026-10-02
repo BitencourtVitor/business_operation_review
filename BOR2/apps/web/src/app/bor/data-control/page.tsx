@@ -3,9 +3,8 @@
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastStatus } from "@bor2/shared"
 import { Suspense, useEffect, useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import type { DCDivision, DCSection, SidebarTable, IntegFilters } from "./types"
-import { usePermission } from "@/hooks/use-permission"
+import { useRouter, useSearchParams } from "next/navigation"
+import type { DCSection, SidebarTable, IntegFilters } from "./types"
 import { DEFAULT_INTEG } from "./types"
 import { DataControlSidebar }   from "./components/data-control-sidebar"
 import { NewProjectSection }     from "./components/new-project-section"
@@ -25,28 +24,15 @@ export default function DataControlPage() {
 }
 
 function DataControlContent() {
-  const { canView } = usePermission()
+  const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Each division is its own permission, so a user may be allowed into one and
-  // not the other. The URL picks the division (the sidebar links carry it); we
-  // fall back to whichever the user can actually open.
-  const canFraming = canView("data_control")
-  const canHvac    = canView("data_control_hvac")
-  const requested  = searchParams.get("division") === "hvac" ? "hvac" : "framing"
-  const allowed: DCDivision =
-    requested === "hvac"
-      ? (canHvac ? "hvac" : "framing")
-      : (canFraming ? "framing" : "hvac")
-
-  const [division, setDivision]       = useState<DCDivision>(allowed)
-
-  // The sidebar links to the same route with a different ?division, so the page
-  // is not remounted — the initial useState value alone would never update.
-  useEffect(() => { setDivision(allowed) }, [allowed])
+  // A HVAC saiu daqui (HS-21): link antigo com ?division=hvac vai para a página dela.
+  const isHvacLink = searchParams.get("division") === "hvac"
+  useEffect(() => { if (isHvacLink) router.replace("/bor/hvac-schedule") }, [isHvacLink, router])
   const [section, setSection]         = useState<DCSection>("edit-project")
   const [catalogTable, setCatalogTable] = useState<SidebarTable>("clients")
-  const { data: projects } = useForecast({ company: division })
+  const { data: projects } = useForecast({ company: "framing" })
 
   const [clientFilter, setClientFilter]   = useState("all")
   const [jobSiteFilter, setJobSiteFilter] = useState("all")
@@ -97,53 +83,16 @@ function DataControlContent() {
         onStatusFilter={setStatusFilter}
         catalogTable={catalogTable}
         onCatalogTable={setCatalogTable}
-        division={division}
-        onDivision={setDivision}
-        framingEnabled={canFraming}
-        hvacEnabled={canHvac}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* A HVAC edita as mesmas obras, com as quatro datas do ciclo no lugar
-            dos três marcos. Cadastro novo e catálogos seguem só na Framing: a
-            obra de HVAC nasce da importação do portal, e catálogo de Fieldwire e
-            Machines não existe para ela. */}
-        {division === "hvac" && section === "edit-project" && (
-          <div className="flex-1 overflow-y-auto p-6">
-            <EditProjectSection
-              company="hvac"
-              clientFilter={clientFilter}
-              jobSiteFilter={jobSiteFilter}
-              statusFilter={statusFilter}
-              onClientFilter={handleClientFilter}
-              onJobSiteFilter={setJobSiteFilter}
-              onStatusFilter={setStatusFilter}
-              integ={integ}
-              onInteg={handleInteg}
-            />
-          </div>
-        )}
-
-        {division === "hvac" && section !== "edit-project" && (
-          <div className="flex flex-1 items-center justify-center p-6">
-            <div className="text-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/icon_forecast_hvac.png" alt="HVAC" className="mx-auto h-10 w-10 object-contain opacity-20 dark:hidden" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/icon_forecast_hvac_dark.png" alt="HVAC" className="mx-auto hidden h-10 w-10 object-contain opacity-20 dark:block" />
-              <p className="mt-3 text-sm font-medium text-muted-foreground">Not available for HVAC</p>
-              <p className="mt-1 text-xs text-muted-foreground/50">HVAC projects come from the client portal import.</p>
-            </div>
-          </div>
-        )}
-
-        {division === "framing" && section === "new-project" && (
+        {section === "new-project" && (
           <div className="flex-1 overflow-y-auto p-6">
             <NewProjectSection onCreated={() => setSection("edit-project")} />
           </div>
         )}
 
-        {division === "framing" && section === "edit-project" && (
+        {section === "edit-project" && (
           <div className="flex-1 overflow-y-auto p-6">
             <EditProjectSection
               clientFilter={clientFilter}
@@ -158,7 +107,7 @@ function DataControlContent() {
           </div>
         )}
 
-        {division === "framing" && section === "catalog" && (
+        {section === "catalog" && (
           catalogTable === "clients"   ? <ClientsSection />   :
           catalogTable === "fieldwire" ? <FieldwireSection /> :
           catalogTable === "machines"  ? <MachinesSection />  :

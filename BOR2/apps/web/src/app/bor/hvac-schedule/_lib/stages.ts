@@ -170,6 +170,17 @@ export function stagesOf(
   }
 }
 
+/** A situação da obra inteira, lida das etapas. Atraso em qualquer etapa pesa
+ *  mais do que estar em andamento: é o que pede atenção. */
+export type Situation = "done" | "running" | "delayed" | "upcoming"
+
+export function situationOf(lot: ProjectStages): Situation {
+  if (lot.percent === 100) return "done"
+  if (lot.stages.some(s => s.state === "delayed")) return "delayed"
+  if (lot.stages.some(s => s.actualStart)) return "running"
+  return "upcoming"
+}
+
 /** Obra que já começou e ainda não terminou. Começou é alguém ter marcado
  *  início de alguma etapa, não a data planejada ter chegado. */
 export function isActive(p: ProjectStages): boolean {
@@ -250,6 +261,18 @@ export function editPlan(
   }
 
   return { dates, changes }
+}
+
+/** O problema de uma data executada frente à planejada. "missed": o planejado
+ *  já passou e nada foi registrado. "late": foi registrado depois do planejado. */
+export type DateAlert = { tone: "missed" | "late"; text: string } | undefined
+
+export function alertOf(planned: Date | null, actual: Date | null, today: Date, what: string): DateAlert {
+  if (!planned) return undefined
+  if (actual) {
+    return actual > planned ? { tone: "late", text: `${what} after the planned date (${formatDate(planned)})` } : undefined
+  }
+  return planned < today ? { tone: "missed", text: `${what} was due on ${formatDate(planned)} and is not recorded` } : undefined
 }
 
 export function formatDate(date: Date | null): string {

@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  Fan,
   FileText,
   Flag,
   Info,
@@ -26,11 +25,8 @@ import {
   PlayCircle,
   Puzzle,
   ShieldCheck,
-  Snowflake,
-  Thermometer,
   Truck,
   Users,
-  Wrench,
   XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -171,24 +167,6 @@ export interface ForecastProjectSheetProps {
   dateMode?: "start" | "beams"
 }
 
-// As quatro etapas do ciclo de HVAC, cada uma com seu par de datas vindo das
-// Orders (RS e RE da task).
-const HVAC_STAGES: {
-  Icon: React.ElementType
-  label: string
-  start: (p: ForecastProject) => string | null | undefined
-  end:   (p: ForecastProject) => string | null | undefined
-}[] = [
-  { Icon: Wrench,      label: "Rough HVAC",
-    start: p => p.hvacRoughDate,      end: p => p.hvacRoughEndDate      },
-  { Icon: Fan,         label: "Air Handler / Gas Furnace Set",
-    start: p => p.hvacAirHandlerDate, end: p => p.hvacAirHandlerEndDate },
-  { Icon: Thermometer, label: "Install Condenser and Thermostat",
-    start: p => p.hvacCondenserDate,  end: p => p.hvacCondenserEndDate  },
-  { Icon: Snowflake,   label: "HVAC Finish Set A/C",
-    start: p => p.hvacFinishDate,     end: p => p.hvacFinishEndDate     },
-]
-
 export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: ForecastProjectSheetProps) {
   // Painel lateral: os dois ocupam a mesma coluna, então só um por vez. Estado
   // único porque a largura do modal depende de ter painel aberto, não de qual —
@@ -196,7 +174,6 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   const [panel, setPanel] = useState<"obs" | "dates" | null>(null)
   // As categorias do BuilderLog que ainda não subiram começam recolhidas.
   const [verFaltando, setVerFaltando] = useState(false)
-  const isHvac = p.company === "hvac"
   useEffect(() => { if (!open) { setPanel(null); setVerFaltando(false) } }, [open])
 
   const ds       = getForecastDisplayStatus(p, dateMode)
@@ -206,13 +183,11 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
   const fieldwireDocs = p.fieldwire ?? []
   const hasFieldwire  = fieldwireDocs.length > 0
-  // O BuilderLog é marcado à mão no Data Control (F-18). A HVAC não documenta
-  // planta lá: o bloco seria uma lista de pendência que ninguém vai fechar, do
-  // mesmo jeito que BuilderTrend e Storage.
+  // O BuilderLog é marcado à mão no Data Control (F-18).
   const blDocs        = p.builderlog ?? []
   const onBuilderLog  = blDocs.some(d => d.document === ON_BUILDERLOG && isTruthy(d.status))
   const blCats        = blDocs.filter(d => d.document !== ON_BUILDERLOG)
-  const hasBuilderLog = !isHvac && blDocs.length > 0
+  const hasBuilderLog = blDocs.length > 0
   const blEntregues   = blCats.filter(d => isTruthy(d.status))
   const blFaltando    = blCats.filter(d => !isTruthy(d.status))
   const hasPermit    = (p.permit?.length ?? 0) > 0
@@ -314,71 +289,22 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
               Overview
             </SectionLabel>
 
-            {/* No detalhe cabe o intervalo inteiro de cada etapa — é aqui que
-                se vê quanto tempo cada uma leva e a folga entre elas, que o card
-                não tem espaço para mostrar. */}
-            {isHvac ? (
-              <div className="mb-2 flex flex-col gap-1.5">
-                {HVAC_STAGES.map(({ Icon, label, start, end }, i) => {
-                  const from = start(p)
-                  const to   = end(p)
-                  return (
-                    <div key={label} className={cn(
-                      "flex items-center gap-2.5 rounded-lg px-3 py-2",
-                      from || to ? "border bg-muted/40" : "border border-dashed opacity-50",
-                    )}>
-                      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 truncate text-xs">
-                        <span className="font-semibold text-muted-foreground/70">S{i + 1} </span>
-                        {label}
-                      </span>
-                      {from || to ? (
-                        // Orçamento da linha: 396px úteis = ícone 14 + gap 10 +
-                        // rótulo 216 + bloco de datas 156. O bloco é 68+4+12+4+68,
-                        // onde 68 é a data cheia (66px a 11px) mais folga, e cada
-                        // lado tem a mesma largura com ou sem data — é o que
-                        // mantém setas e dias alinhados entre as quatro etapas.
-                        // O rótulo mais longo mede 211px, então cabe inteiro.
-                        <span className="flex shrink-0 items-center gap-1">
-                          <span className={cn(
-                            "w-[68px] text-[11px] font-semibold tabular-nums",
-                            from ? "text-right" : "text-center font-normal text-muted-foreground/40",
-                          )}>
-                            {from ? fmtDate(from) : "—"}
-                          </span>
-                          <span className="text-xs text-muted-foreground/50">→</span>
-                          <span className={cn(
-                            "w-[68px] text-[11px] font-semibold tabular-nums",
-                            to ? "text-left" : "text-center font-normal text-muted-foreground/40",
-                          )}>
-                            {to ? fmtDate(to) : "—"}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="shrink-0 text-[11px] font-normal text-muted-foreground">not in orders</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="mb-2 grid grid-cols-3 gap-2">
-                {([
-                  { Icon: Flag,           label: "Beams", value: p.previousBeamsDate },
-                  { Icon: CalendarDays,   label: "Start", value: p.startDate         },
-                  { Icon: CalendarCheck2, label: "End",   value: p.endDate           },
-                ] as const).map(({ Icon, label, value }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className={cn("text-xs font-semibold tabular-nums", !value && "font-normal text-muted-foreground/40")}>{fmtDate(value)}</span>
-                    <span className="text-[9px] text-muted-foreground">{label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="mb-2 grid grid-cols-3 gap-2">
+              {([
+                { Icon: Flag,           label: "Beams", value: p.previousBeamsDate },
+                { Icon: CalendarDays,   label: "Start", value: p.startDate         },
+                { Icon: CalendarCheck2, label: "End",   value: p.endDate           },
+              ] as const).map(({ Icon, label, value }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-3 text-center"
+                >
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className={cn("text-xs font-semibold tabular-nums", !value && "font-normal text-muted-foreground/40")}>{fmtDate(value)}</span>
+                  <span className="text-[9px] text-muted-foreground">{label}</span>
+                </div>
+              ))}
+            </div>
 
             {SHOW_DATE_HISTORY && (
             <div className="mb-4 flex justify-end">
@@ -526,20 +452,16 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             <SectionLabel>Integrations</SectionLabel>
             <div className="flex flex-col gap-2">
 
-              {/* A HVAC não usa BuilderTrend nem Storage: listá-los daria uma
-                  pendência permanente de integração que ninguém vai fechar. */}
-              {!isHvac && (
-                <CheckRow done={!!p.buildertrend}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/icon_buildertrend.png"      alt="" className="h-5 w-5 shrink-0 object-contain dark:hidden" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-5 w-5 shrink-0 object-contain dark:block" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">BuilderTrend</p>
-                    <p className="text-xs text-muted-foreground">Project management &amp; scheduling</p>
-                  </div>
-                </CheckRow>
-              )}
+              <CheckRow done={!!p.buildertrend}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/icon_buildertrend.png"      alt="" className="h-5 w-5 shrink-0 object-contain dark:hidden" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-5 w-5 shrink-0 object-contain dark:block" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">BuilderTrend</p>
+                  <p className="text-xs text-muted-foreground">Project management &amp; scheduling</p>
+                </div>
+              </CheckRow>
 
               <CheckRow done={!!p.qbTime}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -552,15 +474,13 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                 </div>
               </CheckRow>
 
-              {!isHvac && (
-                <CheckRow done={!!p.storage}>
-                  <Package className="h-5 w-5 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">Storage</p>
-                    <p className="text-xs text-muted-foreground">Inventory &amp; materials control</p>
-                  </div>
-                </CheckRow>
-              )}
+              <CheckRow done={!!p.storage}>
+                <Package className="h-5 w-5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">Storage</p>
+                  <p className="text-xs text-muted-foreground">Inventory &amp; materials control</p>
+                </div>
+              </CheckRow>
 
             </div>
           </section>
@@ -661,7 +581,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
         {/* ── Observation history, side-by-side with the body ──────────────── */}
         {SHOW_DATE_HISTORY && panel === "dates" && (
-          <DateHistoryPanel projectId={p.id} company={p.company} open onClose={() => setPanel(null)} />
+          <DateHistoryPanel projectId={p.id} open onClose={() => setPanel(null)} />
         )}
         {panel === "obs" && (
           <ObsHistoryPanel projectId={p.id} open onClose={() => setPanel(null)} />

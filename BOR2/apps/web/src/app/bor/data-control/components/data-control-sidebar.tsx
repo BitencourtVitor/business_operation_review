@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/select"
 import type { ForecastStatus } from "@bor2/shared"
 import { Building2, CircleDot, MapPin, X } from "lucide-react"
-import { CATALOG_TABS, DC_DIVISIONS, DC_GROUPS,
-  DC_GROUPS_HVAC, STATUS_OPTS } from "../types"
-import type { DCDivision, DCSection, SidebarTable } from "../types"
+import { CATALOG_TABS, DC_GROUPS, STATUS_OPTS } from "../types"
+import type { DCSection, SidebarTable } from "../types"
 
 interface DataControlSidebarProps {
   active:          DCSection
@@ -26,10 +25,6 @@ interface DataControlSidebarProps {
   onStatusFilter:  (v: ForecastStatus | "all") => void
   catalogTable:    SidebarTable
   onCatalogTable:  (t: SidebarTable) => void
-  division:        DCDivision
-  onDivision:      (d: DCDivision) => void
-  framingEnabled:  boolean
-  hvacEnabled:     boolean
 }
 
 export function DataControlSidebar({
@@ -45,10 +40,6 @@ export function DataControlSidebar({
   onStatusFilter,
   catalogTable,
   onCatalogTable,
-  division,
-  onDivision,
-  framingEnabled,
-  hvacEnabled,
 }: DataControlSidebarProps) {
   return (
     <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
@@ -59,36 +50,9 @@ export function DataControlSidebar({
         </p>
       </div>
 
-      {/* Division selector — Framing and HVAC hold different data structures */}
-      <div className="border-b border-sidebar-border p-2">
-        <div className="grid grid-cols-2 gap-1 rounded-lg bg-foreground/5 p-1">
-          {DC_DIVISIONS.map(d => {
-            const disabled = d.key === "hvac" ? !hvacEnabled : !framingEnabled
-            return (
-              <button
-                key={d.key}
-                disabled={disabled}
-                onClick={() => onDivision(d.key)}
-                className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
-                  division === d.key
-                    ? "bg-foreground/10 text-foreground shadow-sm"
-                    : disabled
-                      ? "cursor-not-allowed text-muted-foreground opacity-40"
-                      : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={d.image} alt={d.label} className="h-3.5 w-3.5 shrink-0 object-contain" />
-                {d.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
       {/* Nav groups */}
       <div className="flex-1 overflow-y-auto py-2">
-        {(division === "hvac" ? DC_GROUPS_HVAC : DC_GROUPS).map(g => (
+        {DC_GROUPS.map(g => (
           <div key={g.label} className="mb-1">
             <p className="mb-0.5 px-4 pt-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
               {g.label}
@@ -199,7 +163,7 @@ export function DataControlSidebar({
         )}
 
         {/* Catalog table selector — only visible in catalog mode */}
-        {division === "framing" && active === "catalog" && (
+        {active === "catalog" && (
           <>
             {/* Info block */}
             <div className="border-t border-b border-sidebar-border mt-3 px-4 py-3 space-y-1">

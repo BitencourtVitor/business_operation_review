@@ -9,6 +9,19 @@ function getToken() {
 
 /** Uma etapa da HVAC como ela aconteceu. Ausência de linha quer dizer "nem
  *  começou" — não existe registro vazio. */
+/** Jobsite do catálogo, com o que a HVAC anota nele. */
+export interface HVACJobsite {
+  id: number
+  clientId: number
+  client: string
+  name: string
+  /** O nome que vem do SupplyPro, guardado quando o jobsite é renomeado. */
+  sourceName: string | null
+  responsibles: string[]
+  /** Criado ou editado pela tela da HVAC: aparece lá mesmo sem obra. */
+  hvac: boolean
+}
+
 export interface HVACActual {
   projectId: string
   /** rough | air_handler | condenser | finish */
@@ -80,6 +93,13 @@ export const forecastService = {
   // quem usa o BOR.
   listHVACActuals: () =>
     api.get<HVACActual[]>("/api/v1/forecast/hvac-actuals", getToken()).then(r => r ?? []),
+
+  listHVACJobsites: () =>
+    api.get<HVACJobsite[]>("/api/v1/forecast/hvac-jobsites", getToken()).then(r => r ?? []),
+
+  /** Cria (name vazio) ou edita o jobsite. Renomear troca também o das obras. */
+  saveHVACJobsite: (body: { name: string; newName: string; client?: string; responsibles: string[] }) =>
+    api.put<{ id: number }>("/api/v1/forecast/hvac-jobsites", body, getToken()),
 
   setHVACPurchase: (id: string, stage: string, purchasedOn: string | null) =>
     api.put<{ projectId: string }>(`/api/v1/forecast/${id}/hvac-purchase/${stage}`, { purchasedOn }, getToken()),
