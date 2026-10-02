@@ -382,11 +382,14 @@ function BuilderLogTab({ p }: { p: ForecastProject }) {
 
 type ChecklistDoc = { id?: number; status?: string | null; category?: string; document?: string }
 
-function DocChecklist({ title, docs, pendingId, onToggle }: {
+export function DocChecklist({ title, docs, pendingId, onToggle, wide }: {
   title: string
   docs: ChecklistDoc[]
   pendingId?: number
   onToggle: (id: number, status: string) => void
+  /** Uma coluna, com o nome inteiro. Para onde há largura e poucos itens; o
+   *  card do Data Control é baixo e precisa das duas colunas. */
+  wide?: boolean
 }) {
   const fw = docs
   type FieldwireState = "none" | "completed" | "dispensed"
@@ -421,8 +424,11 @@ function DocChecklist({ title, docs, pendingId, onToggle }: {
         )}
         {Object.entries(groups).map(([cat, items]) => (
           <div key={cat}>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{cat}</p>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+            {/* Lista sem categoria nenhuma não precisa de um rótulo "General". */}
+            {(cat !== "General" || Object.keys(groups).length > 1) && (
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{cat}</p>
+            )}
+            <div className={wide ? "flex flex-col gap-0.5" : "grid grid-cols-2 gap-x-2 gap-y-0.5"}>
               {items.map((f, i) => {
                 const state      = getState(f)
                 const isToggling = pendingId != null && pendingId === f.id
@@ -456,7 +462,7 @@ function DocChecklist({ title, docs, pendingId, onToggle }: {
                           ))}
                         </div>
                     }
-                    <span className={`flex-1 truncate text-xs ${state !== "none" ? "text-muted-foreground" : ""}`}>
+                    <span className={`flex-1 text-xs ${wide ? "" : "truncate"} ${state !== "none" ? "text-muted-foreground" : ""}`}>
                       {f.document?.trim() || `Doc #${f.id ?? i + 1}`}
                     </span>
                   </div>
