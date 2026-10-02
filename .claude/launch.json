@@ -15,31 +15,6 @@
       ],
       "port": 3000,
       "autoPort": false
-    },
-    {
-      "name": "bor1-frontend",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "dev",
-        "--prefix",
-        "C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - BOR\\BOR1\\frontend"
-      ],
-      "port": 3001,
-      "autoPort": false
-    },
-    {
-      "name": "storage-web",
-      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": [
-        "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
-        "run",
-        "dev",
-        "--prefix",
-        "C:\\Users\\Ryzen\\Documents\\trae_projects\\Premium - Storage"
-      ],
-      "port": 3000,
-      "autoPort": false
     }
   ]
 }

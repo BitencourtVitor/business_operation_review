@@ -63,6 +63,8 @@ export interface Stage {
   actualEnd: Date | null
   /** Quando o material tem de ser comprado. Calculada do planejado, nunca digitada. */
   purchaseBy: Date | null
+  /** Quando o material foi de fato comprado, marcado por quem comprou. */
+  purchasedOn: Date | null
   state: StageState
   /** Outra etapa do mesmo lote começa no mesmo dia que esta. É o que o selo
    *  "Same day" avisa, e aqui diz *quais* datas colidem, não só que colidem. */
@@ -150,6 +152,7 @@ export function stagesOf(
       actualStart,
       actualEnd,
       purchaseBy: start ? businessDaysBefore(start, leadDays) : null,
+      purchasedOn: parseDate(actual?.purchasedOn),
       state: stateOf(start, actualStart, actualEnd, today),
       sharesStart: !!start && (startCount.get(start.getTime()) ?? 0) > 1,
     }

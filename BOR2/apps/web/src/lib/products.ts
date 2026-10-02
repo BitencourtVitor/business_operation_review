@@ -36,7 +36,6 @@ const BOR_LANDING: { permKey: string; href: string }[] = [
   { permKey: "monthly_execution", href: "/bor/monthly-execution" },
   { permKey: "ofi", href: "/bor/ofi" },
   { permKey: "forecast", href: "/bor/forecast" },
-  { permKey: "forecast_hvac", href: "/bor/hvac-forecast" },
   { permKey: "forecast_hvac", href: "/bor/hvac-schedule" },
   { permKey: "workforce", href: "/bor/workforce-productivity" },
   { permKey: "inventory", href: "/bor/inventory" },

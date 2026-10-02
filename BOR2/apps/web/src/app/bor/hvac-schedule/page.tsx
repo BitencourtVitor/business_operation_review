@@ -2,20 +2,19 @@
 
 import { Children, isValidElement, useMemo, useState } from "react"
 import {
-  Activity, AlertTriangle, Building2, CalendarClock, CheckCircle2, ChevronDown,
-  CircleDashed, Clock, Layers, MapPin, Pencil, Search, ShoppingCart, Truck, X,
+  Activity, AlertTriangle, Building2, CalendarClock, Check, CheckCircle2,
+  ChevronLeft, ChevronRight, CircleDashed, CircleHelp, Clock, Layers, MapPin, Pencil, Search, ShoppingCart, Truck, X,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { PageSkeleton } from "@/components/common/page-skeleton"
-import { useForecast, useHVACActuals } from "@/hooks/use-forecast"
+import { useForecast, useHVACActuals, useSetHVACPurchase } from "@/hooks/use-forecast"
 import type { HVACActual } from "@/services/forecast.service"
 import { EditStageDialog } from "./_components/edit-stage-dialog"
 import {
-  formatDate, isActive, sameWeek, STAGES, stagesOf, startOfToday,
+  formatDate, isActive, sameWeek, STAGE_DB_NAME, STAGES, stagesOf, startOfToday, toISO,
   type ProjectStages, type Stage, type StageState,
 } from "./_lib/stages"
 
@@ -86,9 +85,14 @@ export default function HVACSchedulePage() {
   const { data: actuals } = useHVACActuals()
 
   const [query, setQuery] = useState("")
-  const [jobsite, setJobsite] = useState("all")
+  // Project stages tem duas etapas: escolher o jobsite e, depois, ver só os
+  // lotes dele. Vazio é a primeira etapa.
+  const [site, setSite] = useState("")
   const [stageKey, setStageKey] = useState("all")
   const [status, setStatus] = useState("all")
+  // Abre só com o que tem Order: é o que está acontecendo agora (HS-20). O
+  // resto, que vem do calendário, fica a um clique.
+  const [source, setSource] = useState("orders")
 
   // Uma vez por montagem. Sem o memo, `startOfToday()` devolve outra instância
   // a cada render, e como ela é dependência de `all`, a cadeia inteira de memos
@@ -112,18 +116,13 @@ export default function HVACSchedulePage() {
     [data, today, actualsByProject],
   )
 
-  const jobsites = useMemo(
-    () => [...new Set(all.map(siteOf))].sort((a, b) => a.localeCompare(b)),
-    [all],
-  )
-
   // Um filtro só, aplicado antes de tudo: o que a métrica conta é exatamente o
   // que a lista mostra. Contar o total enquanto a lista mostra um recorte faria
   // os dois números da mesma tela discordarem.
   const projects = useMemo(() => {
     const term = query.trim().toLowerCase()
     return all
-      .filter(p => jobsite === "all" || siteOf(p) === jobsite)
+      .filter(p => source === "all" || p.project.hasOrders)
       .filter(p => !term
         || lotLabel(p).toLowerCase().includes(term)
         || siteOf(p).toLowerCase().includes(term)
@@ -135,7 +134,7 @@ export default function HVACSchedulePage() {
           (stageKey === "all" || s.key === stageKey) && (status === "all" || s.state === status)),
       }))
       .filter(p => p.stages.length > 0)
-  }, [all, jobsite, query, stageKey, status])
+  }, [all, query, source, stageKey, status])
 
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
@@ -152,13 +151,16 @@ export default function HVACSchedulePage() {
     const out: { p: ProjectStages; s: Stage }[] = []
     for (const p of projects) {
       for (const s of p.stages) {
-        if (s.purchaseBy && s.state !== "done") out.push({ p, s })
+        if (toBuy(s)) out.push({ p, s })
       }
     }
     return out.sort((a, b) => a.s.purchaseBy!.getTime() - b.s.purchaseBy!.getTime())
   }, [projects])
 
   if (isLoading) return <PageSkeleton />
+
+  // Sem o escolhido na lista (um filtro o tirou), volta à primeira etapa.
+  const current = sites.find(s => s.site === site)
 
   const allStages = projects.flatMap(p => p.stages).filter(s => s.state !== "undated")
   const thisWeek = purchases.filter(x => sameWeek(x.s.purchaseBy!, today))
@@ -201,17 +203,15 @@ export default function HVACSchedulePage() {
             </div>
           </div>
 
-          <Filter label="Jobsite" value={jobsite} onChange={setJobsite} className="w-[165px]">
-            <SelectItem value="all">
-              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-              All jobsites
+          <Filter label="Lots" value={source} onChange={setSource} className="w-[140px]">
+            <SelectItem value="orders">
+              <ShoppingCart className="h-3.5 w-3.5 text-muted-foreground" />
+              With orders
             </SelectItem>
-            {jobsites.map(s => (
-              <SelectItem key={s} value={s}>
-                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                {s}
-              </SelectItem>
-            ))}
+            <SelectItem value="all">
+              <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+              All lots
+            </SelectItem>
           </Filter>
 
           <Filter label="Stage" value={stageKey} onChange={setStageKey} className="w-[160px]">
@@ -251,68 +251,94 @@ export default function HVACSchedulePage() {
           title="Active projects"
           value={String(projects.filter(isActive).length)}
           icon={<Building2 className="h-4 w-4" />}
-          subtitle={`${projects.length} with dates`}
+          help="Lots with a stage started and not all four finished."
           tone="slate"
         />
         <Metric
           title="In progress"
           value={String(allStages.filter(s => s.state === "running").length)}
           icon={<Activity className="h-4 w-4" />}
-          subtitle={`of ${allStages.length} stages`}
+          help="Stages that have a real start date and no real end date yet."
           tone="blue"
         />
         <Metric
           title="Completed"
           value={String(allStages.filter(s => s.state === "done").length)}
           icon={<CheckCircle2 className="h-4 w-4" />}
-          subtitle="stages confirmed"
+          help="Stages with a real end date recorded."
           tone="emerald"
         />
         <Metric
           title="Delayed"
           value={String(allStages.filter(s => s.state === "delayed").length)}
           icon={<AlertTriangle className="h-4 w-4" />}
-          subtitle="past due, not started"
+          help="Stages whose planned start has passed and nobody marked them started."
           tone="amber"
         />
         <Metric
           title="Orders overdue"
-          value="—"
+          value={String(purchases.filter(x => x.s.purchaseBy! < today).length)}
           icon={<ShoppingCart className="h-4 w-4" />}
-          subtitle="needs purchase record"
+          help="Stages whose purchase date has passed and nobody marked the material as purchased."
           tone="red"
         />
         <Metric
           title="Buy this week"
           value={String(thisWeek.length)}
           icon={<Truck className="h-4 w-4" />}
-          subtitle="Monday to Sunday"
+          help="Stages whose material must be bought between Monday and Sunday of this week."
           tone="violet"
         />
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-4">
+      {/* O Project stages fica com a largura que sobra: são quatro etapas por
+          linha, e cada uma traz três datas. A lista de compras é estreita. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
         <Panel
-          className="lg:col-span-3"
+          className="min-w-0 lg:flex-1"
           icon={<Layers className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Project stages"
           right={
             <span className="text-xs text-muted-foreground">
-              {sites.length} {sites.length === 1 ? "jobsite" : "jobsites"} ·{" "}
-              {projects.length} {projects.length === 1 ? "lot" : "lots"}
+              {current
+                ? `${current.lots.length} ${current.lots.length === 1 ? "lot" : "lots"}`
+                : `${sites.length} ${sites.length === 1 ? "jobsite" : "jobsites"} · ${projects.length} ${projects.length === 1 ? "lot" : "lots"}`}
             </span>
           }
         >
           {sites.length === 0 ? (
             <Empty>Nothing matches these filters.</Empty>
+          ) : current ? (
+            <div className="flex flex-col gap-3">
+              {/* Presa no topo: rolando os lotes, continua à vista em que jobsite
+                  se está e como voltar. As margens negativas cobrem o respiro do
+                  painel, para nada passar por trás dela. */}
+              <div className="sticky -top-3 z-10 -mx-3 -mt-3 flex items-center gap-2 border-b border-border bg-card px-3 py-2.5">
+                <button
+                  onClick={() => setSite("")}
+                  className="flex shrink-0 items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                  Jobsites
+                </button>
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate text-sm font-semibold">{current.site}</span>
+              </div>
+              {/* Com o mouse num lote, os outros esmaecem: quatro etapas com três
+                  datas cada, em dezenas de linhas, confundem sem um foco. */}
+              <div className="group/lots flex flex-col gap-2.5">
+                {current.lots.map(lot => <LotRow key={lot.project.id} lot={lot} />)}
+              </div>
+            </div>
           ) : (
-            <div className="flex flex-col gap-2">
-              {sites.map(({ site, lots }) => <JobsiteSection key={site} site={site} lots={lots} />)}
+            <div className="flex flex-col gap-1.5">
+              {sites.map(s => <JobsiteRow key={s.site} site={s.site} lots={s.lots} onOpen={() => setSite(s.site)} />)}
             </div>
           )}
         </Panel>
 
         <Panel
+          className="lg:w-[232px] lg:shrink-0"
           icon={<CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Next purchases"
           right={<span className="text-xs text-muted-foreground">{purchases.length}</span>}
@@ -363,84 +389,73 @@ function Panel({
   )
 }
 
-// Um jobsite. Fechado por padrão, e o corpo só é criado ao abrir: com 251 obras
-// da HVAC, montar todos os lotes de saída são mil cartões que ninguém pediu,
-// era o que deixava a página lenta.
-function JobsiteSection({ site, lots }: { site: string; lots: ProjectStages[] }) {
-  const [open, setOpen] = useState(false)
+/** Compra pendente: a etapa tem data de compra, ainda vai começar e ninguém
+ *  registrou a compra. */
+function toBuy(s: Stage): boolean {
+  return !!s.purchaseBy && s.state === "upcoming" && !s.purchasedOn
+}
 
+// Primeira etapa do bloco: um jobsite por linha. Clicar leva aos lotes dele.
+function JobsiteRow({ site, lots, onOpen }: { site: string; lots: ProjectStages[]; onOpen: () => void }) {
   const delayed = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "delayed").length, 0)
   const running = lots.reduce((n, l) => n + l.stages.filter(s => s.state === "running").length, 0)
-  const toBuy = lots.reduce((n, l) => n + l.stages.filter(s => s.purchaseBy && s.state !== "done").length, 0)
+  const buy = lots.reduce((n, l) => n + l.stages.filter(toBuy).length, 0)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-background/40 transition-colors hover:border-foreground/15">
-      <button
-        onClick={() => setOpen(o => !o)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/50"
-      >
-        <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="truncate text-sm font-medium">{site}</span>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {lots.length} {lots.length === 1 ? "lot" : "lots"}
+    <button
+      onClick={onOpen}
+      className="flex w-full items-center gap-2 rounded-lg border border-border bg-background/40 px-3 py-2.5 text-left transition-colors hover:border-foreground/20 hover:bg-muted/50"
+    >
+      <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <span className="truncate text-sm font-medium">{site}</span>
+      <span className="shrink-0 text-xs text-muted-foreground">
+        {lots.length} {lots.length === 1 ? "lot" : "lots"}
+      </span>
+      {delayed > 0 && (
+        <span className="flex shrink-0 items-center gap-1 rounded-md border border-red-500/40 px-1.5 py-0.5 text-xs tabular-nums text-red-600 dark:text-red-400">
+          <AlertTriangle className="h-3 w-3" />
+          {delayed}
         </span>
-        {delayed > 0 && (
-          <Badge variant="outline" className="shrink-0 gap-1 border-red-500/40 text-red-600 dark:text-red-400">
-            <AlertTriangle className="h-3 w-3" />
-            {delayed}
-          </Badge>
-        )}
-        <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-          {running} running · {toBuy} to buy
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {open && (
-        // Dois lotes por linha a partir de xl: um lote sozinho deixava metade
-        // da largura vazia, e são dezenas deles por jobsite.
-        <div className="grid gap-2 border-t border-border p-2 xl:grid-cols-2">
-          {lots.map(lot => <LotCard key={lot.project.id} lot={lot} />)}
-        </div>
       )}
-    </div>
+      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+        {running} running · {buy} to buy
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+    </button>
   )
 }
 
-// Um lote e as suas quatro etapas.
+// Um lote, numa linha: quem é, à esquerda, e as quatro etapas lado a lado.
 //
-// O lote se identifica por número e endereço; o jobsite é o container que o
-// contém, e por isso não se repete aqui.
-function LotCard({ lot }: { lot: ProjectStages }) {
+// O lote se identifica por número e endereço; o jobsite já está escolhido na
+// faixa de cima, e por isso não se repete aqui.
+function LotRow({ lot }: { lot: ProjectStages }) {
   const [editing, setEditing] = useState<Stage | null>(null)
 
   return (
-    <div className="rounded-lg border border-border bg-card p-2 transition-colors hover:border-foreground/15">
-      <div className="mb-1.5 flex items-baseline gap-2 px-0.5">
-        <span className="shrink-0 text-sm font-semibold">{lotLabel(lot)}</span>
+    <div className="lot-row flex items-stretch gap-3 rounded-lg border border-border bg-card p-2.5 transition-[opacity,border-color] duration-150 group-has-[.lot-row:hover]/lots:opacity-40 hover:border-primary/50 hover:opacity-100!">
+      <div className="flex w-[150px] shrink-0 flex-col justify-center gap-1.5 px-1">
+        <div className="flex items-center gap-1.5">
+          <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
+          {lot.stacked && (
+            <AlertTriangle
+              className="h-3.5 w-3.5 shrink-0 text-amber-500"
+              aria-label="The client scheduled more than one stage to start on the same day"
+            />
+          )}
+        </div>
         {lot.project.address && (
-          <span className="min-w-0 truncate text-xs text-muted-foreground">{lot.project.address}</span>
+          <span className="truncate text-[11px] text-muted-foreground" title={lot.project.address}>
+            {lot.project.address}
+          </span>
         )}
-        {lot.stacked && (
-          <Badge
-            variant="outline"
-            title="The client scheduled more than one stage to start on the same day"
-            className="shrink-0 gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400"
-          >
-            <AlertTriangle className="h-3 w-3" />
-            Same day
-          </Badge>
-        )}
-        <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-          <Progress value={lot.percent} className="h-1 w-12" />
+        <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Progress value={lot.percent} className="h-1 flex-1" />
           <span className="tabular-nums">{lot.percent}%</span>
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid min-w-0 flex-1 grid-cols-4 gap-2.5">
         {lot.stages.map(s => (
           <StageCard key={s.key} stage={s} onEdit={() => setEditing(s)} />
         ))}
@@ -462,8 +477,7 @@ function LotCard({ lot }: { lot: ProjectStages }) {
 }
 
 // Uma etapa, compacta: o estado virou ícone no canto, e as três datas ficam
-// lado a lado em vez de empilhadas. O lápis nasce com largura zero e cresce ao
-// passar o mouse, empurrando o ícone de estado para a esquerda.
+// lado a lado em vez de empilhadas. O lápis fica sempre à vista.
 function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
   const StateIcon = STATE_ICON[s.state]
 
@@ -472,7 +486,7 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
       // O hover clareia só as três bordas neutras. `hover:border-foreground/20`
       // valia para os quatro lados e apagava justamente a faixa colorida que
       // diz o estado da etapa.
-      className={`group/stage min-w-0 rounded-lg border border-l-[3px] bg-background/60 p-2 transition-colors hover:border-y-foreground/20 hover:border-r-foreground/20 ${STATE_EDGE[s.state]}`}
+      className={`group/stage min-w-0 rounded-lg border border-l-[3px] bg-background/60 p-2.5 transition-colors hover:border-y-foreground/20 hover:border-r-foreground/20 ${STATE_EDGE[s.state]}`}
     >
       <div className="flex items-center gap-1.5">
         <s.Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -494,16 +508,16 @@ function StageCard({ stage: s, onEdit }: { stage: Stage; onEdit: () => void }) {
           <button
             onClick={onEdit}
             aria-label={`Change ${s.full} dates`}
-            className="flex w-0 items-center justify-center overflow-hidden text-muted-foreground opacity-0 transition-all duration-200 group-hover/stage:ml-1 group-hover/stage:w-4 group-hover/stage:opacity-100 hover:text-foreground focus-visible:ml-1 focus-visible:w-4 focus-visible:opacity-100"
+            className="ml-1.5 flex h-5 w-5 items-center justify-center rounded border border-border text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
           >
-            <Pencil className="h-3.5 w-3.5 shrink-0" />
+            <Pencil className="h-3 w-3 shrink-0" />
           </button>
         </span>
       </div>
 
       {/* Compra primeiro: é a data que exige ação antes das outras duas. */}
-      <div className="mt-1.5 grid grid-cols-3 gap-1 text-[11px] leading-tight">
-        <DateCell term="Buy" planned={s.purchaseBy} />
+      <div className="mt-2 grid grid-cols-3 gap-1.5 text-[11px] leading-tight">
+        <DateCell term="Buy" planned={s.purchaseBy} actual={s.purchasedOn} />
         {/* Âmbar quando outra etapa do lote começa no mesmo dia: o selo diz que
             há colisão, e a cor diz onde ela está. */}
         <DateCell term="Start" planned={s.start} actual={s.actualStart} warn={s.sharesStart} />
@@ -568,6 +582,7 @@ function PurchaseRow({
 }) {
   const overdue = !!s.purchaseBy && s.purchaseBy < today
   const week = !!s.purchaseBy && sameWeek(s.purchaseBy, today)
+  const purchase = useSetHVACPurchase()
 
   return (
     <div
@@ -610,12 +625,22 @@ function PurchaseRow({
       </div>
 
       {/* Embaixo, a obra, com a linha inteira para si. */}
-      <p
-        className="mt-1.5 truncate border-t border-border/60 pt-1.5 text-[11px] text-muted-foreground"
-        title={siteOf(lot)}
-      >
-        {siteOf(lot)}
-      </p>
+      {/* Embaixo, a obra e o atalho de marcar a compra com a data de hoje. Para
+          outra data, ou para desfazer, o caminho é o lápis da etapa. */}
+      <div className="mt-1.5 flex items-end gap-2 border-t border-border/60 pt-1.5">
+        <p className="min-w-0 flex-1 text-[11px] leading-snug text-pretty text-muted-foreground">
+          {siteOf(lot)}
+        </p>
+        <button
+          onClick={() => purchase.mutate({ id: lot.project.id, stage: STAGE_DB_NAME[s.key], purchasedOn: toISO(today) })}
+          disabled={purchase.isPending}
+          title="Mark as purchased today"
+          aria-label={`Mark ${s.full} of ${lotLabel(lot)} as purchased today`}
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border text-muted-foreground transition-colors hover:border-emerald-500/60 hover:bg-emerald-500/10 hover:text-emerald-600 disabled:opacity-50 dark:hover:text-emerald-400"
+        >
+          <Check className="h-3 w-3" />
+        </button>
+      </div>
     </div>
   )
 }
@@ -660,12 +685,13 @@ const TONE: Record<Tone, { card: string; icon: string; value: string }> = {
 }
 
 function Metric({
-  title, value, icon, subtitle, tone,
+  title, value, icon, help, tone,
 }: {
   title: string
   value: string
   icon: React.ReactNode
-  subtitle?: string
+  /** O que o número conta, numa frase. Aparece na interrogação. */
+  help: string
   tone: Tone
 }) {
   const t = TONE[tone]
@@ -677,13 +703,23 @@ function Metric({
         </span>
         {/* Uma linha sempre: título que quebra em duas desalinha o número de
             todos os cartões vizinhos. */}
-        <CardTitle className="min-w-0 truncate text-xs font-medium text-muted-foreground" title={title}>
+        <CardTitle className="min-w-0 flex-1 truncate text-xs font-medium text-muted-foreground" title={title}>
           {title}
         </CardTitle>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              aria-label={`What ${title} means`}
+              className="shrink-0 cursor-help text-muted-foreground/60 transition-colors hover:text-foreground"
+            >
+              <CircleHelp className="h-3.5 w-3.5" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[220px] text-center text-xs">{help}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </CardHeader>
       <CardContent className="min-w-0 px-3">
         <p className={`text-xl font-bold tabular-nums ${t.value}`}>{value}</p>
-        {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
       </CardContent>
     </Card>
   )

@@ -15,6 +15,8 @@ export interface HVACActual {
   stage: string
   actualStart: string | null
   actualEnd: string | null
+  /** Quando o material da etapa foi comprado. Vazio é "ainda não comprado". */
+  purchasedOn?: string | null
   note: string
   updatedBy?: string
 }
@@ -79,7 +81,10 @@ export const forecastService = {
   listHVACActuals: () =>
     api.get<HVACActual[]>("/api/v1/forecast/hvac-actuals", getToken()).then(r => r ?? []),
 
-  setHVACActual: (id: string, stage: string, actual: Omit<HVACActual, "projectId" | "stage" | "updatedBy">) =>
+  setHVACPurchase: (id: string, stage: string, purchasedOn: string | null) =>
+    api.put<{ projectId: string }>(`/api/v1/forecast/${id}/hvac-purchase/${stage}`, { purchasedOn }, getToken()),
+
+  setHVACActual: (id: string, stage: string, actual: Pick<HVACActual, "actualStart" | "actualEnd" | "note">) =>
     api.put<{ projectId: string }>(`/api/v1/forecast/${id}/hvac-actuals/${stage}`, actual, getToken()),
 
   // Datas de etapa da HVAC mexidas à mão. Rota própria porque a justificativa é

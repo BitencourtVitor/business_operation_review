@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import {
-  ArrowLeft, BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarX, ChevronRight,
+  ArrowLeft, BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarX, ChevronRight,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, CodeXml, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
   ShieldCheck, User, UserCheck, Users, Wrench,
@@ -40,13 +40,10 @@ const PERMISSION_GROUPS: PermGroup[] = [
       { key: "workforce",         label: "Workforce Productivity",     icon: Users         },
       { key: "inventory",         label: "Inventory Control",          icon: Package       },
       { key: "permits",           label: "Permit Control",             icon: FileCheck     },
-      {
-        label: "Forecast", icon: CalendarDays,
-        children: [
-          { key: "forecast",      label: "Framing", image: "/images/sublogo_framing.png" },
-          { key: "forecast_hvac", label: "HVAC",    image: "/images/sublogo_hvac.png"    },
-        ],
-      },
+      // O Forecast é só da Framing; a HVAC tem o Schedule and Material (HS-21).
+      // As chaves não mudam, para ninguém perder o acesso que já tinha.
+      { key: "forecast",      label: "Forecast",                 image: "/images/sublogo_framing.png" },
+      { key: "forecast_hvac", label: "HVAC Schedule & Material", image: "/images/sublogo_hvac.png"    },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },
@@ -56,10 +53,6 @@ const PERMISSION_GROUPS: PermGroup[] = [
         key: "pcg_bid_requests", label: "PCG Bids and Contracts", image: "/images/icon_pcg.png",
         writeLabel: "Edit projects & trades",
       },
-      // O Atlas não entra aqui enquanto estiver em construção: o acesso é do
-      // papel dev, e uma chave que não muda nada seria só ruído na tela de
-      // permissões. Quando o produto abrir, volta como `atlas` — o acesso por
-      // obra continua sendo concedido dentro da própria obra.
     ],
   },
   {

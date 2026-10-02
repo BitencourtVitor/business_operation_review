@@ -96,6 +96,15 @@ export function useHVACActuals() {
   })
 }
 
+export function useSetHVACPurchase() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, stage, purchasedOn }: { id: string; stage: string; purchasedOn: string | null }) =>
+      forecastService.setHVACPurchase(id, stage, purchasedOn),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast", "hvac-actuals"] }),
+  })
+}
+
 export function useSetHVACActual() {
   const qc = useQueryClient()
   return useMutation({

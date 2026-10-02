@@ -96,8 +96,8 @@ const PERMISSION_GROUPS: PermGroup[] = [
   {
     label: "Finance & Analytics",
     permissions: [
-      { key: "forecast",      label: "Forecast Framing", icon: CalendarDays },
-      { key: "forecast_hvac", label: "Forecast HVAC",    icon: CalendarDays },
+      { key: "forecast",      label: "Forecast",                 icon: CalendarDays },
+      { key: "forecast_hvac", label: "HVAC Schedule & Material", icon: CalendarDays },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
     ],

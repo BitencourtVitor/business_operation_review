@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowRight, CalendarIcon, ChevronDown, History, Loader2 } from "lucide-react"
+import { ArrowRight, CalendarIcon, ChevronDown, History, Loader2, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,9 +11,9 @@ import {
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
-import { useForecastDateHistory, useSetHVACActual, useUpdateHVACStages } from "@/hooks/use-forecast"
+import { useForecastDateHistory, useSetHVACActual, useSetHVACPurchase, useUpdateHVACStages } from "@/hooks/use-forecast"
 import {
-  editPlan, FIELDS, formatDate, STAGE_DB_NAME, STAGES, toISO,
+  businessDaysBefore, editPlan, FIELDS, formatDate, STAGE_DB_NAME, STAGES, toISO,
   type ProjectStages, type Stage, type StageKey,
 } from "../_lib/stages"
 
@@ -35,13 +35,15 @@ export function EditStageDialog({
   const [end, setEnd] = useState<Date | null>(stage.end)
   const [actualStart, setActualStart] = useState<Date | null>(stage.actualStart)
   const [actualEnd, setActualEnd] = useState<Date | null>(stage.actualEnd)
+  const [purchasedOn, setPurchasedOn] = useState<Date | null>(stage.purchasedOn)
   const [cascade, setCascade] = useState(false)
   const [note, setNote] = useState("")
   const [error, setError] = useState("")
 
   const savePlanned = useUpdateHVACStages()
   const saveActual = useSetHVACActual()
-  const saving = savePlanned.isPending || saveActual.isPending
+  const savePurchase = useSetHVACPurchase()
+  const saving = savePlanned.isPending || saveActual.isPending || savePurchase.isPending
 
   const jobsite = lot.project.jobSite?.trim() || "No jobsite"
   const address = lot.project.address?.trim() ?? ""
@@ -49,6 +51,10 @@ export function EditStageDialog({
   const lotLabel = !raw ? "Lot —" : /^\d/.test(raw) ? `Lot ${raw}` : raw
 
   const isLast = STAGES[STAGES.length - 1].key === stage.key
+  // A compra acompanha o início planejado que está no campo, e não o gravado:
+  // quem muda a data já vê quando o material passa a ter de ser comprado.
+  const leadDays = STAGES.find(s => s.key === stage.key)!.leadDays
+  const purchaseBy = start ? businessDaysBefore(start, leadDays) : null
   const plan = useMemo(
     () => editPlan(lot, stage.key, start, end, cascade),
     [lot, stage.key, start, end, cascade],
@@ -57,10 +63,11 @@ export function EditStageDialog({
   const actualChanged =
     actualStart?.getTime() !== stage.actualStart?.getTime() ||
     actualEnd?.getTime() !== stage.actualEnd?.getTime()
+  const purchaseChanged = purchasedOn?.getTime() !== stage.purchasedOn?.getTime()
 
   async function confirm() {
     setError("")
-    if (plan.changes.length === 0 && !actualChanged) {
+    if (plan.changes.length === 0 && !actualChanged && !purchaseChanged) {
       setError("Nothing changed yet.")
       return
     }
@@ -88,6 +95,13 @@ export function EditStageDialog({
           note: note.trim(),
         })
       }
+      if (purchaseChanged) {
+        await savePurchase.mutateAsync({
+          id: lot.project.id,
+          stage: STAGE_DB_NAME[stage.key],
+          purchasedOn: purchasedOn ? toISO(purchasedOn) : null,
+        })
+      }
       onOpenChange(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save.")
@@ -96,7 +110,7 @@ export function EditStageDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         {/* Quem abre isto precisa saber em que obra está mexendo. Sem jobsite,
             lote e endereço, o diálogo pede uma justificativa para uma data que
             poderia ser de qualquer uma das duzentas. */}
@@ -109,33 +123,33 @@ export function EditStageDialog({
             {lotLabel} · {jobsite}
             {address ? ` · ${address}` : ""}
           </DialogDescription>
-          <p className="text-xs text-muted-foreground">
-            The purchase date is recalculated on its own, never typed.
-          </p>
         </DialogHeader>
 
-        <div>
-          <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Planned
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <DateField label="Start" value={start} onChange={setStart} />
-            <DateField label="End" value={end} onChange={setEnd} />
-          </div>
-        </div>
+        {/* As datas da etapa num quadro só: compra, início e fim nas colunas;
+            planejado em cima, o que de fato aconteceu embaixo. A data-limite
+            da compra é calculada do início planejado; embaixo dela vai o dia
+            em que o material foi comprado. */}
+        <div className="grid grid-cols-[auto_1fr_1fr_1fr] items-center gap-x-3 gap-y-2 rounded-lg border bg-muted/30 p-3">
+          <span />
+          <ColumnTitle>Buy by</ColumnTitle>
+          <ColumnTitle>Start</ColumnTitle>
+          <ColumnTitle>End</ColumnTitle>
 
-        <div>
-          <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            What actually happened
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <DateField label="Started on" value={actualStart} onChange={setActualStart} />
-            <DateField label="Ended on" value={actualEnd} onChange={setActualEnd} />
+          <RowTitle>Planned</RowTitle>
+          <div
+            className="flex h-8 items-center justify-between rounded-lg border border-dashed px-2.5 text-sm tabular-nums text-muted-foreground"
+            title={`Calculated: ${leadDays} business days before the planned start`}
+          >
+            {purchaseBy ? formatDate(purchaseBy) : "No date"}
+            <ShoppingCart className="h-3.5 w-3.5" />
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            Leave both empty while the stage has not started. This is what tells a late stage
-            from a finished one.
-          </p>
+          <DateField label="Planned start" value={start} onChange={setStart} />
+          <DateField label="Planned end" value={end} onChange={setEnd} />
+
+          <RowTitle>Actual</RowTitle>
+          <DateField label="Purchased on" value={purchasedOn} onChange={setPurchasedOn} />
+          <DateField label="Actual start" value={actualStart} onChange={setActualStart} />
+          <DateField label="Actual end" value={actualEnd} onChange={setActualEnd} />
         </div>
 
         {!isLast && (
@@ -278,6 +292,16 @@ function shortDate(value: string | null | undefined): string {
   return `${m}/${d}/${y.slice(2)}`
 }
 
+function ColumnTitle({ children }: { children: React.ReactNode }) {
+  return <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{children}</span>
+}
+
+function RowTitle({ children }: { children: React.ReactNode }) {
+  return <span className="pr-1 text-xs font-medium text-muted-foreground">{children}</span>
+}
+
+// O rótulo não aparece: quem diz o que o campo é são a coluna e a linha do
+// quadro. Ele fica para o leitor de tela.
 function DateField({
   label, value, onChange,
 }: {
@@ -288,12 +312,11 @@ function DateField({
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label>{label}</Label>
+    <div className="min-w-0">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
-            <Button variant="outline" className="justify-between font-normal">
+            <Button variant="outline" aria-label={label} className="h-8 w-full justify-between px-2.5 font-normal tabular-nums">
               {value ? formatDate(value) : <span className="text-muted-foreground">No date</span>}
               <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
