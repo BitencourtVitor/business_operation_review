@@ -19,7 +19,7 @@ import type { WorkforceRow } from "@/services/workforce.service"
 import type { AttributionRule } from "@/services/workforce.service"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
-  ResponsiveContainer, CartesianGrid, Cell,Line, AreaChart, Area, PieChart, Pie, Legend,
+  ResponsiveContainer, CartesianGrid, Cell, LabelList, Line, AreaChart, Area, PieChart, Pie, Legend,
 } from "recharts"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -471,9 +471,18 @@ function getJobsiteLabel(r: { jobsite?: string; lotBuilding?: string; client?: s
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
+/** Largura da coluna de nomes em Hours by Project. Os dois gráficos sobrepostos
+ *  (barras e eixo) usam a mesma, senão as escalas não batem. */
+const PROJECT_LABEL_WIDTH = 360
+
+/** "62%" ou "4.8%": abaixo de dez, uma casa decimal, senão fatia pequena vira zero. */
+function fmtShare(share: number): string {
+  return `${share >= 10 ? Math.round(share) : share.toFixed(1)}%`
+}
+
 function ChartTooltip({ active, payload, label }: {
   active?:  boolean
-  payload?: { name: string; value: number; color?: string; fill?: string; stroke?: string }[]
+  payload?: { name: string; value: number; color?: string; fill?: string; stroke?: string; payload?: { share?: number } }[]
   label?:   string
 }) {
   if (!active || !payload?.length) return null
@@ -487,6 +496,10 @@ function ChartTooltip({ active, payload, label }: {
             <span className="text-xs text-muted-foreground">{p.name}</span>
             <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-foreground">
               {fmtHours(p.value)} hrs
+              {/* A fatia do total, quando o gráfico informa. */}
+              {p.payload?.share !== undefined && (
+                <span className="ml-1.5 font-normal text-muted-foreground">{fmtShare(p.payload.share)}</span>
+              )}
             </span>
           </div>
         ))}
@@ -709,11 +722,15 @@ export default function WorkforceProductivityPage() {
       if (!wt) return
       map[wt] = (map[wt] ?? 0) + r.regularHours
     })
+    // Quanto cada tipo pesa no total: o número de horas sozinho não diz se
+    // 6 mil é muito ou pouco.
+    const total = Object.values(map).reduce((sum, h) => sum + h, 0)
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
       .map(([name, hours], i) => ({
         name,
         hours: Math.round(hours),
+        share: total > 0 ? (hours / total) * 100 : 0,
         color: WORKTYPE_COLORS[i % WORKTYPE_COLORS.length],
       }))
   }, [rows])
@@ -727,10 +744,12 @@ export default function WorkforceProductivityPage() {
       const label = canonical(raw)
       map[label] = (map[label] ?? 0) + r.regularHours
     })
+    // A fatia é sobre todos os projetos, não só sobre os que aparecem no Top N.
+    const total = Object.values(map).reduce((sum, h) => sum + h, 0)
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
       .slice(0, topN)
-      .map(([name, hours]) => ({ name, hours: Math.round(hours) }))
+      .map(([name, hours]) => ({ name, hours: Math.round(hours), share: total > 0 ? (hours / total) * 100 : 0 }))
   }, [rows, topN])
 
   // ── Single-project view chart data ────────────────────────────────────────
@@ -1103,7 +1122,7 @@ export default function WorkforceProductivityPage() {
                         <div style={{ height: Math.max(hoursByWorktype.length * 28 + 8, 80) }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={hoursByWorktype} layout="vertical" barSize={14}
-                              margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                              margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                               <XAxis type="number" tick={false} axisLine={false} tickLine={false} height={0} domain={[0, "auto"]} />
                               <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
@@ -1112,6 +1131,12 @@ export default function WorkforceProductivityPage() {
                                 {hoursByWorktype.map((entry, i) => (
                                   <Cell key={i} fill={entry.color} />
                                 ))}
+                                {/* A fatia do total ao fim de cada barra. */}
+                                <LabelList
+                                  dataKey="share" position="right" offset={6}
+                                  formatter={(v: unknown) => fmtShare(Number(v))}
+                                  style={{ fontSize: 11, fontWeight: 600 }}
+                                />
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
@@ -1121,7 +1146,7 @@ export default function WorkforceProductivityPage() {
                       <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 24 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={hoursByWorktype} layout="vertical"
-                            margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                            margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
                             <XAxis type="number" orientation="top" tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} domain={[0, "auto"]} />
                             <YAxis type="category" dataKey="name" width={120} tick={false} axisLine={false} tickLine={false} />
                             <Bar dataKey="hours" opacity={0} />
@@ -1159,12 +1184,18 @@ export default function WorkforceProductivityPage() {
                       <div style={{ height: Math.max(topJobsites.length * 28 + 8, 80) }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={topJobsites} layout="vertical" barSize={14}
-                            margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                            margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                             <XAxis type="number" domain={[0, "auto"]} height={0} tick={false} axisLine={false} tickLine={false} />
-                            <YAxis type="category" dataKey="name" width={300} tick={tick} axisLine={false} tickLine={false} />
+                            <YAxis type="category" dataKey="name" width={PROJECT_LABEL_WIDTH} tick={{ ...tick, width: PROJECT_LABEL_WIDTH }} axisLine={false} tickLine={false} />
                             <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
-                            <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
+                            <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]}>
+                              <LabelList
+                                dataKey="share" position="right" offset={6}
+                                formatter={(v: unknown) => fmtShare(Number(v))}
+                                style={{ fontSize: 11, fontWeight: 600 }}
+                              />
+                            </Bar>
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
@@ -1173,10 +1204,10 @@ export default function WorkforceProductivityPage() {
                     <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 24 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={topJobsites} layout="vertical"
-                          margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                          margin={{ top: 0, right: 48, bottom: 0, left: 0 }}>
                           <XAxis type="number" domain={[0, "auto"]} orientation="top"
                             tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} />
-                          <YAxis type="category" dataKey="name" width={300} tick={false} axisLine={false} tickLine={false} />
+                          <YAxis type="category" dataKey="name" width={PROJECT_LABEL_WIDTH} tick={false} axisLine={false} tickLine={false} />
                           <Bar dataKey="hours" opacity={0} />
                         </BarChart>
                       </ResponsiveContainer>
