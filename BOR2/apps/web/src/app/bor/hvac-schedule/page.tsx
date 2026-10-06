@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
@@ -108,6 +109,10 @@ export default function HVACSchedulePage() {
   const [source, setSource] = useState("orders")
   // Dentro do jobsite, o mais urgente primeiro: compra não segue número de lote.
   const [order, setOrder] = useState<"date" | "lot">("date")
+  // Abre agrupado por jobsite; desagrupado, os lotes vêm numa lista só.
+  const [group, setGroup] = useState<"site" | "none">("site")
+  // Só o que tem QuickBooks Time ou Permit por fazer (HS-25).
+  const [todo, setTodo] = useState(false)
 
   // Uma vez por montagem. Sem o memo, `startOfToday()` devolve outra instância
   // a cada render, e como ela é dependência de `all`, a cadeia inteira de memos
@@ -138,6 +143,7 @@ export default function HVACSchedulePage() {
     const term = query.trim().toLowerCase()
     return all
       .filter(p => source === "all" || (source === "orders") === !!p.project.hasOrders)
+      .filter(p => !todo || hasTodo(p))
       .filter(p => !term
         || lotLabel(p).toLowerCase().includes(term)
         || siteOf(p).toLowerCase().includes(term)
@@ -148,7 +154,7 @@ export default function HVACSchedulePage() {
         stages: p.stages.filter(s => status === "all" || s.state === status),
       }))
       .filter(p => p.stages.length > 0)
-  }, [all, query, source, status])
+  }, [all, query, source, status, todo])
 
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
@@ -158,7 +164,7 @@ export default function HVACSchedulePage() {
     }
     // Jobsite criado pela tela aparece mesmo sem lote, desde que nenhum filtro
     // de busca ou de status esteja escondendo lotes: aí vazio seria engano.
-    if (!query.trim() && status === "all") {
+    if (!query.trim() && status === "all" && !todo) {
       for (const j of catalog ?? []) {
         if (j.hvac && !map.has(j.name)) map.set(j.name, [])
       }
@@ -166,7 +172,9 @@ export default function HVACSchedulePage() {
     return [...map.entries()]
       .map(([site, lots]) => ({ site, lots: lots.sort(order === "date" ? byUrgency : byLot) }))
       .sort((a, b) => a.site.localeCompare(b.site))
-  }, [projects, order, catalog, query, status])
+  }, [projects, order, catalog, query, status, todo])
+
+  const flat = useMemo(() => [...projects].sort(order === "date" ? byUrgency : byLot), [projects, order])
 
   // O que o catálogo anota de cada jobsite, pelo nome, que é a ligação com a obra.
   const metaOf = useMemo(() => {
@@ -200,7 +208,7 @@ export default function HVACSchedulePage() {
   if (isLoading) return <PageSkeleton />
 
   // Sem o escolhido na lista (um filtro o tirou), volta à primeira etapa.
-  const current = sites.find(s => s.site === site)
+  const current = group === "site" ? sites.find(s => s.site === site) : undefined
 
   const allStages = projects.flatMap(p => p.stages).filter(s => s.state !== "undated")
   const thisWeek = purchases.filter(x => sameWeek(x.s.purchaseBy!, today))
@@ -278,6 +286,14 @@ export default function HVACSchedulePage() {
             })}
           </Filter>
 
+          {/* Só o que tem QuickBooks Time ou Permit por fazer (HS-25). */}
+          <Tip text="Only lots with QuickBooks Time off or permit steps not done">
+            <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-input px-2.5 text-sm whitespace-nowrap transition-colors hover:border-foreground/20 dark:bg-input/30">
+              <Checkbox checked={todo} onCheckedChange={v => setTodo(v === true)} />
+              To do
+            </label>
+          </Tip>
+
           {/* Com pouco espaço o botão fica só com o ícone, para a linha caber. */}
           <Button className="shrink-0" aria-label="Present" onClick={() => setPreparing(true)}>
             <PresentationIcon className="h-3.5 w-3.5" />
@@ -353,36 +369,38 @@ export default function HVACSchedulePage() {
           icon={<Layers className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Project stages"
           right={
-            <span className="flex items-center gap-3 text-xs text-muted-foreground">
-              {current && (
-                // O mesmo seletor segmentado do Forecast (Group by, Sort Order).
-                <span className="flex items-center gap-2">
-                  <FilterLabel>Order by</FilterLabel>
-                  <span className="flex h-7 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
-                    {([
-                      { value: "date", label: "Date", Icon: CalendarDays },
-                      { value: "lot", label: "Lot number", Icon: Hash },
-                    ] as const).map(({ value, label, Icon }) => (
-                      <button
-                        key={value}
-                        onClick={() => setOrder(value)}
-                        aria-pressed={order === value}
-                        className={`flex h-6 items-center justify-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${order === value ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                      >
-                        <Icon className="h-3 w-3" />
-                        {label}
-                      </button>
-                    ))}
-                  </span>
-                </span>
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+              <Segmented
+                label="Group by" value={group} onChange={setGroup}
+                options={[
+                  { value: "site", label: "Jobsite", Icon: MapPin },
+                  { value: "none", label: "None", Icon: Layers },
+                ]}
+              />
+              {(current || group === "none") && (
+                <Segmented
+                  label="Order by" value={order} onChange={setOrder}
+                  options={[
+                    { value: "date", label: "Date", Icon: CalendarDays },
+                    { value: "lot", label: "Lot number", Icon: Hash },
+                  ]}
+                />
               )}
               {current
                 ? `${current.lots.length} ${current.lots.length === 1 ? "lot" : "lots"}`
-                : `${sites.length} ${sites.length === 1 ? "jobsite" : "jobsites"} · ${projects.length} ${projects.length === 1 ? "lot" : "lots"}`}
+                : group === "none"
+                  ? `${projects.length} ${projects.length === 1 ? "lot" : "lots"}`
+                  : `${sites.length} ${sites.length === 1 ? "jobsite" : "jobsites"} · ${projects.length} ${projects.length === 1 ? "lot" : "lots"}`}
             </span>
           }
         >
-          {sites.length === 0 ? (
+          {group === "none" ? (
+            flat.length === 0 ? <Empty>Nothing matches these filters.</Empty> : (
+              <div className="group/lots flex flex-col gap-2.5">
+                {flat.map(lot => <LotRow key={lot.project.id} lot={lot} site={siteOf(lot)} />)}
+              </div>
+            )
+          ) : sites.length === 0 ? (
             <div className="flex flex-col gap-1.5">
               <Empty>Nothing matches these filters.</Empty>
               <AddJobsiteButton onClick={() => setEditing({ name: "", client: "", responsibles: [] })} />
@@ -514,6 +532,41 @@ function Panel({
   )
 }
 
+/** O seletor segmentado do Forecast (Group by, Sort Order). */
+function Segmented<T extends string>({
+  label, value, onChange, options,
+}: {
+  label: string
+  value: T
+  onChange: (value: T) => void
+  options: readonly { value: T; label: string; Icon: React.ElementType }[]
+}) {
+  return (
+    <span className="flex items-center gap-2">
+      <FilterLabel>{label}</FilterLabel>
+      <span className="flex h-7 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+        {options.map(({ value: v, label: text, Icon }) => (
+          <button
+            key={v}
+            onClick={() => onChange(v)}
+            aria-pressed={value === v}
+            className={`flex h-6 items-center justify-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${value === v ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <Icon className="h-3 w-3" />
+            {text}
+          </button>
+        ))}
+      </span>
+    </span>
+  )
+}
+
+/** Algo por fazer nos stickers: QuickBooks Time desligado ou passo de permit
+ *  sem status. Obra sem passo de permit não tem o que fazer nele. */
+function hasTodo(p: ProjectStages): boolean {
+  return !p.project.qbTime || (p.project.permit ?? []).some(s => !s.status)
+}
+
 /** Compra pendente: a etapa tem data de compra, ainda vai começar e ninguém
  *  registrou a compra. */
 function toBuy(s: Stage): boolean {
@@ -627,8 +680,9 @@ function AddJobsiteButton({ onClick }: { onClick: () => void }) {
 //
 // Dois caminhos, e só dois: clicar na linha abre os detalhes da obra, para ler;
 // a engrenagem abre as configurações, onde tudo dela se altera. O lote se
-// identifica por número e endereço; o jobsite já está na barra de cima.
-function LotRow({ lot }: { lot: ProjectStages }) {
+// identifica por número e endereço; o jobsite já está na barra de cima, e só
+// vem na linha (`site`) quando a lista não está agrupada.
+function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
   const [open, setOpen] = useState<"details" | "settings" | null>(null)
   const permit = lot.project.permit ?? []
   const permitDone = permit.filter(s => !!s.status).length
@@ -649,6 +703,12 @@ function LotRow({ lot }: { lot: ProjectStages }) {
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
         </div>
+        {site && (
+          <span className="flex items-start gap-1 text-[11px] leading-snug font-medium text-pretty">
+            <MapPin className="mt-px h-3 w-3 shrink-0 text-muted-foreground" />
+            {site}
+          </span>
+        )}
         {lot.project.address && (
           <span className="text-[11px] leading-snug text-pretty text-muted-foreground">
             {lot.project.address}
