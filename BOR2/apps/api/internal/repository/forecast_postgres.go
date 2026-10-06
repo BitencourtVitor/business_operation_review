@@ -272,7 +272,7 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
-	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Type); err != nil {
+	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Cliente, p.Type); err != nil {
 		return err
 	}
 
@@ -313,10 +313,11 @@ func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, proj
 }
 
 // seedBuilderLog dá à obra da Framing as linhas do BuilderLog do tipo dela
-// (casa ou prédio), como o Fieldwire. Roda na criação e na edição, e só
-// acrescenta o que falta: trocar o tipo da obra traz as linhas do tipo novo sem
-// apagar o que já foi marcado.
-func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, projectID, company, projType string) error {
+// (casa ou prédio) e do cliente dela, como o Fieldwire: linha de catálogo sem
+// cliente vale para todos. Roda na criação e na edição, e só acrescenta o que
+// falta: trocar o tipo ou o cliente da obra traz as linhas novas sem apagar o
+// que já foi marcado.
+func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, projectID, company, cliente, projType string) error {
 	if company != "" && !strings.EqualFold(company, "framing") {
 		return nil
 	}
@@ -325,8 +326,9 @@ func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, project
 		SELECT $1, c.document, c.position
 		  FROM catalog_forecast_builderlog c
 		 WHERE c.build_type = CASE WHEN lower($2) = 'building' THEN 'building' ELSE 'house' END
+		   AND (c.client = '' OR lower(c.client) = lower($3))
 		ON CONFLICT (project_id, document) DO NOTHING
-	`, projectID, projType); err != nil {
+	`, projectID, projType, cliente); err != nil {
 		return fmt.Errorf("seeding builderlog docs: %w", err)
 	}
 	return nil
@@ -402,7 +404,7 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
-	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Type); err != nil {
+	if err := r.seedBuilderLog(ctx, p.ID, p.Company, p.Cliente, p.Type); err != nil {
 		return err
 	}
 
