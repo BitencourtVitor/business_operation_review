@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { weeklyReportService, type WeeklyReport } from "@/services/qbtime-weekly-report.service"
-import { qbtimeTeamService } from "@/services/qbtime.service"
+import { qbtimeEmployeeTeamService } from "@/services/qbtime.service"
 
 const COMPANIES = [
   { value: "framing", label: "Framing", logo: "/images/sublogo_framing.png" },
@@ -27,7 +27,6 @@ type EmployeeResult = {
   days: JCDay[]
 }
 
-type QBTeam = { id: string; name: string; members: string[] }
 
 type JCAddress = { path: string[]; hours: number }
 type JCDay = { date: string; day: string; totalHours: number; addresses: JCAddress[] }
@@ -131,6 +130,40 @@ function fmtH(h: number, format: HourFormat): string {
   return `${h.toFixed(1)}h`
 }
 
+// As cores do export saem do tema que está na tela: o valor é lido de um
+// elemento com a mesma classe que a página usa, então claro e escuro seguem
+// sozinhos e a imagem não fica com uma paleta própria.
+function themeValue(className: string, prop: "color" | "backgroundColor" | "borderTopColor" | "fontFamily"): string {
+  const el = document.createElement("div")
+  el.className = className
+  document.body.appendChild(el)
+  const value = getComputedStyle(el)[prop]
+  el.remove()
+  return value
+}
+
+function exportTheme() {
+  return {
+    bg: themeValue("bg-background", "backgroundColor"),
+    card: themeValue("bg-card/60", "backgroundColor"),
+    band: themeValue("bg-muted/30", "backgroundColor"),
+    border: themeValue("border border-border", "borderTopColor"),
+    text: themeValue("text-foreground", "color"),
+    muted: themeValue("text-muted-foreground", "color"),
+    accent: themeValue("text-primary", "color"),
+    red: themeValue("text-destructive", "color"),
+    green: themeValue("text-emerald-600", "color"),
+    sans: getComputedStyle(document.body).fontFamily,
+    mono: themeValue("font-mono", "fontFamily"),
+  }
+}
+
+function downloadCanvas(canvas: HTMLCanvasElement, name: string) {
+  const link = document.createElement("a")
+  link.download = `${name}-${new Date().toISOString().split("T")[0]}.png`
+  link.href = canvas.toDataURL("image/png"); link.click()
+}
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
   ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r)
@@ -158,7 +191,7 @@ function blockHeight(days: JCDay[], showBreakdown: boolean): number {
 
 // dayLabel: when provided → day mode (name + hours for that day). Undefined → week mode (name + selected stat columns).
 // columns: which optional columns/sections to include, per the user's export column selection.
-function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string): HTMLCanvasElement {
+function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, weekStart: string, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const W = 860, padX = 40, padY = 36, thH = 40, titleH = 72, statsH = 72, footerH = 32
   const blockHeights = results.map(r => blockHeight(r.days, columns.breakdown))
@@ -170,10 +203,10 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   const ctx = canvas.getContext("2d")!
   ctx.scale(dpr, dpr)
 
-  const BG = isDark ? "#0d0d1a" : "#f1f4f9", CARD = isDark ? "#1a1a2e" : "#ffffff"
-  const T1 = isDark ? "#e2e8f0" : "#1a202c", T2 = isDark ? "#718096" : "#718096"
-  const BORDER = isDark ? "#2d3748" : "#e2e8f0", ACCENT = "#2e6be6"
-  const RED = "#ef4444", GREEN = "#10B981", ROWODD = isDark ? "#131325" : "#f8fafc"
+  const theme = exportTheme()
+  const BG = theme.bg, CARD = theme.card, T1 = theme.text, T2 = theme.muted
+  const BORDER = theme.border, ACCENT = theme.accent
+  const RED = theme.red, GREEN = theme.green, ROWODD = theme.band
 
   const pastLabel = rangeLabel(pastDays)
   const remainingLabel = rangeLabel(remainingDays)
@@ -224,7 +257,7 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   const sw = (W - padX * 2) / statData.length - 8
   statData.forEach((s, i) => {
     const sx = padX + i * (sw + 8)
-    ctx.fillStyle = isDark ? "#111122" : "#f0f4ff"
+    ctx.fillStyle = theme.band
     roundRect(ctx, sx, sy, sw, statsH - 8, 8); ctx.fill()
     ctx.fillStyle = s.color; ctx.font = `700 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
     ctx.textAlign = "center"; ctx.fillText(s.value, sx + sw / 2, sy + 28)
@@ -233,7 +266,7 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   })
 
   const ty = sy + statsH
-  ctx.fillStyle = isDark ? "#111122" : "#f0f4ff"
+  ctx.fillStyle = theme.band
   ctx.fillRect(padX - 16, ty, W - (padX - 16) * 2, thH)
   ctx.fillStyle = T2; ctx.font = `700 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
   cols.forEach(c => {
@@ -309,15 +342,92 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   return canvas
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, columns, dayLabel)
-  const link = document.createElement("a")
-  link.download = `weekly-hours-${new Date().toISOString().split("T")[0]}.png`
-  link.href = canvas.toDataURL("image/png"); link.click()
+function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
+  downloadCanvas(buildResultsCanvas(results, hoursPerDay, weekStart, pastDays, remainingDays, columns, dayLabel), "weekly-hours")
 }
 
-function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, isDark: boolean, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
-  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, isDark, pastDays, remainingDays, columns, dayLabel)
+// A imagem curta: o container de cada time como está na tela, sem abrir
+// ninguém. Mesma fonte, mesmas cores e mesmas medidas da página, para a imagem
+// passar por um print dela. Com mais de um time, vai um embaixo do outro.
+type TeamCardStat = { value: string; label: string; color?: string }
+type TeamCard = { teamName: string; rows: { name: string; stats: TeamCardStat[] }[] }
+
+function exportTeamCards(cards: TeamCard[], fileName: string) {
+  const theme = exportTheme()
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const PAD = 16, W = 852, HEAD = 41, ROW = 58, GAP = 40, MIN_STAT = 56
+  const heightOf = (card: TeamCard) => HEAD + card.rows.length * ROW
+  const total = cards.reduce((sum, card) => sum + heightOf(card) + PAD, PAD)
+
+  const canvas = document.createElement("canvas")
+  canvas.width = (W + PAD * 2) * dpr; canvas.height = total * dpr
+  const ctx = canvas.getContext("2d")!
+  ctx.scale(dpr, dpr)
+  ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, W + PAD * 2, total)
+  ctx.translate(PAD, PAD)
+
+  for (const { teamName, rows } of cards) {
+  const H = heightOf({ teamName, rows })
+  ctx.save()
+  roundRect(ctx, 0, 0, W, H, 14); ctx.clip()
+  ctx.fillStyle = theme.card; ctx.fillRect(0, 0, W, H)
+  ctx.fillStyle = theme.band; ctx.fillRect(0, 0, W, HEAD)
+  ctx.strokeStyle = theme.border; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(0, HEAD - 0.5); ctx.lineTo(W, HEAD - 0.5); ctx.stroke()
+
+  ctx.textBaseline = "middle"
+  ctx.fillStyle = theme.muted
+  ctx.font = `700 12px ${theme.sans}`; ctx.letterSpacing = "1.2px"
+  ctx.fillText(teamName.toUpperCase(), 16, HEAD / 2)
+  ctx.font = `400 12px ${theme.sans}`; ctx.letterSpacing = "0px"; ctx.textAlign = "right"
+  ctx.fillText(`${rows.length} member${rows.length !== 1 ? "s" : ""}`, W - 16, HEAD / 2)
+
+  rows.forEach((row, i) => {
+    const top = HEAD + i * ROW
+    if (i > 0) {
+      ctx.globalAlpha = 0.5
+      ctx.beginPath(); ctx.moveTo(0, top + 0.5); ctx.lineTo(W, top + 0.5); ctx.stroke()
+      ctx.globalAlpha = 1
+    }
+    const mid = top + ROW / 2
+    // A setinha de abrir, como na linha fechada da tela.
+    ctx.strokeStyle = theme.muted; ctx.lineWidth = 1.2; ctx.lineCap = "round"; ctx.lineJoin = "round"
+    ctx.beginPath(); ctx.moveTo(21, mid - 3.5); ctx.lineTo(24.5, mid); ctx.lineTo(21, mid + 3.5); ctx.stroke()
+    ctx.strokeStyle = theme.border; ctx.lineWidth = 1
+
+    ctx.textAlign = "left"; ctx.fillStyle = theme.text
+    ctx.font = `500 14px ${theme.sans}`
+    ctx.fillText(row.name, 42, mid)
+
+    // Da direita para a esquerda: cada bloco tem a largura do que carrega.
+    let right = W - 16
+    ctx.textAlign = "right"
+    for (const stat of [...row.stats].reverse()) {
+      ctx.font = `700 14px ${theme.mono}`; ctx.letterSpacing = "0px"
+      const valueW = ctx.measureText(stat.value).width
+      ctx.fillStyle = stat.color ?? theme.text
+      ctx.fillText(stat.value, right, mid - 7)
+      ctx.font = `400 9px ${theme.sans}`; ctx.letterSpacing = "0.45px"
+      const labelW = ctx.measureText(stat.label.toUpperCase()).width
+      ctx.fillStyle = theme.muted
+      ctx.fillText(stat.label.toUpperCase(), right, mid + 10)
+      ctx.letterSpacing = "0px"
+      right -= Math.max(MIN_STAT, valueW, labelW) + GAP
+    }
+  })
+  ctx.restore()
+
+  ctx.strokeStyle = theme.border; ctx.lineWidth = 1
+  roundRect(ctx, 0.5, 0.5, W - 1, H - 1, 14); ctx.stroke()
+  ctx.textAlign = "left"
+  ctx.translate(0, H + PAD)
+  }
+
+  downloadCanvas(canvas, fileName)
+}
+
+function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, weekStart, pastDays, remainingDays, columns, dayLabel)
   const dataUrl = canvas.toDataURL("image/png")
   const win = window.open("", "_blank")
   if (!win) return
@@ -357,7 +467,10 @@ export default function WeeklyHoursControlPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [data, setData] = useState<WeeklyReport | null>(null)
-  const [teams, setTeams] = useState<QBTeam[]>([])
+  // Dia da semana -> (funcionário -> time que valia naquele dia). O time vem
+  // junto da hora: quem trocou de equipe no meio da semana aparece nas duas,
+  // cada uma com as horas dos dias em que esteve nela (WH-2).
+  const [teamByDay, setTeamByDay] = useState<Map<string, Map<string, string>>>(new Map())
   const [excludedAddresses, setExcludedAddresses] = useState<string[]>(() => loadExcluded())
   const [excludeInput, setExcludeInput] = useState("")
   const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set())
@@ -410,8 +523,21 @@ export default function WeeklyHoursControlPage() {
   }, [company, weekOffset])
 
   useEffect(() => {
-    qbtimeTeamService.list(company).then(setTeams).catch(() => setTeams([]))
-  }, [company])
+    const weekStart = data?.weekStart
+    if (!weekStart) return
+    let cancelled = false
+    const sunday = new Date(`${weekStart}T12:00:00Z`)
+    // ponytail: uma chamada por dia da semana (7). Vira um endpoint de intervalo se pesar.
+    Promise.all(WORKDAYS.map(async (day, i) => {
+      const date = new Date(sunday)
+      date.setUTCDate(sunday.getUTCDate() + i)
+      const list = await qbtimeEmployeeTeamService.list(company, date.toISOString().split("T")[0])
+      return [day, new Map(list.map(t => [t.employeeName, t.effectiveTeamName]))] as const
+    }))
+      .then(entries => { if (!cancelled) setTeamByDay(new Map(entries)) })
+      .catch(() => { if (!cancelled) setTeamByDay(new Map()) })
+    return () => { cancelled = true }
+  }, [company, data?.weekStart])
 
   useEffect(() => {
     try { localStorage.setItem(LS_EXCLUDED_KEY, JSON.stringify(excludedAddresses)) } catch { /* */ }
@@ -421,11 +547,10 @@ export default function WeeklyHoursControlPage() {
     if (!data) return []
     const excludedSet = new Set(excludedAddresses.map(a => a.toLowerCase().trim()))
     const hoursPerDay = data.hoursPerDay || 8
-    const expectedFromPast = hoursPerDay * pastDays.length
-    const fullWeek = hoursPerDay * WORKDAYS.length
     const pastDaysSet = new Set(pastDays)
+    const sum = (days: JCDay[]) => Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
 
-    const employeeMap = new Map<string, JCEmployee>()
+    const byTeam = new Map<string, JCEmployee[]>()
     for (const emp of (data.employees ?? [])) {
       const days: JCDay[] = emp.days.map(day => {
         const addresses = day.addresses
@@ -450,27 +575,25 @@ export default function WeeklyHoursControlPage() {
         }
       }).filter(d => d.addresses.length > 0)
 
-      const weekTotal = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
-      const hoursLogged = Math.round(days.filter(d => pastDaysSet.has(d.day)).reduce((s, d) => s + d.totalHours, 0) * 10) / 10
-      const surplus = Math.round((hoursLogged - expectedFromPast) * 10) / 10
-      const available = Math.max(0, Math.round((fullWeek - hoursLogged) * 10) / 10)
-
-      employeeMap.set(emp.name, { name: emp.name, weekTotal, hoursLogged, surplus, available, days })
-    }
-
-    const result: JCTeamGroup[] = []
-    const assigned = new Set<string>()
-    for (const team of teams) {
-      const members = team.members.map(n => employeeMap.get(n)).filter(Boolean) as JCEmployee[]
-      if (members.length > 0) {
-        result.push({ teamName: team.name, employees: members.sort((a, b) => a.name.localeCompare(b.name)) })
-        members.forEach(e => assigned.add(e.name))
+      // Uma linha por time em que a pessoa trabalhou. O esperado e o disponível
+      // contam só os dias em que ela era daquele time; quem ficou a semana
+      // inteira no mesmo dá a conta de sempre.
+      const teamOn = (day: string) => teamByDay.get(day)?.get(emp.name) ?? "Unassigned"
+      for (const team of new Set(days.map(d => teamOn(d.day)))) {
+        const mine = days.filter(d => teamOn(d.day) === team)
+        const teamDays = WORKDAYS.filter(d => teamOn(d) === team)
+        const hoursLogged = sum(mine.filter(d => pastDaysSet.has(d.day)))
+        const surplus = Math.round((hoursLogged - hoursPerDay * teamDays.filter(d => pastDaysSet.has(d)).length) * 10) / 10
+        const available = Math.max(0, Math.round((hoursPerDay * teamDays.length - hoursLogged) * 10) / 10)
+        byTeam.set(team, [...(byTeam.get(team) ?? []), { name: emp.name, weekTotal: sum(mine), hoursLogged, surplus, available, days: mine }])
       }
     }
-    const unassigned = [...employeeMap.values()].filter(e => !assigned.has(e.name)).sort((a, b) => a.name.localeCompare(b.name))
-    if (unassigned.length > 0) result.push({ teamName: "Unassigned", employees: unassigned })
-    return result
-  }, [data, teams, excludedAddresses, pastDays])
+
+    return [...byTeam.entries()]
+      .map(([teamName, employees]) => ({ teamName, employees: employees.sort((x, y) => x.name.localeCompare(y.name)) }))
+      // Sem time fica por último; o resto em ordem alfabética.
+      .sort((x, y) => Number(x.teamName === "Unassigned") - Number(y.teamName === "Unassigned") || x.teamName.localeCompare(y.teamName))
+  }, [data, teamByDay, excludedAddresses, pastDays])
 
   function addExclusion() {
     const v = excludeInput.trim()
@@ -523,8 +646,30 @@ export default function WeeklyHoursControlPage() {
     })
   }
 
-  function currentIsDark() {
-    return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  // As linhas de um time como a tela mostra, para a imagem curta.
+  function teamCard(group: JCTeamGroup): TeamCard {
+    const theme = exportTheme()
+    return {
+      teamName: group.teamName,
+      rows: group.employees.map(e => {
+        if (!isWeekMode) {
+          const hours = e.days.filter(d => selectedDays.has(d.day)).reduce((sum, d) => sum + d.totalHours, 0)
+          return { name: e.name, stats: [{ value: fmtH(Math.round(hours * 10) / 10, hourFormat), label: selectedDaysLabel || "—" }] }
+        }
+        return {
+          name: e.name,
+          stats: [
+            { value: fmtH(e.hoursLogged, hourFormat), label: rangeLabel(pastDays) },
+            {
+              value: `${e.surplus > 0 ? "+" : ""}${fmtH(Math.abs(e.surplus), hourFormat)}`,
+              label: e.surplus > 0 ? "Over" : e.surplus < 0 ? "Under" : "On track",
+              color: e.surplus > 0 ? theme.red : e.surplus < 0 ? theme.green : theme.muted,
+            },
+            { value: fmtH(e.available, hourFormat), label: `${rangeLabel(remainingDays)} avail`, color: e.available === 0 ? theme.red : undefined },
+          ],
+        }
+      }),
+    }
   }
 
   // Flat results for export — adapts to current mode. `days` carries the same
@@ -543,8 +688,8 @@ export default function WeeklyHoursControlPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto">
-        <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="mb-6 flex shrink-0 items-end justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
             <p className="text-sm text-muted-foreground">
@@ -663,16 +808,25 @@ export default function WeeklyHoursControlPage() {
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
+                      onClick={() => exportTeamCards(jobCostingTeams.map(teamCard), "weekly-hours")}
                     >
                       <ImageIcon className="h-4 w-4" />
-                      Image (PNG)
+                      Short image
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
+                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                      Full image
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 justify-start gap-2"
+                      onClick={() => data && exportResultsAsPdf(exportRows, data.hoursPerDay, data.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
                     >
                       <FileText className="h-4 w-4" />
                       PDF
@@ -704,9 +858,9 @@ export default function WeeklyHoursControlPage() {
         )}
 
         {!loading && jobCostingTeams.length > 0 && (
-          <div className="flex flex-col gap-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-4">
             {/* Filters: Exclude addresses + Days */}
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
+            <div className="grid shrink-0 grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
               {/* Exclude addresses */}
               <div className="rounded-xl border border-border bg-card/60 px-4 py-3">
                 <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Exclude addresses</p>
@@ -766,7 +920,8 @@ export default function WeeklyHoursControlPage() {
               </div>
             </div>
 
-            {/* Team groups */}
+            {/* Team groups: é só esta lista que rola. */}
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
             {jobCostingTeams.map(group => (
               <div key={group.teamName} className="overflow-hidden rounded-xl border border-border bg-card/60">
                 {/* Team header */}
@@ -793,27 +948,42 @@ export default function WeeklyHoursControlPage() {
                         </TooltipTrigger>
                         <TooltipContent>Collapse all</TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger
-                          onClick={() => {
-                            if (!data) return
-                            const rows = group.employees.map(e => {
-                              if (isWeekMode) {
-                                const days = e.days.filter(d => pastDays.includes(d.day))
-                                return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
-                              }
-                              const days = e.days.filter(d => selectedDays.has(d.day))
-                              const filtered = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
-                              return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
-                            })
-                            exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, currentIsDark(), pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)
-                          }}
-                          className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        >
-                          <ImageIcon className="h-3.5 w-3.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>Export team PNG</TooltipContent>
-                      </Tooltip>
+                      <Popover>
+                        <PopoverTrigger render={
+                          <button
+                            title="Export team PNG"
+                            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          >
+                            <ImageIcon className="h-3.5 w-3.5" />
+                          </button>
+                        } />
+                        <PopoverContent className="w-40 gap-0.5 p-1" align="end">
+                          <Button
+                            variant="ghost" size="sm" className="h-8 w-full justify-start"
+                            onClick={() => exportTeamCards([teamCard(group)], `weekly-hours-${group.teamName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`)}
+                          >
+                            Short image
+                          </Button>
+                          <Button
+                            variant="ghost" size="sm" className="h-8 w-full justify-start"
+                            onClick={() => {
+                              if (!data) return
+                              const rows = group.employees.map(e => {
+                                if (isWeekMode) {
+                                  const days = e.days.filter(d => pastDays.includes(d.day))
+                                  return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
+                                }
+                                const days = e.days.filter(d => selectedDays.has(d.day))
+                                const filtered = Math.round(days.reduce((sum, d) => sum + d.totalHours, 0) * 10) / 10
+                                return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
+                              })
+                              exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)
+                            }}
+                          >
+                            Full image
+                          </Button>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </TooltipProvider>
                 </div>
@@ -918,6 +1088,7 @@ export default function WeeklyHoursControlPage() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         )}
       </div>

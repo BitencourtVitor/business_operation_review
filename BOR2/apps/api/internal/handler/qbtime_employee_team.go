@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -15,13 +17,24 @@ func NewQBTimeEmployeeTeamHandler(svc *service.QBTimeEmployeeTeamService, audit 
 	return &QBTimeEmployeeTeamHandler{svc: svc, audit: audit}
 }
 
-// GET /qbtime/employee-teams?company=HVAC
+// GET /qbtime/employee-teams?company=HVAC[&as_of=2026-10-10]
+// Com as_of, o time é o que valia naquela data, e não o de agora.
 func (h *QBTimeEmployeeTeamHandler) List(c *fiber.Ctx) error {
 	company := c.Query("company")
 	if company == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "company is required", "code": "BAD_REQUEST"})
 	}
-	teams, err := h.svc.List(c.Context(), company)
+	var teams []*domain.QBTimeEmployeeTeam
+	var err error
+	if raw := c.Query("as_of"); raw != "" {
+		asOf, perr := time.Parse("2006-01-02", raw)
+		if perr != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "as_of must be YYYY-MM-DD", "code": "BAD_REQUEST"})
+		}
+		teams, err = h.svc.ListAsOf(c.Context(), company, asOf)
+	} else {
+		teams, err = h.svc.List(c.Context(), company)
+	}
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}

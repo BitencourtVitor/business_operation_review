@@ -38,8 +38,9 @@ export const qbtimeTeamService = {
 }
 
 export const qbtimeEmployeeTeamService = {
-  list: (company: string) =>
-    api.get<QBTimeEmployeeTeam[]>(`/api/v1/qbtime/employee-teams?company=${encodeURIComponent(company)}`, getToken()),
+  // Com `asOf` (YYYY-MM-DD) vem o time que valia naquela data, e não o de agora.
+  list: (company: string, asOf?: string) =>
+    api.get<QBTimeEmployeeTeam[]>(`/api/v1/qbtime/employee-teams?company=${encodeURIComponent(company)}${asOf ? `&as_of=${asOf}` : ""}`, getToken()),
 
   setOverride: (id: string, teamName: string) =>
     api.patch<QBTimeEmployeeTeam>(`/api/v1/qbtime/employee-teams/${id}/override`, { teamName }, getToken()),
