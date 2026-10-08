@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
+import JSZip from "jszip"
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, ChevronsDownUp, FileText, ImageIcon, Download, X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -162,6 +163,24 @@ function downloadCanvas(canvas: HTMLCanvasElement, name: string) {
   const link = document.createElement("a")
   link.download = `${name}-${new Date().toISOString().split("T")[0]}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
+}
+
+const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+
+// Uma imagem por time, numa pasta só. O navegador não cria pasta no disco de
+// quem baixa, então ela vai compactada: abrir o .zip dá a pasta com os PNGs.
+async function downloadTeamImages(images: { teamName: string; canvas: HTMLCanvasElement }[], name: string) {
+  const folderName = `${name}-${new Date().toISOString().split("T")[0]}`
+  const zip = new JSZip()
+  const folder = zip.folder(folderName)!
+  for (const { teamName, canvas } of images) {
+    folder.file(`${slug(teamName)}.png`, canvas.toDataURL("image/png").split(",")[1], { base64: true })
+  }
+  const url = URL.createObjectURL(await zip.generateAsync({ type: "blob" }))
+  const link = document.createElement("a")
+  link.download = `${folderName}.zip`
+  link.href = url; link.click()
+  URL.revokeObjectURL(url)
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -342,17 +361,13 @@ function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, week
   return canvas
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, weekStart: string, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
-  downloadCanvas(buildResultsCanvas(results, hoursPerDay, weekStart, pastDays, remainingDays, columns, dayLabel), "weekly-hours")
-}
-
 // A imagem curta: o container de cada time como está na tela, sem abrir
 // ninguém. Mesma fonte, mesmas cores e mesmas medidas da página, para a imagem
 // passar por um print dela. Com mais de um time, vai um embaixo do outro.
 type TeamCardStat = { value: string; label: string; color?: string }
 type TeamCard = { teamName: string; rows: { name: string; stats: TeamCardStat[] }[] }
 
-function exportTeamCards(cards: TeamCard[], fileName: string) {
+function buildTeamCardsCanvas(cards: TeamCard[]): HTMLCanvasElement {
   const theme = exportTheme()
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const PAD = 16, W = 852, HEAD = 41, ROW = 58, GAP = 40, MIN_STAT = 56
@@ -423,7 +438,7 @@ function exportTeamCards(cards: TeamCard[], fileName: string) {
   ctx.translate(0, H + PAD)
   }
 
-  downloadCanvas(canvas, fileName)
+  return canvas
 }
 
 function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, weekStart: string, pastDays: string[], remainingDays: string[], columns: ExportColumns, dayLabel?: string) {
@@ -477,6 +492,8 @@ export default function WeeklyHoursControlPage() {
   const [selectedDays, setSelectedDays] = useState<Set<string>>(() => loadSelectedDays())
   const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
   const [exportColumns, setExportColumns] = useState<ExportColumns>(() => loadExportColumns())
+  // Export do topo: uma imagem por time, numa pasta, em vez de uma imagem só.
+  const [splitByTeam, setSplitByTeam] = useState(true)
 
   useEffect(() => {
     try { localStorage.setItem(LS_FORMAT_KEY, hourFormat) } catch { /* */ }
@@ -672,19 +689,38 @@ export default function WeeklyHoursControlPage() {
     }
   }
 
-  // Flat results for export — adapts to current mode. `days` carries the same
-  // per-day/per-jobsite breakdown shown on screen so the export isn't flattened.
-  const exportRows = useMemo(() => {
-    return jobCostingTeams.flatMap(g => g.employees.map(e => {
+  // As linhas da imagem completa — adapts to current mode. `days` carries the
+  // same per-day/per-jobsite breakdown shown on screen so the export isn't flattened.
+  function resultRows(employees: JCEmployee[]): EmployeeResult[] {
+    return employees.map(e => {
       if (isWeekMode) {
         const days = e.days.filter(d => pastDays.includes(d.day))
         return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
       }
       const days = e.days.filter(d => selectedDays.has(d.day))
-      const filtered = Math.round(days.reduce((s, d) => s + d.totalHours, 0) * 10) / 10
+      const filtered = Math.round(days.reduce((sum, d) => sum + d.totalHours, 0) * 10) / 10
       return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
-    }))
-  }, [jobCostingTeams, isWeekMode, selectedDays, pastDays])
+    })
+  }
+  const exportRows = jobCostingTeams.flatMap(g => resultRows(g.employees))
+
+  function fullCanvas(rows: EmployeeResult[]) {
+    return buildResultsCanvas(rows, data!.hoursPerDay, data!.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)
+  }
+
+  // Os dois formatos de imagem do Export do topo. Com "Split by team" vai uma
+  // imagem por time; sem, uma só com todos.
+  function exportAll(format: "short" | "full") {
+    if (!data) return
+    const canvasOf = (groups: JCTeamGroup[]) => format === "short"
+      ? buildTeamCardsCanvas(groups.map(teamCard))
+      : fullCanvas(groups.flatMap(g => resultRows(g.employees)))
+    if (splitByTeam) {
+      void downloadTeamImages(jobCostingTeams.map(g => ({ teamName: g.teamName, canvas: canvasOf([g]) })), `weekly-hours-${format}`)
+    } else {
+      downloadCanvas(canvasOf(jobCostingTeams), "weekly-hours")
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -803,12 +839,17 @@ export default function WeeklyHoursControlPage() {
                     ))}
                   </div>
                   <div className="my-2 h-px bg-border" />
+                  <label className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-xs hover:bg-muted/50">
+                    <Checkbox checked={splitByTeam} onCheckedChange={v => setSplitByTeam(v === true)} />
+                    Split by team
+                  </label>
+                  <div className="my-2 h-px bg-border" />
                   <div className="flex flex-col gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => exportTeamCards(jobCostingTeams.map(teamCard), "weekly-hours")}
+                      onClick={() => exportAll("short")}
                     >
                       <ImageIcon className="h-4 w-4" />
                       Short image
@@ -817,7 +858,7 @@ export default function WeeklyHoursControlPage() {
                       variant="ghost"
                       size="sm"
                       className="h-8 justify-start gap-2"
-                      onClick={() => data && exportResultsAsImage(exportRows, data.hoursPerDay, data.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)}
+                      onClick={() => exportAll("full")}
                     >
                       <ImageIcon className="h-4 w-4" />
                       Full image
@@ -960,25 +1001,13 @@ export default function WeeklyHoursControlPage() {
                         <PopoverContent className="w-40 gap-0.5 p-1" align="end">
                           <Button
                             variant="ghost" size="sm" className="h-8 w-full justify-start"
-                            onClick={() => exportTeamCards([teamCard(group)], `weekly-hours-${group.teamName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`)}
+                            onClick={() => downloadCanvas(buildTeamCardsCanvas([teamCard(group)]), `weekly-hours-${slug(group.teamName)}`)}
                           >
                             Short image
                           </Button>
                           <Button
                             variant="ghost" size="sm" className="h-8 w-full justify-start"
-                            onClick={() => {
-                              if (!data) return
-                              const rows = group.employees.map(e => {
-                                if (isWeekMode) {
-                                  const days = e.days.filter(d => pastDays.includes(d.day))
-                                  return { name: e.name, hoursLogged: e.hoursLogged, surplus: e.surplus, available: e.available, days }
-                                }
-                                const days = e.days.filter(d => selectedDays.has(d.day))
-                                const filtered = Math.round(days.reduce((sum, d) => sum + d.totalHours, 0) * 10) / 10
-                                return { name: e.name, hoursLogged: filtered, surplus: 0, available: 0, days }
-                              })
-                              exportResultsAsImage(rows, data.hoursPerDay, data.weekStart, pastDays, remainingDays, exportColumns, isWeekMode ? undefined : selectedDaysLabel)
-                            }}
+                            onClick={() => data && downloadCanvas(fullCanvas(resultRows(group.employees)), `weekly-hours-${slug(group.teamName)}`)}
                           >
                             Full image
                           </Button>
