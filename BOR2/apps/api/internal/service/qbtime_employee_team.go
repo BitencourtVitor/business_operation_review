@@ -219,6 +219,10 @@ func (s *QBTimeEmployeeTeamService) List(ctx context.Context, company string) ([
 	return s.repo.List(ctx, strings.ToLower(company))
 }
 
+func (s *QBTimeEmployeeTeamService) ListAsOf(ctx context.Context, company string, asOf time.Time) ([]*domain.QBTimeEmployeeTeam, error) {
+	return s.repo.ListAsOf(ctx, strings.ToLower(company), asOf)
+}
+
 func (s *QBTimeEmployeeTeamService) SetOverride(ctx context.Context, id, overrideTeamName, overriddenBy string) (*domain.QBTimeEmployeeTeam, error) {
 	return s.repo.SetOverride(ctx, id, overrideTeamName, overriddenBy)
 }

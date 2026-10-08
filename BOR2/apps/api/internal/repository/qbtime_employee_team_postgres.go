@@ -24,6 +24,7 @@ type QBTimeEmployeeTeamSyncRow struct {
 
 type QBTimeEmployeeTeamRepository interface {
 	List(ctx context.Context, company string) ([]*domain.QBTimeEmployeeTeam, error)
+	ListAsOf(ctx context.Context, company string, asOf time.Time) ([]*domain.QBTimeEmployeeTeam, error)
 	UpsertFromSync(ctx context.Context, company string, rows []QBTimeEmployeeTeamSyncRow) error
 	SetOverride(ctx context.Context, id, overrideTeamName, overriddenBy string) (*domain.QBTimeEmployeeTeam, error)
 	ClearOverride(ctx context.Context, id string) (*domain.QBTimeEmployeeTeam, error)
@@ -39,14 +40,14 @@ func NewPostgresQBTimeEmployeeTeamRepository(db *pgxpool.Pool) *PostgresQBTimeEm
 
 const employeeTeamCols = `id, company, qbt_user_id, employee_name, qbt_team_id, qbt_team_name, override_team_name, overridden_by, overridden_at, last_synced_at`
 
-func scanEmployeeTeam(row pgx.Row) (*domain.QBTimeEmployeeTeam, error) {
+func scanEmployeeTeam(row pgx.Row, extra ...any) (*domain.QBTimeEmployeeTeam, error) {
 	t := &domain.QBTimeEmployeeTeam{}
-	if err := row.Scan(
+	if err := row.Scan(append([]any{
 		&t.ID, &t.Company, &t.QBTUserID, &t.EmployeeName,
 		&t.QBTeamID, &t.QBTeamName,
 		&t.OverrideTeamName, &t.OverriddenBy, &t.OverriddenAt,
 		&t.LastSyncedAt,
-	); err != nil {
+	}, extra...)...); err != nil {
 		return nil, err
 	}
 	switch {
@@ -80,6 +81,41 @@ func (r *PostgresQBTimeEmployeeTeamRepository) List(ctx context.Context, company
 		if err != nil {
 			return nil, fmt.Errorf("scan qbtime employee team: %w", err)
 		}
+		out = append(out, t)
+	}
+	return out, nil
+}
+
+// ListAsOf devolve o time efetivo que valia no fim do dia `asOf`, lido de
+// qbtime_employee_team_history. Arquivado entra: quem saiu da empresa tinha
+// time na semana em que ainda bateu ponto.
+func (r *PostgresQBTimeEmployeeTeamRepository) ListAsOf(ctx context.Context, company string, asOf time.Time) ([]*domain.QBTimeEmployeeTeam, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT `+employeeTeamCols+`,
+		       COALESCE((SELECT h.team_name FROM qbtime_employee_team_history h
+		                  WHERE h.employee_team_id = qbtime_employee_teams.id
+		                    AND h.valid_from < $2::date + 1
+		                  ORDER BY h.valid_from DESC, h.id DESC LIMIT 1), '')
+		FROM qbtime_employee_teams
+		WHERE LOWER(company) = $1
+		ORDER BY employee_name ASC
+	`, company, asOf)
+	if err != nil {
+		return nil, fmt.Errorf("list qbtime employee teams as of: %w", err)
+	}
+	defer rows.Close()
+
+	var out []*domain.QBTimeEmployeeTeam
+	for rows.Next() {
+		var team string
+		t, err := scanEmployeeTeam(rows, &team)
+		if err != nil {
+			return nil, fmt.Errorf("scan qbtime employee team as of: %w", err)
+		}
+		if team == "" {
+			team = "Unassigned"
+		}
+		t.EffectiveTeamName = team
 		out = append(out, t)
 	}
 	return out, nil
