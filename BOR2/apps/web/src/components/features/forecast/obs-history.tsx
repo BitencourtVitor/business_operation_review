@@ -8,7 +8,7 @@ import type { ForecastObsEntry } from "@bor2/shared"
 import { useEffect, useRef, useState } from "react"
 
 /** Same role iconography as Settings › Users, so a badge means the same thing everywhere. */
-const ROLE_ICON: Record<string, { Icon: React.ElementType; className: string }> = {
+export const ROLE_ICON: Record<string, { Icon: React.ElementType; className: string }> = {
   dev:     { Icon: CodeXml,   className: "text-yellow-600 dark:text-yellow-400" },
   owner:   { Icon: Gauge, className: "text-emerald-600 dark:text-emerald-400" },
   manager: { Icon: Users, className: "text-primary" },
