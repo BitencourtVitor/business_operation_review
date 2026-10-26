@@ -52,6 +52,7 @@ func main() {
 	accountingRepo := repository.NewPostgresAccountingRepository(db)
 	subcontractorRepo := repository.NewPostgresSubcontractorRepository(db)
 	permitRowRepo := repository.NewPostgresPermitRowRepository(db)
+	maintenanceRepo := repository.NewPostgresMaintenanceContractRepository(db)
 	serviceRequestRepo := repository.NewPostgresServiceRequestRepository(db)
 	timesheetRowRepo := repository.NewPostgresTimesheetRowRepository(db)
 	employeeNameRepo := repository.NewPostgresEmployeeNameRepository(db)
@@ -79,6 +80,7 @@ func main() {
 	accountingService := service.NewAccountingService(accountingRepo)
 	subcontractorService := service.NewSubcontractorService(subcontractorRepo)
 	permitRowService := service.NewPermitRowService(permitRowRepo)
+	maintenanceService := service.NewMaintenanceContractService(maintenanceRepo)
 	serviceRequestService := service.NewServiceRequestService(serviceRequestRepo)
 	timesheetRowService := service.NewTimesheetRowService(timesheetRowRepo)
 	employeeNameService := service.NewEmployeeNameService(employeeNameRepo)
@@ -103,6 +105,7 @@ func main() {
 	accountingHandler := handler.NewAccountingHandler(accountingService, auditService)
 	subcontractorHandler := handler.NewSubcontractorHandler(subcontractorService, auditService)
 	permitRowHandler := handler.NewPermitRowHandler(permitRowService, auditService)
+	maintenanceHandler := handler.NewMaintenanceContractHandler(maintenanceService, auditService)
 	serviceRequestHandler := handler.NewServiceRequestHandler(serviceRequestService, auditService)
 	timesheetRowHandler := handler.NewTimesheetRowHandler(timesheetRowService)
 	employeeNameHandler := handler.NewEmployeeNameHandler(employeeNameService, auditService)
@@ -434,6 +437,18 @@ func main() {
 	permits.Post("/", permitRowHandler.Create)
 	permits.Put("/:id", permitRowHandler.Update)
 	permits.Delete("/:id", permitRowHandler.Delete)
+
+	// HVAC maintenance contracts: page restricted by its own key, read and write.
+	maintenance := api.Group("/hvac-maintenance")
+	maintenance.Get("/", middleware.RequirePermission(db, "hvac_maintenance", "read"), maintenanceHandler.List)
+	maintenance.Get("/invoices", middleware.RequirePermission(db, "hvac_maintenance", "read"), maintenanceHandler.SearchInvoices)
+	maintenance.Post("/", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.Create)
+	maintenance.Put("/:id", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.Update)
+	maintenance.Delete("/:id", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.Delete)
+	maintenance.Get("/:id/comments", middleware.RequirePermission(db, "hvac_maintenance", "read"), maintenanceHandler.ListComments)
+	maintenance.Post("/:id/comments", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.AddComment)
+	maintenance.Put("/:id/comments/:cid", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.UpdateComment)
+	maintenance.Delete("/:id/comments/:cid", middleware.RequirePermission(db, "hvac_maintenance", "write"), maintenanceHandler.DeleteComment)
 
 	// Service Requests
 	serviceRequests := api.Group("/service-requests")

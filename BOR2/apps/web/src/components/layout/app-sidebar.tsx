@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import {
+import { Toolbox,
   Banknote,
   BarChart2,
   Building2,
@@ -99,6 +99,7 @@ const activeGroup: NavGroup = {
     // leva a marca da HVAC. A permissão segue a do antigo Forecast HVAC, para
     // quem já via continuar vendo sem ninguém abrir Settings.
     { title: "HVAC Schedule & Material", href: "/bor/hvac-schedule", image: "/images/sublogo_hvac.png", permKey: "forecast_hvac" },
+    { title: "HVAC Maintenance", href: "/bor/hvac-maintenance", icon: Toolbox, permKey: "hvac_maintenance" },
     {
       title: "Workforce Productivity", href: "/bor/workforce-productivity", icon: Users,
       permKey: "workforce",

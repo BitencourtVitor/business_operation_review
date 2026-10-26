@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
-import {
+import { Toolbox,
   ArrowLeft, BarChart2, Banknote, Bell, Building2, CalendarCheck, CalendarClock, CalendarX, ChevronRight,
   ClipboardCheck, ClipboardList, CreditCard, FileCheck, FileText,
   Gauge, CodeXml, GripVertical, HandCoins, ImageIcon, Loader2, Lock, Network, Package, Settings,
@@ -44,6 +44,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
       // As chaves não mudam, para ninguém perder o acesso que já tinha.
       { key: "forecast",      label: "Forecast",                 image: "/images/sublogo_framing.png" },
       { key: "forecast_hvac", label: "HVAC Schedule & Material", image: "/images/sublogo_hvac.png"    },
+      { key: "hvac_maintenance", label: "HVAC Maintenance",       icon: Toolbox                         },
       { key: "service_requests",  label: "Service Requests",           icon: Wrench        },
       { key: "accounting",        label: "Accounting",                 icon: Banknote,     writeLabel: "Ask Aria" },
       { key: "budget_control",    label: "Budget Control",             icon: HandCoins,    writeLabel: "Edit budget config" },

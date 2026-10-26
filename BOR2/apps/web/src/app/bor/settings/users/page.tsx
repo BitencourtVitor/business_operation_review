@@ -22,7 +22,7 @@ import {
 import {
   Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
 } from "@/components/ui/tooltip"
-import {
+import { Toolbox,
   Activity, ArrowLeft, BarChart2, Banknote, Bell,
   CalendarCheck, CalendarDays, CalendarX, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
   Eye, FileCheck, Gauge,
@@ -98,6 +98,7 @@ const PERMISSION_GROUPS: PermGroup[] = [
     permissions: [
       { key: "forecast",      label: "Forecast",                 icon: CalendarDays },
       { key: "forecast_hvac", label: "HVAC Schedule & Material", icon: CalendarDays },
+      { key: "hvac_maintenance", label: "HVAC Maintenance",       icon: Toolbox          },
       { key: "ofi",        label: "Operational Index", icon: BarChart2 },
       { key: "accounting", label: "Accounting",        icon: Banknote  },
     ],
