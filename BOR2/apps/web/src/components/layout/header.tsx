@@ -15,7 +15,6 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
-import { ProductMark } from "@/components/common/product-mark"
 import { permitService } from "@/services/permit.service"
 import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
@@ -144,14 +143,10 @@ export function Header() {
         <span className="min-w-0 truncate text-sm font-medium tracking-tight text-primary">Business Operations Review</span>
       </div>
 
-      {/* Desktop: marca + título, e o subtítulo embaixo dos dois.
-          A marca acompanha o nome do produto, no tamanho dos ícones dos botões
-          da direita: quem olha a barra sabe em qual dos dois braços da
-          plataforma está, sem ler. A frase corre por baixo, na largura inteira,
-          porque é apoio do título e não par dele. */}
+      {/* Desktop: título e o subtítulo embaixo. A marca de produto saiu junto
+          com o Atlas, que virou o BuilderLog: o BOR é o único produto aqui. */}
       <div className="hidden flex-1 flex-col justify-center md:flex">
-        <h1 className="flex items-center gap-2 text-base font-medium tracking-tight text-primary">
-          <ProductMark product="bor" className="h-4 w-4" />
+        <h1 className="text-base font-medium tracking-tight text-primary">
           Business Operations Review
         </h1>
         <p className="text-[10px] text-muted-foreground">
