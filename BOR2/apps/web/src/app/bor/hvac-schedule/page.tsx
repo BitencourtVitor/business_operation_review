@@ -109,10 +109,24 @@ export default function HVACSchedulePage() {
   const [source, setSource] = useState("orders")
   // Dentro do jobsite, o mais urgente primeiro: compra não segue número de lote.
   const [order, setOrder] = useState<"date" | "lot">("date")
+  // Como o lote se lê: pela compra de material (as quatro etapas) ou pelo
+  // Permit. A escolha fica no navegador, como as outras preferências da casa.
+  const [view, setView] = useState<View>(() => {
+    try { return localStorage.getItem(VIEW_KEY) === "permit" ? "permit" : "material" } catch { return "material" }
+  })
+  const chooseView = (v: View) => {
+    setView(v)
+    try { localStorage.setItem(VIEW_KEY, v) } catch { /* idem */ }
+  }
+  // Em Permit, "Date" é o início da obra; em Material, a compra mais próxima.
+  const byDate = view === "permit" ? byStart : byUrgency
   // Abre agrupado por jobsite; desagrupado, os lotes vêm numa lista só.
   const [group, setGroup] = useState<"site" | "none">("site")
   // Só o que tem QuickBooks Time ou Permit por fazer (HS-25).
   const [todo, setTodo] = useState(false)
+  // Na visão de Permit não se agrupa por jobsite: o que importa é o que está
+  // pendente, e o que já está em dia sai da frente.
+  const [permitShow, setPermitShow] = useState<"pending" | "all">("pending")
 
   // Uma vez por montagem. Sem o memo, `startOfToday()` devolve outra instância
   // a cada render, e como ela é dependência de `all`, a cadeia inteira de memos
@@ -144,6 +158,7 @@ export default function HVACSchedulePage() {
     return all
       .filter(p => source === "all" || (source === "orders") === !!p.project.hasOrders)
       .filter(p => !todo || hasTodo(p))
+      .filter(p => view !== "permit" || permitShow === "all" || permitPending(p))
       .filter(p => !term
         || lotLabel(p).toLowerCase().includes(term)
         || siteOf(p).toLowerCase().includes(term)
@@ -154,7 +169,7 @@ export default function HVACSchedulePage() {
         stages: p.stages.filter(s => status === "all" || s.state === status),
       }))
       .filter(p => p.stages.length > 0)
-  }, [all, query, source, status, todo])
+  }, [all, query, source, status, todo, view, permitShow])
 
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
@@ -170,11 +185,11 @@ export default function HVACSchedulePage() {
       }
     }
     return [...map.entries()]
-      .map(([site, lots]) => ({ site, lots: lots.sort(order === "date" ? byUrgency : byLot) }))
+      .map(([site, lots]) => ({ site, lots: lots.sort(order === "date" ? byDate : byLot) }))
       .sort((a, b) => a.site.localeCompare(b.site))
-  }, [projects, order, catalog, query, status, todo])
+  }, [projects, order, byDate, catalog, query, status, todo])
 
-  const flat = useMemo(() => [...projects].sort(order === "date" ? byUrgency : byLot), [projects, order])
+  const flat = useMemo(() => [...projects].sort(order === "date" ? byDate : byLot), [projects, order, byDate])
 
   // O que o catálogo anota de cada jobsite, pelo nome, que é a ligação com a obra.
   const metaOf = useMemo(() => {
@@ -208,7 +223,8 @@ export default function HVACSchedulePage() {
   if (isLoading) return <PageSkeleton />
 
   // Sem o escolhido na lista (um filtro o tirou), volta à primeira etapa.
-  const current = group === "site" ? sites.find(s => s.site === site) : undefined
+  const grouped = view === "material" && group === "site"
+  const current = grouped ? sites.find(s => s.site === site) : undefined
 
   const allStages = projects.flatMap(p => p.stages).filter(s => s.state !== "undated")
   const thisWeek = purchases.filter(x => sameWeek(x.s.purchaseBy!, today))
@@ -371,13 +387,30 @@ export default function HVACSchedulePage() {
           right={
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
               <Segmented
-                label="Group by" value={group} onChange={setGroup}
+                label="View" value={view} onChange={chooseView}
                 options={[
-                  { value: "site", label: "Jobsite", Icon: MapPin },
-                  { value: "none", label: "None", Icon: Layers },
+                  { value: "material", label: "Material", Icon: ShoppingCart },
+                  { value: "permit", label: "Permit", Icon: ShieldCheck },
                 ]}
               />
-              {(current || group === "none") && (
+              {view === "permit" ? (
+                <Segmented
+                  label="Show" value={permitShow} onChange={setPermitShow}
+                  options={[
+                    { value: "pending", label: "Pending", Icon: Clock },
+                    { value: "all", label: "All", Icon: Layers },
+                  ]}
+                />
+              ) : (
+                <Segmented
+                  label="Group by" value={group} onChange={setGroup}
+                  options={[
+                    { value: "site", label: "Jobsite", Icon: MapPin },
+                    { value: "none", label: "None", Icon: Layers },
+                  ]}
+                />
+              )}
+              {(current || !grouped) && (
                 <Segmented
                   label="Order by" value={order} onChange={setOrder}
                   options={[
@@ -388,16 +421,16 @@ export default function HVACSchedulePage() {
               )}
               {current
                 ? `${current.lots.length} ${current.lots.length === 1 ? "lot" : "lots"}`
-                : group === "none"
+                : !grouped
                   ? `${projects.length} ${projects.length === 1 ? "lot" : "lots"}`
                   : `${sites.length} ${sites.length === 1 ? "jobsite" : "jobsites"} · ${projects.length} ${projects.length === 1 ? "lot" : "lots"}`}
             </span>
           }
         >
-          {group === "none" ? (
+          {!grouped ? (
             flat.length === 0 ? <Empty>Nothing matches these filters.</Empty> : (
               <div className="group/lots flex flex-col gap-2.5">
-                {flat.map(lot => <LotRow key={lot.project.id} lot={lot} site={siteOf(lot)} />)}
+                {flat.map(lot => <LotRow key={lot.project.id} lot={lot} site={siteOf(lot)} view={view} today={today} />)}
               </div>
             )
           ) : sites.length === 0 ? (
@@ -446,7 +479,7 @@ export default function HVACSchedulePage() {
               {/* Com o mouse num lote, os outros esmaecem: quatro etapas com três
                   datas cada, em dezenas de linhas, confundem sem um foco. */}
               <div className="group/lots flex flex-col gap-2.5">
-                {current.lots.map(lot => <LotRow key={lot.project.id} lot={lot} />)}
+                {current.lots.map(lot => <LotRow key={lot.project.id} lot={lot} view={view} today={today} />)}
               </div>
             </div>
           ) : (
@@ -682,7 +715,7 @@ function AddJobsiteButton({ onClick }: { onClick: () => void }) {
 // a engrenagem abre as configurações, onde tudo dela se altera. O lote se
 // identifica por número e endereço; o jobsite já está na barra de cima, e só
 // vem na linha (`site`) quando a lista não está agrupada.
-function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
+function LotRow({ lot, site, view, today }: { lot: ProjectStages; site?: string; view: View; today: Date }) {
   const [open, setOpen] = useState<"details" | "settings" | null>(null)
   const permit = lot.project.permit ?? []
   const permitDone = permit.filter(s => !!s.status).length
@@ -698,7 +731,7 @@ function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
       {/* Em cima, quem é o lote e quanto andou; embaixo, os stickers e a
           engrenagem. Quando as etapas ocupam duas linhas o bloco fica alto, e
           tudo junto no meio deixava um vazio em cima e outro embaixo. */}
-      <div className="flex shrink-0 flex-col justify-between gap-2 px-1 py-0.5 @2xl:w-[140px]">
+      <div className={`flex shrink-0 flex-col justify-between gap-2 px-1 py-0.5 ${view === "permit" ? "@2xl:min-w-0 @2xl:flex-1 @2xl:shrink" : "@2xl:w-[140px]"}`}>
         <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
@@ -714,31 +747,54 @@ function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
             {lot.project.address}
           </span>
         )}
-        <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Progress value={lot.percent} className="h-1 flex-1" />
-          <span className="tabular-nums">{lot.percent}%</span>
-        </span>
+        {/* O andamento das etapas não diz nada sobre o Permit: só na de material. */}
+        {view === "material" && (
+          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Progress value={lot.percent} className="h-1 flex-1" />
+            <span className="tabular-nums">{lot.percent}%</span>
+          </span>
+        )}
         </div>
 
         {/* Os stickers que a HVAC tinha no Forecast, QuickBooks Time e Permit,
             e do lado oposto a engrenagem das configurações da obra. */}
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          {/* Logo sempre inteiro e um ponto que diz o estado: o logo apagado
+              não se distinguia do aceso no tamanho do selo. */}
           <Tip text={lot.project.qbTime ? "QuickBooks Time: on" : "QuickBooks Time: off"}>
-          <span className={`flex items-center ${lot.project.qbTime ? "" : "opacity-35 grayscale"}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/icon_qbtime.png" alt="QuickBooks Time" className="h-3.5 w-3.5 object-contain dark:hidden" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/icon_qbtime_dark.png" alt="QuickBooks Time" className="hidden h-3.5 w-3.5 object-contain dark:block" />
-          </span>
-          </Tip>
-          <Tip text={`Permit: ${permitDone} of ${permit.length} steps done`}>
-            <span
-              className={`flex items-center gap-1 tabular-nums ${permit.length > 0 && permitDone === permit.length ? "text-emerald-600 dark:text-emerald-400" : ""}`}
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              {permitDone}/{permit.length}
+            <span className="relative flex items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/icon_qbtime.png" alt="QuickBooks Time" className="h-3.5 w-3.5 object-contain dark:hidden" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/icon_qbtime_dark.png" alt="QuickBooks Time" className="hidden h-3.5 w-3.5 object-contain dark:block" />
+              <span className={`absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full ring-1 ring-card ${lot.project.qbTime ? "bg-emerald-500" : "bg-red-500"}`} />
             </span>
           </Tip>
+          {/* O selo mostra o que a visão escolhida não mostra: na de material,
+              o Permit; na de Permit, o material de cada etapa. */}
+          {view === "permit" ? (
+            <span className="flex items-center gap-1">
+              {lot.stages.map(s => {
+                const m = materialOf(s, today)
+                return (
+                  <Tip key={s.key} text={`${s.full}: ${m.text}`}>
+                    <span className={`flex items-center ${m.color}`}>
+                      <s.Icon className="h-3.5 w-3.5" />
+                    </span>
+                  </Tip>
+                )
+              })}
+            </span>
+          ) : (
+            <Tip text={`Permit: ${permitDone} of ${permit.length} steps done`}>
+              <span
+                className={`flex items-center gap-1 tabular-nums ${permit.length > 0 && permitDone === permit.length ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                {permitDone}/{permit.length}
+              </span>
+            </Tip>
+          )}
           <Tip text="Project settings">
             <button
               onClick={ev => { ev.stopPropagation(); setOpen("settings") }}
@@ -752,8 +808,10 @@ function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
         </div>
       </div>
 
-      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2.5 @md:grid-cols-2 @4xl:grid-cols-4">
-        {lot.stages.map(s => <StageCard key={s.key} stage={s} />)}
+      <div className={view === "permit"
+        ? "grid min-w-0 grid-cols-2 gap-2 @2xl:w-[320px] @2xl:shrink-0 @4xl:w-[560px] @4xl:grid-cols-4"
+        : "grid min-w-0 flex-1 grid-cols-1 gap-2.5 @md:grid-cols-2 @4xl:grid-cols-4"}>
+        {view === "permit" ? <PermitCards lot={lot} today={today} /> : lot.stages.map(s => <StageCard key={s.key} stage={s} />)}
       </div>
 
       {/* As janelas ficam dentro da linha, e o clique nelas subiria até ela:
@@ -772,6 +830,97 @@ function LotRow({ lot, site }: { lot: ProjectStages; site?: string }) {
       </div>
     </div>
   )
+}
+
+type View = "material" | "permit"
+const VIEW_KEY = "hvac_schedule_view"
+
+// Prazo em que um passo de Permit ainda pendente vira alerta: a obra começa em
+// duas semanas ou já devia ter começado.
+const PERMIT_ALERT_DAYS = 14
+
+/** A data de início da obra: a da primeira etapa, real quando já começou. Não
+ *  é a data de compra. */
+function projectStart(lot: ProjectStages): { date: Date | null; real: boolean } {
+  const first = lot.stages[0]
+  return first?.actualStart ? { date: first.actualStart, real: true } : { date: first?.start ?? null, real: false }
+}
+
+// A leitura pelo Permit: um bloco por passo, com a situação dele, e por último
+// o início da obra, que vem depois dos três e é o prazo contra o qual eles correm.
+function PermitCards({ lot, today }: { lot: ProjectStages; today: Date }) {
+  const start = projectStart(lot)
+  const steps = lot.project.permit ?? []
+  const daysToStart = start.date ? Math.round((start.date.getTime() - today.getTime()) / 86_400_000) : null
+  // Obra que já começou com passo pendente é o caso mais grave, não o mais calmo.
+  const pressing = daysToStart !== null && daysToStart <= PERMIT_ALERT_DAYS
+
+  // Blocos curtos, com tudo centralizado: aqui há pouco a ler em cada um, e o
+  // estado tem de saltar aos olhos pelo ícone e pela cor, não pelo texto.
+  const box = "flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border px-2 py-2 text-center"
+  return (
+    <>
+      {steps.length === 0 ? (
+        <div className={`${box} border-dashed text-xs text-muted-foreground @4xl:col-span-3`}>
+          No permit steps for this project.
+        </div>
+      ) : steps.map((step, i) => {
+        const v = String(step.status ?? "").toLowerCase()
+        const state = v === "dispensed" ? "dispensed" : v ? "done" : pressing ? "late" : "pending"
+        const look = {
+          done: { box: "border-emerald-500/30 bg-emerald-500/[0.06]", color: "text-emerald-500", Icon: CheckCircle2, text: "Done", tip: "Step done" },
+          dispensed: { box: "border-border", color: "text-muted-foreground/60", Icon: CircleDashed, text: "N/A", tip: "Not needed for this project" },
+          late: {
+            box: "border-red-500/40 bg-red-500/[0.08]", color: "text-red-500", Icon: AlertTriangle,
+            text: daysToStart! <= 0 ? "Overdue" : `Due in ${daysToStart}d`,
+            tip: start.real ? "Pending, and the project already started" : daysToStart! < 0 ? "Pending, and the project should have started" : `Pending, and the project starts in ${daysToStart} days`,
+          },
+          pending: { box: "border-amber-500/30 bg-amber-500/[0.06]", color: "text-amber-500", Icon: Clock, text: "Pending", tip: "Step not done yet" },
+        }[state]
+        return (
+          <Tip key={step.id ?? i} text={`${i + 1}. ${step.step}: ${look.tip}`}>
+            {/* O número fica solto no canto; no centro, só ícone, passo e situação. */}
+            <div className={`relative ${box} ${look.box}`}>
+              <span className="absolute top-1.5 left-2 text-[11px] font-semibold text-muted-foreground tabular-nums">{i + 1}</span>
+              <look.Icon className={`h-4 w-4 ${look.color}`} />
+              <span className="text-[11px] leading-tight font-medium">{step.step}</span>
+              <span className={`text-[11px] ${state === "late" ? "font-semibold text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>{look.text}</span>
+            </div>
+          </Tip>
+        )
+      })}
+      <div className={`${box} border-blue-500/30 bg-blue-500/[0.06]`}>
+        <CalendarDays className="h-4 w-4 text-blue-500" />
+        <span className="text-[11px] font-medium">Project start</span>
+        <span className="text-sm font-semibold tabular-nums">{formatDate(start.date)}</span>
+        <span className="text-[11px] text-muted-foreground">
+          {!start.date ? "No date" : start.real ? "Started" : daysToStart! < 0 ? `${-daysToStart!}d ago` : `in ${daysToStart}d`}
+        </span>
+      </div>
+    </>
+  )
+}
+
+/** Algum passo do Permit ainda por fazer. Sem passo cadastrado não há o que cobrar. */
+function permitPending(p: ProjectStages): boolean {
+  return (p.project.permit ?? []).some(s => !s.status)
+}
+
+/** Como está o material de uma etapa, para o selo da visão de Permit. */
+function materialOf(s: Stage, today: Date): { color: string; text: string } {
+  if (s.purchasedOn) return { color: "text-emerald-600 dark:text-emerald-400", text: `material purchased on ${formatDate(s.purchasedOn)}` }
+  if (s.actualStart || s.actualEnd) return { color: "text-emerald-600 dark:text-emerald-400", text: "stage already started" }
+  if (!s.purchaseBy) return { color: "opacity-35", text: "no purchase date" }
+  if (s.purchaseBy < today) return { color: "text-red-600 dark:text-red-400", text: `purchase overdue, was due ${formatDate(s.purchaseBy)}` }
+  if (sameWeek(s.purchaseBy, today)) return { color: "text-amber-600 dark:text-amber-400", text: `buy this week, by ${formatDate(s.purchaseBy)}` }
+  return { color: "", text: `buy by ${formatDate(s.purchaseBy)}` }
+}
+
+/** Pelo início da obra; sem data vai para o fim. */
+function byStart(a: ProjectStages, b: ProjectStages): number {
+  const t = (p: ProjectStages) => projectStart(p).date?.getTime() ?? Infinity
+  const diff = t(a) - t(b)
+  return Number.isNaN(diff) || diff === 0 ? byLot(a, b) : diff
 }
 
 // Uma etapa, compacta: o estado é o ícone no canto, e as datas ficam na grade
