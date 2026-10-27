@@ -1,4 +1,17 @@
-import type { MaintenanceContract, MaintenanceInvoice } from "@/services/hvac-maintenance.service"
+import { Flower2, Leaf, Snowflake, Sun } from "lucide-react"
+import type { MaintenanceContract, MaintenanceInvoice, Season } from "@/services/hvac-maintenance.service"
+import { useFinancialStore } from "@/store/financial.store"
+
+/** Olho do cabeçalho fechado: valor em dólar borrado, como nas outras páginas. */
+export const useMoneyBlur = () => (useFinancialStore(s => s.showFinancialData) ? "" : "blur-sm select-none")
+
+/** Estação em que o contrato foi pedido; as quatro por padronização. */
+export const SEASONS: { key: Season; label: string; Icon: React.ElementType; tone: string }[] = [
+  { key: "spring", label: "Spring", Icon: Flower2,   tone: "text-pink-500" },
+  { key: "summer", label: "Summer", Icon: Sun,       tone: "text-amber-500" },
+  { key: "fall",   label: "Fall",   Icon: Leaf,      tone: "text-orange-600" },
+  { key: "winter", label: "Winter", Icon: Snowflake, tone: "text-sky-500" },
+]
 
 export type Lane = "collect" | "to_schedule" | "renew" | "scheduled" | "prospect"
 

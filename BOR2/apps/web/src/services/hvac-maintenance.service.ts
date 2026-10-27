@@ -5,7 +5,9 @@ function getToken() {
   return useAuthStore.getState().token ?? ""
 }
 
-export type MaintenanceStage = "prospect" | "to_schedule" | "scheduled" | "renew" | "archived"
+export type Season = "spring" | "summer" | "fall" | "winter"
+
+export type MaintenanceStage ="prospect" | "to_schedule" | "scheduled" | "renew" | "archived"
 
 /**
  * A invoice como o QuickBooks a vê. `found` falso quando o sync ainda não a
@@ -35,6 +37,7 @@ export interface MaintenanceContract {
   planSentOn: string | null
   contractStart: string | null
   contractValue: number | null
+  season: Season | null
   invoices: string[]
   firstService: string | null
   secondService: string | null

@@ -46,7 +46,7 @@ const invoiceJSON = `json_build_object(
 func (r *PostgresMaintenanceContractRepository) List(ctx context.Context) ([]*domain.MaintenanceContract, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT c.id, c.client_name, c.address, c.city, c.phone, c.email,
-		       c.plan_sent_on::text, c.contract_start::text, c.contract_value, c.invoices,
+		       c.plan_sent_on::text, c.contract_start::text, c.contract_value, c.season, c.invoices,
 		       c.first_service::text, c.second_service::text, c.archived,
 		       COALESCE((
 		         SELECT json_agg(CASE WHEN q.id IS NULL
@@ -68,7 +68,7 @@ func (r *PostgresMaintenanceContractRepository) List(ctx context.Context) ([]*do
 		m := &domain.MaintenanceContract{}
 		var inv []byte
 		if err := rows.Scan(&m.ID, &m.ClientName, &m.Address, &m.City, &m.Phone, &m.Email,
-			&m.PlanSentOn, &m.ContractStart, &m.ContractValue, &m.Invoices,
+			&m.PlanSentOn, &m.ContractStart, &m.ContractValue, &m.Season, &m.Invoices,
 			&m.FirstService, &m.SecondService, &m.Archived, &inv); err != nil {
 			return nil, fmt.Errorf("scan hvac_maintenance_contracts: %w", err)
 		}
@@ -107,11 +107,11 @@ func (r *PostgresMaintenanceContractRepository) Create(ctx context.Context, m *d
 	err := r.db.QueryRow(ctx, `
 		INSERT INTO hvac_maintenance_contracts
 		  (client_name, address, city, phone, email, plan_sent_on, contract_start,
-		   invoices, first_service, second_service, archived, contract_value)
-		VALUES ($1,$2,$3,$4,$5,$6::date,$7::date,$8,$9::date,$10::date,$11,$12)
+		   invoices, first_service, second_service, archived, contract_value, season)
+		VALUES ($1,$2,$3,$4,$5,$6::date,$7::date,$8,$9::date,$10::date,$11,$12,$13)
 		RETURNING id
 	`, m.ClientName, m.Address, m.City, m.Phone, m.Email, m.PlanSentOn, m.ContractStart,
-		m.Invoices, m.FirstService, m.SecondService, m.Archived, m.ContractValue).Scan(&id)
+		m.Invoices, m.FirstService, m.SecondService, m.Archived, m.ContractValue, m.Season).Scan(&id)
 	return id, err
 }
 
@@ -121,10 +121,10 @@ func (r *PostgresMaintenanceContractRepository) Update(ctx context.Context, m *d
 		SET client_name=$1, address=$2, city=$3, phone=$4, email=$5,
 		    plan_sent_on=$6::date, contract_start=$7::date, invoices=$8,
 		    first_service=$9::date, second_service=$10::date, archived=$11,
-		    contract_value=$13, updated_at=now()
+		    contract_value=$13, season=$14, updated_at=now()
 		WHERE id=$12
 	`, m.ClientName, m.Address, m.City, m.Phone, m.Email, m.PlanSentOn, m.ContractStart,
-		m.Invoices, m.FirstService, m.SecondService, m.Archived, m.ID, m.ContractValue)
+		m.Invoices, m.FirstService, m.SecondService, m.Archived, m.ID, m.ContractValue, m.Season)
 	return tag.RowsAffected() > 0, err
 }
 

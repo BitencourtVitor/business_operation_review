@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Archive, ArchiveRestore, Building2, Calendar1, CalendarCheck2, CalendarClock, CircleAlert, CircleCheck, CircleDashed, CircleSlash, DollarSign, FilePlus2, FileSignature, List,
-  Link2, Loader2, Mail, MapPin, MessageSquareText, Phone, Receipt, RefreshCw, Save, Search, Send, Trash2, Unlink, User, X,
+  Link2, Loader2, Mail, MapPin, MessageSquareText, Phone, Receipt, RefreshCw, Search, Send, Trash2, Unlink, User, X,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -13,11 +13,12 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput,
 } from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -25,13 +26,13 @@ import {
 } from "@/services/hvac-maintenance.service"
 import { Comments } from "./comments"
 import { Fold } from "./fold"
-import { amountText, fmtDate, maskAmount, maskPhone, money, moneyOf } from "../_lib/contract"
+import { amountText, fmtDate, maskAmount, maskPhone, money, moneyOf, SEASONS, useMoneyBlur } from "../_lib/contract"
 
 type Form = Omit<MaintenanceInput, "invoices"> & { invoices: MaintenanceInvoice[] }
 
 const EMPTY: Form = {
   clientName: "", address: "", city: "", phone: "", email: "",
-  planSentOn: null, contractStart: null, contractValue: null, invoices: [],
+  planSentOn: null, contractStart: null, contractValue: null, season: null, invoices: [],
   firstService: null, secondService: null, archived: false,
 }
 
@@ -42,43 +43,83 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
         clientName: contract.clientName, address: contract.address, city: contract.city,
         phone: maskPhone(contract.phone), email: contract.email,
         planSentOn: contract.planSentOn, contractStart: contract.contractStart, contractValue: contract.contractValue,
+        season: contract.season,
         invoices: contract.invoiceStatus, firstService: contract.firstService, secondService: contract.secondService,
         archived: contract.archived,
       }
     : EMPTY)
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm(f => ({ ...f, [k]: v }))
 
-  const done = () => {
-    // Prefixo: recarrega a lista e também a conversa, que ganha o comentário da renovação.
-    void qc.invalidateQueries({ queryKey: ["hvac-maintenance"] })
-    onClose()
-  }
-  // Renovação em andamento: o texto do ciclo que terminou, que vira comentário
-  // ao salvar, e a chave que reabre o calendário do novo início.
+  // Renovação: o texto do ciclo que terminou, que vira comentário na próxima
+  // gravação, e a chave que reabre o calendário do novo início.
   const [renewalNote, setRenewalNote] = useState<string | null>(null)
   const [renewKey, setRenewKey] = useState(0)
   const [panel, setPanel] = useState<"invoices" | "comments">("invoices")
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const save = useMutation({
-    mutationFn: async () => {
-      const body: MaintenanceInput = { ...form, invoices: form.invoices.map(i => i.number) }
-      if (!contract) return hvacMaintenanceService.create(body)
-      await hvacMaintenanceService.update(contract.id, body)
-      if (renewalNote) await hvacMaintenanceService.addComment(contract.id, renewalNote)
-    },
-    onSuccess: () => { toast.success("Saved"); done() },
-    onError: () => toast.error("Could not save"),
-  })
+  // Padrão do BOR: sem botão Save. Texto grava ao perder o foco; o resto
+  // (datas, estação, valor, invoices, arquivar) grava na hora; fechar grava o
+  // que faltar. As gravações vão em fila, uma de cada vez, e só a diferença sai.
+  const [id, setId] = useState<string | null>(contract?.id ?? null)
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error" | "name">("idle")
+  const formRef = useRef(form)
+  const noteRef = useRef(renewalNote)
+  useEffect(() => { formRef.current = form; noteRef.current = renewalNote }, [form, renewalNote])
+  const idRef = useRef(id)
+  const savedRef = useRef(JSON.stringify(form))
+  const queue = useRef<Promise<void>>(Promise.resolve())
+
+  const flush = useCallback(() => {
+    queue.current = queue.current.then(async () => {
+      const f = formRef.current
+      const snap = JSON.stringify(f)
+      if (snap === savedRef.current && !noteRef.current) return
+      if (!f.clientName.trim()) { setStatus("name"); return }
+      setStatus("saving")
+      try {
+        const body: MaintenanceInput = { ...f, invoices: f.invoices.map(i => i.number) }
+        if (idRef.current) await hvacMaintenanceService.update(idRef.current, body)
+        else { idRef.current = (await hvacMaintenanceService.create(body)).id; setId(idRef.current) }
+        savedRef.current = snap
+        if (noteRef.current) {
+          await hvacMaintenanceService.addComment(idRef.current!, noteRef.current)
+          noteRef.current = null
+          setRenewalNote(null)
+        }
+        void qc.invalidateQueries({ queryKey: ["hvac-maintenance"] })
+        setStatus("saved")
+      } catch {
+        setStatus("error")
+        toast.error("Could not save")
+      }
+    })
+  }, [qc])
+
+  // Mudança fora de campo de texto grava já; digitando, espera o foco sair.
+  useEffect(() => {
+    const el = document.activeElement
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return
+    flush()
+  }, [form, flush])
+
+  // "Saved" é só confirmação: some sozinho depois de alguns segundos.
+  useEffect(() => {
+    if (status !== "saved") return
+    const t = setTimeout(() => setStatus("idle"), 2500)
+    return () => clearTimeout(t)
+  }, [status])
+
+  const close = () => { flush(); onClose() }
+
   const remove = useMutation({
     mutationFn: () => hvacMaintenanceService.remove(contract!.id),
-    onSuccess: () => { toast.success("Deleted"); done() },
+    onSuccess: () => { toast.success("Deleted"); void qc.invalidateQueries({ queryKey: ["hvac-maintenance"] }); onClose() },
     onError: () => toast.error("Could not delete"),
   })
 
   // Renovar é começar o ciclo de novo: as visitas e as invoices do contrato
-  // anterior saem do formulário; o valor fica, porque costuma se repetir. O
-  // ciclo que terminou não se perde: vira comentário quando a renovação é salva.
+  // anterior saem; o valor fica, porque costuma se repetir. O ciclo que
+  // terminou não se perde: vira comentário junto com a gravação.
   const renew = () => {
     const old = [
       `contract start ${fmtDate(form.contractStart)}`,
@@ -92,28 +133,56 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
   }
 
   return (
-    <Dialog open onOpenChange={open => !open && onClose()}>
-      <DialogContent className="flex h-[min(94vh,860px)] flex-col overflow-hidden sm:max-w-6xl">
-        <DialogHeader>
+    <Dialog open onOpenChange={open => !open && close()}>
+      <DialogContent showCloseButton={false} className="flex h-[min(94vh,860px)] flex-col overflow-hidden sm:max-w-6xl">
+        {/* Ações no cabeçalho, compactas, com o X na mesma fileira e altura. */}
+        <DialogHeader className="flex-row flex-wrap items-center justify-between gap-2">
           {/* Como no cartão: a casa pelo endereço, e quem mora nela embaixo. */}
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex min-w-0 items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span>
-              {contract ? (contract.address || contract.clientName) : "New client"}
-              {contract?.city && <span className="font-normal text-muted-foreground">, {contract.city}</span>}
+              {form.address || form.clientName || "New client"}
+              {form.city && <span className="font-normal text-muted-foreground">, {form.city}</span>}
             </span>
-            {contract && contract.address && (
+            {form.address && form.clientName && (
               <>
                 <span className="mx-1 h-4 w-px bg-border" aria-hidden />
                 <User className="h-4 w-4 text-muted-foreground" />
-                <span className="font-normal text-muted-foreground">{contract.clientName}</span>
+                <span className="font-normal text-muted-foreground">{form.clientName}</span>
               </>
             )}
           </DialogTitle>
+          <div className="flex flex-wrap items-center gap-1">
+            <SaveStatus status={status} />
+            {contract?.stage === "renew" && renewKey === 0 && (
+              <Button size="sm" variant="ghost" onClick={renew} title="Clears contract start, visits and invoices of the cycle that ended">
+                <RefreshCw className="h-3.5 w-3.5" /> Start renewal
+              </Button>
+            )}
+            <Button
+              size="sm" variant="ghost" aria-pressed={form.archived}
+              className={form.archived ? "text-amber-700 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-400" : ""}
+              title="Declined, cancelled or no longer a client"
+              onClick={() => set("archived", !form.archived)}
+            >
+              {form.archived ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
+              {form.archived ? "Archived" : "Archive"}
+            </Button>
+            {contract && (
+              <Button
+                size="sm" variant="ghost" className="text-red-600 hover:bg-red-500/10 hover:text-red-600 dark:text-red-400 dark:hover:text-red-400"
+                disabled={remove.isPending}
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </Button>
+            )}
+            <Button size="icon-sm" variant="ghost" aria-label="Close" onClick={close}><X className="h-4 w-4" /></Button>
+          </div>
         </DialogHeader>
 
         {/* Duas colunas: quem é e o que foi combinado à esquerda; o dinheiro, à direita. */}
-        <div className="grid min-h-0 flex-1 gap-6 max-lg:overflow-y-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x">
+        <div onBlur={flush} className="grid min-h-0 flex-1 gap-6 max-lg:overflow-y-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x">
           <div className="flex min-h-0 flex-col gap-3 lg:overflow-y-auto lg:pr-6">
             <Section title="Client">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -139,7 +208,7 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
 
             <Section
               title="Contract" className="border-t pt-3"
-              aside={renewalNote && (
+              aside={renewKey > 0 && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger
@@ -151,13 +220,30 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
                     />
                     <TooltipContent side="left" className="max-w-[280px] text-xs">
                       The previous cycle was cleared from the form: contract start, both visits and the linked invoices.
-                      Set the new contract start and link the renewal invoice. When you click Save, the previous cycle
-                      is kept as a comment. Nothing is saved until then; Cancel undoes it.
+                      Set the new contract start and link the renewal invoice. The previous cycle is kept as a comment.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
             >
+              {/* Segmentado do Forecast (32px com borda, botões de 28px) com o título
+                  dentro, como prefixo de input. Clicar na marcada desmarca. */}
+              <div role="group" aria-label="Season" className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+                <span className="mr-6 pl-2 text-xs font-medium text-muted-foreground">Season</span>
+                {SEASONS.map(s => {
+                  const on = form.season === s.key
+                  return (
+                    <button
+                      key={s.key} type="button" aria-pressed={on}
+                      onClick={() => set("season", on ? null : s.key)}
+                      className={cn("flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors",
+                        on ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      <s.Icon className={`h-3 w-3 ${s.tone}`} /> {s.label}
+                    </button>
+                  )
+                })}
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Plan sent on"><DateInput icon={Send} value={form.planSentOn} onChange={v => set("planSentOn", v)} /></Field>
                 <Field label="Contract start">
@@ -185,50 +271,16 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
             >
               <InvoiceList invoices={form.invoices} onChange={v => set("invoices", v)} />
             </Fold>
-            {contract
-              ? <Comments contractId={contract.id} open={panel === "comments"} onToggle={() => setPanel(p => (p === "comments" ? "invoices" : "comments"))} />
+            {id
+              ? <Comments contractId={id} open={panel === "comments"} onToggle={() => setPanel(p => (p === "comments" ? "invoices" : "comments"))} />
               : (
                 <Section title="Comments" className="border-t pt-3">
-                  <p className="text-xs text-muted-foreground">Save the client first, then comments can be added.</p>
+                  <p className="text-xs text-muted-foreground">Type the client name first; comments open once the client is saved.</p>
                 </Section>
               )}
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Duas aparências, sempre com borda: neutro quando ativo, âmbar quando arquivado. */}
-            <Button
-              variant="outline" aria-pressed={form.archived}
-              className={form.archived ? "border-amber-500/50 bg-amber-500/15 dark:border-amber-500/50 dark:bg-amber-500/15 dark:hover:bg-amber-500/20 text-amber-700 hover:bg-amber-500/20 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-400" : ""}
-              title="Declined, cancelled or no longer a client"
-              onClick={() => set("archived", !form.archived)}
-            >
-              {form.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-              {form.archived ? "Archived" : "Archive"}
-            </Button>
-            {contract && (
-              <Button
-                variant="outline" className="border-red-500/40 text-red-600 hover:bg-red-500/10 hover:text-red-600 dark:border-red-500/40 dark:text-red-400"
-                disabled={remove.isPending}
-                onClick={() => setConfirmDelete(true)}
-              >
-                <Trash2 className="h-4 w-4" /> Delete
-              </Button>
-            )}
-            {contract?.stage === "renew" && !renewalNote && (
-              <Button variant="outline" onClick={renew} title="Clears contract start, visits and invoices of the cycle that ended">
-                <RefreshCw className="h-4 w-4" /> Start renewal
-              </Button>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}><X className="h-4 w-4" /> Cancel</Button>
-            <Button disabled={!form.clientName.trim() || save.isPending} onClick={() => save.mutate()}>
-              {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save
-            </Button>
-          </div>
-        </DialogFooter>
       </DialogContent>
       {contract && (
         <DeleteConfirm
@@ -248,12 +300,13 @@ function DeleteConfirm({ contract, open, onOpenChange, comments, pending, onConf
   comments?: number; pending: boolean; onConfirm: () => void
 }) {
   const m = moneyOf(contract.contractValue, contract.invoiceStatus)
-  const rows: { Icon: React.ElementType; label: string; value: string }[] = [
+  const blur = useMoneyBlur()
+  const rows: { Icon: React.ElementType; label: string; value: string; money?: boolean }[] = [
     { Icon: MapPin, label: "Address", value: [contract.address, contract.city].filter(Boolean).join(", ") || "No address" },
     { Icon: User, label: "Client", value: contract.clientName },
     { Icon: FileSignature, label: "Contract start", value: fmtDate(contract.contractStart) },
-    { Icon: DollarSign, label: "Contract value", value: contract.contractValue == null ? "—" : money(contract.contractValue) },
-    { Icon: Receipt, label: "Linked invoices", value: contract.invoices.length ? `${contract.invoices.map(n => `#${n}`).join(", ")} (${money(m.paid)} paid, ${money(m.open)} open)` : "None" },
+    { Icon: DollarSign, label: "Contract value", value: contract.contractValue == null ? "—" : money(contract.contractValue), money: true },
+    { Icon: Receipt, label: "Linked invoices", value: contract.invoices.length ? `${contract.invoices.map(n => `#${n}`).join(", ")} (${money(m.paid)} paid, ${money(m.open)} open)` : "None", money: true },
     { Icon: MessageSquareText, label: "Comments", value: comments == null ? "—" : String(comments) },
   ]
   return (
@@ -273,7 +326,7 @@ function DeleteConfirm({ contract, open, onOpenChange, comments, pending, onConf
             <div key={r.label} className="flex items-start gap-2">
               <r.Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               <dt className="w-28 shrink-0 text-xs text-muted-foreground">{r.label}</dt>
-              <dd className="min-w-0 break-words tabular-nums">{r.value}</dd>
+              <dd className={`min-w-0 break-words tabular-nums ${r.money ? blur : ""}`}>{r.value}</dd>
             </div>
           ))}
         </dl>
@@ -362,6 +415,7 @@ function MoneyStrip({ value, onValueChange, invoices }: {
   value: number | null; onValueChange: (v: number | null) => void; invoices: MaintenanceInvoice[]
 }) {
   const m = moneyOf(value, invoices)
+  const blur = useMoneyBlur()
   const tiles: { label: string; amount: number | null; Icon: React.ElementType; tone: string }[] = [
     { label: "Invoiced", amount: m.invoiced, Icon: Receipt, tone: "" },
     { label: "Paid", amount: m.paid, Icon: CircleCheck, tone: "text-emerald-600 dark:text-emerald-400" },
@@ -374,7 +428,7 @@ function MoneyStrip({ value, onValueChange, invoices }: {
     <div className="grid shrink-0 grid-cols-5 divide-x rounded-lg border bg-muted/30">
       <div className="grid min-w-0 gap-1 px-2.5 py-2">
         <p className="flex items-center gap-1.5 text-[11px] whitespace-nowrap text-muted-foreground"><FileSignature className="h-3.5 w-3.5 shrink-0" /> Contract</p>
-        <InputGroup className="h-8 bg-background">
+        <InputGroup className={`h-8 bg-background ${blur}`}>
           <InputGroupAddon><DollarSign /></InputGroupAddon>
           <InputGroupInput
             inputMode="decimal" placeholder="0.00" aria-label="Contract value"
@@ -386,7 +440,7 @@ function MoneyStrip({ value, onValueChange, invoices }: {
       {tiles.map(t => (
         <div key={t.label} className="grid min-w-0 content-between gap-1 px-2.5 py-2">
           <p className="flex items-center gap-1.5 text-[11px] whitespace-nowrap text-muted-foreground"><t.Icon className={`h-3.5 w-3.5 shrink-0 ${t.tone}`} /> {t.label}</p>
-          <p className={`text-sm font-semibold tabular-nums ${t.tone}`}>{t.amount == null ? "—" : money(t.amount)}</p>
+          <p className={`text-sm font-semibold tabular-nums ${t.tone} ${blur}`}>{t.amount == null ? "—" : money(t.amount)}</p>
         </div>
       ))}
     </div>
@@ -417,9 +471,11 @@ function invoiceState(inv: MaintenanceInvoice): { text: string; Icon: React.Elem
 /** Com `amount`, o "Open" diz quanto: "$568.00 open". */
 function InvoiceStatus({ inv, amount, className = "" }: { inv: MaintenanceInvoice; amount?: number; className?: string }) {
   const st = invoiceState(inv)
-  const text = st.text === "Open" && amount ? `${money(amount)} open` : st.text
+  const showAmount = st.text === "Open" && !!amount
+  const text = showAmount ? `${money(amount)} open` : st.text
+  const blur = useMoneyBlur()
   return (
-    <span className={`flex items-center gap-1 text-[11px] font-medium whitespace-nowrap ${st.tone} ${className}`}>
+    <span className={`flex items-center gap-1 text-[11px] font-medium whitespace-nowrap ${st.tone} ${className} ${showAmount ? blur : ""}`}>
       <st.Icon className="h-3.5 w-3.5 shrink-0" /> {text}
     </span>
   )
@@ -430,6 +486,7 @@ function InvoiceStatus({ inv, amount, className = "" }: { inv: MaintenanceInvoic
 function InvoiceCard({ inv, onUnlink }: { inv: MaintenanceInvoice; onUnlink: () => void }) {
   const items = (inv.lines ?? []).map(l => l.description?.split("\n")[0].trim()).filter(Boolean).join(" · ")
   const open = inv.balance ?? 0
+  const blur = useMoneyBlur()
   return (
     <div className="flex shrink-0 items-start gap-3 rounded-lg border px-3 py-2.5">
       <Receipt className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
@@ -449,7 +506,7 @@ function InvoiceCard({ inv, onUnlink }: { inv: MaintenanceInvoice; onUnlink: () 
       </div>
       {/* Embaixo do valor, a situação com o ícone dela; em aberto, quanto falta. */}
       <div className="grid shrink-0 justify-items-end gap-0.5 tabular-nums">
-        {!!inv.total && <p className="text-sm font-semibold">{money(inv.total)}</p>}
+        {!!inv.total && <p className={`text-sm font-semibold ${blur}`}>{money(inv.total)}</p>}
         <InvoiceStatus inv={inv} amount={open} />
       </div>
       <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Unlink invoice ${inv.number}`} title="Unlink" onClick={onUnlink}>
@@ -466,6 +523,7 @@ function InvoiceSearch({ linked, onPick }: { linked: string[]; onPick: (inv: Mai
   const [open, setOpen] = useState(false)
   const [text, setText] = useState("")
   const [q, setQ] = useState("")
+  const blur = useMoneyBlur()
   useEffect(() => {
     const t = setTimeout(() => setQ(text.trim()), 250)
     return () => clearTimeout(t)
@@ -522,7 +580,7 @@ function InvoiceSearch({ linked, onPick }: { linked: string[]; onPick: (inv: Mai
               </span>
             </span>
             <span className="shrink-0 text-right">
-              <span className="block text-sm font-semibold tabular-nums">{money(inv.total ?? 0)}</span>
+              <span className={`block text-sm font-semibold tabular-nums ${blur}`}>{money(inv.total ?? 0)}</span>
               <InvoiceStatus inv={inv} className="justify-end" />
             </span>
           </button>
@@ -542,4 +600,16 @@ function InvoiceSearch({ linked, onPick }: { linked: string[]; onPick: (inv: Mai
       </div>
     </div>
   )
+}
+
+/** Situação da gravação automática, discreta, ao lado das ações. */
+function SaveStatus({ status }: { status: "idle" | "saving" | "saved" | "error" | "name" }) {
+  if (status === "idle") return null
+  const s = {
+    saving: { Icon: Loader2, text: "Saving…", cls: "text-muted-foreground [&_svg]:animate-spin" },
+    saved: { Icon: CircleCheck, text: "Saved", cls: "text-emerald-600 dark:text-emerald-400" },
+    error: { Icon: CircleAlert, text: "Not saved", cls: "text-red-600 dark:text-red-400" },
+    name: { Icon: CircleAlert, text: "Client name required", cls: "text-amber-600 dark:text-amber-400" },
+  }[status]
+  return <span className={`mr-1 flex items-center gap-1 text-xs ${s.cls}`}><s.Icon className="h-3.5 w-3.5" /> {s.text}</span>
 }

@@ -12,7 +12,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { hvacMaintenanceService, type MaintenanceContract } from "@/services/hvac-maintenance.service"
 import { ContractDialog } from "./_components/contract-dialog"
-import { fmtDate, laneOf, money, moneyOf, type Lane } from "./_lib/contract"
+import { fmtDate, laneOf, money, moneyOf, SEASONS, useMoneyBlur, type Lane } from "./_lib/contract"
 import { useDragScroll } from "./_lib/use-drag-scroll"
 
 // HVAC Maintenance.
@@ -23,11 +23,11 @@ import { useDragScroll } from "./_lib/use-drag-scroll"
 // pagamento vem das invoices do QuickBooks, que o sync atualiza todo dia.
 
 const LANES: { key: Lane; title: string; hint: string; Icon: React.ElementType; tone: string }[] = [
+  { key: "prospect",    title: "Prospects",        hint: "Plan sent, no contract yet",       Icon: Send,             tone: "text-muted-foreground" },
   { key: "collect",     title: "Collect payment",  hint: "Invoice sent, open balance",       Icon: CircleDollarSign, tone: "text-red-500" },
   { key: "to_schedule", title: "Schedule a visit", hint: "Paid, next visit has no date",     Icon: CalendarClock,    tone: "text-blue-500" },
-  { key: "renew",       title: "Renew",            hint: "Both visits done, contract ended", Icon: RefreshCw,        tone: "text-amber-500" },
   { key: "scheduled",   title: "Scheduled",        hint: "Next visit is on the calendar",    Icon: CalendarCheck,    tone: "text-emerald-500" },
-  { key: "prospect",    title: "Prospects",        hint: "Plan sent, no contract yet",       Icon: Send,             tone: "text-muted-foreground" },
+  { key: "renew",       title: "Renew",            hint: "Both visits done, contract ended", Icon: RefreshCw,        tone: "text-amber-500" },
 ]
 
 const ARCHIVED_LANE = { key: "prospect" as Lane, title: "Archived", hint: "Declined, cancelled or gone", Icon: Archive, tone: "text-muted-foreground" }
@@ -147,10 +147,11 @@ export default function HvacMaintenancePage() {
 }
 
 function Total({ label, amount, tone = "" }: { label: string; amount: number; tone?: string }) {
+  const blur = useMoneyBlur()
   return (
     <div className="rounded-lg border bg-card px-3 py-2">
       <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className={`text-lg font-semibold tabular-nums ${tone}`}>{money(amount)}</p>
+      <p className={`text-lg font-semibold tabular-nums ${tone} ${blur}`}>{money(amount)}</p>
     </div>
   )
 }
@@ -162,6 +163,8 @@ function ClientCard({ c, lane, today, onOpen }: { c: MaintenanceContract; lane: 
   const m = moneyOf(c.contractValue, c.invoiceStatus)
   const openInv = c.invoiceStatus.filter(i => (i.balance ?? 0) > 0)
   const next = nextVisit(c, today)
+  const season = SEASONS.find(s => s.key === c.season)
+  const blur = useMoneyBlur()
   const ago = (d: string) => { const n = daysBetween(d, today); return n === 0 ? "today" : `${n}d ago` }
 
   const headline = {
@@ -195,12 +198,17 @@ function ClientCard({ c, lane, today, onOpen }: { c: MaintenanceContract; lane: 
         </p>
         <p className="mt-0.5 flex items-start gap-1.5 text-[11px] text-muted-foreground">
           <User className="mt-0.5 h-3 w-3 shrink-0" />
-          <span className="min-w-0 break-words">{c.clientName}</span>
+          <span className="min-w-0 flex-1 break-words">{c.clientName}</span>
+          {season && (
+            <span className="flex shrink-0 items-center gap-1">
+              <season.Icon className={`h-3 w-3 ${season.tone}`} /> {season.label}
+            </span>
+          )}
         </p>
       </div>
 
       <div className="min-w-0">
-        <p className={`text-sm font-semibold tabular-nums ${headline.tone}`}>{headline.big}</p>
+        <p className={`text-sm font-semibold tabular-nums ${headline.tone} ${lane === "collect" ? blur : ""}`}>{headline.big}</p>
         {headline.small && <p className="truncate text-[11px] text-muted-foreground tabular-nums" title={headline.small}>{headline.small}</p>}
       </div>
 
@@ -218,7 +226,7 @@ function ClientCard({ c, lane, today, onOpen }: { c: MaintenanceContract; lane: 
             <div className="bg-emerald-500" style={{ width: `${paidPct}%` }} />
             <div className="bg-red-500" style={{ width: `${openPct}%` }} />
           </div>
-          <p className="text-[11px] text-muted-foreground tabular-nums">
+          <p className={`text-[11px] text-muted-foreground tabular-nums ${blur}`}>
             {money(m.paid)} of {money(m.value)} paid
             {m.toInvoice ? <span className="text-amber-600 dark:text-amber-400"> · {money(m.toInvoice)} not invoiced</span> : null}
           </p>
