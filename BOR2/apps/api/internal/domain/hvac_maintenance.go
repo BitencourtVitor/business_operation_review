@@ -14,6 +14,7 @@ type MaintenanceContract struct {
 	PlanSentOn    *string              `json:"planSentOn"`
 	ContractStart *string              `json:"contractStart"`
 	ContractValue *float64             `json:"contractValue"`
+	Season        *string              `json:"season"`
 	Invoices      []string             `json:"invoices"`
 	FirstService  *string              `json:"firstService"`
 	SecondService *string              `json:"secondService"`
