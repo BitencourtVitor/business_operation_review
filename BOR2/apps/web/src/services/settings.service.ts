@@ -21,9 +21,8 @@ export interface CreateUserInput {
   email: string
   role:  string
   /**
-   * Manda a credencial provisória por e-mail no ato do cadastro. A tela do
-   * Atlas liga isto sempre: quem entra por lá costuma estar longe de quem
-   * cadastrou, e a senha ditada por telefone é a que chega errada.
+   * Manda a credencial provisória por e-mail no ato do cadastro: a senha
+   * ditada por telefone é a que chega errada.
    */
   notify?: boolean
 }

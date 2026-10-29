@@ -12,17 +12,6 @@ type Config struct {
 	Database DatabaseConfig
 	Auth     AuthConfig
 	AI       AIConfig
-	R2       R2Config
-}
-
-// R2Config é o bucket do Atlas. Opcional de propósito: a API precisa subir num
-// ambiente que ainda não provisionou o storage, e o que falta nesse caso é o
-// Atlas, não o serviço inteiro.
-type R2Config struct {
-	Endpoint  string
-	Bucket    string
-	AccessKey string
-	SecretKey string
 }
 
 type AIConfig struct {
@@ -31,9 +20,7 @@ type AIConfig struct {
 	AnalystModel  string // final analytical answer — e.g. anthropic/claude-sonnet-4.5
 	// Transcrição da descrição falada do punch list. Precisa ser um modelo que
 	// aceite áudio na entrada, o que nem todo modelo de texto aceita.
-	AudioModel string
 	// Leitura da transcrição em tópicos. Texto puro, e por isso o rápido.
-	TopicsModel   string
 	ReadOnlyDBURL string // DSN for the read-only aria_ro role (falls back to main DB if empty)
 }
 
@@ -79,15 +66,7 @@ func Load() (*Config, error) {
 			OpenRouterKey: getEnv("OPENROUTER_API_KEY", ""),
 			SQLModel:      getEnv("AI_SQL_MODEL", "google/gemini-2.5-flash"),
 			AnalystModel:  getEnv("AI_ANALYST_MODEL", "anthropic/claude-sonnet-4.5"),
-			AudioModel:    getEnv("AI_AUDIO_MODEL", "google/gemini-2.5-pro"),
-			TopicsModel:   getEnv("AI_TOPICS_MODEL", "google/gemini-2.5-flash"),
 			ReadOnlyDBURL: getEnv("ARIA_READONLY_DATABASE_URL", ""),
-		},
-		R2: R2Config{
-			Endpoint:  getEnv("R2_ENDPOINT", ""),
-			Bucket:    getEnv("R2_BUCKET_NAME", ""),
-			AccessKey: getEnv("R2_ACCESS_KEY_ID", ""),
-			SecretKey: getEnv("R2_SECRET_ACCESS_KEY", ""),
 		},
 	}
 

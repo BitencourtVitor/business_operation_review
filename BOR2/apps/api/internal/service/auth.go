@@ -16,77 +16,28 @@ import (
 	"github.com/bitencourtVitor/bor2-api/internal/repository"
 	"github.com/bitencourtVitor/bor2-api/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginResult struct {
 	User  *domain.User `json:"user"`
 	Token string       `json:"token"`
-	// Conta que só enxerga o Atlas: a sessão dura meio ano e desliza a cada uso.
-	// A tela precisa saber disto para escolher onde guardar o token.
-	LongSession bool `json:"longSession"`
 }
 
-// Janelas de sessão.
-//
-// A curta é a que sempre valeu, e continua sendo a de quem abre o BOR: são telas
-// de dinheiro e de gente, num computador de escritório que fica desbloqueado.
-//
-// A longa é de quem só enxerga o Atlas. Essa pessoa está numa obra, com o
-// celular, buscando uma prancha, e para ela a tela de login não funciona como
-// proteção: funciona como obstáculo entre ela e o desenho, e o caminho de menor
-// resistência é desistir e pedir o PDF por WhatsApp, que é justamente o hábito
-// que o Atlas existe para substituir.
-const (
-	sessionCurta = 7 * 24 * time.Hour
-	sessionLonga = 180 * 24 * time.Hour
-)
+// A sessão vale uma semana: são telas de dinheiro e de gente, num computador
+// de escritório que fica desbloqueado.
+const sessionCurta = 7 * 24 * time.Hour
 
 type AuthService struct {
 	userRepo    repository.UserRepository
 	sessionRepo repository.SessionRepository
-	// Só para descobrir se a conta é exclusivamente do Atlas, no login. A
-	// permissão não vive no repositório de usuário, e criar um repositório
-	// inteiro para uma pergunta feita uma vez por sessão seria cerimônia.
-	db *pgxpool.Pool
 }
 
-func NewAuthService(userRepo repository.UserRepository, sessionRepo repository.SessionRepository, db *pgxpool.Pool) *AuthService {
+func NewAuthService(userRepo repository.UserRepository, sessionRepo repository.SessionRepository) *AuthService {
 	return &AuthService{
 		userRepo:    userRepo,
 		sessionRepo: sessionRepo,
-		db:          db,
 	}
-}
-
-// janelaDe decide quanto vale a sessão desta conta.
-//
-// "Exclusivamente Atlas" é a conta cujas chaves de permissão começam todas em
-// "atlas" e que não é gente da casa pelo cargo. Bastar uma chave do BOR para
-// cair na janela curta é de propósito: o critério tem que errar para o lado
-// seguro.
-func (s *AuthService) janelaDe(ctx context.Context, user *domain.User) time.Duration {
-	if s.db == nil {
-		return sessionCurta
-	}
-	switch user.Role {
-	case "dev", "owner", "admin", "manager":
-		return sessionCurta
-	}
-	var soAtlas bool
-	err := s.db.QueryRow(ctx, `
-		SELECT COALESCE(
-		         (SELECT bool_and(k LIKE 'atlas%')
-		            FROM jsonb_object_keys(p.permissions::jsonb) k),
-		         false)
-		  FROM user_permissions p
-		 WHERE p.user_id = $1 AND jsonb_typeof(p.permissions::jsonb) = 'object'`,
-		user.ID).Scan(&soAtlas)
-	if err != nil || !soAtlas {
-		return sessionCurta
-	}
-	return sessionLonga
 }
 
 func (s *AuthService) Login(ctx context.Context, email, password string) (*LoginResult, error) {
@@ -100,7 +51,7 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 	}
 
 	token := uuid.NewString()
-	janela := s.janelaDe(ctx, user)
+	janela := sessionCurta
 	session := &domain.Session{
 		ID:         uuid.NewString(),
 		UserID:     user.ID,
@@ -114,7 +65,7 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 		return nil, errors.New("failed to create session")
 	}
 
-	return &LoginResult{User: user, Token: token, LongSession: janela == sessionLonga}, nil
+	return &LoginResult{User: user, Token: token}, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, token string) error {

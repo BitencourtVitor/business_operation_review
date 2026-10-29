@@ -322,7 +322,7 @@ function NavGroupItems({
   return (
     <SidebarMenu>
       {items.map((item, i) => {
-        // A barra entra item a item, de cima para baixo, como no Atlas. Não é
+        // A barra entra item a item, de cima para baixo. Não é
         // enfeite: quinze linhas aparecendo de uma vez são um bloco, e a pessoa
         // tem de varrer tudo para achar onde ir. Entrando em sequência, o olho
         // acompanha e a ordem do menu se lê sozinha.

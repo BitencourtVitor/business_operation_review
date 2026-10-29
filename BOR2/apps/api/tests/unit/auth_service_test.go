@@ -96,7 +96,7 @@ func (m *mockSessionRepo) DeleteExpired(ctx context.Context) error {
 func TestAuthService_Login_Success(t *testing.T) {
 	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc := service.NewAuthService(userRepo, sessionRepo, nil)
+	svc := service.NewAuthService(userRepo, sessionRepo)
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
 	userRepo.users["user-1"] = &domain.User{
@@ -122,7 +122,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 func TestAuthService_Login_WrongPassword(t *testing.T) {
 	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc := service.NewAuthService(userRepo, sessionRepo, nil)
+	svc := service.NewAuthService(userRepo, sessionRepo)
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
 	userRepo.users["user-1"] = &domain.User{
@@ -138,7 +138,7 @@ func TestAuthService_Login_WrongPassword(t *testing.T) {
 }
 
 func TestAuthService_Login_UserNotFound(t *testing.T) {
-	svc := service.NewAuthService(newMockUserRepo(), newMockSessionRepo(), nil)
+	svc := service.NewAuthService(newMockUserRepo(), newMockSessionRepo())
 
 	_, err := svc.Login(context.Background(), "notfound@bor2.com", "any")
 	if err == nil {
@@ -149,7 +149,7 @@ func TestAuthService_Login_UserNotFound(t *testing.T) {
 func TestAuthService_Logout(t *testing.T) {
 	userRepo := newMockUserRepo()
 	sessionRepo := newMockSessionRepo()
-	svc := service.NewAuthService(userRepo, sessionRepo, nil)
+	svc := service.NewAuthService(userRepo, sessionRepo)
 
 	sessionRepo.sessions["token-abc"] = &domain.Session{
 		ID:        "sess-1",

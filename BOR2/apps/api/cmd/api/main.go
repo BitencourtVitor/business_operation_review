@@ -75,7 +75,7 @@ func main() {
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService := service.NewAuditService(auditLogRepo)
-	authService := service.NewAuthService(userRepo, sessionRepo, db)
+	authService := service.NewAuthService(userRepo, sessionRepo)
 	forecastService := service.NewForecastService(forecastRepo)
 	accountingService := service.NewAccountingService(accountingRepo)
 	subcontractorService := service.NewSubcontractorService(subcontractorRepo)
@@ -157,13 +157,6 @@ func main() {
 	pcgProjectsHandler := handler.NewPCGProjectsHandler(db)
 	pcgBidFormHandler := handler.NewPCGBidFormHandler(db)
 	hvacStagesHandler := handler.NewHVACStagesHandler(db)
-	// Atlas — o storage é opcional na subida: sem as variáveis do R2 o serviço
-	// continua de pé e é o Atlas que responde 503, não a API inteira.
-	r2Service := service.NewR2Service(cfg.R2.Endpoint, cfg.R2.Bucket, cfg.R2.AccessKey, cfg.R2.SecretKey)
-	// O ditado usa a mesma conta de IA do resto da plataforma. Modelo à parte
-	// porque este precisa aceitar áudio, e o que responde SQL não precisa.
-	atlasDitado := service.NewDitadoService(cfg.AI.OpenRouterKey, cfg.AI.AudioModel, cfg.AI.TopicsModel)
-	atlasHandler := handler.NewAtlasHandler(db, r2Service, emailSender, atlasDitado)
 	catalogHandler := handler.NewForecastCatalogHandler(db, auditService)
 	buildingsHandler := handler.NewBuildingsHandler(db, auditService)
 	aiSQLLLM := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.SQLModel)
@@ -649,12 +642,10 @@ func main() {
 	// Construction Buildings & Schedules
 	buildings := api.Group("/buildings")
 	buildings.Get("/event-types", buildingsHandler.ListEventTypes) // static — must be before /:id
-	buildings.Get("/atlas-jobsites", buildingsHandler.ListAtlasJobsites)
 	buildings.Get("/", buildingsHandler.ListBuildings)
 	buildings.Post("/", buildingsHandler.CreateBuilding)
 	buildings.Put("/:id", buildingsHandler.UpdateBuilding)
 	buildings.Delete("/:id", buildingsHandler.DeleteBuilding)
-	buildings.Put("/:id/atlas-jobsite", middleware.RequirePermission(db, "building_schedule", "write"), buildingsHandler.SetAtlasJobsite)
 	buildings.Get("/:id/schedule", buildingsHandler.GetSchedule)
 	buildings.Post("/:id/schedule", buildingsHandler.UpsertSchedule)
 	buildings.Delete("/:id/schedule", buildingsHandler.DeleteSchedule)
@@ -694,153 +685,6 @@ func main() {
 	pcg.Get("/subcontractor-contacts", pcgProjectsHandler.ListSubcontractorContacts)
 	pcg.Put("/subcontractor-contacts/:name", pcgProjectsHandler.UpsertSubcontractorContact)
 
-	// Atlas — documentos, plantas e diário de obra.
-	//
-	// Em construção: entra o dev e quem recebeu a chave `atlas`, concedida na
-	// própria tela de usuários do Atlas. O acesso por obra é cobrado dentro do
-	// handler, que é quem sabe de qual obra cada recurso é filho.
-	// RequireAuthFull antes: `RequireAuth` só pega o token do cabeçalho, e é
-	// este que valida a sessão e preenche userID/userRole — sem ele o cargo
-	// chega vazio e até o dev leva 403.
-	atlas := api.Group("/atlas", middleware.RequireAuthFull(authService), middleware.RequireAtlas(db))
-	atlas.Get("/user-companies", atlasHandler.ListUserCompanies)
-	atlas.Patch("/users/:id", atlasHandler.SetAtlasUserAccess)
-	// Taxonomia: categoria com eixo declarado, e as vagas que ela cria na obra.
-	atlas.Get("/doc-categories", atlasHandler.ListDocCategories)
-	atlas.Post("/doc-categories", atlasHandler.CreateDocCategory)
-	atlas.Patch("/doc-categories/:id", atlasHandler.UpdateDocCategory)
-	atlas.Delete("/doc-categories/:id", atlasHandler.DeleteDocCategory)
-	atlas.Post("/jobsites/:id/slots", atlasHandler.RegenerateSlots)
-	atlas.Post("/jobsites/:id/slots/:categoryId", atlasHandler.AddCategorySlot)
-	atlas.Delete("/jobsites/:id/slots/:categoryId", atlasHandler.RemoveCategorySlot)
-	atlas.Get("/jobsites/:id/categories", atlasHandler.ListJobsiteCategories)
-	atlas.Get("/forecast-jobsites", atlasHandler.ListForecastJobsites)
-	atlas.Post("/jobsites/import", atlasHandler.ImportJobsites)
-	atlas.Get("/jobsites", atlasHandler.ListJobsites)
-	atlas.Post("/jobsites", atlasHandler.CreateJobsite)
-	atlas.Get("/jobsites/:id", atlasHandler.GetJobsite)
-	atlas.Get("/jobsites/:id/offline-size", atlasHandler.JobsiteOfflineSize)
-	atlas.Get("/jobsites/:id/schedule", atlasHandler.JobsiteSchedule)
-	atlas.Patch("/jobsites/:id", atlasHandler.UpdateJobsite)
-	atlas.Get("/jobsites/:id/access", atlasHandler.ListAccess)
-	atlas.Put("/jobsites/:id/access/:userId", atlasHandler.GrantAccess)
-	atlas.Delete("/jobsites/:id/access/:userId", atlasHandler.RevokeAccess)
-	atlas.Post("/jobsites/:id/access/:userId/notify", atlasHandler.NotifyAccess)
-	// Concessão em lote. Fica fora de /jobsites/:id porque o lote não é de uma
-	// obra: o critério é que escolhe quais obras entram.
-	atlas.Post("/access/bulk", atlasHandler.GrantAccessBulk)
-	// E o mesmo controle visto pelo lado da pessoa: quais obras ela alcança.
-	atlas.Get("/users/:id/access", atlasHandler.ListUserAccess)
-	// Seleção offline. Metadado apenas: nada aqui move byte de prancha, e é
-	// esta conversa que o aparelho tem com o servidor toda vez que a rede volta.
-	atlas.Get("/offline/folders", atlasHandler.ListOfflineFolders)
-	atlas.Put("/offline/folders/:documentId", atlasHandler.SetOfflineFolder)
-	atlas.Delete("/offline/folders/:documentId", atlasHandler.UnsetOfflineFolder)
-	atlas.Get("/documents/:id/offline-holders", atlasHandler.ListOfflineHolders)
-
-	// Lista de verificação. Escopada por subcategoria, que é o pavimento: o
-	// andar atravessa as pastas, então a consulta agrupa por documento e não
-	// por uma delas.
-	atlas.Get("/jobsites/:id/punch-list", atlasHandler.ListPunchList)
-	atlas.Get("/jobsites/:id/punch-list/summary", atlasHandler.PunchListSummary)
-	atlas.Get("/jobsites/:id/punch-list/subcategories", atlasHandler.PunchListSubcategories)
-	atlas.Get("/jobsites/:id/punch-list/scopes", atlasHandler.PunchListScopes)
-	atlas.Get("/jobsites/:id/punch-list/media", atlasHandler.PunchListMedia)
-	atlas.Post("/jobsites/:id/punch-list/report.pdf", atlasHandler.PunchReportPDF)
-	atlas.Get("/jobsites/:id/punches", atlasHandler.ListPunches)
-	atlas.Post("/jobsites/:id/punches", atlasHandler.OpenPunch)
-	atlas.Post("/punches/:id/close", atlasHandler.ClosePunch)
-	atlas.Post("/punches/:id/reopen", atlasHandler.ReopenPunch)
-
-	// Exclusão. Nasce com a limpeza do bucket embutida: a cascata do esquema
-	// não alcança o R2, e apagar só o banco deixa o objeto pago e sem dono.
-	atlas.Delete("/jobsites/:id", atlasHandler.DeleteJobsite)
-	atlas.Delete("/documents/:id", atlasHandler.DeleteDocument)
-	atlas.Delete("/versions/:id", atlasHandler.DeleteVersion)
-
-	// Fila de campo. O cliente manda eventos carimbados, não estado final: sem
-	// rede, estado final não se acumula e os passos do meio somem.
-	atlas.Post("/sync", atlasHandler.SyncEvents)
-	atlas.Get("/sync/queue", atlasHandler.SyncQueue)
-	atlas.Post("/sync/retry/:id", atlasHandler.SyncRetry)
-
-	// Vínculos automáticos entre folhas. O cliente lê o PDF com o pdf.js que já
-	// tem; o servidor resolve o destino e grava. Dry-run por padrão, porque
-	// vínculo falso é pior que vínculo ausente.
-	atlas.Post("/versions/:id/autolink", atlasHandler.Autolink)
-	atlas.Post("/versions/:id/autolink/apply", atlasHandler.AutolinkApply)
-	// Varredura no servidor, a partir do texto guardado no ingest. Substitui a
-	// leitura do PDF no navegador, que é onde a espera do "Scan for links" mora.
-	atlas.Post("/versions/:id/autolink/scan", atlasHandler.AutolinkScan)
-	atlas.Post("/jobsites/:id/autolink/preview", atlasHandler.AutolinkPreview)
-
-	// Escala da prancha e medição sobre ela.
-	atlas.Put("/sheets/:id/scale", atlasHandler.SetSheetScale)
-
-	// Takeoff (ATL-103): o dicionário do set em três níveis e a leitura por IA.
-	atlas.Get("/documents/:id/takeoff/dictionary", atlasHandler.TakeoffDictionary)
-	atlas.Post("/documents/:id/takeoff/dictionary/extract", atlasHandler.TakeoffExtract)
-	atlas.Post("/documents/:id/takeoff/terms", atlasHandler.TakeoffCreateTerm)
-	atlas.Patch("/takeoff/terms/:id", atlasHandler.TakeoffUpdateTerm)
-	atlas.Delete("/takeoff/terms/:id", atlasHandler.TakeoffDeleteTerm)
-	atlas.Post("/sheets/:id/takeoff/ai", atlasHandler.TakeoffAI)
-	atlas.Delete("/sheets/:id/scale", atlasHandler.ClearSheetScale)
-
-	// Parâmetros de operação, mutáveis sem deploy.
-	atlas.Get("/policy", atlasHandler.ListPolicy)
-	atlas.Put("/policy/:key", atlasHandler.SetPolicy)
-
-	// Revisão parcial: trocar algumas folhas sem reemitir o set.
-	atlas.Post("/versions/:id/inherit", atlasHandler.InheritSheets)
-	atlas.Get("/versions/:id/diff", atlasHandler.VersionDiff)
-	atlas.Get("/blockable-users", atlasHandler.ListBlockableUsers)
-	atlas.Get("/jobsites/:id/blocked", atlasHandler.ListBlocked)
-	atlas.Put("/jobsites/:id/blocked", atlasHandler.SetBlocked)
-	atlas.Get("/jobsites/:id/documents", atlasHandler.ListDocuments)
-	atlas.Post("/jobsites/:id/documents", atlasHandler.CreateDocument)
-	atlas.Patch("/documents/:id", atlasHandler.UpdateDocument)
-	atlas.Put("/documents/:id/tags", atlasHandler.SetDocumentTags)
-	atlas.Post("/sheets/:id/revisions", atlasHandler.OpenSheetRevision)
-	atlas.Put("/sheets/:id/revisions", atlasHandler.CommitSheetRevision)
-	atlas.Get("/sheets/:id/history", atlasHandler.SheetHistory)
-	atlas.Get("/documents/:id/versions", atlasHandler.ListVersions)
-	atlas.Post("/documents/:id/versions", atlasHandler.CreateVersion)
-	atlas.Post("/versions/:id/confirm", atlasHandler.ConfirmVersion)
-	atlas.Get("/versions/:id/job", atlasHandler.IngestStatus)
-	atlas.Post("/versions/:id/job/retry", atlasHandler.IngestRetry)
-	atlas.Post("/versions/:id/publish", atlasHandler.PublishVersion)
-	atlas.Get("/versions/:id/download", atlasHandler.VersionDownloadURL)
-	atlas.Get("/versions/:id/sheets", atlasHandler.ListSheets)
-	atlas.Put("/versions/:id/sheets", atlasHandler.ReplaceSheets)
-	atlas.Put("/versions/:id/names", atlasHandler.RenameSheets)
-	atlas.Post("/versions/:id/plan-uploads", atlasHandler.PlanUploadURLs)
-	atlas.Get("/sheets/:id/url", atlasHandler.SheetURL)
-	atlas.Patch("/sheets/:id", atlasHandler.UpdateSheet)
-	atlas.Get("/sheets/:id/annotations", atlasHandler.ListAnnotations)
-	atlas.Post("/sheets/:id/annotations", atlasHandler.CreateAnnotation)
-	atlas.Patch("/annotations/:id", atlasHandler.UpdateAnnotation)
-	atlas.Delete("/annotations/:id", atlasHandler.DeleteAnnotation)
-	atlas.Post("/versions/:id/thumb-uploads", atlasHandler.ThumbUploadURLs)
-	atlas.Get("/versions/:id/thumbs", atlasHandler.VersionThumbs)
-	atlas.Get("/versions/:id/urls", atlasHandler.VersionSheetURLs)
-	atlas.Get("/versions/:id/annotations", atlasHandler.VersionAnnotations)
-	atlas.Get("/users/:id/jobsites", atlasHandler.UserJobsites)
-	atlas.Get("/jobsites/:id/events", atlasHandler.ListEvents)
-	atlas.Post("/jobsites/:id/events", atlasHandler.CreateEvent)
-	atlas.Patch("/events/:id", atlasHandler.UpdateEvent)
-	atlas.Delete("/events/:id", atlasHandler.DeleteEvent)
-	atlas.Get("/jobsites/:id/daily-logs", atlasHandler.ListDailyLogs)
-	atlas.Post("/jobsites/:id/daily-logs", atlasHandler.CreateDailyLog)
-	atlas.Patch("/daily-logs/:id", atlasHandler.UpdateDailyLog)
-	atlas.Get("/jobsites/:id/albums", atlasHandler.ListAlbums)
-	atlas.Get("/jobsites/:id/media", atlasHandler.ListMedia)
-	atlas.Post("/jobsites/:id/media", atlasHandler.CreateMedia)
-	atlas.Post("/media/:id/confirm", atlasHandler.ConfirmMedia)
-	atlas.Get("/media/:id/url", atlasHandler.MediaURL)
-	atlas.Patch("/media/:id", atlasHandler.UpdateMedia)
-	atlas.Delete("/media/:id", atlasHandler.DeleteMedia)
-	atlas.Post("/media/:id/transcribe", atlasHandler.TranscribeMedia)
-	atlas.Post("/media/:id/topics", atlasHandler.MediaTopics)
 
 	// AI Chat (Aria)
 	ai := api.Group("/ai")
@@ -880,9 +724,6 @@ func main() {
 	// dos prefixos que conhece.
 	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
-	// O processamento do set do Atlas (ATL-102) roda em segundo plano, na
-	// mesma vida do scheduler: retoma o que ficou pela metade e cai no shutdown.
-	handler.NewIngestWorker(jobCtx, atlasHandler)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────
 	quit := make(chan os.Signal, 1)

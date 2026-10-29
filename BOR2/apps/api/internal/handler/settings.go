@@ -56,7 +56,7 @@ func (h *SettingsHandler) sendCredentials(c *fiber.Ctx, name, email, password st
 	if base == "" {
 		base = "https://pg-bor.up.railway.app"
 	}
-	body := service.BuildAtlasWelcomeEmail(service.AtlasWelcome{
+	body := service.BuildWelcomeEmail(service.Welcome{
 		PersonName: name,
 		Login:      email,
 		Password:   password,
@@ -190,9 +190,8 @@ type createUserReq struct {
 	Name  string      `json:"name"`
 	Email string      `json:"email"`
 	Role  domain.Role `json:"role"`
-	// Manda a credencial por e-mail no ato. A tela do Atlas liga isto sempre; a
-	// de Settings do BOR não, porque lá quem cadastra costuma estar ao lado de
-	// quem vai usar.
+	// Manda a credencial por e-mail no ato. Desligado por padrão: quem cadastra
+	// costuma estar ao lado de quem vai usar.
 	Notify bool `json:"notify"`
 }
 

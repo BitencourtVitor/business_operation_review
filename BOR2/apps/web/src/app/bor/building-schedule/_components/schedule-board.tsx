@@ -29,7 +29,6 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 /**
  * O quadro do cronograma: seletor, período, Gantt ou datas.
  *
- * Mora fora da página para o Atlas mostrar o mesmo quadro dentro do projeto.
  * Com `buildingId`, o prédio vem fixo de quem chama (o vínculo com o projeto) e
  * o seletor e o Manage somem, porque escolher outro prédio ali seria sair do
  * projeto.
@@ -121,7 +120,7 @@ export function ScheduleBoard({ buildingId, title = "Building Schedule", subtitl
       <div className="shrink-0 flex flex-col pb-2">
 
         {/* Row 1: Title + right controls */}
-        {/* Na janela do Atlas os controles sobem para a linha do título, sem o
+        {/* Com o prédio fixo, os controles sobem para a linha do título, sem o
             rótulo em cima: com um filtro só, "Period" dizia o que o ícone de
             calendário já diz, e empurrava os botões para baixo do nome. */}
         {/* No celular, título e fechar dividem a primeira linha, e o filtro e o
