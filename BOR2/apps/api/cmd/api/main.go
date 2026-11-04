@@ -53,6 +53,7 @@ func main() {
 	subcontractorRepo := repository.NewPostgresSubcontractorRepository(db)
 	permitRowRepo := repository.NewPostgresPermitRowRepository(db)
 	maintenanceRepo := repository.NewPostgresMaintenanceContractRepository(db)
+	monthlyExecutionRepo := repository.NewPostgresMonthlyExecutionRepository(db)
 	serviceRequestRepo := repository.NewPostgresServiceRequestRepository(db)
 	timesheetRowRepo := repository.NewPostgresTimesheetRowRepository(db)
 	employeeNameRepo := repository.NewPostgresEmployeeNameRepository(db)
@@ -81,6 +82,7 @@ func main() {
 	subcontractorService := service.NewSubcontractorService(subcontractorRepo)
 	permitRowService := service.NewPermitRowService(permitRowRepo)
 	maintenanceService := service.NewMaintenanceContractService(maintenanceRepo)
+	monthlyExecutionService := service.NewMonthlyExecutionService(monthlyExecutionRepo)
 	serviceRequestService := service.NewServiceRequestService(serviceRequestRepo)
 	timesheetRowService := service.NewTimesheetRowService(timesheetRowRepo)
 	employeeNameService := service.NewEmployeeNameService(employeeNameRepo)
@@ -106,6 +108,7 @@ func main() {
 	subcontractorHandler := handler.NewSubcontractorHandler(subcontractorService, auditService)
 	permitRowHandler := handler.NewPermitRowHandler(permitRowService, auditService)
 	maintenanceHandler := handler.NewMaintenanceContractHandler(maintenanceService, auditService)
+	monthlyExecutionHandler := handler.NewMonthlyExecutionHandler(monthlyExecutionService, auditService)
 	serviceRequestHandler := handler.NewServiceRequestHandler(serviceRequestService, auditService)
 	timesheetRowHandler := handler.NewTimesheetRowHandler(timesheetRowService)
 	employeeNameHandler := handler.NewEmployeeNameHandler(employeeNameService, auditService)
@@ -474,6 +477,19 @@ func main() {
 	ofi.Get("/monthly-execution", ofiHandler.ListExecution)
 	ofi.Patch("/monthly-execution/:id", ofiHandler.UpdateExecutionReason)
 	// (/ofi/calculate is cron-guarded and registered above, before RequireAuth.)
+
+	// Monthly Execution: metas por checkpoint, fim real e pontos de melhoria.
+	me := api.Group("/monthly-execution")
+	meRead := middleware.RequirePermission(db, "monthly_execution", "read")
+	meWrite := middleware.RequirePermission(db, "monthly_execution", "write")
+	me.Get("/goals", meRead, monthlyExecutionHandler.Groups)
+	me.Put("/goals", meWrite, monthlyExecutionHandler.SaveGroups)
+	me.Get("/finished", meRead, monthlyExecutionHandler.Finished)
+	me.Get("/points", meRead, monthlyExecutionHandler.Points)
+	me.Post("/points", meWrite, monthlyExecutionHandler.CreatePoint)
+	me.Patch("/points/:id", meWrite, monthlyExecutionHandler.UpdatePoint)
+	me.Delete("/points/:id", meWrite, monthlyExecutionHandler.DeletePoint)
+	me.Post("/points/:id/replies", meWrite, monthlyExecutionHandler.AddReply)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")

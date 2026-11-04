@@ -51,6 +51,7 @@ type executionRow struct {
 	ProjectName      string `json:"projectName"`
 	JobSite          string `json:"jobSite"`
 	Address          string `json:"address"`
+	Cliente          string `json:"cliente"`
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -230,7 +231,8 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 		         ELSE e.obra_id
 		       END AS project_name,
 		       COALESCE(fc.job_site, '') AS job_site,
-		       COALESCE(fc.address,  '') AS address
+		       COALESCE(fc.address,  '') AS address,
+		       COALESCE(fc.cliente,  '') AS cliente
 		FROM   monthly_execution_history e
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(e.obra_id)
 		WHERE  ($1 = 0 OR e.reference_year  = $1)
@@ -248,7 +250,7 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&r.ID, &r.ObraID, &r.ReferenceMonth, &r.ReferenceYear,
 			&r.PlannedStatus, &r.ActualStatus, &r.Reason, &r.Subcontractor, &r.IsCycleCompleted,
-			&r.ProjectName, &r.JobSite, &r.Address,
+			&r.ProjectName, &r.JobSite, &r.Address, &r.Cliente,
 		); err != nil {
 			continue
 		}
