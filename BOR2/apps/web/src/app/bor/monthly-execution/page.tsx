@@ -185,8 +185,8 @@ function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
 const fmtDay = (iso: string) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}`
 
 /**
- * Painel da meta. As linhas dividem a altura toda da coluna; clicar abre a
- * linha com as casas terminadas no período, e ela cresce às custas das outras.
+ * Painel da meta. Cresce com o conteúdo até a altura da tela e rola por dentro;
+ * clicar numa linha mostra as casas terminadas no período, várias abertas juntas.
  */
 function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label: string }) {
   const [open, setOpen] = useState<Set<string>>(new Set())
@@ -198,7 +198,7 @@ function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label:
   const goal = rows.reduce((s, r) => s + r.goal, 0)
   const done = rows.reduce((s, r) => s + r.finished, 0)
   return (
-    <div className="flex min-h-0 flex-col rounded-xl border border-border bg-card/60">
+    <div className="flex max-h-full min-h-0 flex-col self-start rounded-xl border border-border bg-card/60">
       <div className="border-b border-border px-4 py-3">
         <p className="text-sm font-semibold">Goal · {label}</p>
         <p className="text-xs text-muted-foreground">
@@ -213,9 +213,9 @@ function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label:
           const isOpen = open.has(r.group.id)
           return (
             <div key={r.group.id}
-              className="flex min-h-[52px] shrink-0 grow flex-col overflow-hidden rounded-lg border border-border bg-muted/20">
+              className="flex min-h-[52px] shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-muted/20">
               <button type="button" aria-expanded={isOpen} onClick={() => toggle(r.group.id)}
-                className="flex grow flex-col justify-center px-3 py-2 text-left">
+                className="flex flex-col justify-center px-3 py-2 text-left">
                 <div className="flex w-full items-center justify-between gap-2 text-xs">
                   <span className="flex min-w-0 items-center gap-1.5 font-medium">
                     <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
