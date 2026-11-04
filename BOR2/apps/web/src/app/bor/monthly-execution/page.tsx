@@ -205,7 +205,7 @@ function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label:
   const goal = rows.reduce((s, r) => s + r.goal, 0)
   const done = rows.reduce((s, r) => s + r.finished, 0)
   return (
-    <div className="flex max-h-full min-h-0 flex-col self-start rounded-xl border border-border bg-card/60">
+    <div className="flex flex-col rounded-xl max-lg:order-2 lg:max-h-full lg:min-h-0 lg:self-start border border-border bg-card/60">
       <div className="border-b border-border px-4 py-3">
         <p className="text-sm font-semibold">Goal · {label}</p>
         <p className="text-xs text-muted-foreground">
@@ -334,7 +334,7 @@ function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit 
   const isPlanned = variant === "planned"
 
   return (
-    <div className="flex min-h-0 flex-col rounded-xl border border-border bg-muted/20">
+    <div className="flex max-h-[480px] min-h-0 flex-col rounded-xl lg:max-h-none border border-border bg-muted/20">
       <div className="flex items-center gap-2 px-4 py-3">
         <Icon className="h-4 w-4 shrink-0" style={{ color }} />
         <span className="flex min-w-0 flex-1 flex-col">
@@ -530,7 +530,7 @@ export default function MonthlyExecutionPage() {
     t === "ytd" ? YTD : t === "fortnight" ? (fortnights[0] ? `pp:${fortnights[0].startDate}` : YTD) : String(currentMonth))
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className="flex flex-col gap-5 lg:h-full">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Monthly Execution</h1>
@@ -583,12 +583,12 @@ export default function MonthlyExecutionPage() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex min-h-0 flex-col gap-4">
+      <div className="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="flex flex-col gap-4 max-lg:contents lg:min-h-0">
           <ExecutionChart data={chartData} year={year} month={month}
             onPickMonth={m => setPeriod(String(m))} onOpenPoints={setPointsMonth} />
 
-          <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-3">
+          <div className="grid gap-4 max-lg:order-3 md:grid-cols-3 lg:min-h-0 lg:flex-1">
             <KanbanColumn variant="planned" month={kanbanLabel} entries={planned} totalCaptured={scoped.length}
               canEdit={!isOFIFallback && writable} onEdit={setEditEntry} />
             <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry} />
