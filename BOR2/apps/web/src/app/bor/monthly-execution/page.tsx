@@ -584,11 +584,11 @@ export default function MonthlyExecutionPage() {
       </div>
 
       <div className="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex flex-col gap-4 max-lg:contents lg:min-h-0">
+        <div className="@container flex flex-col gap-4 max-lg:contents lg:min-h-0">
           <ExecutionChart data={chartData} year={year} month={month}
             onPickMonth={m => setPeriod(String(m))} onOpenPoints={setPointsMonth} />
 
-          <div className="grid gap-4 max-lg:order-3 md:grid-cols-3 lg:min-h-0 lg:flex-1">
+          <div className="grid gap-4 max-lg:order-3 @2xl:grid-cols-3 lg:min-h-0 lg:flex-1">
             <KanbanColumn variant="planned" month={kanbanLabel} entries={planned} totalCaptured={scoped.length}
               canEdit={!isOFIFallback && writable} onEdit={setEditEntry} />
             <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry} />
