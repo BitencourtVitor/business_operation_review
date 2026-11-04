@@ -1,0 +1,15 @@
+DROP MATERIALIZED VIEW IF EXISTS mv_wp_hours;
+DROP VIEW IF EXISTS v_wp_allocated;
+DROP VIEW IF EXISTS v_wp_split;
+DROP VIEW IF EXISTS v_wp_entries;
+DROP FUNCTION IF EXISTS wp_parse_path(jsonb);
+DROP FUNCTION IF EXISTS wp_norm_lot(text);
+DROP FUNCTION IF EXISTS wp_norm_address(text);
+DROP FUNCTION IF EXISTS wp_worktype(text);
+DROP TABLE IF EXISTS wp_rule_jobsite_forecast;
+DROP TABLE IF EXISTS wp_rule_jobsite_alias;
+DROP TABLE IF EXISTS wp_rule_excluded_worktype;
+DROP TABLE IF EXISTS wp_rule_org_segment;
+DROP TABLE IF EXISTS wp_rule_client;
+DROP TABLE IF EXISTS wp_rule_generic_folder;
+DROP TABLE IF EXISTS wp_rule_worktype_alias;

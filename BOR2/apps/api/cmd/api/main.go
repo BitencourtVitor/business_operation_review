@@ -54,6 +54,7 @@ func main() {
 	permitRowRepo := repository.NewPostgresPermitRowRepository(db)
 	maintenanceRepo := repository.NewPostgresMaintenanceContractRepository(db)
 	monthlyExecutionRepo := repository.NewPostgresMonthlyExecutionRepository(db)
+	workforceInsightsRepo := repository.NewPostgresWorkforceInsightsRepository(db)
 	serviceRequestRepo := repository.NewPostgresServiceRequestRepository(db)
 	timesheetRowRepo := repository.NewPostgresTimesheetRowRepository(db)
 	employeeNameRepo := repository.NewPostgresEmployeeNameRepository(db)
@@ -83,6 +84,7 @@ func main() {
 	permitRowService := service.NewPermitRowService(permitRowRepo)
 	maintenanceService := service.NewMaintenanceContractService(maintenanceRepo)
 	monthlyExecutionService := service.NewMonthlyExecutionService(monthlyExecutionRepo)
+	workforceInsightsService := service.NewWorkforceInsightsService(workforceInsightsRepo)
 	serviceRequestService := service.NewServiceRequestService(serviceRequestRepo)
 	timesheetRowService := service.NewTimesheetRowService(timesheetRowRepo)
 	employeeNameService := service.NewEmployeeNameService(employeeNameRepo)
@@ -109,6 +111,7 @@ func main() {
 	permitRowHandler := handler.NewPermitRowHandler(permitRowService, auditService)
 	maintenanceHandler := handler.NewMaintenanceContractHandler(maintenanceService, auditService)
 	monthlyExecutionHandler := handler.NewMonthlyExecutionHandler(monthlyExecutionService, auditService)
+	workforceInsightsHandler := handler.NewWorkforceInsightsHandler(workforceInsightsService, auditService)
 	serviceRequestHandler := handler.NewServiceRequestHandler(serviceRequestService, auditService)
 	timesheetRowHandler := handler.NewTimesheetRowHandler(timesheetRowService)
 	employeeNameHandler := handler.NewEmployeeNameHandler(employeeNameService, auditService)
@@ -483,6 +486,14 @@ func main() {
 	me.Patch("/points/:id", meWrite, monthlyExecutionHandler.UpdatePoint)
 	me.Delete("/points/:id", meWrite, monthlyExecutionHandler.DeletePoint)
 	me.Post("/points/:id/replies", meWrite, monthlyExecutionHandler.AddReply)
+
+	// Workforce Productivity nova (WF-19): lê das views do dado bruto do QB Time.
+	wi := api.Group("/workforce-insights")
+	wiRead := middleware.RequirePermission(db, "workforce", "read")
+	wi.Get("/overview", wiRead, workforceInsightsHandler.Overview)
+	wi.Get("/buildings", wiRead, workforceInsightsHandler.Buildings)
+	wi.Get("/settings", wiRead, workforceInsightsHandler.Settings)
+	wi.Put("/settings", middleware.RequirePermission(db, "workforce", "write"), workforceInsightsHandler.SaveSettings)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")

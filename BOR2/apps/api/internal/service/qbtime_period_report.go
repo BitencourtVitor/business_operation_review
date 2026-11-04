@@ -1004,9 +1004,10 @@ func (s *PeriodReportService) SyncCompany(ctx context.Context, company string, d
 	if err := s.cacheRepo.RefreshSyncState(ctx, company, endDate); err != nil {
 		return fmt.Errorf("refresh sync state: %w", err)
 	}
-	// Retention: keep a little over three months.
-	cutoff := today.AddDate(0, 0, -100).Format("2006-01-02")
-	_ = s.cacheRepo.Prune(ctx, company, cutoff)
+	// Sem retenção: o cache é a base da Workforce Productivity e guarda o
+	// histórico de rate (WF-19). Antes, tudo com mais de 100 dias era apagado.
+	// A view é derivada: falhar aqui não desfaz a sincronização.
+	_ = s.cacheRepo.RefreshWorkforceHours(ctx)
 	return nil
 }
 

@@ -19,7 +19,7 @@ type QBTimePeriodCacheRepository interface {
 	GetPayroll(ctx context.Context, company, periodEnd string) ([]domain.QBPayrollRow, error)
 	GetSyncState(ctx context.Context, company string) (*domain.QBSyncState, error)
 	RefreshSyncState(ctx context.Context, company, syncedThrough string) error
-	Prune(ctx context.Context, company, beforeDate string) error
+	RefreshWorkforceHours(ctx context.Context) error
 }
 
 type PostgresQBTimePeriodCacheRepository struct {
@@ -274,16 +274,11 @@ func (r *PostgresQBTimePeriodCacheRepository) RefreshSyncState(ctx context.Conte
 	return nil
 }
 
-func (r *PostgresQBTimePeriodCacheRepository) Prune(ctx context.Context, company, beforeDate string) error {
-	if _, err := r.db.Exec(ctx,
-		`DELETE FROM qbtime_timesheets WHERE company = $1 AND work_date < $2`, company, beforeDate,
-	); err != nil {
-		return fmt.Errorf("prune timesheets: %w", err)
-	}
-	if _, err := r.db.Exec(ctx,
-		`DELETE FROM qbtime_payroll WHERE company = $1 AND period_end < $2`, company, beforeDate,
-	); err != nil {
-		return fmt.Errorf("prune payroll: %w", err)
+// RefreshWorkforceHours atualiza a view que a Workforce Productivity lê, para o
+// que acabou de chegar do QB Time aparecer na página.
+func (r *PostgresQBTimePeriodCacheRepository) RefreshWorkforceHours(ctx context.Context) error {
+	if _, err := r.db.Exec(ctx, `REFRESH MATERIALIZED VIEW mv_wp_hours`); err != nil {
+		return fmt.Errorf("refresh mv_wp_hours: %w", err)
 	}
 	return nil
 }
