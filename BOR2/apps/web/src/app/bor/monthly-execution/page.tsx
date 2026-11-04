@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useMonthlyExecution, useOfi } from "@/hooks/use-ofi"
 import { usePermission } from "@/hooks/use-permission"
+import { usePayPeriods } from "@/hooks/use-qbtime-period-report"
 import { ofiService, type ExecutionEntry } from "@/services/ofi.service"
 import { monthlyExecutionService } from "@/services/monthly-execution.service"
 import {
@@ -25,7 +26,7 @@ import {
 } from "lucide-react"
 import {
   MONTH_LABELS, MONTH_NAMES, buildSeries, clientsOf, isStarted, monthOf, pointVisible,
-  siteIndex, siteKey, standings, visibleGroups, type ChartPoint, type Filters,
+  siteIndex, siteKey, standings, visibleGroups, monthsScope, fortnightScope, type ChartPoint, type Filters,
 } from "./_lib/series"
 import { SettingsDialog } from "./_components/settings-dialog"
 import { PointsDialog } from "./_components/points-dialog"
@@ -34,6 +35,12 @@ const today        = new Date()
 const currentYear  = today.getFullYear()
 const currentMonth = today.getMonth() + 1
 const YTD          = "ytd"
+
+/** "Sep 20 to Oct 3": a quinzena sem o ano, que já está ao lado no filtro. */
+const fortnightLabel = (p: { startDate: string; endDate: string }) => {
+  const day = (iso: string) => `${MONTH_LABELS[Number(iso.slice(5, 7)) - 1]} ${Number(iso.slice(8, 10))}`
+  return `${day(p.startDate)} to ${day(p.endDate)}`
+}
 
 // Meta em cinza médio: some contra fundo nenhum, claro ou escuro.
 const COLORS = { planned: "#3B82F6", started: "#F59E0B", finished: "#10B981", goal: "#8A8A8A" }
@@ -315,8 +322,9 @@ const COL_CONFIG: Record<ColVariant, { label: string; icon: React.ElementType; c
   finished: { label: "Finished Projects", icon: CheckCircle2,  color: COLORS.finished },
 }
 
-function KanbanColumn({ variant, entries, totalCaptured, canEdit, onEdit }: {
+function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit }: {
   variant: ColVariant
+  month: string
   entries: ExecutionEntry[]
   totalCaptured?: number
   canEdit: boolean
@@ -329,8 +337,9 @@ function KanbanColumn({ variant, entries, totalCaptured, canEdit, onEdit }: {
     <div className="flex min-h-0 flex-col rounded-xl border border-border bg-muted/20">
       <div className="flex items-center gap-2 px-4 py-3">
         <Icon className="h-4 w-4 shrink-0" style={{ color }} />
-        <span className="flex-1 text-sm font-semibold uppercase tracking-wide" style={{ color }}>
-          {label}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-sm font-semibold uppercase tracking-wide" style={{ color }}>{label}</span>
+          <span className="text-[11px] text-muted-foreground">{month}</span>
         </span>
         <span className="text-sm font-bold tabular-nums">
           {isPlanned ? totalCaptured : entries.length}
@@ -443,8 +452,13 @@ export default function MonthlyExecutionPage() {
 
   const { data: allYear = [], isLoading } = useMonthlyExecution({ year })
   const { data: bor2Ofi = [] } = useOfi({ year })
-  const month = period === YTD ? null : Number(period)
+  // Quinzena de pagamento da Framing, a mesma do QB Time Reports. Só as que terminam no ano.
+  const { data: payPeriods } = usePayPeriods("framing")
+  const fortnights = (payPeriods?.periods ?? []).filter(p => p.endDate.startsWith(String(year)))
+  const fortnight = period.startsWith("pp:") ? fortnights.find(p => `pp:${p.startDate}` === period) ?? null : null
+  const month = period === YTD ? null : fortnight ? monthOf(fortnight.endDate) : Number(period)
   const kanbanMonth = month ?? currentMonth
+  const kanbanLabel = `${MONTH_NAMES[kanbanMonth - 1]} ${year}`
   const { data: ofiForMonth = [] } = useOfi({ year, month: kanbanMonth })
   const { data: groups = [] }   = useQuery({ queryKey: ["monthly-execution", "goals", year],    queryFn: () => monthlyExecutionService.goals(year) })
   const { data: finished = [] } = useQuery({ queryKey: ["monthly-execution", "finished", year], queryFn: () => monthlyExecutionService.finished(year) })
@@ -463,8 +477,11 @@ export default function MonthlyExecutionPage() {
     januaryFallback: { planned: bor2Ofi.filter(e => e.referenceMonth === 1).length || null },
   }), [year, filters, groups, allYear, finished, points, bor2Ofi])
 
-  const panelMonths = month ? [month] : Array.from({ length: currentMonth }, (_, i) => i + 1)
-  const panel = useMemo(() => standings(visible, finished, panelMonths), [visible, finished, panelMonths.join()]) // eslint-disable-line react-hooks/exhaustive-deps
+  const scope = fortnight
+    ? fortnightScope(fortnight.startDate, fortnight.endDate)
+    : monthsScope(year, month ? [month] : Array.from({ length: currentMonth }, (_, i) => i + 1))
+  const panel = useMemo(() => standings(visible, finished, scope), [visible, finished, scope.from, scope.to]) // eslint-disable-line react-hooks/exhaustive-deps
+  const panelLabel = fortnight ? fortnightLabel(fortnight) : month ? MONTH_NAMES[month - 1] : `Jan to ${MONTH_LABELS[currentMonth - 1]}`
 
   // ── Kanban: mês escolhido (ou o corrente, no acumulado do ano) ─────────────
   // Planned e Started seguem o retrato mensal como sempre; Finished é o fim real.
@@ -486,7 +503,8 @@ export default function MonthlyExecutionPage() {
   const planned  = scoped.filter(e => !isStarted(e))
   const started  = scoped.filter(isStarted)
   const finishedCards: ExecutionEntry[] = finished
-    .filter(p => monthOf(p.finishedOn) === kanbanMonth && inFilter(p.cliente, p.jobSite))
+    .filter(p => (fortnight ? p.finishedOn >= scope.from && p.finishedOn <= scope.to : monthOf(p.finishedOn) === kanbanMonth)
+      && inFilter(p.cliente, p.jobSite))
     .map(p => ({
       id: p.id, obraId: p.id, referenceMonth: kanbanMonth, referenceYear: year, plannedStatus: "",
       actualStatus: "completed", reason: "", subcontractor: "", isCycleCompleted: true,
@@ -498,7 +516,18 @@ export default function MonthlyExecutionPage() {
 
   if (isLoading) return <PageSkeleton />
 
-  const periodOptions = [{ value: YTD, label: "Year to date" }, ...MONTH_NAMES.map((n, i) => ({ value: String(i + 1), label: n }))]
+  // Período em dois passos: o tipo e, para quinzena e mês, qual deles.
+  const periodType = period === YTD ? "ytd" : period.startsWith("pp:") ? "fortnight" : "month"
+  const typeOptions = [
+    { value: "ytd", label: "Year to date" },
+    { value: "fortnight", label: "Pay period" },
+    { value: "month", label: "Month" },
+  ]
+  const valueOptions = periodType === "fortnight"
+    ? fortnights.map(p => ({ value: `pp:${p.startDate}`, label: fortnightLabel(p) }))
+    : MONTH_NAMES.map((n, i) => ({ value: String(i + 1), label: n }))
+  const pickType = (t: string) => setPeriod(
+    t === "ytd" ? YTD : t === "fortnight" ? (fortnights[0] ? `pp:${fortnights[0].startDate}` : YTD) : String(currentMonth))
 
   return (
     <div className="flex h-full flex-col gap-5">
@@ -517,14 +546,27 @@ export default function MonthlyExecutionPage() {
                 <span className="text-sm text-muted-foreground">{year}</span>
               </div>
               <div className="h-5 w-px shrink-0 bg-border" />
-              <Select value={period} onValueChange={v => v && setPeriod(v)}>
-                <SelectTrigger className="h-8 w-[140px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <span className="flex-1 truncate text-left text-sm">{periodOptions.find(o => o.value === period)?.label}</span>
+              <Select value={periodType} onValueChange={v => v && pickType(v)}>
+                <SelectTrigger className="h-8 w-[124px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">{typeOptions.find(o => o.value === periodType)?.label}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {periodOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {typeOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {periodType !== "ytd" && (
+                <>
+                  <div className="h-5 w-px shrink-0 bg-border" />
+                  <Select value={period} onValueChange={v => v && setPeriod(v)}>
+                    <SelectTrigger className="h-8 w-[150px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                      <span className="flex-1 truncate text-left text-sm">{valueOptions.find(o => o.value === period)?.label}</span>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {valueOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
           </div>
           <FilterSelect label="Client" icon={Users} value={filters.client}
@@ -547,14 +589,14 @@ export default function MonthlyExecutionPage() {
             onPickMonth={m => setPeriod(String(m))} onOpenPoints={setPointsMonth} />
 
           <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-3">
-            <KanbanColumn variant="planned" entries={planned} totalCaptured={scoped.length}
+            <KanbanColumn variant="planned" month={kanbanLabel} entries={planned} totalCaptured={scoped.length}
               canEdit={!isOFIFallback && writable} onEdit={setEditEntry} />
-            <KanbanColumn variant="started"  entries={started}       canEdit={false} onEdit={setEditEntry} />
-            <KanbanColumn variant="finished" entries={finishedCards} canEdit={false} onEdit={setEditEntry} />
+            <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry} />
+            <KanbanColumn variant="finished" month={fortnight ? fortnightLabel(fortnight) : kanbanLabel} entries={finishedCards} canEdit={false} onEdit={setEditEntry} />
           </div>
         </div>
 
-        <GoalPanel rows={panel} label={month ? MONTH_NAMES[month - 1] : `Jan to ${MONTH_LABELS[currentMonth - 1]}`} />
+        <GoalPanel rows={panel} label={panelLabel} />
       </div>
 
       <ReasonDialog entry={editEntry} onClose={() => setEditEntry(null)} />

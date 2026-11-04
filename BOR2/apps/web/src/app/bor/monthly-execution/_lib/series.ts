@@ -89,16 +89,36 @@ export function buildSeries(args: {
 
 export interface GoalStanding { group: GoalGroup; goal: number; finished: number; ratio: number; projects: FinishedProject[] }
 
+/** Recorte do painel: as datas que contam e a meta de cada grupo nesse recorte. */
+export interface PeriodScope {
+  from: string // "YYYY-MM-DD", inclusive
+  to: string   // inclusive
+  goalOf: (g: GoalGroup) => number
+}
+
+/** A meta acumula: soma a meta de cada mês do recorte. */
+export const monthsScope = (year: number, months: number[]): PeriodScope => ({
+  from: `${year}-${String(months[0]).padStart(2, "0")}-01`,
+  to: `${year}-${String(months[months.length - 1]).padStart(2, "0")}-31`,
+  goalOf: g => months.reduce((sum, m) => sum + (g.goals?.[m - 1] ?? 0), 0),
+})
+
 /**
- * Painel da meta. A meta acumula: sem mês escolhido, soma de janeiro até o mês
- * corrente; com mês, só aquele mês. Ordem: do mais longe para o mais perto.
+ * Quinzena de pagamento da Framing (QB Time). A meta é a do mês em que ela
+ * termina × 12 ÷ 26, arredondada para cima: 3 casas/mês viram 2 na quinzena.
  */
-export function standings(groups: GoalGroup[], finished: FinishedProject[], months: number[]): GoalStanding[] {
+export const fortnightScope = (from: string, to: string): PeriodScope => ({
+  from, to,
+  goalOf: g => Math.ceil(((g.goals?.[monthOf(to) - 1] ?? 0) * 12) / 26),
+})
+
+/** Painel da meta, ordenado do mais longe para o mais perto. */
+export function standings(groups: GoalGroup[], finished: FinishedProject[], scope: PeriodScope): GoalStanding[] {
   return groups
     .map(group => {
       const keys = new Set(group.sites.map(s => siteKey(s.cliente, s.jobSite)))
-      const goal = months.reduce((sum, m) => sum + (group.goals?.[m - 1] ?? 0), 0)
-      const projects = finished.filter(p => months.includes(monthOf(p.finishedOn)) && keys.has(siteKey(p.cliente, p.jobSite)))
+      const goal = scope.goalOf(group)
+      const projects = finished.filter(p => p.finishedOn >= scope.from && p.finishedOn <= scope.to && keys.has(siteKey(p.cliente, p.jobSite)))
       return { group, goal, finished: projects.length, ratio: goal ? projects.length / goal : Infinity, projects }
     })
     .sort((a, b) => a.ratio - b.ratio || a.group.name.localeCompare(b.group.name))
