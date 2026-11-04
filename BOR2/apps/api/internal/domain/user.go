@@ -28,8 +28,6 @@ type Session struct {
 	Token     string    `json:"-"`
 	ExpiresAt time.Time `json:"expiresAt"`
 	CreatedAt time.Time `json:"createdAt"`
-	// A janela desta sessão, decidida no login. É ela que a renovação soma ao
-	// relógio, e ela varia por conta: quem só enxerga o Atlas ganha uma janela
-	// longa, quem também abre o BOR fica na curta.
+	// A janela desta sessão, decidida no login: é ela que a renovação soma ao relógio.
 	TTLSeconds int `json:"-"`
 }

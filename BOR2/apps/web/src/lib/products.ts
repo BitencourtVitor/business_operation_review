@@ -2,21 +2,6 @@
 
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
-import { CircleGauge, DraftingCompass, type LucideIcon } from "lucide-react"
-
-// Os dois braços da plataforma. Autenticar deixou de significar "entrar no
-// BOR": o login é da plataforma, e BOR e Atlas são destinos dela (AT-2).
-export type ProductId = "bor" | "atlas"
-
-/**
- * A marca de cada produto, num lugar só. O compasso do Atlas desenha um A com
- * as duas pernas, e é o mesmo sinal na seleção de produto, no cabeçalho e onde
- * mais o Atlas aparecer — marca que muda de desenho por tela deixa de ser marca.
- */
-export const PRODUCT_ICON: Record<ProductId, LucideIcon> = {
-  bor: CircleGauge,
-  atlas: DraftingCompass,
-}
 
 const FULL_ACCESS_ROLES = ["dev", "owner", "admin", "manager"]
 
@@ -69,8 +54,7 @@ export function borLandingHref(
 /**
  * Se o usuário tem o BOR, e por onde ele entra.
  *
- * O BOR não tem chave própria: tê-lo é ter qualquer permissão que não seja a
- * do Atlas, que agora é do BuilderLog.
+ * O BOR não tem chave própria: tê-lo é ter qualquer permissão.
  */
 export function useProducts() {
   const { user } = useAuth()
@@ -79,11 +63,10 @@ export function useProducts() {
   const role = user?.role ?? ""
   const full = FULL_ACCESS_ROLES.includes(role)
   const perms = myPerms?.permissions ?? {}
-  const hasBOR = full || Object.entries(perms).some(([key, level]) => key !== "atlas" && !!level)
+  const hasBOR = full || Object.values(perms).some(level => !!level)
 
   return {
     hasBOR,
-    /** Para quem manda o usuário de volta ao BOR de dentro do Atlas. */
     borHref: borLandingHref(perms, full),
     isLoading: !user || isLoading,
   }

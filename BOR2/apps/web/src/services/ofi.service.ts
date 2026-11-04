@@ -33,6 +33,7 @@ export interface ExecutionEntry {
   projectName: string
   jobSite?: string
   address?: string
+  cliente?: string
 }
 
 export interface OfiFilters {

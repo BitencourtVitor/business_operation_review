@@ -127,3 +127,6 @@ BOR2/docs/manuais/*.aux
 BOR2/docs/manuais/*.log
 BOR2/docs/manuais/*.out
 BOR2/docs/manuais/*.toc
+
+# Cópia das tabelas atlas_* antes de apagá-las (29/10/2026): fica só nesta máquina
+backup-atlas/

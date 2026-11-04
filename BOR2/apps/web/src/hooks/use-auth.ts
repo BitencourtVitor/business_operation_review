@@ -1,4 +1,3 @@
-import { apagarConsultas } from "@/lib/query-client"
 import { authService } from "@/services/auth.service"
 import { useAuthStore } from "@/store/auth.store"
 import { useFinancialStore } from "@/store/financial.store"
@@ -46,10 +45,7 @@ export function useAuth() {
       return { ...data, remember: remember ?? false }
     },
     onSuccess: (data) => {
-      // Conta exclusiva do Atlas não depende da caixinha "Remember me": quem
-      // abre uma prancha na obra pelo celular perdia a sessão a cada aba que o
-      // navegador fechava sozinho, por mais meses que o servidor concedesse.
-      setAuth(data.user, data.token, data.remember || !!data.longSession)
+      setAuth(data.user, data.token, data.remember)
       router.push("/bor")
     },
   })
@@ -61,10 +57,9 @@ export function useAuth() {
     // a sessão local sai do mesmo jeito, que é o que a pessoa pediu.
     networkMode: "always",
     onSettled: () => {
-      // Limpa todo o cache antes de navegar, inclusive o guardado no aparelho:
-      // quem entrar em seguida não pode ver nome nem dado de quem saiu.
+      // Limpa todo o cache antes de navegar: quem entrar em seguida não pode
+      // ver nome nem dado de quem saiu.
       queryClient.clear()
-      void apagarConsultas()
       resetFinancial()
       clearAuth()
       router.push("/login")
