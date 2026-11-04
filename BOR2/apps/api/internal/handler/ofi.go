@@ -178,11 +178,12 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		SELECT o.id, o.obra_id, o.reference_month, o.reference_year,
 		       o.fieldwire_score, o.machines_score, o.contract_score, o.systems_score, o.total_score,
 		       COALESCE(o.capture_date::text, ''),
+		       -- Job site primeiro: em quase toda obra o name é o próprio lote, e
+		       -- "name - lote" saía "31 - 31" (OFI-5).
 		       CASE
-		         WHEN NULLIF(fc.name,'')     IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name     || ' - ' || fc.lote_bld
-		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.job_site || ' - ' || fc.lote_bld
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
 		         ELSE o.obra_id
 		       END AS project_name,
