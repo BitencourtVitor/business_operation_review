@@ -931,13 +931,13 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
       <div className="flex items-center gap-2">
         <CalendarClock className="h-4 w-4 text-blue-500" />
         <span className="text-sm font-semibold leading-tight text-blue-500">In-Progress Costs</span>
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
           <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
           <span className={cn("text-base font-bold tabular-nums text-blue-500", blur)}>{fmt(data?.total_cost ?? 0)}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1 max-sm:[&>*]:col-span-1">
       {/* Labor sub-section */}
       <div className="col-span-2 flex flex-col gap-3 rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3">
         <div className="flex items-center gap-2">
@@ -973,7 +973,7 @@ function LaborForecastBlock({ company, projectID, blur }: { company: string; pro
                 { value: data.ot_cost, color: "#f97316", label: "Overtime", icon: Hourglass },
               ]}
             />
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1 max-sm:gap-1 max-sm:[&>*]:flex-row! max-sm:[&>*]:items-baseline! max-sm:[&>*]:justify-between!">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Regular · {data.regular_hours.toFixed(1)}h</span>
                 <span className={cn("text-lg font-bold tabular-nums text-blue-500", blur)}>{fmt(data.regular_cost)}</span>
@@ -1152,8 +1152,8 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
       <div className="relative flex max-h-[92vh] w-[min(1560px,97vw)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-3">
-          <div className="flex items-center gap-2.5">
+        <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border px-5 py-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 max-sm:basis-[calc(100%-3rem)]">
             {data?.project_type === "building"
               ? <Building2 className="h-4 w-4 text-muted-foreground" />
               : <Home className="h-4 w-4 text-muted-foreground" />}
@@ -1174,7 +1174,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
             const marginPct = data.income_actual > 0 ? Math.round((profit / data.income_actual) * 100) : 0
             const positive = profit >= 0
             return (
-              <div className="ml-auto flex items-center gap-4">
+              <div className="ml-auto flex flex-wrap items-center gap-4 max-sm:order-last max-sm:ml-0 max-sm:w-full">
                 <HealthStrip data={data} variability={settings?.variability_pct ?? 5} blur={blur} />
                 <div className="h-8 w-px bg-border/60" />
                 <div className="flex flex-col items-end gap-0.5">
@@ -1201,7 +1201,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
           ) : !data ? (
             <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">No data found</div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
 
               {/* ── Left col: Income + Cost stacked ────────────────────────── */}
               <div className="flex flex-col gap-4">
@@ -1211,7 +1211,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-500">Income</span>
-                    <div className="ml-auto flex items-center gap-1.5">
+                    <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                       <span className={cn("text-base font-bold tabular-nums text-emerald-500", blur)}>{fmt(data.income_actual)}</span>
                       <div className="h-3.5 w-px bg-border/50" />
@@ -1229,7 +1229,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     ]}
                     remainder={{ label: "Remaining", value: Math.max(data.projected_receive - data.income_actual, 0) }}
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1 max-sm:gap-1 max-sm:[&>*]:flex-row! max-sm:[&>*]:items-baseline! max-sm:[&>*]:justify-between!">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Received</span>
                       <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.received)}</span>
@@ -1324,7 +1324,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                   <div className="flex items-center gap-2">
                     <HandCoins className="h-4 w-4 text-red-500" />
                     <span className="text-sm font-semibold text-red-500">Cost</span>
-                    <div className="ml-auto flex items-center gap-1.5">
+                    <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Total</span>
                       <span className={cn("text-base font-bold tabular-nums text-red-500", blur)}>
                         {fmt(data.cost_total)}
@@ -1367,7 +1367,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                     ]}
                     remainder={{ label: "Remaining", value: Math.max(data.cost_ceiling - data.cost_total, 0) }}
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1 max-sm:gap-1 max-sm:[&>*]:flex-row! max-sm:[&>*]:items-baseline! max-sm:[&>*]:justify-between!">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Paid</span>
                       <span className={cn("text-lg font-bold tabular-nums text-red-500", blur)}>{fmt(data.paid)}</span>
@@ -1450,16 +1450,16 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
               <div className="flex flex-col gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.04] p-4">
 
                 {/* Title row */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <HardHat className="h-4 w-4 text-yellow-500" />
-                  <div className="flex min-w-0 flex-col">
+                  <div className="flex min-w-0 flex-col max-sm:flex-1">
                     <span className="text-sm font-semibold leading-tight text-yellow-500">Contractors Costs</span>
                     <span className="flex items-start gap-1 text-[11px] text-muted-foreground/60">
                       <CornerDownRight className="mt-px h-3 w-3 shrink-0 text-yellow-500/40" />
                       <span>Budget by category ·<br />PO commitment is the fill</span>
                     </span>
                   </div>
-                  <div className="ml-auto flex items-center gap-1.5 self-start">
+                  <div className="ml-auto flex flex-wrap items-center gap-1.5 self-start max-sm:order-last max-sm:w-full max-sm:justify-end">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
                     <span className={cn("text-base font-bold tabular-nums text-yellow-500", blur)}>{fmt(data.labor_budget)}</span>
                     <div className="h-3.5 w-px bg-border/50" />
@@ -1489,7 +1489,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 />
 
                 {/* KPI grid */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1 max-sm:gap-1 max-sm:[&>*]:flex-row! max-sm:[&>*]:items-baseline! max-sm:[&>*]:justify-between!">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">Budget</span>
                     <span className={cn("text-lg font-bold tabular-nums", blur)}>{fmt(data.labor_budget)}</span>
@@ -1505,7 +1505,7 @@ export function ProjectBudgetModal({ company, projectID, onClose }: {
                 </div>
 
                 {/* Category list — always visible */}
-                <div className="overflow-hidden rounded-lg border border-yellow-500/20">
+                <div className="overflow-hidden rounded-lg border border-yellow-500/20 max-sm:overflow-x-auto max-sm:[&>*]:min-w-[34rem]">
                   {/* Column header */}
                   <div className="flex items-center gap-3 border-b border-yellow-500/20 bg-muted/10 px-4 py-1">
                     <div className="h-6 w-6 shrink-0" />
