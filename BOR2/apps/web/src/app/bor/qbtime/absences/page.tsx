@@ -264,10 +264,10 @@ function AbsencesContent() {
       <Card className="flex min-h-0 flex-1 flex-col gap-0 py-0">
 
         <CardHeader className="border-b pt-4">
-          <CardTitle className="flex items-center gap-3">
+          <CardTitle className="flex flex-wrap items-center gap-x-3 gap-y-1">
             Attendance
             {data && (
-              <span className="flex items-center gap-3 text-xs font-normal text-muted-foreground">
+              <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-normal text-muted-foreground [&>*]:whitespace-nowrap">
                 <span className="flex items-center gap-1">
                   <Users className="h-3.5 w-3.5" />
                   <span className="tabular-nums">{data.rosterSize}</span>
@@ -280,7 +280,8 @@ function AbsencesContent() {
             )}
           </CardTitle>
 
-          <CardAction>
+          {/* No celular a legenda desce para uma linha própria, abaixo do título. */}
+          <CardAction className="max-sm:col-start-1 max-sm:row-span-1 max-sm:row-start-2 max-sm:justify-self-start">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" /> Present
