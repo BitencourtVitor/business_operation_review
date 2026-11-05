@@ -109,7 +109,7 @@ export default function PermitsPage() {
   )
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 max-lg:overflow-y-auto">
 
       {/* ── Filters / Header ── */}
       <PermitFilters
@@ -135,12 +135,12 @@ export default function PermitsPage() {
       />
 
       {/* ── Body ── */}
-      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+      <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:gap-0 lg:overflow-hidden">
 
         {/* Main content */}
-        <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-1 lg:overflow-hidden">
           {/* Chart grows to fill all space above the cards */}
-          <div className="min-h-0 flex-1 overflow-hidden">
+          <div className="overflow-hidden max-lg:h-72 lg:min-h-0 lg:flex-1">
             <PermitChart
               permits={filtered}
               dateField={dateField}
