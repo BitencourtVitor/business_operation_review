@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AreaChart, Area,
   XAxis, YAxis, CartesianGrid,
@@ -188,6 +188,10 @@ export default function ForecastMetricsPage() {
     ? (monthsData.find(m => m.key === selectedMonth) ?? null)
     : null
 
+  // No celular a página inteira rola: ao abrir o detalhe de um mês, a tela vai para o começo dele.
+  const bodyRef = useRef<HTMLDivElement>(null)
+  useEffect(() => { if (selectedMonth && innerWidth < 1024) bodyRef.current?.scrollIntoView({ block: "start" }) }, [selectedMonth])
+
   // ─────────────────────────────────────────────────────────────────────────
 
   if (isLoading) {
@@ -200,7 +204,7 @@ export default function ForecastMetricsPage() {
 
   return (
     <TooltipProvider delay={200}>
-      <div className="flex h-full flex-col gap-4">
+      <div className="flex h-full flex-col gap-4 max-lg:overflow-y-auto">
 
         {/* ── Header ── */}
         <div className="flex shrink-0 flex-wrap items-start justify-between gap-3">
@@ -294,7 +298,7 @@ export default function ForecastMetricsPage() {
         )}
 
         {/* ── Body ── */}
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div ref={bodyRef} className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
 
           {visibleMonths.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
