@@ -289,17 +289,19 @@ export default function OFIPage() {
 
   // ── KPIs ─────────────────────────────────────────────────────────────────
 
+  // Média por mês e depois a média dos meses (todo mês pesa igual, como os pontos do sparkline).
+  // O total é a soma dos quatro componentes já arredondados, então os cards sempre fecham com ele.
   const kpis = useMemo(() => {
     if (!filtered.length)
       return { total: 0, fieldwire: 0, machines: 0, contract: 0, systems: 0 }
-    const n = filtered.length
-    return {
-      total:     round2(filtered.reduce((s, r) => s + r.totalScore,     0) / n),
-      fieldwire: round2(filtered.reduce((s, r) => s + r.fieldwireScore, 0) / n),
-      machines:  round2(filtered.reduce((s, r) => s + r.machinesScore,  0) / n),
-      contract:  round2(filtered.reduce((s, r) => s + r.contractScore,  0) / n),
-      systems:   round2(filtered.reduce((s, r) => s + r.systemsScore,   0) / n),
-    }
+    const byMonth = new Map<number, typeof filtered>()
+    for (const r of filtered) byMonth.set(r.referenceMonth, [...(byMonth.get(r.referenceMonth) ?? []), r])
+    const months = [...byMonth.values()]
+    const avg = (pick: (r: (typeof filtered)[number]) => number) =>
+      round2(months.reduce((s, rows) => s + rows.reduce((t, r) => t + pick(r), 0) / rows.length, 0) / months.length)
+    const fieldwire = avg(r => r.fieldwireScore), machines = avg(r => r.machinesScore)
+    const contract = avg(r => r.contractScore), systems = avg(r => r.systemsScore)
+    return { total: round2(fieldwire + machines + contract + systems), fieldwire, machines, contract, systems }
   }, [filtered])
 
   // ── Monthly trend ─────────────────────────────────────────────────────────

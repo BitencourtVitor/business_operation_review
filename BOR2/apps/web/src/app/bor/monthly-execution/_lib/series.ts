@@ -54,7 +54,7 @@ export interface ChartPoint {
 export function buildSeries(args: {
   year: number; today: Date; filters: Filters; groups: GoalGroup[]
   execution: ExecutionEntry[]; finished: FinishedProject[]; points: ImprovementPoint[]
-  januaryFallback: { planned: number | null }
+  januaryFallback: { rows: { cliente?: string; jobSite?: string }[] }
 }): ChartPoint[] {
   const { year, today, filters, groups, execution, finished, points } = args
   const visible = visibleGroups(groups, filters)
@@ -69,17 +69,18 @@ export function buildSeries(args: {
     const exe = execution.filter(e => e.referenceMonth === m && inScope(e.cliente, e.jobSite))
     let planned: number | null = exe.length || null
     let started: number | null = exe.length ? exe.filter(isStarted).length : null
-    // Janeiro de 2026 não tem retrato: o número veio do BOR1 e só vale sem filtro.
-    if (m === 1 && year === 2026 && !exe.length && !filtered) {
-      planned = args.januaryFallback.planned
-      started = 10
+    // Janeiro de 2026 não tem retrato de execução: o planejado sai das linhas do OFI do mês
+    // (mesma regra dos grupos) e o iniciado fica vazio, como no kanban (não há registro por obra).
+    if (m === 1 && year === 2026 && !exe.length) {
+      planned = args.januaryFallback.rows.filter(r => inScope(r.cliente, r.jobSite)).length || null
+      started = null
     }
     const monthPoints = points.filter(p => p.month === m && pointVisible(p, ids, filtered))
     return {
       month: label,
       planned,
       started,
-      finished: m <= lastMonth ? finished.filter(p => monthOf(p.finishedOn) === m && inScope(p.cliente, p.jobSite)).length : null,
+      finished: m <= lastMonth ? finished.filter(p => p.finishedOn.startsWith(String(year)) && monthOf(p.finishedOn) === m && inScope(p.cliente, p.jobSite)).length : null,
       goal: visible.length ? visible.reduce((sum, g) => sum + (g.goals?.[i] ?? 0), 0) : null,
       pending: monthPoints.filter(p => p.status === "pending").length,
       resolved: monthPoints.filter(p => p.status === "resolved").length,
