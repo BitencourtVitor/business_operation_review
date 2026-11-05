@@ -83,6 +83,9 @@ type BuildingForecast struct {
 	Workers         []WorkerHours         `json:"workers"` // mais horas primeiro
 }
 
+// maxLateHorizonDays limita quantos dias a estimativa avança depois de hoje num prédio atrasado.
+const maxLateHorizonDays = 60
+
 // ForecastBuilding monta o EVM: a meta (PV) é o orçamento distribuído em linha
 // reta, só em horas regulares, do primeiro dia com hora até o end date do
 // Forecast; o real (AC) é o custo gasto convertido pelo rate médio; a projeção
@@ -131,9 +134,17 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		t1 = t0
 	}
 	span := math.Max(1, t1.Sub(t0).Hours()/24)
-	elapsed := math.Max(1, math.Min(now.Sub(t0).Hours()/24, span))
+	// Ritmo real: horas por dia desde o ponto zero até hoje (sem teto no prazo previsto).
+	elapsed := math.Max(1, now.Sub(t0).Hours()/24)
 	perDay := f.ConsumedHours / elapsed
-	f.ProjectedHours = f.ConsumedHours + perDay*math.Max(0, t1.Sub(now).Hours()/24)
+	// Até onde vai a estimativa: no prazo, até o fim previsto; atrasado, avança o mesmo
+	// número de dias do atraso, no máximo 60, para não esticar o eixo do tempo.
+	horizon := t1
+	if now.After(t1) {
+		late := int(now.Sub(t1).Hours() / 24)
+		horizon = now.AddDate(0, 0, min(late, maxLateHorizonDays))
+	}
+	f.ProjectedHours = f.ConsumedHours + perDay*math.Max(0, horizon.Sub(now).Hours()/24)
 	if perDay > 0 && f.ConsumedHours < f.BudgetHours {
 		on := now.AddDate(0, 0, int(math.Ceil((f.BudgetHours-f.ConsumedHours)/perDay))).Format(dateLayout)
 		if on <= end {
@@ -151,7 +162,7 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		}
 	}
 
-	// Série diária do início ao fim do prédio (ou até hoje, se já passou).
+	// Série diária do início até o horizonte da estimativa (o fim previsto, ou hoje + atraso, até 60 dias).
 	days := sortedKeys(dailyCost)
 	spentBy := func(day string) float64 {
 		var sum float64
@@ -163,10 +174,7 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		}
 		return sum / blendedRegular
 	}
-	last := t1
-	if now.After(last) {
-		last = now
-	}
+	last := horizon
 	// Todo dia, mais hoje (onde o real vira projeção) e o último dia: cada ponto cai no seu dia.
 	marks := map[string]time.Time{last.Format(dateLayout): last}
 	for d := t0; !d.After(last); d = d.AddDate(0, 0, 1) {
