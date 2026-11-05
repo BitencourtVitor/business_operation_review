@@ -294,7 +294,7 @@ function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item
 }
 
 // Páginas aprovadas no celular (RESP-1..23): cada uma entra aqui quando o Vitor aprova.
-const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution", "/bor/ofi", "C:/Program Files/Git/bor/hvac-schedule", "C:/Program Files/Git/bor/hvac-maintenance", "C:/Program Files/Git/bor/workforce-productivity", "C:/Program Files/Git/bor/inventory", "C:/Program Files/Git/bor/permits", "C:/Program Files/Git/bor/service-requests", "C:/Program Files/Git/bor/accounting"])
+const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution", "/bor/ofi", "C:/Program Files/Git/bor/hvac-schedule", "C:/Program Files/Git/bor/hvac-maintenance", "C:/Program Files/Git/bor/workforce-productivity", "C:/Program Files/Git/bor/inventory", "C:/Program Files/Git/bor/permits", "C:/Program Files/Git/bor/service-requests", "C:/Program Files/Git/bor/accounting", "C:/Program Files/Git/bor/budget-control"])
 
 function NavGroupItems({
   items,

@@ -932,7 +932,7 @@ function BudgetContent() {
   if (projLoading) return <PageSkeleton />
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 max-lg:overflow-y-auto">
 
       {/* ── Page header ──────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -952,7 +952,7 @@ function BudgetContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <PeriodFilter start={periodStart} end={periodEnd} onApply={(s, e) => { setPeriodStart(s); setPeriodEnd(e) }} />
           <ClientFilter clients={clientNames} selected={selectedClients} setSelected={setSelectedClients} />
           <CustomerFilter customers={customerNames} selected={selectedCustomers} setSelected={setSelectedCustomers} />
@@ -1006,16 +1006,16 @@ function BudgetContent() {
       </div>
 
       {/* ── Projects container ────────────────────────────────────────────── */}
-      <div className={cn("flex min-h-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40", projectsCollapsed ? "shrink-0" : "flex-1")}>
+      <div className={cn("flex min-h-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40", projectsCollapsed ? "shrink-0" : "max-lg:h-[85vh] max-lg:shrink-0 lg:flex-1")}>
 
         {/* Container header */}
-        <div className={cn("flex shrink-0 items-center gap-3 px-4 py-3", !projectsCollapsed && "border-b border-border/50")}>
+        <div className={cn("flex shrink-0 flex-wrap items-center gap-3 px-4 py-3", !projectsCollapsed && "border-b border-border/50")}>
           <button onClick={() => setProjectsCollapsed(v => !v)} className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             {projectsCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
           <span className="text-sm font-semibold">Projects</span>
           <span className="text-xs text-muted-foreground">{rows.length}</span>
-          {!projectsCollapsed && <div className="ml-auto flex items-center gap-2">
+          {!projectsCollapsed && <div className="ml-auto flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
@@ -1110,7 +1110,7 @@ function BudgetContent() {
               ))}
             </div>
             {/* Sort */}
-            <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
+            <div className="no-scrollbar flex h-7 max-w-full [&>*]:shrink-0 [&>*]:whitespace-nowrap items-center overflow-x-auto rounded-md border border-input bg-transparent dark:bg-input/30">
               <span className="flex h-full items-center border-r border-input bg-muted/40 px-2.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 Order by
               </span>
@@ -1168,10 +1168,10 @@ function BudgetContent() {
               </div>
             </div>
             {/* BC-26: totals across the full filtered set */}
-            <div className="flex shrink-0 items-center gap-5 border-t border-border/50 px-4 py-2 text-[11px]">
+            <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-t border-border/50 px-4 py-2 text-[11px]">
               <span className="font-semibold uppercase tracking-wider text-muted-foreground/60">Totals</span>
-              <div className="ml-auto flex items-center gap-5">
-                <span className="flex items-center gap-2">
+              <div className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <span className="font-semibold uppercase tracking-wider text-foreground/70">Billed</span>
                   <span className="flex items-center gap-1.5">
                     <span className="text-muted-foreground">Income</span>
@@ -1187,7 +1187,7 @@ function BudgetContent() {
                   </span>
                 </span>
                 <span className="h-3.5 w-px bg-border/50" />
-                <span className="flex items-center gap-2">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <span className="font-semibold uppercase tracking-wider text-foreground/70">Pending</span>
                   <span className="flex items-center gap-1.5">
                     <span className="text-muted-foreground">Income</span>
