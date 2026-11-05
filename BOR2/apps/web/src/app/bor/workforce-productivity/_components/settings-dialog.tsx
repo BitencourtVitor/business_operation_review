@@ -218,10 +218,10 @@ export function WorkforceSettingsDialog({ open, onClose }: { open: boolean; onCl
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 max-sm:flex-col max-sm:items-stretch">
                       <Picker<ForecastBuildingRef> items={data.buildings.filter(x => x.id === editId || !draft.links.some(l => l.forecastId === x.id))}
                         value={addF} onChange={setAddF} label={fbName} placeholder="Forecast job" search="Search Forecast job" />
-                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground max-sm:self-center max-sm:rotate-90" />
                       <Picker<QBTBuilding> items={qbt} value={addQ} onChange={setAddQ} label={o => `${o.jobsite} · ${o.building}`}
                         extra={o => `${Math.round(o.hours)} h`} placeholder="QB Time job site" search="Search QB Time job site" />
                     </div>
@@ -230,13 +230,16 @@ export function WorkforceSettingsDialog({ open, onClose }: { open: boolean; onCl
                   {draft.links.map(l => {
                     const fb = data.buildings.find(x => x.id === l.forecastId)
                     return (
-                      <div key={l.forecastId} className="flex items-center gap-2 rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
+                      <div key={l.forecastId} className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/20 px-2 py-1.5 text-xs max-sm:justify-end">
+                        {/* No celular os nomes ficam com a linha toda; data e ações descem para a de baixo. */}
+                        <span className="flex min-w-0 flex-1 items-center gap-2 max-sm:basis-full">
                         <span className="min-w-0 flex-1 truncate">
                           <span className="font-medium">{fb ? fbName(fb) : l.forecastId}</span>
                           {fb?.cliente && <span className="text-muted-foreground"><Sep />{fb.cliente}</span>}
                         </span>
                         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         <span className="min-w-0 flex-1 truncate">{l.jobsite} · {l.building}</span>
+                        </span>
                         <EndDate forecastEnd={fb?.end ?? null} override={l.endOverride}
                           onChange={v => patch({ links: draft.links.map(x => (x.forecastId === l.forecastId ? { ...x, endOverride: v } : x)) })} />
                         <button type="button" aria-label="Edit link" onClick={() => {

@@ -449,7 +449,7 @@ function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings:
       {ready.length === 0 ? (
         <p className="py-6 text-center text-xs text-muted-foreground">No building has hours yet. Link the buildings to their QB Time job sites in the settings.</p>
       ) : (
-        <div className={open ? "flex h-full min-h-0 flex-col" : "grid h-full content-start gap-0.5 overflow-y-auto"}>
+        <div className={open ? "flex h-full min-h-0 flex-col" : "grid h-full grid-cols-[minmax(0,1fr)] content-start gap-0.5 overflow-y-auto"}>
           {ready.filter(b => !open || b.building.id === open).map(b => {
             const f = b.forecast!
             const isOpen = open === b.building.id
@@ -793,7 +793,7 @@ export default function WorkforceProductivityPage() {
       <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi icon={Clock} label={<>Hours<Scope>{scopeLabel}</Scope></>} value={fmtH(reg + ot)} sub={`${headcount} employees`} />
         {/* Regular e Overtime são a mesma conta (as horas) dividida em duas: blocos colados, uma linha só entre eles. */}
-        <div className="col-span-2 grid grid-cols-2">
+        <div className="col-span-2 grid grid-cols-2 max-lg:order-last">
           <Kpi icon={Users} label="Regular" value={fmtH(reg)} sub={`${pct(reg, reg + ot)}% of the hours`} className="rounded-r-none" />
           <Kpi icon={AlarmClockPlus} label="Overtime" value={fmtH(ot)} tone={ot > 0 ? "red" : undefined} className="rounded-l-none border-l-0"
             sub={`${pct(ot, reg + ot)}% of the hours`}
@@ -811,7 +811,7 @@ export default function WorkforceProductivityPage() {
         <Kpi icon={Flame} label="Employees with overtime" value={String(withOt)} sub={`of ${headcount} · ${pct(withOt, headcount)}% of the employees`} />
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-3 xl:grid-cols-2">
+      <div className="grid gap-3 max-xl:auto-rows-[24rem] xl:min-h-0 xl:flex-1 xl:grid-cols-2">
         <StackedCard title={`Hours by ${granularity === "month" ? "Month" : "Pay Period"}`}
           help={{
             what: `Hours worked on ${typeLabel.toLowerCase()} each ${granularity === "month" ? "month" : "pay period"}, split into regular and overtime.`,
@@ -845,7 +845,7 @@ export default function WorkforceProductivityPage() {
         </Card>
       </div>
 
-      <div className={`grid min-h-0 flex-1 gap-3 ${company === "framing" ? "xl:grid-cols-2" : ""}`}>
+      <div className={`grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 ${company === "framing" ? "xl:grid-cols-2" : ""}`}>
         {company === "framing" && <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} />}
         <Card title={<>Overtime Ranking<Scope>{scopeLabel}</Scope></>} className="h-full"
           help={{
