@@ -322,11 +322,12 @@ const COL_CONFIG: Record<ColVariant, { label: string; icon: React.ElementType; c
   finished: { label: "Finished Projects", icon: CheckCircle2,  color: COLORS.finished },
 }
 
-function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit }: {
+function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit, empty = "No projects" }: {
   variant: ColVariant
   month: string
   entries: ExecutionEntry[]
   totalCaptured?: number
+  empty?: string
   canEdit: boolean
   onEdit: (entry: ExecutionEntry) => void
 }) {
@@ -357,7 +358,7 @@ function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit 
         {entries.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground/30">
             <Icon className="h-8 w-8" style={{ color: "currentColor" }} />
-            <p className="text-sm">No projects</p>
+            <p className="text-center text-sm">{empty}</p>
           </div>
         ) : (
           entries.map(e => (
@@ -474,7 +475,7 @@ export default function MonthlyExecutionPage() {
 
   const chartData = useMemo(() => buildSeries({
     year, today, filters, groups, execution: allYear, finished, points,
-    januaryFallback: { planned: bor2Ofi.filter(e => e.referenceMonth === 1).length || null },
+    januaryFallback: { rows: bor2Ofi.filter(e => e.referenceMonth === 1) },
   }), [year, filters, groups, allYear, finished, points, bor2Ofi])
 
   const scope = fortnight
@@ -495,16 +496,16 @@ export default function MonthlyExecutionPage() {
     const ofiRecords: ExecutionEntry[] = ofiForMonth.map(o => ({
       id: o.id, obraId: o.obraId, referenceMonth: o.referenceMonth, referenceYear: o.referenceYear,
       plannedStatus: "not_started", actualStatus: "not_started" as const, reason: "", subcontractor: "",
-      isCycleCompleted: false, projectName: o.projectName, address: o.address,
+      isCycleCompleted: false, projectName: o.projectName, address: o.address, cliente: o.cliente, jobSite: o.jobSite,
     }))
     return { forMonth: ofiRecords, isOFIFallback: true }
   }, [allYear, ofiForMonth, kanbanMonth])
 
-  const scoped   = forMonth.filter(e => isOFIFallback ? !filtered : inFilter(e.cliente, e.jobSite))
+  const scoped   = forMonth.filter(e => inFilter(e.cliente, e.jobSite))
   const planned  = scoped.filter(e => !isStarted(e))
   const started  = scoped.filter(isStarted)
   const finishedCards: ExecutionEntry[] = finished
-    .filter(p => (fortnight ? p.finishedOn >= scope.from && p.finishedOn <= scope.to : monthOf(p.finishedOn) === kanbanMonth)
+    .filter(p => (fortnight ? p.finishedOn >= scope.from && p.finishedOn <= scope.to : p.finishedOn.startsWith(String(year)) && monthOf(p.finishedOn) === kanbanMonth)
       && inFilter(p.cliente, p.jobSite))
     .map(p => ({
       id: p.id, obraId: p.id, referenceMonth: kanbanMonth, referenceYear: year, plannedStatus: "",
@@ -592,7 +593,8 @@ export default function MonthlyExecutionPage() {
           <div className="grid gap-4 max-lg:order-3 @2xl:grid-cols-3 lg:min-h-0 lg:flex-1">
             <KanbanColumn variant="planned" month={kanbanLabel} entries={planned} totalCaptured={scoped.length}
               canEdit={!isOFIFallback && writable} onEdit={setEditEntry} />
-            <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry} />
+            <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry}
+              empty={isOFIFallback ? "No snapshot for this month" : undefined} />
             <KanbanColumn variant="finished" month={fortnight ? fortnightLabel(fortnight) : kanbanLabel} entries={finishedCards} canEdit={false} onEdit={setEditEntry} />
           </div>
         </div>

@@ -18,6 +18,8 @@ export interface OfiEntry {
   captureDate: string
   projectName: string
   address: string
+  cliente?: string
+  jobSite?: string
 }
 
 export interface ExecutionEntry {

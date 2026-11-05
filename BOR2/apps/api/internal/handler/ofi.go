@@ -36,6 +36,8 @@ type ofiRow struct {
 	CaptureDate    string  `json:"captureDate"`
 	ProjectName    string  `json:"projectName"`
 	Address        string  `json:"address"`
+	Cliente        string  `json:"cliente"`
+	JobSite        string  `json:"jobSite"`
 }
 
 type executionRow struct {
@@ -187,7 +189,9 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
 		         ELSE o.obra_id
 		       END AS project_name,
-		       COALESCE(fc.address, '') AS address
+		       COALESCE(fc.address, '') AS address,
+		       COALESCE(fc.cliente, '') AS cliente,
+		       COALESCE(fc.job_site, '') AS job_site
 		FROM   operational_forecast_index o
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(o.obra_id)
 		WHERE  ($1 = 0 OR o.reference_year  = $1)
@@ -205,7 +209,7 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		if err := rows.Scan(
 			&r.ID, &r.ObraID, &r.ReferenceMonth, &r.ReferenceYear,
 			&r.FieldwireScore, &r.MachinesScore, &r.ContractScore, &r.SystemsScore, &r.TotalScore,
-			&r.CaptureDate, &r.ProjectName, &r.Address,
+			&r.CaptureDate, &r.ProjectName, &r.Address, &r.Cliente, &r.JobSite,
 		); err != nil {
 			continue
 		}
@@ -222,12 +226,25 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 
 	rows, err := h.db.Query(context.Background(), `
 		SELECT e.id, e.obra_id, e.reference_month, e.reference_year,
-		       e.planned_status, e.actual_status, e.reason, e.subcontractor, e.is_cycle_completed,
+		       e.planned_status,
+		       -- Mês ainda aberto: o retrato só é gravado no fechamento, então o status real
+		       -- vem do Forecast agora (mesma regra do fechamento). Mês fechado: o retrato.
 		       CASE
-		         WHEN NULLIF(fc.name,'') IS NOT NULL AND fc.name != COALESCE(fc.lote_bld,'') AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name || ' - ' || fc.lote_bld
-		         WHEN NULLIF(fc.name,'') IS NOT NULL AND fc.name != COALESCE(fc.lote_bld,'')                                     THEN fc.name
+		         WHEN make_date(e.reference_year, e.reference_month, 1) >= date_trunc('month', current_date)::date THEN
+		           CASE LOWER(TRIM(COALESCE(fc.status,'')))
+		             WHEN 'closed'  THEN 'completed'
+		             WHEN 'open'    THEN 'started'
+		             WHEN 'started' THEN 'started'
+		             ELSE e.actual_status
+		           END
+		         ELSE e.actual_status
+		       END AS actual_status,
+		       e.reason, e.subcontractor, e.is_cycle_completed,
+		       -- Mesmo nome do OFI e do Finished (OFI-5): job site primeiro.
+		       CASE
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.job_site || ' - ' || fc.lote_bld
 		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
 		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
 		         ELSE e.obra_id
 		       END AS project_name,

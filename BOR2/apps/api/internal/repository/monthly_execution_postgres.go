@@ -107,7 +107,8 @@ func (r *PostgresMonthlyExecutionRepository) ListFinished(ctx context.Context, y
 		       COALESCE(address, ''), finished_on::text
 		FROM forecast_core
 		WHERE company = 'framing' AND status = 'closed'
-		  AND finished_on >= make_date($1, 1, 1) AND finished_on < make_date($1 + 1, 1, 1)
+		  -- Desde 1º de dezembro do ano anterior: o primeiro pay period do ano começa em dezembro.
+		  AND finished_on >= make_date($1 - 1, 12, 1) AND finished_on < make_date($1 + 1, 1, 1)
 		ORDER BY finished_on, job_site, lote_bld
 	`, year)
 	if err != nil {

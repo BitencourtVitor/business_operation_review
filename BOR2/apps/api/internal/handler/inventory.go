@@ -49,30 +49,6 @@ func NewInventoryHandler(db *pgxpool.Pool) *InventoryHandler {
 
 // ─── Data structures ─────────────────────────────────────────────────────────
 
-type ConsumoVsLimite struct {
-	ProjectID           string   `json:"project_id"`
-	ProjectNome         string   `json:"project_nome"`
-	HouseModelID        string   `json:"house_model_id"`
-	HouseModelNome      string   `json:"house_model_nome"`
-	ProductID           string   `json:"product_id"`
-	ProductNome         string   `json:"product_nome"`
-	UnidadeMedida       string   `json:"unidade_medida"`
-	QuantidadeLimite    float64  `json:"quantidade_limite"`
-	QuantidadeConsumida float64  `json:"quantidade_consumida"`
-	PercentualConsumido *float64 `json:"percentual_consumido"`
-	LimiteExcedido      bool     `json:"limite_excedido"`
-}
-
-type HistoricoSaldo struct {
-	Mes            string  `json:"mes"`
-	ProductID      string  `json:"product_id"`
-	ProductNome    string  `json:"product_nome"`
-	SaldoMinimo    float64 `json:"saldo_minimo"`
-	SaldoAcumulado float64 `json:"saldo_acumulado"`
-	AbaixoMinimo   bool    `json:"abaixo_minimo"`
-	Source         string  `json:"source"`
-}
-
 type DetalheExcesso struct {
 	ProjectID               string   `json:"project_id"`
 	ProjectNome             string   `json:"project_nome"`
@@ -100,8 +76,6 @@ type GastoUsuario struct {
 }
 
 type InventoryResponse struct {
-	ConsumoVsLimite []ConsumoVsLimite  `json:"consumo_vs_limite"`
-	HistoricoSaldo  []HistoricoSaldo   `json:"historico_saldo"`
 	DetalhesExcesso []DetalheExcesso   `json:"detalhes_excesso"`
 	GastosUsuario   []GastoUsuario     `json:"gastos_usuario"`
 	ProductPrices   map[string]float64 `json:"product_prices"`
@@ -120,22 +94,6 @@ func (h *InventoryHandler) loadInventoryBackup(result *InventoryResponse) {
 	}
 
 	rows, err := h.db.Query(ctx, `
-		SELECT reference_month::text, product_id, product_name, minimum_balance,
-		       accumulated_balance, below_minimum, source
-		FROM inventory_history_balances WHERE source='backup'
-		ORDER BY reference_month, product_name`)
-	if err == nil {
-		for rows.Next() {
-			var row HistoricoSaldo
-			if rows.Scan(&row.Mes, &row.ProductID, &row.ProductNome, &row.SaldoMinimo,
-				&row.SaldoAcumulado, &row.AbaixoMinimo, &row.Source) == nil {
-				result.HistoricoSaldo = append(result.HistoricoSaldo, row)
-			}
-		}
-		rows.Close()
-	}
-
-	rows, err = h.db.Query(ctx, `
 		SELECT project_id, project_name, house_model_name, product_id, product_name,
 		       responsible_user, recipient_id, movement_date::text, withdrawn_quantity,
 		       quantity_limit, accumulated_consumption, exceeded_at_movement, unit_price, source
@@ -155,29 +113,6 @@ func (h *InventoryHandler) loadInventoryBackup(result *InventoryResponse) {
 	}
 }
 
-func inventoryMonth(value string) string {
-	if len(value) < 7 {
-		return ""
-	}
-	return value[:7]
-}
-
-func filterInventoryHistory(data []HistoricoSaldo, visibleIDs, movementMonths map[string]bool) []HistoricoSaldo {
-	if len(movementMonths) == 0 {
-		return []HistoricoSaldo{}
-	}
-	filtered := make([]HistoricoSaldo, 0, len(data))
-	for _, h := range data {
-		if len(visibleIDs) > 0 && !visibleIDs[string(h.ProductID)] {
-			continue
-		}
-		if movementMonths[inventoryMonth(h.Mes)] {
-			filtered = append(filtered, h)
-		}
-	}
-	return filtered
-}
-
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
@@ -185,8 +120,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	storageKey := os.Getenv("PREMIUM_STORAGE_KEY")
 
 	result := &InventoryResponse{
-		ConsumoVsLimite: []ConsumoVsLimite{},
-		HistoricoSaldo:  []HistoricoSaldo{},
 		DetalhesExcesso: []DetalheExcesso{},
 		GastosUsuario:   []GastoUsuario{},
 		ProductPrices:   map[string]float64{},
@@ -220,25 +153,15 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		return body, nil
 	}
 
-	// ConsumoVsLimite
-	if body, err := fetch("vw_consumo_vs_limite", "select=*&limit=5000"); err == nil {
-		var data []ConsumoVsLimite
-		if json.Unmarshal(body, &data) == nil {
-			result.ConsumoVsLimite = data
-		}
-	}
-
 	// Step 1 — Fetch only visible products; build id→name map and visible-ID set.
 	// Archived products (visible=false) must be excluded from all metrics.
 	productNames := map[string]string{} // id-string → nome
-	visibleIDs := map[string]bool{}
 	if body, err := fetch("products", "select=id,nome&visible=eq.true&limit=5000"); err == nil {
 		var rawProducts []map[string]interface{}
 		if json.Unmarshal(body, &rawProducts) == nil {
 			for _, p := range rawProducts {
 				if rawID := p["id"]; rawID != nil {
 					pid := fmt.Sprintf("%v", rawID)
-					visibleIDs[pid] = true
 					if nome, ok := p["nome"].(string); ok && nome != "" {
 						productNames[pid] = nome
 					}
@@ -247,7 +170,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		}
 	}
 
-	movementMonths := map[string]bool{}
 	if body, err := fetch("stock_movements", "select=movement_date,tipo_origem&limit=5000"); err == nil {
 		var movements []struct {
 			MovementDate string `json:"movement_date"`
@@ -256,9 +178,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		if json.Unmarshal(body, &movements) == nil {
 			resets := map[string]bool{}
 			for _, movement := range movements {
-				if month := inventoryMonth(movement.MovementDate); month != "" {
-					movementMonths[month] = true
-				}
 				// Recontagem é um reset do estoque (o primeiro foi a abertura de 16/07/2026).
 				if movement.TipoOrigem == "recontagem" && len(movement.MovementDate) >= 10 {
 					resets[movement.MovementDate[:10]] = true
@@ -269,17 +188,6 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 				result.ResetDates = append(result.ResetDates, d)
 			}
 			sort.Strings(result.ResetDates)
-		}
-	}
-
-	// The monthly balance view emits rows for months with no movements.
-	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
-		var data []HistoricoSaldo
-		if json.Unmarshal(body, &data) == nil {
-			for i := range data {
-				data[i].Source = "live"
-			}
-			result.HistoricoSaldo = filterInventoryHistory(data, visibleIDs, movementMonths)
 		}
 	}
 
