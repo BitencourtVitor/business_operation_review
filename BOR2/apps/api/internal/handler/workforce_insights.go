@@ -31,7 +31,7 @@ func (h *WorkforceInsightsHandler) Overview(c *fiber.Ctx) error {
 	if g != "month" && g != "payperiod" {
 		return wiError(c, domain.ErrBadRequest)
 	}
-	out, err := h.svc.Overview(c.Context(), c.Query("company", "framing"), c.QueryInt("year", time.Now().Year()), g)
+	out, err := h.svc.Overview(c.Context(), c.Query("company", "framing"), c.QueryInt("year", time.Now().Year()), g, c.Query("client"), c.Query("jobsite"))
 	if err != nil {
 		return wiError(c, err)
 	}

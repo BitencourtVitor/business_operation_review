@@ -46,6 +46,13 @@ type InsightsOverview struct {
 	Periods   []InsightsPeriod `json:"periods"`
 	Obras     []ObraHours      `json:"obras"`
 	Employees []EmployeeHours  `json:"employees"`
+	Sites     []SiteOption     `json:"sites"` // clientes e job sites do ano, para os filtros (antes de filtrar)
+}
+
+// SiteOption é um job site e o cliente dele, para os filtros da página.
+type SiteOption struct {
+	Client  string `json:"client"`
+	Jobsite string `json:"jobsite"`
 }
 
 func dbCompany(company string) (string, error) {
@@ -114,14 +121,15 @@ func linkKey(jobsite, building string) string { return domain.KeyOf(jobsite) + "
 
 // Overview: horas por obra (sem os work types ignorados) e por funcionário
 // (todo o trabalho), em regular e overtime, por mês ou pay period.
-func (s *WorkforceInsightsService) Overview(ctx context.Context, company string, year int, granularity string) (*InsightsOverview, error) {
+// Overview soma as horas por período; client e jobsite (vazios = todos) recortam tudo antes de somar.
+func (s *WorkforceInsightsService) Overview(ctx context.Context, company string, year int, granularity, client, jobsite string) (*InsightsOverview, error) {
 	dbc, err := dbCompany(company)
 	if err != nil {
 		return nil, err
 	}
 	periods := periodsOf(strings.ToLower(company), year, granularity)
 	if len(periods) == 0 {
-		return &InsightsOverview{Periods: periods, Obras: []ObraHours{}, Employees: []EmployeeHours{}}, nil
+		return &InsightsOverview{Periods: periods, Obras: []ObraHours{}, Employees: []EmployeeHours{}, Sites: []SiteOption{}}, nil
 	}
 	settings, err := s.repo.Settings(ctx)
 	if err != nil {
@@ -139,9 +147,16 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 
 	obras := map[string]*ObraHours{}
 	people := map[string]*EmployeeHours{}
+	sites := map[SiteOption]bool{}
 	for _, h := range rows {
 		p := periodOf(periods, h.Date)
 		if p == "" {
+			continue
+		}
+		if h.Jobsite != "" {
+			sites[SiteOption{Client: h.Client, Jobsite: h.Jobsite}] = true
+		}
+		if (client != "" && h.Client != client) || (jobsite != "" && h.Jobsite != jobsite) {
 			continue
 		}
 		e := people[p+"|"+h.Employee]
@@ -165,7 +180,16 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 		o.Regular += h.Regular
 		o.Overtime += h.Overtime
 	}
-	out := &InsightsOverview{Periods: periods, Obras: make([]ObraHours, 0, len(obras)), Employees: make([]EmployeeHours, 0, len(people))}
+	out := &InsightsOverview{Periods: periods, Obras: make([]ObraHours, 0, len(obras)), Employees: make([]EmployeeHours, 0, len(people)), Sites: make([]SiteOption, 0, len(sites))}
+	for o := range sites {
+		out.Sites = append(out.Sites, o)
+	}
+	sort.Slice(out.Sites, func(i, j int) bool {
+		if out.Sites[i].Client != out.Sites[j].Client {
+			return out.Sites[i].Client < out.Sites[j].Client
+		}
+		return out.Sites[i].Jobsite < out.Sites[j].Jobsite
+	})
 	for _, o := range obras {
 		out.Obras = append(out.Obras, *o)
 	}
