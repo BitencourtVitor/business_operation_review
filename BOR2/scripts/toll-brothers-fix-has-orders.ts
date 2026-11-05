@@ -8,7 +8,7 @@
  */
 import postgres from "postgres"
 
-const RAILWAY_URL = "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway"
+const RAILWAY_URL = process.env.DATABASE_URL!
 
 const IDS = [
   "b12fa62d-253d-47f3-8d4c-dc68560f0d70", "848cfbeb-062a-40a7-b9c8-eff0b1625220",

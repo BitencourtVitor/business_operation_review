@@ -4,7 +4,7 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
-const DATABASE_URL = 'postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway';
+const DATABASE_URL = process.env.DATABASE_URL;
 const CSV_PATH = 'D:\\Arquivos\\Downloads\\timesheet_report_2026-01-01_thru_2026-04-30.csv';
 const COMPANY = 'hvac';
 const FILE_NAME = 'timesheet_report_2026-01-01_thru_2026-04-30.csv';
