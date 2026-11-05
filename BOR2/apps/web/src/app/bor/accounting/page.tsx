@@ -279,7 +279,7 @@ function AccountingContent() {
   if (chartLoading && projectsLoading) return <PageSkeleton />
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 max-lg:overflow-y-auto">
 
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -351,10 +351,10 @@ function AccountingContent() {
       </div>
 
       {/* ── Body: main content + Aria panel side by side ── */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:gap-0 lg:overflow-hidden">
 
       {/* Main scroll area */}
-      <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto no-scrollbar">
+      <div className="no-scrollbar flex min-w-0 flex-col gap-4 lg:flex-1 lg:overflow-y-auto">
 
       {/* ── Summary metrics ── */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -405,7 +405,7 @@ function AccountingContent() {
       </div>
 
       {/* ── Chart ── */}
-      <div className="rounded-xl border border-border bg-card/60 p-5 flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-5 max-lg:h-72 lg:min-h-0 lg:flex-1">
         <div className="flex shrink-0 items-center justify-between">
           <span className="text-sm font-medium">
             Cash Flow {month !== "all" ? "Daily" : "Monthly"}{yearParam ? ` · ${yearParam}` : " · All Time"}
@@ -484,12 +484,12 @@ function AccountingContent() {
       <div className="flex shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
 
         {/* Controls bar */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2.5">
           <div className="flex items-center gap-2">
             <GalleryHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-sm font-semibold">Project Cards</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
               <input
