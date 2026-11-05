@@ -144,12 +144,12 @@ export function EditProjectSection({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Edit Project</h1>
           <p className="text-sm text-muted-foreground">Select a view and edit project details inline.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {filtered.length} project{filtered.length !== 1 ? "s" : ""}
           </span>

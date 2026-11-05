@@ -705,10 +705,10 @@ function ContractTab({ p }: { p: ForecastProject }) {
   )
 
   return (
-    <div className="flex h-full gap-2 overflow-hidden">
+    <div className="flex h-full gap-2 overflow-hidden max-md:flex-col">
 
       {/* ── Left: Teams panel ─────────────────────────────────────────── */}
-      <div className="flex w-56 shrink-0 flex-col overflow-hidden rounded-lg border border-border">
+      <div className="flex w-56 shrink-0 flex-col overflow-hidden rounded-lg border border-border max-md:max-h-28 max-md:w-full">
         <div className="flex flex-1 flex-col overflow-y-auto">
           {dbTeams.length === 0 && !addTeam.isPending && (
             <p className="px-2 py-3 text-center text-[10px] text-muted-foreground">No teams</p>
@@ -883,7 +883,7 @@ function LeftPanel({
   savingField?:      string | null
 }) {
   return (
-    <div className="flex w-[40%] shrink-0 flex-col gap-3 border-r border-border p-3">
+    <div className="flex w-[40%] shrink-0 flex-col gap-3 border-r border-border p-3 max-md:w-full max-md:border-r-0 max-md:border-b">
 
       {/* Client + Job Site — comboboxes */}
       <div className="grid gap-2" style={{ gridTemplateColumns: "0.75fr 1.75fr" }}>
@@ -1047,7 +1047,7 @@ export function NewProjectCard({
     <div className="relative mb-3 w-full">
       {/* Tab bar — right-aligned, same pattern as ProjectCard */}
       <div className="flex items-end justify-end">
-        <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor: "#3b82f6" }}>
+        <div className="relative z-[2] mb-[-1px] no-scrollbar flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px] max-md:max-w-full max-md:gap-3 max-md:overflow-x-auto max-md:px-3 [&>*]:shrink-0 [&>*]:whitespace-nowrap" style={{ borderColor: "#3b82f6" }}>
           {NEW_FORM_TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`transition-colors ${tab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
@@ -1058,7 +1058,7 @@ export function NewProjectCard({
       </div>
 
       {/* Body — top-left rounded, top-right flat (connects to tab bar above) */}
-      <div className="relative z-[1] flex h-[204px] overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
+      <div className="relative z-[1] flex h-[204px] overflow-hidden max-md:h-auto max-md:flex-col rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
         style={{ borderColor: "#3b82f6" }}>
 
         <LeftPanel
@@ -1076,7 +1076,7 @@ export function NewProjectCard({
         />
 
         {/* Right panel */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 max-md:h-[260px] max-md:flex-none">
           {tab === "info" && (
             <div className="flex h-full gap-4">
               <div className="flex flex-1 flex-col gap-1.5">
@@ -1165,7 +1165,7 @@ export function ProjectCard({
     <div className="relative mb-3 w-full">
       {/* Tab bar */}
       <div className="flex items-center justify-end">
-        <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor }}>
+        <div className="relative z-[2] mb-[-1px] no-scrollbar flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px] max-md:max-w-full max-md:gap-3 max-md:overflow-x-auto max-md:px-3 [&>*]:shrink-0 [&>*]:whitespace-nowrap" style={{ borderColor }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 transition-colors ${activeTab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
@@ -1177,7 +1177,7 @@ export function ProjectCard({
       </div>
 
       {/* Card body — fixed height so right panel flex chain resolves correctly */}
-      <div className="relative z-[1] flex h-[204px] overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
+      <div className="relative z-[1] flex h-[204px] overflow-hidden max-md:h-auto max-md:flex-col rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
         style={{ borderColor }}>
 
         <LeftPanel
@@ -1199,7 +1199,7 @@ export function ProjectCard({
         />
 
         {/* Right panel */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 max-md:h-[260px] max-md:flex-none">
           {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
           {activeTab === "fieldwire" && <FieldwireTab p={project} />}
           {activeTab === "builderlog" && <BuilderLogTab p={project} />}

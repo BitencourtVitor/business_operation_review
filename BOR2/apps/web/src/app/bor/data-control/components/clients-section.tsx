@@ -335,8 +335,8 @@ export function ClientsSection() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
-      <div className="flex shrink-0 items-start justify-between gap-4">
+    <div className="flex h-full flex-col gap-4 p-6 max-md:p-4">
+      <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Clients</h1>
           <p className="text-sm text-muted-foreground">

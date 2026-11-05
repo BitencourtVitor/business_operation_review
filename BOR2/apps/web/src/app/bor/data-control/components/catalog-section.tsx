@@ -39,7 +39,7 @@ function ContractStepsTable() {
   // Local ordered copy for optimistic DnD
   const [localRows, setLocalRows] = useState<Record<string, unknown>[]>([])
   const _rowsKey = rows.map(r => r.id).join(",")
-  useEffect(() => { setLocalRows(rows) }, [rows]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setLocalRows(rows) }, [_rowsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const dragIndex = useRef<number | null>(null)
   const [dragOver, setDragOver] = useState<number | null>(null)
@@ -190,24 +190,24 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="flex h-full flex-col gap-4 p-6 max-md:p-4">
 
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex shrink-0 items-start justify-between gap-4">
+      <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">{tableDef.label}</h1>
           <p className="text-sm text-muted-foreground">
             {rows.length} {rows.length === 1 ? "entry" : "entries"} in the catalog
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className={`h-8 pl-8 text-sm w-52 ${search ? "pr-7" : ""}`}
+              className={`h-8 pl-8 text-sm w-52 max-sm:w-40 ${search ? "pr-7" : ""}`}
             />
             {search && (
               <button
