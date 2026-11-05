@@ -469,14 +469,14 @@ export default function AutoLogPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <div className="flex items-end justify-between gap-4">
+    <div className="flex h-full flex-col gap-6 max-lg:overflow-y-auto">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Quickbooks Time Auto Log</h1>
           <p className="text-sm text-muted-foreground">QB Time API → policy check → per-day PNG image</p>
         </div>
 
-        <div className="flex shrink-0 items-end gap-3">
+        <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col items-start gap-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
             <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5">
@@ -499,7 +499,7 @@ export default function AutoLogPage() {
             </div>
           </div>
 
-          <div className="self-stretch w-px bg-border" />
+          <div className="self-stretch w-px bg-border max-sm:hidden" />
 
           <div className="flex flex-col items-start gap-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Week</p>
@@ -528,8 +528,8 @@ export default function AutoLogPage() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-start gap-4">
-        <div className="flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto pr-1">
+      <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-start">
+        <div className="flex flex-col gap-4 lg:h-full lg:w-80 lg:shrink-0 lg:overflow-y-auto lg:pr-1">
           {/* Data status */}
           <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -616,7 +616,7 @@ export default function AutoLogPage() {
           )}
         </div>
 
-        <div className="flex h-full min-w-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
+        <div className="flex min-w-0 flex-col gap-4 lg:h-full lg:flex-1 lg:overflow-y-auto lg:pr-1">
           {dayResults.length === 0 && !parseError && !isProcessing && !loading && (
             <div className="flex h-40 items-center justify-center rounded-xl border border-dashed bg-muted/20">
               <p className="text-sm text-muted-foreground">Configure policies and click "Run Auto-Log".</p>
