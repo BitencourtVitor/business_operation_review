@@ -118,9 +118,9 @@ export default function HvacMaintenancePage() {
           <Total label="Not invoiced yet" amount={totals.toInvoice} tone="text-amber-600 dark:text-amber-400" />
         </div>
 
-        <div {...board} className="flex min-h-0 flex-1 cursor-grab gap-3 overflow-x-auto rounded-xl border bg-card p-3 select-none">
+        <div {...board} className="flex min-h-0 flex-1 cursor-grab gap-3 overflow-x-auto rounded-xl border bg-card p-3 select-none max-md:snap-x max-md:snap-mandatory max-md:scroll-px-3">
           {(showArchived ? [{ ...ARCHIVED_LANE, items: archived }] : lanes).map(l => (
-            <section key={l.title} className="flex w-[280px] min-w-[260px] shrink-0 flex-col rounded-xl border bg-background xl:flex-1">
+            <section key={l.title} className="flex w-[280px] min-w-[260px] shrink-0 snap-start flex-col rounded-xl border bg-background xl:flex-1">
               <header className="flex items-start gap-2 border-b px-3 py-2.5">
                 <l.Icon className={`mt-0.5 h-4 w-4 shrink-0 ${l.tone}`} />
                 <div className="min-w-0 flex-1">
