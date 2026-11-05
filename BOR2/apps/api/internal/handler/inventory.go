@@ -211,7 +211,7 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	}
 
 	// Step 2 — Build ProductPrices from stock_movement_items (latest first).
-	// Index by both product_id string and product name, mirroring BOR1.
+	// Index by both product_id string and product name.
 	if body, err := fetch("stock_movement_items", "select=product_id,valor_unitario&order=id.desc&limit=5000"); err == nil {
 		var rawItems []map[string]interface{}
 		if json.Unmarshal(body, &rawItems) == nil {

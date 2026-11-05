@@ -10,7 +10,7 @@ const (
 	ForecastStatusCompleted ForecastStatus = "completed"
 )
 
-// Lightweight sub-resource types (from BOR1 migration tables)
+// Lightweight sub-resource types
 
 type ForecastFieldwireDoc struct {
 	ID       int64   `json:"id"`

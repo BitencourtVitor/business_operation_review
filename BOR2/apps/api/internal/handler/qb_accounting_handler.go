@@ -319,7 +319,7 @@ func (h *QBAccountingHandler) Chart(c *fiber.Ctx) error {
 }
 
 // GET /api/v1/qb/accounting/projects?company=hvac[&year=2025]
-// Returns one card per project grouped by customer_id — identical logic to BOR1.
+// Returns one card per project grouped by customer_id.
 func (h *QBAccountingHandler) Projects(c *fiber.Ctx) error {
 	company := c.Query("company")
 	if company == "" {
@@ -433,7 +433,7 @@ func (h *QBAccountingHandler) Projects(c *fiber.Ctx) error {
 
 // GET /api/v1/qb/accounting/projects/detail?company=framing&customer_id=xxx
 // Returns full project detail: estimate lines, bills+payments, purchases,
-// vendor credits, invoices+payments, backcharges — mirrors BOR1 modal data.
+// vendor credits, invoices+payments, backcharges.
 func (h *QBAccountingHandler) ProjectDetail(c *fiber.Ctx) error {
 	company    := c.Query("company")
 	customerID := c.Query("customer_id")

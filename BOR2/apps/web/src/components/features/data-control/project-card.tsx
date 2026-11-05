@@ -450,11 +450,11 @@ export function DocChecklist({ title, docs, pendingId, onToggle, wide }: {
 }
 
 // A unit is "dispensed" when it stores a justification string rather than a unit code.
-// BOR1 legacy: dispensed machines had unit = ISO timestamp (e.g. "2025-12-12T18:04:32Z").
-// BOR2 onwards: any non-empty string that isn't a plain unit code (letters+digits, max ~10 chars).
+// Old data: dispensed machines had unit = ISO timestamp (e.g. "2025-12-12T18:04:32Z"); 32 rows still do (05/11).
+// Today: any non-empty string that isn't a plain unit code (letters+digits, max ~10 chars).
 function isDispensedUnit(unit: string | null | undefined): boolean {
   if (!unit) return false
-  if (/^\d{4}-\d{2}-\d{2}T/.test(unit)) return true   // BOR1 legacy timestamp
+  if (/^\d{4}-\d{2}-\d{2}T/.test(unit)) return true   // old timestamp format
   return !/^[A-Za-z]{0,3}\d{1,8}$/.test(unit.trim())  // not a unit code
 }
 

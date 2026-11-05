@@ -122,7 +122,7 @@ function getBarColor(ds: ForecastDisplayStatus, pct: number, hovered: boolean): 
   return "#f59e0b"
 }
 
-// ─── SVG progress border (BOR1 style) ────────────────────────────────────────
+// ─── SVG progress border ────────────────────────────────────────
 
 const RECT_PERIMETER = 4 * 27 // 28px square, 0.5px inset → 27px side
 

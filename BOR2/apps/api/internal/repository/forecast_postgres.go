@@ -46,7 +46,7 @@ func NewPostgresForecastRepository(db *pgxpool.Pool) *PostgresForecastRepository
 
 func (r *PostgresForecastRepository) Pool() *pgxpool.Pool { return r.db }
 
-// statusToDisplay maps BOR1 status strings to BOR2 ForecastStatus values.
+// statusToDisplay maps the status strings stored in forecast_core to ForecastStatus values.
 // Used as a SQL CASE expression in queries.
 const statusCASE = `
 	CASE lower(status)
@@ -246,7 +246,7 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		   create_datetime, lastupdate_datetimez)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$30)
 	`,
-		p.ID, p.Name, p.Company, statusToBOR1(p.Status),
+		p.ID, p.Name, p.Company, statusToStored(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
@@ -378,7 +378,7 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 		  lastupdate_datetimez=NOW()
 		WHERE id=$20
 	`,
-		p.Name, statusToBOR1(p.Status),
+		p.Name, statusToStored(p.Status),
 		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld,
@@ -527,8 +527,8 @@ func (r *PostgresForecastRepository) AddContractTeam(ctx context.Context, projec
 	return err
 }
 
-// statusToBOR1 converts BOR2 status enum back to BOR1 string for writes.
-func statusToBOR1(s domain.ForecastStatus) string {
+// statusToStored converts the ForecastStatus enum to the string stored in forecast_core.
+func statusToStored(s domain.ForecastStatus) string {
 	switch s {
 	case domain.ForecastStatusActive:
 		return "open"

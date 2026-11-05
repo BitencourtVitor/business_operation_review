@@ -1,10 +1,10 @@
--- Expand forecast_status enum with BOR1 values
+-- Expand forecast_status enum with the legacy values
 ALTER TYPE forecast_status ADD VALUE IF NOT EXISTS 'open';
 ALTER TYPE forecast_status ADD VALUE IF NOT EXISTS 'closed';
 ALTER TYPE forecast_status ADD VALUE IF NOT EXISTS 'overdue';
 ALTER TYPE forecast_status ADD VALUE IF NOT EXISTS 'not_started';
 
--- Expand forecast_projects with BOR1 fields
+-- Expand forecast_projects with the legacy fields
 ALTER TABLE forecast_projects ADD COLUMN IF NOT EXISTS cliente TEXT NOT NULL DEFAULT '';
 ALTER TABLE forecast_projects ADD COLUMN IF NOT EXISTS job_site TEXT NOT NULL DEFAULT '';
 ALTER TABLE forecast_projects ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT '';
