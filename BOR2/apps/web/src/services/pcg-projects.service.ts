@@ -58,3 +58,17 @@ export const pcgSubcontractorContactsService = {
       getToken(),
     ),
 }
+
+// PCG-3: o catálogo inteiro (trades, blocos, revisões, subs) é um documento só no Railway.
+const catalogBase = "/api/v1/pcg/catalog"
+
+export const pcgCatalogService = {
+  get: () =>
+    api.get<{ catalog: Record<string, unknown> | null; updatedAt: string | null }>(catalogBase, getToken()),
+
+  save: (catalog: Record<string, unknown>) => api.put(catalogBase, { catalog }, getToken()),
+
+  // Cópia do que estava no localStorage deste navegador; vira o oficial se ainda não houver um.
+  importLocal: (catalog: Record<string, unknown>) =>
+    api.post<{ adopted: boolean }>(`${catalogBase}/imports`, { catalog }, getToken()),
+}

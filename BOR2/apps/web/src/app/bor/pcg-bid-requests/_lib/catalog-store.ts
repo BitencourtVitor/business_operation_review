@@ -1,13 +1,13 @@
 import { create } from "zustand"
-import { persist, createJSONStorage } from "zustand/middleware"
+import { toast } from "sonner"
+import { pcgCatalogService } from "@/services/pcg-projects.service"
 import type { DocumentBlock, Trade, TradeRevision } from "./types"
 import { tradeShortCode } from "./types"
 import { TRADES_SEED, withSupplyQuestion } from "./trades-seed"
 import { DOCUMENT_BLOCKS_SEED } from "./document-blocks-seed"
 import { makeRevision } from "./events"
 
-// Local-only while the page is being designed — moves to the Railway API once
-// the shape settles. Everything here is the catalog PCG edits by hand today.
+// O catálogo que o PCG edita à mão. Vive no Railway (PCG-3); ver loadCatalog.
 interface CatalogState {
   trades: Trade[]
   documentBlocks: DocumentBlock[]
@@ -157,114 +157,115 @@ function mergeBlocks(stored: DocumentBlock[], seed: DocumentBlock[]): DocumentBl
   return out
 }
 
-export const useCatalogStore = create<CatalogState>()(
-  persist(
-    (set, get) => ({
-      trades: TRADES_SEED,
-      documentBlocks: DOCUMENT_BLOCKS_SEED,
-      blockOrderRevision: BLOCK_ORDER_REVISION,
-      revisions: {},
-      subcontractors: [],
-      addTrade: (trade) => set(s => ({ trades: [...s.trades, trade] })),
-      updateTrade: (id, patch) => set(s => ({
-        trades: s.trades.map(t => (t.id === id ? { ...t, ...patch } : t)),
-      })),
-      deleteTrade: (id) => set(s => ({ trades: s.trades.filter(t => t.id !== id) })),
-      setDocumentBlocks: (blocks) => set({ documentBlocks: blocks }),
-      captureRevision: (trade) => {
-        const { documentBlocks, revisions } = get()
-        const rev = makeRevision(trade, documentBlocks, new Date().toISOString())
-        if (!revisions[rev.id]) set({ revisions: { ...revisions, [rev.id]: rev } })
-        return rev.id
-      },
-      addSubcontractor: (name) => set(s => (
-        s.subcontractors.includes(name) ? s : { subcontractors: [...s.subcontractors, name].sort() }
-      )),
-      removeSubcontractor: (name) => set(s => ({ subcontractors: s.subcontractors.filter(n => n !== name) })),
-    }),
-    {
-      name: "pcg-bid-requests-catalog",
-      storage: createJSONStorage(() => localStorage),
-      // v2 fixed options that collapsed into duplicates, v3 dropped "Free text"
-      // pseudo-hints and split "qty: ___" into its own field, v4 spelled "TBD"
-      // out and title-cased option labels, v5 dropped leftover paper-form blanks
-      // ("R-___", "Qty: ___"), v7 added conditional rules per trade and
-      // company-level document blocks, v9 dropped the demo trade, v10 gave
-      // Landscaping its bid form back and added revisions, v11 took the em
-      // dashes out of everything that reaches the paper, v12 wrote the standard
-      // scope for the 13 trades that had none, v13 rewrote the em dashes that
-      // v11 never reached because the bump raced the seed it was delivering.
-      // v14 turned the document body into ordered modules: `placement` (two
-      // buckets) became position in the list, plus a kind and a numbering flag.
-      // v15 put the universal supply question first on every trade and dropped
-      // the eight per-trade versions of it. v16 moved "Materials and Supply"
-      // under the scope of work.
-      version: 16,
-      // Rewrites punctuation in what is already stored, and brings blocks stored
-      // under the old shape up to the module one. Independent of the seed on
-      // purpose: it transforms the objects it finds, so nothing about it can race
-      // a recompile the way v11 and v12 did.
-      migrate: (state) => {
-        const s = (state ?? {}) as CatalogState
-        return {
-          ...s,
-          trades: (s.trades ?? []).map(undashTrade).map(withSupplyQuestion),
-          documentBlocks: (s.documentBlocks ?? []).map(b => ({
-            ...b,
-            title: undash(b.title),
-            body: undash(b.body),
-            // Everything that existed before modules was free text somebody
-            // wrote, so it stays editable. Unnumbered: the numbered sections
-            // arrive with the seed, and a block that predates them was never
-            // meant to be section 1.
-            kind: b.kind ?? "text",
-            numbered: b.numbered ?? false,
-            generated: b.generated ?? null,
-          })),
-        }
-      },
-      // Up to v11 a bump replaced the whole catalog with the seed, which was
-      // fine while the catalog was only development scaffolding. It now carries
-      // scope text somebody typed and signed off on, so the seed only ever fills
-      // gaps: a trade the store already has keeps exactly what it says, and only
-      // trades it has never seen are added. Same for blocks. Revisions are the
-      // record of what was already put on paper, untouchable either way.
-      //
-      // This runs on every rehydration, not on a version bump. A bump fires once
-      // and can land before the seed it was meant to deliver has even compiled,
-      // which is exactly how v12 first shipped nothing.
-      merge: (persisted, current) => {
-        const s = (persisted ?? {}) as Partial<CatalogState>
-        const trades = s.trades ?? []
-        const blocks = s.documentBlocks ?? []
-        const knownTrade = new Set(trades.map(t => t.id))
-        return {
-          ...current,
-          ...s,
-          trades: [
-            // withSupplyQuestion belongs here rather than in migrate, for the
-            // reason written above: a version bump fires once and can land
-            // before the code it was delivering has compiled — which is exactly
-            // what happened to v12, and happened again to v15 in development.
-            // Here it is idempotent and runs on every rehydration.
-            ...trades.map(fillScopeGaps).map(withSupplyQuestion).map(withShortCode).map(withBidForm),
-            ...TRADES_SEED.filter(t => !knownTrade.has(t.id)),
-          ],
-          // The reorder runs once and records itself, so moving the block by hand
-          // afterwards sticks instead of being undone on the next load.
-          documentBlocks: mergeBlocks(
-            (s.blockOrderRevision ?? 0) < BLOCK_ORDER_REVISION
-              ? fixMaterialsBlock(blocks)
-              : blocks,
-            DOCUMENT_BLOCKS_SEED,
-          ),
-          blockOrderRevision: BLOCK_ORDER_REVISION,
-          revisions: s.revisions ?? {},
-        }
-      },
+// Campos do catálogo que vão para o Railway (PCG-3). O resto do estado são as ações.
+type CatalogData = Pick<CatalogState, "trades" | "documentBlocks" | "blockOrderRevision" | "revisions" | "subcontractors">
+
+// O que era o `migrate` e o `merge` do localStorage, agora aplicado a todo catálogo que
+// chega da API. Tudo idempotente, então rodar a cada carga não muda o que já está certo:
+// pontuação, blocos no formato de módulos, a pergunta de suprimento, código curto, bid form,
+// lacunas de escopo e trades novos do seed. O seed só preenche lacuna; o que foi escrito fica.
+export function normalizeCatalog(raw: Partial<CatalogData> | null | undefined): CatalogData {
+  const s = raw ?? {}
+  const trades = (s.trades ?? []).map(undashTrade).map(withSupplyQuestion)
+  const blocks = (s.documentBlocks ?? []).map(b => ({
+    ...b,
+    title: undash(b.title),
+    body: undash(b.body),
+    kind: b.kind ?? "text",
+    numbered: b.numbered ?? false,
+    generated: b.generated ?? null,
+  }))
+  const knownTrade = new Set(trades.map(t => t.id))
+  return {
+    trades: [
+      ...trades.map(fillScopeGaps).map(withShortCode).map(withBidForm),
+      ...TRADES_SEED.filter(t => !knownTrade.has(t.id)),
+    ],
+    // O reordenamento roda uma vez e se registra: mexer no bloco à mão depois fica.
+    documentBlocks: mergeBlocks(
+      raw && (s.blockOrderRevision ?? 0) < BLOCK_ORDER_REVISION ? fixMaterialsBlock(blocks) : blocks,
+      DOCUMENT_BLOCKS_SEED,
+    ),
+    blockOrderRevision: BLOCK_ORDER_REVISION,
+    revisions: s.revisions ?? {},
+    subcontractors: s.subcontractors ?? [],
+  }
+}
+
+export const useCatalogStore = create<CatalogState>()((set, get) => ({
+  trades: TRADES_SEED,
+  documentBlocks: DOCUMENT_BLOCKS_SEED,
+  blockOrderRevision: BLOCK_ORDER_REVISION,
+  revisions: {},
+  subcontractors: [],
+  addTrade: (trade) => set(s => ({ trades: [...s.trades, trade] })),
+  updateTrade: (id, patch) => set(s => ({
+    trades: s.trades.map(t => (t.id === id ? { ...t, ...patch } : t)),
+  })),
+  deleteTrade: (id) => set(s => ({ trades: s.trades.filter(t => t.id !== id) })),
+  setDocumentBlocks: (blocks) => set({ documentBlocks: blocks }),
+  captureRevision: (trade) => {
+    const { documentBlocks, revisions } = get()
+    const rev = makeRevision(trade, documentBlocks, new Date().toISOString())
+    if (!revisions[rev.id]) set({ revisions: { ...revisions, [rev.id]: rev } })
+    return rev.id
+  },
+  addSubcontractor: (name) => set(s => (
+    s.subcontractors.includes(name) ? s : { subcontractors: [...s.subcontractors, name].sort() }
+  )),
+  removeSubcontractor: (name) => set(s => ({ subcontractors: s.subcontractors.filter(n => n !== name) })),
+}))
+
+// Onde o catálogo ficava antes (zustand persist): { state: {...}, version }.
+const LOCAL_KEY = "pcg-bid-requests-catalog"
+const IMPORTED_KEY = "pcg-bid-requests-catalog-imported"
+
+const pick = (s: CatalogState): CatalogData => ({
+  trades: s.trades, documentBlocks: s.documentBlocks, blockOrderRevision: s.blockOrderRevision,
+  revisions: s.revisions, subcontractors: s.subcontractors,
+})
+
+function readLocal(): Partial<CatalogData> | null {
+  try {
+    if (localStorage.getItem(IMPORTED_KEY)) return null
+    const raw = localStorage.getItem(LOCAL_KEY)
+    return raw ? (JSON.parse(raw)?.state ?? null) : null
+  } catch {
+    return null
+  }
+}
+
+let loading: Promise<void> | null = null
+
+// Carrega o catálogo do Railway uma vez por sessão e, a partir daí, grava cada mudança.
+// O navegador que ainda tem o catálogo antigo manda uma cópia (que vira o oficial se o
+// banco estiver vazio) e não apaga nada do localStorage: só marca que já mandou.
+export function loadCatalog(): Promise<void> {
+  if (loading) return loading
+  loading = (async () => {
+    const local = readLocal()
+    let remote = (await pcgCatalogService.get())?.catalog as Partial<CatalogData> | null
+    if (local) {
+      const res = await pcgCatalogService.importLocal(local as Record<string, unknown>)
+      try { localStorage.setItem(IMPORTED_KEY, new Date().toISOString()) } catch { /* sem storage */ }
+      if (res?.adopted) remote = local
     }
-  )
-)
+    useCatalogStore.setState(normalizeCatalog(remote))
+
+    // ponytail: a cada mudança grava o catálogo inteiro (meio segundo depois da última);
+    // é um documento de poucas centenas de KB. Trocar por PATCH por trade se ficar pesado.
+    let timer: ReturnType<typeof setTimeout> | undefined
+    useCatalogStore.subscribe(state => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        pcgCatalogService.save(pick(state) as unknown as Record<string, unknown>)
+          .catch(() => toast.error("Could not save the catalog. Your last change may be lost."))
+      }, 500)
+    })
+  })()
+  loading.catch(() => { loading = null })
+  return loading
+}
 
 export function emptyTrade(): Trade {
   return {
