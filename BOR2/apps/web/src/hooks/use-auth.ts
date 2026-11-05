@@ -46,7 +46,9 @@ export function useAuth() {
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token, data.remember)
-      router.push("/bor")
+      // Quem chegou por um link (ex.: /bor/forecast) volta para ele depois do login.
+      const next = new URLSearchParams(location.search).get("next") ?? ""
+      router.push(next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") ? next : "/bor")
     },
   })
 

@@ -53,7 +53,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     if (res.status === 401 && typeof window !== "undefined" && !semRede) {
       const { useAuthStore } = await import("@/store/auth.store")
       useAuthStore.getState().clearAuth()
-      window.location.href = "/login"
+      window.location.href = `/login?next=${encodeURIComponent(location.pathname + location.search)}`
     }
     throw new ApiError(
       res.status,
