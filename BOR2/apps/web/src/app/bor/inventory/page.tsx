@@ -232,10 +232,10 @@ export default function InventoryPage() {
 
       {/* O gráfico principal em cima, na largura toda; as violações embaixo. */}
       <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <Card className="min-h-0 flex-[3]" title={<>Monthly Financial Impact<Scope>{yearStr}</Scope></>}
+        <Card className="min-h-0 flex-[3]" title={<><span className="max-sm:hidden">Monthly</span>Financial Impact<span className="max-sm:hidden"><Scope>{yearStr}</Scope></span></>}
           right={
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-4 rounded-full" style={{ background: COLORS.within }} />Within limit</span>
+              <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-4 rounded-full" style={{ background: COLORS.within }} />Within<span className="-ml-0.5 max-sm:hidden">limit</span></span>
               <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-4 rounded-full" style={{ background: COLORS.excess }} />Excess</span>
             </div>
           }
@@ -262,7 +262,7 @@ export default function InventoryPage() {
                 <Tooltip animationDuration={500} content={<FinancialTip blur={blur} />} cursor={{ fill: 'var(--muted)', opacity: 0.5 }} />
                 {/* A largura da barra do mês representa os dias dele: a linha do reset fica no ponto do dia
                     dentro da barra (dia 16 de 31 no meio, dia 25 de 30 a ~82%). A linha visível é desenhada no label. */}
-                {resets.map(r => monthly.some(m => m.key === r.slice(5, 7)) && (
+                {resets.map((r, i) => monthly.some(m => m.key === r.slice(5, 7)) && (
                   <ReferenceLine key={r} x={MONTHS_SHORT[Number(r.slice(5, 7)) - 1]} stroke="none"
                     label={(p: { viewBox?: { x?: number; y?: number; height?: number } }) => {
                       const dim = new Date(Number(r.slice(0, 4)), Number(r.slice(5, 7)), 0).getDate()
@@ -273,7 +273,8 @@ export default function InventoryPage() {
                       return (
                         <g>
                           <line x1={x} x2={x} y1={y} y2={y + h} stroke="var(--muted-foreground)" strokeDasharray="3 3" strokeOpacity={0.7} />
-                          <text x={x - 4} y={y + 10} fontSize={10} textAnchor="end" fill="var(--muted-foreground)">Reset · {day(r)}</text>
+                          {/* Estreito, os rótulos dos resets encostam: só a data, um abaixo do outro. */}
+                          <text x={x - 4} y={y + 10 + (chartW < 520 ? i * 12 : 0)} fontSize={10} textAnchor="end" fill="var(--muted-foreground)">{chartW < 520 ? day(r) : `Reset · ${day(r)}`}</text>
                         </g>
                       )
                     }} />
