@@ -276,14 +276,15 @@ function TimeGridHeader({ gridStart, gridEnd }: { gridStart: number; gridEnd: nu
     <div className="flex items-center gap-3 px-2 pb-0.5 pt-1">
       <div className="w-24 shrink-0" />
       <div className="relative min-w-0 flex-1 h-3.5">
-        {ticks.map(t => {
+        {ticks.map((t, i) => {
           const pct       = ((t - gridStart) / range) * 100
           const h         = Math.floor(t / 60)
           const h12       = h % 12 === 0 ? 12 : h % 12
           const ampm      = h >= 12 ? "pm" : "am"
           const transform = pct <= 2 ? "translateX(0)" : pct >= 98 ? "translateX(-100%)" : "translateX(-50%)"
+          // No celular a régua é estreita: um rótulo a cada três horas.
           return (
-            <span key={t} className="absolute text-[9px] text-muted-foreground" style={{ left: `${pct}%`, transform }}>
+            <span key={t} className={`absolute text-[9px] text-muted-foreground ${i % 3 ? "max-sm:hidden" : ""}`} style={{ left: `${pct}%`, transform }}>
               {h12}{ampm}
             </span>
           )
@@ -960,25 +961,25 @@ export default function PeriodReportsPage() {
           </div>
         ) : (
           <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-card/30">
-            <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 {visibleEmployees.length} {visibleEmployees.length === 1 ? "employee" : "employees"}
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-1">
                 {canManageTeams && (
                   <>
                     <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setTeamsOpen(true)}>
                       <Users className="h-3.5 w-3.5" />
                       Teams
                     </Button>
-                    <div className="mx-1 h-4 w-px bg-border" />
+                    <div className="mx-1 h-4 w-px bg-border max-sm:hidden" />
                   </>
                 )}
                 <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setAddressesOpen(true)}>
                   <Ban className="h-3.5 w-3.5" />
                   Paid/Unpaid Addresses
                 </Button>
-                <div className="mx-1 h-4 w-px bg-border" />
+                <div className="mx-1 h-4 w-px bg-border max-sm:hidden" />
                 <DropdownMenu>
                   <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" />}>
                     <ListFilter className="h-3.5 w-3.5" />
