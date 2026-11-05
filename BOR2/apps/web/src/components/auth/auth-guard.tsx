@@ -19,7 +19,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (hydrated && !token) {
-      router.replace("/login")
+      router.replace(`/login?next=${encodeURIComponent(location.pathname + location.search)}`)
     }
   }, [hydrated, token, router])
 
