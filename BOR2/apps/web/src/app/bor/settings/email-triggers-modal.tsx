@@ -522,10 +522,10 @@ export function EmailTriggersModal({ open, onClose, module: moduleFilter }: Prop
             </p>
           </div>
         ) : (
-          <div className="flex min-h-0 flex-1">
+          <div className="flex min-h-0 flex-1 max-sm:flex-col">
             {/* A single trigger needs no picker: the modal is already on it. */}
             {(triggers?.length ?? 0) > 1 && (
-            <aside className="flex w-60 shrink-0 flex-col overflow-y-auto border-r border-border bg-muted/20 p-2">
+            <aside className="flex w-60 shrink-0 flex-col overflow-y-auto border-r border-border bg-muted/20 p-2 max-sm:max-h-44 max-sm:w-full max-sm:border-r-0 max-sm:border-b">
               {grouped.map(([module, items]) => (
                 <div key={module} className="mb-2 flex flex-col gap-1">
                   <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
