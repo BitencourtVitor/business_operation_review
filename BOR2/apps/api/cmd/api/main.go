@@ -494,6 +494,8 @@ func main() {
 	wi.Get("/buildings", wiRead, workforceInsightsHandler.Buildings)
 	wi.Get("/settings", wiRead, workforceInsightsHandler.Settings)
 	wi.Put("/settings", middleware.RequirePermission(db, "workforce", "write"), workforceInsightsHandler.SaveSettings)
+	wi.Get("/employee-weeks", wiRead, workforceInsightsHandler.EmployeeWeeks)
+	wi.Put("/overtime-notes", middleware.RequirePermission(db, "workforce", "write"), workforceInsightsHandler.SaveOvertimeNote)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")

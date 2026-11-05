@@ -396,3 +396,64 @@ func obraOf(h domain.HoursRow) string {
 	}
 	return h.Lot
 }
+
+// EmployeeWeeksView são as semanas de uma pessoa no ano e as anotações das semanas com overtime.
+type EmployeeWeeksView struct {
+	Weeks []domain.EmployeeWeek `json:"weeks"`
+	Notes []domain.OvertimeNote `json:"notes"`
+}
+
+// EmployeeWeeks soma as horas da pessoa por semana (segunda a domingo), na mesma base da página:
+// sem os work types ignorados no settings.
+func (s *WorkforceInsightsService) EmployeeWeeks(ctx context.Context, company string, year int, employee string) (*EmployeeWeeksView, error) {
+	dbc, err := dbCompany(company)
+	if err != nil || strings.TrimSpace(employee) == "" {
+		return nil, domain.ErrBadRequest
+	}
+	settings, err := s.repo.Settings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ignored := set(settings.IgnoredWorktypes)
+	rows, err := s.repo.Hours(ctx, dbc, fmt.Sprintf("%d-01-01", year), fmt.Sprintf("%d-12-31", year))
+	if err != nil {
+		return nil, err
+	}
+	weeks := map[string]*domain.EmployeeWeek{}
+	for _, h := range rows {
+		if h.Employee != employee || ignored[strings.ToLower(h.Worktype)] || len(h.Date) < 10 {
+			continue
+		}
+		d, err := time.Parse("2006-01-02", h.Date[:10])
+		if err != nil {
+			continue
+		}
+		monday := d.AddDate(0, 0, -((int(d.Weekday())+6)%7)).Format("2006-01-02")
+		w := weeks[monday]
+		if w == nil {
+			w = &domain.EmployeeWeek{WeekStart: monday}
+			weeks[monday] = w
+		}
+		w.Regular += h.Regular
+		w.Overtime += h.Overtime
+	}
+	out := &EmployeeWeeksView{Weeks: make([]domain.EmployeeWeek, 0, len(weeks))}
+	for _, w := range weeks {
+		out.Weeks = append(out.Weeks, *w)
+	}
+	sort.Slice(out.Weeks, func(i, j int) bool { return out.Weeks[i].WeekStart < out.Weeks[j].WeekStart })
+	if out.Notes, err = s.repo.OvertimeNotes(ctx, dbc, employee); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SaveOvertimeNote grava o "o que aconteceu?" de uma semana; texto vazio apaga.
+func (s *WorkforceInsightsService) SaveOvertimeNote(ctx context.Context, company string, n domain.OvertimeNote) error {
+	dbc, err := dbCompany(company)
+	n.Note = strings.TrimSpace(n.Note)
+	if err != nil || strings.TrimSpace(n.Employee) == "" || len(n.WeekStart) != 10 {
+		return domain.ErrBadRequest
+	}
+	return s.repo.SaveOvertimeNote(ctx, dbc, n)
+}
