@@ -65,6 +65,9 @@ export interface SettingsView {
   suggestions: Record<string, QBTBuilding>
 }
 
+export interface EmployeeWeek { weekStart: string; regular: number; overtime: number }
+export interface OvertimeNote { employee: string; weekStart: string; note: string; author: string; updatedAt: string }
+
 const BASE = "/api/v1/workforce-insights"
 
 export const workforceInsightsService = {
@@ -73,4 +76,8 @@ export const workforceInsightsService = {
   buildings: () => api.get<BuildingView[]>(`${BASE}/buildings`, getToken()),
   settings: () => api.get<SettingsView>(`${BASE}/settings`, getToken()),
   saveSettings: (s: InsightsSettings) => api.put<void>(`${BASE}/settings`, s, getToken()),
+  employeeWeeks: (company: string, year: number, employee: string) =>
+    api.get<{ weeks: EmployeeWeek[]; notes: OvertimeNote[] }>(`${BASE}/employee-weeks?${new URLSearchParams({ company, year: String(year), employee })}`, getToken()),
+  saveOvertimeNote: (n: { company: string; employee: string; weekStart: string; note: string }) =>
+    api.put<void>(`${BASE}/overtime-notes`, n, getToken()),
 }

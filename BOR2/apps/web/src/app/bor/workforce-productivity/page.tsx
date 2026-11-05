@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { interpret } from "./_lib/interpret"
+import { EmployeeWeeksDialog } from "./_components/employee-weeks-dialog"
 import { Card, Kpi, Scope, Sep, type HelpSpec } from "@/components/common/insight-card"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import {
@@ -240,9 +241,9 @@ function RankTip({ active, payload, trends, highlight, supervisor }: {
  */
 type SortKey = "name" | "regular" | "overtime" | "share"
 
-function HoursTable({ label, rows, tip, defaultSort, isSup }: {
+function HoursTable({ label, rows, tip, defaultSort, isSup, onPick }: {
   label: string; rows: { name: string; regular: number; overtime: number }[]; tip?: (name: string) => React.ReactNode
-  defaultSort: SortKey; isSup?: (name: string) => boolean
+  defaultSort: SortKey; isSup?: (name: string) => boolean; onPick?: (name: string) => void
 }) {
   const [hover, setHover] = useState<{ name: string; x: number; y: number } | null>(null)
   // Abre na ordem padrão do bloco (maior para menor). Clique no cabeçalho: crescente,
@@ -287,7 +288,8 @@ function HoursTable({ label, rows, tip, defaultSort, isSup }: {
         </thead>
         <tbody>
           {shown.map(o => (
-            <tr key={o.name} className={`border-t border-border/50 ${tip ? "cursor-default hover:bg-muted/40" : ""}`}
+            <tr key={o.name} className={`border-t border-border/50 ${tip ? "hover:bg-muted/40" : ""} ${onPick ? "cursor-pointer" : "cursor-default"}`}
+              onClick={onPick ? () => { setHover(null); onPick(o.name) } : undefined}
               onMouseMove={tip ? e => setHover({ name: o.name, x: e.clientX, y: e.clientY }) : undefined}>
               <td className="py-1.5 pr-2"><span className="inline-flex items-center gap-1">{o.name}{isSup?.(o.name) && <SupMark />}</span></td>
               <td className="py-1.5 text-left tabular-nums">{fmtH(o.regular)}</td>
@@ -626,6 +628,8 @@ export default function WorkforceProductivityPage() {
   const [client, setClient] = useState(ALL)
   const [jobsite, setJobsite] = useState(ALL)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // Pessoa aberta nas semanas (WF-16): barras por semana com a linha das 40 h e o "o que aconteceu?".
+  const [weeksOf, setWeeksOf] = useState<string | null>(null)
 
   const allYears = Array.from({ length: YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i)
   const queries = useQueries({
@@ -845,12 +849,12 @@ export default function WorkforceProductivityPage() {
               { label: "OT %", text: "Share of the employee's hours that were overtime." },
               { label: "Shield", text: "Supervisor, as marked in the settings. Their hours count like anyone else's." },
             ],
-            action: "Hover a row for the overtime share period by period. Click a column title to sort.",
+            action: "Hover a row for the overtime share period by period; click it for the weeks over 40 h and what happened. Click a column title to sort.",
           }}>
           {ranking.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">No hours in this period.</p>
           ) : (
-            <HoursTable label="Employee" rows={ranking} defaultSort="overtime" isSup={isSup} tip={name => <RankTip active payload={[{ payload: ranking.find(x => x.name === name)! }]} trends={trends} highlight={period === ALL ? undefined : focusName} supervisor={isSup(name)} />} />
+            <HoursTable label="Employee" rows={ranking} defaultSort="overtime" isSup={isSup} onPick={setWeeksOf} tip={name => <RankTip active payload={[{ payload: ranking.find(x => x.name === name)! }]} trends={trends} highlight={period === ALL ? undefined : focusName} supervisor={isSup(name)} />} />
           )}
         </Card>
       </div>
@@ -862,6 +866,8 @@ export default function WorkforceProductivityPage() {
       )}
 
       <WorkforceSettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <EmployeeWeeksDialog company={company} year={year} employee={weeksOf} supervisor={!!weeksOf && isSup(weeksOf)}
+        canEdit={canEdit("workforce")} onClose={() => setWeeksOf(null)} />
     </div>
   )
 }
