@@ -215,7 +215,7 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 	if err != nil {
 		return nil, err
 	}
-	refs, err := s.repo.ForecastBuildings(ctx)
+	refs, err := s.repo.ForecastBuildings(ctx, false)
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +319,7 @@ type SettingsView struct {
 	Employees   []string                     `json:"employees"`
 	Worktypes   []string                     `json:"worktypes"`
 	QBTBuilding []domain.QBTBuilding         `json:"qbtBuildings"`
-	Buildings   []domain.ForecastBuildingRef `json:"buildings"`
+	Buildings   []domain.ForecastBuildingRef `json:"buildings"` // toda obra da Framing no Forecast, para o vínculo
 	Suggestions map[string]domain.QBTBuilding `json:"suggestions"` // forecast id → obra do QB Time parecida
 }
 
@@ -338,7 +338,7 @@ func (s *WorkforceInsightsService) Settings(ctx context.Context) (*SettingsView,
 	if v.QBTBuilding, err = s.repo.QBTBuildings(ctx); err != nil {
 		return nil, err
 	}
-	if v.Buildings, err = s.repo.ForecastBuildings(ctx); err != nil {
+	if v.Buildings, err = s.repo.ForecastBuildings(ctx, true); err != nil {
 		return nil, err
 	}
 	linked := map[string]bool{}
