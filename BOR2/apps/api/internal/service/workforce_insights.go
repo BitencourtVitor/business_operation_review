@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,11 +36,14 @@ type ObraHours struct {
 	Overtime   float64 `json:"overtime"`
 }
 
+// EmployeeHours é a soma de uma pessoa num período, separada por tipo de obra (prédio ou não),
+// para a página filtrar pelo mesmo Type das obras. Mesma base das obras: sem os work types ignorados.
 type EmployeeHours struct {
-	Period   string  `json:"period"`
-	Employee string  `json:"employee"`
-	Regular  float64 `json:"regular"`
-	Overtime float64 `json:"overtime"`
+	Period     string  `json:"period"`
+	Employee   string  `json:"employee"`
+	IsBuilding bool    `json:"isBuilding"`
+	Regular    float64 `json:"regular"`
+	Overtime   float64 `json:"overtime"`
 }
 
 type InsightsOverview struct {
@@ -159,18 +163,24 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 		if (client != "" && h.Client != client) || (jobsite != "" && h.Jobsite != jobsite) {
 			continue
 		}
-		e := people[p+"|"+h.Employee]
+		// Work type ignorado no settings sai de tudo: obras, pessoas, KPIs e ranking usam a mesma base.
+		if ignored[strings.ToLower(h.Worktype)] {
+			continue
+		}
+		lot := obraOf(h)
+		isB := h.Jobsite != "" && buildings[linkKey(h.Jobsite, lot)]
+		ek := p + "|" + h.Employee + "|" + strconv.FormatBool(isB)
+		e := people[ek]
 		if e == nil {
-			e = &EmployeeHours{Period: p, Employee: h.Employee}
-			people[p+"|"+h.Employee] = e
+			e = &EmployeeHours{Period: p, Employee: h.Employee, IsBuilding: isB}
+			people[ek] = e
 		}
 		e.Regular += h.Regular
 		e.Overtime += h.Overtime
 
-		if h.Jobsite == "" || ignored[strings.ToLower(h.Worktype)] {
+		if h.Jobsite == "" {
 			continue
 		}
-		lot := obraOf(h)
 		k := p + "|" + h.Jobsite + "|" + lot
 		o := obras[k]
 		if o == nil {
