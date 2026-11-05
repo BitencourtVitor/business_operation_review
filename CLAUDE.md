@@ -4,43 +4,15 @@
 
 ```
 /
-├── BOR1/   — Sistema legado (em operação, NÃO reescrever)
-└── BOR2/   — Rewrite completo (em desenvolvimento ativo)
+└── BOR2/   — o sistema (API em Go, web em Next.js)
 ```
 
-**Regra crítica:** Nunca modificar ou commitar arquivos de `BOR2/` sem instrução explícita. O BOR2 tem seu próprio ciclo de desenvolvimento separado.
+O sistema anterior foi descontinuado e retirado do repositório em 05/11/2026 (LG-1).
+O nome da pasta `BOR2/` ficou por enquanto.
 
 ---
 
-## BOR1 — Sistema Legado
-
-### Stack
-- **Frontend:** Vite + React + TypeScript (em `BOR1/frontend/`)
-- **Database:** Supabase PostgreSQL (`zsqbejfmbyuanetoxewt.supabase.co`)
-- **Pipelines:** Node.js ESM (quickbooks-pipeline, fuel-pipeline)
-
-### Credenciais BOR1
-- Supabase URL + anon key: `BOR1/quickbooks-pipeline/.env` e `BOR1/frontend/.env`
-- Supabase project ID: `zsqbejfmbyuanetoxewt`
-
-### Como rodar migration no Supabase (BOR1)
-Sem psql instalado localmente e sem Supabase CLI, usar o **Supabase Dashboard SQL Editor**:
-1. Acessa `https://supabase.com/dashboard/project/zsqbejfmbyuanetoxewt`
-2. SQL Editor → cola e executa o arquivo de migration
-
-### QB Pipeline (`BOR1/quickbooks-pipeline/`)
-- `run_all.js` — orquestra todos os scripts para as 3 empresas: `hvac`, `pcg`, `framing`
-- Empresas: HVAC (`HVAC_REALM_ID`), PCG (`PCG_REALM_ID`), Framing (`FRAMING_REALM_ID`)
-- Scripts: `bills.js`, `bill_payments.js`, `estimates.js`, `invoices.js`, `payments.js`, `purchase.js`, `vendor_credit.js`, `deposit.js`
-- Cada script loga execução em `qb_sync_log` (migration: `BOR1/frontend/backend/migrations/20260501_create_qb_sync_log.sql`)
-- `run_all.js` gera um `RUN_ID` UUID e passa via env `QB_RUN_ID` para todos os scripts filhos
-
-### Edge Functions (Supabase)
-- `ofi_calculator` — roda às 23:59 UTC todo fim de mês (transição mensal)
-
----
-
-## BOR2 — Rewrite
+## BOR2
 
 ### Stack
 - **Backend:** Go 1.23 + Fiber v2 (em `BOR2/apps/api/`)
@@ -153,7 +125,6 @@ As rotas abaixo são relativas a `/bor` — `/forecast` significa `/bor/forecast
 
 **Dev / Ferramentas**
 - `/dashboard` — KPIs globais: projetos ativos, recebíveis YTD (verde), payables (vermelho), subcontratados ativos. Dados de forecast + accounting + subcontractor hooks.
-- `/bor1-explorer` — Browser read-only das tabelas Supabase do BOR1. Split layout: lista de tabelas filtráveis à esquerda, visualização paginada com tipos de células (datas, booleans, JSON) e export CSV por tabela.
 
 ---
 
@@ -165,21 +136,20 @@ As rotas abaixo são relativas a `/bor` — `/forecast` significa `/bor/forecast
 
 ---
 
-## Missão
+## Infraestrutura
 
-**Descontinuar o BOR1 gradualmente.** O BOR1 está em produção e é usado hoje — correções e melhorias nele são válidas e necessárias. A meta é ir transferindo funcionalidades para o BOR2 ao longo do tempo até o BOR1 poder ser desligado.
-
-**Supabase e Vercel serão aposentados** — substituídos inteiramente pelo Railway. O banco de dados final é o Railway PostgreSQL.
+**Railway é a infraestrutura do sistema:** API, web e banco (Railway PostgreSQL). O Supabase do
+Premium Storage é outro projeto, usado pelo Forecast e pelo Inventory, e continua.
 
 ---
 
 ## Regras Gerais
 
-1. **Nunca tocar BOR2 sem instrução explícita** — staging seletivo sempre
+1. **Staging seletivo sempre**: só entra no commit o que foi pedido
 2. **NUNCA commitar nem fazer push sem ordem explícita** — esperar o usuário dizer "commita", "sobe", "faz o commit", "push" ou equivalente. Finalizar uma tarefa NÃO é autorização para commitar. Proibido commitar "automaticamente" ao final de qualquer fluxo de trabalho.
 3. **Sem comentários desnecessários no código** — só quando o WHY não é óbvio
 4. **Sem abstrações prematuras** — resolver o problema atual, não o hipotético futuro
-5. **psql não está instalado localmente** — migrations BOR1 via Supabase dashboard, BOR2 via Railway CLI ou psql se instalado
-6. **Supabase anon key não tem permissão DDL** — não tenta criar tabelas via API REST
+5. **psql não está instalado localmente**: migration vai pelo psql, se instalado, ou por script Python (psycopg2) com o `DATABASE_URL`
+6. **Supabase do Premium Storage é lido pela API REST**: a chave não tem permissão DDL, então não se cria tabela lá por aqui
 7. **Todo seletor de data usa ShadcnUI `Calendar` + `Popover`** — nunca `<input type="date">` nativo
-8. **BOR2 NUNCA depende do BOR1** — o BOR1 será desligado. É proibido criar qualquer vínculo de BOR2 com BOR1: sem chamadas à API do Supabase, sem rotas Next.js que consultam o BOR1, sem lógica de fallback para dados do BOR1. Todo dado que BOR2 precisa deve vir do Railway PostgreSQL ou ser migrado para lá.
+8. **Todo dado do sistema vem do Railway PostgreSQL**: a única exceção é o Supabase do Premium Storage. Dado novo de outra fonte é migrado para o Railway, não consultado na origem.

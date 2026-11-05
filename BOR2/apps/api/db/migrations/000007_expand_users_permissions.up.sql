@@ -1,4 +1,4 @@
--- Expand users table with BOR1 fields
+-- Expand users table with the legacy system fields
 ALTER TABLE users ADD COLUMN IF NOT EXISTS financial_pass BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Screens/pages permission system
@@ -18,7 +18,7 @@ CREATE TABLE usuarios_telas (
 CREATE INDEX idx_usuarios_telas_usuario ON usuarios_telas(usuario_id);
 CREATE INDEX idx_usuarios_telas_tela ON usuarios_telas(tela_id);
 
--- Expand user_role enum with BOR1 roles
+-- Expand user_role enum with the legacy roles
 ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'dev';
 ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'owner';
 ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'gestor';

@@ -68,7 +68,7 @@ CREATE TABLE workforce_groups (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Subcontractor events (BOR1's event-based tracking)
+-- Subcontractor events (event-based tracking)
 CREATE TABLE subcontractor_events (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   obra_id             TEXT NOT NULL DEFAULT '',

@@ -12,7 +12,6 @@ import { NextResponse, type NextRequest } from "next/server"
 const BOR_SEGMENTS = new Set([
   "accounting",
   "autolog",
-  "bor1-explorer",
   "budget-control",
   "building-schedule",
   "dashboard",

@@ -477,7 +477,7 @@ export default function WorkforcePage() {
         </>
       )}
 
-      {/* No data table — BOR1 shows charts only */}
+      {/* No data table: charts only */}
     </div>
   )
 }

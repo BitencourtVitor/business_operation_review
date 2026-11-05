@@ -81,7 +81,7 @@ CREATE TABLE acoes (
 );
 CREATE INDEX idx_acoes_plano ON acoes(plano_id);
 
--- Expand receivables/payables into separate tables matching BOR1
+-- Expand receivables/payables into separate tables
 CREATE TABLE receivables_accounting (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   intern_id              TEXT UNIQUE,

@@ -302,7 +302,7 @@ func (h *OFIHandler) UpdateExecutionReason(c *fiber.Ctx) error {
 }
 
 // ─── POST /ofi/calculate ──────────────────────────────────────────────────────
-// Ports the BOR1 ofi_calculator.ts Supabase Edge Function to Go.
+// OFI calculation (formerly a Supabase Edge Function, now in Go).
 //
 // Pipeline 1 — Execution: closes the execution month by snapshotting current
 //   obra statuses from forecast_core into monthly_execution_history.

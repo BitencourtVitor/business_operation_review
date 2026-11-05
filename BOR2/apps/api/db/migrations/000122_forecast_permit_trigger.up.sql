@@ -40,7 +40,7 @@ CREATE TRIGGER forecast_core_seed_permit_trg
     EXECUTE FUNCTION forecast_core_seed_permit();
 
 -- Obra apagada leva as etapas junto. A 000120 não pôs FK porque
--- forecast_core.id é TEXT e a tabela vem da migração do BOR1; sem isso, apagar
+-- forecast_core.id é TEXT e a tabela vem da migração do sistema antigo; sem isso, apagar
 -- uma obra deixaria três órfãs para sempre.
 DELETE FROM forecast_permit p
 WHERE NOT EXISTS (SELECT 1 FROM forecast_core c WHERE c.id = p.project_id);
