@@ -23,7 +23,7 @@ export function InsightsPanel({ open, onClose, pageKey, mes, ano, userId, canWri
   return (
     <div
       className={`flex shrink-0 flex-col overflow-hidden rounded-xl border transition-all duration-300 ease-in-out ${
-        open ? 'ml-4 w-72 border-border opacity-100' : 'ml-0 w-0 border-transparent opacity-0'
+        open ? 'border-border opacity-100 max-lg:order-first max-lg:max-h-[70vh] max-lg:w-full lg:ml-4 lg:w-72' : 'ml-0 w-0 border-transparent opacity-0 max-lg:hidden'
       }`}
       style={{ backgroundColor: 'color-mix(in oklab, var(--color-card) 60%, transparent)' }}
     >
