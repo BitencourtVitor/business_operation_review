@@ -432,13 +432,14 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
 
   return (
     <div className={cn("shrink-0 overflow-hidden rounded-xl border border-border/50 bg-card/40", ctr.archived && "opacity-60")}>
-      <div className="flex items-center gap-3 px-4 py-2.5">
+      {/* No celular: selo, urgência e ações em cima; nome e contatos com a linha toda embaixo. */}
+      <div className="flex flex-wrap items-center gap-3 px-4 py-2.5 max-sm:gap-x-1">
         <span title={life.hint}
           className={cn("flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold", life.border, life.bg, life.text)}>
           <span className={cn("h-1.5 w-1.5 rounded-full", life.dot)} />
           {life.label}
         </span>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 max-sm:order-last max-sm:basis-full">
           <p className="flex items-center gap-1.5 truncate text-sm font-semibold leading-tight">
             {ctr.name}
             {!isMultiDivision && servedDivisions[0] && (
@@ -451,7 +452,7 @@ function ContractorCard({ ctr, types, divisions, onEdit, onDelete }: {
             <span className="flex items-center gap-1"><Phone className="h-2.5 w-2.5" />{ctr.phone || "—"}</span>
           </div>
         </div>
-        <span className={cn("shrink-0 text-[11px] font-semibold", meta.text)}>
+        <span className={cn("shrink-0 text-[11px] font-semibold max-sm:mr-auto", meta.text)}>
           {meta.label}{ctr.next_expiry ? ` · ${fmtDate(ctr.next_expiry)}` : ""}
         </span>
         <button onClick={onEdit} title="Edit subcontractor"
@@ -954,17 +955,17 @@ export default function SubcontractorDocsPage() {
 
       {/* ── List container ───────────────────────────────────────────────── */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
-        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+        <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border/50 px-4 py-3">
           <span className="flex items-center text-sm font-semibold leading-none">List</span>
           <span className="flex items-center text-xs leading-none text-muted-foreground">{rows.length}</span>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
             <button onClick={() => setShowArchived(v => !v)}
               className={cn("flex h-7 items-center gap-1.5 rounded-md border border-input px-2.5 text-[11px] font-medium transition-colors dark:bg-input/30",
                 showArchived ? "bg-muted text-foreground" : "bg-transparent text-muted-foreground hover:text-foreground")}>
               <span className={cn("flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border", showArchived ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
                 {showArchived && <Check className="h-2.5 w-2.5" />}
               </span>
-              Show off-boarded
+              <span className="whitespace-nowrap">Show off-boarded</span>
             </button>
             <div className="flex h-7 items-center overflow-hidden rounded-md border border-input bg-transparent dark:bg-input/30">
               <span className="flex h-full items-center border-r border-input bg-muted/40 px-2 text-[9px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
