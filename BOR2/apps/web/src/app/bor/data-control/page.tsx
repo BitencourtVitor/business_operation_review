@@ -5,7 +5,9 @@ import type { ForecastStatus } from "@bor2/shared"
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import type { DCSection, SidebarTable, IntegFilters } from "./types"
-import { DEFAULT_INTEG } from "./types"
+import { DC_GROUPS, DEFAULT_INTEG } from "./types"
+import { PanelLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { DataControlSidebar }   from "./components/data-control-sidebar"
 import { NewProjectSection }     from "./components/new-project-section"
 import { EditProjectSection }    from "./components/edit-project-section"
@@ -68,11 +70,17 @@ function DataControlContent() {
     setJobSiteFilter("all")
   }
 
+  // No celular a barra lateral da página vira gaveta: escolher uma seção fecha.
+  const [menuOpen, setMenuOpen] = useState(false)
+  const sectionLabel = DC_GROUPS.flatMap(g => g.items).find(i => i.key === section)?.label
+
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
+      {menuOpen && <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-30 bg-black/50 lg:hidden" />}
+      <div className={`flex max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-40 max-lg:transition-transform max-lg:duration-500 ${menuOpen ? "" : "max-lg:-translate-x-full"}`}>
       <DataControlSidebar
         active={section}
-        onSelect={setSection}
+        onSelect={s => { setSection(s); setMenuOpen(false) }}
         clientFilter={clientFilter}
         jobSiteFilter={jobSiteFilter}
         statusFilter={statusFilter}
@@ -82,18 +90,23 @@ function DataControlContent() {
         onJobSiteFilter={setJobSiteFilter}
         onStatusFilter={setStatusFilter}
         catalogTable={catalogTable}
-        onCatalogTable={setCatalogTable}
+        onCatalogTable={t => { setCatalogTable(t); setMenuOpen(false) }}
       />
+      </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
+          <Button variant="outline" size="sm" onClick={() => setMenuOpen(true)}><PanelLeft className="h-3.5 w-3.5" />Menu</Button>
+          <span className="truncate text-sm font-medium">{sectionLabel}</span>
+        </div>
         {section === "new-project" && (
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 max-md:p-4">
             <NewProjectSection onCreated={() => setSection("edit-project")} />
           </div>
         )}
 
         {section === "edit-project" && (
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 max-md:p-4">
             <EditProjectSection
               clientFilter={clientFilter}
               jobSiteFilter={jobSiteFilter}
