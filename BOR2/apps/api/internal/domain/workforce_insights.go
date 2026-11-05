@@ -52,7 +52,7 @@ type SupervisorHours struct {
 	Rate     float64 // rate de hoje
 }
 
-// BuildingPoint é um ponto semanal do gráfico da meta, em horas.
+// BuildingPoint é um ponto diário do gráfico da meta, em horas.
 type BuildingPoint struct {
 	Date      string   `json:"date"`
 	Planned   float64  `json:"planned"`
@@ -151,7 +151,7 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		}
 	}
 
-	// Série semanal do início ao fim do prédio (ou até hoje, se já passou).
+	// Série diária do início ao fim do prédio (ou até hoje, se já passou).
 	days := sortedKeys(dailyCost)
 	spentBy := func(day string) float64 {
 		var sum float64
@@ -167,9 +167,9 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 	if now.After(last) {
 		last = now
 	}
-	// Toda semana, mais hoje (onde o real vira projeção) e o último dia.
+	// Todo dia, mais hoje (onde o real vira projeção) e o último dia: cada ponto cai no seu dia.
 	marks := map[string]time.Time{last.Format(dateLayout): last}
-	for d := t0; !d.After(last); d = d.AddDate(0, 0, 7) {
+	for d := t0; !d.After(last); d = d.AddDate(0, 0, 1) {
 		marks[d.Format(dateLayout)] = d
 	}
 	if !now.Before(t0) && !now.After(last) {
