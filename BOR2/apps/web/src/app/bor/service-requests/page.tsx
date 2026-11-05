@@ -276,7 +276,7 @@ export default function ServiceRequestsPage() {
   )
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 max-lg:overflow-y-auto">
       {/* ── Header + Filters ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -420,11 +420,11 @@ export default function ServiceRequestsPage() {
       </div>
 
       {/* ── Body (metrics + chart + carousel + insights panel) ── */}
-      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-        <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+      <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:gap-0 lg:overflow-hidden">
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-1 lg:overflow-hidden">
 
           {/* ── Metrics bar ── */}
-          <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-7">
+          <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7 max-sm:[&>:first-child]:col-span-2">
             {[
               { label: "Total",           value: metrics.total,               color: undefined,  info: "Total number of service requests matching the current filters." },
               { label: "Subcontractor",   value: `${metrics.subcontractorCnt} (${metrics.subcontractorPct}%)`, color: "#3b82f6", info: "Requests flagged as subcontractor-originated. Shows count and percentage of total filtered requests." },
@@ -450,7 +450,7 @@ export default function ServiceRequestsPage() {
           </div>
 
           {/* Chart — fills all remaining height after fixed-size elements */}
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/60 p-4">
+          <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card/60 p-4 max-lg:h-72 lg:min-h-0 lg:flex-1">
             <div className="mb-2 flex shrink-0 items-center gap-2">
               <BarChart2 className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm font-semibold">Requests Over Time</span>
