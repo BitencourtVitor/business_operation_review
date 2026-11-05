@@ -260,6 +260,7 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 		daily := map[string]float64{}
 		start := ""
 		unrated := map[string]*domain.SupervisorHours{}
+		workerDays := map[string]map[string]*domain.WorkerDay{}
 		unratedDaily := map[string]float64{}
 		for _, h := range rows {
 			if linkKey(h.Jobsite, obraOf(h)) != key || ignored[strings.ToLower(h.Worktype)] {
@@ -272,6 +273,18 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 			// Todo mundo que trabalhou no prédio consome o orçamento, não só os supervisores.
 			// Quem não tem rate no payroll entra depois, com a média de quem tem.
 			pk := domain.PersonKey(h.Employee)
+			pd := workerDays[pk]
+			if pd == nil {
+				pd = map[string]*domain.WorkerDay{}
+				workerDays[pk] = pd
+			}
+			wd := pd[h.Date]
+			if wd == nil {
+				wd = &domain.WorkerDay{Date: h.Date}
+				pd[h.Date] = wd
+			}
+			wd.Regular += h.Regular
+			wd.Overtime += h.Overtime
 			pts := rates[pk]
 			if len(pts) == 0 {
 				u := unrated[pk]
@@ -313,7 +326,11 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 			}
 		}
 		list := make([]domain.SupervisorHours, 0, len(byEmp))
-		for _, sh := range byEmp {
+		for pk, sh := range byEmp {
+			for _, wd := range workerDays[pk] {
+				sh.Days = append(sh.Days, *wd)
+			}
+			sort.Slice(sh.Days, func(i, j int) bool { return sh.Days[i].Date < sh.Days[j].Date })
 			list = append(list, *sh)
 		}
 		sort.Slice(list, func(i, j int) bool { return list[i].Employee < list[j].Employee })

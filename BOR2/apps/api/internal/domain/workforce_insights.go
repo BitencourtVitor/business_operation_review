@@ -50,6 +50,14 @@ type SupervisorHours struct {
 	Overtime float64
 	Cost     float64 // custo já gasto, com overtime a 1,5×
 	Rate     float64 // rate de hoje
+	Days     []WorkerDay // horas por dia no prédio, em ordem, para o acumulado até cada ponto do gráfico
+}
+
+// WorkerDay são as horas de uma pessoa num dia, num prédio.
+type WorkerDay struct {
+	Date     string  `json:"date"`
+	Regular  float64 `json:"regular"`
+	Overtime float64 `json:"overtime"`
 }
 
 // BuildingPoint é um ponto diário do gráfico da meta, em horas.
@@ -62,9 +70,10 @@ type BuildingPoint struct {
 
 // WorkerHours é quanto cada pessoa já trabalhou no prédio.
 type WorkerHours struct {
-	Employee string  `json:"employee"`
-	Regular  float64 `json:"regular"`
-	Overtime float64 `json:"overtime"`
+	Employee string      `json:"employee"`
+	Regular  float64     `json:"regular"`
+	Overtime float64     `json:"overtime"`
+	Days     []WorkerDay `json:"days"` // dia a dia, para somar até a data do tooltip
 }
 
 // BuildingForecast é o EVM do prédio em horas. Dinheiro não sai daqui: o
@@ -121,7 +130,7 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		f.RemainingHours = left / blendedHour
 	}
 	for _, s := range sups {
-		f.Workers = append(f.Workers, WorkerHours{Employee: s.Employee, Regular: s.Regular, Overtime: s.Overtime})
+		f.Workers = append(f.Workers, WorkerHours{Employee: s.Employee, Regular: s.Regular, Overtime: s.Overtime, Days: s.Days})
 	}
 	sort.Slice(f.Workers, func(a, b int) bool {
 		return f.Workers[a].Regular+f.Workers[a].Overtime > f.Workers[b].Regular+f.Workers[b].Overtime
