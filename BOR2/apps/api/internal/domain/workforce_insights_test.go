@@ -32,11 +32,8 @@ func TestForecastBuildingSplit(t *testing.T) {
 	if math.Abs(f.RemainingHours-want) > 0.01 {
 		t.Errorf("remaining %.2f, want %.2f", f.RemainingHours, want)
 	}
-	if math.Abs(f.Supervisors[0].Hours-want*0.6) > 0.01 || f.Supervisors[0].Employee != "A" {
-		t.Errorf("A gets %.2f, want %.2f", f.Supervisors[0].Hours, want*0.6)
-	}
-	if math.Abs(f.Supervisors[0].Overtime-want*0.6*0.25) > 0.01 {
-		t.Errorf("A overtime %.2f", f.Supervisors[0].Overtime)
+	if w := f.Workers[0]; w.Employee != "A" || w.Regular != 225 || w.Overtime != 75 {
+		t.Errorf("first worker %+v, want A with 225 + 75", w)
 	}
 	if last := f.Series[len(f.Series)-1]; last.Date != "2026-12-01" || math.Abs(last.Planned-f.BudgetHours) > 0.01 {
 		t.Errorf("série termina em %s com %.1f", last.Date, last.Planned)

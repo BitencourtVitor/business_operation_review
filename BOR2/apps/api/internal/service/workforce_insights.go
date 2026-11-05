@@ -54,6 +54,8 @@ func dbCompany(company string) (string, error) {
 		return "Framing", nil
 	case "hvac":
 		return "HVAC", nil
+	case "pcg":
+		return "PCG", nil
 	}
 	return "", domain.ErrBadRequest
 }
@@ -153,14 +155,11 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 		if h.Jobsite == "" || ignored[strings.ToLower(h.Worktype)] {
 			continue
 		}
-		lot := h.Lot
-		if h.Building != "" {
-			lot = h.Building
-		}
+		lot := obraOf(h)
 		k := p + "|" + h.Jobsite + "|" + lot
 		o := obras[k]
 		if o == nil {
-			o = &ObraHours{Period: p, Jobsite: h.Jobsite, Lot: lot, IsBuilding: h.Building != "" && buildings[linkKey(h.Jobsite, h.Building)]}
+			o = &ObraHours{Period: p, Jobsite: h.Jobsite, Lot: lot, IsBuilding: buildings[linkKey(h.Jobsite, lot)]}
 			obras[k] = o
 		}
 		o.Regular += h.Regular
@@ -206,10 +205,6 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 		return nil, err
 	}
 	ignored := set(settings.IgnoredWorktypes)
-	sups := map[string]bool{}
-	for _, n := range settings.Supervisors {
-		sups[domain.PersonKey(n)] = true
-	}
 	links := map[string]domain.BuildingLink{}
 	for _, l := range settings.Links {
 		links[l.ForecastID] = l
@@ -228,13 +223,29 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 		byEmp := map[string]*domain.SupervisorHours{}
 		daily := map[string]float64{}
 		start := ""
+		unrated := map[string]*domain.SupervisorHours{}
+		unratedDaily := map[string]float64{}
 		for _, h := range rows {
-			if linkKey(h.Jobsite, h.Building) != key || ignored[strings.ToLower(h.Worktype)] {
+			if linkKey(h.Jobsite, obraOf(h)) != key || ignored[strings.ToLower(h.Worktype)] {
 				continue
 			}
+			// Ponto zero da meta e do executado: o primeiro registro de horas no prédio, de qualquer pessoa.
+			if start == "" || h.Date < start {
+				start = h.Date
+			}
+			// Todo mundo que trabalhou no prédio consome o orçamento, não só os supervisores.
+			// Quem não tem rate no payroll entra depois, com a média de quem tem.
 			pk := domain.PersonKey(h.Employee)
 			pts := rates[pk]
-			if !sups[pk] || len(pts) == 0 {
+			if len(pts) == 0 {
+				u := unrated[pk]
+				if u == nil {
+					u = &domain.SupervisorHours{Employee: h.Employee}
+					unrated[pk] = u
+				}
+				u.Regular += h.Regular
+				u.Overtime += h.Overtime
+				unratedDaily[h.Date] += h.Regular + 1.5*h.Overtime
 				continue
 			}
 			rate := domain.RateAt(pts, h.Date)
@@ -248,8 +259,21 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 			sh.Overtime += h.Overtime
 			sh.Cost += cost
 			daily[h.Date] += cost
-			if start == "" || h.Date < start {
-				start = h.Date
+		}
+		var paid, weighted float64
+		for _, sh := range byEmp {
+			paid += sh.Cost
+			weighted += sh.Regular + 1.5*sh.Overtime
+		}
+		if weighted > 0 {
+			avg := paid / weighted
+			for pk, u := range unrated {
+				u.Rate = avg
+				u.Cost = avg * (u.Regular + 1.5*u.Overtime)
+				byEmp[pk] = u
+			}
+			for d, w := range unratedDaily {
+				daily[d] += avg * w
 			}
 		}
 		list := make([]domain.SupervisorHours, 0, len(byEmp))
@@ -322,4 +346,12 @@ func (s *WorkforceInsightsService) SaveSettings(ctx context.Context, st *domain.
 		}
 	}
 	return s.repo.SaveSettings(ctx, st)
+}
+
+// obraOf é o nome da obra no QB Time: o prédio quando houver, senão o lote.
+func obraOf(h domain.HoursRow) string {
+	if h.Building != "" {
+		return h.Building
+	}
+	return h.Lot
 }

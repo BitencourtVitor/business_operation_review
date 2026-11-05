@@ -133,10 +133,11 @@ func (r *PostgresWorkforceInsightsRepository) ForecastBuildings(ctx context.Cont
 	return out, rows.Err()
 }
 
+// QBTBuildings lista toda obra do QB Time (prédio ou lote): qualquer uma pode ser o par de um prédio do Forecast.
 func (r *PostgresWorkforceInsightsRepository) QBTBuildings(ctx context.Context) ([]domain.QBTBuilding, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT jobsite, building, round(sum(hours)::numeric, 1)::float8
-		FROM mv_wp_hours WHERE company = 'Framing' AND building <> '' AND jobsite <> ''
+		SELECT jobsite, coalesce(nullif(building, ''), lot), round(sum(hours)::numeric, 1)::float8
+		FROM mv_wp_hours WHERE company = 'Framing' AND jobsite <> '' AND coalesce(nullif(building, ''), lot) <> ''
 		GROUP BY 1, 2 ORDER BY 1, 2
 	`)
 	if err != nil {
