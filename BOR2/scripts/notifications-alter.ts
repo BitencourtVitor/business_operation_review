@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import postgres from "postgres"
 
-const sql = postgres("postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway", { ssl: "prefer" })
+const sql = postgres(process.env.DATABASE_URL!, { ssl: "prefer" })
 
 await sql.unsafe(`
   ALTER TABLE notifications

@@ -6,7 +6,7 @@
 
 import postgres from "postgres"
 
-const RAILWAY_URL = "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway"
+const RAILWAY_URL = process.env.DATABASE_URL!
 
 async function main() {
   console.log("\n════════════════════════════════════════")

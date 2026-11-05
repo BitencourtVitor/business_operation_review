@@ -14,7 +14,7 @@
 import postgres from "postgres"
 import { randomUUID } from "crypto"
 
-const RAILWAY_URL = "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway"
+const RAILWAY_URL = process.env.DATABASE_URL!
 
 async function seedFieldwireDocs(sql: postgres.Sql, projectID: string, cliente: string, projType: string) {
   await sql`

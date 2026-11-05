@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const testDSN = "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway?sslmode=require"
+var testDSN = os.Getenv("DATABASE_URL")
 
 func newTestDB(t *testing.T) *pgxpool.Pool {
 	t.Helper()

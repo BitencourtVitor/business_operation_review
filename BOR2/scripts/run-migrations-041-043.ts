@@ -8,7 +8,7 @@ import postgres from "postgres"
 import { readFileSync } from "fs"
 import { join } from "path"
 
-const RAILWAY_URL = "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway"
+const RAILWAY_URL = process.env.DATABASE_URL!
 
 const sql = postgres(RAILWAY_URL, { max: 1 })
 

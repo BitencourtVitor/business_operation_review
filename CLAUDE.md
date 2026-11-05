@@ -27,12 +27,11 @@ O nome da pasta `BOR2/` ficou por enquanto.
 
 ### Database BOR2 — Railway PostgreSQL
 - Credenciais em `BOR2/.env` e `BOR2/apps/api/.env`
-- `DATABASE_URL=postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway`
-- `DATABASE_INTERNAL_URL=postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@postgres.railway.internal:5432/railway`
+- `DATABASE_URL` (acesso de fora) e `DATABASE_INTERNAL_URL` (dentro do Railway) ficam só nesses `.env`, nunca no repositório
 
 ### Como rodar migration no BOR2 (Railway PostgreSQL)
 ```bash
-psql "postgresql://postgres:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@junction.proxy.rlwy.net:34093/railway" -f caminho/para/migration.sql
+psql "$DATABASE_URL" -f caminho/para/migration.sql
 ```
 Se psql não estiver instalado localmente, usar Railway CLI:
 ```bash
@@ -42,12 +41,12 @@ railway connect postgres
 ```
 
 ### Railway CLI — Token de acesso
-Token salvo em `BOR2/.env` como `RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` (token de projeto, também replicado nas Shared Variables do projeto no Railway pelo usuário — evita ter que recriar)
+Token salvo em `BOR2/.env` como `RAILWAY_TOKEN` (token de projeto, também replicado nas Shared Variables do projeto no Railway pelo usuário — evita ter que recriar)
 Para autenticar o CLI sem login interativo:
 ```bash
-RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX railway <comando>
+RAILWAY_TOKEN=$RAILWAY_TOKEN railway <comando>
 ```
-Ou exportar antes de usar: `export RAILWAY_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
+Ou exportar antes de usar: `export RAILWAY_TOKEN=<valor do BOR2/.env>`
 
 ### Decisões de produto BOR2
 - Routing: App Router do Next.js (NÃO SPA)
