@@ -219,6 +219,8 @@ type BuildingLink struct {
 	ForecastID string `json:"forecastId"`
 	Jobsite    string `json:"jobsite"`
 	Building   string `json:"building"`
+	// EndOverride é o expected end indicado à mão; vazio, vale o do Forecast.
+	EndOverride *string `json:"endOverride,omitempty"`
 }
 
 // ForecastBuildingRef é um prédio do Forecast (type Building) da Framing.

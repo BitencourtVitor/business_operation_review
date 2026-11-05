@@ -37,14 +37,14 @@ func (r *PostgresWorkforceInsightsRepository) Settings(ctx context.Context) (*do
 	`).Scan(&s.BuildingBudget, &s.IgnoredWorktypes, &s.NonCountingWorktypes, &s.Supervisors); err != nil {
 		return nil, fmt.Errorf("wp settings: %w", err)
 	}
-	rows, err := r.db.Query(ctx, `SELECT forecast_id, qbt_jobsite, qbt_building FROM wp_building_links`)
+	rows, err := r.db.Query(ctx, `SELECT forecast_id, qbt_jobsite, qbt_building, end_override::text FROM wp_building_links`)
 	if err != nil {
 		return nil, fmt.Errorf("wp links: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var l domain.BuildingLink
-		if err := rows.Scan(&l.ForecastID, &l.Jobsite, &l.Building); err != nil {
+		if err := rows.Scan(&l.ForecastID, &l.Jobsite, &l.Building, &l.EndOverride); err != nil {
 			return nil, fmt.Errorf("scan wp link: %w", err)
 		}
 		s.Links = append(s.Links, l)
@@ -74,8 +74,8 @@ func (r *PostgresWorkforceInsightsRepository) SaveSettings(ctx context.Context, 
 		}
 		for _, l := range s.Links {
 			if _, err := tx.Exec(ctx, `
-				INSERT INTO wp_building_links (forecast_id, qbt_jobsite, qbt_building) VALUES ($1, $2, $3)
-			`, l.ForecastID, l.Jobsite, l.Building); err != nil {
+				INSERT INTO wp_building_links (forecast_id, qbt_jobsite, qbt_building, end_override) VALUES ($1, $2, $3, $4::date)
+			`, l.ForecastID, l.Jobsite, l.Building, l.EndOverride); err != nil {
 				return fmt.Errorf("insert building link: %w", err)
 			}
 		}

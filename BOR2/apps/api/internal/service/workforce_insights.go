@@ -204,6 +204,8 @@ type BuildingView struct {
 	Building domain.ForecastBuildingRef `json:"building"`
 	Link     *domain.BuildingLink       `json:"link"`
 	Forecast *domain.BuildingForecast   `json:"forecast"`
+	// EndSource diz de onde veio o expected end usado: "forecast" ou "manual" (settings).
+	EndSource string `json:"endSource"`
 }
 
 // Buildings monta o EVM de cada prédio ligado. Só entram supervisores do
@@ -305,8 +307,13 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 			list = append(list, *sh)
 		}
 		sort.Slice(list, func(i, j int) bool { return list[i].Employee < list[j].Employee })
-		if b.End != nil {
-			v.Forecast = domain.ForecastBuilding(settings.BuildingBudget, start, *b.End, now, list, daily)
+		end := b.End
+		v.EndSource = "forecast"
+		if l.EndOverride != nil && *l.EndOverride != "" {
+			end, v.EndSource = l.EndOverride, "manual"
+		}
+		if end != nil {
+			v.Forecast = domain.ForecastBuilding(settings.BuildingBudget, start, *end, now, list, daily)
 		}
 		out = append(out, v)
 	}
