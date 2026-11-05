@@ -723,9 +723,9 @@ export default function WeeklyHoursControlPage() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="mb-6 flex shrink-0 items-end justify-between gap-4">
+    <div className="flex h-full flex-col max-lg:overflow-y-auto">
+      <div className="flex flex-col lg:min-h-0 lg:flex-1">
+        <div className="mb-6 flex shrink-0 flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
             <p className="text-sm text-muted-foreground">
@@ -736,7 +736,7 @@ export default function WeeklyHoursControlPage() {
             </p>
           </div>
 
-          <div className="flex shrink-0 items-end gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col items-start gap-1">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Company</p>
               <div className="flex h-8 items-center rounded-lg border border-border bg-muted/40 p-0.5 gap-0.5">
@@ -758,7 +758,7 @@ export default function WeeklyHoursControlPage() {
               </div>
             </div>
 
-            <div className="self-stretch w-px bg-border" />
+            <div className="self-stretch w-px bg-border max-sm:hidden" />
 
             <div className="flex flex-col items-start gap-1">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Week</p>
@@ -785,7 +785,7 @@ export default function WeeklyHoursControlPage() {
               </div>
             </div>
 
-            <div className="self-stretch w-px bg-border" />
+            <div className="self-stretch w-px bg-border max-sm:hidden" />
 
             <div className="flex flex-col items-start gap-1">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Metric Mode</p>
@@ -811,7 +811,7 @@ export default function WeeklyHoursControlPage() {
             </div>
 
             {!loading && exportRows.length > 0 && (
-              <div className="self-stretch w-px bg-border" />
+              <div className="self-stretch w-px bg-border max-sm:hidden" />
             )}
 
             {!loading && exportRows.length > 0 && (
@@ -899,7 +899,7 @@ export default function WeeklyHoursControlPage() {
         )}
 
         {!loading && jobCostingTeams.length > 0 && (
-          <div className="flex min-h-0 flex-1 flex-col gap-4">
+          <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1">
             {/* Filters: Exclude addresses + Days */}
             <div className="grid shrink-0 grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
               {/* Exclude addresses */}
@@ -962,7 +962,7 @@ export default function WeeklyHoursControlPage() {
             </div>
 
             {/* Team groups: é só esta lista que rola. */}
-            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+            <div className="space-y-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
             {jobCostingTeams.map(group => (
               <div key={group.teamName} className="overflow-hidden rounded-xl border border-border bg-card/60">
                 {/* Team header */}
@@ -1027,16 +1027,16 @@ export default function WeeklyHoursControlPage() {
                         {/* Employee row — clickable to expand */}
                         <button
                           onClick={() => toggleEmployee(emp.name)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+                          className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors max-sm:gap-y-1.5"
                         >
                           {isExpanded
                             ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                             : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                           }
-                          <span className="flex-1 truncate text-sm font-medium">{emp.name}</span>
+                          <span className="flex-1 truncate text-sm font-medium max-sm:basis-[calc(100%-1.75rem)]">{emp.name}</span>
 
                           {/* Stats: week mode shows logged/surplus/available; day mode shows filtered hours only */}
-                          <div className="hidden items-center sm:flex" style={{ gap: "2.5rem" }}>
+                          <div className="flex items-center gap-3 max-sm:ml-6.5 max-sm:flex-1 max-sm:justify-between sm:gap-10">
                             {isWeekMode ? (
                               <>
                                 <div className="flex min-w-[56px] flex-col items-end">
