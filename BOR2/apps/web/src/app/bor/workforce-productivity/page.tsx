@@ -1,15 +1,16 @@
 "use client"
 
-import { Fragment, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { interpret } from "./_lib/interpret"
+import { Card, Kpi, Scope, Sep, type HelpSpec } from "@/components/common/insight-card"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import {
   Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer,
   Tooltip as RechartsTooltip, XAxis, YAxis,
 } from "recharts"
 import {
-  AlarmClockPlus, Lightbulb, ArrowDown, ArrowLeft, Info, MousePointerClick, ArrowRight, ArrowUp, ArrowUpDown, Building2, Calendar, CircleHelp, Clock, Flame, Layers, TrendingDown, TrendingUp, Settings2, TriangleAlert, Users,
+  AlarmClockPlus, Lightbulb, ShieldUser, ArrowDown, ArrowLeft,  ArrowRight, ArrowUp, ArrowUpDown, Building2, Calendar,  Clock, Flame, Layers, TrendingDown, TrendingUp, Settings2, TriangleAlert, Users,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -17,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { usePermission } from "@/hooks/use-permission"
 import {
-  type BuildingForecast, workforceInsightsService, type BuildingView, type EmployeeHours, type Granularity, type InsightsPeriod, type ObraHours,
+  type BuildingForecast, workforceInsightsService, type BuildingView, type EmployeeHours, type Granularity, type SiteOption, type InsightsPeriod, type ObraHours,
 } from "@/services/workforce-insights.service"
 import { WorkforceSettingsDialog } from "./_components/settings-dialog"
 
@@ -54,87 +55,6 @@ function PeriodName({ p, g }: { p: InsightsPeriod; g: Granularity }) {
 }
 
 // ─── Pieces ──────────────────────────────────────────────────────────────────
-
-/** Período no título, como subtítulo: linha vertical, cor apagada e peso normal. */
-function Scope({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1 font-normal text-muted-foreground">
-      <span className="mx-[0.4em] h-[0.9em] w-px bg-border" aria-hidden />{children}
-    </span>
-  )
-}
-
-function Kpi({ icon: Icon, label, value, sub, tone }: {
-  icon: React.ElementType; label: React.ReactNode; value: string; sub?: string; tone?: "red"
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card/60 px-4 py-2">
-      <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" />{label}
-      </p>
-      <p className={`text-xl font-semibold tabular-nums ${tone === "red" ? "text-red-600 dark:text-red-400" : ""}`}>{value}</p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
-    </div>
-  )
-}
-
-type HelpSpec = {
-  what: React.ReactNode
-  items?: { label: string; color?: string; text: React.ReactNode }[]
-  note?: React.ReactNode
-  action?: React.ReactNode
-}
-
-/** Explicação do ícone de dúvida: o que o bloco mostra, o que é cada dado, observação e o que dá para fazer. */
-function HelpBody({ what, items, note, action }: HelpSpec) {
-  return (
-    <div className="grid w-80 gap-2 text-xs leading-relaxed">
-      <p>{what}</p>
-      {items && (
-        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 border-t border-border pt-2">
-          {items.map(i => (
-            <Fragment key={i.label}>
-              <dt className="flex items-center gap-1.5 self-start font-medium whitespace-nowrap">
-                {i.color && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: i.color }} />}{i.label}
-              </dt>
-              <dd className="text-muted-foreground">{i.text}</dd>
-            </Fragment>
-          ))}
-        </dl>
-      )}
-      {note && <p className="flex gap-1.5 border-t border-border pt-2 text-muted-foreground"><Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />{note}</p>}
-      {action && <p className="flex gap-1.5 border-t border-border pt-2 text-muted-foreground"><MousePointerClick className="mt-0.5 h-3.5 w-3.5 shrink-0" />{action}</p>}
-    </div>
-  )
-}
-
-/** Bloco com título, ícone de dúvida (a explicação mora no hover) e o que vai à direita. */
-function Card({ title, help, right, children, className = "" }: {
-  title: React.ReactNode; help?: HelpSpec; right?: React.ReactNode; children: React.ReactNode; className?: string
-}) {
-  return (
-    <div className={`flex min-h-0 min-w-0 flex-col rounded-xl border border-border bg-card/60 px-4 pt-3 pb-2 max-xl:min-h-[300px] ${className}`}>
-      <div className="mb-1.5 flex items-center justify-between gap-3">
-        <p className="flex min-w-0 items-center gap-1 truncate text-sm font-medium">{title}</p>
-        {/* Do lado oposto ao título: a legenda e, por último, a explicação no hover. */}
-        <div className="flex shrink-0 items-center gap-3">
-          {right}
-          {help && (
-            <TooltipProvider delay={150}>
-              <Tooltip>
-                <TooltipTrigger render={<span className="inline-flex cursor-help" />}>
-                  <CircleHelp className="h-3.5 w-3.5 text-muted-foreground/70 transition-colors hover:text-foreground" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-none border border-border bg-popover px-3 py-2.5 text-popover-foreground shadow-md [&>:last-child]:hidden"><HelpBody {...help} /></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </div>
-      <div className="min-h-0 flex-1">{children}</div>
-    </div>
-  )
-}
 
 function Legend({ hover, onHover }: { hover: Series | null; onHover: (s: Series | null) => void }) {
   return (
@@ -291,9 +211,9 @@ function Sparkline({ points, highlight }: { points: Trend; highlight?: string })
 }
 
 /** Tooltip do ranking: horas, fatia de overtime e a curva dela ao longo do tempo. */
-function RankTip({ active, payload, trends, highlight }: {
+function RankTip({ active, payload, trends, highlight, supervisor }: {
   active?: boolean; payload?: { payload: { name: string; regular: number; overtime: number } }[]
-  trends: Map<string, Trend>; highlight?: string
+  trends: Map<string, Trend>; highlight?: string; supervisor?: boolean
 }) {
   if (!active || !payload?.length) return null
   const r = payload[0].payload
@@ -301,9 +221,13 @@ function RankTip({ active, payload, trends, highlight }: {
   const trend = trends.get(r.name) ?? []
   return (
     <div className="w-64 rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
-      <p className="mb-1 font-semibold">{r.name}</p>
+      {/* Nome à esquerda; sendo supervisor, o escudo e "Supervisor" do lado oposto. */}
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <p className="truncate font-semibold">{r.name}</p>
+        {supervisor && <span className="flex shrink-0 items-center gap-1 text-[11px] text-primary"><ShieldUser className="h-3.5 w-3.5" />Supervisor</span>}
+      </div>
       <p className="flex justify-between"><span style={{ color: COLORS.regular }}>Regular</span><span className="tabular-nums">{fmtH(r.regular)}</span></p>
-      <p className="flex justify-between"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)} · {pct(r.overtime, total)}%</span></p>
+      <p className="flex justify-between"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)}<Sep />{pct(r.overtime, total)}%</span></p>
       <p className="mt-2 text-muted-foreground">Overtime share over time</p>
       <Sparkline points={trend} highlight={highlight} />
     </div>
@@ -316,9 +240,9 @@ function RankTip({ active, payload, trends, highlight }: {
  */
 type SortKey = "name" | "regular" | "overtime" | "share"
 
-function HoursTable({ label, rows, tip, defaultSort }: {
+function HoursTable({ label, rows, tip, defaultSort, isSup }: {
   label: string; rows: { name: string; regular: number; overtime: number }[]; tip?: (name: string) => React.ReactNode
-  defaultSort: SortKey
+  defaultSort: SortKey; isSup?: (name: string) => boolean
 }) {
   const [hover, setHover] = useState<{ name: string; x: number; y: number } | null>(null)
   // Abre na ordem padrão do bloco (maior para menor). Clique no cabeçalho: crescente,
@@ -365,7 +289,7 @@ function HoursTable({ label, rows, tip, defaultSort }: {
           {shown.map(o => (
             <tr key={o.name} className={`border-t border-border/50 ${tip ? "cursor-default hover:bg-muted/40" : ""}`}
               onMouseMove={tip ? e => setHover({ name: o.name, x: e.clientX, y: e.clientY }) : undefined}>
-              <td className="py-1.5 pr-2">{o.name}</td>
+              <td className="py-1.5 pr-2"><span className="inline-flex items-center gap-1">{o.name}{isSup?.(o.name) && <SupMark />}</span></td>
               <td className="py-1.5 text-left tabular-nums">{fmtH(o.regular)}</td>
               <td className="py-1.5 tabular-nums">{fmtH(o.overtime)}</td>
               <td className="py-1.5 pe-3 tabular-nums text-red-500/70 dark:text-red-400/70">{pct(o.overtime, o.regular + o.overtime)}%</td>
@@ -402,9 +326,15 @@ function ChartTag({ x, y, text, color, center = false, maxX = Infinity }: {
   )
 }
 
+/** Marca de supervisor ao lado do nome: as horas dele contam como as de todo mundo, só ganham destaque. */
+function SupMark() {
+  return <ShieldUser className="h-3 w-3 shrink-0 text-primary" aria-label="Supervisor" />
+}
+
 /** Tooltip da curva do prédio: valores do dia e, embaixo, o detalhe do prédio (antes texto fixo sob o gráfico). */
-function BudgetTip({ active, payload, label, f }: {
+function BudgetTip({ active, payload, label, f, isSup }: {
   active?: boolean; payload?: { name: string; value: number | null; color: string }[]; label?: number | string; f: BuildingForecast
+  isSup?: (name: string) => boolean
 }) {
   if (!active || !payload?.length) return null
   return (
@@ -416,13 +346,13 @@ function BudgetTip({ active, payload, label, f }: {
       {/* Quem trabalhou no prédio, mais horas primeiro; os tipos excluídos no settings (Panels) já vêm fora. */}
       {!!f.workers?.length && (
         <div className="mt-2 grid gap-0.5 border-t border-border pt-2">
-          <p className="mb-0.5 text-muted-foreground">Who worked here · {f.workers.length}</p>
+          <p className="mb-0.5 text-muted-foreground">Who worked here<Sep />{f.workers.length}</p>
           {/* Lista inteira com rolagem discreta; a roda do mouse sobre o gráfico rola esta lista (o tooltip não recebe o ponteiro). */}
           {/* Barra fina sem as setas: o global põe scrollbar-width thin em tudo, e aí o Chrome ignora o estilo webkit; aqui volta a auto (com !, porque a regra global fica fora das camadas do Tailwind) para ele valer. Encaixe nome a nome. */}
           <div data-workers-list className="grid max-h-36 snap-y snap-mandatory [scrollbar-color:auto]! [scrollbar-width:auto]! gap-0.5 overflow-y-auto pr-1.5 [&::-webkit-scrollbar]:w-0.5! [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:h-0 [&::-webkit-scrollbar-button]:w-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
           {f.workers.map(w => (
             <p key={w.employee} className="flex snap-start justify-between gap-3">
-              <span className="truncate">{w.employee}</span>
+              <span className="flex min-w-0 items-center gap-1"><span className="truncate">{w.employee}</span>{isSup?.(w.employee) && <SupMark />}</span>
               <span className="shrink-0 tabular-nums">{fmtH(w.regular)}{w.overtime > 0 && <span className="text-red-500/70 dark:text-red-400/70"> + {fmtH(w.overtime)} OT</span>}</span>
             </p>
           ))}
@@ -475,9 +405,9 @@ function ReadingTip({ lines }: { lines: string[] }) {
 }
 
 /** "Coppersmith at Canton, MA - Building 1": lote só com número vira "Building N". */
-const buildingName = (b: { jobSite: string; lot: string }) => `${b.jobSite} - ${/^\d+$/.test(b.lot) ? `Building ${b.lot}` : b.lot}`
+const buildingName = (b: { jobSite: string; lot: string; type?: string }) => `${b.jobSite} - ${/^\d+$/.test(b.lot) ? `${b.type || "Building"} ${b.lot}` : b.lot}`
 
-function BuildingBudget({ buildings, granularity, periods }: { buildings: BuildingView[]; granularity: Granularity; periods: InsightsPeriod[] }) {
+function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings: BuildingView[]; granularity: Granularity; periods: InsightsPeriod[]; isSup?: (name: string) => boolean }) {
   const ready = buildings.filter(b => b.forecast)
   const [open, setOpen] = useState<string | null>(null)
   const [chartH, setChartH] = useState(180)
@@ -538,7 +468,7 @@ function BuildingBudget({ buildings, granularity, periods }: { buildings: Buildi
             const nowPoint = proj.length > 1 ? toT(proj[0].date) : undefined
             const yMax = Math.ceil(Math.max(f.budgetHours, f.projectedHours) * 1.05)
             return (
-              <div key={b.building.id} className={`rounded-md px-1.5 py-1 ${isOpen ? "flex min-h-0 flex-1 flex-col" : "hover:bg-muted/40"}`}>
+              <div key={b.building.id} className={isOpen ? "flex min-h-0 flex-1 flex-col px-1.5 py-1" : ""}>
                 {isOpen ? (
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[13px] text-muted-foreground">Cumulative Labor Budget Over Time</p>
@@ -546,11 +476,9 @@ function BuildingBudget({ buildings, granularity, periods }: { buildings: Buildi
                   </div>
                 ) : (
                   <button type="button" onClick={() => setOpen(b.building.id)}
-                    className="flex w-full items-center text-left text-xs">
-                    <span className="flex min-w-0 items-center gap-1.5 font-medium">
-                      <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="truncate">{buildingName(b.building)}</span>
-                    </span>
+                    className="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-left text-xs font-medium hover:border-primary/40 hover:bg-primary/10">
+                    <span className="truncate">{buildingName(b.building)}</span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
                 )}
                 {isOpen && (
@@ -572,7 +500,7 @@ function BuildingBudget({ buildings, granularity, periods }: { buildings: Buildi
                             )} />
                           <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={40} tickFormatter={(v: number) => v.toLocaleString("en-US")}
                             domain={[0, yMax]} />
-                          <RechartsTooltip animationDuration={ANIM} content={<BudgetTip f={f} />} allowEscapeViewBox={{ x: false, y: true }} position={{ y: chartH }} />
+                          <RechartsTooltip animationDuration={ANIM} content={<BudgetTip f={f} isSup={isSup} />} allowEscapeViewBox={{ x: false, y: true }} position={{ y: chartH }} />
                           {/* Acima do limite, o fundo fica levemente avermelhado. */}
                           <ReferenceArea y1={f.budgetHours} y2={yMax} fill={COLORS.overtime} fillOpacity={0.05} ifOverflow="hidden" />
                           <ReferenceLine y={f.budgetHours} stroke={COLORS.overtime} strokeDasharray="2 3" strokeOpacity={0.5} />
@@ -585,7 +513,7 @@ function BuildingBudget({ buildings, granularity, periods }: { buildings: Buildi
                           )}
                           {(
                             <ReferenceDot zIndex={1100} x={endT} y={f.budgetHours} r={4} fill={COLORS.planned} stroke="var(--popover)" strokeWidth={1.5}
-                              label={{ value: "Expected end", fontSize: 10, fill: "var(--foreground)",
+                              label={{ value: b.endSource === "manual" ? "Expected end · Manual" : "Expected end", fontSize: 10, fill: "var(--foreground)",
                                 // Perto da borda direita o rótulo vai para a esquerda da bolinha, senão é cortado.
                                 position: (endT - tMin) > (tMax - tMin) * 0.7 ? "left" : "top" }} />
                           )}
@@ -694,22 +622,30 @@ export default function WorkforceProductivityPage() {
   const [granularity, setGranularity] = useState<Granularity>("month")
   const [period, setPeriod] = useState(ALL)
   const [obraType, setObraType] = useState<ObraType>("all")
+  // Cliente e job site recortam a página inteira (gráfico, KPIs, tabelas); vazio = todos.
+  const [client, setClient] = useState(ALL)
+  const [jobsite, setJobsite] = useState(ALL)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const allYears = Array.from({ length: YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i)
   const queries = useQueries({
     queries: (granularity === "month" ? [year] : allYears).map(y => ({
-      queryKey: ["workforce-insights", "overview", company, y, granularity],
-      queryFn: () => workforceInsightsService.overview(company, y, granularity),
+      queryKey: ["workforce-insights", "overview", company, y, granularity, client, jobsite],
+      queryFn: () => workforceInsightsService.overview(company, y, granularity, client === ALL ? "" : client, jobsite === ALL ? "" : jobsite),
     })),
   })
   const isLoading = queries.some(q => q.isLoading)
   // O pay period que cruza a virada do ano vem nos dois anos: entra uma vez só.
   const overview = useMemo(() => {
     const seen = new Set<string>()
-    const out = { periods: [] as InsightsPeriod[], obras: [] as ObraHours[], employees: [] as EmployeeHours[] }
+    const out = { periods: [] as InsightsPeriod[], obras: [] as ObraHours[], employees: [] as EmployeeHours[], sites: [] as SiteOption[] }
+    const siteSeen = new Set<string>()
     for (const q of queries) {
       if (!q.data) continue
+      for (const so of q.data.sites ?? []) {
+        const k = so.client + "|" + so.jobsite
+        if (!siteSeen.has(k)) { siteSeen.add(k); out.sites.push(so) }
+      }
       const fresh = new Set(q.data.periods.map(p => p.key).filter(k => !seen.has(k)))
       out.periods.push(...q.data.periods.filter(p => fresh.has(p.key)))
       out.obras.push(...q.data.obras.filter(o => fresh.has(o.period)))
@@ -719,6 +655,10 @@ export default function WorkforceProductivityPage() {
     out.periods.sort((a, b) => a.from.localeCompare(b.from))
     return out
   }, [queries.map(q => q.dataUpdatedAt).join()]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Supervisores marcados no settings: só para destacar o nome onde aparecem horas por pessoa.
+  const { data: settingsView } = useQuery({ queryKey: ["workforce-insights", "settings"], queryFn: workforceInsightsService.settings })
+  const supSet = useMemo(() => new Set((settingsView?.settings.supervisors ?? []).map(n => n.trim().toLowerCase())), [settingsView])
+  const isSup = (name: string) => supSet.has(name.trim().toLowerCase())
   const { data: buildings = [] } = useQuery({
     queryKey: ["workforce-insights", "buildings"],
     queryFn: workforceInsightsService.buildings,
@@ -732,7 +672,9 @@ export default function WorkforceProductivityPage() {
   const inPeriod = (r: { period: string }) => period === ALL || r.period === period
   const obras = useMemo(() => (overview?.obras ?? []).filter(o =>
     obraType === "all" || (obraType === "building" ? o.isBuilding : !o.isBuilding)), [overview, obraType])
-  const people = overview?.employees ?? []
+  // Pessoas no mesmo recorte das obras (Type): KPIs, ranking e gráfico somam a mesma base.
+  const people = useMemo(() => (overview?.employees ?? []).filter(e =>
+    obraType === "all" || (obraType === "building" ? e.isBuilding : !e.isBuilding)), [overview, obraType])
 
   const scopedPeople = people.filter(inPeriod)
   const reg = scopedPeople.reduce((s, e) => s + e.regular, 0)
@@ -818,6 +760,14 @@ export default function WorkforceProductivityPage() {
             { label: granularity === "month" ? "Month" : "Pay period", value: period,
               options: periodOptions, onChange: setPeriod },
           ]} />
+          <JoinedFilter parts={[
+            { label: "Client", icon: Users, value: client,
+              options: [{ value: ALL, label: "All clients" }, ...[...new Set(overview.sites.map(x => x.client).filter(Boolean))].sort().map(c => ({ value: c, label: c }))],
+              onChange: v => { setClient(v); setJobsite(ALL); setPeriod(ALL) } },
+            { label: "Job site", value: jobsite,
+              options: [{ value: ALL, label: "All job sites" }, ...[...new Set(overview.sites.filter(x => client === ALL || x.client === client).map(x => x.jobsite))].sort().map(j => ({ value: j, label: j }))],
+              onChange: v => { setJobsite(v); setPeriod(ALL) } },
+          ]} />
           <Filter label="Type" icon={Layers} value={obraType} width={140}
             options={[{ value: "all", label: "All job sites" }, { value: "building", label: "Buildings" }, { value: "house", label: "Houses" }]}
             onChange={v => setObraType(v as ObraType)} />
@@ -831,10 +781,23 @@ export default function WorkforceProductivityPage() {
 
       <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi icon={Clock} label={<>Hours<Scope>{scopeLabel}</Scope></>} value={fmtH(reg + ot)} sub={`${headcount} employees`} />
-        <Kpi icon={Users} label="Regular" value={fmtH(reg)} sub={`${pct(reg, reg + ot)}% of the hours`} />
-        <Kpi icon={AlarmClockPlus} label="Overtime" value={fmtH(ot)} tone={ot > 0 ? "red" : undefined}
-          sub={`${pct(ot, reg + ot)}% of the hours${prevShare != null ? ` · ${prevShare}% the period before` : ""}`} />
-        <Kpi icon={Flame} label="Employees with overtime" value={String(withOt)} sub={`of ${headcount}`} />
+        {/* Regular e Overtime são a mesma conta (as horas) dividida em duas: blocos colados, uma linha só entre eles. */}
+        <div className="col-span-2 grid grid-cols-2">
+          <Kpi icon={Users} label="Regular" value={fmtH(reg)} sub={`${pct(reg, reg + ot)}% of the hours`} className="rounded-r-none" />
+          <Kpi icon={AlarmClockPlus} label="Overtime" value={fmtH(ot)} tone={ot > 0 ? "red" : undefined} className="rounded-l-none border-l-0"
+            sub={`${pct(ot, reg + ot)}% of the hours`}
+            extra={prevShare != null && reg + ot > 0 && (() => {
+              // Variação da fatia de overtime contra o período anterior, em pontos (como no tooltip do gráfico).
+              const change = pct(ot, reg + ot) - prevShare
+              return (
+                <span className={`inline-flex items-center gap-1 ${change > 0 ? "text-red-600 dark:text-red-400" : change < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
+                  {change > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                  {change > 0 ? "+" : ""}{change}% vs {prevKey && longLabel(prevKey)}
+                </span>
+              )
+            })()} />
+        </div>
+        <Kpi icon={Flame} label="Employees with overtime" value={String(withOt)} sub={`of ${headcount} · ${pct(withOt, headcount)}% of the employees`} />
       </div>
 
       <div className="grid min-h-0 flex-1 gap-3 xl:grid-cols-2">
@@ -872,7 +835,7 @@ export default function WorkforceProductivityPage() {
       </div>
 
       <div className={`grid min-h-0 flex-1 gap-3 ${company === "framing" ? "xl:grid-cols-2" : ""}`}>
-        {company === "framing" && <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} />}
+        {company === "framing" && <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} />}
         <Card title={<>Overtime Ranking<Scope>{scopeLabel}</Scope></>} className="h-full"
           help={{
             what: "Every employee with hours in the chosen period, most overtime first.",
@@ -880,13 +843,14 @@ export default function WorkforceProductivityPage() {
               { label: "Regular", color: COLORS.regular, text: "Hours within the weekly 40 h." },
               { label: "Overtime", color: COLORS.overtime, text: "Hours past the weekly 40 h, plus weekends." },
               { label: "OT %", text: "Share of the employee's hours that were overtime." },
+              { label: "Shield", text: "Supervisor, as marked in the settings. Their hours count like anyone else's." },
             ],
             action: "Hover a row for the overtime share period by period. Click a column title to sort.",
           }}>
           {ranking.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">No hours in this period.</p>
           ) : (
-            <HoursTable label="Employee" rows={ranking} defaultSort="overtime" tip={name => <RankTip active payload={[{ payload: ranking.find(x => x.name === name)! }]} trends={trends} highlight={period === ALL ? undefined : focusName} />} />
+            <HoursTable label="Employee" rows={ranking} defaultSort="overtime" isSup={isSup} tip={name => <RankTip active payload={[{ payload: ranking.find(x => x.name === name)! }]} trends={trends} highlight={period === ALL ? undefined : focusName} supervisor={isSup(name)} />} />
           )}
         </Card>
       </div>
