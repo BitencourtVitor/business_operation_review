@@ -306,7 +306,46 @@ function ConditionPills({ cond }: { cond: RuleConditions }) {
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
-export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
+/** Regras como etiquetas: só o nome, com lápis (abre a regra no modal) e lixeira. */
+export function AttributionRuleChips({ onEdit }: { onEdit: (id: string) => void }) {
+  const { data: rules = [], isLoading } = useWorkforceRules()
+  const deleteRule = useDeleteWorkforceRule()
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  if (isLoading) return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+  if (rules.length === 0) return <p className="text-xs text-muted-foreground">No attribution rules yet.</p>
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {rules.map(rule => (
+        <span key={rule.id} className="inline-flex h-7 items-center gap-1 rounded-full border border-border bg-muted/40 pl-3 pr-1 text-xs">
+          {confirmId === rule.id ? (
+            <>
+              <span className="text-destructive">Delete &quot;{rule.name}&quot;?</span>
+              <button onClick={() => setConfirmId(null)} className="rounded-full px-2 py-0.5 hover:bg-muted">Cancel</button>
+              <button onClick={() => deleteRule.mutate(rule.id, { onSettled: () => setConfirmId(null) })}
+                className="inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 font-medium text-destructive-foreground">
+                {deleteRule.isPending && <Loader2 className="h-3 w-3 animate-spin" />}Delete
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="max-w-64 truncate">{rule.name}</span>
+              <button onClick={() => onEdit(rule.id)} aria-label="Edit rule"
+                className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Pencil className="h-3 w-3" />
+              </button>
+              <button onClick={() => setConfirmId(rule.id)} aria-label="Delete rule"
+                className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </>
+          )}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function AttributionRulesPanel({ editId }: { editId?: string }) {
   const { data: rules = [], isLoading: rulesLoading } = useWorkforceRules()
   const { data: allRows = [], isLoading: dataLoading }  = useWorkforceData({})
   const createRule = useCreateWorkforceRule()
@@ -315,6 +354,10 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
 
   const [showForm,   setShowForm]   = useState(false)
   const [editing,    setEditing]    = useState<AttributionRule | null>(null)
+  // Aberto pelo lápis de uma etiqueta: a regra já vem em edição.
+  useEffect(() => {
+    if (editId) setEditing(rules.find(r => r.id === editId) ?? null)
+  }, [editId, rules.length]) // eslint-disable-line react-hooks/exhaustive-deps
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId,  setConfirmId]  = useState<string | null>(null)
 
@@ -346,26 +389,7 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
   const isLoading = rulesLoading || dataLoading
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="flex w-full max-w-xl flex-col rounded-xl border border-border bg-card shadow-xl"
-        style={{ maxHeight: '85vh' }}>
-
-        {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
-          <div>
-            <h2 className="text-base font-semibold">Attribution Rules</h2>
-            <p className="text-xs text-muted-foreground">
-              Redirect hours from one company to another based on conditions.
-            </p>
-          </div>
-          <button onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+    <>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -433,7 +457,7 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
 
               {rules.length === 0 && !showForm && (
                 <p className="py-6 text-center text-sm text-muted-foreground">
-                  No attribution rules yet. Create one below.
+                  No attribution rules yet.
                 </p>
               )}
 
@@ -447,9 +471,7 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
               )}
             </div>
           )}
-        </div>
 
-        {/* Footer */}
         {!showForm && !editing && (
           <div className="flex shrink-0 justify-end border-t border-border px-5 py-3">
             <button onClick={() => setShowForm(true)}
@@ -459,6 +481,30 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         )}
+    </>
+  )
+}
+
+export function AttributionRulesModal({ onClose, editId }: { onClose: () => void; editId?: string }) {
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="flex w-full max-w-xl flex-col rounded-xl border border-border bg-card shadow-xl"
+        style={{ maxHeight: '85vh' }}>
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
+          <div>
+            <h2 className="text-base font-semibold">Attribution Rules</h2>
+            <p className="text-xs text-muted-foreground">
+              Redirect hours from one company to another based on conditions.
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          <AttributionRulesPanel editId={editId} />
+        </div>
       </div>
     </div>
   )

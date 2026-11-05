@@ -56,7 +56,6 @@ import { usePermission } from "@/hooks/use-permission"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ManageDataModal as PermitManageDataModal }          from "@/app/bor/permits/manage-data-modal"
 import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/bor/service-requests/manage-data-modal"
-import { ManageDataModal as WorkforceManageDataModal }      from "@/app/bor/workforce-productivity/manage-data-modal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 
@@ -103,7 +102,6 @@ const activeGroup: NavGroup = {
     {
       title: "Workforce Productivity", href: "/bor/workforce-productivity", icon: Users,
       permKey: "workforce",
-      editPermKey: "workforce",
       children: [
         { title: "Framing", href: "/bor/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
         { title: "HVAC",    href: "/bor/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
@@ -365,10 +363,11 @@ function NavGroupItems({
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={hasRightAction ? "peer !pr-14" : ""}
+                  className={hasRightAction ? "peer !pr-14" : "!pr-1.5"}
                 >
                   <NavItemIcon item={item} />
-                  <span>{item.title}</span>
+                  {/* O título ocupa toda a largura até a seta, numa linha só. */}
+                  <span className="min-w-0 flex-1 truncate">{item.title}</span>
                   {/* Chevron inside button when nothing else claims the right slot — no nested-button issue */}
                   {!hasRightAction && (
                     <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
@@ -595,7 +594,6 @@ export function AppSidebar() {
 
   const isPermitEdit         = editItem?.href === '/bor/permits'
   const isServiceRequestEdit = editItem?.href === '/bor/service-requests'
-  const isWorkforceEdit      = editItem?.href === '/bor/workforce-productivity'
 
   return (
     <>
@@ -609,13 +607,9 @@ export function AppSidebar() {
       <ServiceRequestManageDataModal onClose={() => setEditItem(null)} />
     )}
 
-    {/* Workforce — opens full-screen data modal */}
-    {isWorkforceEdit && (
-      <WorkforceManageDataModal onClose={() => setEditItem(null)} />
-    )}
 
     {/* Generic edit sheet for other items */}
-    <Sheet open={!!editItem && !isPermitEdit && !isServiceRequestEdit && !isWorkforceEdit} onOpenChange={v => { if (!v) setEditItem(null) }}>
+    <Sheet open={!!editItem && !isPermitEdit && !isServiceRequestEdit} onOpenChange={v => { if (!v) setEditItem(null) }}>
       <SheetContent side="right" className="w-[min(90vw,28rem)]">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2">
