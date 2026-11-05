@@ -66,7 +66,7 @@ function NotificationRow({
       </div>
 
       <button
-        className="mt-0.5 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+        className="mt-0.5 shrink-0 text-muted-foreground opacity-0 pointer-coarse:opacity-100 transition-opacity hover:text-destructive group-hover:opacity-100"
         title="Delete"
         onClick={e => { e.stopPropagation(); onDelete(n.id) }}
       >

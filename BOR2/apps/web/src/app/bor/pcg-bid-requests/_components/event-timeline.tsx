@@ -730,8 +730,8 @@ export function EventTimeline({
   const changes = staleApproval ? diffParams(trade, staleApproval, current) : []
 
   return (
-    <div className={`flex flex-col overflow-hidden rounded-xl border border-border/60 ${open ? "min-h-0 flex-1" : "shrink-0"}`}>
-      <div className="flex shrink-0 items-center gap-3 px-4 py-3">
+    <div className={`flex flex-col overflow-hidden rounded-xl border border-border/60 ${open ? "min-h-0 flex-1 max-sm:min-h-[60vh]" : "shrink-0"}`}>
+      <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
         <button
           onClick={onToggle}
           aria-expanded={open}
@@ -746,7 +746,7 @@ export function EventTimeline({
           </span>
         </button>
 
-        <span className={`shrink-0 truncate text-xs leading-none ${STEP_TONE[step.tone]}`}>
+        <span className={`shrink-0 truncate text-xs leading-none max-sm:order-last max-sm:basis-full max-sm:whitespace-normal max-sm:leading-snug ${STEP_TONE[step.tone]}`}>
           {step.label}
         </span>
 

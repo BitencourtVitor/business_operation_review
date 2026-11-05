@@ -892,7 +892,7 @@ function LaborAddressManager({ company, projectID, addresses }: {
                 className="rounded px-1 text-[9px] text-muted-foreground transition-colors hover:bg-muted">No</button>
             </span>
           ) : (
-            <span className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="flex shrink-0 items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 transition-opacity group-hover:opacity-100">
               <Popover open={replaceKey === a} onOpenChange={o => { setReplaceKey(o ? a : null); setQ("") }}>
                 <PopoverTrigger title="Replace this address" className="rounded p-0.5 text-muted-foreground/60 transition-colors hover:text-foreground">
                   <Pencil className="h-2.5 w-2.5" />

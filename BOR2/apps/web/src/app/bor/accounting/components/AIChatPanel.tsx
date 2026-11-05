@@ -444,7 +444,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                       <span className={cn('flex-1 truncate', activeConversationId === conv.id && 'font-medium')}>
                         {conv.title}
                       </span>
-                      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex shrink-0 items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 transition-opacity group-hover:opacity-100">
                         <button
                           className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/60 hover:text-foreground"
                           onClick={(e) => handleStartEdit(e, conv)}

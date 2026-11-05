@@ -773,7 +773,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
                       }
                     </Td>
                     <td className="border-b border-border px-2 py-2">
-                      <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 transition-opacity group-hover:opacity-100">
                         <ActionBtn title="Edit" onClick={() => startEdit(r)} className="text-muted-foreground hover:text-foreground">
                           <Edit2 className="h-3.5 w-3.5" />
                         </ActionBtn>

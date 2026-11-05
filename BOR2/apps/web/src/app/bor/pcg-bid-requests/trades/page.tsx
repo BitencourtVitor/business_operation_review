@@ -115,7 +115,7 @@ export default function TradeCatalogPage() {
               <p className="text-sm text-muted-foreground">No trade matches this filter.</p>
             </div>
           ) : (
-            <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {visible.map(trade => (
                 <TradeCard
                   key={trade.id}

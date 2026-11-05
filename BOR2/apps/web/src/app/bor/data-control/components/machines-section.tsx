@@ -108,7 +108,7 @@ function MachinesRowItem({
       <TableCell className="text-sm text-muted-foreground">{row.equipment_category || "—"}</TableCell>
       <TableCell className="text-sm">{row.title || "—"}</TableCell>
       <TableCell>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-0 pointer-coarse:opacity-100 group-hover:opacity-100 transition-opacity">
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditing(true)}>
             <Pencil className="h-3.5 w-3.5" />
           </Button>
