@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -105,6 +106,7 @@ type InventoryResponse struct {
 	GastosUsuario   []GastoUsuario     `json:"gastos_usuario"`
 	ProductPrices   map[string]float64 `json:"product_prices"`
 	ResetDate       string             `json:"reset_date"`
+	ResetDates      []string           `json:"reset_dates"` // dias de recontagem do estoque (resets), em ordem
 	BackupThrough   string             `json:"backup_through"`
 }
 
@@ -246,16 +248,27 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	}
 
 	movementMonths := map[string]bool{}
-	if body, err := fetch("stock_movements", "select=movement_date&limit=5000"); err == nil {
+	if body, err := fetch("stock_movements", "select=movement_date,tipo_origem&limit=5000"); err == nil {
 		var movements []struct {
 			MovementDate string `json:"movement_date"`
+			TipoOrigem   string `json:"tipo_origem"`
 		}
 		if json.Unmarshal(body, &movements) == nil {
+			resets := map[string]bool{}
 			for _, movement := range movements {
 				if month := inventoryMonth(movement.MovementDate); month != "" {
 					movementMonths[month] = true
 				}
+				// Recontagem é um reset do estoque (o primeiro foi a abertura de 16/07/2026).
+				if movement.TipoOrigem == "recontagem" && len(movement.MovementDate) >= 10 {
+					resets[movement.MovementDate[:10]] = true
+				}
 			}
+			result.ResetDates = make([]string, 0, len(resets))
+			for d := range resets {
+				result.ResetDates = append(result.ResetDates, d)
+			}
+			sort.Strings(result.ResetDates)
 		}
 	}
 
