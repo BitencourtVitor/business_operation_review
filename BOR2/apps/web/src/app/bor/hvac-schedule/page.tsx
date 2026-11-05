@@ -1166,7 +1166,7 @@ function Metric({
   return (
     <Card className={`min-w-0 gap-0 py-3 transition-colors hover:border-foreground/20 ${t.card}`}>
       <CardHeader className="flex flex-row items-center gap-2 px-3 pb-1.5">
-        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${t.icon}`}>
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg max-sm:hidden ${t.icon}`}>
           {icon}
         </span>
         {/* Uma linha sempre: título que quebra em duas desalinha o número de
