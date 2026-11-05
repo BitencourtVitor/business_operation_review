@@ -89,7 +89,7 @@ export default function WexCategorizationPage() {
     <div className="flex h-full flex-col gap-4">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">WEX Categorization</h1>
           <p className="text-sm text-muted-foreground">Fuel cost allocation by obra</p>
@@ -153,7 +153,7 @@ export default function WexCategorizationPage() {
       </div>
 
       {/* ── Reports list ── */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto no-scrollbar">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [&>*]:shrink-0">
         {loading ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-sm text-muted-foreground">Loading reports…</p>

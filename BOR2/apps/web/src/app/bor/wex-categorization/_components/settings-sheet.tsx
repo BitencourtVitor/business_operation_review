@@ -92,12 +92,12 @@ export function SettingsSheet({ open, onClose, initialCompany }: {
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent showCloseButton className="flex max-h-[85vh] flex-col gap-0 p-0" style={{ width: "fit-content", maxWidth: "92vw", minWidth: "32rem" }}>
+      <DialogContent showCloseButton className="flex max-h-[85vh] flex-col gap-0 p-0" style={{ width: "fit-content", maxWidth: "92vw", minWidth: "min(32rem, 92vw)" }}>
         <DialogHeader className="border-b px-6 py-4">
           <DialogTitle>Driver Mapping</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6 no-scrollbar">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6 no-scrollbar max-sm:p-4">
           {/* Company segmented control */}
           <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
             {COMPANIES.map(c => (
@@ -120,7 +120,7 @@ export function SettingsSheet({ open, onClose, initialCompany }: {
               <span className="text-sm font-medium">Add Entry</span>
               <span className="ml-2 text-xs text-muted-foreground">— map Driver ID → QB Time name</span>
             </div>
-            <div className="flex items-end gap-3 p-4">
+            <div className="flex flex-wrap items-end gap-3 p-4">
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Driver ID</span>
                 <Input value={newId} onChange={e => setNewId(e.target.value)} placeholder="e.g. 6712"
