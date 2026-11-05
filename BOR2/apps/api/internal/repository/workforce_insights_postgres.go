@@ -116,7 +116,7 @@ func (r *PostgresWorkforceInsightsRepository) Hours(ctx context.Context, company
 func (r *PostgresWorkforceInsightsRepository) ForecastBuildings(ctx context.Context, any bool) ([]domain.ForecastBuildingRef, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT id, COALESCE(cliente, ''), COALESCE(job_site, ''), COALESCE(lote_bld, ''), COALESCE(status, ''),
-		       previous_start_date::text, previous_end_date::text
+		       COALESCE(type, ''), previous_start_date::text, previous_end_date::text
 		FROM forecast_core
 		WHERE company = 'framing'
 		  AND ($1 OR type = 'Building' OR id::text IN (SELECT forecast_id::text FROM wp_building_links))
@@ -129,7 +129,7 @@ func (r *PostgresWorkforceInsightsRepository) ForecastBuildings(ctx context.Cont
 	out := []domain.ForecastBuildingRef{}
 	for rows.Next() {
 		var b domain.ForecastBuildingRef
-		if err := rows.Scan(&b.ID, &b.Cliente, &b.JobSite, &b.Lot, &b.Status, &b.Start, &b.End); err != nil {
+		if err := rows.Scan(&b.ID, &b.Cliente, &b.JobSite, &b.Lot, &b.Status, &b.Type, &b.Start, &b.End); err != nil {
 			return nil, fmt.Errorf("scan forecast building: %w", err)
 		}
 		out = append(out, b)

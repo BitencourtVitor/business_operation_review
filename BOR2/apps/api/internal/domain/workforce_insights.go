@@ -228,6 +228,7 @@ type ForecastBuildingRef struct {
 	JobSite string  `json:"jobSite"`
 	Lot     string  `json:"lot"`
 	Status  string  `json:"status"`
+	Type    string  `json:"type"` // Building, Lot ou House, como no Forecast
 	Start   *string `json:"start"`
 	End     *string `json:"end"`
 }
