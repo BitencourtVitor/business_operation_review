@@ -732,7 +732,7 @@ export default function UsersPage() {
                     return (
                       <TableRow key={u.id}>
                         <TableCell className="border-r border-border">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 max-sm:flex-col max-sm:items-start max-sm:gap-0">
                             <span className="text-sm font-medium">{u.name}</span>
                             <span className="text-xs text-muted-foreground">{u.email}</span>
                           </div>

@@ -328,11 +328,11 @@ export default function NotificationsSettingsPage() {
 
         {/* List */}
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border bg-card">
-          <div className="grid shrink-0 grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
+          <div className="grid shrink-0 grid-cols-[1fr_auto_auto_auto] items-center gap-4 max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:gap-2 border-b bg-muted/40 px-4 py-2.5">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Notification</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Recipients</span>
-            <span className="w-32 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
-            <span className="w-16 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground max-sm:hidden">Recipients</span>
+            <span className="w-32 text-right max-sm:w-auto text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
+            <span className="w-16 text-right max-sm:w-auto text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</span>
           </div>
 
           {isLoading ? (
@@ -352,7 +352,7 @@ export default function NotificationsSettingsPage() {
                 return (
                   <div
                     key={n.id}
-                    className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/30 ${i < pageRows.length - 1 ? "border-b border-border/50" : ""}`}
+                    className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:gap-2 px-4 py-3 transition-colors hover:bg-muted/30 ${i < pageRows.length - 1 ? "border-b border-border/50" : ""}`}
                   >
                     {/* Info */}
                     <div className="min-w-0">
@@ -364,13 +364,13 @@ export default function NotificationsSettingsPage() {
                     </div>
 
                     {/* Recipients */}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground max-sm:hidden">
                       <Users className="h-3 w-3" />
                       {n.recipients.length}
                     </div>
 
                     {/* Status */}
-                    <div className="w-32 text-right">
+                    <div className="w-32 text-right max-sm:w-auto">
                       {scheduled ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                           <Clock className="h-3 w-3" />
@@ -384,7 +384,7 @@ export default function NotificationsSettingsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex w-16 items-center justify-end gap-1">
+                    <div className="flex w-16 items-center justify-end gap-1 max-sm:w-auto">
                       {scheduled && (
                         <button
                           className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

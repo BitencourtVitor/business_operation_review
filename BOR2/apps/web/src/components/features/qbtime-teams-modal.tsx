@@ -45,15 +45,15 @@ function EmployeeRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 px-4 py-3",
+        "flex flex-wrap items-center gap-4 px-4 py-3 max-sm:gap-2",
         !isLast && "border-b border-border/30",
       )}
     >
       {/* Person */}
-      <div className="w-40 shrink-0 truncate text-sm font-medium">{employee.employeeName}</div>
+      <div className="w-40 shrink-0 truncate text-sm font-medium max-sm:w-full">{employee.employeeName}</div>
 
       {/* QB Time's own team — always shown, source of truth */}
-      <div className="w-40 shrink-0">
+      <div className="w-40 shrink-0 max-sm:w-auto max-sm:flex-1">
         <p className="text-[10px] uppercase tracking-wide text-muted-foreground/60">QuickBooks</p>
         <p className="truncate text-sm">{employee.qbTeamName ?? "Unassigned"}</p>
       </div>
@@ -72,7 +72,7 @@ function EmployeeRow({
             </span>
           </>
         ) : (
-          <p className="text-xs text-muted-foreground/50">Matches QuickBooks — no override</p>
+          <p className="text-xs text-muted-foreground/50 max-sm:hidden">Matches QuickBooks — no override</p>
         )}
       </div>
 
