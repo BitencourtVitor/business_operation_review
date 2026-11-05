@@ -18,16 +18,17 @@ export interface ObraHours {
   overtime: number
 }
 
-export interface EmployeeHours { period: string; employee: string; regular: number; overtime: number }
+export interface EmployeeHours { period: string; employee: string; isBuilding?: boolean; regular: number; overtime: number }
 
-export interface InsightsOverview { periods: InsightsPeriod[]; obras: ObraHours[]; employees: EmployeeHours[] }
+export interface SiteOption { client: string; jobsite: string }
+export interface InsightsOverview { periods: InsightsPeriod[]; obras: ObraHours[]; employees: EmployeeHours[]; sites?: SiteOption[] }
 
 export interface ForecastBuildingRef {
-  id: string; cliente: string; jobSite: string; lot: string; status: string
+  id: string; cliente: string; jobSite: string; lot: string; status: string; type?: string
   start: string | null; end: string | null
 }
 
-export interface BuildingLink { forecastId: string; jobsite: string; building: string }
+export interface BuildingLink { forecastId: string; jobsite: string; building: string; endOverride?: string | null }
 
 export interface BuildingPoint { date: string; planned: number; actual: number | null; projected: number | null }
 
@@ -43,7 +44,7 @@ export interface BuildingForecast {
   workers: WorkerHours[]
 }
 
-export interface BuildingView { building: ForecastBuildingRef; link: BuildingLink | null; forecast: BuildingForecast | null }
+export interface BuildingView { building: ForecastBuildingRef; link: BuildingLink | null; forecast: BuildingForecast | null; endSource?: "forecast" | "manual" }
 
 export interface InsightsSettings {
   buildingBudget: number
@@ -67,8 +68,8 @@ export interface SettingsView {
 const BASE = "/api/v1/workforce-insights"
 
 export const workforceInsightsService = {
-  overview: (company: string, year: number, granularity: Granularity) =>
-    api.get<InsightsOverview>(`${BASE}/overview?company=${company}&year=${year}&granularity=${granularity}`, getToken()),
+  overview: (company: string, year: number, granularity: Granularity, client = "", jobsite = "") =>
+    api.get<InsightsOverview>(`${BASE}/overview?${new URLSearchParams({ company, year: String(year), granularity, client, jobsite })}`, getToken()),
   buildings: () => api.get<BuildingView[]>(`${BASE}/buildings`, getToken()),
   settings: () => api.get<SettingsView>(`${BASE}/settings`, getToken()),
   saveSettings: (s: InsightsSettings) => api.put<void>(`${BASE}/settings`, s, getToken()),

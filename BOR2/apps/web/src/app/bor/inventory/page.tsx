@@ -1,914 +1,354 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import {
+  Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import { AlertCircle, ChevronDown, ChevronUp, DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
 import { useInventory } from '@/hooks/use-inventory';
 import { useFinancialStore } from '@/store/financial.store';
 import { InventorySkeleton } from '@/components/common/page-skeleton';
-import {
-  AreaChart, Area,
-  BarChart, Bar,
-  XAxis, YAxis,
-  CartesianGrid, Tooltip,
-  ReferenceArea, ReferenceLine,
-  Rectangle,
-  ResponsiveContainer,
-} from 'recharts';
-import {
-  AlertCircle, Package, TrendingDown, DollarSign, Calendar,
-  Activity, AlertTriangle, BarChart2, ChevronDown, ChevronUp, ArrowUpDown, Info,
-  ShoppingCart, FileText, PackageCheck,
-} from 'lucide-react';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Card, Kpi, Scope } from '@/components/common/insight-card';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { Tooltip as UITooltip, TooltipContent as UITooltipContent, TooltipProvider as UITooltipProvider, TooltipTrigger as UITooltipTrigger } from '@/components/ui/tooltip';
-
-// ─── Constants ────────────────────────────────────────────────────────────────
+import type { DetalheExcesso } from '@/services/inventory.service';
 
 const CURRENT_YEAR = new Date().getFullYear()
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const ALL = 'all'
+const COLORS = { within: '#3B82F6', excess: '#EF4444' }
 
-const MONTHS = [
-  { value:  1, label: 'January'   }, { value:  2, label: 'February'  },
-  { value:  3, label: 'March'     }, { value:  4, label: 'April'     },
-  { value:  5, label: 'May'       }, { value:  6, label: 'June'      },
-  { value:  7, label: 'July'      }, { value:  8, label: 'August'    },
-  { value:  9, label: 'September' }, { value: 10, label: 'October'   },
-  { value: 11, label: 'November'  }, { value: 12, label: 'December'  },
-]
+const fmtUSD = (v: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v)
+const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0)
+const day = (iso: string) => `${MONTHS_SHORT[Number(iso.slice(5, 7)) - 1]} ${Number(iso.slice(8, 10))}`
 
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
-function hasConfiguredMaterialLimit(detail: { house_model_nome?: string | null }) {
-  const model = detail.house_model_nome?.trim().toLowerCase()
-  return Boolean(model && model !== 'no template')
+/** Lote com template de material: sem ele não existe limite, então não entra na conta. */
+const hasLimit = (d: { house_model_nome?: string | null }) => {
+  const m = d.house_model_nome?.trim().toLowerCase()
+  return Boolean(m && m !== 'no template')
 }
 
-function CenteredFinancialBar({ source, ...props }: any) {
-  const hasBackup = props.payload.backupNormal > 0 || props.payload.backupExcess > 0
-  const hasLive = props.payload.liveNormal > 0 || props.payload.liveExcess > 0
-  const isHybrid = hasBackup && hasLive
-  const groupOffset = isHybrid ? 0 : (props.width + 4) / 2 * (source === 'backup' ? 1 : -1)
-  return <Rectangle {...props} x={props.x + groupOffset} />
+/** "Bates Quarry Lot 23" vira "Bates Quarry": o job site é o nome sem o lote. */
+const jobSiteOf = (project: string) => project.replace(/\s*-?\s*\b(lot|building|bldg)\b.*$/i, '').trim() || project
+
+/** Custo de uma retirada separado entre o que cabia no limite e o que passou dele. */
+function split(d: DetalheExcesso, prices: Record<string, number>) {
+  const price = d.valor_unitario != null && d.valor_unitario > 0 ? d.valor_unitario : prices[String(d.product_id)] ?? prices[d.product_nome] ?? 0
+  const before = d.consumo_acumulado_momento - d.quantidade_retirada
+  const excessUnits = Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, before))
+  const withinUnits = Math.max(0, d.quantidade_retirada - excessUnits)
+  return { price, excessUnits, within: withinUnits * price, excess: excessUnits * price }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtPct(v: number | null) {
-  if (v == null) return '—'
-  return `${v.toFixed(1)}%`
-}
-
-function fmtUSD(v: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v)
-}
-
-function adherenceColor(v: number | null, threshold: number) {
-  if (v == null) return 'text-muted-foreground'
-  if (v >= threshold) return 'text-primary'
-  return 'text-red-500'
-}
-
-// ─── Custom tooltips ──────────────────────────────────────────────────────────
-
-function AdherenceTooltip({ active, payload, label, threshold }: any) {
-  if (!active || !payload?.length) return null
-  const point = payload[0]?.payload
+/** Seletores colados (ano e mês): título em cima de cada um, borda arredondada só nas pontas, linha única entre eles. */
+function JoinedFilter({ parts }: { parts: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void }[] }) {
   return (
-    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-sm shadow-lg space-y-1">
-      <p className="font-medium">{label}</p>
-      {point.backupAdherence != null && <div className="border-l-2 border-dashed border-primary/50 pl-2">
-        <p className="text-[10px] uppercase text-muted-foreground">Backup</p>
-        <p className={`font-bold ${adherenceColor(point.backupAdherence, threshold ?? 75)}`}>{fmtPct(point.backupAdherence)}</p>
-        <p className="text-xs text-muted-foreground">{point.backupBelow} of {point.backupTotal} below minimum</p>
-      </div>}
-      {point.liveAdherence != null && <div className="border-l-2 border-primary pl-2">
-        <p className="text-[10px] uppercase text-muted-foreground">Live</p>
-        <p className={`font-bold ${adherenceColor(point.liveAdherence, threshold ?? 75)}`}>{fmtPct(point.liveAdherence)}</p>
-        <p className="text-xs text-muted-foreground">{point.liveBelow} of {point.liveTotal} below minimum</p>
-      </div>}
-    </div>
-  )
-}
-
-function FinancialTooltip({ active, payload, label, show }: any) {
-  if (!active || !payload?.length) return null
-  const point = payload[0]?.payload
-  const sections = [
-    { label: 'Backup history', normal: point.backupNormal ?? 0, excess: point.backupExcess ?? 0, backup: true },
-    { label: 'Current storage', normal: point.liveNormal ?? 0, excess: point.liveExcess ?? 0, backup: false },
-  ].filter(section => section.normal > 0 || section.excess > 0)
-  const total = sections.reduce((sum, section) => sum + section.normal + section.excess, 0)
-  const vBlur = !show ? 'blur-sm select-none' : ''
-  return (
-    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-sm shadow-lg space-y-1.5">
-      <div className="flex items-baseline justify-between gap-6">
-        <p className="font-semibold">{label}</p>
-        <p className={`font-bold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(total)}</p>
-      </div>
-      <div className="border-t border-border pt-1.5">
-        {sections.map((section, index) => {
-          const sectionTotal = section.normal + section.excess
-          const normalPct = sectionTotal > 0 ? Math.round((section.normal / sectionTotal) * 100) : 0
-          const excessPct = sectionTotal > 0 ? Math.round((section.excess / sectionTotal) * 100) : 0
-          return <div key={section.label} className={index > 0 ? 'mt-2 border-t border-border pt-2' : ''}>
-            <div className="mb-1 flex items-center justify-between gap-6">
-              <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase text-muted-foreground">
-                <span className={`inline-block h-2 w-2 rounded-sm border ${section.backup ? 'border-dashed border-muted-foreground bg-muted-foreground/20' : 'border-primary bg-primary'}`} />
-                {section.label}
-              </p>
-              <span className={`text-xs font-semibold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(sectionTotal)}</span>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs text-muted-foreground">Within limit</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{normalPct}%</span>
-                  <span className={`text-xs font-semibold text-foreground transition-[filter] ${vBlur}`}>{fmtUSD(section.normal)}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs text-red-500">Excess</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-red-400">{excessPct}%</span>
-                  <span className={`text-xs font-semibold text-red-500 transition-[filter] ${vBlur}`}>{fmtUSD(section.excess)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        })}
-      </div>
-    </div>
-  )
-}
-
-// ─── Excel icon ──────────────────────────────────────────────────────────────
-
-function ExcelIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <rect width="20" height="20" rx="3" fill="#1D6F42" />
-      <path d="M11 10L14.5 5H13L10.5 8.5L8 5H6.5L10 10L6.5 15H8L10.5 11.5L13 15H14.5L11 10Z" fill="white" />
-    </svg>
-  )
-}
-
-// ─── Info tooltip button ─────────────────────────────────────────────────────
-
-function InfoBtn({ title, description }: { title: string; description: string }) {
-  return (
-    <UITooltipProvider delay={300}>
-      <UITooltip>
-        <UITooltipTrigger render={<span className="inline-flex cursor-default" />}>
-          <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
-        </UITooltipTrigger>
-        <UITooltipContent side="bottom" className="flex flex-col gap-1 max-w-[220px]">
-          <p className="font-semibold">{title}</p>
-          <p className="text-xs text-muted-foreground">{description}</p>
-        </UITooltipContent>
-      </UITooltip>
-    </UITooltipProvider>
-  )
-}
-
-// ─── KPI Card ────────────────────────────────────────────────────────────────
-
-function KpiCard({ icon: Icon, label, value, sub, valueClass, info }: {
-  icon: React.ElementType; label: string; value: string; sub?: string; valueClass?: string; info?: string
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card/60 px-5 py-4 flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Icon className="h-4 w-4" />
-          <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
+    <div className="flex items-end">
+      {parts.map((p, i) => (
+        <div key={p.label} className="flex flex-col gap-1">
+          <span className="px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{p.label}</span>
+          <Select value={p.value} onValueChange={v => v && p.onChange(v)}>
+            <SelectTrigger className={`h-8 w-auto gap-1.5 text-sm focus-visible:z-10 ${i === 0 ? 'rounded-l-lg rounded-r-none' : 'rounded-r-lg rounded-l-none border-l-0'}`}>
+              <span className="whitespace-nowrap text-left">{p.options.find(o => o.value === p.value)?.label}</span>
+            </SelectTrigger>
+            <SelectContent className="max-h-64 w-max min-w-(--anchor-width)" alignItemWithTrigger={false} align="start">
+              {p.options.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
-        {info && <InfoBtn title={label} description={info} />}
-      </div>
-      <p className={`text-3xl font-bold tracking-tight ${valueClass ?? ''}`}>{value}</p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+      ))}
     </div>
   )
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+/**
+ * Tooltip do mês: total, dentro do limite e excesso e, havendo mês anterior, quanto a fatia
+ * de excesso subiu ou caiu: de 10% para 14% é +4%, não a variação do valor em dólar.
+ */
+function FinancialTip({ active, payload, label, blur }: {
+  active?: boolean; payload?: { payload: { within: number; excess: number; prevMonth?: string; prevShare: number | null } }[]; label?: string; blur: string
+}) {
+  if (!active || !payload?.length) return null
+  const { within, excess, prevMonth, prevShare } = payload[0].payload
+  const total = within + excess
+  const change = prevShare != null && total > 0 ? pct(excess, total) - prevShare : null
+  return (
+    <div className="w-52 rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
+      <p className="mb-1 flex justify-between font-semibold"><span>{label}</span><span className={`tabular-nums ${blur}`}>{fmtUSD(total)}</span></p>
+      <p className="flex justify-between"><span style={{ color: COLORS.within }}>Within limit</span><span className="tabular-nums"><span className="text-muted-foreground">{pct(within, total)}% </span><span className={blur}>{fmtUSD(within)}</span></span></p>
+      <p className="flex justify-between"><span style={{ color: COLORS.excess }}>Excess</span><span className="tabular-nums"><span className="text-muted-foreground">{pct(excess, total)}% </span><span className={blur}>{fmtUSD(excess)}</span></span></p>
+      <div className="mt-1.5 border-t border-border pt-1.5">
+        <p className="text-muted-foreground">{pct(excess, total)}% excess in <span className={blur}>{fmtUSD(total)}</span></p>
+        {change != null && (
+          <p className={`flex items-center gap-1 ${change > 0 ? 'text-red-600 dark:text-red-400' : change < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+            {change > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+            {change > 0 ? '+' : ''}{change}% excess vs {prevMonth}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Arrastar para rolar na horizontal (clicar e puxar). Se o ponteiro andou, o clique que
+ * vem no fim do arraste é engolido, para não abrir um lote sem querer.
+ */
+function useDragScroll() {
+  const st = useRef({ down: false, x: 0, left: 0, moved: false })
+  return {
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return
+      st.current = { down: true, x: e.clientX, left: e.currentTarget.scrollLeft, moved: false }
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+      const c = st.current
+      if (!c.down) return
+      const dx = e.clientX - c.x
+      if (Math.abs(dx) > 4) c.moved = true
+      if (c.moved) e.currentTarget.scrollLeft = c.left - dx
+    },
+    onPointerUp: () => { st.current.down = false },
+    onPointerLeave: () => { st.current.down = false },
+    onClickCapture: (e: React.MouseEvent) => {
+      if (st.current.moved) { e.stopPropagation(); e.preventDefault(); st.current.moved = false }
+    },
+  }
+}
 
 export default function InventoryPage() {
   const { data, isLoading, error } = useInventory()
-
   const { showFinancialData } = useFinancialStore()
-  const blur = !showFinancialData ? 'blur-sm select-none pointer-events-none' : ''
+  const blur = showFinancialData ? '' : 'blur-sm select-none'
+  const [year, setYear] = useState(CURRENT_YEAR)
+  const [month, setMonth] = useState<string>(ALL)
+  const [chartW, setChartW] = useState(800)
+  const drag = useDragScroll()
+  const [openLot, setOpenLot] = useState<string | null>(null)
 
-  const [selectedYear,  setSelectedYear]  = useState<number>(CURRENT_YEAR)
-  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all')
-  const [expandedLots,       setExpandedLots]       = useState<Set<string>>(new Set())
-  const [violationsAsc,      setViolationsAsc]      = useState(false)
-  const [showPurchaseModal,  setShowPurchaseModal]  = useState(false)
+  const prices = data?.product_prices ?? {}
+  const rows = useMemo(() => (data?.detalhes_excesso ?? []).filter(hasLimit), [data])
+  const yearStr = String(year)
+  const inScope = (date: string) => date.startsWith(yearStr) && (month === ALL || date.slice(5, 7) === month)
 
-  const THRESHOLD_KEY = 'inventory_adherence_threshold'
-  const [threshold, setThreshold] = useState<number>(() => {
-    if (typeof window === 'undefined') return 75
-    return Number(localStorage.getItem(THRESHOLD_KEY) ?? 75)
-  })
-  const [thresholdInput, setThresholdInput] = useState<string>(String(threshold))
-
-  function applyThreshold(raw: string) {
-    const n = Math.min(100, Math.max(1, parseInt(raw, 10) || 75))
-    setThreshold(n)
-    setThresholdInput(String(n))
-    localStorage.setItem(THRESHOLD_KEY, String(n))
-  }
-
-  // Read --primary directly from the computed style so the bar color
-  // always matches the theme exactly. oklch() is valid in SVG fill on modern browsers.
-  const [primaryColor, setPrimaryColor] = useState('#6366f1')
-  useEffect(() => {
-    const raw = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
-    if (raw) setPrimaryColor(raw)
-  }, [])
-
-  function toggleLot(lot: string) {
-    setExpandedLots(prev => {
-      const next = new Set(prev)
-      next.has(lot) ? next.delete(lot) : next.add(lot)
-      return next
-    })
-  }
-
-  // ── Available years/months ──────────────────────────────────────────────────
   const years = useMemo(() => {
-    if (!data) return [CURRENT_YEAR]
-    const s = new Set<number>()
-    data.historico_saldo.forEach(h => s.add(parseInt(h.mes.substring(0, 4), 10)))
-    data.detalhes_excesso.forEach(d => s.add(parseInt(d.movement_date.substring(0, 4), 10)))
-    if (s.size === 0) s.add(CURRENT_YEAR)
-    return Array.from(s).sort((a, b) => b - a)
-  }, [data])
+    const s = new Set(rows.map(d => Number(d.movement_date.slice(0, 4))))
+    s.add(CURRENT_YEAR)
+    return [...s].sort((a, b) => a - b)
+  }, [rows])
+  const months = useMemo(() => [...new Set(rows.filter(d => d.movement_date.startsWith(yearStr)).map(d => d.movement_date.slice(5, 7)))].sort(), [rows, yearStr])
 
-  const yearStr = String(selectedYear)
-  const monthStr = selectedMonth === 'all' ? 'all' : String(selectedMonth).padStart(2, '0')
-  const resetYear = data?.reset_date ? Number(data.reset_date.substring(0, 4)) : null
-  const resetMonth = data?.reset_date ? Number(data.reset_date.substring(5, 7)) : null
-  const resetMonthLabel = resetMonth ? MONTHS_SHORT[resetMonth - 1] : null
-
-  // ── Months that actually have data for the selected year ────────────────────
-  const availableMonths = useMemo(() => {
-    if (!data) return []
-    const s = new Set<number>()
-    data.historico_saldo
-      .filter(h => h.mes.startsWith(yearStr))
-      .forEach(h => s.add(parseInt(h.mes.substring(5, 7), 10)))
-    data.detalhes_excesso
-      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d))
-      .forEach(d => s.add(parseInt(d.movement_date.substring(5, 7), 10)))
-    return Array.from(s).sort((a, b) => a - b)
-  }, [data, yearStr])
-
-  // ── Adherence trend (12 months for selected year) ───────────────────────────
-  const adherenceData = useMemo(() => {
-    if (!data) return []
-    const grouped = new Map<string, { backupTotal: number; backupBelow: number; liveTotal: number; liveBelow: number }>()
-    for (let i = 1; i <= 12; i++) {
-      grouped.set(String(i).padStart(2, '0'), { backupTotal: 0, backupBelow: 0, liveTotal: 0, liveBelow: 0 })
+  // Custo por mês do ano, dentro do limite e em excesso (antes e depois do reset, tudo igual).
+  const monthly = useMemo(() => {
+    const m = new Map<string, { within: number; excess: number }>()
+    for (const d of rows) {
+      if (!d.movement_date.startsWith(yearStr)) continue
+      const c = split(d, prices)
+      if (c.price === 0) continue
+      const k = d.movement_date.slice(5, 7)
+      const cur = m.get(k) ?? { within: 0, excess: 0 }
+      cur.within += c.within
+      cur.excess += c.excess
+      m.set(k, cur)
     }
-    data.historico_saldo
-      .filter(h => h.mes.startsWith(yearStr))
-      .forEach(h => {
-        const mo = h.mes.substring(5, 7)
-        const cur = grouped.get(mo)!
-        if (h.source === 'backup') {
-          cur.backupTotal++
-          if (h.abaixo_minimo) cur.backupBelow++
-        } else {
-          cur.liveTotal++
-          if (h.abaixo_minimo) cur.liveBelow++
-        }
+    return [...m.entries()].sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => ({ key: k, month: MONTHS_SHORT[Number(k) - 1], ...v }))
+      .map((p, i, all) => {
+        const prev = all[i - 1]
+        return { ...p, prevMonth: prev?.month, prevShare: prev && prev.within + prev.excess > 0 ? pct(prev.excess, prev.within + prev.excess) : null }
       })
-    return Array.from(grouped.entries())
-      .filter(([, d]) => d.backupTotal > 0 || d.liveTotal > 0)
-      .map(([mo, d]) => ({
-        month: MONTHS_SHORT[parseInt(mo, 10) - 1],
-        backupAdherence: d.backupTotal > 0 ? ((d.backupTotal - d.backupBelow) / d.backupTotal) * 100 : null,
-        liveAdherence: d.liveTotal > 0 ? ((d.liveTotal - d.liveBelow) / d.liveTotal) * 100 : null,
-        adherence: ((d.backupTotal + d.liveTotal - d.backupBelow - d.liveBelow) / (d.backupTotal + d.liveTotal)) * 100,
-        total: d.backupTotal + d.liveTotal,
-        below: d.backupBelow + d.liveBelow,
-        ...d,
-      }))
-      .filter(d => monthStr === 'all' || d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1])
-  }, [data, yearStr, monthStr])
+  }, [rows, prices, yearStr])
 
-  // ── Average service level (filtered by month if selected) ───────────────────
-  const avgServiceLevel = useMemo(() => {
-    const pts = adherenceData.filter(d => {
-      if (monthStr === 'all') return d.adherence != null
-      return d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1] && d.adherence != null
-    })
-    if (!pts.length) return null
-    return pts.reduce((acc, d) => acc + d.adherence!, 0) / pts.length
-  }, [adherenceData, monthStr])
+  const scoped = useMemo(() => rows.filter(d => inScope(d.movement_date)), [rows, yearStr, month]) // eslint-disable-line react-hooks/exhaustive-deps
+  const totals = useMemo(() => scoped.reduce((t, d) => {
+    const c = split(d, prices)
+    return { within: t.within + c.within, excess: t.excess + c.excess, units: t.units + c.excessUnits }
+  }, { within: 0, excess: 0, units: 0 }), [scoped, prices])
 
-  // ── Financial impact per month ──────────────────────────────────────────────
-  const financialData = useMemo(() => {
-    if (!data) return []
-    const prices = data.product_prices ?? {}
-    const grouped = new Map<string, { backupNormal: number; backupExcess: number; liveNormal: number; liveExcess: number }>()
-    for (let i = 1; i <= 12; i++) {
-      grouped.set(String(i).padStart(2, '0'), { backupNormal: 0, backupExcess: 0, liveNormal: 0, liveExcess: 0 })
+  // Lotes com retirada acima do limite e, dentro de cada um, os produtos que passaram.
+  const lots = useMemo(() => {
+    const m = new Map<string, { lot: string; units: number; cost: number; products: Map<string, number> }>()
+    for (const d of scoped) {
+      const c = split(d, prices)
+      if (c.excessUnits <= 0) continue
+      const e = m.get(d.project_nome) ?? { lot: d.project_nome, units: 0, cost: 0, products: new Map() }
+      e.units += c.excessUnits
+      e.cost += c.excess
+      e.products.set(d.product_nome, (e.products.get(d.product_nome) ?? 0) + c.excessUnits)
+      m.set(d.project_nome, e)
     }
-    data.detalhes_excesso
-      .filter(d => d.movement_date.startsWith(yearStr) && hasConfiguredMaterialLimit(d))
-      .forEach(d => {
-        const price = (d.valor_unitario != null && d.valor_unitario > 0)
-          ? d.valor_unitario
-          : (prices[String(d.product_id)] ?? prices[d.product_nome] ?? 0)
-        if (price === 0) return
-        const mo   = d.movement_date.substring(5, 7)
-        const prev = d.consumo_acumulado_momento - d.quantidade_retirada
-        const excessUnits = Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, prev))
-        const normalUnits = Math.max(0, d.quantidade_retirada - excessUnits)
-        const cur = grouped.get(mo)!
-        if (d.source === 'backup') {
-          cur.backupExcess += excessUnits * price
-          cur.backupNormal += normalUnits * price
-        } else {
-          cur.liveExcess += excessUnits * price
-          cur.liveNormal += normalUnits * price
-        }
-      })
-    return Array.from(grouped.entries())
-      .filter(([mo]) => availableMonths.includes(parseInt(mo, 10)))
-      .map(([mo, d]) => ({
-        month: MONTHS_SHORT[parseInt(mo, 10) - 1],
-        normal: d.backupNormal + d.liveNormal,
-        excess: d.backupExcess + d.liveExcess,
-        ...d,
-      }))
-      .filter(d => monthStr === 'all' || d.month === MONTHS_SHORT[parseInt(monthStr, 10) - 1])
-  }, [data, yearStr, monthStr, availableMonths])
+    return [...m.values()].sort((a, b) => b.cost - a.cost || b.units - a.units)
+  }, [scoped, prices])
 
-  // ── KPI: Excess Units ───────────────────────────────────────────────────────
-  const totalExcessUnits = useMemo(() => {
-    if (!data) return 0
-    return data.detalhes_excesso
-      .filter(d => {
-        if (!d.movement_date.startsWith(yearStr)) return false
-        if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d)
-      })
-      .reduce((acc, d) => {
-        const prev = d.consumo_acumulado_momento - d.quantidade_retirada
-        return acc + Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, prev))
-      }, 0)
-  }, [data, yearStr, monthStr])
-
-  // ── KPI: Financial totals ───────────────────────────────────────────────────
-  const { totalExcessCost, totalNormalCost } = useMemo(() => {
-    if (!data) return { totalExcessCost: 0, totalNormalCost: 0 }
-    const prices = data.product_prices ?? {}
-    let exc = 0, norm = 0
-    data.detalhes_excesso
-      .filter(d => {
-        if (!d.movement_date.startsWith(yearStr)) return false
-        if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return hasConfiguredMaterialLimit(d)
-      })
-      .forEach(d => {
-        const price = (d.valor_unitario != null && d.valor_unitario > 0)
-          ? d.valor_unitario
-          : (prices[String(d.product_id)] ?? prices[d.product_nome] ?? 0)
-        if (price === 0) return
-        const prev = d.consumo_acumulado_momento - d.quantidade_retirada
-        const excessUnits = Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, prev))
-        exc  += excessUnits * price
-        norm += Math.max(0, d.quantidade_retirada - excessUnits) * price
-      })
-    return { totalExcessCost: exc, totalNormalCost: norm }
-  }, [data, yearStr, monthStr])
-
-  // ── Violations list — grouped by Lot (house_model_nome) ────────────────────
-  const violations = useMemo(() => {
-    if (!data) return []
-    const map = new Map<string, {
-      lot: string
-      productExcess: Map<string, number>  // product_nome → excess units
-      totalExcess: number
-    }>()
-    data.detalhes_excesso
-      .filter(d => {
-        if (!d.movement_date.startsWith(yearStr)) return false
-        if (monthStr !== 'all' && d.movement_date.substring(5, 7) !== monthStr) return false
-        return d.excedeu_neste_momento && hasConfiguredMaterialLimit(d)
-      })
-      .forEach(d => {
-        const key = d.project_nome
-        const prev = d.consumo_acumulado_momento - d.quantidade_retirada
-        const excessUnits = Math.max(0, d.consumo_acumulado_momento - Math.max(d.quantidade_limite, prev))
-        if (!map.has(key)) {
-          map.set(key, { lot: d.project_nome, productExcess: new Map(), totalExcess: 0 })
-        }
-        const entry = map.get(key)!
-        entry.productExcess.set(d.product_nome, (entry.productExcess.get(d.product_nome) ?? 0) + excessUnits)
-        entry.totalExcess += excessUnits
-      })
-    return Array.from(map.values())
-      .map(v => ({
-        lot: v.lot,
-        products: Array.from(v.productExcess.entries())
-          .map(([name, excess]) => ({ name, excess: Math.round(excess) }))
-          .sort((a, b) => b.excess - a.excess),
-        totalExcess: v.totalExcess,
-      }))
-      .sort((a, b) => b.totalExcess - a.totalExcess)
-  }, [data, yearStr, monthStr])
-
-  // ── Purchase suggestions — products currently below minimum ────────────────
-  const purchaseSuggestions = useMemo(() => {
-    if (!data) return []
-
-    // Build unit map from consumo_vs_limite (product_nome → unidade_medida)
-    const unitMap = new Map<string, string>()
-    data.consumo_vs_limite.forEach(c => {
-      if (c.product_nome && c.unidade_medida) unitMap.set(c.product_nome, c.unidade_medida)
-    })
-
-    // Latest below-minimum entry per product within selected period
-    const latest = new Map<string, typeof data.historico_saldo[0]>()
-    data.historico_saldo
-      .filter(h => {
-        if (!h.mes.startsWith(yearStr)) return false
-        if (monthStr !== 'all' && h.mes.substring(5, 7) !== monthStr) return false
-        return h.abaixo_minimo
-      })
-      .forEach(h => {
-        const cur = latest.get(h.product_nome)
-        if (!cur || h.mes > cur.mes) latest.set(h.product_nome, h)
-      })
-
-    return Array.from(latest.values())
-      .map(h => ({
-        name:     h.product_nome,
-        current:  h.saldo_acumulado,
-        minimum:  h.saldo_minimo,
-        toOrder:  Math.ceil(Math.max(0, h.saldo_minimo - h.saldo_acumulado)),
-        unit:     unitMap.get(h.product_nome) ?? '',
-      }))
-      .sort((a, b) => b.toOrder - a.toOrder)
-  }, [data, yearStr, monthStr])
-
-  // ─────────────────────────────────────────────────────────────────────────────
+  // Ranking de job sites pelo custo do excesso: soma dos lotes de cada um.
+  const sites = useMemo(() => {
+    const m = new Map<string, { site: string; cost: number; units: number; lots: typeof lots }>()
+    for (const l of lots) {
+      const k = jobSiteOf(l.lot)
+      const e = m.get(k) ?? { site: k, cost: 0, units: 0, lots: [] }
+      e.cost += l.cost
+      e.units += l.units
+      e.lots.push(l)
+      m.set(k, e)
+    }
+    return [...m.values()].sort((a, b) => b.cost - a.cost || b.units - a.units)
+  }, [lots])
 
   if (isLoading) return <InventorySkeleton />
-
-  if (error) {
+  if (error || !data) {
     return (
-      <div className="flex h-full items-center justify-center p-8">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <p className="text-sm">Failed to load inventory data.</p>
-        </div>
+      <div className="flex h-full items-center justify-center gap-3 text-muted-foreground">
+        <AlertCircle className="h-5 w-5 text-red-500" /><p className="text-sm">Failed to load inventory data.</p>
       </div>
     )
   }
 
-  if (!data) return null
-
-  const periodLabel = selectedMonth === 'all'
-    ? String(selectedYear)
-    : `${MONTHS.find(m => m.value === selectedMonth)?.label ?? ''} ${selectedYear}`
-
-  function exportTxt() {
-    const header = [
-      'PURCHASE SUGGESTION REPORT',
-      `Period: ${periodLabel}`,
-      '',
-      'This list shows products currently below their minimum stock balance for the selected period.',
-      'It does not account for pending orders or work in progress. It shows only the quantity',
-      'needed to restore each product to its full minimum required balance.',
-      '',
-      `${'Product'.padEnd(42)} ${'Current'.padStart(9)} ${'Minimum'.padStart(9)} ${'To Order'.padStart(10)} ${'Unit'.padEnd(8)}`,
-      '-'.repeat(82),
-    ]
-    const rows = purchaseSuggestions.map(s =>
-      `${s.name.substring(0, 42).padEnd(42)} ${s.current.toFixed(1).padStart(9)} ${s.minimum.toFixed(1).padStart(9)} ${String(s.toOrder).padStart(10)} ${s.unit.padEnd(8)}`
-    )
-    const blob = new Blob([[...header, ...rows, '', `${purchaseSuggestions.length} product(s) below minimum.`].join('\n')], { type: 'text/plain;charset=utf-8' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `purchase_suggestion_${yearStr}${monthStr !== 'all' ? `_${monthStr}` : ''}.txt`
-    a.click()
-  }
-
-  async function exportExcel() {
-    const XLSX = await import('xlsx')
-    const wsData = [
-      ['Product', 'Current Balance', 'Minimum Required', 'Suggested Order Qty', 'Unit'],
-      ...purchaseSuggestions.map(s => [s.name, s.current, s.minimum, s.toOrder, s.unit]),
-    ]
-    const ws = XLSX.utils.aoa_to_sheet(wsData)
-    ws['!cols'] = [{ wch: 40 }, { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 10 }]
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Purchase Suggestion')
-    XLSX.writeFile(wb, `purchase_suggestion_${yearStr}${monthStr !== 'all' ? `_${monthStr}` : ''}.xlsx`)
-  }
-
-  const adherenceStrokeColor = avgServiceLevel == null ? '#6b7280'
-    : avgServiceLevel >= threshold ? primaryColor : '#ef4444'
+  const total = totals.within + totals.excess
+  const scopeLabel = month === ALL ? yearStr : `${MONTHS[Number(month) - 1]} ${yearStr}`
+  const resets = (data.reset_dates?.length ? data.reset_dates : data.reset_date ? [data.reset_date] : []).filter(d => d.startsWith(yearStr))
+  const focus = month === ALL ? undefined : MONTHS_SHORT[Number(month) - 1]
 
   return (
-    <div className="flex h-full flex-col gap-4">
-
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    // Toda mudança visual da página leva meio segundo, como no Workforce.
+    <div className="flex h-full flex-col gap-3 max-xl:overflow-y-auto max-xl:pr-1 [&_*]:transition-[color,background-color,border-color,opacity,fill,fill-opacity,stroke,box-shadow,transform,width] [&_*]:duration-500 [&_*]:ease-out">
+      <div className="flex shrink-0 flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Inventory Control</h1>
-          <p className="text-sm text-muted-foreground">Stock adherence, excess consumption and financial impact</p>
+          <p className="text-sm text-muted-foreground">Material withdrawals, excess over the lot limits and their cost</p>
         </div>
-
-        <div className="flex items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
-            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
-              <div className="flex items-center pl-2.5">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              </div>
-              <Select
-                value={String(selectedYear)}
-                onValueChange={v => { setSelectedYear(Number(v)); setSelectedMonth('all') }}
-              >
-                <SelectTrigger className="h-8 w-[72px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <span className="flex-1 truncate text-left text-sm">{selectedYear}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <div className="h-4 w-px bg-border" />
-              <Select
-                value={String(selectedMonth)}
-                onValueChange={v => setSelectedMonth(v === 'all' ? 'all' : Number(v))}
-              >
-                <SelectTrigger className="h-8 w-[110px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <span className="flex-1 truncate text-left text-sm">
-                    {selectedMonth === 'all' ? 'All' : MONTHS.find(m => m.value === selectedMonth)?.label ?? 'All'}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  {MONTHS.filter(m => availableMonths.includes(m.value)).map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Safety Threshold — compact, tooltip on hover */}
-          <UITooltipProvider delay={300}>
-            <UITooltip>
-              <UITooltipTrigger render={<div className="flex flex-col gap-1 cursor-default" />}>
-                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground text-left">SH</span>
-                <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30 px-2 gap-0.5">
-                  <input
-                    type="number"
-                    min={1}
-                    max={100}
-                    value={thresholdInput}
-                    onChange={e => setThresholdInput(e.target.value)}
-                    onBlur={e => applyThreshold(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && applyThreshold(thresholdInput)}
-                    className="w-8 bg-transparent text-sm text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
-                  <span className="text-sm text-muted-foreground">%</span>
-                </div>
-              </UITooltipTrigger>
-              <UITooltipContent side="bottom" className="flex flex-col gap-1 max-w-[200px]">
-                <p className="font-semibold">Safety Threshold</p>
-                <p className="text-xs text-muted-foreground">Minimum acceptable stock adherence. Months below this level are flagged as critical.</p>
-              </UITooltipContent>
-            </UITooltip>
-          </UITooltipProvider>
-
-          {/* Purchase suggestion trigger */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-transparent select-none">btn</span>
-            <Button
-              variant="default"
-              size="default"
-              onClick={() => setShowPurchaseModal(true)}
-              className="h-8 gap-2"
-            >
-              <ShoppingCart className="h-3.5 w-3.5" />
-              Purchase Suggestion
-            </Button>
-          </div>
-
-        </div>
+        <JoinedFilter parts={[
+          { label: 'Year', value: yearStr, options: years.map(y => ({ value: String(y), label: String(y) })), onChange: v => { setYear(Number(v)); setMonth(ALL) } },
+          { label: 'Month', value: month, options: [{ value: ALL, label: `All of ${yearStr}` }, ...months.map(m => ({ value: m, label: MONTHS[Number(m) - 1] }))], onChange: setMonth },
+        ]} />
       </div>
 
-      {/* Body — fills remaining height, no scroll */}
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-3">
+        <Kpi icon={DollarSign} label={<>Withdrawals<Scope>{scopeLabel}</Scope></>} value={showFinancialData ? fmtUSD(total) : '••••'} sub="Cost of all material taken out" />
+        <Kpi icon={TrendingDown} label="Excess Cost" value={showFinancialData ? fmtUSD(totals.excess) : '••••'} tone={totals.excess > 0 ? 'red' : undefined}
+          sub={`${pct(totals.excess, total)}% of the withdrawals`} />
+        <Kpi icon={Package} label="Excess Units" value={String(Math.round(totals.units))} tone={totals.units > 0 ? 'red' : undefined}
+          sub={`Taken after the lot limit, in ${lots.length} ${lots.length === 1 ? 'lot' : 'lots'}`} />
+      </div>
 
-        {/* KPIs */}
-        <div className="grid shrink-0 grid-cols-1 gap-4 sm:grid-cols-3">
-          <KpiCard
-            icon={Package}
-            label="Stock Service Level"
-            value={fmtPct(avgServiceLevel)}
-            sub="Products not below minimum stock"
-            valueClass={adherenceColor(avgServiceLevel, threshold)}
-            info="Percentage of product types that maintained their stock above the minimum balance throughout the period. A high level means the team is keeping materials available; a low level signals replenishment failures or excessive consumption."
-          />
-          <KpiCard
-            icon={TrendingDown}
-            label="Excess Units"
-            value={totalExcessUnits > 0 ? String(Math.round(totalExcessUnits)) : '0'}
-            sub="Units withdrawn beyond limit"
-            valueClass={totalExcessUnits > 0 ? 'text-red-500' : ''}
-            info="Total number of units withdrawn beyond the established limit per lot model. Each unit here represents material taken after the allowed quota was already reached, directly impacting project cost and inventory control."
-          />
-          {/* Financial Impact — custom card */}
-          <div className="rounded-xl border border-border bg-card/60 px-5 py-4 flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <DollarSign className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Financial Impact</span>
+      {/* O gráfico principal em cima, na largura toda; as violações embaixo. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <Card className="min-h-0 flex-[3]" title={<>Monthly Financial Impact<Scope>{yearStr}</Scope></>}
+          right={
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-4 rounded-full" style={{ background: COLORS.within }} />Within limit</span>
+              <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-4 rounded-full" style={{ background: COLORS.excess }} />Excess</span>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-1 shrink-0">
-                <p className={`text-3xl font-bold tracking-tight transition-[filter] ${blur}`}>{fmtUSD(totalExcessCost + totalNormalCost)}</p>
-                <p className="text-xs text-muted-foreground">Total cost of withdrawals</p>
-              </div>
-              {totalExcessCost > 0 && (() => {
-                const total = totalNormalCost + totalExcessCost
-                const normalPct = total > 0 ? Math.round((totalNormalCost / total) * 100) : 0
-                const excessPct = total > 0 ? Math.round((totalExcessCost / total) * 100) : 0
-                return (
-                  <div className="ml-auto flex items-stretch gap-4">
-                    <div className="w-px self-stretch bg-border" />
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs text-muted-foreground">Within limit</p>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-muted-foreground">{normalPct}%</span>
-                          <span className={`text-xs font-semibold text-foreground transition-[filter] ${blur}`}>{fmtUSD(totalNormalCost)}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs text-red-500">Excess</p>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-red-400">{excessPct}%</span>
-                          <span className={`text-xs font-semibold text-red-500 transition-[filter] ${blur}`}>{fmtUSD(totalExcessCost)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })()}
-            </div>
-          </div>
-        </div>
-
-        {/* Charts row — flex-[3] */}
-        <div className="flex min-h-0 flex-[3] grid-cols-5 gap-4 grid">
-
-          {/* Adherence trend — 3/5 */}
-          <div className="col-span-3 flex min-h-0 flex-col rounded-xl border border-border bg-card/60 p-5">
-            <div className="mb-3 flex shrink-0 items-center justify-between">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Activity className="h-4 w-4" />
-                <p className="text-sm font-semibold text-foreground">Stock Adherence Trend</p>
-              </div>
-              <InfoBtn title="Stock Adherence Trend" description="Monthly percentage of product types that stayed above their minimum stock balance. The dashed red line marks your Safety Threshold. Dots below it signal critical months." />
-            </div>
-            <div className="min-h-0 flex-1 [&_.recharts-cartesian-axis-tick-value]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_text]:fill-muted-foreground">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={adherenceData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="adherenceLiveGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={adherenceStrokeColor} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={adherenceStrokeColor} stopOpacity={0}   />
-                    </linearGradient>
-                    <linearGradient id="adherenceBackupGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={primaryColor} stopOpacity={0.12} />
-                      <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
-                  {selectedYear === resetYear && resetMonthLabel && adherenceData.some(d => d.month === resetMonthLabel) && (
-                    <ReferenceArea x1={adherenceData[0].month} x2={resetMonthLabel} fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0} />
-                  )}
-                  <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.5} />
-                  {selectedYear === resetYear && resetMonthLabel && adherenceData.some(d => d.month === resetMonthLabel) && (
-                    <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
-                  )}
-                  <Tooltip content={(props) => <AdherenceTooltip {...props} threshold={threshold} />} />
-                  <Area
-                    type="monotone"
-                    dataKey="backupAdherence"
-                    stroke={primaryColor}
-                    strokeDasharray="5 4"
-                    strokeWidth={2}
-                    strokeOpacity={0.48}
-                    fill="url(#adherenceBackupGrad)"
-                    connectNulls
-                    dot={{ r: 3, fill: primaryColor, fillOpacity: 0.5, strokeWidth: 0 }}
-                    activeDot={{ r: 4, strokeWidth: 0 }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="liveAdherence"
-                    stroke={adherenceStrokeColor}
-                    strokeWidth={2}
-                    fill="url(#adherenceLiveGrad)"
-                    connectNulls
-                    dot={(props: any) => {
-                      const { cx, cy, payload } = props
-                      if (payload.liveAdherence == null) return <g key={`empty-${cx}`} />
-                      const below = payload.liveAdherence != null && payload.liveAdherence < threshold
-                      return <circle key={`d-${cx}`} cx={cx} cy={cy} r={4} fill={below ? '#ef4444' : adherenceStrokeColor} strokeWidth={0} />
-                    }}
-                    activeDot={{ r: 5, strokeWidth: 0 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Violations list — 2/5 */}
-          <div className="col-span-2 flex min-h-0 flex-col rounded-xl border border-border bg-card/60 p-5">
-            <div className="mb-3 flex shrink-0 items-center justify-between">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <AlertTriangle className="h-4 w-4" />
-                <p className="text-sm font-semibold text-foreground">Limit Violations</p>
-              </div>
-              <button
-                onClick={() => setViolationsAsc(v => !v)}
-                className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                title={violationsAsc ? 'Sorted: ascending' : 'Sorted: descending'}
-              >
-                <ArrowUpDown className="h-3 w-3" />
-                {violationsAsc ? 'Asc' : 'Desc'}
-              </button>
-            </div>
-            {violations.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center">
-                <p className="text-xs text-muted-foreground">No violations for this period</p>
-              </div>
-            ) : (
-              <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-                {[...violations].sort((a, b) => violationsAsc ? a.totalExcess - b.totalExcess : b.totalExcess - a.totalExcess).map((v) => {
-                  const isOpen = expandedLots.has(v.lot)
-                  return (
-                    <div key={v.lot} className="shrink-0 rounded-lg bg-muted/40 overflow-hidden">
-                      {/* Header row — always visible */}
-                      <button
-                        onClick={() => toggleLot(v.lot)}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/60 transition-colors"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium">{v.lot}</p>
-                          <p className="truncate text-[11px] text-muted-foreground">
-                            {v.products.length} product {v.products.length === 1 ? 'type' : 'types'} exceeded
-                          </p>
-                          <p className="mt-0.5 text-[11px] font-semibold text-red-500">
-                            +{Math.round(v.totalExcess)} units over
-                          </p>
-                        </div>
-                        {isOpen
-                          ? <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                          : <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-                      </button>
-
-                      {/* Expanded product list */}
-                      {isOpen && (
-                        <div className="border-t border-border/50 px-3 py-2 flex flex-col gap-1">
-                          {v.products.map(p => (
-                            <div key={p.name} className="flex items-center justify-between gap-2">
-                              <p className="truncate text-[11px] text-muted-foreground">{p.name}</p>
-                              <span className="shrink-0 text-[11px] font-semibold text-red-500">+{p.excess}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Financial impact chart — flex-[2] */}
-        <div className="flex min-h-0 flex-[2] flex-col rounded-xl border border-border bg-card/60 p-5">
-          <div className="mb-3 flex shrink-0 items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <BarChart2 className="h-4 w-4" />
-              <p className="text-sm font-semibold text-foreground">Monthly Financial Impact</p>
-            </div>
-            <InfoBtn title="Monthly Financial Impact" description="Cost of all material withdrawals per month, split between within-limit and excess. Excess bars represent spending that exceeded the established lot quota." />
-          </div>
-          <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={financialData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }} maxBarSize={72}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={showFinancialData ? (v => `$${(v/1000).toFixed(0)}k`) : (() => '')} />
-                {selectedYear === resetYear && resetMonthLabel && financialData.some(d => d.month === resetMonthLabel) && (
-                  <ReferenceArea
-                    x1={financialData[0].month} x2={resetMonthLabel}
-                    fill="#94a3b8" fillOpacity={0.07} strokeOpacity={0}
-                    shape={(props: any) => {
-                      // Reset happens mid-band: the backup shading must stop at the reset
-                      // line, not at the end of the reset month's band.
-                      const bands = financialData.findIndex(d => d.month === resetMonthLabel) + 1
-                      const half  = bands > 0 ? props.width / bands / 2 : 0
-                      return <Rectangle {...props} width={props.width - half} />
-                    }}
-                  />
-                )}
-                {selectedYear === resetYear && resetMonthLabel && financialData.some(d => d.month === resetMonthLabel) && (
-                  <ReferenceLine x={resetMonthLabel} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: 'Reset', fill: '#94a3b8', fontSize: 10, position: 'insideTopRight' }} />
-                )}
-                <Tooltip content={(props) => <FinancialTooltip {...props} show={showFinancialData} />} cursor={{ fill: 'hsl(var(--foreground))', fillOpacity: 0.12 }} />
-                <Bar dataKey="backupNormal" stackId="backup" fill={primaryColor} fillOpacity={0.3} stroke={primaryColor} strokeOpacity={0.65} strokeDasharray="4 3" shape={(props: any) => <CenteredFinancialBar {...props} source="backup" />} />
-                <Bar dataKey="backupExcess" stackId="backup" fill="#ef4444" fillOpacity={0.3} stroke="#ef4444" strokeOpacity={0.65} strokeDasharray="4 3" radius={[3,3,0,0]} shape={(props: any) => <CenteredFinancialBar {...props} source="backup" />} />
-                <Bar dataKey="liveNormal" stackId="live" fill={primaryColor} opacity={0.85} shape={(props: any) => <CenteredFinancialBar {...props} source="live" />} />
-                <Bar dataKey="liveExcess" stackId="live" fill="#ef4444" radius={[4,4,0,0]} shape={(props: any) => <CenteredFinancialBar {...props} source="live" />} />
+          }
+          help={{
+            what: 'Cost of every material withdrawal per month, split between what fit the lot limit and what went past it.',
+            items: [
+              { label: 'Within limit', color: COLORS.within, text: 'Material taken while the lot was still under its limit.' },
+              { label: 'Excess', color: COLORS.excess, text: 'Material taken after the lot limit was already reached.' },
+              { label: 'Reset', text: 'A stock recount (the opening count, then later recounts): the dashed line marks the month and the label the day.' },
+            ],
+            note: 'Lots without a material template have no limit and are left out. Values follow the money visibility toggle.',
+          }}>
+          {monthly.length === 0 ? <p className="py-8 text-center text-xs text-muted-foreground">No withdrawals in {yearStr}.</p> : (
+            <ResponsiveContainer width="100%" height="100%" onResize={w => setChartW(w)}>
+              <BarChart accessibilityLayer={false} data={monthly} margin={{ top: 16, right: 4, left: 0, bottom: 0 }} maxBarSize={64}
+                className="[&_*:focus]:outline-none" onClick={(s: { activeLabel?: string | number }) => {
+                  const m = monthly.find(x => x.month === s?.activeLabel)
+                  if (m) setMonth(month === m.key ? ALL : m.key)
+                }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.5} vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={44}
+                  tickFormatter={(v: number) => (showFinancialData ? `$${Math.round(v / 1000)}k` : '')} />
+                <Tooltip animationDuration={500} content={<FinancialTip blur={blur} />} cursor={{ fill: 'var(--muted)', opacity: 0.5 }} />
+                {/* A largura da barra do mês representa os dias dele: a linha do reset fica no ponto do dia
+                    dentro da barra (dia 16 de 31 no meio, dia 25 de 30 a ~82%). A linha visível é desenhada no label. */}
+                {resets.map(r => monthly.some(m => m.key === r.slice(5, 7)) && (
+                  <ReferenceLine key={r} x={MONTHS_SHORT[Number(r.slice(5, 7)) - 1]} stroke="none"
+                    label={(p: { viewBox?: { x?: number; y?: number; height?: number } }) => {
+                      const dim = new Date(Number(r.slice(0, 4)), Number(r.slice(5, 7)), 0).getDate()
+                      // Barra = 80% da faixa do mês (barCategoryGap padrão de 10% de cada lado), no máximo 64 px.
+                      const bar = Math.min(64, ((chartW - 48) / monthly.length) * 0.8)
+                      const x = (p.viewBox?.x ?? 0) + ((Number(r.slice(8, 10)) - 0.5) / dim - 0.5) * bar
+                      const y = p.viewBox?.y ?? 0, h = p.viewBox?.height ?? 0
+                      return (
+                        <g>
+                          <line x1={x} x2={x} y1={y} y2={y + h} stroke="var(--muted-foreground)" strokeDasharray="3 3" strokeOpacity={0.7} />
+                          <text x={x - 4} y={y + 10} fontSize={10} textAnchor="end" fill="var(--muted-foreground)">Reset · {day(r)}</text>
+                        </g>
+                      )
+                    }} />
+                ))}
+                <Bar dataKey="within" stackId="c" fill={COLORS.within} animationDuration={500} fillOpacity={0.9}
+                  shape={(p: any) => <rect x={p.x} y={p.y} width={p.width} height={p.height} fill={COLORS.within} fillOpacity={focus && p.payload.month !== focus ? 0.35 : 0.9} />} />
+                <Bar dataKey="excess" stackId="c" fill={COLORS.excess} animationDuration={500} radius={[3, 3, 0, 0]}
+                  shape={(p: any) => <rect x={p.x} y={p.y} width={p.width} height={p.height} rx={3} fill={COLORS.excess} fillOpacity={focus && p.payload.month !== focus ? 0.35 : 1} />} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="mt-2 flex shrink-0 items-center gap-4 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: primaryColor }} />Within limit</span>
-            <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" />Excess withdrawal</span>
-            <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm border border-dashed border-muted-foreground bg-muted-foreground/20" />Backup</span>
-          </div>
-        </div>
+          )}
+        </Card>
 
-      </div>
-
-      {/* Purchase Suggestion Modal */}
-      <Dialog open={showPurchaseModal} onOpenChange={setShowPurchaseModal}>
-        <DialogContent className="sm:max-w-lg" showCloseButton>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-              Purchase Suggestion
-            </DialogTitle>
-          </DialogHeader>
-
-          {/* Notice */}
-          <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground leading-relaxed">
-            This list reflects stock levels observed in the selected period ({periodLabel}). It does not account for pending orders or work in progress. It simply shows the quantity needed to restore each product to its minimum required balance.
-          </p>
-
-          {/* Product list */}
-          {purchaseSuggestions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-12">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <PackageCheck className="h-6 w-6 text-primary" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium">All good — no purchases needed</p>
-                <p className="mt-1 text-xs text-muted-foreground">Every product in the selected period is at or above its minimum required balance.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="max-h-[46vh] overflow-y-auto rounded-lg border border-border">
-              {/* Table header */}
-              <div className="sticky top-0 z-10 grid grid-cols-[1fr_auto_auto_auto] gap-x-4 border-b border-border bg-muted/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
-                <span>Product</span>
-                <span className="text-right">Current</span>
-                <span className="text-right">Minimum</span>
-                <span className="text-right">To Order</span>
-              </div>
-              {/* Rows */}
-              <div className="divide-y divide-border">
-                {purchaseSuggestions.map((s) => (
-                  <div key={s.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 px-4 py-2.5 text-sm hover:bg-muted/30 transition-colors">
-                    <span className="truncate font-medium">{s.name}</span>
-                    <span className="text-right text-muted-foreground tabular-nums">{s.current.toFixed(1)}{s.unit ? ` ${s.unit}` : ''}</span>
-                    <span className="text-right text-muted-foreground tabular-nums">{s.minimum.toFixed(1)}{s.unit ? ` ${s.unit}` : ''}</span>
-                    <span className="text-right font-semibold text-red-500 tabular-nums">+{s.toOrder}{s.unit ? ` ${s.unit}` : ''}</span>
+        <Card className="min-h-0 flex-[2]" title={<>Limit Violations<Scope>{scopeLabel}</Scope></>}
+          help={{
+            what: 'Job sites ranked by the cost of material taken past the lot limits, each with its lots and the products that went past.',
+            items: [
+              { label: 'Excess', color: COLORS.excess, text: 'Cost of the material taken after the limit.' },
+              { label: 'Units', text: 'Units taken after the limit.' },
+              { label: 'Lots', text: 'How many of its lots went past the limit.' },
+            ],
+            action: 'Each block is a job site, most costly first; click and drag sideways for the others. Click a lot to see its products.',
+          }}>
+          {sites.length === 0 ? <p className="py-6 text-center text-xs text-muted-foreground">No violations in this period.</p> : (
+            // Galeria: um bloco por job site, lado a lado (rola na horizontal); cada bloco cresce para baixo.
+            <div {...drag} className="flex h-full cursor-grab gap-2 overflow-x-auto pb-1 select-none active:cursor-grabbing [scrollbar-color:auto]! [scrollbar-width:auto]! [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar]:h-1! [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border">
+              {sites.map((s, rank) => (
+                <div key={s.site} className="flex w-60 shrink-0 flex-col rounded-lg border border-border bg-muted/30">
+                  {/* Cabeçalho em duas pontas: job site e lotes à esquerda, custo e unidades à direita. */}
+                  <div className="flex shrink-0 items-start justify-between gap-2 border-b border-border px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold">
+                        <span className="text-muted-foreground tabular-nums">#{rank + 1}</span><span className="truncate">{s.site}</span>
+                      </p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">{s.lots.length} {s.lots.length === 1 ? 'lot' : 'lots'} over the limit</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className={`text-sm font-semibold tabular-nums text-red-600 dark:text-red-400 ${blur}`}>{fmtUSD(s.cost)}</p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">{Math.round(s.units)} units over</p>
+                    </div>
                   </div>
-                ))}
-              </div>
+                  <div className="flex shrink-0 items-center gap-2 px-3 pt-1.5 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    <span className="flex-1">Lot</span><span>Units</span><span className="w-14 text-right" style={{ color: COLORS.excess }}>Excess</span><span className="w-3" />
+                  </div>
+                  <div className="grid min-h-0 flex-1 content-start gap-0.5 overflow-y-auto px-1.5 pb-1.5">
+                    {s.lots.map(l => {
+                      const lotOpen = openLot === l.lot
+                      return (
+                        <div key={l.lot} className={`rounded ${lotOpen ? 'bg-muted/60' : ''}`}>
+                          <button type="button" onClick={() => setOpenLot(lotOpen ? null : l.lot)}
+                            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-[11px] hover:bg-muted/60">
+                            <span className="min-w-0 flex-1 truncate">{l.lot.replace(s.site, '').replace(/^s*-?s*/, '') || l.lot}</span>
+                            <span className="shrink-0 tabular-nums text-muted-foreground">+{Math.round(l.units)}</span>
+                            <span className={`w-14 shrink-0 text-right tabular-nums text-red-500/80 dark:text-red-400/80 ${blur}`}>{fmtUSD(l.cost)}</span>
+                            {lotOpen ? <ChevronUp className="h-3 w-3 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />}
+                          </button>
+                          {lotOpen && (
+                            <div className="grid gap-0.5 px-1.5 pb-1.5 pl-3">
+                              {[...l.products.entries()].sort((x, y) => y[1] - x[1]).map(([name, units]) => (
+                                <p key={name} className="flex justify-between gap-2 text-[11px] text-muted-foreground">
+                                  <span className="truncate">{name}</span><span className="shrink-0 tabular-nums text-red-500/80 dark:text-red-400/80">+{Math.round(units)}</span>
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" size="sm" onClick={exportTxt} disabled={purchaseSuggestions.length === 0} className="gap-1.5">
-              <FileText className="h-3.5 w-3.5" />
-              Export TXT
-            </Button>
-            <Button variant="outline" size="sm" onClick={exportExcel} disabled={purchaseSuggestions.length === 0} className="gap-1.5">
-              <ExcelIcon className="h-3.5 w-3.5" />
-              Export Excel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+        </Card>
+      </div>
     </div>
   )
 }

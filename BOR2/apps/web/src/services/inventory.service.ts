@@ -59,6 +59,7 @@ export interface InventoryData {
   gastos_usuario: GastoUsuario[];
   product_prices: Record<string, number>;
   reset_date: string;
+  reset_dates?: string[]; // dias de recontagem (resets), em ordem
   backup_through: string;
 }
 
