@@ -60,11 +60,9 @@ type BuildingPoint struct {
 	Projected *float64 `json:"projected"`
 }
 
-// SupervisorRemaining é quanto um supervisor ainda pode trabalhar no prédio.
-type SupervisorRemaining struct {
+// WorkerHours é quanto cada pessoa já trabalhou no prédio.
+type WorkerHours struct {
 	Employee string  `json:"employee"`
-	Share    float64 `json:"share"` // fatia das horas já registradas
-	Hours    float64 `json:"hours"`
 	Regular  float64 `json:"regular"`
 	Overtime float64 `json:"overtime"`
 }
@@ -82,7 +80,7 @@ type BuildingForecast struct {
 	RemainingHours  float64               `json:"remainingHours"`  // ETC: horas reais que ainda cabem
 	ExceedsOn       *string               `json:"exceedsOn"`       // dia em que o ritmo atual estoura o orçamento
 	Series          []BuildingPoint       `json:"series"`
-	Supervisors     []SupervisorRemaining `json:"supervisors"`
+	Workers         []WorkerHours         `json:"workers"` // mais horas primeiro
 }
 
 // ForecastBuilding monta o EVM: a meta (PV) é o orçamento distribuído em linha
@@ -120,15 +118,11 @@ func ForecastBuilding(budget float64, start, end, today string, sups []Superviso
 		f.RemainingHours = left / blendedHour
 	}
 	for _, s := range sups {
-		h := s.Regular + s.Overtime
-		share := h / hours
-		mine := f.RemainingHours * share
-		f.Supervisors = append(f.Supervisors, SupervisorRemaining{
-			Employee: s.Employee, Share: share, Hours: mine,
-			Regular: mine * s.Regular / h, Overtime: mine * s.Overtime / h,
-		})
+		f.Workers = append(f.Workers, WorkerHours{Employee: s.Employee, Regular: s.Regular, Overtime: s.Overtime})
 	}
-	sort.Slice(f.Supervisors, func(a, b int) bool { return f.Supervisors[a].Share > f.Supervisors[b].Share })
+	sort.Slice(f.Workers, func(a, b int) bool {
+		return f.Workers[a].Regular+f.Workers[a].Overtime > f.Workers[b].Regular+f.Workers[b].Overtime
+	})
 
 	t0, _ := time.Parse(dateLayout, start)
 	t1, _ := time.Parse(dateLayout, end)
