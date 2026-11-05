@@ -261,7 +261,6 @@ function LogEventForm({
                     <SelectItem
                       value={t}
                       disabled={!options.includes(t)}
-                      indicator={false}
                       className={PAIR_ITEM}
                     >
                       <EventTypeOption type={t} step={0} showStep={false} label={pair.label} />
@@ -269,7 +268,6 @@ function LogEventForm({
                     <SelectItem
                       value={pair.partner}
                       disabled={!options.includes(pair.partner)}
-                      indicator={false}
                       className={PAIR_ITEM}
                     >
                       <EventTypeOption
