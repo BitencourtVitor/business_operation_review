@@ -339,6 +339,13 @@ function BudgetTip({ active, payload, label, f, isSup }: {
   isSup?: (name: string) => boolean
 }) {
   if (!active || !payload?.length) return null
+  // Quem trabalhou até a data do mouse: o gráfico é acumulado, então a lista também é.
+  const upTo = label != null ? fromT(Number(label)) : ""
+  const workers = (f.workers ?? []).map(w => {
+    if (!w.days) return w
+    const d = w.days.filter(x => x.date <= upTo)
+    return { ...w, regular: d.reduce((s, x) => s + x.regular, 0), overtime: d.reduce((s, x) => s + x.overtime, 0) }
+  }).filter(w => w.regular + w.overtime > 0.01).sort((a, b) => b.regular + b.overtime - (a.regular + a.overtime))
   return (
     <div className="w-60 -translate-y-full rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="mb-1 font-semibold">{label != null && day(fromT(Number(label)))}</p>
@@ -346,13 +353,13 @@ function BudgetTip({ active, payload, label, f, isSup }: {
         <p key={p.name} className="flex justify-between gap-6"><span style={{ color: p.color }}>{p.name}</span><span className="tabular-nums">{fmtH(p.value!)}</span></p>
       ))}
       {/* Quem trabalhou no prédio, mais horas primeiro; os tipos excluídos no settings (Panels) já vêm fora. */}
-      {!!f.workers?.length && (
+      {workers.length > 0 && (
         <div className="mt-2 grid gap-0.5 border-t border-border pt-2">
-          <p className="mb-0.5 text-muted-foreground">Who worked here<Sep />{f.workers.length}</p>
+          <p className="mb-0.5 text-muted-foreground">Who worked here until {day(upTo)}<Sep />{workers.length}</p>
           {/* Lista inteira com rolagem discreta; a roda do mouse sobre o gráfico rola esta lista (o tooltip não recebe o ponteiro). */}
           {/* Barra fina sem as setas: o global põe scrollbar-width thin em tudo, e aí o Chrome ignora o estilo webkit; aqui volta a auto (com !, porque a regra global fica fora das camadas do Tailwind) para ele valer. Encaixe nome a nome. */}
           <div data-workers-list className="grid max-h-36 snap-y snap-mandatory [scrollbar-color:auto]! [scrollbar-width:auto]! gap-0.5 overflow-y-auto pr-1.5 [&::-webkit-scrollbar]:w-0.5! [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:h-0 [&::-webkit-scrollbar-button]:w-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
-          {f.workers.map(w => (
+          {workers.map(w => (
             <p key={w.employee} className="flex snap-start justify-between gap-3">
               <span className="flex min-w-0 items-center gap-1"><span className="truncate">{w.employee}</span>{isSup?.(w.employee) && <SupMark />}</span>
               <span className="shrink-0 tabular-nums">{fmtH(w.regular)}{w.overtime > 0 && <span className="text-red-500/70 dark:text-red-400/70"> + {fmtH(w.overtime)} OT</span>}</span>

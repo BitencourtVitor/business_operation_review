@@ -32,7 +32,8 @@ export interface BuildingLink { forecastId: string; jobsite: string; building: s
 
 export interface BuildingPoint { date: string; planned: number; actual: number | null; projected: number | null }
 
-export interface WorkerHours { employee: string; regular: number; overtime: number }
+export interface WorkerDay { date: string; regular: number; overtime: number }
+export interface WorkerHours { employee: string; regular: number; overtime: number; days?: WorkerDay[] }
 
 /** EVM do prédio, só em horas: o dinheiro nunca sai do servidor. */
 export interface BuildingForecast {
