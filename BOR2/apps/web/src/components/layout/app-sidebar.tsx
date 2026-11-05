@@ -294,7 +294,7 @@ function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item
 }
 
 // Páginas aprovadas no celular (RESP-1..23): cada uma entra aqui quando o Vitor aprova.
-const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution"])
+const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution", "/bor/ofi"])
 
 function NavGroupItems({
   items,

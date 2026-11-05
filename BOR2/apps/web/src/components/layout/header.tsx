@@ -145,11 +145,11 @@ export function Header() {
 
       {/* Desktop: título e o subtítulo embaixo. A marca de produto saiu junto
           com o Atlas, que virou o BuilderLog: o BOR é o único produto aqui. */}
-      <div className="hidden flex-1 flex-col justify-center md:flex">
-        <h1 className="text-base font-medium tracking-tight text-primary">
+      <div className="hidden min-w-0 flex-1 flex-col justify-center md:flex">
+        <h1 className="truncate text-base font-medium tracking-tight text-primary">
           Business Operations Review
         </h1>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="truncate text-[10px] text-muted-foreground">
           What matters isn&apos;t the company&apos;s mistakes, but how it responds to them.
         </p>
       </div>
