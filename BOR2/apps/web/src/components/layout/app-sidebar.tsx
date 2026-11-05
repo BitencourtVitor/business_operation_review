@@ -293,6 +293,9 @@ function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item
   )
 }
 
+// Páginas aprovadas no celular (RESP-1..23): cada uma entra aqui quando o Vitor aprova.
+const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution"])
+
 function NavGroupItems({
   items,
   open,
@@ -331,8 +334,8 @@ function NavGroupItems({
           className: "fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2",
           style: { animationDelay: `${Math.min(60 + i * 35, 480)}ms` },
         }
-        // On mobile, every page except /forecast is locked — tapping redirects to /forecast
-        if (isMobile && item.href !== "/bor/forecast") {
+        // No celular, só abre pelo menu a página que já passou pelo celular (RESP-0); as outras levam ao Forecast.
+        if (isMobile && !MOBILE_READY.has(item.href)) {
           return (
             <SidebarMenuItem key={item.title + item.href} {...enter}>
               <SidebarMenuButton
