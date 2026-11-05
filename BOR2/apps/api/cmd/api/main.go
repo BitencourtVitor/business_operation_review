@@ -713,6 +713,9 @@ func main() {
 	pcg.Delete("/forms/:id", pcgBidFormHandler.Delete)
 	pcg.Get("/subcontractor-contacts", pcgProjectsHandler.ListSubcontractorContacts)
 	pcg.Put("/subcontractor-contacts/:name", pcgProjectsHandler.UpsertSubcontractorContact)
+	pcg.Get("/catalog", pcgProjectsHandler.GetCatalog)
+	pcg.Put("/catalog", pcgProjectsHandler.SaveCatalog)
+	pcg.Post("/catalog/imports", pcgProjectsHandler.ImportCatalog)
 
 
 	// AI Chat (Aria)
