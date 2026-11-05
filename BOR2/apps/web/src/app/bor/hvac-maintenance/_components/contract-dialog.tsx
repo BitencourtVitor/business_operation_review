@@ -182,8 +182,8 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
         </DialogHeader>
 
         {/* Duas colunas: quem é e o que foi combinado à esquerda; o dinheiro, à direita. */}
-        <div onBlur={flush} className="grid min-h-0 flex-1 gap-6 max-lg:overflow-y-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x">
-          <div className="flex min-h-0 flex-col gap-3 lg:overflow-y-auto lg:pr-6">
+        <div onBlur={flush} className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-6 max-lg:overflow-y-auto lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:divide-x">
+          <div className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto lg:pr-6">
             <Section title="Client">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="grid gap-3 sm:col-span-2 sm:grid-cols-[65fr_35fr]">
@@ -229,7 +229,7 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
               {/* Segmentado do Forecast (32px com borda, botões de 28px) com o título
                   dentro, como prefixo de input. Clicar na marcada desmarca. */}
               <div role="group" aria-label="Season" className="flex h-8 items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
-                <span className="mr-6 pl-2 text-xs font-medium text-muted-foreground">Season</span>
+                <span className="mr-6 pl-2 text-xs font-medium text-muted-foreground max-sm:hidden">Season</span>
                 {SEASONS.map(s => {
                   const on = form.season === s.key
                   return (
@@ -259,7 +259,7 @@ export function ContractDialog({ contract, onClose }: { contract: MaintenanceCon
           {/* À direita, o dinheiro em cima e a conversa embaixo. O modal tem altura
               fixa: a busca de invoice e os comentários abertos dividem o que sobra,
               cada um rolando por dentro. */}
-          <div className="flex min-h-0 flex-col gap-3">
+          <div className="flex flex-col gap-3 lg:min-h-0">
             <Section title="Payments (QuickBooks)">
               <MoneyStrip value={form.contractValue} onValueChange={v => set("contractValue", v)} invoices={form.invoices} />
             </Section>
@@ -425,8 +425,8 @@ function MoneyStrip({ value, onValueChange, invoices }: {
   // O valor do contrato é digitado no próprio bloco dele: é a base de que os
   // outros quatro números saem, e não aparece em dois lugares.
   return (
-    <div className="grid shrink-0 grid-cols-5 divide-x rounded-lg border bg-muted/30">
-      <div className="grid min-w-0 gap-1 px-2.5 py-2">
+    <div className="grid shrink-0 grid-cols-2 rounded-lg border bg-muted/30 sm:grid-cols-5 sm:divide-x">
+      <div className="grid min-w-0 gap-1 px-2.5 py-2 max-sm:col-span-2">
         <p className="flex items-center gap-1.5 text-[11px] whitespace-nowrap text-muted-foreground"><FileSignature className="h-3.5 w-3.5 shrink-0" /> Contract</p>
         <InputGroup className={`h-8 bg-background ${blur}`}>
           <InputGroupAddon><DollarSign /></InputGroupAddon>
@@ -438,7 +438,7 @@ function MoneyStrip({ value, onValueChange, invoices }: {
         </InputGroup>
       </div>
       {tiles.map(t => (
-        <div key={t.label} className="grid min-w-0 content-between gap-1 px-2.5 py-2">
+        <div key={t.label} className="grid min-w-0 content-between gap-1 px-2.5 py-2 max-sm:border-t max-sm:odd:border-l">
           <p className="flex items-center gap-1.5 text-[11px] whitespace-nowrap text-muted-foreground"><t.Icon className={`h-3.5 w-3.5 shrink-0 ${t.tone}`} /> {t.label}</p>
           <p className={`text-sm font-semibold tabular-nums ${t.tone} ${blur}`}>{t.amount == null ? "—" : money(t.amount)}</p>
         </div>
@@ -450,7 +450,7 @@ function MoneyStrip({ value, onValueChange, invoices }: {
 // As invoices vinculadas, que rolam por dentro quando não cabem, e o vincular.
 function InvoiceList({ invoices, onChange }: { invoices: MaintenanceInvoice[]; onChange: (v: MaintenanceInvoice[]) => void }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+    <div className="flex flex-col gap-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
       {invoices.map(inv => (
         <InvoiceCard key={inv.number} inv={inv} onUnlink={() => onChange(invoices.filter(i => i.number !== inv.number))} />
       ))}
