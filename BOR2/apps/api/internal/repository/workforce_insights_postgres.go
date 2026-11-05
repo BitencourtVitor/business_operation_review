@@ -18,6 +18,8 @@ type WorkforceInsightsRepository interface {
 	Employees(ctx context.Context, company string) ([]string, error)
 	Worktypes(ctx context.Context) ([]string, error)
 	Rates(ctx context.Context, company string) (map[string][]domain.RatePoint, error)
+	OvertimeNotes(ctx context.Context, company, employee string) ([]domain.OvertimeNote, error)
+	SaveOvertimeNote(ctx context.Context, company string, n domain.OvertimeNote) error
 }
 
 type PostgresWorkforceInsightsRepository struct {
@@ -207,4 +209,37 @@ func (r *PostgresWorkforceInsightsRepository) Rates(ctx context.Context, company
 		out[k] = append(out[k], p)
 	}
 	return out, rows.Err()
+}
+
+func (r *PostgresWorkforceInsightsRepository) OvertimeNotes(ctx context.Context, company, employee string) ([]domain.OvertimeNote, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT employee, week_start::text, note, author, updated_at::text
+		FROM wp_overtime_notes WHERE company = $1 AND employee = $2 ORDER BY week_start
+	`, company, employee)
+	if err != nil {
+		return nil, fmt.Errorf("wp overtime notes: %w", err)
+	}
+	defer rows.Close()
+	out := []domain.OvertimeNote{}
+	for rows.Next() {
+		var n domain.OvertimeNote
+		if err := rows.Scan(&n.Employee, &n.WeekStart, &n.Note, &n.Author, &n.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("scan overtime note: %w", err)
+		}
+		out = append(out, n)
+	}
+	return out, rows.Err()
+}
+
+// SaveOvertimeNote grava a anotação da semana; texto vazio apaga.
+func (r *PostgresWorkforceInsightsRepository) SaveOvertimeNote(ctx context.Context, company string, n domain.OvertimeNote) error {
+	if n.Note == "" {
+		_, err := r.db.Exec(ctx, `DELETE FROM wp_overtime_notes WHERE company = $1 AND employee = $2 AND week_start = $3::date`, company, n.Employee, n.WeekStart)
+		return err
+	}
+	_, err := r.db.Exec(ctx, `
+		INSERT INTO wp_overtime_notes (company, employee, week_start, note, author) VALUES ($1, $2, $3::date, $4, $5)
+		ON CONFLICT (company, employee, week_start) DO UPDATE SET note = EXCLUDED.note, author = EXCLUDED.author, updated_at = now()
+	`, company, n.Employee, n.WeekStart, n.Note, n.Author)
+	return err
 }

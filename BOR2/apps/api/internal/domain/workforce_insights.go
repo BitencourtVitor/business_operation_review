@@ -312,3 +312,19 @@ type HoursRow struct {
 	Regular  float64
 	Overtime float64
 }
+
+// EmployeeWeek são as horas de uma pessoa numa semana (segunda a domingo, o corte das 40 h).
+type EmployeeWeek struct {
+	WeekStart string  `json:"weekStart"`
+	Regular   float64 `json:"regular"`
+	Overtime  float64 `json:"overtime"`
+}
+
+// OvertimeNote é o "o que aconteceu?" de uma semana com overtime (WF-16).
+type OvertimeNote struct {
+	Employee  string `json:"employee"`
+	WeekStart string `json:"weekStart"`
+	Note      string `json:"note"`
+	Author    string `json:"author"`
+	UpdatedAt string `json:"updatedAt"`
+}
