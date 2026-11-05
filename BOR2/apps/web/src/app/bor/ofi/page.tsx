@@ -411,7 +411,7 @@ export default function OFIPage() {
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Operational Forecast Index</h1>
             <p className="text-sm text-muted-foreground">
-              Performance metrics across all forecast projects
+              Performance metrics across Framing forecast projects
             </p>
           </div>
 
@@ -589,7 +589,7 @@ export default function OFIPage() {
               <TableIcon className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm font-semibold">Project Scores</span>
               {filtered.length > 0 && (
-                <span className="text-xs text-muted-foreground">· {filtered.length} projects</span>
+                <span className="text-xs text-muted-foreground">· {new Set(filtered.map(r => r.obraId)).size} projects</span>
               )}
               <button
                 onClick={closePanel}

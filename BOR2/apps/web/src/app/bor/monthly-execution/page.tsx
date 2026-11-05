@@ -486,7 +486,8 @@ export default function MonthlyExecutionPage() {
   // ── Kanban: mês escolhido (ou o corrente, no acumulado do ano) ─────────────
   // Planned e Started seguem o retrato mensal como sempre; Finished é o fim real.
   const index = useMemo(() => siteIndex(visible), [visible])
-  const inFilter = (cliente = "", jobSite = "") => !filtered || index.has(siteKey(cliente, jobSite))
+  // Mesma regra do gráfico: só job sites de algum grupo de meta entram, com ou sem filtro.
+  const inFilter = (cliente = "", jobSite = "") => index.has(siteKey(cliente, jobSite))
 
   const { forMonth, isOFIFallback } = useMemo(() => {
     const execRecords = allYear.filter(e => e.referenceMonth === kanbanMonth)
