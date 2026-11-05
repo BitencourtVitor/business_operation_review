@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Check, Copy, Loader2, RefreshCw, UserX } from "lucide-react"
+import { Check, Copy, Loader2, PanelLeft, RefreshCw, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TeamsModal } from "@/components/features/qbtime-teams-modal"
 import { useAuth } from "@/hooks/use-auth"
@@ -70,7 +70,7 @@ function drawReport(
   canvas.width        = CANVAS_W * dpr
   canvas.height       = H * dpr
   canvas.style.width  = `${CANVAS_W}px`
-  canvas.style.height = `${H}px`
+  canvas.style.height = "auto" // proporção pelos atributos width/height: encolhe com max-w-full no celular
 
   const ctx = canvas.getContext("2d")!
   ctx.scale(dpr, dpr)
@@ -374,8 +374,12 @@ export default function WhosWorkingPage() {
     })
   }
 
+  // No celular e no tablet a barra lateral da página vira gaveta; gerar o relatório fecha.
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
+      {menuOpen && <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-30 bg-black/50 lg:hidden" />}
       {canManageTeams && (
         <TeamsModal
           open={teamsOpen}
@@ -385,7 +389,7 @@ export default function WhosWorkingPage() {
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+      <aside className={`flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-40 max-lg:transition-transform max-lg:duration-500 ${menuOpen ? "" : "max-lg:-translate-x-full"}`}>
 
         <div className="border-b border-sidebar-border px-4 py-3">
           <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
@@ -472,7 +476,7 @@ export default function WhosWorkingPage() {
               Manage Teams
             </Button>
           )}
-          <Button onClick={generate} disabled={isFetching} className="w-full gap-2">
+          <Button onClick={() => { generate(); setMenuOpen(false) }} disabled={isFetching} className="w-full gap-2">
             {isFetching
               ? <Loader2 className="h-4 w-4 animate-spin" />
               : <RefreshCw className="h-4 w-4" />}
@@ -510,8 +514,12 @@ export default function WhosWorkingPage() {
       </aside>
 
       {/* ── Main ────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
+          <Button variant="outline" size="sm" onClick={() => setMenuOpen(true)}><PanelLeft className="h-3.5 w-3.5" />Menu</Button>
+          <span className="truncate text-sm font-medium">Company, mode and exceptions</span>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6 max-md:p-4">
 
           <div className="mb-6">
             <h1 className="text-xl font-semibold tracking-tight">Who's Working Report</h1>
@@ -536,8 +544,8 @@ export default function WhosWorkingPage() {
 
           {data && !isFetching && (
             <div className="overflow-x-auto">
-              <div className="w-fit border border-border">
-                <canvas ref={canvasRef} className="block" />
+              <div className="w-fit max-w-full border border-border">
+                <canvas ref={canvasRef} className="block h-auto max-w-full" />
               </div>
             </div>
           )}
