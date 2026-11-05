@@ -5,7 +5,6 @@ import * as XLSX from "xlsx"
 import { AlertTriangle, FolderOpen, Play } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
@@ -33,6 +32,7 @@ import {
 import type { Company, QbRow, ResultRow } from "../_lib/wex-algorithm"
 import { CompanyLogo } from "./company-logo"
 import { FileDropZone } from "./file-drop-zone"
+import { DatePicker } from "@/components/ui/date-picker"
 
 export function NewReportSheet({ open, onClose, company, onSave }: {
   open:    boolean
@@ -282,9 +282,9 @@ export function NewReportSheet({ open, onClose, company, onSave }: {
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Date Filter</span>
                   <div className="flex items-center gap-1.5">
-                    <Input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="h-8 w-36 text-xs" />
+                    <DatePicker value={filterFrom} onChange={setFilterFrom} placeholder="From" className="w-36" />
                     <span className="text-xs text-muted-foreground">–</span>
-                    <Input type="date" value={filterTo}   onChange={e => setFilterTo(e.target.value)}   className="h-8 w-36 text-xs" />
+                    <DatePicker value={filterTo} onChange={setFilterTo} placeholder="To" className="w-36" />
                   </div>
                 </div>
                 <Button onClick={() => handleRun()} disabled={isRunning || wexStatus !== "ok" || qbStatus !== "ok"}

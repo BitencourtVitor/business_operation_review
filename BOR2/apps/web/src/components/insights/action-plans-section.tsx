@@ -13,6 +13,7 @@ import {
 } from "@/hooks/use-insights"
 import type { PlanoDeAcao, Acao } from "@/services/insights.service"
 import { fmtDate, STATUS_CONFIG } from "./lib"
+import { DatePicker } from "@/components/ui/date-picker"
 
 // ── Action Plan Edit Form ─────────────────────────────────────────────────────
 
@@ -91,17 +92,11 @@ export function PlanoEditForm({
       <div className="flex gap-2">
         <div className="flex-1">
           <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Start</label>
-          <input type="date" value={form.dataInicio}
-            onChange={e => setForm(f => ({ ...f, dataInicio: e.target.value }))}
-            className="w-full rounded-md border border-border bg-transparent px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-primary"
-          />
+          <DatePicker value={form.dataInicio} onChange={v => setForm(f => ({ ...f, dataInicio: v }))} className="w-full" />
         </div>
         <div className="flex-1">
           <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">End</label>
-          <input type="date" value={form.dataFim}
-            onChange={e => setForm(f => ({ ...f, dataFim: e.target.value }))}
-            className="w-full rounded-md border border-border bg-transparent px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-primary"
-          />
+          <DatePicker value={form.dataFim} onChange={v => setForm(f => ({ ...f, dataFim: v }))} className="w-full" />
         </div>
       </div>
 
@@ -117,14 +112,14 @@ export function PlanoEditForm({
               }}
               className="w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-xs outline-none focus:border-border focus:bg-muted/40 placeholder:text-muted-foreground/40"
             />
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               <input
                 value={a.responsavel} placeholder="Responsible"
                 onChange={e => {
                   const n = [...form.acoes]; n[i] = { ...n[i], responsavel: e.target.value }
                   setForm(f => ({ ...f, acoes: n }))
                 }}
-                className="flex-1 rounded border border-transparent bg-transparent px-1.5 py-1 text-xs outline-none focus:border-border focus:bg-muted/40 placeholder:text-muted-foreground/40"
+                className="min-w-28 flex-1 rounded border border-transparent bg-transparent px-1.5 py-1 text-xs outline-none focus:border-border focus:bg-muted/40 placeholder:text-muted-foreground/40"
               />
               <select
                 value={a.status}
@@ -138,14 +133,11 @@ export function PlanoEditForm({
                 <option value="in_progress">In Progress</option>
                 <option value="done">Done</option>
               </select>
-              <input
-                type="date" value={a.dataLimite}
-                onChange={e => {
-                  const n = [...form.acoes]; n[i] = { ...n[i], dataLimite: e.target.value }
+              <DatePicker value={a.dataLimite} placeholder="Due date" className="h-7 w-32"
+                onChange={v => {
+                  const n = [...form.acoes]; n[i] = { ...n[i], dataLimite: v }
                   setForm(f => ({ ...f, acoes: n }))
-                }}
-                className="rounded border border-border bg-transparent px-1.5 py-1 text-xs outline-none focus:ring-1 focus:ring-primary"
-              />
+                }} />
               {form.acoes.length > 1 && (
                 <button
                   onClick={() => setForm(f => ({ ...f, acoes: f.acoes.filter((_, j) => j !== i) }))}
