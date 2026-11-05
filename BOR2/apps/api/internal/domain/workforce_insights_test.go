@@ -39,3 +39,18 @@ func TestForecastBuildingSplit(t *testing.T) {
 		t.Errorf("série termina em %s com %.1f", last.Date, last.Planned)
 	}
 }
+
+// Atrasado, a estimativa avança o mesmo número de dias do atraso, no máximo 60.
+func TestForecastBuildingLateHorizon(t *testing.T) {
+	a := SupervisorHours{Employee: "A", Regular: 100, Rate: 30, Cost: 3000}
+	cases := []struct{ end, today, last string }{
+		{"2026-02-01", "2026-04-01", "2026-05-30"}, // 59 dias de atraso
+		{"2026-02-01", "2026-09-01", "2026-10-31"}, // atraso maior: para em 60
+	}
+	for _, c := range cases {
+		f := ForecastBuilding(10000, "2026-01-01", c.end, c.today, []SupervisorHours{a}, map[string]float64{"2026-01-10": 3000})
+		if got := f.Series[len(f.Series)-1].Date; got != c.last {
+			t.Errorf("end %s today %s: série termina em %s, want %s", c.end, c.today, got, c.last)
+		}
+	}
+}
