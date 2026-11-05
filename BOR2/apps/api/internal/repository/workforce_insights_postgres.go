@@ -13,7 +13,7 @@ type WorkforceInsightsRepository interface {
 	Settings(ctx context.Context) (*domain.InsightsSettings, error)
 	SaveSettings(ctx context.Context, s *domain.InsightsSettings) error
 	Hours(ctx context.Context, company, from, to string) ([]domain.HoursRow, error)
-	ForecastBuildings(ctx context.Context) ([]domain.ForecastBuildingRef, error)
+	ForecastBuildings(ctx context.Context, any bool) ([]domain.ForecastBuildingRef, error)
 	QBTBuildings(ctx context.Context) ([]domain.QBTBuilding, error)
 	Employees(ctx context.Context, company string) ([]string, error)
 	Worktypes(ctx context.Context) ([]string, error)
@@ -110,14 +110,18 @@ func (r *PostgresWorkforceInsightsRepository) Hours(ctx context.Context, company
 	return out, rows.Err()
 }
 
-func (r *PostgresWorkforceInsightsRepository) ForecastBuildings(ctx context.Context) ([]domain.ForecastBuildingRef, error) {
+// ForecastBuildings lista os prédios da Framing no Forecast mais qualquer obra já vinculada
+// a um prédio do QB Time (mesmo que não esteja marcada como Building). Com any, lista
+// toda obra da Framing: são as opções do vínculo no settings.
+func (r *PostgresWorkforceInsightsRepository) ForecastBuildings(ctx context.Context, any bool) ([]domain.ForecastBuildingRef, error) {
 	rows, err := r.db.Query(ctx, `
 		SELECT id, COALESCE(cliente, ''), COALESCE(job_site, ''), COALESCE(lote_bld, ''), COALESCE(status, ''),
 		       previous_start_date::text, previous_end_date::text
 		FROM forecast_core
-		WHERE company = 'framing' AND type = 'Building'
+		WHERE company = 'framing'
+		  AND ($1 OR type = 'Building' OR id::text IN (SELECT forecast_id::text FROM wp_building_links))
 		ORDER BY job_site, lote_bld
-	`)
+	`, any)
 	if err != nil {
 		return nil, fmt.Errorf("forecast buildings: %w", err)
 	}
