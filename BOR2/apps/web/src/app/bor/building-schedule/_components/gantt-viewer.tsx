@@ -430,7 +430,7 @@ export function GanttViewer({
                   </span>
                 </div>
                 <div className="sticky right-0 z-30 shrink-0 overflow-visible" style={{ width: 0, height: EVENT_ROW_H }}>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background/80 rounded-md px-0.5 shadow-sm opacity-0 group-hover/evrow:opacity-100 transition-opacity">
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-background/80 rounded-md px-0.5 shadow-sm opacity-0 pointer-coarse:opacity-100 group-hover/evrow:opacity-100 transition-opacity">
                     <button onClick={() => onEditEvent(item)} className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-2.5 w-2.5" />
                     </button>
@@ -762,7 +762,7 @@ export function GanttViewer({
                                   className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">No</button>
                               </div>
                             ) : (
-                              <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                              <div className="ml-auto flex items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 group-hover/comment:opacity-100 transition-opacity shrink-0">
                                 <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
                                   className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors">
                                   <Pencil className="w-2.5 h-2.5" />

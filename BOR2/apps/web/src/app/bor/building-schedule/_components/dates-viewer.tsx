@@ -312,7 +312,7 @@ export function DatesViewer({
                   {evFinish ? evFinish.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
                 </div>
                 <div className="flex-1 self-stretch flex items-center justify-end pr-2" style={{ backgroundColor: evBg }}>
-                  <div className="flex items-center gap-0.5 opacity-0 group-hover/evrow:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 group-hover/evrow:opacity-100 transition-opacity">
                     <button onClick={() => onEditEvent(item)} className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-2.5 w-2.5" />
                     </button>
@@ -696,7 +696,7 @@ export function DatesViewer({
                                   className="text-[10px] px-1.5 py-0.5 rounded text-muted-foreground hover:bg-muted/50 transition-colors">No</button>
                               </div>
                             ) : (
-                              <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity shrink-0">
+                              <div className="ml-auto flex items-center gap-0.5 opacity-0 pointer-coarse:opacity-100 group-hover/comment:opacity-100 transition-opacity shrink-0">
                                 <button onMouseDown={e => e.stopPropagation()} onClick={() => { setEditingCommentId(c.id); setEditBody(c.body) }}
                                   className="flex items-center justify-center w-4 h-4 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-colors">
                                   <Pencil className="w-2.5 h-2.5" />

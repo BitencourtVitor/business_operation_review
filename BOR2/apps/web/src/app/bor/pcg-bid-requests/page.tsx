@@ -150,7 +150,7 @@ export default function PCGBidRequestsPage() {
               <p className="text-sm text-muted-foreground">No project matches this filter.</p>
             </div>
           ) : (
-            <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {visible.map(project => (
                 <ProjectCard
                   key={project.id}

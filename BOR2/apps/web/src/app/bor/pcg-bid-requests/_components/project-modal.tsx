@@ -246,13 +246,13 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
               setEventSchedule(projectId, openTrade.tradeId, eventId, schedule)}
           />
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4 max-sm:overflow-y-auto">
             {/* ── Project metadata ─────────────────────────────────────── */}
             <div className="shrink-0 overflow-hidden rounded-xl border border-border/60 bg-card/40">
               <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3">
                 <span className="flex items-center text-sm font-semibold leading-none">Project details</span>
               </div>
-              <div className="grid gap-3 p-4 sm:grid-cols-2">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-3 p-4 sm:grid-cols-2">
                 <FieldWithState label="Title" htmlFor="project-name" saving={isSaving("project:name")}>
                   <Input
                     id="project-name"
@@ -275,7 +275,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                 </FieldWithState>
                 <div className="flex flex-col gap-1.5">
                   <FieldLabel label="Status" saving={isSaving("project:status")} />
-                  <div className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+                  <div className="no-scrollbar flex h-8 w-fit max-w-full items-center overflow-x-auto rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
                     {STATUSES.map(s => {
                       const meta = PROJECT_STATUS_META[s]
                       const Icon = meta.icon
@@ -300,7 +300,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                     that is true of the whole job rather than of one trade. */}
                 <div className="flex flex-col gap-1.5">
                   <FieldLabel label="Type" saving={isSaving("project:type")} />
-                  <div className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30">
+                  <div className="no-scrollbar flex h-8 w-fit max-w-full items-center overflow-x-auto rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
                     {PROJECT_TYPES.map(t => {
                       const on = project.type === t
                       return (
@@ -323,8 +323,8 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
             </div>
 
             {/* ── Trades ───────────────────────────────────────────────── */}
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40">
-              <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 max-sm:min-h-[70vh]">
+              <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border/50 px-4 py-3">
                 <span className="flex items-center text-sm font-semibold leading-none">Trades on this project</span>
                 <span className="flex items-center text-xs leading-none text-muted-foreground">
                   {project.trades.length}
@@ -422,7 +422,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                           No trade matches this search.
                         </p>
                       ) : (
-                        <div className="grid gap-2 sm:grid-cols-3">
+                        <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-3">
                           {matchingTrades.map(trade => {
                             const Icon = tradeIcon(trade.icon)
                             return (
@@ -584,12 +584,13 @@ function TradeRow({
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen() } }}
-      className={`group flex cursor-pointer items-center gap-3 rounded-xl border bg-card p-3 text-left transition-all hover:ring-1 hover:ring-primary/30 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${meta.border}`}
+      className={`group flex cursor-pointer flex-wrap items-center gap-3 rounded-xl border bg-card p-3 text-left transition-all max-sm:justify-end hover:ring-1 hover:ring-primary/30 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${meta.border}`}
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
         <Icon className="h-4 w-4" />
       </span>
-      <span className="min-w-0 flex-1">
+      {/* No celular o nome fica com a linha toda ao lado do ícone; status e respostas descem. */}
+      <span className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
         <span className="flex items-baseline gap-1.5">
           <span className="truncate font-medium leading-tight">{trade.name}</span>
           <span className="shrink-0 text-xs text-muted-foreground/50">|</span>
@@ -624,7 +625,7 @@ function TradeRow({
         <button
           onClick={e => { e.stopPropagation(); onRemove(answered) }}
           aria-label={`Remove ${trade.name}`}
-          className="shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+          className="shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 pointer-coarse:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -769,13 +770,13 @@ function TradeView({
   const subcontractorRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-5 py-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-4 max-sm:overflow-y-auto sm:overflow-hidden">
       {/* ── Metadata ───────────────────────────────────────────────────── */}
       <div className="shrink-0 overflow-hidden rounded-xl border border-border/60 bg-card/40">
         <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3">
           <span className="flex items-center text-sm font-semibold leading-none">Details</span>
         </div>
-        <div className="grid gap-3 p-4 sm:grid-cols-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 p-4 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
             {/* Read-only on purpose: status is the tail of the history below. */}
             <FieldLabel label="Condition" saving={false} />
@@ -892,12 +893,12 @@ function TradeView({
       </div>
 
       {/* ── Questionnaire ──────────────────────────────────────────────── */}
-      <div className={`flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 ${showQuestions ? "min-h-0 flex-1" : "shrink-0"}`}>
-        <div className="flex shrink-0 items-center gap-3 px-4 py-3">
+      <div className={`flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 ${showQuestions ? "min-h-0 flex-1 max-sm:min-h-[60vh]" : "shrink-0"}`}>
+        <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
           <button
             onClick={() => setOpenSection("questions")}
             aria-expanded={showQuestions}
-            className="flex min-w-0 items-center gap-3 text-left"
+            className="flex min-w-0 items-center gap-3 text-left max-sm:basis-full"
           >
             <span className="flex items-center gap-2 text-sm font-semibold leading-none">
               <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
@@ -907,7 +908,7 @@ function TradeView({
               {answered}/{total} answered
             </span>
           </button>
-          <span className="flex-1" />
+          <span className="flex-1 max-sm:hidden" />
           {/* O mesmo questionário aberto por link, sem login, para ser
               respondido no celular de quem está na obra. */}
           <FormLinksPopover

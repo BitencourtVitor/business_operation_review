@@ -29,7 +29,7 @@ export function TradeCard({
           </p>
         </div>
         {(onEdit || onDelete) && (
-          <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <div className="flex shrink-0 gap-0.5 opacity-0 pointer-coarse:opacity-100 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
             {onEdit && (
               <button
                 onClick={onEdit}
