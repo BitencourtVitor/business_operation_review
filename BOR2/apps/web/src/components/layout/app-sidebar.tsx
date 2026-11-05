@@ -293,9 +293,6 @@ function CollapsedSubmenu({ item, isActive, canEdit, isDev, onEditOpen }: { item
   )
 }
 
-// Páginas aprovadas no celular (RESP-1..23): cada uma entra aqui quando o Vitor aprova.
-const MOBILE_READY = new Set(["/bor/forecast", "/bor/monthly-execution", "/bor/ofi", "C:/Program Files/Git/bor/hvac-schedule", "C:/Program Files/Git/bor/hvac-maintenance", "C:/Program Files/Git/bor/workforce-productivity", "C:/Program Files/Git/bor/inventory", "C:/Program Files/Git/bor/permits", "C:/Program Files/Git/bor/service-requests", "C:/Program Files/Git/bor/accounting", "C:/Program Files/Git/bor/budget-control", "C:/Program Files/Git/bor/building-schedule", "C:/Program Files/Git/bor/subcontractor-docs", "C:/Program Files/Git/bor/pcg-bid-requests", "C:/Program Files/Git/bor/data-control", "C:/Program Files/Git/bor/building-schedule/manage", "C:/Program Files/Git/bor/wex-categorization", "C:/Program Files/Git/bor/autolog", "C:/Program Files/Git/bor/settings"])
-
 function NavGroupItems({
   items,
   open,
@@ -334,23 +331,6 @@ function NavGroupItems({
           className: "fill-mode-backwards duration-300 animate-in fade-in-0 slide-in-from-left-2",
           style: { animationDelay: `${Math.min(60 + i * 35, 480)}ms` },
         }
-        // No celular, só abre pelo menu a página que já passou pelo celular (RESP-0); as outras levam ao Forecast.
-        if (isMobile && !MOBILE_READY.has(item.href)) {
-          return (
-            <SidebarMenuItem key={item.title + item.href} {...enter}>
-              <SidebarMenuButton
-                render={<Link href="/bor/forecast" />}
-                className="opacity-40"
-                tooltip="Mobile version coming soon"
-              >
-                <NavItemIcon item={item} />
-                <span>{item.title}</span>
-                <NavItemBadge item={item} />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )
-        }
-
         // Gear and metrics share the same right-hand slot; the chevron shifts left when one is present
         const hasGear    = !!item.editPermKey && canEdit(item.editPermKey)
         const hasMetrics = !!item.metricsHref
@@ -664,12 +644,8 @@ export function AppSidebar() {
             <NavGroupItems items={filterNavItems(bottomGroup.items)} {...groupProps} />
           </SidebarGroupContent>
         </SidebarGroup>
-        <div className="h-px bg-sidebar-border" />
-        {isMobile ? (
-          <div className="px-4 py-3 text-xs leading-relaxed text-muted-foreground/70">
-            Mobile versions for other pages are on the way. Full experience available on desktop.
-          </div>
-        ) : (
+        {!isMobile && <>
+          <div className="h-px bg-sidebar-border" />
           <SidebarMenu className="p-2">
             <SidebarMenuItem>
               <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
@@ -678,7 +654,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-        )}
+        </>}
       </SidebarFooter>
     </Sidebar>
     </>
