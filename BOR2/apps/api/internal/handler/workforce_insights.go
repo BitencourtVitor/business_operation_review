@@ -31,7 +31,7 @@ func (h *WorkforceInsightsHandler) Overview(c *fiber.Ctx) error {
 	if g != "month" && g != "payperiod" {
 		return wiError(c, domain.ErrBadRequest)
 	}
-	out, err := h.svc.Overview(c.Context(), c.Query("company", "framing"), c.QueryInt("year", time.Now().Year()), g, c.Query("client"), c.Query("jobsite"))
+	out, err := h.svc.Overview(c.Context(), c.Query("company", "framing"), c.QueryInt("year", time.Now().Year()), g, c.Query("client"), c.Query("jobsite"), c.Query("lot"))
 	if err != nil {
 		return wiError(c, err)
 	}
@@ -39,7 +39,7 @@ func (h *WorkforceInsightsHandler) Overview(c *fiber.Ctx) error {
 }
 
 func (h *WorkforceInsightsHandler) Buildings(c *fiber.Ctx) error {
-	out, err := h.svc.Buildings(c.Context())
+	out, err := h.svc.Buildings(c.Context(), c.Query("panels") == "1")
 	if err != nil {
 		return wiError(c, err)
 	}

@@ -288,8 +288,8 @@ export function WorkforceSettingsDialog({ open, onClose }: { open: boolean; onCl
                 </InputGroup>
               </Section>
 
-              <Section value="ignored" icon={Split} title="Work Types Left Out of the Analysis"
-                hint="These hours do not count toward any job site or building (e.g. Panels).">
+              <Section value="ignored" icon={Split} title="Work Types Left Out of the Labor Budget"
+                hint="These hours do not count toward the building labor budget (e.g. Panels). The rest of the page counts every work type.">
                 <Chips all={data.worktypes} selected={draft.ignoredWorktypes} onChange={v => patch({ ignoredWorktypes: v })} />
               </Section>
 

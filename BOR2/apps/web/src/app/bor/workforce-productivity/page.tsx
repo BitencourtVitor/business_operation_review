@@ -7,7 +7,7 @@ import { EmployeeWeeksDialog } from "./_components/employee-weeks-dialog"
 import { Card, Kpi, Scope, Sep, type HelpSpec } from "@/components/common/insight-card"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import {
-  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer,
+  Bar, CartesianGrid, Cell, ComposedChart, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer,
   Tooltip as RechartsTooltip, XAxis, YAxis,
 } from "recharts"
 import {
@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { usePermission } from "@/hooks/use-permission"
 import {
-  type BuildingForecast, workforceInsightsService, type BuildingView, type EmployeeHours, type Granularity, type SiteOption, type InsightsPeriod, type ObraHours,
+  type BuildingForecast, workforceInsightsService, type BuildingView, type PeriodCapacity, type EmployeeHours, type Granularity, type SiteOption, type InsightsPeriod, type ObraHours,
 } from "@/services/workforce-insights.service"
 import { WorkforceSettingsDialog } from "./_components/settings-dialog"
 
@@ -57,9 +57,15 @@ function PeriodName({ p, g }: { p: InsightsPeriod; g: Granularity }) {
 
 // ─── Pieces ──────────────────────────────────────────────────────────────────
 
-function Legend({ hover, onHover }: { hover: Series | null; onHover: (s: Series | null) => void }) {
+function Legend({ hover, onHover, ideal = false }: { hover: Series | null; onHover: (s: Series | null) => void; ideal?: boolean }) {
   return (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
+      {ideal && (
+        <span className="flex cursor-default items-center gap-1.5">
+          <svg width="16" height="8" aria-hidden><line x1="0" y1="4" x2="16" y2="4" stroke={COLORS.planned} strokeWidth={2} strokeDasharray="4 3" /></svg>
+          No-overtime limit
+        </span>
+      )}
       {(["regular", "overtime"] as const).map(s => (
         <span key={s} onMouseEnter={() => onHover(s)} onMouseLeave={() => onHover(null)}
           className={`flex cursor-default items-center gap-1.5 transition-opacity ${hover && hover !== s ? "opacity-40" : ""}`}>
@@ -72,7 +78,7 @@ function Legend({ hover, onHover }: { hover: Series | null; onHover: (s: Series 
 }
 
 /** Tooltip das barras empilhadas: horas de cada parte e a fatia de overtime. */
-type StackRow = { regular: number; overtime: number; name?: string; prevName?: string; prevShare?: number | null }
+type StackRow = { regular: number; overtime: number; name?: string; prevName?: string; prevShare?: number | null; ideal?: number; people?: number }
 
 /**
  * Tooltip das barras empilhadas: horas de cada parte, a fatia de overtime e,
@@ -90,6 +96,9 @@ function StackTip({ active, payload, label }: { active?: boolean; payload?: { pa
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.regular }}>Regular</span><span className="tabular-nums">{fmtH(r.regular)}</span></p>
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)}</span></p>
       <p className="mt-1 border-t border-border pt-1 text-muted-foreground">{pct(r.overtime, total)}% overtime in {fmtH(total)}</p>
+      {r.ideal != null && (
+        <p className="text-muted-foreground">No-overtime limit: <span className="tabular-nums text-foreground">{fmtH(r.ideal)}</span> ({r.people} {r.people === 1 ? "person" : "people"})</p>
+      )}
       {change != null && (
         <p className={`flex items-center gap-1 ${change > 0 ? "text-red-600 dark:text-red-400" : change < 0 ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
           {change > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
@@ -110,7 +119,7 @@ const axis = "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.r
  * barra do período escolhido e esmaece as outras.
  */
 function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover, setHover, highlight, tooltip }: {
-  data: { name: string; regular: number; overtime: number }[]
+  data: { name: string; regular: number; overtime: number; ideal?: number }[]
   layout?: "horizontal" | "vertical"; nameWidth?: number; onPick?: (name: string) => void
   hover: Series | null; setHover: (s: Series | null) => void
   highlight?: string; tooltip?: React.ReactElement
@@ -125,7 +134,7 @@ function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover
     <div className={`${axis} h-full ${onPick ? "cursor-pointer" : ""}`}
       onClick={() => under.current != null && data[under.current] && onPick?.(data[under.current].name)}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart accessibilityLayer={false} data={data} layout={layout} margin={{ top: 6, right: 8, left: vertical ? 0 : -18, bottom: 0 }}
+        <ComposedChart accessibilityLayer={false} data={data} layout={layout} margin={{ top: 6, right: 8, left: vertical ? 0 : -18, bottom: 0 }}
           onMouseMove={(st: { activeTooltipIndex?: number | string | null }) => {
             under.current = st?.activeTooltipIndex == null ? null : Number(st.activeTooltipIndex)
           }}
@@ -151,7 +160,18 @@ function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover
             onMouseEnter={() => setHover("overtime")} onMouseLeave={() => setHover(null)}>
             {data.map(d => <Cell key={d.name} fillOpacity={op("overtime", d.name)} />)}
           </Bar>
-        </BarChart>
+          {/* Horas regulares que cabiam no período sem overtime: pessoas × horas úteis (WF-23). */}
+          {/* Um traço por barra, só um pouco mais largo que ela, sem encostar no mês vizinho: barra invisível
+              num eixo X próprio (mesma posição das barras), desenhando só a linha do topo. */}
+          {data.some(d => d.ideal != null) && <XAxis dataKey="name" xAxisId="ideal" hide />}
+          {data.some(d => d.ideal != null) && (
+            <Bar xAxisId="ideal" dataKey="ideal" isAnimationActive={false} legendType="none"
+              shape={(p: { x?: number; y?: number; width?: number }) => {
+                const x = p.x ?? 0, w = p.width ?? 0, out = Math.min(6, w * 0.12)
+                return <line x1={x - out} x2={x + w + out} y1={p.y} y2={p.y} stroke={COLORS.planned} strokeWidth={2} strokeDasharray="4 3" />
+              }} />
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   )
@@ -163,7 +183,7 @@ function StackedCard({ title, help, empty, className, ...bars }: Omit<Parameters
 }) {
   const [hover, setHover] = useState<Series | null>(null)
   return (
-    <Card title={title} help={help} className={className} right={<Legend hover={hover} onHover={setHover} />}>
+    <Card title={title} help={help} className={className} right={<Legend hover={hover} onHover={setHover} ideal={bars.data.some(d => d.ideal != null)} />}>
       {bars.data.length === 0 && empty
         ? <p className="py-8 text-center text-xs text-muted-foreground">{empty}</p>
         : <StackedBars {...bars} hover={hover} setHover={setHover} />}
@@ -181,6 +201,7 @@ function Sparkline({ points, highlight }: { points: Trend; highlight?: string })
   const W = 232, H = 70, P = 6
   const vals = points.map(p => p.share ?? 0)
   const max = Math.max(10, ...vals)
+  const labelStep = Math.max(1, Math.ceil(points.length / 12))
   const x = (i: number) => P + (i * (W - 2 * P)) / Math.max(1, points.length - 1)
   const y = (v: number) => H - P - (v / max) * (H - 2 * P)
   // Curva suave: entre dois pontos, os controles ficam no meio do caminho e na altura de cada ponta, sem passar do valor real.
@@ -198,8 +219,10 @@ function Sparkline({ points, highlight }: { points: Trend; highlight?: string })
         <circle key={p.name} cx={x(i)} cy={y(p.share)} r={p.name === highlight ? 4 : 2} fill={COLORS.overtime}
           stroke={p.name === highlight ? "var(--popover)" : "none"} strokeWidth={1.5} />
       ))}
-      <text x={P} y={H + 12} fontSize={9} fill="var(--muted-foreground)">{points[0]?.name}</text>
-      <text x={W - P} y={H + 12} fontSize={9} textAnchor="end" fill="var(--muted-foreground)">{points.at(-1)?.name}</text>
+      {/* Todo período leva o nome no eixo (WF-29); nos pay periods, que passam de 12, um a cada tantos. */}
+      {points.map((p, i) => i % labelStep === 0 && (
+        <text key={p.name} x={x(i)} y={H + 12} fontSize={8} textAnchor="middle" fill="var(--muted-foreground)">{p.name}</text>
+      ))}
       {/* Só o valor do período em destaque, o mesmo do topo do cartão; o teto do eixo confundia. */}
       {points.map((p, i) => p.name === highlight && p.share != null && (
         // Afastado da bolinha (acima, ou abaixo se faltar espaço) e com contorno da cor do fundo para não sumir na linha.
@@ -236,10 +259,10 @@ function RankTip({ active, payload, trends, highlight, supervisor }: {
 }
 
 /**
- * Tabela de horas: nome, regular e overtime (horas no começo, fatia na ponta).
+ * Tabela de horas: nome, total, regular e overtime (horas no começo, fatia na ponta).
  * O cabeçalho fica parado enquanto as linhas rolam; `tip` abre um cartão no hover da linha.
  */
-type SortKey = "name" | "regular" | "overtime" | "share"
+type SortKey = "name" | "total" | "regular" | "overtime" | "share"
 
 function HoursTable({ label, rows, tip, defaultSort, isSup, onPick }: {
   label: string; rows: { name: string; regular: number; overtime: number }[]; tip?: (name: string) => React.ReactNode
@@ -257,7 +280,7 @@ function HoursTable({ label, rows, tip, defaultSort, isSup, onPick }: {
     return p ? null : { key, dir: 1 }
   })
   const value = (o: (typeof rows)[number], k: SortKey) =>
-    k === "name" ? o.name : k === "share" ? o.overtime / (o.regular + o.overtime || 1) : o[k]
+    k === "name" ? o.name : k === "total" ? o.regular + o.overtime : k === "share" ? o.overtime / (o.regular + o.overtime || 1) : o[k]
   const shown = [...rows].sort((a, b) => {
     const x = value(a, sort.key), y = value(b, sort.key)
     return (typeof x === "string" ? x.localeCompare(y as string) : x - (y as number)) * sort.dir
@@ -281,6 +304,7 @@ function HoursTable({ label, rows, tip, defaultSort, isSup, onPick }: {
         <thead className="sticky top-0 z-10 bg-[color-mix(in_oklab,var(--card)_60%,var(--background))] shadow-[0_1px_0_var(--border)]">
           <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
             {head("name", label)}
+            {head("total", "Total", "w-20")}
             {head("regular", "Regular", "w-20", COLORS.regular)}
             {head("overtime", "Overtime", "w-20", COLORS.overtime)}
             {head("share", "OT %", "w-14 pe-3", COLORS.overtime)}
@@ -292,6 +316,7 @@ function HoursTable({ label, rows, tip, defaultSort, isSup, onPick }: {
               onClick={onPick ? () => { setHover(null); onPick(o.name) } : undefined}
               onMouseMove={tip ? e => setHover({ name: o.name, x: e.clientX, y: e.clientY }) : undefined}>
               <td className="py-1.5 pr-2"><span className="inline-flex items-center gap-1">{o.name}{isSup?.(o.name) && <SupMark />}</span></td>
+              <td className="py-1.5 text-left font-medium tabular-nums">{fmtH(o.regular + o.overtime)}</td>
               <td className="py-1.5 text-left tabular-nums">{fmtH(o.regular)}</td>
               <td className="py-1.5 tabular-nums">{fmtH(o.overtime)}</td>
               <td className="py-1.5 pe-3 tabular-nums text-red-500/70 dark:text-red-400/70">{pct(o.overtime, o.regular + o.overtime)}%</td>
@@ -416,9 +441,60 @@ function ReadingTip({ lines }: { lines: string[] }) {
 /** "Coppersmith at Canton, MA - Building 1": lote só com número vira "Building N". */
 const buildingName = (b: { jobSite: string; lot: string; type?: string }) => `${b.jobSite} - ${/^\d+$/.test(b.lot) ? `${b.type || "Building"} ${b.lot}` : b.lot}`
 
-function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings: BuildingView[]; granularity: Granularity; periods: InsightsPeriod[]; isSup?: (name: string) => boolean }) {
+/** Horas do prédio mês a mês, com a meta mensal constante: o orçamento em horas dividido pelos meses do prédio (WF-27). */
+function monthlyOf(f: BuildingForecast) {
+  const by = new Map<string, { regular: number; overtime: number }>()
+  for (const w of f.workers ?? []) for (const d of w.days ?? []) {
+    const k = d.date.slice(0, 7), t = by.get(k) ?? { regular: 0, overtime: 0 }
+    t.regular += d.regular; t.overtime += d.overtime; by.set(k, t)
+  }
+  const ym = (iso: string) => Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7)) - 1
+  const first = ym(f.start), endM = ym(f.end)
+  const last = Math.max(endM, ...[...by.keys()].map(k => ym(k + "-01")))
+  const goal = f.budgetHours / (endM - first + 1)
+  let used = 0
+  return Array.from({ length: last - first + 1 }, (_, i) => {
+    const m = first + i, key = `${Math.floor(m / 12)}-${String((m % 12) + 1).padStart(2, "0")}`
+    const t = by.get(key) ?? { regular: 0, overtime: 0 }
+    used += t.regular + t.overtime
+    return { name: `${MONTHS[m % 12]} ${String(Math.floor(m / 12)).slice(2)}`, ...t, ideal: m <= endM ? goal : undefined, used }
+  })
+}
+
+/** Tooltip do modo By month: o mês contra a meta mensal e o acumulado até ele contra a meta total do prédio. */
+function MonthTip({ active, payload, budget }: {
+  active?: boolean; payload?: { payload: { name: string; regular: number; overtime: number; ideal?: number; used: number } }[]; budget: number
+}) {
+  if (!active || !payload?.length) return null
+  const r = payload[0].payload, total = r.regular + r.overtime
+  return (
+    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
+      <p className="mb-1 font-semibold">{r.name}</p>
+      <p className="flex justify-between gap-6"><span style={{ color: COLORS.regular }}>Regular</span><span className="tabular-nums">{fmtH(r.regular)}</span></p>
+      <p className="flex justify-between gap-6"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)}</span></p>
+      {r.ideal != null && (
+        <p className="mt-1 border-t border-border pt-1 text-muted-foreground">Monthly goal {fmtH(r.ideal)}<Sep />
+          <span className={total > r.ideal ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}>{pct(total, r.ideal)}%</span>
+        </p>
+      )}
+      <p className={`text-muted-foreground ${r.ideal == null ? "mt-1 border-t border-border pt-1" : ""}`}>Total goal {fmtH(budget)}</p>
+      <p className="text-muted-foreground">Used until {r.name} {fmtH(r.used)}<Sep />
+        <span className={r.used > budget ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}>{pct(r.used, budget)}%</span>
+      </p>
+    </div>
+  )
+}
+
+type BudgetMode = "cumulative" | "monthly"
+
+function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPanels }: {
+  buildings: BuildingView[]; granularity: Granularity; periods: InsightsPeriod[]; isSup?: (name: string) => boolean
+  panels: boolean; onPanels: (v: boolean) => void
+}) {
   const ready = buildings.filter(b => b.forecast)
   const [open, setOpen] = useState<string | null>(null)
+  const [mode, setMode] = useState<BudgetMode>("cumulative")
+  const [hover, setHover] = useState<Series | null>(null)
   const [chartH, setChartH] = useState(180)
   const [chartW, setChartW] = useState(Infinity)
   const openB = ready.find(b => b.building.id === open)
@@ -433,7 +509,7 @@ function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings:
       )}
       {/* Aberto, o título passa a ser o prédio; o nome do gráfico desce para a linha de baixo. */}
       {openB ? <span className="truncate">{buildingName(openB.building)}</span>
-        : <>Cumulative Labor Budget<Scope>Select a Building</Scope></>}
+        : <>Building Labor Budget<Scope>Select a Building</Scope></>}
     </>}
       help={{
         what: "Hours of everyone who worked on each Forecast building, added up since the first hours logged there, against its labor budget. The budget is turned into hours with the workers' rates, so no money is shown.",
@@ -443,8 +519,8 @@ function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings:
           { label: "Estimated hours", color: COLORS.projected, text: "The average pace so far carried forward from today's line: up to the expected end date or, when the building is late, for as many days as it is late (60 at most)." },
           { label: "Limit", color: COLORS.overtime, text: "The budget. Anything above it is shaded red." },
         ],
-        note: "Work types left out in the settings (e.g. Panels) do not count. Someone without a pay rate counts at the average rate of the others. The period filter does not apply: the curve always starts on the first hours logged on the building, by anyone.",
-        action: "Click a building to see only its curve. Back returns to the list.",
+        note: "Work types left out in the settings (e.g. Panels) count only here, and Show panels hours brings them back. By month shows the hours of each month against the budget split evenly across the months of the building. Someone without a pay rate counts at the average rate of the others. The period filter does not apply: the curve always starts on the first hours logged on the building, by anyone.",
+        action: "Click a building to see only its curve. Back returns to the list. Switch between Cumulative and By month at the top of the chart.",
       }}>
       {ready.length === 0 ? (
         <p className="py-6 text-center text-xs text-muted-foreground">No building has hours yet. Link the buildings to their QB Time job sites in the settings.</p>
@@ -479,9 +555,20 @@ function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings:
             return (
               <div key={b.building.id} className={isOpen ? "flex min-h-0 flex-1 flex-col px-1.5 py-1" : ""}>
                 {isOpen ? (
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-[13px] text-muted-foreground">Cumulative Labor Budget Over Time</p>
-                    <ReadingTip lines={interpret({ status: b.building.status.toLowerCase(), end: f.end, today: new Date().toISOString().slice(0, 10), budgetHours: f.budgetHours, exceedsOn: f.exceedsOn, series: f.series })} />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 items-center rounded-md border border-border p-0.5 text-xs" role="group" aria-label="Chart mode">
+                        {([["cumulative", "Cumulative"], ["monthly", "By month"]] as const).map(([v, l]) => (
+                          <button key={v} type="button" aria-pressed={mode === v} onClick={() => setMode(v)}
+                            className={`h-full rounded px-2 ${mode === v ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{l}</button>
+                        ))}
+                      </div>
+                      <button type="button" aria-pressed={panels} onClick={() => onPanels(!panels)}
+                        className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 text-xs ${panels ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
+                        <Layers className="h-3.5 w-3.5" />Show panels hours
+                      </button>
+                    </div>
+                    {mode === "cumulative" && <ReadingTip lines={interpret({ status: b.building.status.toLowerCase(), end: f.end, today: new Date().toISOString().slice(0, 10), budgetHours: f.budgetHours, exceedsOn: f.exceedsOn, series: f.series })} />}
                   </div>
                 ) : (
                   <button type="button" onClick={() => setOpen(b.building.id)}
@@ -490,7 +577,12 @@ function BuildingBudget({ buildings, granularity, periods, isSup }: { buildings:
                     <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
                 )}
-                {isOpen && (
+                {isOpen && mode === "monthly" && (
+                  <div className="mt-2 min-h-0 flex-1 border-t border-border pt-2">
+                    <StackedBars data={monthlyOf(f)} hover={hover} setHover={setHover} tooltip={<MonthTip budget={f.budgetHours} />} />
+                  </div>
+                )}
+                {isOpen && mode === "cumulative" && (
                   <div className="mt-2 flex min-h-0 flex-1 flex-col border-t border-border pt-2">
                     <div ref={el => { if (el) { setChartH(el.clientHeight); setChartW(el.clientWidth) } }} className={`min-h-0 flex-1 ${axis}`}
                       onWheel={e => {
@@ -610,6 +702,22 @@ function JoinedFilter({ parts }: { parts: Part[] }) {
   )
 }
 
+/** Filtro do Overtime Ranking pelos supervisores marcados no settings (WF-30). */
+function SupFilter({ value, onChange }: { value: "all" | "sup" | "crew"; onChange: (v: "all" | "sup" | "crew") => void }) {
+  const options = [{ value: "all", label: "Everyone" }, { value: "sup", label: "Supervisors" }, { value: "crew", label: "Not supervisors" }] as const
+  return (
+    <Select value={value} onValueChange={v => v && onChange(v as typeof value)}>
+      <SelectTrigger size="sm" className="h-7 gap-1.5 text-xs" aria-label="Supervisor filter">
+        <ShieldUser className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="whitespace-nowrap">{options.find(o => o.value === value)?.label}</span>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+      </SelectContent>
+    </Select>
+  )
+}
+
 const sumBy = <T,>(rows: T[], key: (r: T) => string) => {
   const out = new Map<string, { name: string; regular: number; overtime: number }>()
   for (const r of rows as (T & { regular: number; overtime: number })[]) {
@@ -634,6 +742,12 @@ export default function WorkforceProductivityPage() {
   // Cliente e job site recortam a página inteira (gráfico, KPIs, tabelas); vazio = todos.
   const [client, setClient] = useState(ALL)
   const [jobsite, setJobsite] = useState(ALL)
+  // Obra (lote ou prédio) do job site escolhido (WF-24).
+  const [lot, setLot] = useState(ALL)
+  // Show panels hours do orçamento do prédio (WF-22).
+  const [panels, setPanels] = useState(false)
+  // Overtime Ranking: todos, só supervisores ou só quem não é (WF-30).
+  const [supFilter, setSupFilter] = useState<"all" | "sup" | "crew">("all")
   const [settingsOpen, setSettingsOpen] = useState(false)
   // Pessoa aberta nas semanas (WF-16): barras por semana com a linha das 40 h e o "o que aconteceu?".
   const [weeksOf, setWeeksOf] = useState<string | null>(null)
@@ -641,15 +755,15 @@ export default function WorkforceProductivityPage() {
   const allYears = Array.from({ length: YEAR - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i)
   const queries = useQueries({
     queries: (granularity === "month" ? [year] : allYears).map(y => ({
-      queryKey: ["workforce-insights", "overview", company, y, granularity, client, jobsite],
-      queryFn: () => workforceInsightsService.overview(company, y, granularity, client === ALL ? "" : client, jobsite === ALL ? "" : jobsite),
+      queryKey: ["workforce-insights", "overview", company, y, granularity, client, jobsite, lot],
+      queryFn: () => workforceInsightsService.overview(company, y, granularity, client === ALL ? "" : client, jobsite === ALL ? "" : jobsite, lot === ALL ? "" : lot),
     })),
   })
   const isLoading = queries.some(q => q.isLoading)
   // O pay period que cruza a virada do ano vem nos dois anos: entra uma vez só.
   const overview = useMemo(() => {
     const seen = new Set<string>()
-    const out = { periods: [] as InsightsPeriod[], obras: [] as ObraHours[], employees: [] as EmployeeHours[], sites: [] as SiteOption[] }
+    const out = { periods: [] as InsightsPeriod[], obras: [] as ObraHours[], employees: [] as EmployeeHours[], sites: [] as SiteOption[], lots: [] as string[], capacity: [] as PeriodCapacity[] }
     const siteSeen = new Set<string>()
     for (const q of queries) {
       if (!q.data) continue
@@ -662,6 +776,8 @@ export default function WorkforceProductivityPage() {
       out.obras.push(...q.data.obras.filter(o => fresh.has(o.period)))
       out.employees.push(...q.data.employees.filter(e => fresh.has(e.period)))
       fresh.forEach(k => seen.add(k))
+      out.lots = [...new Set([...out.lots, ...(q.data.lots ?? [])])].sort()
+      out.capacity.push(...(q.data.capacity ?? []).filter(c => fresh.has(c.period)))
     }
     out.periods.sort((a, b) => a.from.localeCompare(b.from))
     return out
@@ -671,8 +787,9 @@ export default function WorkforceProductivityPage() {
   const supSet = useMemo(() => new Set((settingsView?.settings.supervisors ?? []).map(n => n.trim().toLowerCase())), [settingsView])
   const isSup = (name: string) => supSet.has(name.trim().toLowerCase())
   const { data: buildings = [] } = useQuery({
-    queryKey: ["workforce-insights", "buildings"],
-    queryFn: workforceInsightsService.buildings,
+    queryKey: ["workforce-insights", "buildings", panels],
+    queryFn: () => workforceInsightsService.buildings(panels),
+    placeholderData: prev => prev,
     enabled: company === "framing",
   })
 
@@ -710,9 +827,16 @@ export default function WorkforceProductivityPage() {
     const p = periods.find(x => x.key === k)
     return p ? <PeriodName p={p} g={granularity} /> : k
   }
+  // Limite sem overtime (WF-23): 8 h por dia útil em que cada pessoa lançou hora (pessoa-dia vem da API, no filtro Type).
+  const capacity = new Map(overview.capacity.map(c => [c.period, obraType === "all" ? c.all : obraType === "building" ? c.building : c.house]))
   const obraSeries = periods.map(p => {
     const rows = obras.filter(o => o.period === p.key)
-    return { name: label(p.key), key: p.key, regular: rows.reduce((s, o) => s + o.regular, 0), overtime: rows.reduce((s, o) => s + o.overtime, 0) }
+    const headcount = new Set(people.filter(e => e.period === p.key).map(e => e.employee)).size
+    const days = capacity.get(p.key)
+    return {
+      name: label(p.key), key: p.key, regular: rows.reduce((s, o) => s + o.regular, 0), overtime: rows.reduce((s, o) => s + o.overtime, 0),
+      ideal: days != null ? days * 8 : undefined, people: headcount,
+    }
   }).map((p, i, all) => {
     const prev = all[i - 1]
     const prevTotal = prev ? prev.regular + prev.overtime : 0
@@ -721,6 +845,7 @@ export default function WorkforceProductivityPage() {
   const topObras = sumBy(obras.filter(inPeriod), (o: ObraHours) => (o.lot ? `${o.jobsite} · ${o.lot}` : o.jobsite))
     .sort((a, b) => b.regular - a.regular).slice(0, 10)
   const ranking = sumBy(scopedPeople, (e: EmployeeHours) => e.employee)
+    .filter(r => supFilter === "all" || isSup(r.name) === (supFilter === "sup"))
     .sort((a, b) => b.overtime - a.overtime || b.regular - a.regular)
   // Período em destaque: o escolhido ou, no ano todo, o último.
   const focusKey = period !== ALL ? period : periods.at(-1)?.key
@@ -751,6 +876,27 @@ export default function WorkforceProductivityPage() {
   const years = Array.from({ length: YEAR - FIRST_YEAR + 1 }, (_, i) => String(FIRST_YEAR + i))
   const typeLabel = obraType === "building" ? "Buildings" : obraType === "house" ? "Houses" : "All job sites"
 
+  const topCard = (
+    <Card title={<>Job Sites with the Most Hours<Scope>{scopeLabel}</Scope></>}
+      help={{
+        what: `The ten job sites with the most regular hours in the chosen period, for ${typeLabel.toLowerCase()}, most regular hours first.`,
+        items: [
+          { label: "Total", text: "Regular plus overtime." },
+          { label: "Regular", color: COLORS.regular, text: "Hours within the weekly 40 h." },
+          { label: "Overtime", color: COLORS.overtime, text: "Hours past the weekly 40 h, plus weekends." },
+          { label: "OT %", text: "Share of the job site's hours that were overtime." },
+        ],
+        note: "Hours logged at a job site without a lot are spread across its lots.",
+        action: "Click a column title to sort; click again to flip, and once more to go back.",
+      }}>
+      {topObras.length === 0 ? (
+        <p className="py-8 text-center text-xs text-muted-foreground">No hours in this period.</p>
+      ) : (
+        <HoursTable label="Job site" rows={topObras} defaultSort="regular" />
+      )}
+    </Card>
+  )
+
   return (
     // Toda mudança visual da página leva meio segundo; os gráficos seguem a mesma duração.
     <div className="flex h-full flex-col gap-3 max-xl:overflow-y-auto max-xl:pr-1 [&_*]:transition-[color,background-color,border-color,opacity,fill,fill-opacity,stroke,box-shadow,transform,width] [&_*]:duration-500 [&_*]:ease-out">
@@ -774,10 +920,15 @@ export default function WorkforceProductivityPage() {
           <JoinedFilter parts={[
             { label: "Client", icon: Users, value: client,
               options: [{ value: ALL, label: "All clients" }, ...[...new Set(overview.sites.map(x => x.client).filter(Boolean))].sort().map(c => ({ value: c, label: c }))],
-              onChange: v => { setClient(v); setJobsite(ALL); setPeriod(ALL) } },
+              onChange: v => { setClient(v); setJobsite(ALL); setLot(ALL); setPeriod(ALL) } },
             { label: "Job site", value: jobsite,
               options: [{ value: ALL, label: "All job sites" }, ...[...new Set(overview.sites.filter(x => client === ALL || x.client === client).map(x => x.jobsite))].sort().map(j => ({ value: j, label: j }))],
-              onChange: v => { setJobsite(v); setPeriod(ALL) } },
+              onChange: v => { setJobsite(v); setLot(ALL); setPeriod(ALL) } },
+            ...(jobsite !== ALL && overview.lots.length > 0
+              ? [{ label: "Lot", value: lot,
+                   options: [{ value: ALL, label: "All lots" }, ...overview.lots.map(l => ({ value: l, label: l }))],
+                   onChange: (v: string) => { setLot(v); setPeriod(ALL) } }]
+              : []),
           ]} />
           <Filter label="Type" icon={Layers} value={obraType} width={140}
             options={[{ value: "all", label: "All job sites" }, { value: "building", label: "Buildings" }, { value: "house", label: "Houses" }]}
@@ -811,7 +962,8 @@ export default function WorkforceProductivityPage() {
         <Kpi icon={Flame} label="Employees with overtime" value={String(withOt)} sub={`of ${headcount} · ${pct(withOt, headcount)}% of the employees`} />
       </div>
 
-      <div className="grid gap-3 max-xl:auto-rows-[24rem] xl:min-h-0 xl:flex-1 xl:grid-cols-2">
+      {/* Hours by Month mais largo que a tabela (WF-25). Sem o orçamento do prédio (HVAC, PCG) ele fica com a linha toda e as duas tabelas descem lado a lado. */}
+      <div className={`grid gap-3 max-xl:auto-rows-[24rem] xl:min-h-0 xl:flex-1 ${company === "framing" ? "xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]" : ""}`}>
         <StackedCard title={`Hours by ${granularity === "month" ? "Month" : "Pay Period"}`}
           help={{
             what: `Hours worked on ${typeLabel.toLowerCase()} each ${granularity === "month" ? "month" : "pay period"}, split into regular and overtime.`,
@@ -819,38 +971,24 @@ export default function WorkforceProductivityPage() {
               { label: "Regular", color: COLORS.regular, text: "Monday to Friday hours up to 40 h in the week." },
               { label: "Overtime", color: COLORS.overtime, text: "Monday to Friday hours past 40 h in the week, plus every weekend hour." },
             ],
-            note: "Work types left out in the settings (e.g. Panels) are not counted. Holiday counts toward the 40 h; sick and lunch do not.",
+            note: "Every work type counts here; the ones left out in the settings only leave the building labor budget. Holiday counts toward the 40 h; sick and lunch do not. The dashed line is the no-overtime limit: 8 h for every weekday each person logged hours in the period.",
             action: "Hover a bar for the overtime share and how it moved from the period before. Click it to filter the page by that period.",
           }}
           data={obraSeries} highlight={focusName} onPick={name => {
             const p = obraSeries.find(s => s.name === name)
             if (p) setPeriod(p.key)
           }} />
-        <Card title={<>Job Sites with the Most Hours<Scope>{scopeLabel}</Scope></>}
-          help={{
-            what: `The ten job sites with the most regular hours in the chosen period, for ${typeLabel.toLowerCase()}, most regular hours first.`,
-            items: [
-              { label: "Regular", color: COLORS.regular, text: "Hours within the weekly 40 h." },
-              { label: "Overtime", color: COLORS.overtime, text: "Hours past the weekly 40 h, plus weekends." },
-              { label: "OT %", text: "Share of the job site's hours that were overtime." },
-            ],
-            note: "Hours logged at a job site without a lot are spread across its lots.",
-            action: "Click a column title to sort; click again to flip, and once more to go back.",
-          }}>
-          {topObras.length === 0 ? (
-            <p className="py-8 text-center text-xs text-muted-foreground">No hours in this period.</p>
-          ) : (
-            <HoursTable label="Job site" rows={topObras} defaultSort="regular" />
-          )}
-        </Card>
+        {company === "framing" && topCard}
       </div>
 
-      <div className={`grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 ${company === "framing" ? "xl:grid-cols-2" : ""}`}>
-        {company === "framing" && <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} />}
+      <div className="grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 xl:grid-cols-2">
+        {company === "framing" ? <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} panels={panels} onPanels={setPanels} /> : topCard}
         <Card title={<>Overtime Ranking<Scope>{scopeLabel}</Scope></>} className="h-full"
+          right={<SupFilter value={supFilter} onChange={setSupFilter} />}
           help={{
             what: "Every employee with hours in the chosen period, most overtime first.",
             items: [
+              { label: "Total", text: "Regular plus overtime." },
               { label: "Regular", color: COLORS.regular, text: "Hours within the weekly 40 h." },
               { label: "Overtime", color: COLORS.overtime, text: "Hours past the weekly 40 h, plus weekends." },
               { label: "OT %", text: "Share of the employee's hours that were overtime." },

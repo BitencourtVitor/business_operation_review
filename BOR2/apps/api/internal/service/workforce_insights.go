@@ -51,6 +51,17 @@ type InsightsOverview struct {
 	Obras     []ObraHours      `json:"obras"`
 	Employees []EmployeeHours  `json:"employees"`
 	Sites     []SiteOption     `json:"sites"` // clientes e job sites do ano, para os filtros (antes de filtrar)
+	Lots      []string         `json:"lots"`  // lotes do job site escolhido, para o filtro de obra (antes de filtrar o lote)
+	Capacity  []PeriodCapacity `json:"capacity"`
+}
+
+// PeriodCapacity conta pessoa-dia útil com hora lançada no período (WF-23): cada pessoa entra só nos
+// dias de segunda a sexta em que trabalhou. All, Building e House seguem o filtro Type da página.
+type PeriodCapacity struct {
+	Period   string `json:"period"`
+	All      int    `json:"all"`
+	Building int    `json:"building"`
+	House    int    `json:"house"`
 }
 
 // SiteOption é um job site e o cliente dele, para os filtros da página.
@@ -123,17 +134,17 @@ func set(list []string) map[string]bool {
 
 func linkKey(jobsite, building string) string { return domain.KeyOf(jobsite) + "|" + strings.ToLower(building) }
 
-// Overview: horas por obra (sem os work types ignorados) e por funcionário
-// (todo o trabalho), em regular e overtime, por mês ou pay period.
-// Overview soma as horas por período; client e jobsite (vazios = todos) recortam tudo antes de somar.
-func (s *WorkforceInsightsService) Overview(ctx context.Context, company string, year int, granularity, client, jobsite string) (*InsightsOverview, error) {
+// Overview: horas por obra e por funcionário, todo work type, em regular e overtime, por mês ou pay period.
+// Os work types ignorados no settings só valem no orçamento do prédio (WF-22).
+// Overview soma as horas por período; client, jobsite e lot (vazios = todos) recortam tudo antes de somar.
+func (s *WorkforceInsightsService) Overview(ctx context.Context, company string, year int, granularity, client, jobsite, lot string) (*InsightsOverview, error) {
 	dbc, err := dbCompany(company)
 	if err != nil {
 		return nil, err
 	}
 	periods := periodsOf(strings.ToLower(company), year, granularity)
 	if len(periods) == 0 {
-		return &InsightsOverview{Periods: periods, Obras: []ObraHours{}, Employees: []EmployeeHours{}, Sites: []SiteOption{}}, nil
+		return &InsightsOverview{Periods: periods, Obras: []ObraHours{}, Employees: []EmployeeHours{}, Sites: []SiteOption{}, Lots: []string{}}, nil
 	}
 	settings, err := s.repo.Settings(ctx)
 	if err != nil {
@@ -143,7 +154,6 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 	if err != nil {
 		return nil, err
 	}
-	ignored := set(settings.IgnoredWorktypes)
 	buildings := map[string]bool{}
 	for _, l := range settings.Links {
 		buildings[linkKey(l.Jobsite, l.Building)] = true
@@ -152,6 +162,8 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 	obras := map[string]*ObraHours{}
 	people := map[string]*EmployeeHours{}
 	sites := map[SiteOption]bool{}
+	lots := map[string]bool{}
+	worked := map[string]bool{} // período|tipo|pessoa|dia, só dias úteis
 	for _, h := range rows {
 		p := periodOf(periods, h.Date)
 		if p == "" {
@@ -163,12 +175,14 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 		if (client != "" && h.Client != client) || (jobsite != "" && h.Jobsite != jobsite) {
 			continue
 		}
-		// Work type ignorado no settings sai de tudo: obras, pessoas, KPIs e ranking usam a mesma base.
-		if ignored[strings.ToLower(h.Worktype)] {
+		obra := obraOf(h)
+		if jobsite != "" && obra != "" {
+			lots[obra] = true
+		}
+		if lot != "" && obra != lot {
 			continue
 		}
-		lot := obraOf(h)
-		isB := h.Jobsite != "" && buildings[linkKey(h.Jobsite, lot)]
+		isB := h.Jobsite != "" && buildings[linkKey(h.Jobsite, obra)]
 		ek := p + "|" + h.Employee + "|" + strconv.FormatBool(isB)
 		e := people[ek]
 		if e == nil {
@@ -177,20 +191,53 @@ func (s *WorkforceInsightsService) Overview(ctx context.Context, company string,
 		}
 		e.Regular += h.Regular
 		e.Overtime += h.Overtime
+		if d, err := time.Parse("2006-01-02", h.Date[:min(10, len(h.Date))]); err == nil && d.Weekday() != time.Saturday && d.Weekday() != time.Sunday {
+			kind := "house"
+			if isB {
+				kind = "building"
+			}
+			worked[p+"|all|"+h.Employee+"|"+h.Date[:10]] = true
+			worked[p+"|"+kind+"|"+h.Employee+"|"+h.Date[:10]] = true
+		}
 
 		if h.Jobsite == "" {
 			continue
 		}
-		k := p + "|" + h.Jobsite + "|" + lot
+		k := p + "|" + h.Jobsite + "|" + obra
 		o := obras[k]
 		if o == nil {
-			o = &ObraHours{Period: p, Jobsite: h.Jobsite, Lot: lot, IsBuilding: buildings[linkKey(h.Jobsite, lot)]}
+			o = &ObraHours{Period: p, Jobsite: h.Jobsite, Lot: obra, IsBuilding: buildings[linkKey(h.Jobsite, obra)]}
 			obras[k] = o
 		}
 		o.Regular += h.Regular
 		o.Overtime += h.Overtime
 	}
-	out := &InsightsOverview{Periods: periods, Obras: make([]ObraHours, 0, len(obras)), Employees: make([]EmployeeHours, 0, len(people)), Sites: make([]SiteOption, 0, len(sites))}
+	out := &InsightsOverview{Periods: periods, Obras: make([]ObraHours, 0, len(obras)), Employees: make([]EmployeeHours, 0, len(people)), Sites: make([]SiteOption, 0, len(sites)), Lots: make([]string, 0, len(lots))}
+	for l := range lots {
+		out.Lots = append(out.Lots, l)
+	}
+	sort.Strings(out.Lots)
+	capBy := map[string]*PeriodCapacity{}
+	for k := range worked {
+		parts := strings.SplitN(k, "|", 3)
+		c := capBy[parts[0]]
+		if c == nil {
+			c = &PeriodCapacity{Period: parts[0]}
+			capBy[parts[0]] = c
+		}
+		switch parts[1] {
+		case "all":
+			c.All++
+		case "building":
+			c.Building++
+		default:
+			c.House++
+		}
+	}
+	out.Capacity = make([]PeriodCapacity, 0, len(capBy))
+	for _, c := range capBy {
+		out.Capacity = append(out.Capacity, *c)
+	}
 	for o := range sites {
 		out.Sites = append(out.Sites, o)
 	}
@@ -219,10 +266,11 @@ type BuildingView struct {
 }
 
 // Buildings monta o EVM de cada prédio ligado. Só entram supervisores do
-// settings que trabalharam no prédio, e só work types que não são ignorados.
+// settings que trabalharam no prédio, e só work types que não são ignorados
+// (allWorktypes = true conta todos, para o "Show panels hours").
 // ponytail: supervisor sem rate no payroll fica fora da conta (sem rate não há
 // como converter o orçamento); aparece quando o QB Time trouxer o rate.
-func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingView, error) {
+func (s *WorkforceInsightsService) Buildings(ctx context.Context, allWorktypes bool) ([]BuildingView, error) {
 	settings, err := s.repo.Settings(ctx)
 	if err != nil {
 		return nil, err
@@ -241,6 +289,9 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 		return nil, err
 	}
 	ignored := set(settings.IgnoredWorktypes)
+	if allWorktypes {
+		ignored = map[string]bool{}
+	}
 	links := map[string]domain.BuildingLink{}
 	for _, l := range settings.Links {
 		links[l.ForecastID] = l
@@ -421,24 +472,19 @@ type EmployeeWeeksView struct {
 }
 
 // EmployeeWeeks soma as horas da pessoa por semana (segunda a domingo), na mesma base da página:
-// sem os work types ignorados no settings.
+// todo work type (os ignorados só valem no orçamento do prédio).
 func (s *WorkforceInsightsService) EmployeeWeeks(ctx context.Context, company string, year int, employee string) (*EmployeeWeeksView, error) {
 	dbc, err := dbCompany(company)
 	if err != nil || strings.TrimSpace(employee) == "" {
 		return nil, domain.ErrBadRequest
 	}
-	settings, err := s.repo.Settings(ctx)
-	if err != nil {
-		return nil, err
-	}
-	ignored := set(settings.IgnoredWorktypes)
 	rows, err := s.repo.Hours(ctx, dbc, fmt.Sprintf("%d-01-01", year), fmt.Sprintf("%d-12-31", year))
 	if err != nil {
 		return nil, err
 	}
 	weeks := map[string]*domain.EmployeeWeek{}
 	for _, h := range rows {
-		if h.Employee != employee || ignored[strings.ToLower(h.Worktype)] || len(h.Date) < 10 {
+		if h.Employee != employee || len(h.Date) < 10 {
 			continue
 		}
 		d, err := time.Parse("2006-01-02", h.Date[:10])
