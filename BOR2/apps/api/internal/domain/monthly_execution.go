@@ -49,6 +49,14 @@ type FinishedProject struct {
 	FinishedOn  string `json:"finishedOn"`
 }
 
+// StartedProject é obra da Framing com início real: o dia em que saiu de not started (ME-27).
+type StartedProject struct {
+	ID        string `json:"id"`
+	Cliente   string `json:"cliente"`
+	JobSite   string `json:"jobSite"`
+	StartedOn string `json:"startedOn"`
+}
+
 type PointStatus string
 
 const (

@@ -1,5 +1,5 @@
 import type { ExecutionEntry } from "@/services/ofi.service"
-import type { FinishedProject, GoalGroup, ImprovementPoint } from "@/services/monthly-execution.service"
+import type { FinishedProject, GoalGroup, ImprovementPoint, StartedProject } from "@/services/monthly-execution.service"
 
 export const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 export const MONTH_NAMES = [
@@ -28,6 +28,14 @@ export function siteIndex(groups: GoalGroup[]) {
 }
 
 export const monthOf = (isoDate: string) => Number(isoDate.slice(5, 7))
+
+/**
+ * Primeiro mês com o dia de início gravado (started_on, desde o histórico de status de 31/08/2026).
+ * Dali em diante o Started conta toda obra que começou no mês, planejada ou não (ME-27);
+ * antes, segue o retrato do mês (só as planejadas).
+ */
+export const STARTED_ON_SINCE = { year: 2026, month: 9 }
+const hasStartedOn = (year: number, m: number) => year * 12 + m >= STARTED_ON_SINCE.year * 12 + STARTED_ON_SINCE.month
 
 export const isStarted = (e: ExecutionEntry) => e.actualStatus === "started" || e.actualStatus === "completed" || e.isCycleCompleted
 
@@ -70,10 +78,10 @@ export function totals(data: ChartPoint[], upTo = 12, from = 1): SeriesTotals {
  */
 export function buildSeries(args: {
   year: number; today: Date; filters: Filters; groups: GoalGroup[]
-  execution: ExecutionEntry[]; finished: FinishedProject[]; points: ImprovementPoint[]
+  execution: ExecutionEntry[]; finished: FinishedProject[]; started: StartedProject[]; points: ImprovementPoint[]
   januaryFallback: { rows: { obraId?: string; cliente?: string; jobSite?: string }[] }
 }): ChartPoint[] {
-  const { year, today, filters, groups, execution, finished, points } = args
+  const { year, today, filters, groups, execution, finished, started: startedList, points } = args
   const visible = visibleGroups(groups, filters)
   const index = siteIndex(visible)
   const ids = new Set(visible.map(g => g.id))
@@ -96,6 +104,10 @@ export function buildSeries(args: {
       planned = plannedIds.length || null
       started = null
       startedIds = []
+    }
+    if (hasStartedOn(year, m) && m <= lastMonth) {
+      startedIds = [...new Set(startedList.filter(p => monthOf(p.startedOn) === m && inScope(p.cliente, p.jobSite)).map(p => p.id.toLowerCase()))]
+      started = startedIds.length
     }
     const monthPoints = points.filter(p => p.month === m && pointVisible(p, ids, filtered))
     return {

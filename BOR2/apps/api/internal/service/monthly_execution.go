@@ -57,6 +57,10 @@ func (s *MonthlyExecutionService) Finished(ctx context.Context, year int) ([]dom
 	return s.repo.ListFinished(ctx, year)
 }
 
+func (s *MonthlyExecutionService) Started(ctx context.Context, year int) ([]domain.StartedProject, error) {
+	return s.repo.ListStarted(ctx, year)
+}
+
 func (s *MonthlyExecutionService) Points(ctx context.Context, year int) ([]*domain.ImprovementPoint, error) {
 	return s.repo.ListPoints(ctx, year)
 }

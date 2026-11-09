@@ -481,6 +481,7 @@ func main() {
 	me.Get("/goals", meRead, monthlyExecutionHandler.Groups)
 	me.Put("/goals", meWrite, monthlyExecutionHandler.SaveGroups)
 	me.Get("/finished", meRead, monthlyExecutionHandler.Finished)
+	me.Get("/started", meRead, monthlyExecutionHandler.Started)
 	me.Get("/points", meRead, monthlyExecutionHandler.Points)
 	me.Post("/points", meWrite, monthlyExecutionHandler.CreatePoint)
 	me.Patch("/points/:id", meWrite, monthlyExecutionHandler.UpdatePoint)

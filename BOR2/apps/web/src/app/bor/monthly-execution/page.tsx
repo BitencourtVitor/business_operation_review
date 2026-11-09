@@ -353,6 +353,7 @@ export default function MonthlyExecutionPage() {
   const { data: groups = [] }   = useQuery({ queryKey: ["monthly-execution", "goals", year],    queryFn: () => monthlyExecutionService.goals(year) })
   const { data: finished = [] } = useQuery({ queryKey: ["monthly-execution", "finished", year], queryFn: () => monthlyExecutionService.finished(year) })
   const { data: points = [] }   = useQuery({ queryKey: ["monthly-execution", "points", year],   queryFn: () => monthlyExecutionService.points(year) })
+  const { data: started = [] }  = useQuery({ queryKey: ["monthly-execution", "started", year],  queryFn: () => monthlyExecutionService.started(year) })
 
   const clients = useMemo(() => [...new Set(groups.flatMap(clientsOf))].sort(), [groups])
   const groupOptions = useMemo(
@@ -363,9 +364,9 @@ export default function MonthlyExecutionPage() {
   const filtered = filters.client !== "all" || filters.group !== "all"
 
   const chartData = useMemo(() => buildSeries({
-    year, today, filters, groups, execution: allYear, finished, points,
+    year, today, filters, groups, execution: allYear, finished, started, points,
     januaryFallback: { rows: bor2Ofi.filter(e => e.referenceMonth === 1) },
-  }), [year, filters, groups, allYear, finished, points, bor2Ofi])
+  }), [year, filters, groups, allYear, finished, started, points, bor2Ofi])
 
   const scope = fortnight
     ? fortnightScope(fortnight.startDate, fortnight.endDate)
@@ -381,10 +382,10 @@ export default function MonthlyExecutionPage() {
     .map(client => ({
       client,
       data: buildSeries({
-        year, today, filters: { client, group: "all" }, groups, execution: allYear, finished, points,
+        year, today, filters: { client, group: "all" }, groups, execution: allYear, finished, started, points,
         januaryFallback: { rows: bor2Ofi.filter(e => e.referenceMonth === 1) },
       }),
-    })), [clients, year, groups, allYear, finished, points, bor2Ofi])
+    })), [clients, year, groups, allYear, finished, started, points, bor2Ofi])
 
   // Points abertos: do gráfico principal (filtro da página) ou de um mini (cliente dele).
   const dialogScope = pointsAt?.client ? visibleGroups(groups, { client: pointsAt.client, group: "all" }) : visible
