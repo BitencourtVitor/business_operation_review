@@ -230,6 +230,9 @@ type BuildingLink struct {
 	Building   string `json:"building"`
 	// EndOverride é o expected end indicado à mão; vazio, vale o do Forecast.
 	EndOverride *string `json:"endOverride,omitempty"`
+	// IgnoredWorktypes são os work types fora do orçamento deste prédio (WF-39);
+	// nil, vale a lista geral do settings.
+	IgnoredWorktypes []string `json:"ignoredWorktypes"`
 }
 
 // ForecastBuildingRef é um prédio do Forecast (type Building) da Framing.
