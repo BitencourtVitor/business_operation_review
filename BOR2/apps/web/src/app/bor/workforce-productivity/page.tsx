@@ -530,9 +530,10 @@ function BudgetPace({ f }: { f: BuildingForecast }) {
   return (
     <div className="flex w-36 shrink-0 flex-col gap-1.5 max-sm:order-first max-sm:grid max-sm:w-full max-sm:grid-cols-2">
       {items.map(([l, v, hint]) => (
-        <div key={l} title={hint} className="flex max-h-16 min-h-0 flex-1 flex-col justify-center rounded-md border border-border bg-muted/20 px-2.5 py-1">
-          <p className="text-[10px] text-muted-foreground">{l}</p>
-          <p className="text-sm font-semibold tabular-nums">{v}</p>
+        // Rótulo à esquerda, quebrando linha se precisar; valor à direita.
+        <div key={l} title={hint} className="flex max-h-16 min-h-0 flex-1 items-center justify-between gap-2 rounded-md border border-border bg-muted/20 px-2.5 py-1">
+          <p className="text-[11px] leading-tight text-muted-foreground">{l}</p>
+          <p className="shrink-0 text-right text-sm font-semibold tabular-nums">{v}</p>
         </div>
       ))}
     </div>
