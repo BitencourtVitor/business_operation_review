@@ -263,14 +263,16 @@ type BuildingView struct {
 	Forecast *domain.BuildingForecast   `json:"forecast"`
 	// EndSource diz de onde veio o expected end usado: "forecast" ou "manual" (settings).
 	EndSource string `json:"endSource"`
+	// Work types com hora lançada no prédio, contados ou não: a janela de work types do bloco
+	// lista só estes (WF-33).
+	Worktypes []string `json:"worktypes"`
 }
 
 // Buildings monta o EVM de cada prédio ligado. Só entram supervisores do
 // settings que trabalharam no prédio, e só work types que não são ignorados
-// (allWorktypes = true conta todos, para o "Show panels hours").
 // ponytail: supervisor sem rate no payroll fica fora da conta (sem rate não há
 // como converter o orçamento); aparece quando o QB Time trouxer o rate.
-func (s *WorkforceInsightsService) Buildings(ctx context.Context, allWorktypes bool) ([]BuildingView, error) {
+func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingView, error) {
 	settings, err := s.repo.Settings(ctx)
 	if err != nil {
 		return nil, err
@@ -289,9 +291,6 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context, allWorktypes b
 		return nil, err
 	}
 	ignored := set(settings.IgnoredWorktypes)
-	if allWorktypes {
-		ignored = map[string]bool{}
-	}
 	links := map[string]domain.BuildingLink{}
 	for _, l := range settings.Links {
 		links[l.ForecastID] = l
@@ -313,8 +312,15 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context, allWorktypes b
 		unrated := map[string]*domain.SupervisorHours{}
 		workerDays := map[string]map[string]*domain.WorkerDay{}
 		unratedDaily := map[string]float64{}
+		types := map[string]string{}
 		for _, h := range rows {
-			if linkKey(h.Jobsite, obraOf(h)) != key || ignored[strings.ToLower(h.Worktype)] {
+			if linkKey(h.Jobsite, obraOf(h)) != key {
+				continue
+			}
+			if h.Worktype != "" {
+				types[strings.ToLower(h.Worktype)] = h.Worktype
+			}
+			if ignored[strings.ToLower(h.Worktype)] {
 				continue
 			}
 			// Ponto zero da meta e do executado: o primeiro registro de horas no prédio, de qualquer pessoa.
@@ -385,6 +391,16 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context, allWorktypes b
 			list = append(list, *sh)
 		}
 		sort.Slice(list, func(i, j int) bool { return list[i].Employee < list[j].Employee })
+		// Ponto zero: o início do Forecast (WF-35). Hora avulsa lançada antes (punch, back charge,
+		// painel feito no galpão) ainda consome o orçamento, somada no primeiro dia da curva.
+		// Sem início no Forecast, vale o primeiro registro de horas.
+		if b.Start != nil && *b.Start != "" {
+			start = *b.Start
+		}
+		for _, w := range types {
+			v.Worktypes = append(v.Worktypes, w)
+		}
+		sort.Strings(v.Worktypes)
 		end := b.End
 		v.EndSource = "forecast"
 		if l.EndOverride != nil && *l.EndOverride != "" {

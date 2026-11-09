@@ -39,7 +39,7 @@ func (h *WorkforceInsightsHandler) Overview(c *fiber.Ctx) error {
 }
 
 func (h *WorkforceInsightsHandler) Buildings(c *fiber.Ctx) error {
-	out, err := h.svc.Buildings(c.Context(), c.Query("panels") == "1")
+	out, err := h.svc.Buildings(c.Context())
 	if err != nil {
 		return wiError(c, err)
 	}

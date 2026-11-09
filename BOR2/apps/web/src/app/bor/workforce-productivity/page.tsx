@@ -5,15 +5,17 @@ import { useSearchParams } from "next/navigation"
 import { interpret } from "./_lib/interpret"
 import { EmployeeWeeksDialog } from "./_components/employee-weeks-dialog"
 import { Card, Kpi, Scope, Sep, type HelpSpec } from "@/components/common/insight-card"
-import { useQueries, useQuery } from "@tanstack/react-query"
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Bar, CartesianGrid, Cell, ComposedChart, Line, LineChart, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer,
   Tooltip as RechartsTooltip, XAxis, YAxis,
 } from "recharts"
 import {
-  AlarmClockPlus, Lightbulb, ShieldUser, ArrowDown, ArrowLeft,  ArrowRight, ArrowUp, ArrowUpDown, Building2, Calendar,  Clock, Flame, Layers, TrendingDown, TrendingUp, Settings2, TriangleAlert, Users,
+  AlarmClockPlus, Lightbulb, ShieldUser, ArrowDown, ArrowLeft,  ArrowRight, ArrowUp, ArrowUpDown, Building2, Calendar,  Clock, Flame, Layers, ListChecks, TrendingDown, TrendingUp, Settings2, TriangleAlert, Users,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { PageSkeleton } from "@/components/common/page-skeleton"
@@ -85,6 +87,21 @@ type StackRow = { regular: number; overtime: number; name?: string; prevName?: s
  * quando houver período anterior, quanto essa fatia subiu ou caiu: de 2% para
  * 10% é +8%, não a variação das horas de overtime entre si.
  */
+/** A linha tracejada da barra como item do tooltip, com o próprio traço; o % é o total do período contra ela. */
+function LimitRow({ label, limit, total }: { label: string; limit: number; total: number }) {
+  return (
+    <p className="flex items-center justify-between gap-6">
+      <span className="flex items-center gap-1.5 text-muted-foreground">
+        <svg width="14" height="6" aria-hidden><line x1="0" y1="3" x2="14" y2="3" stroke={COLORS.planned} strokeWidth={2} strokeDasharray="4 3" /></svg>
+        {label}
+      </span>
+      <span className="tabular-nums">{fmtH(limit)}<Sep />
+        <span className={total > limit ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}>{pct(total, limit)}%</span>
+      </span>
+    </p>
+  )
+}
+
 function StackTip({ active, payload, label }: { active?: boolean; payload?: { payload: StackRow }[]; label?: string }) {
   if (!active || !payload?.length) return null
   const r = payload[0].payload
@@ -95,10 +112,8 @@ function StackTip({ active, payload, label }: { active?: boolean; payload?: { pa
       <p className="mb-1 font-semibold">{r.name ?? label}</p>
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.regular }}>Regular</span><span className="tabular-nums">{fmtH(r.regular)}</span></p>
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)}</span></p>
+      {r.ideal != null && <LimitRow label={`No-overtime limit · ${r.people} ${r.people === 1 ? "person" : "people"}`} limit={r.ideal} total={total} />}
       <p className="mt-1 border-t border-border pt-1 text-muted-foreground">{pct(r.overtime, total)}% overtime in {fmtH(total)}</p>
-      {r.ideal != null && (
-        <p className="text-muted-foreground">No-overtime limit: <span className="tabular-nums text-foreground">{fmtH(r.ideal)}</span> ({r.people} {r.people === 1 ? "person" : "people"})</p>
-      )}
       {change != null && (
         <p className={`flex items-center gap-1 ${change > 0 ? "text-red-600 dark:text-red-400" : change < 0 ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
           {change > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
@@ -118,11 +133,13 @@ const axis = "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.r
  * hover numa parte destaca a mesma parte em todas as barras; highlight realça a
  * barra do período escolhido e esmaece as outras.
  */
-function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover, setHover, highlight, tooltip }: {
+function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover, setHover, highlight, tooltip, dividers }: {
   data: { name: string; regular: number; overtime: number; ideal?: number }[]
   layout?: "horizontal" | "vertical"; nameWidth?: number; onPick?: (name: string) => void
   hover: Series | null; setHover: (s: Series | null) => void
   highlight?: string; tooltip?: React.ReactElement
+  /** Barras antes das quais entra uma linha vertical com o rótulo (a virada do ano, WF-36). */
+  dividers?: { at: string; label: string }[]
 }) {
   const op = (s: Series, name: string) =>
     (hover && hover !== s ? 0.2 : 1) * (highlight && highlight !== name ? 0.55 : 1)
@@ -152,6 +169,10 @@ function StackedBars({ data, layout = "horizontal", nameWidth = 0, onPick, hover
             </>
           )}
           <RechartsTooltip animationDuration={ANIM} content={tooltip ?? <StackTip />} cursor={{ fill: "var(--muted)", opacity: 0.5 }} />
+          {dividers?.map(d => (
+            <ReferenceLine key={d.at} x={d.at} position="start" stroke="var(--muted-foreground)" strokeDasharray="3 3" strokeOpacity={0.6}
+              label={(p: { viewBox?: { x?: number; y?: number } }) => <ChartTag x={(p.viewBox?.x ?? 0) + 3} y={(p.viewBox?.y ?? 0) + 8} text={d.label} color={COLORS.planned} />} />
+          ))}
           <Bar animationDuration={ANIM} dataKey="regular" stackId="h" fill={COLORS.regular}
             onMouseEnter={() => setHover("regular")} onMouseLeave={() => setHover(null)}>
             {data.map(d => <Cell key={d.name} fillOpacity={op("regular", d.name)} />)}
@@ -452,10 +473,14 @@ function monthlyOf(f: BuildingForecast) {
   const first = ym(f.start), endM = ym(f.end)
   const last = Math.max(endM, ...[...by.keys()].map(k => ym(k + "-01")))
   const goal = f.budgetHours / (endM - first + 1)
+  // Hora avulsa de antes do início do Forecast entra no primeiro mês, como na curva acumulada (WF-35).
+  const before = { regular: 0, overtime: 0 }
+  for (const [k, t] of by) if (ym(k + "-01") < first) { before.regular += t.regular; before.overtime += t.overtime }
   let used = 0
   return Array.from({ length: last - first + 1 }, (_, i) => {
     const m = first + i, key = `${Math.floor(m / 12)}-${String((m % 12) + 1).padStart(2, "0")}`
-    const t = by.get(key) ?? { regular: 0, overtime: 0 }
+    const own = by.get(key) ?? { regular: 0, overtime: 0 }
+    const t = i === 0 ? { regular: own.regular + before.regular, overtime: own.overtime + before.overtime } : own
     used += t.regular + t.overtime
     return { name: `${MONTHS[m % 12]} ${String(Math.floor(m / 12)).slice(2)}`, ...t, ideal: m <= endM ? goal : undefined, used }
   })
@@ -472,12 +497,8 @@ function MonthTip({ active, payload, budget }: {
       <p className="mb-1 font-semibold">{r.name}</p>
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.regular }}>Regular</span><span className="tabular-nums">{fmtH(r.regular)}</span></p>
       <p className="flex justify-between gap-6"><span style={{ color: COLORS.overtime }}>Overtime</span><span className="tabular-nums">{fmtH(r.overtime)}</span></p>
-      {r.ideal != null && (
-        <p className="mt-1 border-t border-border pt-1 text-muted-foreground">Monthly goal {fmtH(r.ideal)}<Sep />
-          <span className={total > r.ideal ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}>{pct(total, r.ideal)}%</span>
-        </p>
-      )}
-      <p className={`text-muted-foreground ${r.ideal == null ? "mt-1 border-t border-border pt-1" : ""}`}>Total goal {fmtH(budget)}</p>
+      {r.ideal != null && <LimitRow label="Monthly limit" limit={r.ideal} total={total} />}
+      <p className="mt-1 border-t border-border pt-1 text-muted-foreground">Total goal {fmtH(budget)}</p>
       <p className="text-muted-foreground">Used until {r.name} {fmtH(r.used)}<Sep />
         <span className={r.used > budget ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}>{pct(r.used, budget)}%</span>
       </p>
@@ -485,13 +506,71 @@ function MonthTip({ active, payload, budget }: {
   )
 }
 
+/** Dias úteis (seg a sex) de hoje até o fim previsto, os dois inclusive. */
+// ponytail: sem calendário de feriados; entra se a conta precisar fechar no dia.
+function workdaysUntil(end: string, today = new Date().toISOString().slice(0, 10)) {
+  let n = 0
+  for (let t = toT(today); t <= toT(end); t += 864e5) { const wd = new Date(t).getUTCDay(); if (wd > 0 && wd < 6) n++ }
+  return n
+}
+
+/** Quanto ainda cabe por dia útil até o fim previsto sem estourar a meta, em horas e em pessoas de 8 h (WF-34). */
+function BudgetPace({ f }: { f: BuildingForecast }) {
+  const days = workdaysUntil(f.end)
+  const perDay = days ? f.remainingHours / days : 0
+  const items: [string, string][] = f.remainingHours <= 0 ? [["Budget left", "Used up"]]
+    : days === 0 ? [["Budget left", fmtH(f.remainingHours)], ["Workdays left", "Past the end"]]
+    : [["Budget left", fmtH(f.remainingHours)], ["Workdays left", String(days)], ["Hours per day", fmtH(perDay)], ["People per day", `${(perDay / 8).toFixed(1)}`]]
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground"
+      title="What still fits per workday (Monday to Friday) until the expected end without going over the budget. People per day counts 8 hours each.">
+      {items.map(([l, v]) => <span key={l}>{l} <span className="font-semibold tabular-nums text-foreground">{v}</span></span>)}
+    </div>
+  )
+}
+
+/** Work types que ficam de fora do orçamento do prédio, editados ali mesmo (WF-33). Grava no settings da página. */
+function BudgetWorktypes({ available }: { available: string[] }) {
+  const qc = useQueryClient()
+  const { data } = useQuery({ queryKey: ["workforce-insights", "settings"], queryFn: workforceInsightsService.settings })
+  const save = useMutation({
+    mutationFn: (ignored: string[]) => workforceInsightsService.saveSettings({ ...data!.settings, ignoredWorktypes: ignored }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workforce-insights"] }),
+  })
+  if (!data) return null
+  const ignored = data.settings.ignoredWorktypes
+  const off = new Set(ignored.map(w => w.toLowerCase()))
+  // Só os work types que os prédios têm; um item por nome sem olhar maiúscula, como a API compara.
+  const all = [...new Map(available.map(w => [w.toLowerCase(), w])).values()].sort()
+  return (
+    <Popover>
+      <PopoverTrigger render={<button type="button" className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground hover:text-foreground" />}>
+        <ListChecks className="h-3.5 w-3.5" />Work types
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-2">
+        <p className="px-1 pb-1.5 text-xs text-muted-foreground">Work types logged on the buildings. Checked ones count in the labor budget of every building.</p>
+        <div className="grid max-h-64 gap-0.5 overflow-y-auto">
+          {all.map(w => (
+            <label key={w} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
+              <Checkbox checked={!off.has(w.toLowerCase())} disabled={save.isPending}
+                onCheckedChange={on => save.mutate(on ? ignored.filter(x => x.toLowerCase() !== w.toLowerCase()) : [...ignored, w])} />
+              {w}
+            </label>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 type BudgetMode = "cumulative" | "monthly"
 
-function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPanels }: {
+function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
   buildings: BuildingView[]; granularity: Granularity; periods: InsightsPeriod[]; isSup?: (name: string) => boolean
-  panels: boolean; onPanels: (v: boolean) => void
+  canManage: boolean
 }) {
   const ready = buildings.filter(b => b.forecast)
+  const worktypes = buildings.flatMap(b => b.worktypes ?? [])
   const [open, setOpen] = useState<string | null>(null)
   const [mode, setMode] = useState<BudgetMode>("cumulative")
   const [hover, setHover] = useState<Series | null>(null)
@@ -512,14 +591,14 @@ function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPane
         : <>Building Labor Budget<Scope>Select a Building</Scope></>}
     </>}
       help={{
-        what: "Hours of everyone who worked on each Forecast building, added up since the first hours logged there, against its labor budget. The budget is turned into hours with the workers' rates, so no money is shown.",
+        what: "Hours of everyone who worked on each Forecast building, added up since its start date in the Forecast, against its labor budget. The budget is turned into hours with the workers' rates, so no money is shown.",
         items: [
-          { label: "Goal", color: COLORS.planned, text: "The budget spread evenly from the first hours logged on the building to the expected end date." },
+          { label: "Goal", color: COLORS.planned, text: "The budget spread evenly from the start date in the Forecast to the expected end date." },
           { label: "Accumulated hours", color: COLORS.regular, text: "Hours worked on the building, added up day by day." },
           { label: "Estimated hours", color: COLORS.projected, text: "The average pace so far carried forward from today's line: up to the expected end date or, when the building is late, for as many days as it is late (60 at most)." },
           { label: "Limit", color: COLORS.overtime, text: "The budget. Anything above it is shaded red." },
         ],
-        note: "Work types left out in the settings (e.g. Panels) count only here, and Show panels hours brings them back. By month shows the hours of each month against the budget split evenly across the months of the building. Someone without a pay rate counts at the average rate of the others. The period filter does not apply: the curve always starts on the first hours logged on the building, by anyone.",
+        note: "Work types left out in the settings (e.g. Panels) are cut only here; the Work types button picks them among the ones logged on the buildings. By month shows the hours of each month against the budget split evenly across the months of the building. Someone without a pay rate counts at the average rate of the others. The period filter does not apply: the curve starts on the Forecast start date (or on the first hours logged, when the Forecast has none), hours logged before it count on that first day, and a dashed line marks each new year. Below the buttons, what still fits per workday until the expected end without going over the budget.",
         action: "Click a building to see only its curve. Back returns to the list. Switch between Cumulative and By month at the top of the chart.",
       }}>
       {ready.length === 0 ? (
@@ -563,10 +642,7 @@ function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPane
                             className={`h-full rounded px-2 ${mode === v ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{l}</button>
                         ))}
                       </div>
-                      <button type="button" aria-pressed={panels} onClick={() => onPanels(!panels)}
-                        className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 text-xs ${panels ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
-                        <Layers className="h-3.5 w-3.5" />Show panels hours
-                      </button>
+                      {canManage && <BudgetWorktypes available={worktypes} />}
                     </div>
                     {mode === "cumulative" && <ReadingTip lines={interpret({ status: b.building.status.toLowerCase(), end: f.end, today: new Date().toISOString().slice(0, 10), budgetHours: f.budgetHours, exceedsOn: f.exceedsOn, series: f.series })} />}
                   </div>
@@ -577,11 +653,16 @@ function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPane
                     <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
                 )}
-                {isOpen && mode === "monthly" && (
-                  <div className="mt-2 min-h-0 flex-1 border-t border-border pt-2">
-                    <StackedBars data={monthlyOf(f)} hover={hover} setHover={setHover} tooltip={<MonthTip budget={f.budgetHours} />} />
-                  </div>
-                )}
+                {isOpen && <BudgetPace f={f} />}
+                {isOpen && mode === "monthly" && (() => {
+                  const rows = monthlyOf(f)
+                  return (
+                    <div className="mt-2 min-h-0 flex-1 border-t border-border pt-2">
+                      <StackedBars data={rows} hover={hover} setHover={setHover} tooltip={<MonthTip budget={f.budgetHours} />}
+                        dividers={rows.filter((r, i) => i > 0 && r.name.startsWith("Jan ")).map(r => ({ at: r.name, label: "20" + r.name.slice(4) }))} />
+                    </div>
+                  )
+                })()}
                 {isOpen && mode === "cumulative" && (
                   <div className="mt-2 flex min-h-0 flex-1 flex-col border-t border-border pt-2">
                     <div ref={el => { if (el) { setChartH(el.clientHeight); setChartW(el.clientWidth) } }} className={`min-h-0 flex-1 ${axis}`}
@@ -608,6 +689,11 @@ function BuildingBudget({ buildings, granularity, periods, isSup, panels, onPane
                           {/* A etiqueta vai numa linha invisível à parte, acima de todas as outras camadas. */}
                           <ReferenceLine zIndex={1100} y={f.budgetHours} stroke="none"
                             label={(p: { viewBox?: { x?: number; y?: number } }) => <ChartTag x={p.viewBox?.x ?? 0} y={p.viewBox?.y ?? 0} text="Limit" color={COLORS.overtime} />} />
+                          {/* Virada do ano: linha vertical com o ano novo (WF-36). */}
+                          {Array.from({ length: new Date(tMax).getUTCFullYear() - new Date(tMin).getUTCFullYear() }, (_, i) => new Date(tMin).getUTCFullYear() + 1 + i).map(y => (
+                            <ReferenceLine key={y} zIndex={1100} x={toT(y + "-01-01")} stroke="var(--muted-foreground)" strokeDasharray="3 3" strokeOpacity={0.6}
+                              label={(p: { viewBox?: { x?: number; y?: number } }) => <ChartTag center maxX={chartW} x={p.viewBox?.x ?? 0} y={(p.viewBox?.y ?? 0) - 10} text={String(y)} color={COLORS.planned} />} />
+                          ))}
                           {nowPoint && (
                             <ReferenceLine zIndex={1100} x={nowPoint} stroke={COLORS.projected} strokeDasharray="3 3" strokeOpacity={0.8}
                               label={(p: { viewBox?: { x?: number; y?: number } }) => <ChartTag center maxX={chartW} x={p.viewBox?.x ?? 0} y={(p.viewBox?.y ?? 0) - 10} text="Estimate" color={COLORS.projected} />} />
@@ -744,8 +830,6 @@ export default function WorkforceProductivityPage() {
   const [jobsite, setJobsite] = useState(ALL)
   // Obra (lote ou prédio) do job site escolhido (WF-24).
   const [lot, setLot] = useState(ALL)
-  // Show panels hours do orçamento do prédio (WF-22).
-  const [panels, setPanels] = useState(false)
   // Overtime Ranking: todos, só supervisores ou só quem não é (WF-30).
   const [supFilter, setSupFilter] = useState<"all" | "sup" | "crew">("all")
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -787,8 +871,8 @@ export default function WorkforceProductivityPage() {
   const supSet = useMemo(() => new Set((settingsView?.settings.supervisors ?? []).map(n => n.trim().toLowerCase())), [settingsView])
   const isSup = (name: string) => supSet.has(name.trim().toLowerCase())
   const { data: buildings = [] } = useQuery({
-    queryKey: ["workforce-insights", "buildings", panels],
-    queryFn: () => workforceInsightsService.buildings(panels),
+    queryKey: ["workforce-insights", "buildings"],
+    queryFn: () => workforceInsightsService.buildings(),
     placeholderData: prev => prev,
     enabled: company === "framing",
   })
@@ -982,7 +1066,7 @@ export default function WorkforceProductivityPage() {
       </div>
 
       <div className="grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 xl:grid-cols-2">
-        {company === "framing" ? <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} panels={panels} onPanels={setPanels} /> : topCard}
+        {company === "framing" ? <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} canManage={canEdit("workforce")} /> : topCard}
         <Card title={<>Overtime Ranking<Scope>{scopeLabel}</Scope></>} className="h-full"
           right={<SupFilter value={supFilter} onChange={setSupFilter} />}
           help={{

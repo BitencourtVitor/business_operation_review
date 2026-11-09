@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 import {
   MONTH_LABELS, MONTH_NAMES, buildSeries, clientsOf, monthOf, pointVisible,
-  standings, visibleGroups, monthsScope, fortnightScope, type ChartPoint, type Filters,
+  standings, visibleGroups, monthsScope, fortnightScope, totals, type ChartPoint, type Filters, type SeriesTotals,
 } from "./_lib/series"
 import { SettingsDialog } from "./_components/settings-dialog"
 import { PointsDialog } from "./_components/points-dialog"
@@ -44,31 +44,47 @@ const GOAL_DASH = "5 4"
 
 function ChartTooltip({ active, payload, label }: {
   active?: boolean
-  payload?: { name: string; value: number | null; color: string; dataKey: string; payload: ChartPoint }[]
+  payload?: { payload: ChartPoint }[]
   label?: string
 }) {
   if (!active || !payload?.length) return null
   const row = payload[0].payload
-  const lines = payload.filter(p => p.value !== null && p.dataKey !== "pending")
+  const goal = row.goal ?? 0
+  const off = row.started != null || row.finished != null ? (row.started ?? 0) + (row.finished ?? 0) : null
+  // Uma linha por série; o % é contra a meta do mês, verde quando alcança.
+  const line = (name: string, color: string | null, value: number | null, withPct: boolean | "blank" = false) => value == null ? null : (
+    <div className="flex items-center gap-2 text-muted-foreground">
+      {color ? <span className="h-2 w-2 rounded-full" style={{ background: color }} /> : <span className="w-2 text-center" aria-hidden>=</span>}
+      <span>{name}</span>
+      <span className="ml-auto pl-4 font-semibold tabular-nums text-foreground">{value}</span>
+      {withPct === "blank" && goal > 0 && <span className="w-9" />}
+      {withPct === true && goal > 0 && (
+        <span className={`w-9 text-right font-semibold tabular-nums ${value >= goal ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>{pctOf(value, goal)}%</span>
+      )}
+    </div>
+  )
   return (
-    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
+    <div className="min-w-48 rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="mb-1.5 font-semibold text-foreground">{label}</p>
-      {lines.map(p => (
-        <div key={p.name} className="flex items-center gap-2 text-muted-foreground">
-          <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
-          <span>{p.name}</span>
-          <span className="ml-auto pl-4 font-semibold tabular-nums text-foreground">{p.value}</span>
+      {line("Planned", COLORS.planned, row.planned, off != null && "blank")}
+      {/* Mesma leitura da legenda: Started + Finished = Off paper, numa borda só. */}
+      {off != null && (
+        <div className="-mx-[9px] my-1 grid gap-0.5 rounded-md border border-border px-2 py-1">
+          {line("Started", COLORS.started, row.started, "blank")}
+          {line("Finished", COLORS.finished, row.finished, "blank")}
+          <div className="border-t border-border pt-0.5">{line("Off paper", null, off, true)}</div>
         </div>
-      ))}
-      {row.goal !== null && row.finished !== null && row.goal > 0 && (
-        <p className="mt-1.5 border-t border-border pt-1.5 text-muted-foreground">
-          Goal reached: <span className={`font-semibold ${row.finished >= row.goal ? "text-emerald-600" : "text-red-600"}`}>
-            {Math.round((row.finished / row.goal) * 100)}%
-          </span>
-        </p>
+      )}
+      {goal > 0 && (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <svg width="8" height="4" aria-hidden><line x1="0" y1="2" x2="8" y2="2" stroke={COLORS.goal} strokeWidth={2} strokeDasharray="3 2" /></svg>
+          <span>Goal</span>
+          <span className="ml-auto pl-4 font-semibold tabular-nums text-foreground">{goal}</span>
+          {off != null && <span className="w-9" />}
+        </div>
       )}
       {(row.pending > 0 || row.resolved > 0) && (
-        <p className="mt-1 text-muted-foreground">{row.pending} pending · {row.resolved} resolved points</p>
+        <p className="mt-1.5 border-t border-border pt-1.5 text-muted-foreground">{row.pending} pending · {row.resolved} resolved points</p>
       )}
     </div>
   )
@@ -101,21 +117,28 @@ function PointsTick(props: { x?: number | string; y?: number | string; payload?:
   )
 }
 
-/** Total de cada série no ano, no que o gráfico mostra; a meta só até o mês corrente, para comparar com Finished. */
-const sum = (data: ChartPoint[], k: "planned" | "started" | "finished" | "goal", upTo = 12) =>
-  data.slice(0, upTo).reduce((s, r) => s + (r[k] ?? 0), 0)
+/** Meses que contam no total: o ano todo no passado, até o mês corrente no ano corrente. */
+const upToOf = (year: number) => year < currentYear ? 12 : currentMonth
+const pctOf = (n: number, of: number) => of > 0 ? Math.round((n / of) * 100) : 0
 
 function ExecutionChart({ title, data, year, month, compact = false, className = "", onPickMonth, onOpenPoints }: {
   title: string; data: ChartPoint[]; year: number; month: number | null; compact?: boolean; className?: string
   onPickMonth: (m: number) => void; onOpenPoints: (m: number) => void
 }) {
-  const goalUpTo = year < currentYear ? 12 : currentMonth
-  const legend = [
-    { label: "Planned", color: COLORS.planned, total: sum(data, "planned") },
-    { label: "Started", color: COLORS.started, total: sum(data, "started") },
-    { label: "Finished", color: COLORS.finished, total: sum(data, "finished") },
-    { label: "Goal", color: COLORS.goal, dashed: true, total: sum(data, "goal", goalUpTo) },
-  ]
+  const t = totals(data, upToOf(year))
+  const item = (label: string, color: string, total: number, dashed = false) => (
+    <span key={label} className="flex items-center gap-1.5">
+      {dashed ? (
+        <svg width="16" height="8" aria-hidden>
+          <line x1="0" y1="4" x2="16" y2="4" stroke={color} strokeWidth={2} strokeDasharray={GOAL_DASH} />
+        </svg>
+      ) : (
+        <span className="inline-block h-2 w-4 rounded-full" style={{ background: color }} />
+      )}
+      {label}
+      <span className="font-semibold tabular-nums text-foreground">{total}</span>
+    </span>
+  )
   // O id do gradiente é por gráfico: com três na página, um id repetido pinta todos com o primeiro.
   const gid = title.replace(/\W+/g, "")
   return (
@@ -125,19 +148,20 @@ function ExecutionChart({ title, data, year, month, compact = false, className =
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           {/* No mini, a legenda desce para a segunda linha inteira e o Points fica ao lado do título. */}
           <span className={compact ? "order-last flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" : "contents"}>
-          {legend.map(l => (
-            <span key={l.label} className="flex items-center gap-1.5">
-              {l.dashed ? (
-                <svg width="16" height="8" aria-hidden>
-                  <line x1="0" y1="4" x2="16" y2="4" stroke={l.color} strokeWidth={2} strokeDasharray={GOAL_DASH} />
-                </svg>
-              ) : (
-                <span className="inline-block h-2 w-4 rounded-full" style={{ background: l.color }} />
-              )}
-              {l.label}
-              <span className="font-semibold tabular-nums text-foreground">{l.total}</span>
+          {item("Planned", COLORS.planned, t.planned)}
+          {/* Saiu do papel: Started + Finished numa borda só, somando no Off paper, contra a meta (ME-24, ME-25). */}
+          <span className="flex items-center gap-2.5 rounded-md border border-border px-2 py-0.5" title="Started + Finished = Off paper, against the goal">
+            {item("Started", COLORS.started, t.started)}
+            <span aria-hidden>+</span>
+            {item("Finished", COLORS.finished, t.finished)}
+            <span aria-hidden>=</span>
+            <span className="flex items-center gap-1.5">
+              Off paper
+              <span className="font-semibold tabular-nums text-foreground">{t.offPaper}</span>
+              {t.goal > 0 && <span className={`font-semibold tabular-nums ${t.offPaper >= t.goal ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>{pctOf(t.offPaper, t.goal)}%</span>}
             </span>
-          ))}
+          </span>
+          {item("Goal", COLORS.goal, t.goal, true)}
           </span>
           <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => onOpenPoints(month ?? currentMonth)}>
             <MessageSquareText className="h-3.5 w-3.5" />
@@ -199,23 +223,37 @@ const fmtDay = (iso: string) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}`
  * Painel da meta. Cresce com o conteúdo até a altura da tela e rola por dentro;
  * clicar numa linha mostra as casas terminadas no período, várias abertas juntas.
  */
-function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label: string }) {
+function GoalPanel({ rows, label, avg: t, avgLabel }: { rows: ReturnType<typeof standings>; label: string; avg: SeriesTotals; avgLabel: string }) {
   const [open, setOpen] = useState<Set<string>>(new Set())
   const toggle = (id: string) => setOpen(s => {
     const next = new Set(s)
     if (!next.delete(id)) next.add(id)
     return next
   })
-  const goal = rows.reduce((s, r) => s + r.goal, 0)
-  const done = rows.reduce((s, r) => s + r.finished, 0)
   return (
     <div className="flex flex-col rounded-xl max-lg:order-2 lg:max-h-full lg:min-h-0 lg:self-start border border-border bg-card/60">
       <div className="border-b border-border px-4 py-3">
         <p className="text-sm font-semibold">Goal · {label}</p>
-        <p className="text-xs text-muted-foreground">
-          {done} of {goal} houses finished{goal > 0 && ` · ${Math.round((done / goal) * 100)}%`}
-        </p>
       </div>
+      {/* Média por mês no ano: o total dividido pelos meses já corridos, contra a meta média (ME-26). */}
+      {t.months > 0 && (
+        <div className="border-b border-border px-4 py-2.5 text-xs">
+          {avgLabel && <p className="mb-1.5 font-medium text-muted-foreground">{avgLabel}</p>}
+          {/* Off paper (Started + Finished) contra a meta, como na legenda. */}
+          <div className="grid grid-cols-2 gap-2">
+            {([["Off paper", t.offPaper, null], ["Goal", t.goal, COLORS.goal]] as const).map(([l, v, c]) => (
+              <div key={l} className="rounded-md border border-border bg-muted/20 px-2 py-1.5">
+                <p className="flex items-center gap-1 text-[10px] text-muted-foreground">{c ? <span className="h-1.5 w-1.5 rounded-full" style={{ background: c }} /> : <span aria-hidden>=</span>}{l}</p>
+                <p className="flex items-baseline gap-1.5 font-semibold tabular-nums">{t.months === 1 ? v : (v / t.months).toFixed(1)}
+                  {l === "Off paper" && t.goal > 0 && (
+                    <span className={`text-[10px] ${v >= t.goal ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>{pctOf(v, t.goal)}% of goal</span>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
         {rows.length === 0 && <p className="text-xs text-muted-foreground">No job sites in the settings.</p>}
         {rows.map(r => {
@@ -439,7 +477,9 @@ export default function MonthlyExecutionPage() {
           )}
         </div>
 
-        <GoalPanel rows={panel} label={panelLabel} />
+        {/* A média segue o período: o mês escolhido (ou o da quinzena), ou Jan até o mês corrente no Year to date. */}
+        <GoalPanel rows={panel} label={panelLabel} avg={totals(chartData, month ?? upToOf(year), month ?? 1)}
+          avgLabel={month ? "" : `Monthly average · Jan to ${MONTH_LABELS[upToOf(year) - 1]}`} />
       </div>
 
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} groups={groups} />
