@@ -540,7 +540,7 @@ function BudgetWorktypes({ available }: { available: string[] }) {
   if (!data) return null
   const ignored = data.settings.ignoredWorktypes
   const off = new Set(ignored.map(w => w.toLowerCase()))
-  // Só os work types que os prédios têm; um item por nome sem olhar maiúscula, como a API compara.
+  // Só os work types do prédio aberto; um item por nome sem olhar maiúscula, como a API compara.
   const all = [...new Map(available.map(w => [w.toLowerCase(), w])).values()].sort()
   return (
     <Popover>
@@ -548,7 +548,7 @@ function BudgetWorktypes({ available }: { available: string[] }) {
         <ListChecks className="h-3.5 w-3.5" />Work types
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
-        <p className="px-1 pb-1.5 text-xs text-muted-foreground">Work types logged on the buildings. Checked ones count in the labor budget of every building.</p>
+        <p className="px-1 pb-1.5 text-xs text-muted-foreground">Work types logged on this building. Checked ones count in the labor budget of every building.</p>
         <div className="grid max-h-64 gap-0.5 overflow-y-auto">
           {all.map(w => (
             <label key={w} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
@@ -570,7 +570,6 @@ function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
   canManage: boolean
 }) {
   const ready = buildings.filter(b => b.forecast)
-  const worktypes = buildings.flatMap(b => b.worktypes ?? [])
   const [open, setOpen] = useState<string | null>(null)
   const [mode, setMode] = useState<BudgetMode>("cumulative")
   const [hover, setHover] = useState<Series | null>(null)
@@ -642,7 +641,7 @@ function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
                             className={`h-full rounded px-2 ${mode === v ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{l}</button>
                         ))}
                       </div>
-                      {canManage && <BudgetWorktypes available={worktypes} />}
+                      {canManage && <BudgetWorktypes available={b.worktypes ?? []} />}
                     </div>
                     {mode === "cumulative" && <ReadingTip lines={interpret({ status: b.building.status.toLowerCase(), end: f.end, today: new Date().toISOString().slice(0, 10), budgetHours: f.budgetHours, exceedsOn: f.exceedsOn, series: f.series })} />}
                   </div>
