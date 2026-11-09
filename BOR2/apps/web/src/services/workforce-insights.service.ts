@@ -48,7 +48,7 @@ export interface BuildingForecast {
   workers: WorkerHours[]
 }
 
-export interface BuildingView { building: ForecastBuildingRef; link: BuildingLink | null; forecast: BuildingForecast | null; endSource?: "forecast" | "manual" }
+export interface BuildingView { building: ForecastBuildingRef; link: BuildingLink | null; forecast: BuildingForecast | null; endSource?: "forecast" | "manual"; worktypes?: string[] }
 
 export interface InsightsSettings {
   buildingBudget: number
@@ -77,8 +77,7 @@ const BASE = "/api/v1/workforce-insights"
 export const workforceInsightsService = {
   overview: (company: string, year: number, granularity: Granularity, client = "", jobsite = "", lot = "") =>
     api.get<InsightsOverview>(`${BASE}/overview?${new URLSearchParams({ company, year: String(year), granularity, client, jobsite, lot })}`, getToken()),
-  /** panels: conta também os work types deixados de fora no settings (WF-22). */
-  buildings: (panels = false) => api.get<BuildingView[]>(`${BASE}/buildings${panels ? "?panels=1" : ""}`, getToken()),
+  buildings: () => api.get<BuildingView[]>(`${BASE}/buildings`, getToken()),
   settings: () => api.get<SettingsView>(`${BASE}/settings`, getToken()),
   saveSettings: (s: InsightsSettings) => api.put<void>(`${BASE}/settings`, s, getToken()),
   employeeWeeks: (company: string, year: number, employee: string) =>

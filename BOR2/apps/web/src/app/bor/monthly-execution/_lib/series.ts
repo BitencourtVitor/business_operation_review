@@ -44,6 +44,23 @@ export interface ChartPoint {
   goal: number | null
   pending: number
   resolved: number
+  /** Obras do mês: a que não começa volta planejada no mês seguinte, e o total do ano conta cada uma uma vez só (ME-23). */
+  plannedIds: string[]
+  startedIds: string[]
+}
+
+export interface SeriesTotals { planned: number; started: number; finished: number; goal: number; offPaper: number; months: number }
+
+/**
+ * Totais dos meses from..upTo (1 a 12; padrão: o ano até upTo): planejado e iniciado sem repetir obra,
+ * terminado e meta somados mês a mês. Off paper = iniciadas + terminadas (ME-24).
+ */
+export function totals(data: ChartPoint[], upTo = 12, from = 1): SeriesTotals {
+  const rows = data.slice(from - 1, upTo)
+  const distinct = (k: "plannedIds" | "startedIds") => new Set(rows.flatMap(r => r[k])).size
+  const add = (k: "finished" | "goal") => rows.reduce((s, r) => s + (r[k] ?? 0), 0)
+  const started = distinct("startedIds"), finished = add("finished")
+  return { planned: distinct("plannedIds"), started, finished, goal: add("goal"), offPaper: started + finished, months: rows.length }
 }
 
 /**
@@ -54,7 +71,7 @@ export interface ChartPoint {
 export function buildSeries(args: {
   year: number; today: Date; filters: Filters; groups: GoalGroup[]
   execution: ExecutionEntry[]; finished: FinishedProject[]; points: ImprovementPoint[]
-  januaryFallback: { rows: { cliente?: string; jobSite?: string }[] }
+  januaryFallback: { rows: { obraId?: string; cliente?: string; jobSite?: string }[] }
 }): ChartPoint[] {
   const { year, today, filters, groups, execution, finished, points } = args
   const visible = visibleGroups(groups, filters)
@@ -67,13 +84,18 @@ export function buildSeries(args: {
   return MONTH_LABELS.map((label, i) => {
     const m = i + 1
     const exe = execution.filter(e => e.referenceMonth === m && inScope(e.cliente, e.jobSite))
-    let planned: number | null = exe.length || null
-    let started: number | null = exe.length ? exe.filter(isStarted).length : null
+    let plannedIds = [...new Set(exe.map(e => e.obraId.toLowerCase()))]
+    let startedIds = [...new Set(exe.filter(isStarted).map(e => e.obraId.toLowerCase()))]
+    let planned: number | null = plannedIds.length || null
+    let started: number | null = exe.length ? startedIds.length : null
     // Janeiro de 2026 não tem retrato de execução: o planejado sai das linhas do OFI do mês
     // (mesma regra dos grupos) e o iniciado fica vazio, como no kanban (não há registro por obra).
     if (m === 1 && year === 2026 && !exe.length) {
-      planned = args.januaryFallback.rows.filter(r => inScope(r.cliente, r.jobSite)).length || null
+      const jan = args.januaryFallback.rows.filter(r => inScope(r.cliente, r.jobSite))
+      plannedIds = [...new Set(jan.map((r, k) => (r.obraId ?? "jan-" + k).toLowerCase()))]
+      planned = plannedIds.length || null
       started = null
+      startedIds = []
     }
     const monthPoints = points.filter(p => p.month === m && pointVisible(p, ids, filtered))
     return {
@@ -84,6 +106,8 @@ export function buildSeries(args: {
       goal: visible.length ? visible.reduce((sum, g) => sum + (g.goals?.[i] ?? 0), 0) : null,
       pending: monthPoints.filter(p => p.status === "pending").length,
       resolved: monthPoints.filter(p => p.status === "resolved").length,
+      plannedIds,
+      startedIds,
     }
   })
 }
