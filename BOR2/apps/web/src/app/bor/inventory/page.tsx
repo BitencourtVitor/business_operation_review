@@ -4,12 +4,13 @@ import { useMemo, useRef, useState } from 'react';
 import {
   Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
-import { AlertCircle, ChevronDown, ChevronUp, DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
+import { AlertCircle, Building2, ChevronDown, ChevronUp, DollarSign, Package, TrendingDown, TrendingUp, UserRound } from 'lucide-react';
 import { useInventory } from '@/hooks/use-inventory';
 import { useFinancialStore } from '@/store/financial.store';
 import { InventorySkeleton } from '@/components/common/page-skeleton';
 import { Card, Kpi, Scope } from '@/components/common/insight-card';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { Tooltip as Tip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DetalheExcesso } from '@/services/inventory.service';
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -41,14 +42,15 @@ function split(d: DetalheExcesso, prices: Record<string, number>) {
 }
 
 /** Seletores colados (ano e mês): título em cima de cada um, borda arredondada só nas pontas, linha única entre eles. */
-function JoinedFilter({ parts }: { parts: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void }[] }) {
+function JoinedFilter({ parts }: { parts: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; icon?: React.ElementType }[] }) {
   return (
     <div className="flex items-end">
       {parts.map((p, i) => (
         <div key={p.label} className="flex flex-col gap-1">
           <span className="px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{p.label}</span>
           <Select value={p.value} onValueChange={v => v && p.onChange(v)}>
-            <SelectTrigger className={`h-8 w-auto gap-1.5 text-sm focus-visible:z-10 ${i === 0 ? 'rounded-l-lg rounded-r-none' : 'rounded-r-lg rounded-l-none border-l-0'}`}>
+            <SelectTrigger className={`h-8 w-auto gap-1.5 text-sm focus-visible:z-10 ${parts.length === 1 ? 'rounded-lg' : i === 0 ? 'rounded-l-lg rounded-r-none' : 'rounded-r-lg rounded-l-none border-l-0'}`}>
+              {p.icon && <p.icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
               <span className="whitespace-nowrap text-left">{p.options.find(o => o.value === p.value)?.label}</span>
             </SelectTrigger>
             <SelectContent className="max-h-64 w-max min-w-(--anchor-width)" alignItemWithTrigger={false} align="start">
@@ -116,6 +118,40 @@ function useDragScroll() {
   }
 }
 
+const sum = (m: Map<string, number>) => [...m.values()].reduce((a, b) => a + b, 0)
+
+/**
+ * Ícone de pessoa no lote: no hover, quem retirou cada produto e quanto (IC-5).
+ * É span, não botão: fica dentro do botão do lote, e o clique continua abrindo o lote.
+ */
+function WhoTook({ people, excess }: { people: Map<string, Map<string, number>>; excess: boolean }) {
+  return (
+    <TooltipProvider delay={150}>
+      <Tip>
+        <TooltipTrigger render={<span className="shrink-0 text-muted-foreground hover:text-foreground" aria-label="Who took it" />}>
+          <UserRound className="h-3 w-3" />
+        </TooltipTrigger>
+        <TooltipContent side="right" align="start" className="max-w-none border border-border bg-popover px-3 py-2 text-popover-foreground shadow-md [&>:last-child]:hidden">
+          <div className="grid w-56 gap-2 text-xs">
+            <p className="font-semibold">{excess ? 'Who took the excess' : 'Who took it'}</p>
+            {[...people.entries()].sort((a, b) => sum(b[1]) - sum(a[1])).map(([product, who]) => (
+              <div key={product} className="grid gap-0.5">
+                <p className="truncate text-muted-foreground">{product}</p>
+                {[...who.entries()].sort((a, b) => b[1] - a[1]).map(([name, units]) => (
+                  <p key={name} className="flex justify-between gap-3 pl-2">
+                    <span className="truncate">{name}</span>
+                    <span className={`shrink-0 tabular-nums ${excess ? 'text-red-500 dark:text-red-400' : ''}`}>{excess ? '+' : ''}{Math.round(units)}</span>
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+        </TooltipContent>
+      </Tip>
+    </TooltipProvider>
+  )
+}
+
 export default function InventoryPage() {
   const { data, isLoading, error } = useInventory()
   const { showFinancialData } = useFinancialStore()
@@ -125,9 +161,14 @@ export default function InventoryPage() {
   const [chartW, setChartW] = useState(800)
   const drag = useDragScroll()
   const [openLot, setOpenLot] = useState<string | null>(null)
+  // Job site da página inteira (IC-6) e o recorte do Limit Violations: só excesso ou toda retirada (IC-7).
+  const [site, setSite] = useState<string>(ALL)
+  const [view, setView] = useState<'excess' | 'all'>('excess')
 
   const prices = data?.product_prices ?? {}
-  const rows = useMemo(() => (data?.detalhes_excesso ?? []).filter(hasLimit), [data])
+  const allRows = useMemo(() => (data?.detalhes_excesso ?? []).filter(hasLimit), [data])
+  const siteOptions = useMemo(() => [...new Set(allRows.map(d => jobSiteOf(d.project_nome)))].sort(), [allRows])
+  const rows = useMemo(() => (site === ALL ? allRows : allRows.filter(d => jobSiteOf(d.project_nome) === site)), [allRows, site])
   const yearStr = String(year)
   const inScope = (date: string) => date.startsWith(yearStr) && (month === ALL || date.slice(5, 7) === month)
 
@@ -165,20 +206,27 @@ export default function InventoryPage() {
     return { within: t.within + c.within, excess: t.excess + c.excess, units: t.units + c.excessUnits }
   }, { within: 0, excess: 0, units: 0 }), [scoped, prices])
 
-  // Lotes com retirada acima do limite e, dentro de cada um, os produtos que passaram.
+  // Lotes com retirada acima do limite (em All withdrawals, com qualquer retirada) e, em cada um,
+  // os produtos e quem retirou: quem registrou a saída no Storage (IC-5).
   const lots = useMemo(() => {
-    const m = new Map<string, { lot: string; units: number; cost: number; products: Map<string, number> }>()
+    const m = new Map<string, { lot: string; units: number; cost: number; products: Map<string, number>; people: Map<string, Map<string, number>> }>()
     for (const d of scoped) {
       const c = split(d, prices)
-      if (c.excessUnits <= 0) continue
-      const e = m.get(d.project_nome) ?? { lot: d.project_nome, units: 0, cost: 0, products: new Map() }
-      e.units += c.excessUnits
-      e.cost += c.excess
-      e.products.set(d.product_nome, (e.products.get(d.product_nome) ?? 0) + c.excessUnits)
+      const units = view === 'excess' ? c.excessUnits : d.quantidade_retirada
+      if (units <= 0) continue
+      const e = m.get(d.project_nome) ?? { lot: d.project_nome, units: 0, cost: 0, products: new Map(), people: new Map() }
+      e.units += units
+      e.cost += view === 'excess' ? c.excess : c.within + c.excess
+      e.products.set(d.product_nome, (e.products.get(d.product_nome) ?? 0) + units)
+      const who = d.usuario_responsavel?.trim() || 'Unknown'
+      const byWho = e.people.get(d.product_nome) ?? new Map<string, number>()
+      byWho.set(who, (byWho.get(who) ?? 0) + units)
+      e.people.set(d.product_nome, byWho)
       m.set(d.project_nome, e)
     }
     return [...m.values()].sort((a, b) => b.cost - a.cost || b.units - a.units)
-  }, [scoped, prices])
+  }, [scoped, prices, view])
+  const excessLots = useMemo(() => new Set(scoped.filter(d => split(d, prices).excessUnits > 0).map(d => d.project_nome)).size, [scoped, prices])
 
   // Ranking de job sites pelo custo do excesso: soma dos lotes de cada um.
   const sites = useMemo(() => {
@@ -207,6 +255,9 @@ export default function InventoryPage() {
   const scopeLabel = month === ALL ? yearStr : `${MONTHS[Number(month) - 1]} ${yearStr}`
   const resets = (data.reset_dates?.length ? data.reset_dates : data.reset_date ? [data.reset_date] : []).filter(d => d.startsWith(yearStr))
   const focus = month === ALL ? undefined : MONTHS_SHORT[Number(month) - 1]
+  // Vermelho só para o excesso; a lista de todas as retiradas fica neutra.
+  const tone = view === 'excess' ? 'text-red-600 dark:text-red-400' : 'text-foreground'
+  const toneSoft = view === 'excess' ? 'text-red-500/80 dark:text-red-400/80' : 'text-muted-foreground'
 
   return (
     // Toda mudança visual da página leva meio segundo, como no Workforce.
@@ -216,10 +267,15 @@ export default function InventoryPage() {
           <h1 className="text-xl font-semibold tracking-tight">Inventory Control</h1>
           <p className="text-sm text-muted-foreground">Material withdrawals, excess over the lot limits and their cost</p>
         </div>
-        <JoinedFilter parts={[
-          { label: 'Year', value: yearStr, options: years.map(y => ({ value: String(y), label: String(y) })), onChange: v => { setYear(Number(v)); setMonth(ALL) } },
-          { label: 'Month', value: month, options: [{ value: ALL, label: `All of ${yearStr}` }, ...months.map(m => ({ value: m, label: MONTHS[Number(m) - 1] }))], onChange: setMonth },
-        ]} />
+        <div className="flex flex-wrap items-end gap-2">
+          <JoinedFilter parts={[
+            { label: 'Job site', icon: Building2, value: site, options: [{ value: ALL, label: 'All job sites' }, ...siteOptions.map(j => ({ value: j, label: j }))], onChange: v => { setSite(v); setOpenLot(null) } },
+          ]} />
+          <JoinedFilter parts={[
+            { label: 'Year', value: yearStr, options: years.map(y => ({ value: String(y), label: String(y) })), onChange: v => { setYear(Number(v)); setMonth(ALL) } },
+            { label: 'Month', value: month, options: [{ value: ALL, label: `All of ${yearStr}` }, ...months.map(m => ({ value: m, label: MONTHS[Number(m) - 1] }))], onChange: setMonth },
+          ]} />
+        </div>
       </div>
 
       <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-3">
@@ -227,7 +283,7 @@ export default function InventoryPage() {
         <Kpi icon={TrendingDown} label="Excess Cost" value={showFinancialData ? fmtUSD(totals.excess) : '••••'} tone={totals.excess > 0 ? 'red' : undefined}
           sub={`${pct(totals.excess, total)}% of the withdrawals`} />
         <Kpi icon={Package} label="Excess Units" value={String(Math.round(totals.units))} tone={totals.units > 0 ? 'red' : undefined}
-          sub={`Taken after the lot limit, in ${lots.length} ${lots.length === 1 ? 'lot' : 'lots'}`} />
+          sub={`Taken after the lot limit, in ${excessLots} ${excessLots === 1 ? 'lot' : 'lots'}`} />
       </div>
 
       {/* O gráfico principal em cima, na largura toda; as violações embaixo. */}
@@ -288,7 +344,18 @@ export default function InventoryPage() {
           )}
         </Card>
 
-        <Card className="min-h-0 flex-[2]" title={<>Limit Violations<Scope>{scopeLabel}</Scope></>}
+        <Card className="min-h-0 flex-[2]" title={<>{view === 'excess' ? 'Limit Violations' : 'Withdrawals'}<Scope>{scopeLabel}</Scope></>}
+          right={
+            <div className="flex h-7 items-center rounded-md border border-border p-0.5 text-xs" role="group" aria-label="What to list">
+              {/* No celular a chave encolhe ("Violations", "All") para o título caber. */}
+              {([['excess', 'Only ', 'violations'], ['all', 'All', ' withdrawals']] as const).map(([v, a, b]) => (
+                <button key={v} type="button" aria-pressed={view === v} onClick={() => { setView(v); setOpenLot(null) }}
+                  className={`h-full rounded px-2 ${view === v ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                  {v === 'excess' ? <><span className="max-sm:hidden">{a}</span><span className="max-sm:capitalize">{b}</span></> : <>{a}<span className="max-sm:hidden">{b}</span></>}
+                </button>
+              ))}
+            </div>
+          }
           help={{
             what: 'Job sites ranked by the cost of material taken past the lot limits, each with its lots and the products that went past.',
             items: [
@@ -296,9 +363,10 @@ export default function InventoryPage() {
               { label: 'Units', text: 'Units taken after the limit.' },
               { label: 'Lots', text: 'How many of its lots went past the limit.' },
             ],
-            action: 'Each block is a job site, most costly first; click and drag sideways for the others. Click a lot to see its products.',
+            note: 'All withdrawals lists every withdrawal of the lots, within the limit or not, instead of only what went past it.',
+            action: 'Each block is a job site, most costly first; click and drag sideways for the others. Click a lot to see its products; hover the person icon to see who took them.',
           }}>
-          {sites.length === 0 ? <p className="py-6 text-center text-xs text-muted-foreground">No violations in this period.</p> : (
+          {sites.length === 0 ? <p className="py-6 text-center text-xs text-muted-foreground">{view === 'excess' ? 'No violations in this period.' : 'No withdrawals in this period.'}</p> : (
             // Galeria: um bloco por job site, lado a lado (rola na horizontal); cada bloco cresce para baixo.
             <div {...drag} className="flex h-full cursor-grab gap-2 overflow-x-auto pb-1 select-none active:cursor-grabbing [scrollbar-color:auto]! [scrollbar-width:auto]! [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar]:h-1! [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border">
               {sites.map((s, rank) => (
@@ -309,15 +377,15 @@ export default function InventoryPage() {
                       <p className="flex items-center gap-1.5 text-xs font-semibold">
                         <span className="text-muted-foreground tabular-nums">#{rank + 1}</span><span className="truncate">{s.site}</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground tabular-nums">{s.lots.length} {s.lots.length === 1 ? 'lot' : 'lots'} over the limit</p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">{s.lots.length} {s.lots.length === 1 ? 'lot' : 'lots'}{view === 'excess' ? ' over the limit' : ''}</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className={`text-sm font-semibold tabular-nums text-red-600 dark:text-red-400 ${blur}`}>{fmtUSD(s.cost)}</p>
-                      <p className="text-[11px] text-muted-foreground tabular-nums">{Math.round(s.units)} units over</p>
+                      <p className={`text-sm font-semibold tabular-nums ${tone} ${blur}`}>{fmtUSD(s.cost)}</p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">{Math.round(s.units)} {view === 'excess' ? 'units over' : 'units'}</p>
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2 px-3 pt-1.5 pb-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    <span className="flex-1">Lot</span><span>Units</span><span className="w-14 text-right" style={{ color: COLORS.excess }}>Excess</span><span className="w-3" />
+                    <span className="flex-1">Lot</span><span>Units</span><span className="w-14 text-right" style={{ color: view === 'excess' ? COLORS.excess : undefined }}>{view === 'excess' ? 'Excess' : 'Cost'}</span><span className="w-3" /><span className="w-3" />
                   </div>
                   <div className="grid min-h-0 flex-1 content-start gap-0.5 overflow-y-auto px-1.5 pb-1.5">
                     {s.lots.map(l => {
@@ -326,16 +394,17 @@ export default function InventoryPage() {
                         <div key={l.lot} className={`rounded ${lotOpen ? 'bg-muted/60' : ''}`}>
                           <button type="button" onClick={() => setOpenLot(lotOpen ? null : l.lot)}
                             className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-[11px] hover:bg-muted/60">
-                            <span className="min-w-0 flex-1 truncate">{l.lot.replace(s.site, '').replace(/^s*-?s*/, '') || l.lot}</span>
-                            <span className="shrink-0 tabular-nums text-muted-foreground">+{Math.round(l.units)}</span>
-                            <span className={`w-14 shrink-0 text-right tabular-nums text-red-500/80 dark:text-red-400/80 ${blur}`}>{fmtUSD(l.cost)}</span>
+                            <span className="min-w-0 flex-1 truncate">{l.lot.replace(s.site, '').replace(/^\s*-?\s*/, '') || l.lot}</span>
+                            <span className="shrink-0 tabular-nums text-muted-foreground">{view === 'excess' ? '+' : ''}{Math.round(l.units)}</span>
+                            <span className={`w-14 shrink-0 text-right tabular-nums ${toneSoft} ${blur}`}>{fmtUSD(l.cost)}</span>
+                            <WhoTook people={l.people} excess={view === 'excess'} />
                             {lotOpen ? <ChevronUp className="h-3 w-3 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />}
                           </button>
                           {lotOpen && (
                             <div className="grid gap-0.5 px-1.5 pb-1.5 pl-3">
                               {[...l.products.entries()].sort((x, y) => y[1] - x[1]).map(([name, units]) => (
                                 <p key={name} className="flex justify-between gap-2 text-[11px] text-muted-foreground">
-                                  <span className="truncate">{name}</span><span className="shrink-0 tabular-nums text-red-500/80 dark:text-red-400/80">+{Math.round(units)}</span>
+                                  <span className="truncate">{name}</span><span className={`shrink-0 tabular-nums ${toneSoft}`}>{view === 'excess' ? '+' : ''}{Math.round(units)}</span>
                                 </p>
                               ))}
                             </div>

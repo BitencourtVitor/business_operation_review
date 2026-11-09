@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -9,24 +9,18 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog"
 import { Button }   from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useMonthlyExecution, useOfi } from "@/hooks/use-ofi"
 import { usePermission } from "@/hooks/use-permission"
 import { usePayPeriods } from "@/hooks/use-qbtime-period-report"
-import { ofiService, type ExecutionEntry } from "@/services/ofi.service"
 import { monthlyExecutionService } from "@/services/monthly-execution.service"
 import {
-  Building2, Calendar, CalendarCheck, CheckCircle2, ChevronDown, CircleCheck, CircleDot,
-  Info, MapPin, MessageSquareText, Pencil, Play, Settings2, Users,
+  Building2, Calendar, CheckCircle2, ChevronDown, CircleCheck, CircleDot, MessageSquareText, Settings2, Users,
 } from "lucide-react"
 import {
-  MONTH_LABELS, MONTH_NAMES, buildSeries, clientsOf, isStarted, monthOf, pointVisible,
-  siteIndex, siteKey, standings, visibleGroups, monthsScope, fortnightScope, type ChartPoint, type Filters,
+  MONTH_LABELS, MONTH_NAMES, buildSeries, clientsOf, monthOf, pointVisible,
+  standings, visibleGroups, monthsScope, fortnightScope, type ChartPoint, type Filters,
 } from "./_lib/series"
 import { SettingsDialog } from "./_components/settings-dialog"
 import { PointsDialog } from "./_components/points-dialog"
@@ -107,21 +101,30 @@ function PointsTick(props: { x?: number | string; y?: number | string; payload?:
   )
 }
 
-function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
-  data: ChartPoint[]; year: number; month: number | null
+/** Total de cada série no ano, no que o gráfico mostra; a meta só até o mês corrente, para comparar com Finished. */
+const sum = (data: ChartPoint[], k: "planned" | "started" | "finished" | "goal", upTo = 12) =>
+  data.slice(0, upTo).reduce((s, r) => s + (r[k] ?? 0), 0)
+
+function ExecutionChart({ title, data, year, month, compact = false, className = "", onPickMonth, onOpenPoints }: {
+  title: string; data: ChartPoint[]; year: number; month: number | null; compact?: boolean; className?: string
   onPickMonth: (m: number) => void; onOpenPoints: (m: number) => void
 }) {
+  const goalUpTo = year < currentYear ? 12 : currentMonth
   const legend = [
-    { label: "Planned", color: COLORS.planned },
-    { label: "Started", color: COLORS.started },
-    { label: "Finished", color: COLORS.finished },
-    { label: "Goal", color: COLORS.goal, dashed: true },
+    { label: "Planned", color: COLORS.planned, total: sum(data, "planned") },
+    { label: "Started", color: COLORS.started, total: sum(data, "started") },
+    { label: "Finished", color: COLORS.finished, total: sum(data, "finished") },
+    { label: "Goal", color: COLORS.goal, dashed: true, total: sum(data, "goal", goalUpTo) },
   ]
+  // O id do gradiente é por gráfico: com três na página, um id repetido pinta todos com o primeiro.
+  const gid = title.replace(/\W+/g, "")
   return (
-    <div className="rounded-xl border border-border bg-card/60 px-5 pt-4 pb-3">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-muted-foreground">Monthly Execution Overview · {year}</p>
+    <div className={`flex flex-col rounded-xl border border-border bg-card/60 ${compact ? "px-4 pt-3 pb-2" : "px-5 pt-4 pb-3"} ${className}`}>
+      <div className={`mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${compact ? "[&>div]:contents" : ""}`}>
+        <p className="text-sm font-medium text-muted-foreground">{title} · {year}</p>
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+          {/* No mini, a legenda desce para a segunda linha inteira e o Points fica ao lado do título. */}
+          <span className={compact ? "order-last flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" : "contents"}>
           {legend.map(l => (
             <span key={l.label} className="flex items-center gap-1.5">
               {l.dashed ? (
@@ -132,8 +135,10 @@ function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
                 <span className="inline-block h-2 w-4 rounded-full" style={{ background: l.color }} />
               )}
               {l.label}
+              <span className="font-semibold tabular-nums text-foreground">{l.total}</span>
             </span>
           ))}
+          </span>
           <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => onOpenPoints(month ?? currentMonth)}>
             <MessageSquareText className="h-3.5 w-3.5" />
             Points · {MONTH_LABELS[(month ?? currentMonth) - 1]}
@@ -142,8 +147,7 @@ function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
       </div>
 
       <div
-        className="[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:text-[11px] [&_.recharts-surface]:cursor-pointer"
-        style={{ height: 230 }}
+        className={`lg:min-h-0 lg:flex-1 [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:text-[11px] [&_.recharts-surface]:cursor-pointer ${compact ? "max-lg:h-52 lg:min-h-40" : "max-lg:h-64 lg:min-h-56"}`}
       >
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -155,11 +159,11 @@ function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
             }}
           >
             <defs>
-              <linearGradient id="gradPlanned" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`gradPlanned${gid}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={COLORS.planned} stopOpacity={0.25} />
                 <stop offset="95%" stopColor={COLORS.planned} stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="gradStarted" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`gradStarted${gid}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={COLORS.started} stopOpacity={0.25} />
                 <stop offset="95%" stopColor={COLORS.started} stopOpacity={0} />
               </linearGradient>
@@ -173,9 +177,9 @@ function ExecutionChart({ data, year, month, onPickMonth, onOpenPoints }: {
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
             <RechartsTooltip content={<ChartTooltip />} cursor={<HoverBand />} />
             <Area type="monotone" dataKey="planned" name="Planned" stroke={COLORS.planned} strokeWidth={2.5}
-              fill="url(#gradPlanned)" dot={{ r: 3, fill: COLORS.planned, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} connectNulls={false} />
+              fill={`url(#gradPlanned${gid})`} dot={{ r: 3, fill: COLORS.planned, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} connectNulls={false} />
             <Area type="monotone" dataKey="started" name="Started" stroke={COLORS.started} strokeWidth={2.5}
-              fill="url(#gradStarted)" dot={{ r: 3, fill: COLORS.started, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} connectNulls={false} />
+              fill={`url(#gradStarted${gid})`} dot={{ r: 3, fill: COLORS.started, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} connectNulls={false} />
             <Line type="monotone" dataKey="finished" name="Finished" stroke={COLORS.finished} strokeWidth={2.5}
               dot={{ r: 3, fill: COLORS.finished, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} connectNulls={false} />
             <Line type="stepAfter" dataKey="goal" name="Goal" stroke={COLORS.goal} strokeWidth={2} strokeDasharray={GOAL_DASH}
@@ -268,155 +272,6 @@ function GoalPanel({ rows, label }: { rows: ReturnType<typeof standings>; label:
   )
 }
 
-// ─── Project Card ─────────────────────────────────────────────────────────────
-
-function ProjectCard({ entry, canEdit, onEdit }: {
-  entry: ExecutionEntry
-  canEdit: boolean
-  onEdit: (entry: ExecutionEntry) => void
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card/60 p-3 transition-colors hover:bg-card">
-      <p className="text-sm font-medium leading-snug">{entry.projectName || entry.obraId}</p>
-
-      {entry.address && (
-        <p className="mt-0.5 text-[11px] text-muted-foreground/60">{entry.address}</p>
-      )}
-
-      {entry.subcontractor && (
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3 shrink-0" />
-          {entry.subcontractor}
-        </p>
-      )}
-
-      {entry.reason && (
-        <p className="mt-1.5 flex items-start gap-1.5 text-xs italic leading-relaxed text-muted-foreground/80">
-          <Info className="mt-0.5 h-3 w-3 shrink-0" />
-          {entry.reason}
-        </p>
-      )}
-
-      {canEdit && (
-        <div className="mt-2 flex justify-end">
-          <button
-            onClick={() => onEdit(entry)}
-            className="flex items-center gap-1 text-[11px] text-muted-foreground/50 transition-colors hover:text-primary"
-          >
-            <Pencil className="h-3 w-3" />
-            {entry.reason ? "Edit note" : "Add note"}
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Kanban Column ────────────────────────────────────────────────────────────
-
-type ColVariant = "planned" | "started" | "finished"
-
-const COL_CONFIG: Record<ColVariant, { label: string; icon: React.ElementType; color: string }> = {
-  planned:  { label: "Planned Projects",  icon: CalendarCheck, color: COLORS.planned },
-  started:  { label: "Started Projects",  icon: Play,          color: COLORS.started },
-  finished: { label: "Finished Projects", icon: CheckCircle2,  color: COLORS.finished },
-}
-
-function KanbanColumn({ variant, month, entries, totalCaptured, canEdit, onEdit, empty = "No projects" }: {
-  variant: ColVariant
-  month: string
-  entries: ExecutionEntry[]
-  totalCaptured?: number
-  empty?: string
-  canEdit: boolean
-  onEdit: (entry: ExecutionEntry) => void
-}) {
-  const { label, icon: Icon, color } = COL_CONFIG[variant]
-  const isPlanned = variant === "planned"
-
-  return (
-    <div className="flex max-h-[480px] min-h-0 flex-col rounded-xl lg:max-h-none border border-border bg-muted/20">
-      <div className="flex items-center gap-2 px-4 py-3">
-        <Icon className="h-4 w-4 shrink-0" style={{ color }} />
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-sm font-semibold uppercase tracking-wide" style={{ color }}>{label}</span>
-          <span className="text-[11px] text-muted-foreground">{month}</span>
-        </span>
-        <span className="text-sm font-bold tabular-nums">
-          {isPlanned ? totalCaptured : entries.length}
-        </span>
-      </div>
-
-      {isPlanned && (
-        <div className="flex items-center justify-between border-t border-border/50 px-4 py-1.5 text-xs text-muted-foreground">
-          <span>Remaining</span>
-          <span className="font-semibold tabular-nums text-primary">{entries.length}</span>
-        </div>
-      )}
-
-      <div className="no-scrollbar flex flex-1 flex-col gap-2 overflow-y-auto p-3">
-        {entries.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground/30">
-            <Icon className="h-8 w-8" style={{ color: "currentColor" }} />
-            <p className="text-center text-sm">{empty}</p>
-          </div>
-        ) : (
-          entries.map(e => (
-            <ProjectCard key={e.id} entry={e} canEdit={canEdit} onEdit={onEdit} />
-          ))
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ─── Reason Edit Dialog ───────────────────────────────────────────────────────
-
-function ReasonDialog({ entry, onClose }: { entry: ExecutionEntry | null; onClose: () => void }) {
-  const qc = useQueryClient()
-  const [text, setText] = useState("")
-
-  useEffect(() => { setText(entry?.reason ?? "") }, [entry])
-
-  const mutation = useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      ofiService.updateExecutionReason(id, reason),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["monthly-execution"] }); onClose() },
-  })
-
-  if (!entry) return null
-
-  return (
-    <Dialog open={!!entry} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-sm font-semibold">
-            Note · {entry.projectName || entry.obraId}
-          </DialogTitle>
-        </DialogHeader>
-        <Textarea
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder="Type your observation here..."
-          rows={5}
-          className="resize-none text-sm"
-          autoFocus
-        />
-        <DialogFooter className="gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
-          <Button
-            size="sm"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate({ id: entry.id, reason: text })}
-          >
-            {mutation.isPending ? "Saving…" : "Save"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 // ─── Filter pill ──────────────────────────────────────────────────────────────
 
 function FilterSelect({ label, icon: Icon, value, options, onChange, width = 170 }: {
@@ -447,9 +302,8 @@ export default function MonthlyExecutionPage() {
   const writable = canEdit("monthly_execution")
   const [period, setPeriod]       = useState(String(currentMonth))
   const [filters, setFilters]     = useState<Filters>({ client: "all", group: "all" })
-  const [editEntry, setEditEntry] = useState<ExecutionEntry | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [pointsMonth, setPointsMonth]   = useState<number | null>(null)
+  const [pointsAt, setPointsAt] = useState<{ month: number; client: string | null } | null>(null)
 
   const { data: allYear = [], isLoading } = useMonthlyExecution({ year })
   const { data: bor2Ofi = [] } = useOfi({ year })
@@ -458,9 +312,6 @@ export default function MonthlyExecutionPage() {
   const fortnights = (payPeriods?.periods ?? []).filter(p => p.endDate.startsWith(String(year)))
   const fortnight = period.startsWith("pp:") ? fortnights.find(p => `pp:${p.startDate}` === period) ?? null : null
   const month = period === YTD ? null : fortnight ? monthOf(fortnight.endDate) : Number(period)
-  const kanbanMonth = month ?? currentMonth
-  const kanbanLabel = `${MONTH_NAMES[kanbanMonth - 1]} ${year}`
-  const { data: ofiForMonth = [] } = useOfi({ year, month: kanbanMonth })
   const { data: groups = [] }   = useQuery({ queryKey: ["monthly-execution", "goals", year],    queryFn: () => monthlyExecutionService.goals(year) })
   const { data: finished = [] } = useQuery({ queryKey: ["monthly-execution", "finished", year], queryFn: () => monthlyExecutionService.finished(year) })
   const { data: points = [] }   = useQuery({ queryKey: ["monthly-execution", "points", year],   queryFn: () => monthlyExecutionService.points(year) })
@@ -484,37 +335,24 @@ export default function MonthlyExecutionPage() {
   const panel = useMemo(() => standings(visible, finished, scope), [visible, finished, scope.from, scope.to]) // eslint-disable-line react-hooks/exhaustive-deps
   const panelLabel = fortnight ? fortnightLabel(fortnight) : month ? MONTH_NAMES[month - 1] : `Jan to ${MONTH_LABELS[currentMonth - 1]}`
 
-  // ── Kanban: mês escolhido (ou o corrente, no acumulado do ano) ─────────────
-  // Planned e Started seguem o retrato mensal como sempre; Finished é o fim real.
-  const index = useMemo(() => siteIndex(visible), [visible])
-  // Mesma regra do gráfico: só job sites de algum grupo de meta entram, com ou sem filtro.
-  const inFilter = (cliente = "", jobSite = "") => index.has(siteKey(cliente, jobSite))
+  // Mini gráficos fixos por cliente (ME-22): a mesma série, com o cliente no filtro.
+  // Os Points são os mesmos: o ponto que cita um job site do cliente aparece no mini dele.
+  const minis = useMemo(() => [/pulte/i, /toll/i]
+    .map(re => clients.find(c => re.test(c)))
+    .filter((c): c is string => !!c)
+    .map(client => ({
+      client,
+      data: buildSeries({
+        year, today, filters: { client, group: "all" }, groups, execution: allYear, finished, points,
+        januaryFallback: { rows: bor2Ofi.filter(e => e.referenceMonth === 1) },
+      }),
+    })), [clients, year, groups, allYear, finished, points, bor2Ofi])
 
-  const { forMonth, isOFIFallback } = useMemo(() => {
-    const execRecords = allYear.filter(e => e.referenceMonth === kanbanMonth)
-    if (execRecords.length > 0) return { forMonth: execRecords, isOFIFallback: false }
-    const ofiRecords: ExecutionEntry[] = ofiForMonth.map(o => ({
-      id: o.id, obraId: o.obraId, referenceMonth: o.referenceMonth, referenceYear: o.referenceYear,
-      plannedStatus: "not_started", actualStatus: "not_started" as const, reason: "", subcontractor: "",
-      isCycleCompleted: false, projectName: o.projectName, address: o.address, cliente: o.cliente, jobSite: o.jobSite,
-    }))
-    return { forMonth: ofiRecords, isOFIFallback: true }
-  }, [allYear, ofiForMonth, kanbanMonth])
-
-  const scoped   = forMonth.filter(e => inFilter(e.cliente, e.jobSite))
-  const planned  = scoped.filter(e => !isStarted(e))
-  const started  = scoped.filter(isStarted)
-  const finishedCards: ExecutionEntry[] = finished
-    .filter(p => (fortnight ? p.finishedOn >= scope.from && p.finishedOn <= scope.to : p.finishedOn.startsWith(String(year)) && monthOf(p.finishedOn) === kanbanMonth)
-      && inFilter(p.cliente, p.jobSite))
-    .map(p => ({
-      id: p.id, obraId: p.id, referenceMonth: kanbanMonth, referenceYear: year, plannedStatus: "",
-      actualStatus: "completed", reason: "", subcontractor: "", isCycleCompleted: true,
-      projectName: p.projectName, address: p.address, jobSite: p.jobSite, cliente: p.cliente,
-    }))
-
-  const pointIds = new Set(visible.map(g => g.id))
-  const dialogPoints = points.filter(p => pointVisible(p, pointIds, filtered))
+  // Points abertos: do gráfico principal (filtro da página) ou de um mini (cliente dele).
+  const dialogScope = pointsAt?.client ? visibleGroups(groups, { client: pointsAt.client, group: "all" }) : visible
+  const dialogFiltered = pointsAt?.client ? true : filtered
+  const dialogIds = new Set(dialogScope.map(g => g.id))
+  const dialogPoints = points.filter(p => pointVisible(p, dialogIds, dialogFiltered))
 
   if (isLoading) return <PageSkeleton />
 
@@ -532,7 +370,7 @@ export default function MonthlyExecutionPage() {
     t === "ytd" ? YTD : t === "fortnight" ? (fortnights[0] ? `pp:${fortnights[0].startDate}` : YTD) : String(currentMonth))
 
   return (
-    <div className="flex flex-col gap-5 lg:h-full">
+    <div className="flex h-full flex-col gap-5 max-lg:overflow-y-auto max-lg:pr-1">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Monthly Execution</h1>
@@ -586,26 +424,27 @@ export default function MonthlyExecutionPage() {
       </div>
 
       <div className="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="@container flex flex-col gap-4 max-lg:contents lg:min-h-0">
-          <ExecutionChart data={chartData} year={year} month={month}
-            onPickMonth={m => setPeriod(String(m))} onOpenPoints={setPointsMonth} />
+        <div className="flex flex-col gap-4 max-lg:contents lg:min-h-0">
+          {/* O principal fica com mais altura que os mini gráficos (3 para 2). */}
+          <ExecutionChart title="Monthly Execution Overview" data={chartData} year={year} month={month} className="lg:min-h-0 lg:flex-[3]"
+            onPickMonth={m => setPeriod(String(m))} onOpenPoints={m => setPointsAt({ month: m, client: null })} />
 
-          <div className="grid gap-4 max-lg:order-3 @2xl:grid-cols-3 lg:min-h-0 lg:flex-1">
-            <KanbanColumn variant="planned" month={kanbanLabel} entries={planned} totalCaptured={scoped.length}
-              canEdit={!isOFIFallback && writable} onEdit={setEditEntry} />
-            <KanbanColumn variant="started"  month={kanbanLabel} entries={started}       canEdit={false} onEdit={setEditEntry}
-              empty={isOFIFallback ? "No snapshot for this month" : undefined} />
-            <KanbanColumn variant="finished" month={fortnight ? fortnightLabel(fortnight) : kanbanLabel} entries={finishedCards} canEdit={false} onEdit={setEditEntry} />
-          </div>
+          {minis.length > 0 && (
+            <div className="grid gap-4 max-lg:order-3 md:grid-cols-2 lg:min-h-0 lg:flex-[2]">
+              {minis.map(m => (
+                <ExecutionChart key={m.client} compact title={m.client} data={m.data} year={year} month={month} className="lg:min-h-0"
+                  onPickMonth={mm => setPeriod(String(mm))} onOpenPoints={mm => setPointsAt({ month: mm, client: m.client })} />
+              ))}
+            </div>
+          )}
         </div>
 
         <GoalPanel rows={panel} label={panelLabel} />
       </div>
 
-      <ReasonDialog entry={editEntry} onClose={() => setEditEntry(null)} />
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} groups={groups} />
-      <PointsDialog year={year} month={pointsMonth} points={dialogPoints} groups={visible.length ? visible : groups}
-        canEdit={writable} onClose={() => setPointsMonth(null)} />
+      <PointsDialog year={year} month={pointsAt?.month ?? null} points={dialogPoints} groups={dialogScope.length ? dialogScope : groups}
+        canEdit={writable} onClose={() => setPointsAt(null)} />
     </div>
   )
 }

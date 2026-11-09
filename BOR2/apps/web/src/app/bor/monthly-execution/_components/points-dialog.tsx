@@ -5,6 +5,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Building2, CalendarDays, CircleCheck, CircleDot, Loader2, MessageSquareText, Pencil, Plus, SendHorizontal, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group"
 import { ROLE_ICON } from "@/components/features/forecast/obs-history"
@@ -61,6 +65,7 @@ function Point({ p, groups, canEdit, onChanged }: { p: ImprovementPoint; groups:
   const me = useAuthStore(s => s.user?.id)
   const mine = !!me && p.authorId === me
   const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [reply, setReply] = useState("")
   const role = ROLE_ICON[p.authorRole] ?? ROLE_ICON.user
   const named = groups.filter(g => p.groupIds.includes(g.id))
@@ -104,13 +109,31 @@ function Point({ p, groups, canEdit, onChanged }: { p: ImprovementPoint; groups:
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
               <Button variant="ghost" size="icon" className="h-6 w-6 hover:text-red-600" aria-label="Delete point"
-                disabled={remove.isPending} onClick={() => { if (confirm("Delete this point?")) remove.mutate() }}>
+                disabled={remove.isPending} onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </>
           )}
         </span>
       </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" /> Delete this point?
+            </AlertDialogTitle>
+            <AlertDialogDescription>The point and its replies are removed for good.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel><X className="h-4 w-4" /> Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" disabled={remove.isPending}
+              onClick={() => remove.mutate(undefined, { onSuccess: () => setConfirmDelete(false) })}>
+              {remove.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <p className="text-sm break-words whitespace-pre-wrap">{p.body}</p>
       {named.length > 0 && (

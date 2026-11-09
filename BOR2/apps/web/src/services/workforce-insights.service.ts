@@ -21,7 +21,10 @@ export interface ObraHours {
 export interface EmployeeHours { period: string; employee: string; isBuilding?: boolean; regular: number; overtime: number }
 
 export interface SiteOption { client: string; jobsite: string }
-export interface InsightsOverview { periods: InsightsPeriod[]; obras: ObraHours[]; employees: EmployeeHours[]; sites?: SiteOption[] }
+export interface InsightsOverview { periods: InsightsPeriod[]; obras: ObraHours[]; employees: EmployeeHours[]; sites?: SiteOption[]; lots?: string[]; capacity?: PeriodCapacity[] }
+
+/** Pessoa-dia útil com hora lançada no período, por recorte do filtro Type (WF-23). */
+export interface PeriodCapacity { period: string; all: number; building: number; house: number }
 
 export interface ForecastBuildingRef {
   id: string; cliente: string; jobSite: string; lot: string; status: string; type?: string
@@ -72,9 +75,10 @@ export interface OvertimeNote { employee: string; weekStart: string; note: strin
 const BASE = "/api/v1/workforce-insights"
 
 export const workforceInsightsService = {
-  overview: (company: string, year: number, granularity: Granularity, client = "", jobsite = "") =>
-    api.get<InsightsOverview>(`${BASE}/overview?${new URLSearchParams({ company, year: String(year), granularity, client, jobsite })}`, getToken()),
-  buildings: () => api.get<BuildingView[]>(`${BASE}/buildings`, getToken()),
+  overview: (company: string, year: number, granularity: Granularity, client = "", jobsite = "", lot = "") =>
+    api.get<InsightsOverview>(`${BASE}/overview?${new URLSearchParams({ company, year: String(year), granularity, client, jobsite, lot })}`, getToken()),
+  /** panels: conta também os work types deixados de fora no settings (WF-22). */
+  buildings: (panels = false) => api.get<BuildingView[]>(`${BASE}/buildings${panels ? "?panels=1" : ""}`, getToken()),
   settings: () => api.get<SettingsView>(`${BASE}/settings`, getToken()),
   saveSettings: (s: InsightsSettings) => api.put<void>(`${BASE}/settings`, s, getToken()),
   employeeWeeks: (company: string, year: number, employee: string) =>
