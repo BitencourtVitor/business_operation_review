@@ -208,7 +208,7 @@ export function WorkforceSettingsDialog({ open, onClose }: { open: boolean; onCl
                           onClick={() => {
                             if (!addF || !addQ) return
                             const rest = (draft.links ?? []).filter(l => l.forecastId !== addF.id && l.forecastId !== editId)
-                            patch({ links: [...rest, { forecastId: addF.id, jobsite: addQ.jobsite, building: addQ.building, endOverride: addEnd }] })
+                            patch({ links: [...rest, { ...draft.links.find(l => l.forecastId === addF.id), forecastId: addF.id, jobsite: addQ.jobsite, building: addQ.building, endOverride: addEnd }] })
                             resetAdd()
                           }}>
                           {editId ? <><Check className="h-3.5 w-3.5" />Save</> : <><Plus className="h-3.5 w-3.5" />Add</>}

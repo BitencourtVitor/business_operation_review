@@ -31,7 +31,8 @@ export interface ForecastBuildingRef {
   start: string | null; end: string | null
 }
 
-export interface BuildingLink { forecastId: string; jobsite: string; building: string; endOverride?: string | null }
+/** ignoredWorktypes: work types fora do orçamento deste prédio (WF-39); null, vale a lista geral. */
+export interface BuildingLink { forecastId: string; jobsite: string; building: string; endOverride?: string | null; ignoredWorktypes?: string[] | null }
 
 export interface BuildingPoint { date: string; planned: number; actual: number | null; projected: number | null }
 

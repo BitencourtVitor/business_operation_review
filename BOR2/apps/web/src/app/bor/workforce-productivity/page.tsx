@@ -541,18 +541,23 @@ function BudgetPace({ f }: { f: BuildingForecast }) {
 }
 
 /** Work types que ficam de fora do orçamento do prédio, editados ali mesmo (WF-33). Grava no settings da página. */
-function BudgetWorktypes({ available }: { available: string[] }) {
+function BudgetWorktypes({ building }: { building: BuildingView }) {
   const qc = useQueryClient()
   const { data } = useQuery({ queryKey: ["workforce-insights", "settings"], queryFn: workforceInsightsService.settings })
   const save = useMutation({
-    mutationFn: (ignored: string[]) => workforceInsightsService.saveSettings({ ...data!.settings, ignoredWorktypes: ignored }),
+    // Grava só no vínculo deste prédio (WF-39); os outros prédios não mudam.
+    mutationFn: (ignored: string[]) => workforceInsightsService.saveSettings({
+      ...data!.settings,
+      links: data!.settings.links.map(l => l.forecastId === building.building.id ? { ...l, ignoredWorktypes: ignored } : l),
+    }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["workforce-insights"] }),
   })
   if (!data) return null
-  const ignored = data.settings.ignoredWorktypes
+  const link = data.settings.links.find(l => l.forecastId === building.building.id)
+  const ignored = link?.ignoredWorktypes ?? data.settings.ignoredWorktypes
   const off = new Set(ignored.map(w => w.toLowerCase()))
   // Só os work types do prédio aberto; um item por nome sem olhar maiúscula, como a API compara.
-  const all = [...new Map(available.map(w => [w.toLowerCase(), w])).values()].sort()
+  const all = [...new Map((building.worktypes ?? []).map(w => [w.toLowerCase(), w])).values()].sort()
   return (
     <Popover>
       <PopoverTrigger render={<button type="button" className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground hover:text-foreground" />}>
@@ -653,7 +658,7 @@ function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
                             className={`h-full rounded px-2 ${mode === v ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{l}</button>
                         ))}
                       </div>
-                      {canManage && <BudgetWorktypes available={b.worktypes ?? []} />}
+                      {canManage && <BudgetWorktypes building={b} />}
                     </div>
                     {mode === "cumulative" && <ReadingTip lines={interpret({ status: b.building.status.toLowerCase(), end: f.end, today: new Date().toISOString().slice(0, 10), budgetHours: f.budgetHours, exceedsOn: f.exceedsOn, series: f.series })} />}
                   </div>

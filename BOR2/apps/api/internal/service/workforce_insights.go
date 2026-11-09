@@ -312,6 +312,11 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 		unrated := map[string]*domain.SupervisorHours{}
 		workerDays := map[string]map[string]*domain.WorkerDay{}
 		unratedDaily := map[string]float64{}
+		// Seleção do próprio prédio (WF-39); sem ela, a lista geral do settings.
+		ign := ignored
+		if l.IgnoredWorktypes != nil {
+			ign = set(l.IgnoredWorktypes)
+		}
 		types := map[string]string{}
 		for _, h := range rows {
 			if linkKey(h.Jobsite, obraOf(h)) != key {
@@ -320,7 +325,7 @@ func (s *WorkforceInsightsService) Buildings(ctx context.Context) ([]BuildingVie
 			if h.Worktype != "" {
 				types[strings.ToLower(h.Worktype)] = h.Worktype
 			}
-			if ignored[strings.ToLower(h.Worktype)] {
+			if ign[strings.ToLower(h.Worktype)] {
 				continue
 			}
 			// Ponto zero da meta e do executado: o primeiro registro de horas no prédio, de qualquer pessoa.
