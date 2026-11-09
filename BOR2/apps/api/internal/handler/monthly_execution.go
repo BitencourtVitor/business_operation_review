@@ -43,6 +43,14 @@ func (h *MonthlyExecutionHandler) SaveGroups(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
+func (h *MonthlyExecutionHandler) Started(c *fiber.Ctx) error {
+	list, err := h.svc.Started(c.Context(), yearParam(c))
+	if err != nil {
+		return meError(c, err)
+	}
+	return c.JSON(fiber.Map{"data": list})
+}
+
 func (h *MonthlyExecutionHandler) Finished(c *fiber.Ctx) error {
 	list, err := h.svc.Finished(c.Context(), yearParam(c))
 	if err != nil {

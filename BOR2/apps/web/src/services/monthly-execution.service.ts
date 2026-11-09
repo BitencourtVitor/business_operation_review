@@ -28,6 +28,9 @@ export interface FinishedProject {
   finishedOn: string
 }
 
+/** Obra com início gravado (started_on): o dia em que saiu de not started. Existe desde setembro de 2026. */
+export interface StartedProject { id: string; cliente: string; jobSite: string; startedOn: string }
+
 export type PointStatus = "pending" | "resolved"
 
 export interface PointReply {
@@ -59,6 +62,7 @@ export const monthlyExecutionService = {
   goals:      (year: number)          => api.get<GoalGroup[]>(`${BASE}/goals?year=${year}`, getToken()),
   saveGoals:  (groups: GoalGroup[])   => api.put<void>(`${BASE}/goals`, groups, getToken()),
   finished:   (year: number)          => api.get<FinishedProject[]>(`${BASE}/finished?year=${year}`, getToken()),
+  started:    (year: number)          => api.get<StartedProject[]>(`${BASE}/started?year=${year}`, getToken()),
   points:     (year: number)          => api.get<ImprovementPoint[]>(`${BASE}/points?year=${year}`, getToken()),
   addPoint:   (p: { year: number; month: number; body: string; groupIds: string[] }) =>
     api.post<ImprovementPoint>(`${BASE}/points`, p, getToken()),

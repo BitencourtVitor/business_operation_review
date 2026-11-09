@@ -13,6 +13,7 @@ type MonthlyExecutionRepository interface {
 	ListGroups(ctx context.Context) ([]*domain.GoalGroup, error)
 	SaveGroups(ctx context.Context, groups []*domain.GoalGroup) error
 	ListFinished(ctx context.Context, year int) ([]domain.FinishedProject, error)
+	ListStarted(ctx context.Context, year int) ([]domain.StartedProject, error)
 	ListPoints(ctx context.Context, year int) ([]*domain.ImprovementPoint, error)
 	CreatePoint(ctx context.Context, p *domain.ImprovementPoint) error
 	EditPoint(ctx context.Context, id, authorID, body string, groupIDs []string) (bool, error)
@@ -120,6 +121,30 @@ func (r *PostgresMonthlyExecutionRepository) ListFinished(ctx context.Context, y
 		var p domain.FinishedProject
 		if err := rows.Scan(&p.ID, &p.Cliente, &p.JobSite, &p.ProjectName, &p.Address, &p.FinishedOn); err != nil {
 			return nil, fmt.Errorf("scan finished: %w", err)
+		}
+		out = append(out, p)
+	}
+	return out, rows.Err()
+}
+
+// ListStarted traz as obras com início gravado no ano (started_on, 000194): só existe
+// desde setembro de 2026, quando o histórico de status começou.
+func (r *PostgresMonthlyExecutionRepository) ListStarted(ctx context.Context, year int) ([]domain.StartedProject, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT id, COALESCE(cliente, ''), COALESCE(job_site, ''), started_on::text
+		FROM forecast_core
+		WHERE company = 'framing' AND started_on >= make_date($1, 1, 1) AND started_on < make_date($1 + 1, 1, 1)
+		ORDER BY started_on
+	`, year)
+	if err != nil {
+		return nil, fmt.Errorf("list started: %w", err)
+	}
+	defer rows.Close()
+	out := []domain.StartedProject{}
+	for rows.Next() {
+		var p domain.StartedProject
+		if err := rows.Scan(&p.ID, &p.Cliente, &p.JobSite, &p.StartedOn); err != nil {
+			return nil, fmt.Errorf("scan started: %w", err)
 		}
 		out = append(out, p)
 	}
