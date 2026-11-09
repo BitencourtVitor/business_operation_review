@@ -548,8 +548,9 @@ function BudgetWorktypes({ available }: { available: string[] }) {
         <ListChecks className="h-3.5 w-3.5" />Work types
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
-        <p className="px-1 pb-1.5 text-xs text-muted-foreground">Work types logged on this building. Checked ones count in the labor budget of every building.</p>
-        <div className="grid max-h-64 gap-0.5 overflow-y-auto">
+        <p className="px-1 pb-1.5 text-xs text-muted-foreground">Work types logged on this building.</p>
+        {/* Rolagem só em lista longa: a área de clique do checkbox passa da linha e já faria aparecer a barra. */}
+        <div className={`grid gap-0.5 ${all.length > 8 ? "max-h-64 overflow-y-auto" : ""}`}>
           {all.map(w => (
             <label key={w} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
               <Checkbox checked={!off.has(w.toLowerCase())} disabled={save.isPending}
