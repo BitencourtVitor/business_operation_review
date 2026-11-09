@@ -514,17 +514,27 @@ function workdaysUntil(end: string, today = new Date().toISOString().slice(0, 10
   return n
 }
 
-/** Quanto ainda cabe por dia útil até o fim previsto sem estourar a meta, em horas e em pessoas de 8 h (WF-34). */
+/**
+ * Quanto ainda cabe por dia útil até o fim previsto sem estourar a meta (WF-34). Pessoas em número
+ * inteiro, arredondado para baixo: a equipe que cabe no orçamento, a 8 h por pessoa.
+ */
 function BudgetPace({ f }: { f: BuildingForecast }) {
   const days = workdaysUntil(f.end)
   const perDay = days ? f.remainingHours / days : 0
-  const items: [string, string][] = f.remainingHours <= 0 ? [["Budget left", "Used up"]]
+  const people = Math.floor(perDay / 8)
+  const items: [string, string, string?][] = f.remainingHours <= 0 ? [["Budget left", "Used up"]]
     : days === 0 ? [["Budget left", fmtH(f.remainingHours)], ["Workdays left", "Past the end"]]
-    : [["Budget left", fmtH(f.remainingHours)], ["Workdays left", String(days)], ["Hours per day", fmtH(perDay)], ["People per day", `${(perDay / 8).toFixed(1)}`]]
+    : [["Budget left", fmtH(f.remainingHours)], ["Workdays left", String(days), "Monday to Friday, until the expected end"],
+       ["Hours per day", fmtH(perDay), "What fits per workday without going over the budget"],
+       ["People per day", people ? String(people) : "Less than 1", "Whole people at 8 h a day, rounded down to stay within the budget"]]
   return (
-    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground"
-      title="What still fits per workday (Monday to Friday) until the expected end without going over the budget. People per day counts 8 hours each.">
-      {items.map(([l, v]) => <span key={l}>{l} <span className="font-semibold tabular-nums text-foreground">{v}</span></span>)}
+    <div className="flex w-36 shrink-0 flex-col gap-1.5 max-sm:order-first max-sm:grid max-sm:w-full max-sm:grid-cols-2">
+      {items.map(([l, v, hint]) => (
+        <div key={l} title={hint} className="flex max-h-16 min-h-0 flex-1 flex-col justify-center rounded-md border border-border bg-muted/20 px-2.5 py-1">
+          <p className="text-[10px] text-muted-foreground">{l}</p>
+          <p className="text-sm font-semibold tabular-nums">{v}</p>
+        </div>
+      ))}
     </div>
   )
 }
@@ -653,18 +663,20 @@ function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
                     <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
                 )}
-                {isOpen && <BudgetPace f={f} />}
+                {/* Gráfico à esquerda, coluna de métricas do ritmo à direita (WF-34). */}
+                {isOpen && (
+                <div className="mt-2 flex min-h-0 flex-1 gap-3 border-t border-border pt-2 max-sm:flex-col">
                 {isOpen && mode === "monthly" && (() => {
                   const rows = monthlyOf(f)
                   return (
-                    <div className="mt-2 min-h-0 flex-1 border-t border-border pt-2">
+                    <div className="min-h-0 min-w-0 flex-1">
                       <StackedBars data={rows} hover={hover} setHover={setHover} tooltip={<MonthTip budget={f.budgetHours} />}
                         dividers={rows.filter((r, i) => i > 0 && r.name.startsWith("Jan ")).map(r => ({ at: r.name, label: "20" + r.name.slice(4) }))} />
                     </div>
                   )
                 })()}
                 {isOpen && mode === "cumulative" && (
-                  <div className="mt-2 flex min-h-0 flex-1 flex-col border-t border-border pt-2">
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                     <div ref={el => { if (el) { setChartH(el.clientHeight); setChartW(el.clientWidth) } }} className={`min-h-0 flex-1 ${axis}`}
                       onWheel={e => {
                         // Um nome por giro da roda: avança a altura de uma linha, na direção do giro.
@@ -712,6 +724,9 @@ function BuildingBudget({ buildings, granularity, periods, isSup, canManage }: {
                       </ResponsiveContainer>
                     </div>
                   </div>
+                )}
+                <BudgetPace f={f} />
+                </div>
                 )}
               </div>
             )
@@ -1065,7 +1080,8 @@ export default function WorkforceProductivityPage() {
         {company === "framing" && topCard}
       </div>
 
-      <div className="grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 xl:grid-cols-2">
+      {/* Mesma divisão de largura da linha de cima na Framing (orçamento do prédio largo, ranking estreito). */}
+      <div className={`grid gap-3 max-xl:auto-rows-[26rem] xl:min-h-0 xl:flex-1 ${company === "framing" ? "xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]" : "xl:grid-cols-2"}`}>
         {company === "framing" ? <BuildingBudget buildings={buildings} granularity={granularity} periods={periods} isSup={isSup} canManage={canEdit("workforce")} /> : topCard}
         <Card title={<>Overtime Ranking<Scope>{scopeLabel}</Scope></>} className="h-full"
           right={<SupFilter value={supFilter} onChange={setSupFilter} />}
