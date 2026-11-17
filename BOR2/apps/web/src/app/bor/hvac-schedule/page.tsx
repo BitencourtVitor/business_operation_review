@@ -124,6 +124,8 @@ export default function HVACSchedulePage() {
   const [group, setGroup] = useState<"site" | "none">("site")
   // Só o que tem QuickBooks Time ou Permit por fazer (HS-25).
   const [todo, setTodo] = useState(false)
+  // Material já comprado com o Permit ainda por fechar.
+  const [early, setEarly] = useState(false)
   // Na visão de Permit não se agrupa por jobsite: o que importa é o que está
   // pendente, e o que já está em dia sai da frente.
   const [permitShow, setPermitShow] = useState<"pending" | "all">("pending")
@@ -158,6 +160,7 @@ export default function HVACSchedulePage() {
     return all
       .filter(p => source === "all" || (source === "orders") === !!p.project.hasOrders)
       .filter(p => !todo || hasTodo(p))
+      .filter(p => !early || boughtBeforePermit(p))
       .filter(p => view !== "permit" || permitShow === "all" || permitPending(p))
       .filter(p => !term
         || lotLabel(p).toLowerCase().includes(term)
@@ -169,7 +172,7 @@ export default function HVACSchedulePage() {
         stages: p.stages.filter(s => status === "all" || s.state === status),
       }))
       .filter(p => p.stages.length > 0)
-  }, [all, query, source, status, todo, view, permitShow])
+  }, [all, query, source, status, todo, early, view, permitShow])
 
   const sites = useMemo(() => {
     const map = new Map<string, ProjectStages[]>()
@@ -179,7 +182,7 @@ export default function HVACSchedulePage() {
     }
     // Jobsite criado pela tela aparece mesmo sem lote, desde que nenhum filtro
     // de busca ou de status esteja escondendo lotes: aí vazio seria engano.
-    if (!query.trim() && status === "all" && !todo) {
+    if (!query.trim() && status === "all" && !todo && !early) {
       for (const j of catalog ?? []) {
         if (j.hvac && !map.has(j.name)) map.set(j.name, [])
       }
@@ -187,7 +190,7 @@ export default function HVACSchedulePage() {
     return [...map.entries()]
       .map(([site, lots]) => ({ site, lots: lots.sort(order === "date" ? byDate : byLot) }))
       .sort((a, b) => a.site.localeCompare(b.site))
-  }, [projects, order, byDate, catalog, query, status, todo])
+  }, [projects, order, byDate, catalog, query, status, todo, early])
 
   const flat = useMemo(() => [...projects].sort(order === "date" ? byDate : byLot), [projects, order, byDate])
 
@@ -302,14 +305,6 @@ export default function HVACSchedulePage() {
             })}
           </Filter>
 
-          {/* Só o que tem QuickBooks Time ou Permit por fazer (HS-25). */}
-          <Tip text="Only lots with QuickBooks Time off or permit steps not done">
-            <label className="flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-input px-2.5 text-sm whitespace-nowrap transition-colors hover:border-foreground/20 dark:bg-input/30">
-              <Checkbox checked={todo} onCheckedChange={v => setTodo(v === true)} />
-              To do
-            </label>
-          </Tip>
-
           {/* Com pouco espaço o botão fica só com o ícone, para a linha caber. */}
           <Button className="shrink-0" aria-label="Present" onClick={() => setPreparing(true)}>
             <PresentationIcon className="h-3.5 w-3.5" />
@@ -384,6 +379,7 @@ export default function HVACSchedulePage() {
           className="min-w-0 max-lg:h-[75vh] max-lg:shrink-0 lg:flex-1"
           icon={<Layers className="h-3.5 w-3.5 text-muted-foreground" />}
           title="Project stages"
+          count={current ? current.lots.length : projects.length}
           right={
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
               <Segmented
@@ -415,15 +411,14 @@ export default function HVACSchedulePage() {
                   label="Order by" value={order} onChange={setOrder}
                   options={[
                     { value: "date", label: "Date", Icon: CalendarDays },
-                    { value: "lot", label: "Lot number", Icon: Hash },
+                    { value: "lot", label: "Lot", Icon: Hash },
                   ]}
                 />
               )}
-              {current
-                ? `${current.lots.length} ${current.lots.length === 1 ? "lot" : "lots"}`
-                : !grouped
-                  ? `${projects.length} ${projects.length === 1 ? "lot" : "lots"}`
-                  : `${sites.length} ${sites.length === 1 ? "jobsite" : "jobsites"} · ${projects.length} ${projects.length === 1 ? "lot" : "lots"}`}
+              {/* Só o que tem QuickBooks Time ou Permit por fazer (HS-25), e o
+                  material comprado com o Permit aberto (HS-31). */}
+              <OnlyBox on={todo} onChange={setTodo} tip="Only lots with QuickBooks Time off or permit steps not done">To do</OnlyBox>
+              <OnlyBox on={early} onChange={setEarly} tip="Only lots with material bought while the permit is not done">Bought before permit</OnlyBox>
             </span>
           }
         >
@@ -543,10 +538,11 @@ export default function HVACSchedulePage() {
 // ícone e título, borda embaixo, e corpo que rola por dentro em vez de empurrar
 // a página.
 function Panel({
-  icon, title, right, className, children,
+  icon, title, count, right, className, children,
 }: {
   icon: React.ReactNode
   title: string
+  count?: number
   right?: React.ReactNode
   className?: string
   children: React.ReactNode
@@ -557,6 +553,9 @@ function Panel({
         <div className="flex items-center gap-2">
           {icon}
           <span className="text-sm font-semibold">{title}</span>
+          {count !== undefined && (
+            <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">{count}</span>
+          )}
         </div>
         {right}
       </div>
@@ -594,10 +593,33 @@ function Segmented<T extends string>({
   )
 }
 
+// Caixa de recorte, na altura dos outros controles do Project stages.
+function OnlyBox({ on, onChange, tip, children }: {
+  on: boolean
+  onChange: (on: boolean) => void
+  tip: string
+  children: React.ReactNode
+}) {
+  return (
+    <Tip text={tip}>
+      <label className="flex h-7 shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-input px-2.5 text-xs font-medium whitespace-nowrap text-foreground transition-colors hover:border-foreground/20 dark:bg-input/30">
+        <Checkbox checked={on} onCheckedChange={v => onChange(v === true)} />
+        {children}
+      </label>
+    </Tip>
+  )
+}
+
 /** Algo por fazer nos stickers: QuickBooks Time desligado ou passo de permit
  *  sem status. Obra sem passo de permit não tem o que fazer nele. */
 function hasTodo(p: ProjectStages): boolean {
   return !p.project.qbTime || (p.project.permit ?? []).some(s => !s.status)
+}
+
+/** Compra feita em alguma etapa com o Permit ainda incompleto. Obra sem passo
+ *  de permit não tem o que esperar dele. */
+function boughtBeforePermit(p: ProjectStages): boolean {
+  return p.stages.some(s => !!s.purchasedOn) && (p.project.permit ?? []).some(s => !s.status)
 }
 
 /** Compra pendente: a etapa tem data de compra, ainda vai começar e ninguém
@@ -735,6 +757,14 @@ function LotRow({ lot, site, view, today }: { lot: ProjectStages; site?: string;
         <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{lotLabel(lot)}</span>
+          {boughtBeforePermit(lot) && (
+            <Tip text={`Material bought, permit ${permitDone} of ${permit.length} steps done`}>
+              <span className="ml-auto flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="h-3 w-3" />
+                Permit
+              </span>
+            </Tip>
+          )}
         </div>
         {site && (
           <span className="flex items-start gap-1 text-[11px] leading-snug font-medium text-pretty">
