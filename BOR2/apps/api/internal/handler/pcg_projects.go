@@ -212,16 +212,22 @@ func (h *PCGProjectsHandler) UpsertTrade(c *fiber.Ctx) error {
 	if err := c.BodyParser(&t); err != nil {
 		return badRequest(c, "invalid body")
 	}
+	// Número de contrato enviado vazio apaga; ausente mantém (PCG-4).
+	var sent map[string]json.RawMessage
+	if err := json.Unmarshal(c.Body(), &sent); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	_, hasContract := sent["contractNumber"]
 	_, err := h.db.Exec(c.Context(), `
 		INSERT INTO pcg_project_trades (id, project_id, trade_id, answers, module_overrides, contract_number)
 		VALUES ($1,$2,$3,COALESCE($4,'{}'::jsonb),COALESCE($5,'{}'::jsonb),$6)
 		ON CONFLICT (project_id, trade_id) DO UPDATE SET
 			answers          = COALESCE(EXCLUDED.answers, pcg_project_trades.answers),
 			module_overrides = COALESCE(EXCLUDED.module_overrides, pcg_project_trades.module_overrides),
-			contract_number  = COALESCE(EXCLUDED.contract_number, pcg_project_trades.contract_number),
+			contract_number  = CASE WHEN $7 THEN EXCLUDED.contract_number ELSE pcg_project_trades.contract_number END,
 			updated_at = now()`,
 		tradeRowID(projectID, tradeID), projectID, tradeID,
-		rawOrNil(t.Answers), rawOrNil(t.ModuleOverrides), nilIfEmpty(t.ContractNumber))
+		rawOrNil(t.Answers), rawOrNil(t.ModuleOverrides), nilIfEmpty(t.ContractNumber), hasContract)
 	if err != nil {
 		return internalErr(c, err)
 	}
@@ -275,11 +281,20 @@ func (h *PCGProjectsHandler) AddEvent(c *fiber.Ctx) error {
 }
 
 // PATCH /api/v1/pcg/projects/:id/trades/:tradeId/events/:eventId
+//
+// Campo que veio no corpo é gravado como veio, inclusive vazio ou null: é assim
+// que se apaga uma nota, o subcontratado ou o valor (PCG-4). Campo que não veio
+// fica como está.
 func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 	var e pcgEvent
 	if err := c.BodyParser(&e); err != nil {
 		return badRequest(c, "invalid body")
 	}
+	var sent map[string]json.RawMessage
+	if err := json.Unmarshal(c.Body(), &sent); err != nil {
+		return badRequest(c, "invalid body")
+	}
+	has := func(key string) bool { _, ok := sent[key]; return ok }
 	var at any
 	if !e.At.IsZero() {
 		at = e.At
@@ -290,17 +305,18 @@ func (h *PCGProjectsHandler) UpdateEvent(c *fiber.Ctx) error {
 	_, err := h.db.Exec(c.Context(), `
 		UPDATE pcg_trade_events SET
 			at               = COALESCE($2, at),
-			subcontractor    = COALESCE($3, subcontractor),
-			amount           = COALESCE($4, amount),
-			lead_time_value  = COALESCE($5, lead_time_value),
+			subcontractor    = CASE WHEN $11 THEN $3 ELSE subcontractor END,
+			amount           = CASE WHEN $12 THEN $4 ELSE amount END,
+			lead_time_value  = CASE WHEN $13 THEN $5 ELSE lead_time_value END,
 			lead_time_unit   = COALESCE($6, lead_time_unit),
-			note             = COALESCE($7, note),
+			note             = CASE WHEN $14 THEN $7 ELSE note END,
 			payment_schedule = COALESCE($8, payment_schedule),
-			at_unknown       = COALESCE($10, at_unknown)
+			at_unknown       = COALESCE($10, at_unknown),
+			url              = CASE WHEN $15 THEN $16 ELSE url END
 		WHERE project_trade_id = $9 AND id = $1`,
-		c.Params("eventId"), at, nilIfEmpty(e.Subcontractor), e.Amount,
-		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), nilIfEmpty(e.Note), rawOrNil(e.PaymentSchedule), tradeRow,
-		e.AtUnknown)
+		c.Params("eventId"), at, strings.TrimSpace(e.Subcontractor), e.Amount,
+		e.LeadTimeValue, nilIfEmpty(e.LeadTimeUnit), strings.TrimSpace(e.Note), rawOrNil(e.PaymentSchedule), tradeRow,
+		e.AtUnknown, has("subcontractor"), has("amount"), has("leadTimeValue"), has("note"), has("url"), strings.TrimSpace(e.URL))
 	if err != nil {
 		return internalErr(c, err)
 	}
