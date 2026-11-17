@@ -258,7 +258,7 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		return err
 	}
 
-	// A HVAC não usa Fieldwire nem Machines — semear catálogo lá daria uma obra
+	// A HVAC não usa BuilderLog nem Machines: semear catálogo lá daria uma obra
 	// nascida com pendência que ninguém vai fechar. As etapas de Permit, que só
 	// ela tem, são semeadas por trigger no banco (000122), porque o carregador
 	// do portal escreve em forecast_core sem passar por aqui.
@@ -266,9 +266,6 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		return nil
 	}
 
-	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
-		return err
-	}
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}
@@ -279,42 +276,10 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 	return nil
 }
 
-// seedFieldwireDocs copies catalog fieldwire docs matching the project's
-// cliente/type into forecast_fieldwire. It's called on Create AND Update
-// (guarded by the NOT EXISTS check below, keyed on document) so that fixing
-// cliente/type on an existing project — not just creating it correctly the
-// first time — backfills whatever docs weren't seeded yet, without ever
-// inserting the same document twice for one project:
-// - client+type specific entries (matched by project cliente and type)
-// - client-level entries (client matches, type = ” → apply to any type for that client)
-// - universal entries (client = ” and type = ” → apply to all projects)
-func (r *PostgresForecastRepository) seedFieldwireDocs(ctx context.Context, projectID, cliente, projType string) error {
-	if _, err := r.db.Exec(ctx, `
-		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_fieldwire)
-		INSERT INTO forecast_fieldwire (id, project_id, category, document, status)
-		SELECT max_id.m + ROW_NUMBER() OVER (ORDER BY c.document),
-		       $1,
-		       CASE WHEN c.client = '' THEN '' ELSE c.client || ' – ' || c.type END,
-		       c.document,
-		       NULL
-		FROM catalog_forecast_fieldwire c, max_id
-		WHERE ((LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
-		    OR (LOWER(c.client) = LOWER($2) AND c.type = '')
-		    OR (c.client = '' AND c.type = ''))
-		  AND NOT EXISTS (
-		    SELECT 1 FROM forecast_fieldwire fw
-		    WHERE LOWER(fw.project_id) = LOWER($1)
-		      AND LOWER(TRIM(fw.document)) = LOWER(TRIM(c.document))
-		  )
-	`, projectID, cliente, projType); err != nil {
-		return fmt.Errorf("seeding fieldwire docs: %w", err)
-	}
-	return nil
-}
-
 // seedBuilderLog dá à obra da Framing as linhas do BuilderLog do tipo dela
-// (casa ou prédio) e do cliente dela, como o Fieldwire: linha de catálogo sem
-// cliente vale para todos. Roda na criação e na edição, e só acrescenta o que
+// (casa ou prédio) e do cliente dela: linha de catálogo sem cliente vale para
+// todos. O Fieldwire, descontinuado em 17/11/2026 (F-21), não é mais semeado;
+// o que já existe dele fica como histórico. Roda na criação e na edição, e só acrescenta o que
 // falta: trocar o tipo ou o cliente da obra traz as linhas novas sem apagar o
 // que já foi marcado.
 func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, projectID, company, cliente, projType string) error {
@@ -334,8 +299,8 @@ func (r *PostgresForecastRepository) seedBuilderLog(ctx context.Context, project
 	return nil
 }
 
-// seedMachines mirrors seedFieldwireDocs for forecast_machines, matched on
-// catalog category+subcategory and de-duped on (category, subcategory, title).
+// seedMachines semeia forecast_machines a partir do catálogo, casando por
+// categoria e subcategoria, sem repetir (category, subcategory, title).
 func (r *PostgresForecastRepository) seedMachines(ctx context.Context, projectID, cliente, projType string) error {
 	if _, err := r.db.Exec(ctx, `
 		WITH max_id AS (SELECT COALESCE(MAX(id), 0) AS m FROM forecast_machines)
@@ -393,14 +358,11 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 	}
 
 	// Mesma divisão do Create: editar uma obra da HVAC não pode fazer aparecer
-	// documento de Fieldwire nela.
+	// documento de BuilderLog nela.
 	if strings.EqualFold(p.Company, "hvac") {
 		return nil
 	}
 
-	if err := r.seedFieldwireDocs(ctx, p.ID, p.Cliente, p.Type); err != nil {
-		return err
-	}
 	if err := r.seedMachines(ctx, p.ID, p.Cliente, p.Type); err != nil {
 		return err
 	}

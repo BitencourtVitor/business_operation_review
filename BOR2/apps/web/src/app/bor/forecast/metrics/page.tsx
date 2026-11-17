@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useForecast } from "@/hooks/use-forecast"
-import { scoredFieldwire, type ForecastProject } from "@bor2/shared"
+import { ON_BUILDERLOG, type ForecastProject } from "@bor2/shared"
 import {
   ArrowLeft,
   Calendar,
@@ -48,7 +48,7 @@ const MONTH_NAMES = [
 ]
 
 const ASPECTS = [
-  { key: "fieldwire",    label: "Fieldwire",    short: "FW" },
+  { key: "builderlog",   label: "BuilderLog",   short: "BL" },
   { key: "machines",     label: "Machines",     short: "MC" },
   { key: "contract",     label: "Contract",     short: "CT" },
   { key: "buildertrend", label: "Buildertrend", short: "BT" },
@@ -77,8 +77,10 @@ function projectAspects(p: ForecastProject): Record<AspectKey, boolean> {
   // Private obras never get machines seeded (no catalog entries for that
   // client) — an empty list there means "not applicable", not "not ready".
   const isPrivate = p.cliente?.toLowerCase().trim() === "private"
+  // Mesma regra do card: a linha "On BuilderLog" só marca a obra, não é documento.
+  const blCats = (p.builderlog ?? []).filter(d => d.document !== ON_BUILDERLOG)
   return {
-    fieldwire:    scoredFieldwire(p.fieldwire).length ? scoredFieldwire(p.fieldwire).every(d => isTruthy(d.status)) : false,
+    builderlog:   blCats.length ? blCats.every(d => isTruthy(d.status)) : false,
     machines:     isPrivate || (p.machines?.length ? p.machines.every(m => isMachineOk(m.status)) : false),
     contract:     p.contractSteps?.length ? p.contractSteps.every(s => isTruthy(s.status)) : false,
     buildertrend: !!p.buildertrend,
@@ -120,7 +122,7 @@ export default function ForecastMetricsPage() {
   const [month,         setMonth]        = useState("")
   const [selectedMonth, setSelectedMonth] = useState("")
 
-  // Fixo na Framing: os scores medem Fieldwire, Machines, Contract, QB Time e
+  // Fixo na Framing: os scores medem BuilderLog, Machines, Contract, QB Time e
   // Storage, e a HVAC não usa nenhum deles. Sem o filtro, cada obra de HVAC
   // entraria como 0% e puxaria a média de preparação para baixo medindo o que
   // não existe.
@@ -148,7 +150,7 @@ export default function ForecastMetricsPage() {
           label: `${MONTH_NAMES[m - 1]} ${y}`,
           short: MONTH_NAMES[m - 1].slice(0, 3),
           projects: [],
-          done: { fieldwire: 0, machines: 0, contract: 0, buildertrend: 0, storage: 0, qbTime: 0 },
+          done: { builderlog: 0, machines: 0, contract: 0, buildertrend: 0, storage: 0, qbTime: 0 },
           avgCompletion: 0,
         }
       }

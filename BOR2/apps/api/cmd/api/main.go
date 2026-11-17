@@ -755,7 +755,10 @@ func main() {
 	// passou a ser compartilhado com o BuilderLog, e o que ele grava não tem dono
 	// neste banco. Quem varre o bucket agora é o BuilderLog, por tenant, dentro
 	// dos prefixos que conhece.
-	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob)
+	// Marca no Forecast os documentos que já subiram no BuilderLog (F-21/F-22).
+	builderLogSyncJob := jobs.NewBuilderLogSyncJob(db, os.Getenv("BUILDERLOG_API_TOKEN"))
+
+	scheduler := jobs.NewScheduler(alertsJob, permitAlertsJob, workersCompReviewJob, qbSyncJob, builderLogSyncJob)
 	go scheduler.Start(jobCtx)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────

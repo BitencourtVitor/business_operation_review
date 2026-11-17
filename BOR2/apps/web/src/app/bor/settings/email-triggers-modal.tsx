@@ -67,13 +67,19 @@ function asList(value: unknown): string[] {
   return []
 }
 
-/** Maps the system a trigger belongs to onto its mark: the Fieldwire logo for
- *  Fieldwire, a glyph for the rest. Unknown names fall back to the envelope. */
+/** Maps the system a trigger belongs to onto its mark: the BuilderLog logo for
+ *  the missing-documents alert, a glyph for the rest. Unknown names fall back
+ *  to the envelope. */
 function TriggerIcon({ icon, className }: { icon: string; className?: string }) {
-  if (icon === "fieldwire") {
+  // "fieldwire" é a chave antiga do registro; o alerta passou a ler o BuilderLog.
+  if (icon === "builderlog" || icon === "fieldwire") {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src="/images/icon_fieldwire.png" alt="" className={cn("object-contain", className)} />
+      <>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/icon_builderlog.png" alt="" className={cn("object-contain dark:hidden", className)} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/icon_builderlog_dark.png" alt="" className={cn("hidden object-contain dark:block", className)} />
+      </>
     )
   }
   const Glyph = icon === "sub_docs" ? FileText

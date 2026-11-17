@@ -12,7 +12,6 @@ import { DataControlSidebar }   from "./components/data-control-sidebar"
 import { NewProjectSection }     from "./components/new-project-section"
 import { EditProjectSection }    from "./components/edit-project-section"
 import { ClientsSection }        from "./components/clients-section"
-import { FieldwireSection }      from "./components/fieldwire-section"
 import { MachinesSection }       from "./components/machines-section"
 import { CatalogSection }        from "./components/catalog-section"
 import type { CatalogTable }     from "@/services/catalog.service"
@@ -122,7 +121,6 @@ function DataControlContent() {
 
         {section === "catalog" && (
           catalogTable === "clients"   ? <ClientsSection />   :
-          catalogTable === "fieldwire" ? <FieldwireSection /> :
           catalogTable === "machines"  ? <MachinesSection />  :
           <CatalogSection activeTable={catalogTable as CatalogTable} />
         )}

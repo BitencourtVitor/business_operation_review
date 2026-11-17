@@ -78,7 +78,7 @@ export const EMPTY_FORM: FormState = {
 export type IntegMode = "all" | "done" | "pendent"
 
 export interface IntegFilters {
-  fieldwire:    IntegMode
+  builderlog:   IntegMode
   buildertrend: IntegMode
   qbTime:       IntegMode
   machines:     IntegMode
@@ -87,7 +87,7 @@ export interface IntegFilters {
 }
 
 export const DEFAULT_INTEG: IntegFilters = {
-  fieldwire: "all", buildertrend: "all", qbTime: "all",
+  builderlog: "all", buildertrend: "all", qbTime: "all",
   machines: "all", storage: "all", contract: "all",
 }
 
@@ -115,8 +115,7 @@ export const STATUS_OPTS: { value: ForecastStatus; label: string }[] = [
   { value: "completed", label: "Closed"      },
 ]
 
-// ─── Fieldwire / Machines project type options ─────────────────────────────────
-export const FW_PROJECT_TYPES = ["Building", "Lot"] as const
+// ─── Machines project type options ─────────────────────────────────────────────
 export const MACHINE_TYPES    = ["Building", "Lot"] as const
 
 // ─── Catalog sidebar tabs ─────────────────────────────────────────────────────
@@ -125,19 +124,20 @@ export const CATALOG_TABS: {
   label: string
   icon?: React.ElementType
   image?: string
-  cols: { field: string; label: string }[]
+  imageDark?: string
+  /** optional: pode ficar vazio (no BuilderLog, cliente vazio vale para todos). */
+  cols: { field: string; label: string; optional?: boolean }[]
 }[] = [
   { key: "clients",        label: "Clients & Job Sites", icon: UserCircle,    cols: [] },
   { key: "workforce",      label: "Workforce",           icon: Users,         cols: [{ field: "name",  label: "Name" }] },
   { key: "providers",      label: "Machine Providers",   icon: Truck,         cols: [{ field: "name",  label: "Name" }] },
   { key: "contract-steps", label: "Contract Steps",      icon: ClipboardList, cols: [{ field: "step",  label: "Step" }] },
   {
-    key: "fieldwire", label: "Fieldwire Docs", image: "/images/icon_fieldwire.png",
+    key: "builderlog", label: "BuilderLog Docs", image: "/images/icon_builderlog.png", imageDark: "/images/icon_builderlog_dark.png",
     cols: [
-      { field: "category",       label: "Category" },
-      { field: "document",       label: "Document" },
-      { field: "where_location", label: "Where"    },
-      { field: "notes",          label: "Notes"    },
+      { field: "build_type", label: "Type (house or building)" },
+      { field: "client",     label: "Client (empty = all)", optional: true },
+      { field: "document",   label: "Document" },
     ],
   },
   {
@@ -169,7 +169,9 @@ export const DC_GROUPS: {
 // ─── View-mode tabs (used inside EditProjectSection) ──────────────────────────
 export const VIEW_TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "info",      label: "Info & Dates", icon: React.createElement(Info,              { className: "h-3.5 w-3.5" }) },
-  { key: "fieldwire", label: "Fieldwire",    icon: React.createElement("img", { src: "/images/icon_fieldwire.png", alt: "Fieldwire", className: "h-3.5 w-3.5 object-contain" }) },
+  { key: "builderlog", label: "BuilderLog",  icon: React.createElement(React.Fragment, null,
+    React.createElement("img", { src: "/images/icon_builderlog.png", alt: "BuilderLog", className: "h-3.5 w-3.5 object-contain dark:hidden" }),
+    React.createElement("img", { src: "/images/icon_builderlog_dark.png", alt: "BuilderLog", className: "hidden h-3.5 w-3.5 object-contain dark:block" })) },
   { key: "machines",  label: "Machines",     icon: React.createElement(Truck,             { className: "h-3.5 w-3.5" }) },
   { key: "contract",  label: "Contract",     icon: React.createElement(FileText,          { className: "h-3.5 w-3.5" }) },
   { key: "optionals", label: "Optionals",    icon: React.createElement(SlidersHorizontal, { className: "h-3.5 w-3.5" }) },

@@ -1,6 +1,6 @@
 "use client"
 
-import { ON_BUILDERLOG, scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
+import { ON_BUILDERLOG, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   AlertTriangle,
@@ -83,11 +83,11 @@ function isTruthy(v?: string | boolean | null): boolean {
 function getCompletionMetrics(p: ForecastProject) {
   let done = 0, total = 0
 
-  // Fieldwire docs
-  const fw = scoredFieldwire(p.fieldwire)
-  if (fw.length) {
-    total += fw.length
-    done  += fw.filter((f) => isTruthy(f.status)).length
+  // BuilderLog docs: a linha "On BuilderLog" não é documento
+  const bl = (p.builderlog ?? []).filter((d) => d.document !== ON_BUILDERLOG)
+  if (bl.length) {
+    total += bl.length
+    done  += bl.filter((d) => isTruthy(d.status)).length
   }
   // BuilderTrend
   total++; if (p.buildertrend) done++
@@ -255,24 +255,14 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
     ? { border: "#eab308", bg: "rgba(234,179,8,0.12)", text: "#eab308" }
     : { border: "rgba(234,179,8,0.22)", bg: "rgba(234,179,8,0.06)", text: "rgba(234,179,8,0.6)" }
 
-  // Fieldwire progress
-  const fwScored   = scoredFieldwire(p.fieldwire)
-  const fwTotal    = fwScored.length
-  const fwDone     = fwScored.filter((f) => isTruthy(f.status)).length
-  const fwPct      = fwTotal > 0 ? Math.round((fwDone / fwTotal) * 100) : 0
-  const fwComplete = fwTotal > 0 && fwDone === fwTotal
-
   // BuilderLog: as categorias esperadas da obra e quantas já subiram, marcadas
-  // à mão no Data Control (F-18). Fora do OFI: é acompanhamento de
-  // documentação, não etapa de obra. A etiqueta só aparece na obra que já está
-  // no BuilderLog; para as outras, o que falta está no modal.
+  // à mão no Data Control (F-18). Ocupa o lugar do Fieldwire (F-21).
   const blDocs     = p.builderlog ?? []
   const blCats     = blDocs.filter((d) => d.document !== ON_BUILDERLOG)
   const blTotal    = blCats.length
   const blDone     = blCats.filter((d) => isTruthy(d.status)).length
   const blPct      = blTotal > 0 ? Math.round((blDone / blTotal) * 100) : 0
   const blComplete = blTotal > 0 && blDone === blTotal
-  const builderlog = blDocs.some((d) => d.document === ON_BUILDERLOG && isTruthy(d.status))
 
   // Machines progress — Private obras never need machines (no catalog entries
   // for that client), so treat them as complete instead of perpetually pending.
@@ -395,10 +385,12 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
           {/* Right column: 2×3 icon grid */}
           <div className="flex flex-col items-center gap-1.5">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 28px)", gap: 6 }}>
-              {/* Fieldwire */}
-              <IconSlot done={fwDone > 0} pct={fwPct} complete={fwComplete} withProgress title="Fieldwire">
+              {/* BuilderLog */}
+              <IconSlot done={blDone > 0} pct={blPct} complete={blComplete} withProgress title={`BuilderLog: ${blDone}/${blTotal} documents`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/icon_fieldwire.png" alt="Fieldwire" style={{ width: 16, height: 16, objectFit: "contain" }} />
+                <img src="/images/icon_builderlog.png"      alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/icon_builderlog_dark.png" alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
               </IconSlot>
   
               {/* BuilderTrend */}
@@ -433,44 +425,26 @@ export function ForecastCard({ project: p, dateMode }: { project: ForecastProjec
               </IconSlot>
             </div>
 
-            {/* Abaixo da linha ficam os selos que não são etapa da obra: a
-                empresa parceira no mesmo endereço e o BuilderLog. Nenhum dos dois
+            {/* Abaixo da linha fica o selo da empresa parceira no mesmo
+                endereço (vínculo por forecast_sites). Não é etapa da obra e não
                 entra em nota. */}
-            {(linkedCompany || builderlog) && (
+            {linkedCompany && (
               <>
                 <div className="w-full border-t" />
                 <div style={{ display: "flex", gap: 6 }}>
-                  {/* Empresa parceira na mesma obra — derivado do vínculo por
-                      endereço (forecast_sites), não mais de um checkbox. */}
-                  {linkedCompany && (
-                    <div
-                      style={{
-                        width: 28, height: 28, borderRadius: 6, border: "1.5px solid #6b7280",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}
-                      className="bg-muted"
-                      title={linkedCompany.title}
-                    >
-                      {/* Mesmo selo colorido nos dois temas — é marca de empresa,
-                          não ícone de interface. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
-                    </div>
-                  )}
-
-                  {/* BuilderLog: só aparece na obra que está lá. O anel mostra
-                      quantas das categorias esperadas já subiram. */}
-                  {builderlog && (
-                    <IconSlot
-                      done={blDone > 0} pct={blPct} complete={blComplete} withProgress
-                      title={`BuilderLog: ${blDone}/${blTotal} documents`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/images/icon_builderlog.png"      alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="dark:hidden" />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/images/icon_builderlog_dark.png" alt="BuilderLog" style={{ width: 16, height: 16, objectFit: "contain" }} className="hidden dark:block" />
-                    </IconSlot>
-                  )}
+                  <div
+                    style={{
+                      width: 28, height: 28, borderRadius: 6, border: "1.5px solid #6b7280",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                    className="bg-muted"
+                    title={linkedCompany.title}
+                  >
+                    {/* Mesmo selo colorido nos dois temas: é marca de empresa,
+                        não ícone de interface. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={linkedCompany.icon} alt={linkedCompany.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
+                  </div>
                 </div>
               </>
             )}

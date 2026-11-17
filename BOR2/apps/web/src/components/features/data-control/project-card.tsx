@@ -49,7 +49,6 @@ const PROJECT_TYPES = ["Building", "Lot", "House"]
 
 const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "info",      label: "Info & Dates", icon: <Info             className="h-3 w-3" /> },
-  { key: "fieldwire", label: "Fieldwire",    icon: <img src="/images/icon_fieldwire.png" alt="" className="h-3 w-3 object-contain" /> },
   { key: "builderlog", label: "BuilderLog",  icon: <>
       <img src="/images/icon_builderlog.png" alt="" className="h-3 w-3 object-contain dark:hidden" />
       <img src="/images/icon_builderlog_dark.png" alt="" className="hidden h-3 w-3 object-contain dark:block" />
@@ -57,6 +56,8 @@ const TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
   { key: "machines",  label: "Machines",     icon: <Truck            className="h-3 w-3" /> },
   { key: "contract",  label: "Contract",     icon: <FileText         className="h-3 w-3" /> },
   { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3 w-3" /> },
+  // Descontinuado em 17/11/2026 (F-21): só aparece na obra que tem linha dele.
+  { key: "fieldwire", label: "Fieldwire (history)", icon: <img src="/images/icon_fieldwire.png" alt="" className="h-3 w-3 object-contain" /> },
 ]
 
 // HVAC saiu daqui de propósito: deixou de ser marcação e virou consequência do
@@ -1166,7 +1167,7 @@ export function ProjectCard({
       {/* Tab bar */}
       <div className="flex items-center justify-end">
         <div className="relative z-[2] mb-[-1px] no-scrollbar flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px] max-md:max-w-full max-md:gap-3 max-md:overflow-x-auto max-md:px-3 [&>*]:shrink-0 [&>*]:whitespace-nowrap" style={{ borderColor }}>
-          {TABS.map(t => (
+          {TABS.filter(t => t.key !== "fieldwire" || (project.fieldwire?.length ?? 0) > 0).map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 transition-colors ${activeTab === t.key ? "font-semibold text-primary" : "text-muted-foreground opacity-70 hover:opacity-100"}`}>
               {t.icon}

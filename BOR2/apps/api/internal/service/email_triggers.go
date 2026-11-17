@@ -70,16 +70,16 @@ func intPtr(v int) *int { return &v }
 var triggerDefinitions = []TriggerDefinition{
 	{
 		Key:         TriggerForecastPlotPlan,
-		Label:       "Fieldwire Docs Missing",
-		Icon:        "fieldwire",
+		Label:       "BuilderLog Docs Missing",
+		Icon:        "builderlog",
 		Module:      "Framing Forecast",
-		Description: "Warns that a job is approaching its date with Fieldwire documents still missing. Only the selected documents count, and a document marked completed or dispensed is not missing. One e-mail per job, never repeated for the same target date.",
-		When:        "Daily, for every Framing job of the selected clients whose chosen date is within the configured window. HVAC jobs never enter — that company does not use Fieldwire.",
+		Description: "Warns that a job is approaching its date with BuilderLog documents still missing. Only the selected documents count, and a document marked completed or dispensed is not missing. One e-mail per job, never repeated for the same target date.",
+		When:        "Daily, for every Framing job of the selected clients whose chosen date is within the configured window. HVAC jobs never enter: that company does not track these documents.",
 		Schedulable: true,
 		Params: []ParamDef{
 			{Key: "clients", Label: "Clients", Type: "multiselect", OptionsSource: "clients",
 				Help: "Only jobs of these clients are considered."},
-			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "fieldwire_documents",
+			{Key: "documents", Label: "Documents", Type: "multiselect", OptionsSource: "builderlog_documents",
 				Help: "A job is alerted when any of these is missing. A document with no row at all counts as missing."},
 			// Ordered so the row reads as one sentence: 2 months before the
 			// start date, at 08:00.
@@ -102,7 +102,7 @@ var triggerDefinitions = []TriggerDefinition{
 		Label: "Permit Missing",
 		Icon:  "permit",
 		// Só a HVAC tem etapa de Permit. A obra da Framing nunca entra aqui,
-		// do mesmo jeito que a da HVAC nunca entra no Fieldwire Docs Missing.
+		// do mesmo jeito que a da HVAC nunca entra no BuilderLog Docs Missing.
 		Module:      "HVAC Forecast",
 		Description: "Warns that an HVAC job is approaching its Rough date with a Permit step still open — Manual J, Application Submitted or Permit Approved. One e-mail per job, never repeated for the same target date.",
 		When:        "Daily, at the chosen hour, for every HVAC job whose Rough starts within the configured window. Framing jobs never enter — that company has no Permit steps.",
@@ -227,9 +227,9 @@ func (s *EmailTriggerService) resolveOptions(ctx context.Context, def *TriggerDe
 		switch param.OptionsSource {
 		case "clients":
 			query = `SELECT name, name, NULL::text[] FROM catalog_clients ORDER BY name`
-		case "fieldwire_documents":
-			query = `SELECT DISTINCT trim(document), trim(document), NULL::text[] FROM forecast_fieldwire
-			         WHERE trim(document) <> '' AND upper(trim(document)) <> 'N/A'
+		case "builderlog_documents":
+			query = `SELECT DISTINCT trim(document), trim(document), NULL::text[] FROM catalog_forecast_builderlog
+			         WHERE trim(document) <> '' AND lower(trim(document)) <> 'on builderlog'
 			         ORDER BY 1`
 		case "absence_employees":
 			// One entry per person, not per person per company. The same name
