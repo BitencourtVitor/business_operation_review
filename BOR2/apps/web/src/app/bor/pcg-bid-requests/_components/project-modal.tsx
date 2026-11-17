@@ -275,7 +275,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                 </FieldWithState>
                 <div className="flex flex-col gap-1.5">
                   <FieldLabel label="Status" saving={isSaving("project:status")} />
-                  <div className="no-scrollbar flex h-8 w-fit max-w-full items-center overflow-x-auto rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
+                  <div className="no-scrollbar flex w-fit max-w-full items-center overflow-x-auto overflow-y-hidden rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
                     {STATUSES.map(s => {
                       const meta = PROJECT_STATUS_META[s]
                       const Icon = meta.icon
@@ -300,7 +300,7 @@ export function ProjectModal({ projectId, onClose }: { projectId: string; onClos
                     that is true of the whole job rather than of one trade. */}
                 <div className="flex flex-col gap-1.5">
                   <FieldLabel label="Type" saving={isSaving("project:type")} />
-                  <div className="no-scrollbar flex h-8 w-fit max-w-full items-center overflow-x-auto rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
+                  <div className="no-scrollbar flex w-fit max-w-full items-center overflow-x-auto overflow-y-hidden rounded-lg [&>*]:shrink-0 [&>*]:whitespace-nowrap border border-input bg-transparent p-0.5 dark:bg-input/30">
                     {PROJECT_TYPES.map(t => {
                       const on = project.type === t
                       return (
