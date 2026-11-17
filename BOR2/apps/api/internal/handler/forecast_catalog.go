@@ -21,6 +21,7 @@ type catalogDef struct {
 var catalogDefs = map[string]catalogDef{
 	"workforce":      {pgTable: "catalog_forecast_workforce", cols: []string{"name"}, sortCol: "name"},
 	"fieldwire":      {pgTable: "catalog_forecast_fieldwire", cols: []string{"client", "type", "document", "where_location", "notes"}},
+	"builderlog":     {pgTable: "catalog_forecast_builderlog", cols: []string{"build_type", "client", "document"}, sortCol: "build_type, client, position"},
 	"machines":       {pgTable: "catalog_forecast_machines", cols: []string{"category", "subcategory", "equipment_category", "title"}},
 	"contract-steps": {pgTable: "catalog_forecast_contract_steps", cols: []string{"seq", "step"}, sortCol: "seq"},
 	"providers":      {pgTable: "catalog_forecast_machine_providers", cols: []string{"name"}},

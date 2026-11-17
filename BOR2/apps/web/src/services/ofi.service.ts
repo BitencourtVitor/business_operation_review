@@ -10,6 +10,7 @@ export interface OfiEntry {
   obraId: string
   referenceMonth: number
   referenceYear: number
+  // Nota do BuilderLog desde o F-21; o nome ficou para não quebrar o histórico.
   fieldwireScore: number
   machinesScore: number
   contractScore: number

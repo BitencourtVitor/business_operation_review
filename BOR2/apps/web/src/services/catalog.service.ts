@@ -7,7 +7,7 @@ function getToken() {
 
 export type CatalogTable =
   | "workforce"
-  | "fieldwire"
+  | "builderlog"
   | "machines"
   | "contract-steps"
   | "providers"

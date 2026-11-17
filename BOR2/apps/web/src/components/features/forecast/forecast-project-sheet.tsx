@@ -1,6 +1,6 @@
 "use client"
 
-import { ON_BUILDERLOG, scoredFieldwire, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
+import { ON_BUILDERLOG, type ForecastDisplayStatus, type ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
 import {
   Dialog,
@@ -13,8 +13,6 @@ import {
   CalendarClock,
   CalendarDays,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Clock,
   FileText,
   Flag,
@@ -63,8 +61,9 @@ function isTruthy(v?: string | boolean | null): boolean {
 
 function getCompletionPct(p: ForecastProject): number {
   let done = 0, total = 0
-  const fw = scoredFieldwire(p.fieldwire)
-  if (fw.length)               { total += fw.length;               done += fw.filter(f => isTruthy(f.status)).length }
+  // Fieldwire descontinuado em 17/11/2026 (F-21): os documentos contam pelo BuilderLog, mesma regra do card.
+  const bl = (p.builderlog ?? []).filter(d => d.document !== ON_BUILDERLOG)
+  if (bl.length)               { total += bl.length;               done += bl.filter(d => isTruthy(d.status)).length }
   if (p.permit?.length)        { total += p.permit.length;        done += p.permit.filter(s => isTruthy(s.status)).length }
   total++; if (p.buildertrend) done++
   total++; if (p.qbTime)       done++
@@ -172,9 +171,7 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
   // único porque a largura do modal depende de ter painel aberto, não de qual —
   // com um booleano por painel, esquecer de somar um deles esmaga o conteúdo.
   const [panel, setPanel] = useState<"obs" | "dates" | null>(null)
-  // As categorias do BuilderLog que ainda não subiram começam recolhidas.
-  const [verFaltando, setVerFaltando] = useState(false)
-  useEffect(() => { if (!open) { setPanel(null); setVerFaltando(false) } }, [open])
+  useEffect(() => { if (!open) { setPanel(null) } }, [open])
 
   const ds       = getForecastDisplayStatus(p, dateMode)
   const cfg      = STATUS_CFG[ds]
@@ -183,13 +180,11 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
 
   const fieldwireDocs = p.fieldwire ?? []
   const hasFieldwire  = fieldwireDocs.length > 0
-  // O BuilderLog é marcado à mão no Data Control (F-18).
+  // Marcado pelo sync diário com o BuilderLog e à mão no Data Control (F-18).
   const blDocs        = p.builderlog ?? []
   const onBuilderLog  = blDocs.some(d => d.document === ON_BUILDERLOG && isTruthy(d.status))
   const blCats        = blDocs.filter(d => d.document !== ON_BUILDERLOG)
   const hasBuilderLog = blDocs.length > 0
-  const blEntregues   = blCats.filter(d => isTruthy(d.status))
-  const blFaltando    = blCats.filter(d => !isTruthy(d.status))
   const hasPermit    = (p.permit?.length ?? 0) > 0
   const hasContract  = (p.contractSteps?.length ?? 0) > 0
   const hasMachines  = (p.machines?.length ?? 0) > 0
@@ -350,35 +345,11 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
             </div>
           </section>
 
-          {/* Documentos: Fieldwire e BuilderLog, lado a lado. São dois acervos
-              diferentes da mesma obra, e ler um contra o outro é o ponto.
-              Nada do BuilderLog entra no OFI. */}
+          {/* Documentos: o BuilderLog é a fonte desde que o Fieldwire foi
+              descontinuado (F-21, 17/11/2026). O Fieldwire fica ao lado só como
+              histórico, e só na obra que tem linha dele. */}
           {(hasFieldwire || hasBuilderLog) && (
             <section className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {hasFieldwire && (
-                <div>
-                  <SectionLabel icon={
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src="/images/icon_fieldwire.png" alt="" className="h-3.5 w-3.5 object-contain" />
-                  }>
-                    Fieldwire Documents
-                  </SectionLabel>
-                  <div className="flex flex-col gap-2">
-                    {fieldwireDocs.slice()
-                      .sort((a, b) => {
-                        const rank = (doc?: string) =>
-                          doc === "Markup" ? 2 : doc === "Shared with subcontractor" ? 1 : 0
-                        return rank(a.document) - rank(b.document)
-                      })
-                      .map((fw, i) => (
-                        <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
-                          <span className="flex-1 text-[13px] leading-snug">{fw.document || fw.category || "—"}</span>
-                        </CheckRow>
-                      ))}
-                  </div>
-                </div>
-              )}
-
               {hasBuilderLog && (
                 <div>
                   <SectionLabel icon={
@@ -396,35 +367,37 @@ export function ForecastProjectSheet({ project: p, open, onClose, dateMode }: Fo
                       <span className="flex-1 text-[13px] leading-snug">{ON_BUILDERLOG}</span>
                     </CheckRow>
 
-                    {/* O que já subiu. A pendente fica atrás do botão, para não
-                        enterrar as que interessam numa lista de "falta". */}
-                    {blEntregues.map(d => (
-                      <CheckRow key={d.id} done>
+                    {/* Tudo sempre à vista: o que falta é o que interessa ver. */}
+                    {blCats.map(d => (
+                      <CheckRow key={d.id} done={isTruthy(d.status)}>
                         <span className="flex-1 text-[13px] leading-snug">{d.document}</span>
                       </CheckRow>
                     ))}
+                  </div>
+                </div>
+              )}
 
-                    {blFaltando.length > 0 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setVerFaltando(v => !v)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          {verFaltando
-                            ? <ChevronUp   className="h-3.5 w-3.5" />
-                            : <ChevronDown className="h-3.5 w-3.5" />}
-                          {verFaltando
-                            ? "Hide what's missing"
-                            : `Show what's missing (${blFaltando.length})`}
-                        </button>
-                        {verFaltando && blFaltando.map(d => (
-                          <CheckRow key={d.id} done={false}>
-                            <span className="flex-1 text-[13px] leading-snug">{d.document}</span>
-                          </CheckRow>
-                        ))}
-                      </>
-                    )}
+              {hasFieldwire && (
+                <div>
+                  <SectionLabel icon={
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/images/icon_fieldwire.png" alt="" className="h-3.5 w-3.5 object-contain" />
+                  }>
+                    Fieldwire (history)
+                  </SectionLabel>
+                  <p className="-mt-1.5 mb-2.5 text-xs text-muted-foreground">Discontinued on Nov 17, 2026</p>
+                  <div className="flex flex-col gap-2">
+                    {fieldwireDocs.slice()
+                      .sort((a, b) => {
+                        const rank = (doc?: string) =>
+                          doc === "Markup" ? 2 : doc === "Shared with subcontractor" ? 1 : 0
+                        return rank(a.document) - rank(b.document)
+                      })
+                      .map((fw, i) => (
+                        <CheckRow key={fw.id ?? i} done={isTruthy(fw.status)}>
+                          <span className="flex-1 text-[13px] leading-snug">{fw.document || fw.category}</span>
+                        </CheckRow>
+                      ))}
                   </div>
                 </div>
               )}

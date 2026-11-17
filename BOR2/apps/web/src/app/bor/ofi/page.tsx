@@ -344,9 +344,9 @@ export default function OFIPage() {
     tip:   string
   }[] = [
     {
-      key: "fieldwire", label: "Fieldwire", color: "#3b82f6", max: 2,
+      key: "fieldwire", label: "BuilderLog", color: "#3b82f6", max: 2,
       icon: <ClipboardList className="h-3.5 w-3.5" />,
-      tip:  "Task completion rate from Fieldwire checklists (max 2).",
+      tip:  "Document completion in BuilderLog (max 2).",
     },
     {
       key: "machines", label: "Machines", color: "#10b981", max: 2,
@@ -368,7 +368,7 @@ export default function OFIPage() {
   // ── Aspect bar data ───────────────────────────────────────────────────────
 
   const aspectData = [
-    { name: "Fieldwire", pct: round2(kpis.fieldwire / 2 * 100) },
+    { name: "BuilderLog", pct: round2(kpis.fieldwire / 2 * 100) },
     { name: "Machines",  pct: round2(kpis.machines  / 2 * 100) },
     { name: "Contract",  pct: round2(kpis.contract  / 2 * 100) },
     { name: "Systems",   pct: round2(kpis.systems   / 1 * 100) },
@@ -489,7 +489,7 @@ export default function OFIPage() {
                 max={7}
                 score={kpis.total}
                 label="OFI Total"
-                tip="Average total score (max 7). Combines Fieldwire, Machines, Contract and Systems."
+                tip="Average total score (max 7). Combines BuilderLog, Machines, Contract and Systems."
                 icon={<BarChart3 className="h-3.5 w-3.5" />}
                 primaryAtMax
               />
@@ -616,9 +616,9 @@ export default function OFIPage() {
                       center tip="Combined OFI score (max 7)"
                     />
                     <SortableHead
-                      label="FW"        sortKey="fieldwireScore"
+                      label="BL"        sortKey="fieldwireScore"
                       current={sortKey} dir={sortDir} onSort={handleSort}
-                      center tip="Fieldwire: task completion rate (max 2)"
+                      center tip="BuilderLog: document completion (max 2)"
                     />
                     <SortableHead
                       label="MC"        sortKey="machinesScore"

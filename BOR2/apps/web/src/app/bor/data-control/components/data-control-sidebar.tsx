@@ -191,7 +191,10 @@ export function DataControlSidebar({
                   >
                     {t.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={t.image} alt={t.label} className="h-3.5 w-3.5 shrink-0 object-contain" />
+                      <>
+                        <img src={t.image} alt={t.label} className={`h-3.5 w-3.5 shrink-0 object-contain ${t.imageDark ? "dark:hidden" : ""}`} />
+                        {t.imageDark && <img src={t.imageDark} alt="" className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block" />}
+                      </>
                     ) : Icon ? (
                       <Icon className="h-3.5 w-3.5 shrink-0" />
                     ) : null}

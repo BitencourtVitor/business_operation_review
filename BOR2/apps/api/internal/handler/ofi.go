@@ -73,17 +73,15 @@ func ofiInternalErr(c *fiber.Ctx, op string, err error) error {
 	})
 }
 
-// calcFieldwireScore scores forecast_fieldwire documents. The column is text
-// carrying the three states from BD-07 (pending, completed, dispensed), not a
-// boolean — a dispensed document is satisfied, same rule the e-mail trigger and
-// the HVAC metrics page already apply. NULL and "none" mean still pending.
-func calcFieldwireScore(ctx context.Context, db pgx.Tx, id string, weight float64) (float64, error) {
+// calcBuilderLogScore pontua os documentos de forecast_builderlog (o Fieldwire
+// foi descontinuado em 17/11/2026, F-21). Completed e dispensed contam como
+// feito, NULL fica pendente. A linha On BuilderLog só marca a obra e fica fora,
+// mesma regra do card, do sheet e da página de métricas. O resultado segue
+// gravado em fieldwire_score para não quebrar o histórico.
+func calcBuilderLogScore(ctx context.Context, db pgx.Tx, id string, weight float64) (float64, error) {
 	rows, err := db.Query(ctx,
-		`SELECT COALESCE(f.status, '') FROM forecast_fieldwire f
-		 WHERE f.project_id = $1
-		   AND NOT EXISTS (SELECT 1 FROM catalog_forecast_fieldwire cf
-		                   WHERE NOT cf.counts_in_score
-		                     AND lower(trim(cf.document)) = lower(trim(f.document)))`, id)
+		`SELECT COALESCE(status, '') FROM forecast_builderlog
+		 WHERE project_id = $1 AND lower(trim(document)) <> 'on builderlog'`, id)
 	if err != nil {
 		return 0, err
 	}
@@ -460,7 +458,7 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 		BuilderTrend bool
 	}
 	// Framing only. HVAC obras live in the same table but have no rows in
-	// forecast_fieldwire, forecast_contract_steps or forecast_machines, so every
+	// forecast_builderlog, forecast_contract_steps or forecast_machines, so every
 	// component scores zero and they only drag the month's average down.
 	obraRows, err := tx.Query(ctx, `
 		SELECT id, COALESCE(cliente,''), COALESCE(storage,false),
@@ -496,9 +494,9 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 	totalScore := 0.0
 	captureDate := now.Format("2006-01-02")
 	for _, o := range obras {
-		fwScore, err := calcFieldwireScore(ctx, tx, o.ID, 2.0)
+		blScore, err := calcBuilderLogScore(ctx, tx, o.ID, 2.0)
 		if err != nil {
-			return ofiInternalErr(c, "calculate Fieldwire score", err)
+			return ofiInternalErr(c, "calculate BuilderLog score", err)
 		}
 		mScore, err := calcMachineScore(ctx, tx, o.ID, o.Cliente)
 		if err != nil {
@@ -524,14 +522,14 @@ func (h *OFIHandler) Calculate(c *fiber.Ctx) error {
 			sScore = 1.0
 		}
 		sScore = round2(sScore)
-		total := round2(fwScore + mScore + cScore + sScore)
+		total := round2(blScore + mScore + cScore + sScore)
 
 		if _, err = tx.Exec(ctx, `
 			INSERT INTO operational_forecast_index
 			  (obra_id, reference_month, reference_year, capture_date,
 			   fieldwire_score, machines_score, contract_score, systems_score, total_score)
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`, o.ID, targetMonth, targetYear,
-			captureDate, fwScore, mScore, cScore, sScore, total); err != nil {
+			captureDate, blScore, mScore, cScore, sScore, total); err != nil {
 			return ofiInternalErr(c, "insert OFI score", err)
 		}
 		totalScore += total

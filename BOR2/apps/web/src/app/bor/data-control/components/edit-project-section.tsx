@@ -6,7 +6,7 @@ import { ProjectCard } from "@/components/features/data-control/project-card"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useForecast, useDeleteForecast } from "@/hooks/use-forecast"
 import { useClients, useJobSites } from "@/hooks/use-clients"
-import { scoredFieldwire, type ForecastProject, type ForecastStatus } from "@bor2/shared"
+import { ON_BUILDERLOG, type ForecastProject, type ForecastStatus } from "@bor2/shared"
 import { FileText, Package, Search, SlidersHorizontal, Truck, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
@@ -23,7 +23,7 @@ function isTruthy(v?: string | boolean | null): boolean {
   return ["yes","sim","true","1","y","scheduled","dispensed","done","complete","completed"].includes(v.toLowerCase().trim())
 }
 
-function isFieldwireDone(p: ForecastProject)  { const fw = scoredFieldwire(p.fieldwire); return !!fw.length && fw.every(f => isTruthy(f.status)) }
+function isBuilderLogDone(p: ForecastProject) { const bl = (p.builderlog ?? []).filter(d => d.document !== ON_BUILDERLOG); return !!bl.length && bl.every(d => isTruthy(d.status)) }
 function isMachinesDone(p: ForecastProject)   { return !!p.machines?.length  && p.machines.every(m => isTruthy(m.status))  }
 function isContractDone(p: ForecastProject)   { return !!p.contractSteps?.length && p.contractSteps.every(c => isTruthy(c.status)) }
 
@@ -103,7 +103,7 @@ export function EditProjectSection({
       if (jobSiteFilter !== "all" && p.jobSite !== jobSiteFilter) return false
       if (statusFilter  !== "all" && p.status  !== statusFilter)  return false
       if (!applyInteg(integ.qbTime, p.qbTime)) return false
-      if (!applyInteg(integ.fieldwire,    isFieldwireDone(p)))  return false
+      if (!applyInteg(integ.builderlog,   isBuilderLogDone(p)))  return false
       if (!applyInteg(integ.buildertrend, p.buildertrend))      return false
       if (!applyInteg(integ.machines,     isMachinesDone(p)))   return false
       if (!applyInteg(integ.storage,      p.storage))           return false
@@ -214,8 +214,8 @@ export function EditProjectSection({
               <div className="flex flex-col gap-4 p-4">
                 <div className="flex flex-col gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">External Integrations</p>
-                  <IntegRow label="Fieldwire"    value={integ.fieldwire}    onChange={v => onInteg("fieldwire", v)}
-                    icon={<img src="/images/icon_fieldwire.png" alt="" className="h-4 w-4 object-contain" />} />
+                  <IntegRow label="BuilderLog"   value={integ.builderlog}   onChange={v => onInteg("builderlog", v)}
+                    icon={<><img src="/images/icon_builderlog.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_builderlog_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
                   <IntegRow label="Buildertrend" value={integ.buildertrend} onChange={v => onInteg("buildertrend", v)}
                     icon={<><img src="/images/icon_buildertrend.png" alt="" className="h-4 w-4 object-contain dark:hidden" /><img src="/images/icon_buildertrend_dark.png" alt="" className="hidden h-4 w-4 object-contain dark:block" /></>} />
                   <IntegRow label="QBTime"       value={integ.qbTime}       onChange={v => onInteg("qbTime", v)}

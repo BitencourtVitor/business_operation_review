@@ -185,7 +185,7 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
   }, [rows, search, tableDef, activeTable])
 
   function handleAdd() {
-    if (tableDef.cols.some(c => !form[c.field]?.trim())) return
+    if (tableDef.cols.some(c => !c.optional && !form[c.field]?.trim())) return
     addMutation.mutate(form, { onSuccess: () => { setForm({}); setAddOpen(false) } })
   }
 
@@ -265,7 +265,7 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
                         <TableCell className="text-xs text-muted-foreground">{String(row.id)}</TableCell>
                         {tableDef.cols.map(c => (
                           <TableCell key={c.field} className="text-sm">
-                            {String(row[c.field] ?? "—")}
+                            {String(row[c.field] || (c.optional ? "All" : "-"))}
                           </TableCell>
                         ))}
                         <TableCell>
@@ -310,7 +310,7 @@ export function CatalogSection({ activeTable }: { activeTable: CatalogTable }) {
             <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
             <Button
               onClick={handleAdd}
-              disabled={addMutation.isPending || tableDef.cols.some(c => !form[c.field]?.trim())}
+              disabled={addMutation.isPending || tableDef.cols.some(c => !c.optional && !form[c.field]?.trim())}
             >
               {addMutation.isPending ? "Adding..." : "Add"}
             </Button>

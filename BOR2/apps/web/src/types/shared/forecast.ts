@@ -11,11 +11,6 @@ export interface ForecastFieldwireDoc {
   scored?: boolean
 }
 
-/** Os documentos que contam para nota e progresso. */
-export function scoredFieldwire(docs?: ForecastFieldwireDoc[]): ForecastFieldwireDoc[] {
-  return (docs ?? []).filter(d => d.scored !== false)
-}
-
 export interface ForecastPermitStep {
   id?: number
   step?: string

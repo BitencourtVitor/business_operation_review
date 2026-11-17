@@ -109,7 +109,7 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 
 	dateField := trigger.ParamString("date_field", "previous_start_date")
 	if !plotPlanDateFields[dateField] {
-		return fmt.Errorf("invalid Fieldwire alert reference date %q", dateField)
+		return fmt.Errorf("invalid BuilderLog alert reference date %q", dateField)
 	}
 	offsetMonths, offsetDays := 0, 0
 	if trigger.ParamString("offset_unit", "months") == "months" {
@@ -119,8 +119,8 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 	}
 
 	// A document counts as missing when its row is absent or its status is
-	// neither completed nor dispensed — the same two states the screen shows
-	// as done. Jobs with nothing missing produce no row and no e-mail.
+	// neither completed nor dispensed (NULL is pending), the same two states the
+	// screen shows as done. Jobs with nothing missing produce no row and no e-mail.
 	today := forecastEasternDay(now)
 	rows, err := cfg.DB.Query(ctx, fmt.Sprintf(`
 		SELECT c.id,
@@ -133,7 +133,7 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		       ARRAY(
 		           SELECT d.document FROM unnest($5::text[]) AS d(document)
 		           WHERE NOT EXISTS (
-		               SELECT 1 FROM forecast_fieldwire f
+		               SELECT 1 FROM forecast_builderlog f
 		               WHERE f.project_id = c.id
 		                 AND lower(trim(f.document)) = lower(trim(d.document))
 		                 AND lower(COALESCE(f.status, '')) IN ('completed', 'dispensed')
@@ -142,7 +142,7 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		       ARRAY(
 		           SELECT d.document FROM unnest($5::text[]) AS d(document)
 		           WHERE EXISTS (
-		               SELECT 1 FROM forecast_fieldwire f
+		               SELECT 1 FROM forecast_builderlog f
 		               WHERE f.project_id = c.id
 		                 AND lower(trim(f.document)) = lower(trim(d.document))
 		                 AND lower(COALESCE(f.status, '')) = 'completed'
@@ -151,17 +151,17 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		       ARRAY(
 		           SELECT d.document FROM unnest($5::text[]) AS d(document)
 		           WHERE EXISTS (
-		               SELECT 1 FROM forecast_fieldwire f
+		               SELECT 1 FROM forecast_builderlog f
 		               WHERE f.project_id = c.id
 		                 AND lower(trim(f.document)) = lower(trim(d.document))
 		                 AND lower(COALESCE(f.status, '')) = 'dispensed'
 		           )
 		       ) AS dispensed
 		FROM forecast_core c
-		-- Fieldwire é da Framing. Desde que a obra da HVAC virou linha própria
-		-- em forecast_core, ela entrava aqui sem nenhum registro em
-		-- forecast_fieldwire — e obra sem registro tem todo documento faltando,
-		-- então o alerta disparava para uma empresa que não usa Fieldwire.
+		-- Os documentos são da Framing (BuilderLog desde 17/11/2026, quando o
+		-- Fieldwire foi descontinuado). Obra da HVAC não tem linha de documento,
+		-- e obra sem registro tem todo documento faltando: sem este filtro o
+		-- alerta disparava para uma empresa que não acompanha esses documentos.
 		WHERE lower(trim(c.company)) = 'framing'
 		  AND lower(trim(c.cliente)) = ANY($2::text[])
 		  AND c.%[1]s IS NOT NULL
@@ -171,7 +171,7 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 		ORDER BY c.%[1]s, c.id
 	`, dateField), today, lowerClients, offsetMonths, offsetDays, documents)
 	if err != nil {
-		return fmt.Errorf("fetch Fieldwire missing-document alerts: %w", err)
+		return fmt.Errorf("fetch BuilderLog missing-document alerts: %w", err)
 	}
 	defer rows.Close()
 
@@ -234,7 +234,7 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 			checklist = append(checklist, service.ChecklistItem{Name: document})
 		}
 
-		body := service.BuildFieldwireMissingEmail(service.FieldwireMissingProject{
+		body := service.BuildBuilderLogMissingEmail(service.BuilderLogMissingProject{
 			JobSite:        project.JobSite,
 			Unit:           project.Unit,
 			Address:        project.Address,
@@ -252,11 +252,11 @@ func runForecastAlerts(ctx context.Context, cfg ForecastAlertsConfig, now time.T
 				TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
 				Context: project.Unit, Status: "failed", Error: err.Error(),
 			})
-			return fmt.Errorf("send Fieldwire missing-document alert for %s: %w", project.ID, err)
+			return fmt.Errorf("send BuilderLog missing-document alert for %s: %w", project.ID, err)
 		}
 		cfg.Triggers.LogDelivery(ctx, service.TriggerDelivery{
 			TriggerKey: service.TriggerForecastPlotPlan, Subject: body.Subject, To: to, CC: cc,
-			Context: fmt.Sprintf("%s — %d missing", project.Unit, len(project.Missing)),
+			Context: fmt.Sprintf("%s: %d missing", project.Unit, len(project.Missing)),
 		})
 		if _, err := cfg.DB.Exec(ctx, `
 			INSERT INTO forecast_email_deliveries (project_id, alert_type, target_date, delivery_id)

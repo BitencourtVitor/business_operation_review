@@ -1,0 +1,2 @@
+ALTER TABLE catalog_forecast_builderlog DROP CONSTRAINT IF EXISTS catalog_forecast_builderlog_build_type_chk;
+ALTER TABLE catalog_forecast_builderlog DROP COLUMN IF EXISTS created_at;
