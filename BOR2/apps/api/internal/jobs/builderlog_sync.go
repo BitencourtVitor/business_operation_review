@@ -32,11 +32,15 @@ const onBuilderLog = "On BuilderLog"
 
 var builderLogUnitWords = regexp.MustCompile(`\b(lot|building|bld)\b`)
 var builderLogSpaces = regexp.MustCompile(`\s+`)
+var builderLogLeadingZeros = regexp.MustCompile(`\b0+(\d)`)
 
 // builderLogKey casa a obra do Forecast (job_site + lote_bld) com a do
 // BuilderLog (community + number): "Lot 12", "Building 12" e "12" são a mesma.
+// O BuilderLog escreve o lote de casa com três dígitos ("007"): o zero à
+// esquerda não conta.
 func builderLogKey(site, unit string) string {
 	u := builderLogUnitWords.ReplaceAllString(strings.ToLower(unit), "")
+	u = builderLogLeadingZeros.ReplaceAllString(u, "$1")
 	s := strings.ToLower(site)
 	return builderLogSpaces.ReplaceAllString(strings.TrimSpace(s), " ") + "|" + builderLogSpaces.ReplaceAllString(strings.TrimSpace(u), " ")
 }
