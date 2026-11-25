@@ -9,22 +9,22 @@ import {
 } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import { DocChecklist } from "@/components/features/data-control/project-card"
 import {
-  useForecastDateHistory, useSetHVACActual, useSetHVACPurchase, useTogglePermit,
+  useForecastDateHistory, useSetHVACActual, useSetHVACPurchase,
   useUpdateForecast, useUpdateHVACStages,
 } from "@/hooks/use-forecast"
 import {
   alertOf, businessDaysBefore, FIELDS, formatDate, STAGE_DB_NAME, STAGES, startOfToday, toISO,
   type DateAlert, type ProjectStages, type StageKey,
 } from "../_lib/stages"
+import { PermitLink } from "./permit-link"
 import { Tip } from "./tip"
 
 // Tudo o que se altera numa obra da HVAC, numa janela só: as datas das quatro
-// etapas (planejado, realizado e compra), o QuickBooks Time e o Permit.
+// etapas (planejado, realizado e compra), o QuickBooks Time e o vínculo com o
+// Permit Control.
 //
-// As datas só são gravadas no Save. QuickBooks Time e Permit gravam na hora,
-// como no Data Control.
+// As datas só são gravadas no Save. QuickBooks Time e o vínculo gravam na hora.
 
 type Draft = {
   start: Date | null
@@ -64,7 +64,6 @@ export function ProjectSettingsDialog({
   const saveActual = useSetHVACActual()
   const savePurchase = useSetHVACPurchase()
   const update = useUpdateForecast()
-  const permit = useTogglePermit()
   const saving = savePlanned.isPending || saveActual.isPending || savePurchase.isPending
 
   const set = (key: StageKey, field: keyof Draft, value: Date | null) =>
@@ -219,13 +218,7 @@ export function ProjectSettingsDialog({
             </div>
 
             <div className="rounded-lg border p-3">
-              <DocChecklist
-                title="Permit"
-                wide
-                docs={(p.permit ?? []).map(s => ({ id: s.id, status: s.status, document: s.step }))}
-                pendingId={permit.isPending ? permit.variables?.permitId : undefined}
-                onToggle={(permitId, status) => permit.mutate({ permitId, status })}
-              />
+              <PermitLink project={p} />
             </div>
           </div>
         </div>

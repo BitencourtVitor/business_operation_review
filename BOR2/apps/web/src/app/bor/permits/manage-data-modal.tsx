@@ -24,7 +24,7 @@ import { ThemeToggle } from '@/components/common/theme-toggle'
 import {
   AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, CalendarIcon,
   CheckCircle2, Edit2, FileText, Loader2,
-  Plus, RefreshCw, Search, Trash2, X,
+  Plus, Search, Trash2, X,
 } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -265,7 +265,6 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient()
   const { data: permits = [], isLoading } = usePermits()
   const { user } = useAuth()
-  const isDev = (user?.role as string) === 'dev'
 
   const [search,      setSearch]      = useState('')
   const [hideIssued,  setHideIssued]  = useState(false)
@@ -277,7 +276,6 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const [addingRow,   setAddingRow]   = useState(false)
   const [newDraft,    setNewDraft]    = useState<Draft>(EMPTY_DRAFT)
   const [saving,      setSaving]      = useState(false)
-  const [syncing,     setSyncing]     = useState(false)
   const [notice,      setNotice]      = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null)
 
   // ── Persist hide-issued preference per user ───────────────────────────────
@@ -385,16 +383,6 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
     finally { setSaving(false) }
   }
 
-  async function handleSync() {
-    setSyncing(true); setNotice(null)
-    try {
-      const res = await permitService.syncFromSheet()
-      await invalidate()
-      setNotice({ kind: 'ok', msg: `Sync complete — ${res.total} records processed, ${res.inserted} inserted.` })
-    } catch { setNotice({ kind: 'err', msg: 'Sync failed. Check your connection and try again.' }) }
-    finally { setSyncing(false) }
-  }
-
   // ── Render ───────────────────────────────────────────────────────────────────
   return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -414,7 +402,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Right — search → Add Work → Hide Issued → Theme → Sync Sheet */}
+        {/* Right — search → Add Work → Hide Issued → Theme */}
         <div className="flex flex-1 items-center justify-end gap-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -453,17 +441,6 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
           <ThemeToggle />
 
-          {isDev && (
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              title="Replace all records from the Google Sheet (dev only)"
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-            >
-              {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-              sync-sheet
-            </button>
-          )}
         </div>
       </div>
 

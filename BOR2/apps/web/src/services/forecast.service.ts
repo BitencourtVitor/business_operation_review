@@ -79,8 +79,6 @@ export const forecastService = {
   toggleBuilderLog: (id: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/builderlog/${id}`, { status }, getToken()),
 
-  togglePermit: (permitId: number, status: string) =>
-    api.patch<{ ok: boolean }>(`/api/v1/forecast/permit/${permitId}`, { status }, getToken()),
 
   toggleMachine: (machId: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}`, { status }, getToken()),

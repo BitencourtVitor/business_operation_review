@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -72,20 +74,27 @@ func (h *PermitRowHandler) Delete(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-func (h *PermitRowHandler) SyncFromSheet(c *fiber.Ctx) error {
-	total, inserted, err := h.svc.SyncFromSheet(c.Context())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-			"code":  "SYNC_FAILED",
-		})
+// Link vincula a obra do HVAC Schedule a uma linha do Permit Control; permitId
+// vazio desvincula.
+func (h *PermitRowHandler) Link(c *fiber.Ctx) error {
+	var body struct {
+		PermitID *string `json:"permitId"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if body.PermitID != nil && *body.PermitID == "" {
+		body.PermitID = nil
+	}
+	switch err := h.svc.LinkProject(c.Context(), c.Params("projectId"), body.PermitID); {
+	case errors.Is(err, domain.ErrConflict):
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "permit already linked to another project", "code": "CONFLICT"})
+	case errors.Is(err, domain.ErrNotFound):
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "permit not found", "code": "NOT_FOUND"})
+	case err != nil:
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	uid, uname := actor(c)
-	h.audit.Log(c.Context(), uid, uname, "sync_sheet", "permit_control", "")
-	return c.JSON(fiber.Map{
-		"data": fiber.Map{
-			"total":    total,
-			"inserted": inserted,
-		},
-	})
+	h.audit.Log(c.Context(), uid, uname, "link", "permit_control", c.Params("projectId"))
+	return c.JSON(fiber.Map{"ok": true})
 }

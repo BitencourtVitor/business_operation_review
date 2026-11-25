@@ -15,7 +15,6 @@ import { useSidebar } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useFinancialStore } from "@/store/financial.store"
-import { permitService } from "@/services/permit.service"
 import { periodReportService } from "@/services/qbtime-period-report.service"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
@@ -108,9 +107,6 @@ export function Header() {
   async function handleRefresh() {
     setRefreshing(true)
     try {
-      if (pathname === "/bor/permits") {
-        await permitService.syncFromSheet()
-      }
       if (pathname === "/bor/qbtime/period-reports") {
         await periodReportService.sync(14)
       }
