@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { usePermission } from "@/hooks/use-permission"
 import {
-  type BuildingForecast, workforceInsightsService, type BuildingView, type PeriodCapacity, type EmployeeHours, type Granularity, type SiteOption, type InsightsPeriod, type ObraHours,
+  type BuildingForecast, workforceInsightsService, type BuildingView, type InsightsSettings, type PeriodCapacity, type EmployeeHours, type Granularity, type SiteOption, type InsightsPeriod, type ObraHours,
 } from "@/services/workforce-insights.service"
 import { WorkforceSettingsDialog } from "./_components/settings-dialog"
 
@@ -544,14 +544,27 @@ function BudgetPace({ f }: { f: BuildingForecast }) {
 function BudgetWorktypes({ building }: { building: BuildingView }) {
   const qc = useQueryClient()
   const { data } = useQuery({ queryKey: ["workforce-insights", "settings"], queryFn: workforceInsightsService.settings })
+  const settingsKey = ["workforce-insights", "settings"]
   const save = useMutation({
+    mutationKey: ["budget-worktypes"],
     // Grava só no vínculo deste prédio (WF-39); os outros prédios não mudam.
-    mutationFn: (ignored: string[]) => workforceInsightsService.saveSettings({
+    // Fila única: cliques rápidos gravam na ordem, o último vence.
+    scope: { id: "budget-worktypes" },
+    mutationFn: (settings: InsightsSettings) => workforceInsightsService.saveSettings(settings),
+    // O checkbox vira na hora; o gráfico só recarrega depois do último clique, senão cada
+    // marcação esperava a página inteira recalcular.
+    onSettled: () => {
+      if (qc.isMutating({ mutationKey: ["budget-worktypes"] }) === 1) qc.invalidateQueries({ queryKey: ["workforce-insights"] })
+    },
+  })
+  const toggle = (ignored: string[]) => {
+    const settings = {
       ...data!.settings,
       links: data!.settings.links.map(l => l.forecastId === building.building.id ? { ...l, ignoredWorktypes: ignored } : l),
-    }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workforce-insights"] }),
-  })
+    }
+    qc.setQueryData(settingsKey, { ...data!, settings })
+    save.mutate(settings)
+  }
   if (!data) return null
   const link = data.settings.links.find(l => l.forecastId === building.building.id)
   const ignored = link?.ignoredWorktypes ?? data.settings.ignoredWorktypes
@@ -569,8 +582,8 @@ function BudgetWorktypes({ building }: { building: BuildingView }) {
         <div className={`grid gap-0.5 ${all.length > 8 ? "max-h-64 overflow-y-auto" : ""}`}>
           {all.map(w => (
             <label key={w} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-muted">
-              <Checkbox checked={!off.has(w.toLowerCase())} disabled={save.isPending}
-                onCheckedChange={on => save.mutate(on ? ignored.filter(x => x.toLowerCase() !== w.toLowerCase()) : [...ignored, w])} />
+              <Checkbox checked={!off.has(w.toLowerCase())}
+                onCheckedChange={on => toggle(on ? ignored.filter(x => x.toLowerCase() !== w.toLowerCase()) : [...ignored, w])} />
               {w}
             </label>
           ))}

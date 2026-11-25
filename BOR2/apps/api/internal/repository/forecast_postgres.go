@@ -22,7 +22,6 @@ type ForecastRepository interface {
 	Delete(ctx context.Context, id string) error
 	UpdateFieldwireStatus(ctx context.Context, fwID int64, status string) error
 	UpdateBuilderLogStatus(ctx context.Context, id int64, status string) error
-	UpdatePermitStatus(ctx context.Context, permitID int64, status string) error
 	UpdateMachineStatus(ctx context.Context, machID int64, status string) error
 	UpdateMachineUnit(ctx context.Context, machID int64, unit string) error
 	UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error
@@ -371,19 +370,6 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 	}
 
 	return nil
-}
-
-func (r *PostgresForecastRepository) UpdatePermitStatus(ctx context.Context, permitID int64, status string) error {
-	var value *string
-	if status != "" {
-		value = &status
-	}
-	return dbactor.Do(ctx, r.db, func(tx pgx.Tx) error {
-		_, err := tx.Exec(ctx,
-			"UPDATE forecast_permit SET status=$1, updated_at=NOW() WHERE id=$2",
-			value, permitID)
-		return err
-	})
 }
 
 func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) error {

@@ -110,7 +110,7 @@ As rotas abaixo são relativas a `/bor` — `/forecast` significa `/bor/forecast
 
 **Operações**
 - `/inventory` — Aderência de estoque mensal/anual. KPIs (service level, excesso de unidades, impacto financeiro), gráfico de tendência com threshold de segurança, violações por projeto.
-- `/permits` — Situação de alvarás. Campo de data dinâmico (solicitação/aplicação/emissão), gráfico de área, filtros ano/mês/situação/cliente/jobsite, painel de insights.
+- `/permits` (Permit Control): situação de alvarás, editada só aqui (a planilha do Google foi aposentada em 23/11/2026). É a fonte do Permit das obras da HVAC: a obra do HVAC Schedule se vincula a uma linha (`permit_control.project_id`, única) e o trigger `permit_control_sync_steps` marca as etapas (Request = Manual J, Application = Application Submitted, Issue = Permit Approved). Campo de data dinâmico, gráfico de área, filtros ano/mês/situação/cliente/jobsite, painel de insights.
 - `/service-requests` — Rastreamento de serviços/garantia. Métricas (espera material, espera residente, visitas adicionais, tempo de resolução), gráfico, carrossel de cards individuais.
 - `/subcontractors` — Scoring de subcontratados (Works, Execution, Contract) com ano/mês. Tabela de ranking com badges coloridos (≥80 verde, ≥60 âmbar, <60 vermelho).
 - `/monthly-execution` — Kanban de projetos (Planned / Started / Finished) com filtro ano/mês. Cards de projeto com KPIs; lógica de overlap de datas.

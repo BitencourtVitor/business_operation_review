@@ -59,10 +59,6 @@ func (s *ForecastService) ToggleBuilderLog(ctx context.Context, id int64, status
 	return s.repo.UpdateBuilderLogStatus(ctx, id, status)
 }
 
-func (s *ForecastService) TogglePermit(ctx context.Context, permitID int64, status string) error {
-	return s.repo.UpdatePermitStatus(ctx, permitID, status)
-}
-
 func (s *ForecastService) ToggleMachine(ctx context.Context, machID int64, status string) error {
 	return s.repo.UpdateMachineStatus(ctx, machID, status)
 }

@@ -14,6 +14,8 @@ type PermitRow struct {
 	Emissao     *time.Time `json:"emissao,omitempty"`
 	Observacao  string     `json:"observacao"`
 	Arquivo     string     `json:"arquivo"`
+	// Obra do HVAC Schedule vinculada; só muda pelo endpoint de vínculo.
+	ProjectID   *string    `json:"projectId"`
 	CreatedAt   time.Time  `json:"createdAt"`
 }
 

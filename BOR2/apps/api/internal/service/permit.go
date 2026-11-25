@@ -2,10 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/csv"
-	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"time"
 
@@ -14,9 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const permitSheetURL = "https://docs.google.com/spreadsheets/d/1Em_Wyj8EiBeo56zGrShKEP9yFCMDVmkR-_EoiNXI3YA/export?format=csv&gid=1016235500"
-
-// parseDateUS parses M/D/YYYY or MM/DD/YYYY dates from the spreadsheet.
+// parseDateUS parses M/D/YYYY or MM/DD/YYYY dates (service requests sheet).
 func parseDateUS(s string) *time.Time {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -75,85 +69,6 @@ func (s *PermitRowService) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }
 
-// SyncFromSheet fetches the Google Sheets CSV, parses and deduplicates rows,
-// then atomically replaces all permit_control records.
-// Returns (totalFromSheet, insertedCount, error).
-func (s *PermitRowService) SyncFromSheet(ctx context.Context) (int, int, error) {
-	resp, err := http.Get(permitSheetURL)
-	if err != nil {
-		return 0, 0, fmt.Errorf("fetch sheet: %w", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return 0, 0, fmt.Errorf("sheet returned status %d", resp.StatusCode)
-	}
-
-	reader := csv.NewReader(resp.Body)
-	reader.LazyQuotes = true
-	reader.TrimLeadingSpace = true
-
-	headers, err := reader.Read()
-	if err != nil {
-		return 0, 0, fmt.Errorf("read csv header: %w", err)
-	}
-
-	// Build header → column-index map (normalised to UPPER, trimmed)
-	colIdx := make(map[string]int, len(headers))
-	for i, h := range headers {
-		colIdx[strings.TrimSpace(strings.ToUpper(h))] = i
-	}
-
-	col := func(row []string, key string) string {
-		i, ok := colIdx[key]
-		if !ok || i >= len(row) {
-			return ""
-		}
-		return strings.TrimSpace(row[i])
-	}
-
-	seen := make(map[string]bool)
-	var records []*domain.PermitRow
-	now := time.Now()
-
-	for {
-		row, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			continue // skip malformed rows
-		}
-
-		model      := col(row, "MODEL")
-		jobsite    := col(row, "JOBSITE")
-		lotAddress := col(row, "LOT/ADDRESS")
-
-		if model == "" && jobsite == "" && lotAddress == "" {
-			continue // empty row
-		}
-
-		key := model + "|" + jobsite + "|" + lotAddress
-		if seen[key] {
-			continue // deduplicate
-		}
-		seen[key] = true
-
-		records = append(records, &domain.PermitRow{
-			ID:          uuid.NewString(),
-			Client:      model,
-			Jobsite:     jobsite,
-			LotAddress:  lotAddress,
-			Situacao:    col(row, "SITUACAO"),
-			Solicitacao: parseDateUS(col(row, "SOLICITACAO")),
-			Aplicacao:   parseDateUS(col(row, "APLICACAO")),
-			Emissao:     parseDateUS(col(row, "EMISSAO")),
-			Observacao:  col(row, "OBSERVACAO"),
-			Arquivo:     col(row, "ARQUIVO"),
-			CreatedAt:   now,
-		})
-	}
-
-	total := len(records)
-	inserted, err := s.repo.ReplaceAll(ctx, records)
-	return total, inserted, err
+func (s *PermitRowService) LinkProject(ctx context.Context, projectID string, permitID *string) error {
+	return s.repo.LinkProject(ctx, projectID, permitID)
 }
